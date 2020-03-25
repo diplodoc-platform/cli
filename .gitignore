@@ -1,0 +1,14 @@
+build
+output
+
+# libraries
+npm-debug.log
+node_modules
+
+# editor
+.vscode
+.idea
+
+.env
+.tvm.json
+.DS_Store

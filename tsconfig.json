@@ -1,0 +1,18 @@
+{
+  "extends": "@yandex-data-ui/tsconfig/tsconfig",
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "declaration": true,
+    "outDir": "build",
+    "jsx": "react"
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "types": [
+    "node"
+  ]
+}
