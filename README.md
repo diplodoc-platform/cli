@@ -1,4 +1,4 @@
-# yfm-poc
+# yfm-docs
 
 ## Dependencies
 - node >= **10**
@@ -11,5 +11,5 @@ npm i . -g
 
 ## Run
 ```bash
-yfm-poc --help
+yfm-docs --help
 ```

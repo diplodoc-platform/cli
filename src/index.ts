@@ -1,34 +1,25 @@
-import yargs from 'yargs';
+import * as yargs from 'yargs';
 import {writeFileSync} from 'fs';
 import {resolve} from 'path';
 
 import {generateStaticMarkup} from './app';
 
-yargs
-    .command('generate [value] [output]', 'generate static html based on passed value', (yargs) => {
-        yargs
-            .positional('value', {
-                describe: 'some value to pass in HTML',
-                default: null
-            })
-            .positional('output', {
-                describe: 'output path for generate html file',
-                default: './'
-            })
-    }, (argv) => {
-        if (argv.verbose) {
-            console.info(`start server on :${argv.port}`);
-        }
-
-        const html = generateStaticMarkup(String(argv.value));
-        const path = argv.output ? String(argv.output) : './';
-        const pathToFile = resolve(path, 'index.html');
-
-        writeFileSync(pathToFile, html);
-    })
-    .option('verbose', {
+const argv = yargs
+    .option('value', {
         alias: 'v',
-        type: 'boolean',
-        description: 'Run with verbose logging'
+        describe: 'Value that will be passed',
     })
+    .option('output', {
+        alias: 'o',
+        describe: 'Path to output folder'
+    })
+    .example(`yfm-docs --value=test --output=./output-dir`, '')
+    .demandOption(['value', 'output'], 'Please provide value and output arguments to work with this tool')
+    .help()
     .argv;
+
+const html = generateStaticMarkup(String(argv.value));
+const path = argv.output ? String(argv.output) : './';
+const pathToFile = resolve(path, 'index.html');
+
+writeFileSync(pathToFile, html);

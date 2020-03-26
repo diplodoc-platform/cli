@@ -5,7 +5,7 @@ module.exports = {
     mode: 'production',
     entry: './src/index.ts',
     output: {
-        library: 'yfm-poc',
+        library: 'yfm-docs',
         path: path.resolve(__dirname, 'build'),
         filename: 'index.js',
         libraryTarget: 'umd',
