@@ -1,0 +1,47 @@
+@import '~@yandex-data-ui/common/styles/yc-theme-light.scss';
+@import '~@yandex-data-ui/common/styles/yc-theme-dark.scss';
+
+.yc-root {
+    // cross-browser transparent color
+    --transparent: rgba(255, 255, 255, 0);
+
+    &_theme_light {
+        @include yc-theme-light;
+        // todo move into common
+        --yc-color-contrast-8: rgba(0, 0, 0, 0.08);
+        --yc-color-contrast-12: rgba(0, 0, 0, 0.12);
+        --yc-color-contrast-30: rgba(0, 0, 0, 0.3);
+
+        --yc-color-reverse-contrast-12: rgba(255, 255, 255, 0.12);
+        --yc-color-reverse-contrast-20: rgba(255, 255, 255, 0.2);
+        --yc-color-reverse-contrast-30: rgba(255, 255, 255, 0.3);
+
+        --yc-color-azure-5: rgba(2, 123, 243, 0.05);
+        --yc-color-azure-50: rgba(2, 123, 243, 0.5);
+
+        --menu-active-item-color: var(--yc-color-link);
+
+        --text-header-color: var(--yc-color-text-primary);
+        --text-content-color: var(--yc-color-text-complementary);
+        --text-secondary-color: var(--yc-color-text-secondary);
+
+        --color-link-decoration: var(--yc-color-contrast-30);
+
+        --color-scarlet-60: rgba(255, 2, 0, 0.6);
+        --color-azure-60: rgba(2, 123, 243, 0.6);
+        --color-apple-60: rgba(60, 200, 54, 0.6);
+        --color-saffron-60: rgba(61, 199, 54, 0.6);
+
+    }
+
+    &_theme_dark {
+        @include yc-theme-dark;
+        // todo move into common
+        --yc-color-reverse-contrast-20: rgba(0, 0, 0, 0.2);
+        --yc-color-reverse-contrast-30: rgba(0, 0, 0, 0.3);
+
+        --text-header-color: var(--yc-color-text-primary);
+        --text-content-color: var(--yc-color-text-complementary);
+        --text-secondary-color: var(--yc-color-text-secondary);
+    }
+}

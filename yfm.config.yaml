@@ -1,0 +1,23 @@
+# Target audience of doc <internal|external>
+audience: internal
+
+# Options of yfm-transform
+options:
+  allowHTML: true
+
+# List of YFM plugins
+# plugins:
+#  - alerts
+#  - anchors
+#  - code
+#  - cut
+#  - images
+#  - include-code
+#  - includes
+#  - links
+#  - tabs
+
+ignore:
+  - "**/*.openapi3.yaml"
+  - markdown-and-extensions.md
+  - ru/_templates/index.yaml

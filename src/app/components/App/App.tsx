@@ -1,17 +1,19 @@
 import React, {ReactElement} from 'react';
-import withStyles from 'isomorphic-style-loader/withStyles';
 
-import Header from '../Header/Header';
-
-import styles from './App.scss';
+import DocLeadingPage from 'components/DocLeadingPage/DocLeadingPage';
+import DocPage from 'components/DocPage/DocPage';
+import {provideStyles} from 'providers/style.provider';
 
 export function App(props: any): ReactElement {
+    const {isLeading} = props;
     return (
         <div className="App">
-            <Header />
-            <div>Test app with value {props.value}</div>
+            {isLeading
+                ? <DocLeadingPage {...props} />
+                : <DocPage {...props}/>
+            }
         </div>
-    )
+    );
 }
 
-export default withStyles(styles)(App);
+export default provideStyles(App);

@@ -1,18 +1,24 @@
 {
   "extends": "@yandex-data-ui/tsconfig/tsconfig",
   "compilerOptions": {
+    "target": "ES2020",
     "moduleResolution": "node",
     "declaration": true,
     "outDir": "build",
-    "jsx": "react"
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["./src/app/*"]
+    }
   },
   "include": [
-    "src/**/*.ts"
+    "src",
+    "node_modules/@yandex-data-ui/common/build/typings"
   ],
   "exclude": [
     "node_modules"
   ],
   "types": [
     "node"
-  ]
+  ],
 }

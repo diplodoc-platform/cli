@@ -1,0 +1,54 @@
+@import 'mixins';
+@import 'variables';
+
+.DocLayout {
+    display: flex;
+    height: 100%;
+
+    &__left {
+        flex: 0 0 auto;
+        width: 300px;
+    }
+
+    &__center {
+        flex: 1 1 auto;
+        max-width: 800px;
+        overflow: hidden;
+    }
+
+    &__right {
+        flex: 0 0 auto;
+    }
+
+    &__toc {
+        position: fixed;
+        z-index: 90;
+        top: $headerHeight;
+        width: 300px;
+        background-color: var(--yc-color-base-area);
+        @include text-size(body2);
+    }
+
+    .mobile & {
+        flex-direction: column-reverse;
+
+        &__right {
+            display: none;
+        }
+
+        &__left {
+            width: auto;
+        }
+
+        &__toc {
+            position: static;
+            width: auto;
+            height: auto;
+
+            .Toc {
+                /* stylelint-disable-next-line declaration-no-important */
+                height: 100% !important;
+            }
+        }
+    }
+}

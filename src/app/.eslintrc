@@ -1,0 +1,14 @@
+{
+    "extends": "data-ui/client",
+    "settings": {
+        "react": {
+            "version": "16.0"
+        }
+    },
+    "plugins": [
+        "react-hooks"
+    ],
+    "rules": {
+        "react/jsx-no-target-blank": 1
+    }
+}

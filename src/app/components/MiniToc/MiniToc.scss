@@ -1,0 +1,42 @@
+@import 'variables';
+@import 'mixins';
+
+.MiniToc {
+    $class: &;
+
+    &__sections {
+        @include reset-list-style();
+    }
+
+    &__section {
+        display: block;
+
+        &-link {
+            display: block;
+            padding-left: 12px;
+
+            color: var(--www-text-content-color);
+            border-left: 2px solid transparent;
+            text-decoration: none;
+
+            &:hover {
+                color: var(--yc-color-link-hover);
+            }
+        }
+
+        &_child {
+            #{$class}__section-link {
+                padding-left: 25px;
+            }
+        }
+
+        &_active > #{$class}__section-link {
+            color: var(--yc-color-link);
+            border-left-color: var(--yc-color-link);
+        }
+
+        & + & {
+            margin-top: 16px;
+        }
+    }
+}
