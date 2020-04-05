@@ -1,13 +1,22 @@
+import '@yandex-data-ui/common/styles/styles.scss';
+import 'styles/default.scss'
+import 'styles/typography.scss';
+import 'styles/themes.scss';
+import 'styles/yfm.scss';
+
 import React, {ReactElement} from 'react';
 
 import DocLeadingPage from 'components/DocLeadingPage/DocLeadingPage';
 import DocPage from 'components/DocPage/DocPage';
-import {provideStyles} from 'providers/style.provider';
+
+import 'interceptors/leading-page-links';
+import './App.scss';
 
 export function App(props: any): ReactElement {
     const {isLeading} = props;
     return (
-        <div className="App">
+        // TODO(vladimirfedin): Replace Layout__content class.
+        <div className="App Layout__content">
             {isLeading
                 ? <DocLeadingPage {...props} />
                 : <DocPage {...props}/>
@@ -16,4 +25,4 @@ export function App(props: any): ReactElement {
     );
 }
 
-export default provideStyles(App);
+export default App;

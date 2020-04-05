@@ -1,4 +1,4 @@
-import {ReactElement} from 'react';
+/*import {ReactElement} from 'react';
 import withStyles from 'isomorphic-style-loader/withStyles';
 
 import CommonStyles from '@yandex-data-ui/common/styles/styles.scss';
@@ -34,3 +34,4 @@ export function provideStyles(component: (props: any) => ReactElement) {
         TocStyles,
     )(component);
 }
+*/

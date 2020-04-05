@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs';
-import {relative, dirname, basename, extname, format, join} from 'path';
+import {relative, dirname, basename, extname, format, join, resolve} from 'path';
 import yaml from 'js-yaml';
 import yfmTransform from 'yfm-transform';
 
@@ -7,27 +7,32 @@ import {PresetService, ArgvService} from './services';
 
 export interface FileTransformOptions {
     path: string;
-    root: string;
+    root?: string;
 }
 
 export const FileTransformer: Record<string, Function> = {
     '.yaml': function({path}: FileTransformOptions): Object {
-        const content: string = readFileSync(path, 'utf8');
+        const {input} = ArgvService.getConfig();
+        const content: string = readFileSync(resolve(input, path), 'utf8');
         return {
             data: yaml.safeLoad(content)
         };
     },
-    '.md': function({path, root}: FileTransformOptions): any {
-        const content: string = readFileSync(path, 'utf8');
-        const {config: {plugins, options}, output} = ArgvService.argv;
+    '.md': function({path}: FileTransformOptions): any {
+        const {plugins, options, input, output, vars} = ArgvService.getConfig();
+        const resolvedPath: string = resolve(input, path);
+        const content: string = readFileSync(resolvedPath, 'utf8');
 
         return yfmTransform(content, {
             ...options,
-            assetsPublicPath: relative(dirname(path), output),
-            vars: PresetService.getAll(),
+            assetsPublicPath: relative(path, output),
+            vars: {
+                ...PresetService.get(dirname(path)),
+                ...vars,
+            },
+            root: resolve(input),
+            path: resolvedPath,
             plugins,
-            path,
-            root,
         });
     }
 };
@@ -65,4 +70,28 @@ export function transformToc(toc: any, pathToFileDirectory: string): any {
     }
 
     return localToc;
+}
+
+export function generateStaticMarkup(props: any, pathToBundle: string) {
+    return `
+        <!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="utf-8">
+                <title>${props.toc.title}</title>
+                <style type="text/css">
+                    body {
+                        height: 100vh;
+                    }
+                </style>
+            </head>
+            <body class="yc-root yc-root_theme_light">
+                <div id="root"></div>
+                <script type="application/javascript">
+                   window.__DATA__ = ${JSON.stringify(props)};
+                </script>
+                <script type="application/javascript" src="${pathToBundle}/app.js"></script>
+            </body>
+        </html>
+    `;
 }

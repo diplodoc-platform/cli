@@ -1,9 +1,8 @@
 import React from 'react';
 import block from 'bem-cn-lite';
 import {StageLabel} from '@yandex-data-ui/cloud-components';
-import withStyles from 'isomorphic-style-loader/withStyles';
 
-import styles from './DocPageTitle.scss';
+import './DocPageTitle.scss';
 
 const b = block('DocPageTitle');
 
@@ -22,4 +21,4 @@ export class DocPageTitle extends React.Component {
     }
 }
 
-export default withStyles(styles)(DocPageTitle);
+export default DocPageTitle;

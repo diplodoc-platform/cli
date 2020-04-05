@@ -1,5 +1,6 @@
 export default class Router {
-    constructor() {
+    constructor({pathname}) {
+        this.pathname = pathname;
     }
 
     urlIsNew(pathname, query) {}
@@ -10,14 +11,13 @@ export default class Router {
 
     push(url, as = url, options = {}) {}
 
-    replace(url, as = url, options = {});
+    replace(url, as = url, options = {}) {}
 
     changeState(method, url, as, options) {}
 
-    async change(originMethod, url, as, options) {}
+    change(originMethod, url, as, options) {}
 
-    // eslint-disable-next-line complexity
-    async getRouteInfo(route, pathname, query, as) {}
+    getRouteInfo(route, pathname, query, as) {}
 
     set(route, pathname, query, as, data) {}
 

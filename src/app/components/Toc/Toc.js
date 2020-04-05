@@ -1,19 +1,19 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import block from 'bem-cn-lite';
 import {parse} from 'url';
 import {TextInput} from 'lego-on-react';
-import withStyles from 'isomorphic-style-loader/withStyles';
-import {flowRight as compose} from 'lodash';
 
-//TODO(vladimirfedin): Add i18n support
+//import i18n from 'i18n';
 import {HEADER_HEIGHT} from 'constants';
 import withRouter from 'hoc/withRouter';
 
 import ToggleArrow from 'components/ToggleArrow/ToggleArrow';
 import HTML from 'components/HTML/HTML';
 
-import styles from './Toc.scss';
+import './Toc.scss';
 
+//const i18nK = i18n.bind(null, 'docs');
 const b = block('Toc');
 
 function isActiveItem(router, href) {
@@ -21,6 +21,13 @@ function isActiveItem(router, href) {
 }
 
 class Toc extends React.Component {
+    static propTypes = {
+        router: PropTypes.object.isRequired,
+        items: PropTypes.array,
+        title: PropTypes.string,
+        href: PropTypes.string,
+        stage: PropTypes.string,
+    };
 
     constructor(props) {
         super(props);
@@ -254,6 +261,7 @@ class Toc extends React.Component {
                         return null;
                     }
 
+                    // TODO @lunory: проверять детей, когда оторвут href'ы
                     if (href) {
                         content = (
                             <a href={href} className={b('list-item-link')} data-router-shallow>{content}</a>
@@ -308,6 +316,7 @@ class Toc extends React.Component {
                         tone="default"
                         size="n"
                         text={this.state.filterName}
+                        //placeholder={i18nK('label_toc-filter-placeholder')}
                         onChange={this.handleFilterNameChange}
                     />
                 </div>
@@ -321,6 +330,7 @@ class Toc extends React.Component {
         let content;
 
         if (filterName.length !== 0 && filteredItemIds.length === 0) {
+            // TODO @lunory: сделать ссылку на консоль, если надо
             content = this.renderEmpty('');
         } else {
             content = items ? this.renderList(items) : this.renderEmpty('');
@@ -337,7 +347,4 @@ class Toc extends React.Component {
     }
 }
 
-export default compose(
-    withRouter,
-    withStyles(styles)
-)(Toc);
+export default withRouter(Toc);

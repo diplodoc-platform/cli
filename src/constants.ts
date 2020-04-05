@@ -6,3 +6,7 @@ export const SERVICE_FILES_GLOB = [
     '**/_tocs/*.yaml',
     '**/presets.yaml',
 ];
+
+export const BUILD_FOLDER = 'build';
+export const BUNDLE_FOLDER = '_bundle';
+export const BUNDLE_FILENAME = 'app.js';

@@ -2,7 +2,6 @@ import React from 'react';
 import block from 'bem-cn-lite';
 import {Icon} from '@yandex-data-ui/common';
 import 'yfm-transform/dist/js/yfm';
-import withStyles from 'isomorphic-style-loader/withStyles';
 
 //TODO(vladimirfedin): Add support of i18n
 
@@ -14,8 +13,8 @@ import HTML from 'components/HTML/HTML';
 
 import githubIcon from '@yandex-data-ui/common/assets/icons/social/github.svg';
 
-import yfmStyles from 'styles/yfm.scss';
-import styles from './DocPage.scss';
+import 'styles/yfm.scss';
+import './DocPage.scss';
 
 const b = block('DocPage');
 
@@ -177,4 +176,4 @@ export class DocPage extends React.Component {
     }
 }
 
-export default withStyles(yfmStyles, styles)(DocPage);
+export default DocPage;

@@ -1,14 +1,23 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import block from 'bem-cn-lite';
-//import {Icon} from '@yandex-data-ui/common';
 
-//import chevron from '@yandex-data-ui/common/assets/icons/chevron.svg';
+import chevron from '@yandex-data-ui/common/assets/icons/chevron.svg';
 
 import './ToggleArrow.scss';
 
 const b = block('ToggleArrow');
 
-export class ToggleArrow extends React.Component {
+export default class ToggleArrow extends React.Component {
+    static propTypes = {
+        type: PropTypes.oneOf(['horizontal', 'vertical']),
+        open: PropTypes.bool,
+        size: PropTypes.number,
+        thin: PropTypes.bool,
+        slow: PropTypes.bool,
+        className: PropTypes.string,
+    };
+
     static defaultProps = {
         type: 'horizontal',
         open: false,
@@ -17,21 +26,14 @@ export class ToggleArrow extends React.Component {
     };
 
     render() {
-        // TODO(vladimirfedin): Add ToggleArrow icon in navigation
-        //const {type, open, size, thin, slow, className} = this.props;
-
-        /*return (
-            <Icon
-                className={b({type, open, thin, slow}, className)}
-                data={chevron}
-                size={size}
-            />
-        );*/
+        const {type, open, size, thin, slow, className} = this.props;
 
         return (
-            <div></div>
+            <img
+                className={b({type, open, thin, slow}, className)}
+                src={chevron}
+                height={size}
+            />
         );
     }
 }
-
-export default ToggleArrow;
