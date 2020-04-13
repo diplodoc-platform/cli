@@ -3,7 +3,7 @@
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "",
   "license": "UNLICENSED",
-  "version": "0.0.0-alpha.0",
+  "version": "0.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.yandex-team.ru/data-ui/yfm-docs"
