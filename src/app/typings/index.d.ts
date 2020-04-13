@@ -3,7 +3,7 @@ declare module 'isomorphic-style-loader/withStyles' {
         [key: string]: string;
     }
 
-    const withStyles = (style: Styles) => <T extends React.Element<any, any>>(
+    const withStyles = (...style: Styles[]) => <T extends React.Element<any, any>>(
         component: T,
     ): T => T;
 
@@ -44,4 +44,9 @@ declare module '*.svg' {
     const value: ReactComponentElement<any>;
 
     export = value;
+}
+
+declare module '!!raw-loader!*' {
+    const contents: string;
+    export = contents;
 }

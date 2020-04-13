@@ -1,0 +1,33 @@
+.ToggleArrow {
+    transition: transform 0.15s;
+    stroke-width: 2px;
+    $root: &;
+
+    &_type {
+        &_horizontal {
+            transform: rotate(-90deg);
+        }
+
+        &_vertical {
+            transform: rotate(0deg);
+        }
+    }
+
+    &_open {
+        &#{$root}_type_horizontal {
+            transform: rotate(0deg);
+        }
+
+        &#{$root}_type_vertical {
+            transform: rotate(180deg);
+        }
+    }
+
+    &_thin {
+        stroke-width: 1px;
+    }
+
+    &_slow {
+        transition-duration: 0.3s;
+    }
+}

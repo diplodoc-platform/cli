@@ -1,0 +1,139 @@
+@import 'mixins';
+@import 'variables';
+
+$iconSize: 18px;
+$toggleSize: 10px;
+$leftOffset: 57px;
+
+.Toc {
+    $class: &;
+
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - #{$headerHeight});
+    padding-top: 25px;
+    overflow-y: hidden;
+
+    &__empty {
+        padding: 5px 15px 5px 35px;
+    }
+
+    &__top {
+        flex-grow: 0;
+        padding-bottom: 12px;
+
+        &-header {
+            $headerClass: &;
+            position: relative;
+            margin-bottom: 15px;
+            padding: 5px 25px 5px 35px;
+
+            @include heading4();
+
+            &_link {
+                @include reset-link-style();
+                display: block;
+
+                &:hover {
+                    color: inherit;
+                    background-color: var(--yc-color-hover-area);
+                }
+
+                &#{$headerClass}_active {
+                    background-color: var(--yc-color-selection);
+                }
+            }
+        }
+
+        &-filter {
+            padding: 0 32px;
+        }
+
+        &-filter-input {
+            width: 100%;
+        }
+    }
+
+    &__content {
+        position: relative;
+        flex-grow: 1;
+        overflow-y: auto;
+
+        &_scrolled {
+            border-top: 1px solid var(--yc-color-divider);
+        }
+    }
+
+    &__list {
+        @include reset-list-style();
+
+        display: block;
+
+        &-item {
+            cursor: pointer;
+            user-select: none;
+
+            &-link {
+                display: block;
+                text-decoration: none;
+            }
+
+            &-text {
+                position: relative;
+                padding: 8px 15px 8px 35px;
+
+                color: var(--text-content-color);
+
+                &-match {
+                    background-color: var(--yc-color-selection);
+                }
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    right: 0;
+                    // hack: to be shure that it will always start from the left of the TOC
+                    left: -100vw;
+                    height: 100%;
+                }
+
+                &:hover::before {
+                    background-color: var(--yc-color-hover-area);
+                }
+            }
+
+            &-icon {
+                position: absolute;
+                left: 14px;
+                height: var(--yc-text-body2-line-height);
+            }
+
+            &_main > *:first-child {
+                @include heading5();
+                color: var(--text-content-color);
+            }
+
+            &_active &-text {
+                color: var(--yc-color-text-primary);
+
+                &::before {
+                    background-color: var(--yc-color-selection);
+                }
+            }
+
+            &:not(&_opened) > #{$class}__list {
+                display: none;
+            }
+
+            // recurcive padding
+            > #{$class}__list {
+                padding-left: 20px;
+            }
+        }
+    }
+
+    &__content > &__list > &__list-item:last-child {
+        padding-bottom: 30px;
+    }
+}

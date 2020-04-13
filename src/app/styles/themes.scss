@@ -1,0 +1,18 @@
+@import '~@yandex-data-ui/common/styles/yc-theme-light.scss';
+@import '~@yandex-data-ui/common/styles/yc-theme-dark.scss';
+
+.yc-root {
+    &_theme_light {
+        @include yc-theme-light;
+
+        --text-header-color: var(--yc-color-text-primary);
+        --text-content-color: var(--yc-color-text-complementary);
+    }
+
+    &_theme_dark {
+        @include yc-theme-dark;
+
+        --text-header-color: var(--yc-color-text-primary);
+        --text-content-color: var(--yc-color-text-complementary);
+    }
+}

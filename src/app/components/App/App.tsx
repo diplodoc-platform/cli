@@ -1,17 +1,28 @@
+import '@yandex-data-ui/common/styles/styles.scss';
+import 'styles/default.scss'
+import 'styles/typography.scss';
+import 'styles/themes.scss';
+import 'styles/yfm.scss';
+
 import React, {ReactElement} from 'react';
-import withStyles from 'isomorphic-style-loader/withStyles';
 
-import Header from '../Header/Header';
+import DocLeadingPage from 'components/DocLeadingPage/DocLeadingPage';
+import DocPage from 'components/DocPage/DocPage';
 
-import styles from './App.scss';
+import 'interceptors/leading-page-links';
+import './App.scss';
 
 export function App(props: any): ReactElement {
+    const {isLeading} = props;
     return (
-        <div className="App">
-            <Header />
-            <div>Test app with value {props.value}</div>
+        // TODO(vladimirfedin): Replace Layout__content class.
+        <div className="App Layout__content">
+            {isLeading
+                ? <DocLeadingPage {...props} />
+                : <DocPage {...props}/>
+            }
         </div>
-    )
+    );
 }
 
-export default withStyles(styles)(App);
+export default App;

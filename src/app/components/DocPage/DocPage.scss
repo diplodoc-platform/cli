@@ -1,0 +1,87 @@
+@import 'variables';
+@import 'mixins';
+
+.DocPage {
+    position: relative;
+    @include text-size(body2);
+
+    &__aside {
+        position: sticky;
+        top: $headerHeight;
+
+        padding: 30px 20px 20px 0;
+        width: 240px;
+
+        @include text-size(body);
+
+        &-links {
+            @include reset-list-style();
+        }
+
+        &-link {
+            @include link();
+
+            display: flex;
+            align-items: center;
+
+            color: var(--text-content-color);
+
+            &-icon {
+                margin-right: 6px;
+            }
+        }
+
+        &-separator {
+            margin: 20px 0;
+            border-bottom: 1px solid var(--yc-color-divider);
+        }
+    }
+
+    &__main {
+        padding: 30px 40px 0;
+        overflow: hidden;
+    }
+
+    &__body {
+        @include text-size(body2);
+    }
+
+    &__breadcrumbs {
+        margin-bottom: 30px;
+    }
+
+    &__title {
+        margin-bottom: 5px;
+
+        @include text-size(display2);
+    }
+
+    &__content {
+        margin-bottom: 50px;
+    }
+
+    &__content-mini-toc {
+        display: none;
+        margin-bottom: 20px;
+    }
+
+    &__feedback {
+        max-width: 510px;
+        margin: 50px 0 30px;
+        border-top: 1px solid #e7e7e7;
+    }
+
+    .mobile & {
+        &__main {
+            padding: 20px 20px 0;
+        }
+
+        &__breadcrumbs {
+            margin-bottom: 20px;
+        }
+
+        &__content-mini-toc {
+            display: block;
+        }
+    }
+}

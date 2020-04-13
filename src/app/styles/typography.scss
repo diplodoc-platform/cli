@@ -1,0 +1,72 @@
+@import '~@yandex-data-ui/cloud-components/styles/fonts.scss';
+@import 'variables';
+@import 'mixins';
+
+body.yc-root {
+    // TODO move into common
+    --yc-text-body3-font-size: 17px;
+    --yc-text-body3-line-height: 24px;
+
+    --yc-text-display2-font-size: 32px;
+    --yc-text-display2-line-height: 40px;
+
+    --yc-text-disclaimer-font-size: 9px;
+    --yc-text-disclaimer-line-height: 12px;
+
+    --yc-color-text-special-complementary: var(--yc-color-reverse-contrast-85);
+
+    @include text-size(body3);
+
+    color: var(--text-content-color);
+
+    font-feature-settings: 'liga', 'kern';
+    text-size-adjust: 100%;
+    //-webkit-font-smoothing: antialiased;
+    //-moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+}
+
+h1 {
+    @include heading1();
+}
+
+h2 {
+    @include heading2();
+}
+
+h3 {
+    @include heading3();
+}
+
+h4 {
+    @include heading4();
+}
+
+h5 {
+    @include heading5();
+}
+
+h6 {
+    @include heading6();
+}
+
+p, div.p {
+    margin: 0 0 20px;
+
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+
+sub, sup {
+    font-size: 0.75em;
+    line-height: 0;
+}
+
+a {
+    @include link();
+}

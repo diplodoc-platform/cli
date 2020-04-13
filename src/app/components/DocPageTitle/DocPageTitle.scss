@@ -1,0 +1,9 @@
+.DocPageTitle {
+    position: relative;
+
+    &__label {
+        position: absolute;
+        left: 0;
+        top: -11px;
+    }
+}

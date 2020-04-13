@@ -1,0 +1,34 @@
+@import 'variables';
+@import 'mixins';
+
+.Breadcrumbs {
+    &__items {
+        @include reset-list-style();
+    }
+
+    &__item {
+        display: inline;
+
+        &::after {
+            content: '\a0/ ';
+            margin: 0 5px;
+            color: var(--yc-color-text-hint);
+        }
+
+        &:last-child::after {
+            display: none;
+        }
+    }
+
+    &__text {
+        white-space: nowrap;
+
+        &_link {
+            @include link();
+
+            &:hover, &:active {
+                color: var(--yc-color-link-hover);
+            }
+        }
+    }
+}
