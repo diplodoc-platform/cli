@@ -6,6 +6,11 @@
 
 ## Install
 ```bash
+npm i yfm-docs -g --registry=https://npm.yandex-team.ru/
+```
+
+## Install locally
+```bash
 npm i . -g
 ```
 
