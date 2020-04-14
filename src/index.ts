@@ -1,11 +1,11 @@
 import * as yargs from 'yargs';
 import walkSync from 'walk-sync';
-import {extname, resolve, basename, dirname, relative, join} from 'path';
+import {extname, resolve, basename, dirname, join} from 'path';
 import {mkdirSync, existsSync, writeFileSync, copyFileSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
 import {TocService, PresetService, ArgvService} from './services';
-import {FileTransformer, transformToc, generateStaticMarkup} from './utils';
+import {resolveMd2Md, resolveMd2HTML} from './utils';
 import {SERVICE_FILES_GLOB, BUNDLE_FILENAME, BUNDLE_FOLDER} from './constants';
 import {YfmArgv} from './models';
 
@@ -29,6 +29,10 @@ const _yargs = yargs
         alias: 'a',
         default: 'external',
         describe: 'Target audience of documentation <external|internal>'
+    })
+    .option('output-format', {
+        default: 'html',
+        describe: 'Format of output file <html|md>'
     })
     .option('vars', {
         alias: 'v',
@@ -60,6 +64,7 @@ ArgvService.init(_yargs.argv as any as YfmArgv);
 const {
     input: inputFolderPath,
     output: outputFolderPath,
+    outputFormat,
     audience = '',
     ignore = [],
 } = ArgvService.getConfig();
@@ -101,41 +106,43 @@ const pageFilePaths: string[] = walkSync(inputFolderPath, {
 
 for (const pathToFile of pageFilePaths) {
     const pathToDir: string = dirname(pathToFile);
-    const fileName: string = basename(pathToFile);
+    const filename: string = basename(pathToFile);
     const fileExtension: string = extname(pathToFile);
-    const fileBaseName: string = basename(fileName, fileExtension);
+    const fileBaseName: string = basename(filename, fileExtension);
     const outputDir: string = resolve(outputFolderPath, pathToDir);
+
+    const outputFileName = `${fileBaseName}.${outputFormat}`;
+    const outputPath: string = resolve(outputDir, outputFileName);
+
+    let outputFileContent = '';
 
     if (!existsSync(outputDir)) {
         mkdirSync(outputDir, {recursive: true});
     }
 
-    switch (fileExtension) {
-        case '.yaml':
-        case '.md':
-            const outputFileName = `${fileBaseName}.html`;
-            const outputPath: string = resolve(outputDir, outputFileName);
-            const toc: any = TocService.getForPath(pathToFile);
-            const tocBase: string = toc ? toc.base : '';
-            const pathToIndex: string = pathToDir !== tocBase ? pathToDir.replace(tocBase, '..') : '';
+    if (outputFormat === 'md') {
+        if (fileExtension === '.yaml') {
+            copyFileSync(resolve(inputFolderPath, pathToFile), resolve(outputDir, filename));
+            continue;
+        }
 
-            const transformFn: Function = FileTransformer[fileExtension];
-            const data: any = transformFn({
-                path: pathToFile,
-            });
-            const props: any = {
-                isLeading: pathToFile.endsWith('index.yaml'),
-                toc: transformToc(toc, pathToDir) || {},
-                pathname: join(pathToIndex, outputFileName),
-                ...data,
-            };
-            const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
-
-            const html: string = generateStaticMarkup(props, relativePathToBundle);
-
-            writeFileSync(outputPath, html);
-            break;
-        default:
-            copyFileSync(resolve(inputFolderPath, pathToFile), resolve(outputDir, fileName));
+        outputFileContent = resolveMd2Md(pathToFile, outputDir);
     }
+
+    if (outputFormat === 'html') {
+        if (fileExtension !== '.yaml' && fileExtension !== '.md') {
+            copyFileSync(resolve(inputFolderPath, pathToFile), resolve(outputDir, filename));
+            continue;
+        }
+
+        outputFileContent = resolveMd2HTML({
+            inputPath: pathToFile,
+            outputBundlePath,
+            fileExtension,
+            outputPath,
+            filename,
+        });
+    }
+
+    writeFileSync(outputPath, outputFileContent);
 }

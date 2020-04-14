@@ -11,6 +11,7 @@ export interface YfmConfig {
     options: YfmOptions,
     plugins: string[];
     ignore: string[];
+    outputFormat: string;
     vars: Record<string, string>;
 }
 
