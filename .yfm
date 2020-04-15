@@ -21,3 +21,4 @@ ignore:
   - "**/*.openapi3.yaml"
   - markdown-and-extensions.md
   - ru/_templates/index.yaml
+  - .DS_Store

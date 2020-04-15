@@ -6,7 +6,7 @@ import {safeLoad} from 'js-yaml';
 
 import {TocService, PresetService, ArgvService} from './services';
 import {resolveMd2Md, resolveMd2HTML} from './utils';
-import {SERVICE_FILES_GLOB, BUNDLE_FILENAME, BUNDLE_FOLDER} from './constants';
+import {BUNDLE_FILENAME, BUNDLE_FOLDER} from './constants';
 import {YfmArgv} from './models';
 
 const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
@@ -45,7 +45,7 @@ const _yargs = yargs
     })
     .option('ignore', {
         default: [],
-        describe: 'List of globs that should be ignored'
+        describe: 'List of toc and preset files that should be ignored'
     })
     .example(`yfm-docs -i ./input -o ./output`, '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
@@ -80,31 +80,42 @@ copyFileSync(
 const serviceFilePaths: string[] = walkSync(inputFolderPath, {
     directories: false,
     includeBasePath: false,
-    globs: SERVICE_FILES_GLOB,
+    globs: [
+        '**/toc.yaml',
+        '**/presets.yaml',
+    ],
+    ignore: [
+        ...ignore,
+        '**/_tocs/*.yaml',
+        '**/toc-internal.yaml',
+    ],
 });
 
 for (const path of serviceFilePaths) {
     const fileExtension: string = extname(path);
     const fileBaseName: string = basename(path, fileExtension);
 
-    switch (fileBaseName) {
-        case 'toc':
-        case 'toc-internal':
-            TocService.add(path, inputFolderPath);
-            break;
-        case 'presets':
-            PresetService.add(path, audience);
-            break;
+    if (fileBaseName === 'presets') {
+        PresetService.add(path, audience);
+    }
+
+    if (fileBaseName === 'toc') {
+        TocService.add(path, inputFolderPath);
+
+        if (outputFormat === 'md') {
+            /* Should copy toc.yaml files to output dir */
+            const outputDir = resolve(outputFolderPath, dirname(path));
+
+            if (!existsSync(outputDir)) {
+                mkdirSync(outputDir, {recursive: true});
+            }
+
+            writeFileSync(resolve(outputFolderPath, path), TocService.getForPath(path));
+        }
     }
 }
 
-const pageFilePaths: string[] = walkSync(inputFolderPath, {
-    directories: false,
-    includeBasePath: false,
-    ignore: [...SERVICE_FILES_GLOB, ...ignore],
-});
-
-for (const pathToFile of pageFilePaths) {
+for (const pathToFile of TocService.getNavigationPaths()) {
     const pathToDir: string = dirname(pathToFile);
     const filename: string = basename(pathToFile);
     const fileExtension: string = extname(pathToFile);
@@ -145,4 +156,28 @@ for (const pathToFile of pageFilePaths) {
     }
 
     writeFileSync(outputPath, outputFileContent);
+}
+
+if (outputFormat === 'html') {
+    /* Should copy all assets only for html output format */
+
+    const assetFilePath: string[] = walkSync(inputFolderPath, {
+        directories: false,
+        includeBasePath: false,
+        ignore: [
+            ...ignore,
+            '**/*.yaml',
+            '**/*.md',
+        ],
+    });
+
+    for (const pathToAsset of assetFilePath) {
+        const outputDir: string = resolve(outputFolderPath, dirname(pathToAsset));
+
+        if (!existsSync(outputDir)) {
+            mkdirSync(outputDir, {recursive: true});
+        }
+
+        copyFileSync(resolve(inputFolderPath, pathToAsset), resolve(outputFolderPath, pathToAsset));
+    }
 }

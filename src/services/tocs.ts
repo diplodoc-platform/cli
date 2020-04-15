@@ -3,11 +3,15 @@ import {readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
 const storage: Map<string, Object> = new Map();
+const navigationPaths: string[] = [];
 
 function add(path: string, basePath: string = '') {
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(basePath, path), 'utf8');
     const parsedToc = safeLoad(content);
+
+    /* Store parsed toc for .md output format */
+    storage.set(path, parsedToc);
 
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
@@ -27,8 +31,11 @@ function add(path: string, basePath: string = '') {
         }
 
         if (navigationItem.href) {
-            const key: string = `${pathToDir}/${navigationItem.href}`;
-            storage.set(key, parsedToc);
+            const href: string = `${pathToDir}/${navigationItem.href}`;
+            storage.set(href, parsedToc);
+
+            const navigationPath = normalizeHref(href);
+            navigationPaths.push(navigationPath);
         }
     }
 }
@@ -37,7 +44,30 @@ function getForPath(path: string): Object|undefined {
     return storage.get(path);
 }
 
+function getNavigationPaths(): string[] {
+    return [...navigationPaths];
+}
+
+/**
+ * Should normalize hrefs. MD and YAML files will be ignored.
+ * @param href
+ * @example instance-groups/create-with-coi/ -> instance-groups/create-with-coi/index.yaml
+ * @example instance-groups/create-with-coi -> instance-groups/create-with-coi.md
+ */
+function normalizeHref(href: string): string {
+    if (href.endsWith('.md') || href.endsWith('.yaml')) {
+        return href;
+    }
+
+    if (href.endsWith('/')) {
+        return `${href}index.yaml`;
+    }
+
+    return `${href}.md`;
+}
+
 export default {
     add,
     getForPath,
+    getNavigationPaths,
 };
