@@ -7,7 +7,6 @@ import {safeLoad} from 'js-yaml';
 import {TocService, PresetService, ArgvService} from './services';
 import {resolveMd2Md, resolveMd2HTML} from './utils';
 import {BUNDLE_FILENAME, BUNDLE_FOLDER} from './constants';
-import {YfmArgv} from './models';
 
 const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
@@ -36,8 +35,8 @@ const _yargs = yargs
     })
     .option('vars', {
         alias: 'v',
-        default: {},
-        describe: 'List of markdown variables'
+        default: '{}',
+        describe: 'List of markdown variables',
     })
     .option('plugins', {
         alias: 'p',
@@ -59,7 +58,7 @@ try {
     console.warn('.yfm configuration file wasn\'t provided');
 }
 
-ArgvService.init(_yargs.argv as any as YfmArgv);
+ArgvService.init(_yargs.argv);
 
 const {
     input: inputFolderPath,

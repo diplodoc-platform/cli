@@ -24,3 +24,12 @@ export interface DocPreset {
     default: YfmPreset;
     [audience: string]: YfmPreset;
 }
+
+export interface YfmToc {
+    name: string;
+    href: string;
+    items: YfmToc[];
+    base?: string;
+    title?: string;
+    when?: boolean|string;
+}
