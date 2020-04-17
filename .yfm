@@ -22,3 +22,7 @@ ignore:
   - markdown-and-extensions.md
   - ru/_templates/index.yaml
   - .DS_Store
+  - "**/_api-ref/*.yaml"
+  - "**/_api-ref/**/*.yaml"
+  - "**/_api-ref-grpc/*.yaml"
+  - "**/_api-ref-grpc/**/*.yaml"

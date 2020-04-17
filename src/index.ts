@@ -1,12 +1,13 @@
 import * as yargs from 'yargs';
+import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import {extname, resolve, basename, dirname, join} from 'path';
-import {mkdirSync, existsSync, writeFileSync, copyFileSync, readFileSync} from 'fs';
+import {writeFileSync, copyFileSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
 import {TocService, PresetService, ArgvService} from './services';
 import {resolveMd2Md, resolveMd2HTML} from './utils';
-import {BUNDLE_FILENAME, BUNDLE_FOLDER} from './constants';
+import {BUNDLE_FILENAME, BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from './constants';
 
 const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
@@ -19,10 +20,12 @@ const _yargs = yargs
     .option('input', {
         alias: 'i',
         describe: 'Path to input folder with .md files',
+        type: 'string'
     })
     .option('output', {
         alias: 'o',
-        describe: 'Path to output folder'
+        describe: 'Path to output folder',
+        type: 'string'
     })
     .option('audience', {
         alias: 'a',
@@ -58,7 +61,23 @@ try {
     console.warn('.yfm configuration file wasn\'t provided');
 }
 
-ArgvService.init(_yargs.argv);
+/* Create temporary input/output folders */
+const tmpInputFolder = resolve(BUILD_FOLDER_PATH, TMP_INPUT_FOLDER);
+const tmpOutputFolder = resolve(BUILD_FOLDER_PATH, TMP_OUTPUT_FOLDER);
+shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
+shell.mkdir(tmpInputFolder, tmpOutputFolder);
+
+/*
+ * Copy all user' files to the temporary folder to avoid user' file changing.
+ * Please, change files only in temporary folders.
+ */
+shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
+
+ArgvService.init({
+    ..._yargs.argv,
+    input: tmpInputFolder,
+    output: tmpOutputFolder
+});
 
 const {
     input: inputFolderPath,
@@ -70,12 +89,6 @@ const {
 
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
 
-mkdirSync(resolve(outputBundlePath), {recursive: true});
-copyFileSync(
-    resolve(BUILD_FOLDER_PATH, BUNDLE_FILENAME),
-    resolve(outputBundlePath, BUNDLE_FILENAME)
-);
-
 const serviceFilePaths: string[] = walkSync(inputFolderPath, {
     directories: false,
     includeBasePath: false,
@@ -83,11 +96,7 @@ const serviceFilePaths: string[] = walkSync(inputFolderPath, {
         '**/toc.yaml',
         '**/presets.yaml',
     ],
-    ignore: [
-        ...ignore,
-        '**/_tocs/*.yaml',
-        '**/toc-internal.yaml',
-    ],
+    ignore,
 });
 
 for (const path of serviceFilePaths) {
@@ -101,15 +110,13 @@ for (const path of serviceFilePaths) {
     if (fileBaseName === 'toc') {
         TocService.add(path, inputFolderPath);
 
+        /* Should copy toc.yaml files to output dir only when running --output-format=md */
         if (outputFormat === 'md') {
-            /* Should copy toc.yaml files to output dir */
             const outputDir = resolve(outputFolderPath, dirname(path));
+            const tocDestPath = resolve(outputFolderPath, path);
 
-            if (!existsSync(outputDir)) {
-                mkdirSync(outputDir, {recursive: true});
-            }
-
-            writeFileSync(resolve(outputFolderPath, path), TocService.getForPath(path));
+            shell.mkdir('-p', outputDir);
+            writeFileSync(tocDestPath, TocService.getForPath(path));
         }
     }
 }
@@ -126,13 +133,14 @@ for (const pathToFile of TocService.getNavigationPaths()) {
 
     let outputFileContent = '';
 
-    if (!existsSync(outputDir)) {
-        mkdirSync(outputDir, {recursive: true});
-    }
+    shell.mkdir('-p', outputDir);
 
     if (outputFormat === 'md') {
         if (fileExtension === '.yaml') {
-            copyFileSync(resolve(inputFolderPath, pathToFile), resolve(outputDir, filename));
+            const from = resolve(inputFolderPath, pathToFile);
+            const to = resolve(outputDir, filename);
+
+            copyFileSync(from, to);
             continue;
         }
 
@@ -141,7 +149,10 @@ for (const pathToFile of TocService.getNavigationPaths()) {
 
     if (outputFormat === 'html') {
         if (fileExtension !== '.yaml' && fileExtension !== '.md') {
-            copyFileSync(resolve(inputFolderPath, pathToFile), resolve(outputDir, filename));
+            const from = resolve(inputFolderPath, pathToFile);
+            const to = resolve(outputDir, filename);
+
+            copyFileSync(from, to);
             continue;
         }
 
@@ -157,9 +168,8 @@ for (const pathToFile of TocService.getNavigationPaths()) {
     writeFileSync(outputPath, outputFileContent);
 }
 
+/* Should copy all assets only when running --output-format=html */
 if (outputFormat === 'html') {
-    /* Should copy all assets only for html output format */
-
     const assetFilePath: string[] = walkSync(inputFolderPath, {
         directories: false,
         includeBasePath: false,
@@ -172,11 +182,24 @@ if (outputFormat === 'html') {
 
     for (const pathToAsset of assetFilePath) {
         const outputDir: string = resolve(outputFolderPath, dirname(pathToAsset));
+        const from = resolve(inputFolderPath, pathToAsset);
+        const to = resolve(outputFolderPath, pathToAsset);
 
-        if (!existsSync(outputDir)) {
-            mkdirSync(outputDir, {recursive: true});
-        }
-
-        copyFileSync(resolve(inputFolderPath, pathToAsset), resolve(outputFolderPath, pathToAsset));
+        shell.mkdir('-p', outputDir);
+        copyFileSync(from, to);
     }
 }
+
+/* Copy js bundle to user' output folder */
+const sourceBundlePath = resolve(BUILD_FOLDER_PATH, BUNDLE_FILENAME);
+const destBundlePath = resolve(outputBundlePath, BUNDLE_FILENAME);
+shell.mkdir('-p', outputBundlePath);
+shell.cp(sourceBundlePath, destBundlePath);
+
+/* Copy all generated files to user' output folder */
+const userOutputFolder = resolve(_yargs.argv.output);
+shell.mkdir('-p', userOutputFolder);
+shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+
+/* Remove temporary folders */
+shell.rm('-rf', tmpInputFolder, tmpOutputFolder);

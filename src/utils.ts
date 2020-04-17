@@ -21,19 +21,22 @@ export const FileTransformer: Record<string, Function> = {
         };
     },
     '.md': function({path}: FileTransformOptions): any {
-        const {plugins, options, input, output, vars} = ArgvService.getConfig();
+        const {plugins, options, input, vars} = ArgvService.getConfig();
         const resolvedPath: string = resolve(input, path);
         const content: string = readFileSync(resolvedPath, 'utf8');
 
+        /* Relative path from folder of .md file to root of user' output folder */
+        const assetsPublicPath = relative(dirname(resolvedPath), resolve(input));
+
         return yfmTransformMd2HTML(content, {
             ...options,
-            assetsPublicPath: relative(path, output),
             vars: {
                 ...PresetService.get(dirname(path)),
                 ...vars,
             },
             root: resolve(input),
             path: resolvedPath,
+            assetsPublicPath,
             plugins,
         });
     }
