@@ -32,4 +32,10 @@ export interface YfmToc {
     base?: string;
     title?: string;
     when?: boolean|string;
+    include: YfmTocInclude;
+}
+
+export interface YfmTocInclude {
+    repo: string;
+    path: string;
 }

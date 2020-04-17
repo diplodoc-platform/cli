@@ -1,8 +1,11 @@
-import {dirname, resolve} from 'path';
-import {readFileSync} from 'fs';
+import {dirname, join, parse, resolve} from 'path';
+import {copyFileSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
+import shell from 'shelljs';
+import walkSync from 'walk-sync';
 // @ts-ignore
 import evalExp from 'yfm-transform/lib/liquid/evaluation';
+
 import {ArgvService} from './index';
 import {YfmToc} from '../models';
 
@@ -13,7 +16,10 @@ function add(path: string, basePath: string = '') {
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(basePath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
-    const {vars} = ArgvService.getConfig();
+    const {vars, input} = ArgvService.getConfig();
+
+    /* Should resolve all includes */
+    parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input));
 
     /* Should remove all links with false expressions */
     parsedToc.items = _filterToc(parsedToc.items, vars);
@@ -61,6 +67,7 @@ function getNavigationPaths(): string[] {
  * @param href
  * @example instance-groups/create-with-coi/ -> instance-groups/create-with-coi/index.yaml
  * @example instance-groups/create-with-coi -> instance-groups/create-with-coi.md
+ * @private
  */
 function _normalizeHref(href: string): string {
     if (href.endsWith('.md') || href.endsWith('.yaml')) {
@@ -74,6 +81,12 @@ function _normalizeHref(href: string): string {
     return `${href}.md`;
 }
 
+/**
+ * Filters tocs by expression and removes empty toc' items.
+ * @param items
+ * @param vars
+ * @private
+ */
 function _filterToc(items: YfmToc[], vars: Record<string, string>) {
     return items
         .filter(({when}) => (
@@ -86,6 +99,58 @@ function _filterToc(items: YfmToc[], vars: Record<string, string>) {
             // If toc has no items, don't include it into navigation tree.
             return !(Array.isArray(el.items) && el.items.length === 0);
         });
+}
+
+/**
+ * Copies all files of include toc to original dir.
+ * @param tocPath
+ * @param destDir
+ * @private
+ */
+function _copyTocDir(tocPath: string, destDir: string) {
+    const {dir: tocDir} = parse(tocPath);
+    const files: string[] = walkSync(tocDir, {globs: ['**/*.*']});
+
+    files.forEach((relPath) => {
+        const from = resolve(tocDir, relPath);
+        const to = resolve(destDir, relPath);
+
+        shell.mkdir('-p', parse(to).dir);
+        copyFileSync(from, to);
+    });
+}
+
+/**
+ * Replaces include fields in toc file by resolved toc.
+ * @param items
+ * @param tocDir
+ * @param sourcesDir
+ * @private
+ */
+function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
+    return items.reduce((acc, item) => {
+        if (item.include) {
+            try {
+                const {path} = item.include;
+                const includeTocPath = resolve(sourcesDir, path);
+                const includeToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
+
+                _copyTocDir(includeTocPath, tocDir);
+                item.items = (item.items || []).concat(includeToc.items);
+                delete item.include;
+            } catch (err) {
+                console.error('Error while including toc.', err);
+                delete item.include;
+                return acc;
+            }
+        }
+
+        if (item.items) {
+            item.items = _replaceIncludes(item.items, tocDir, sourcesDir);
+        }
+
+        return acc.concat(item);
+    }, [] as YfmToc[]);
 }
 
 export default {
