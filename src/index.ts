@@ -62,8 +62,8 @@ try {
 }
 
 /* Create temporary input/output folders */
-const tmpInputFolder = resolve(BUILD_FOLDER_PATH, TMP_INPUT_FOLDER);
-const tmpOutputFolder = resolve(BUILD_FOLDER_PATH, TMP_OUTPUT_FOLDER);
+const tmpInputFolder = resolve(_yargs.argv.output, TMP_INPUT_FOLDER);
+const tmpOutputFolder = resolve(_yargs.argv.output, TMP_OUTPUT_FOLDER);
 shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
 shell.mkdir(tmpInputFolder, tmpOutputFolder);
 
@@ -113,10 +113,11 @@ for (const path of serviceFilePaths) {
         /* Should copy toc.yaml files to output dir only when running --output-format=md */
         if (outputFormat === 'md') {
             const outputDir = resolve(outputFolderPath, dirname(path));
-            const tocDestPath = resolve(outputFolderPath, path);
+            const from = resolve(inputFolderPath, path);
+            const to = resolve(outputFolderPath, path);
 
             shell.mkdir('-p', outputDir);
-            writeFileSync(tocDestPath, TocService.getForPath(path));
+            copyFileSync(from, to);
         }
     }
 }
@@ -131,41 +132,45 @@ for (const pathToFile of TocService.getNavigationPaths()) {
     const outputFileName = `${fileBaseName}.${outputFormat}`;
     const outputPath: string = resolve(outputDir, outputFileName);
 
-    let outputFileContent = '';
+    try {
+        let outputFileContent = '';
 
-    shell.mkdir('-p', outputDir);
+        shell.mkdir('-p', outputDir);
 
-    if (outputFormat === 'md') {
-        if (fileExtension === '.yaml') {
-            const from = resolve(inputFolderPath, pathToFile);
-            const to = resolve(outputDir, filename);
+        if (outputFormat === 'md') {
+            if (fileExtension === '.yaml') {
+                const from = resolve(inputFolderPath, pathToFile);
+                const to = resolve(outputDir, filename);
 
-            copyFileSync(from, to);
-            continue;
+                copyFileSync(from, to);
+                continue;
+            }
+
+            outputFileContent = resolveMd2Md(pathToFile, outputDir);
         }
 
-        outputFileContent = resolveMd2Md(pathToFile, outputDir);
-    }
+        if (outputFormat === 'html') {
+            if (fileExtension !== '.yaml' && fileExtension !== '.md') {
+                const from = resolve(inputFolderPath, pathToFile);
+                const to = resolve(outputDir, filename);
 
-    if (outputFormat === 'html') {
-        if (fileExtension !== '.yaml' && fileExtension !== '.md') {
-            const from = resolve(inputFolderPath, pathToFile);
-            const to = resolve(outputDir, filename);
+                copyFileSync(from, to);
+                continue;
+            }
 
-            copyFileSync(from, to);
-            continue;
+            outputFileContent = resolveMd2HTML({
+                inputPath: pathToFile,
+                outputBundlePath,
+                fileExtension,
+                outputPath,
+                filename,
+            });
         }
 
-        outputFileContent = resolveMd2HTML({
-            inputPath: pathToFile,
-            outputBundlePath,
-            fileExtension,
-            outputPath,
-            filename,
-        });
+        writeFileSync(outputPath, outputFileContent);
+    } catch (error) {
+        console.error(error);
     }
-
-    writeFileSync(outputPath, outputFileContent);
 }
 
 /* Should copy all assets only when running --output-format=html */
@@ -190,11 +195,13 @@ if (outputFormat === 'html') {
     }
 }
 
-/* Copy js bundle to user' output folder */
-const sourceBundlePath = resolve(BUILD_FOLDER_PATH, BUNDLE_FILENAME);
-const destBundlePath = resolve(outputBundlePath, BUNDLE_FILENAME);
-shell.mkdir('-p', outputBundlePath);
-shell.cp(sourceBundlePath, destBundlePath);
+if (outputFormat === 'html') {
+    /* Copy js bundle to user' output folder */
+    const sourceBundlePath = resolve(BUILD_FOLDER_PATH, BUNDLE_FILENAME);
+    const destBundlePath = resolve(outputBundlePath, BUNDLE_FILENAME);
+    shell.mkdir('-p', outputBundlePath);
+    shell.cp(sourceBundlePath, destBundlePath);
+}
 
 /* Copy all generated files to user' output folder */
 const userOutputFolder = resolve(_yargs.argv.output);
