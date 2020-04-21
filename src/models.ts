@@ -11,6 +11,7 @@ export interface YfmConfig {
     options: YfmOptions,
     plugins: string[];
     ignore: string[];
+    outputFormat: string;
     vars: Record<string, string>;
 }
 
@@ -22,4 +23,19 @@ export interface YfmArgv extends YfmConfig {
 export interface DocPreset {
     default: YfmPreset;
     [audience: string]: YfmPreset;
+}
+
+export interface YfmToc {
+    name: string;
+    href: string;
+    items: YfmToc[];
+    base?: string;
+    title?: string;
+    when?: boolean|string;
+    include: YfmTocInclude;
+}
+
+export interface YfmTocInclude {
+    repo: string;
+    path: string;
 }

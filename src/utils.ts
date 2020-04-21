@@ -1,9 +1,11 @@
 import {readFileSync} from 'fs';
 import {relative, dirname, basename, extname, format, join, resolve} from 'path';
 import yaml from 'js-yaml';
-import yfmTransform from 'yfm-transform';
+import yfmTransformMd2HTML from 'yfm-transform';
+// @ts-ignore
+import yfmTransformMd2Md from 'yfm-transform/lib/transformToMD';
 
-import {PresetService, ArgvService} from './services';
+import {PresetService, ArgvService, TocService} from './services';
 
 export interface FileTransformOptions {
     path: string;
@@ -19,23 +21,81 @@ export const FileTransformer: Record<string, Function> = {
         };
     },
     '.md': function({path}: FileTransformOptions): any {
-        const {plugins, options, input, output, vars} = ArgvService.getConfig();
+        const {plugins, options, input, vars} = ArgvService.getConfig();
         const resolvedPath: string = resolve(input, path);
         const content: string = readFileSync(resolvedPath, 'utf8');
 
-        return yfmTransform(content, {
+        /* Relative path from folder of .md file to root of user' output folder */
+        const assetsPublicPath = relative(dirname(resolvedPath), resolve(input));
+
+        return yfmTransformMd2HTML(content, {
             ...options,
-            assetsPublicPath: relative(path, output),
             vars: {
                 ...PresetService.get(dirname(path)),
                 ...vars,
             },
             root: resolve(input),
             path: resolvedPath,
+            assetsPublicPath,
             plugins,
         });
     }
 };
+
+export interface ResolverOptions {
+    inputPath: string;
+    filename: string;
+    fileExtension: string;
+    outputPath: string
+    outputBundlePath: string;
+}
+
+/**
+ * Transforms markdown file to HTML format.
+ * @param inputPath
+ * @param fileExtension
+ * @param outputPath
+ * @param outputBundlePath
+ */
+export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions): string {
+    const pathToDir: string = dirname(inputPath);
+    const toc: any = TocService.getForPath(inputPath);
+    const tocBase: string = toc ? toc.base : '';
+    const pathToIndex: string = pathToDir !== tocBase ? pathToDir.replace(tocBase, '..') : '';
+
+    const transformFn: Function = FileTransformer[fileExtension];
+    const data: any = transformFn({path: inputPath});
+    const props: any = {
+        isLeading: inputPath.endsWith('index.yaml'),
+        toc: transformToc(toc, pathToDir) || {},
+        pathname: join(pathToIndex, basename(outputPath)),
+        ...data,
+    };
+    const outputDir = dirname(outputPath);
+    const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
+
+    return generateStaticMarkup(props, relativePathToBundle);
+}
+
+/**
+ * Transforms raw markdown file to public markdown document.
+ * @param inputPath
+ * @param outputPath
+ */
+export function resolveMd2Md(inputPath: string, outputPath: string): string {
+    const {input, vars} = ArgvService.getConfig();
+    const resolvedInputPath = resolve(input, inputPath);
+    const content: string = readFileSync(resolvedInputPath, 'utf8');
+
+    return yfmTransformMd2Md(content, {
+        path: resolvedInputPath,
+        destPath: join(outputPath, basename(inputPath)),
+        vars: {
+            ...PresetService.get(dirname(inputPath)),
+            ...vars,
+        }
+    });
+}
 
 export function transformToc(toc: any, pathToFileDirectory: string): any {
     if (!toc) {

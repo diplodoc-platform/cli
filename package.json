@@ -22,7 +22,8 @@
     "js-yaml": "^3.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "walk-sync": "^2.0.2",
+    "shelljs": "^0.8.3",
+    "walk-sync": "^2.1.0",
     "yargs": "^15.3.1",
     "yfm-transform": "^2.13.1"
   },
@@ -35,6 +36,7 @@
     "@types/node": "^12.12.31",
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
+    "@types/shelljs": "^0.8.7",
     "@types/yargs": "^15.0.4",
     "@yandex-data-ui/cloud-components": "^4.22.0",
     "@yandex-data-ui/common": "^5.30.0",

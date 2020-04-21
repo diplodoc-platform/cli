@@ -6,8 +6,11 @@ function getConfig() {
     return _argv;
 }
 
-function init(argv: YfmArgv) {
-    _argv = argv;
+function init(argv: any) {
+    _argv = {
+        ...argv,
+        vars: JSON.parse(argv.vars)
+    } as YfmArgv;
 }
 
 export default {
