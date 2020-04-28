@@ -1,6 +1,7 @@
 import React from 'react';
 import block from 'bem-cn-lite';
-import {StageLabel} from '@yandex-data-ui/cloud-components';
+
+import StageLabel from '../StageLabel/StageLabel';
 
 import './DocPageTitle.scss';
 

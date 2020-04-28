@@ -3,13 +3,13 @@ import {copyFileSync, readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
-// @ts-ignore
 import evalExp from 'yfm-transform/lib/liquid/evaluation';
+import log from 'yfm-transform/lib/log';
 
-import {ArgvService} from './index';
+import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
 
-const storage: Map<string, Object> = new Map();
+const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
 
 function add(path: string, basePath: string = '') {
@@ -17,12 +17,16 @@ function add(path: string, basePath: string = '') {
     const content = readFileSync(resolve(basePath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
     const {vars, input} = ArgvService.getConfig();
+    const combinedVars = {
+        ...PresetService.get(pathToDir),
+        ...vars,
+    };
 
     /* Should resolve all includes */
     parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input));
 
     /* Should remove all links with false expressions */
-    parsedToc.items = _filterToc(parsedToc.items, vars);
+    parsedToc.items = _filterToc(parsedToc.items, combinedVars);
 
     /* Store parsed toc for .md output format */
     storage.set(path, parsedToc);
@@ -54,7 +58,7 @@ function add(path: string, basePath: string = '') {
     }
 }
 
-function getForPath(path: string): Object|undefined {
+function getForPath(path: string): YfmToc|undefined {
     return storage.get(path);
 }
 
@@ -130,16 +134,17 @@ function _copyTocDir(tocPath: string, destDir: string) {
 function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
     return items.reduce((acc, item) => {
         if (item.include) {
+            const {path} = item.include;
+            const includeTocPath = resolve(sourcesDir, path);
+
             try {
-                const {path} = item.include;
-                const includeTocPath = resolve(sourcesDir, path);
                 const includeToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
 
                 _copyTocDir(includeTocPath, tocDir);
                 item.items = (item.items || []).concat(includeToc.items);
                 delete item.include;
             } catch (err) {
-                console.error('Error while including toc.', err);
+                log.error(`Error while including toc: ${includeTocPath}`);
                 delete item.include;
                 return acc;
             }

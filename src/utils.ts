@@ -1,46 +1,5 @@
-import {readFileSync} from 'fs';
-import {relative, dirname, basename, extname, format, join, resolve} from 'path';
-import yaml from 'js-yaml';
-import yfmTransformMd2HTML from 'yfm-transform';
-// @ts-ignore
-import yfmTransformMd2Md from 'yfm-transform/lib/transformToMD';
-
-import {PresetService, ArgvService, TocService} from './services';
-
-export interface FileTransformOptions {
-    path: string;
-    root?: string;
-}
-
-export const FileTransformer: Record<string, Function> = {
-    '.yaml': function({path}: FileTransformOptions): Object {
-        const {input} = ArgvService.getConfig();
-        const content: string = readFileSync(resolve(input, path), 'utf8');
-        return {
-            data: yaml.safeLoad(content)
-        };
-    },
-    '.md': function({path}: FileTransformOptions): any {
-        const {plugins, options, input, vars} = ArgvService.getConfig();
-        const resolvedPath: string = resolve(input, path);
-        const content: string = readFileSync(resolvedPath, 'utf8');
-
-        /* Relative path from folder of .md file to root of user' output folder */
-        const assetsPublicPath = relative(dirname(resolvedPath), resolve(input));
-
-        return yfmTransformMd2HTML(content, {
-            ...options,
-            vars: {
-                ...PresetService.get(dirname(path)),
-                ...vars,
-            },
-            root: resolve(input),
-            path: resolvedPath,
-            assetsPublicPath,
-            plugins,
-        });
-    }
-};
+import {relative, dirname, basename, extname, format, join} from 'path';
+import {blue, green} from 'chalk';
 
 export interface ResolverOptions {
     inputPath: string;
@@ -48,53 +7,6 @@ export interface ResolverOptions {
     fileExtension: string;
     outputPath: string
     outputBundlePath: string;
-}
-
-/**
- * Transforms markdown file to HTML format.
- * @param inputPath
- * @param fileExtension
- * @param outputPath
- * @param outputBundlePath
- */
-export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions): string {
-    const pathToDir: string = dirname(inputPath);
-    const toc: any = TocService.getForPath(inputPath);
-    const tocBase: string = toc ? toc.base : '';
-    const pathToIndex: string = pathToDir !== tocBase ? pathToDir.replace(tocBase, '..') : '';
-
-    const transformFn: Function = FileTransformer[fileExtension];
-    const data: any = transformFn({path: inputPath});
-    const props: any = {
-        isLeading: inputPath.endsWith('index.yaml'),
-        toc: transformToc(toc, pathToDir) || {},
-        pathname: join(pathToIndex, basename(outputPath)),
-        ...data,
-    };
-    const outputDir = dirname(outputPath);
-    const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
-
-    return generateStaticMarkup(props, relativePathToBundle);
-}
-
-/**
- * Transforms raw markdown file to public markdown document.
- * @param inputPath
- * @param outputPath
- */
-export function resolveMd2Md(inputPath: string, outputPath: string): string {
-    const {input, vars} = ArgvService.getConfig();
-    const resolvedInputPath = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedInputPath, 'utf8');
-
-    return yfmTransformMd2Md(content, {
-        path: resolvedInputPath,
-        destPath: join(outputPath, basename(inputPath)),
-        vars: {
-            ...PresetService.get(dirname(inputPath)),
-            ...vars,
-        }
-    });
 }
 
 export function transformToc(toc: any, pathToFileDirectory: string): any {
@@ -155,3 +67,12 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
         </html>
     `;
 }
+
+export const logger = {
+    proc: function(pathToFile: string) {
+        console.log(`${blue('PROC')} Processing file ${pathToFile}`);
+    },
+    copy: function(pathToFile: string) {
+        console.log(`${green('COPY')} Copying file ${pathToFile}`);
+    }
+};

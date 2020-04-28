@@ -1,8 +1,7 @@
-import '@yandex-data-ui/common/styles/styles.scss';
 import 'styles/default.scss'
 import 'styles/typography.scss';
 import 'styles/themes.scss';
-import 'styles/yfm.scss';
+import 'yfm-transform/dist/css/yfm.css';
 
 import React, {ReactElement} from 'react';
 

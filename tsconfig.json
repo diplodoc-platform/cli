@@ -1,9 +1,23 @@
 {
-  "extends": "@yandex-data-ui/tsconfig/tsconfig",
   "compilerOptions": {
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "pretty": true,
+    "newLine": "lf",
+    "stripInternal": true,
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "allowJs": true,
     "target": "es2019",
     "moduleResolution": "node",
-    "declaration": true,
+    "declaration": false,
     "outDir": "build",
     "jsx": "react",
     "baseUrl": ".",
@@ -11,14 +25,7 @@
       "*": ["./src/app/*"]
     }
   },
-  "include": [
-    "src",
-    "node_modules/@yandex-data-ui/common/build/typings"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "types": [
-    "node"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"],
+  "types": ["node"]
 }

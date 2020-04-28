@@ -2,19 +2,18 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import block from 'bem-cn-lite';
 import {parse} from 'url';
-import {TextInput} from 'lego-on-react';
 
-//import i18n from 'i18n';
-import {HEADER_HEIGHT} from 'constants';
 import withRouter from 'hoc/withRouter';
 
 import ToggleArrow from 'components/ToggleArrow/ToggleArrow';
 import HTML from 'components/HTML/HTML';
+import TextInput from 'components/TextInput/TextInput';
 
 import './Toc.scss';
 
 //const i18nK = i18n.bind(null, 'docs');
 const b = block('Toc');
+const HEADER_HEIGHT = 0;
 
 function isActiveItem(router, href) {
     return router.pathname === parse(href).pathname;
@@ -227,7 +226,7 @@ class Toc extends React.Component {
                     }
 
                     if (subItems && subItems.length > 0) {
-                        icon = <ToggleArrow className={b('list-item-icon')} open={opened} thin={true}/>;
+                        icon = <ToggleArrow className={b('list-item-icon')} open={opened} thin={true} size={20}/>;
                     }
 
                     if (filteredItemIds.includes(id)) {
@@ -310,11 +309,7 @@ class Toc extends React.Component {
                 {topHeader}
                 <div className={b('top-filter')}>
                     <TextInput
-                        cls={b('top-filter-input')}
-                        theme="normal"
-                        view="default"
-                        tone="default"
-                        size="n"
+                        className={b('top-filter-input')}
                         text={this.state.filterName}
                         //placeholder={i18nK('label_toc-filter-placeholder')}
                         onChange={this.handleFilterNameChange}

@@ -5,10 +5,9 @@ import {safeLoad} from 'js-yaml';
 import {ArgvService} from './index';
 import {DocPreset, YfmPreset} from '../models';
 
+const presetStorage: Map<string, YfmPreset> = new Map();
 
-const storage: Map<string, YfmPreset> = new Map();
-
-function add(path: string, audience: string) {
+function add(path: string, varsPreset: string) {
     const {input: inputFolderPath} = ArgvService.getConfig();
     const pathToPresetFile = resolve(inputFolderPath, path);
 
@@ -17,16 +16,18 @@ function add(path: string, audience: string) {
 
     const combinedValues: YfmPreset = {
         ...parsedPreset.default || {},
-        ...parsedPreset[audience] || {}
+        ...parsedPreset[varsPreset] || {}
     };
-    storage.set(dirname(path), combinedValues);
+
+    const key = dirname(path);
+    presetStorage.set(key, combinedValues);
 }
 
 function get(path: string): YfmPreset {
     let combinedValues: YfmPreset = {};
 
     while (path !== '.') {
-        const presetValues: YfmPreset = storage.get(path) || {};
+        const presetValues: YfmPreset = presetStorage.get(path) || {};
         path = dirname(path);
 
         combinedValues = {
@@ -35,11 +36,17 @@ function get(path: string): YfmPreset {
         };
     }
 
+    // Add root' presets
+    combinedValues = {
+        ...presetStorage.get('.'),
+        ...combinedValues,
+    };
+
     return combinedValues;
 }
 
 function getAll() {
-    return Object.fromEntries(storage);
+    return Object.fromEntries(presetStorage);
 }
 
 export default {

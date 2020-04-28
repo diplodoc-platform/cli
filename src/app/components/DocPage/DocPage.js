@@ -1,6 +1,5 @@
 import React from 'react';
 import block from 'bem-cn-lite';
-import {Icon} from '@yandex-data-ui/common';
 import 'yfm-transform/dist/js/yfm';
 
 //TODO(vladimirfedin): Add support of i18n
@@ -11,9 +10,9 @@ import Breadcrumbs from 'components/Breadcrumbs/Breadcrumbs';
 import MiniToc from 'components/MiniToc/MiniToc';
 import HTML from 'components/HTML/HTML';
 
-import githubIcon from '@yandex-data-ui/common/assets/icons/social/github.svg';
+import GithubIcon from 'assets/icons/github.svg';
 
-import 'styles/yfm.scss';
+import 'yfm-transform/dist/css/yfm.css';
 import './DocPage.scss';
 
 const b = block('DocPage');
@@ -104,6 +103,7 @@ export class DocPage extends React.Component {
             meta.editable !== false &&
             toc.editable !== false
         );
+        const iconSize = 24;
 
         if (!editable || !githubUrl) {
             return null;
@@ -117,12 +117,12 @@ export class DocPage extends React.Component {
                         target="_blank"
                         rel="noreferrer noopener"
                         className={b('aside-link')}
-                        onClick={this.handleGithubLinkClick}
                     >
-                        <Icon data={githubIcon} className={b('aside-link-icon')} size={24}/>
+                        <GithubIcon className={b('aside-link-icon')} width={iconSize} height={iconSize}/>
                         {
                             // TODO(vladimirfedin) Add github link
                             //i18n('docs', 'label_link-github')
+                            'Редактировать на GitHub'
                         }
                     </a>
                 </li>
@@ -151,6 +151,7 @@ export class DocPage extends React.Component {
     render() {
         const {toc} = this.props;
 
+        const asideLinks = this.renderAsideLinks();
         const asideMiniToc = this.renderAsideMiniToc();
 
         return (
@@ -168,6 +169,8 @@ export class DocPage extends React.Component {
                 </DocLayout.Center>
                 <DocLayout.Right>
                     <div className={b('aside')}>
+                        {asideLinks}
+                        {asideLinks && asideMiniToc && this.renderAsideSeparator()}
                         {asideMiniToc}
                     </div>
                 </DocLayout.Right>

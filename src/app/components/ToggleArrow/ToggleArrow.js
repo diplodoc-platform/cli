@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import block from 'bem-cn-lite';
 
-import chevron from '@yandex-data-ui/common/assets/icons/chevron.svg';
+import ChevronIcon from 'assets/icons/chevron.svg';
 
 import './ToggleArrow.scss';
 
@@ -29,9 +29,9 @@ export default class ToggleArrow extends React.Component {
         const {type, open, size, thin, slow, className} = this.props;
 
         return (
-            <img
+            <ChevronIcon
                 className={b({type, open, thin, slow}, className)}
-                src={chevron}
+                width={size}
                 height={size}
             />
         );

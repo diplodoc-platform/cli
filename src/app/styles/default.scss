@@ -1,3 +1,58 @@
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body.yc-root {
+    &::-webkit-scrollbar, *::-webkit-scrollbar {
+        width: var(--yc-scrollbar-width);
+        height: var(--yc-scrollbar-width);
+        background: var(--yc-color-scroll-track);
+    }
+
+    &::-webkit-scrollbar-track, *::-webkit-scrollbar-track {
+        background: var(--yc-color-scroll-track);
+    }
+
+    &::-webkit-scrollbar-corner, *::-webkit-scrollbar-corner {
+        background: var(--yc-color-scroll-corner);
+    }
+
+    &::-webkit-scrollbar-thumb, *::-webkit-scrollbar-thumb {
+        background: var(--yc-color-scroll-handle);
+    }
+
+    &::-webkit-scrollbar-thumb:hover, *::-webkit-scrollbar-thumb:hover {
+        background: var(--yc-color-scroll-handle-hover);
+    }
+
+    --yc-text-body-font-size: 13px;
+    --yc-text-body-line-height: 16px;
+    --yc-text-body2-font-size: 15px;
+    --yc-text-body2-line-height: 20px;
+    --yc-text-lead-font-size: 18px;
+    --yc-text-lead-line-height: 24px;
+    --yc-text-header-font-size: 20px;
+    --yc-text-header-line-height: 24px;
+    --yc-text-title-font-size: 24px;
+    --yc-text-title-line-height: 28px;
+    --yc-font-family: 'YS Text', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    --yc-scrollbar-width: 12px;
+    --yc-color-github: #25292e;
+
+    font-family: var(--yc-font-family);
+    font-size: var(--yc-text-body-font-size);
+    line-height: var(--yc-text-body-line-height);
+
+    scrollbar-width: var(--yc-scrollbar-width);
+    scrollbar-color: var(--yc-color-scroll-handle) var(--yc-color-scroll-track);
+}
+
 #root {
     min-height: 100vh;
 }
