@@ -12,25 +12,25 @@ const _yargs = yargs
     .option('config', {
         alias: 'c',
         describe: 'YFM configuration file',
-        type: 'string'
+        type: 'string',
     })
     .option('input', {
         alias: 'i',
         describe: 'Path to input folder with .md files',
-        type: 'string'
+        type: 'string',
     })
     .option('output', {
         alias: 'o',
         describe: 'Path to output folder',
-        type: 'string'
+        type: 'string',
     })
     .option('varsPreset', {
         default: 'default',
-        describe: 'Target vars preset of documentation <external|internal>'
+        describe: 'Target vars preset of documentation <external|internal>',
     })
     .option('output-format', {
         default: 'html',
-        describe: 'Format of output file <html|md>'
+        describe: 'Format of output file <html|md>',
     })
     .option('vars', {
         alias: 'v',
@@ -41,9 +41,9 @@ const _yargs = yargs
         alias: 's',
         default: false,
         describe: 'Run in strict mode',
-        type: 'boolean'
+        type: 'boolean',
     })
-    .example(`yfm-docs -i ./input -o ./output`, '')
+    .example('yfm-docs -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .help();
 
@@ -76,7 +76,7 @@ shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
 ArgvService.init({
     ..._yargs.argv,
     input: tmpInputFolder,
-    output: tmpOutputFolder
+    output: tmpOutputFolder,
 });
 
 const {

@@ -9,7 +9,8 @@ import {logger} from '../utils';
 
 /**
  * Processes assets files (everything except .yaml and .md files)
- * @return
+ * @param {string} outputBundlePath
+ * @return {void}
  */
 export function processAssets(outputBundlePath: string) {
     const {

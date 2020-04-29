@@ -10,7 +10,7 @@ module.exports = [
         entry: './src/app/index.tsx',
         output: {
             path: resolve(__dirname, 'build'),
-            filename: 'app.js'
+            filename: 'app.js',
         },
         resolve: {
             alias: {
@@ -22,14 +22,14 @@ module.exports = [
                 assets: resolve(__dirname, srcDir, 'assets/'),
                 hoc: resolve(__dirname, srcDir, 'hoc'),
             },
-            extensions: ['.tsx', '.ts', '.js', '.scss']
+            extensions: ['.tsx', '.ts', '.js', '.scss'],
         },
         module: {
             rules: [
                 {
                     test: /\.[tj]sx?$/,
                     use: ['babel-loader'],
-                    exclude: /node_modules/
+                    exclude: /node_modules/,
                 }, {
                     test: /\.s?css$/,
                     use: [
@@ -41,14 +41,14 @@ module.exports = [
                                 sassOptions: {
                                     includePaths: [resolve(srcDir, 'styles'), srcDir],
                                 },
-                            }
-                        }
-                    ]
+                            },
+                        },
+                    ],
                 }, {
                     test: /\.svg$/,
                     loader: 'react-svg-loader',
-                }
-            ]
+                },
+            ],
         },
     },
     {
@@ -57,21 +57,21 @@ module.exports = [
         entry: './src/index.ts',
         devtool: 'eval-source-map',
         resolve: {
-            extensions: ['.tsx', '.ts', '.js']
+            extensions: ['.tsx', '.ts', '.js'],
         },
         output: {
             path: resolve(__dirname, 'build'),
-            filename: 'index.js'
+            filename: 'index.js',
         },
         module: {
             rules: [{
                 test: /\.[tj]sx?$/,
                 use: ['babel-loader'],
-                exclude: /node_modules/
-            }]
+                exclude: /node_modules/,
+            }],
         },
         plugins: [
             new webpack.BannerPlugin({banner: '#!/usr/bin/env node', raw: true}),
-        ]
+        ],
     },
 ];

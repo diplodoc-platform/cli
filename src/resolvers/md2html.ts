@@ -16,7 +16,7 @@ export interface FileTransformOptions {
 }
 
 export const FileTransformer: Record<string, Function> = {
-    '.yaml': function({path}: FileTransformOptions): Object {
+    '.yaml': function ({path}: FileTransformOptions): Object {
         const {input} = ArgvService.getConfig();
         const resolvedPath = resolve(input, path);
         let data = {};
@@ -29,10 +29,10 @@ export const FileTransformer: Record<string, Function> = {
         }
 
         return {
-            result: {data}
+            result: {data},
         };
     },
-    '.md': function({path}: FileTransformOptions): Output {
+    '.md': function ({path}: FileTransformOptions): Output {
         const {input, vars, ...options} = ArgvService.getConfig();
         const resolvedPath: string = resolve(input, path);
         const content: string = readFileSync(resolvedPath, 'utf8');
@@ -51,7 +51,7 @@ export const FileTransformer: Record<string, Function> = {
             path: resolvedPath,
             assetsPublicPath,
         });
-    }
+    },
 };
 
 /**
@@ -60,12 +60,13 @@ export const FileTransformer: Record<string, Function> = {
  * @param fileExtension
  * @param outputPath
  * @param outputBundlePath
+ * @return {string}
  */
 export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions): string {
     const pathToDir: string = dirname(inputPath);
-    const toc: YfmToc|undefined = TocService.getForPath(inputPath);
+    const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
-    const pathToIndex: string = pathToDir !== tocBase ? pathToDir.replace(tocBase, '..') : '';
+    const pathToIndex: string = pathToDir === tocBase ? '' : pathToDir.replace(tocBase, '..');
 
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn({path: inputPath});

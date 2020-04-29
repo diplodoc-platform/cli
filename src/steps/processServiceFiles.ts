@@ -8,7 +8,7 @@ import {logger} from '../utils';
 
 /**
  * Processes services files (like toc.yaml, presets.yaml).
- * @return
+ * @return {void}
  */
 export function processServiceFiles() {
     const {

@@ -13,8 +13,8 @@ export function processLogs(inputFolder: string) {
         '',
     ];
 
-    for (const log of outputLogs) {
-        const preparedLog = log.replace(inputFolder, '');
+    for (const outputLog of outputLogs) {
+        const preparedLog = outputLog.replace(inputFolder, '');
         console.log(preparedLog);
     }
 

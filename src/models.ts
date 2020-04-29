@@ -29,6 +29,7 @@ export interface YfmToc {
     title?: string;
     when?: boolean|string;
     include: YfmTocInclude;
+    id?: string;
 }
 
 export interface YfmTocInclude {

@@ -12,7 +12,7 @@ import {YfmToc} from '../models';
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
 
-function add(path: string, basePath: string = '') {
+function add(path: string, basePath = '') {
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(basePath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
@@ -37,10 +37,14 @@ function add(path: string, basePath: string = '') {
     const navigationItemQueue = [parsedToc];
 
     while (navigationItemQueue.length) {
-        const navigationItem = navigationItemQueue.shift()!;
+        const navigationItem = navigationItemQueue.shift();
+
+        if (!navigationItem) {
+            continue;
+        }
 
         if (navigationItem.items) {
-            const items = navigationItem.items.map(((item: any, index: number) => {
+            const items = navigationItem.items.map(((item: YfmToc, index: number) => {
                 // Generate personal id for each navigation item
                 item.id = `${item.name}-${index}-${Math.random()}`;
                 return item;
@@ -49,7 +53,7 @@ function add(path: string, basePath: string = '') {
         }
 
         if (navigationItem.href) {
-            const href: string = `${pathToDir}/${navigationItem.href}`;
+            const href = `${pathToDir}/${navigationItem.href}`;
             storage.set(href, parsedToc);
 
             const navigationPath = _normalizeHref(href);
@@ -69,6 +73,7 @@ function getNavigationPaths(): string[] {
 /**
  * Should normalize hrefs. MD and YAML files will be ignored.
  * @param href
+ * @return {string}
  * @example instance-groups/create-with-coi/ -> instance-groups/create-with-coi/index.yaml
  * @example instance-groups/create-with-coi -> instance-groups/create-with-coi.md
  * @private
@@ -89,6 +94,7 @@ function _normalizeHref(href: string): string {
  * Filters tocs by expression and removes empty toc' items.
  * @param items
  * @param vars
+ * @return {YfmToc}
  * @private
  */
 function _filterToc(items: YfmToc[], vars: Record<string, string>) {
@@ -109,6 +115,7 @@ function _filterToc(items: YfmToc[], vars: Record<string, string>) {
  * Copies all files of include toc to original dir.
  * @param tocPath
  * @param destDir
+ * @return
  * @private
  */
 function _copyTocDir(tocPath: string, destDir: string) {
@@ -129,6 +136,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
  * @param items
  * @param tocDir
  * @param sourcesDir
+ * @return
  * @private
  */
 function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {

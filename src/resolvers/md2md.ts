@@ -13,7 +13,7 @@ import {resolveRelativePath, isLocalUrl} from 'yfm-transform/lib/utils';
 
 import {ArgvService, PresetService} from '../services';
 
-const includes: any = [];
+const includes: string[] = [];
 
 function findImages(input: string, options: ResolverOptions) {
     const md = new MarkdownIt()
@@ -95,7 +95,7 @@ function transformMd2Md(input: string, options: ResolverOptions) {
 
     return {
         result: output,
-        logs: log.get()
+        logs: log.get(),
     };
 }
 
@@ -111,6 +111,7 @@ export interface ResolverOptions {
  * Transforms raw markdown file to public markdown document.
  * @param inputPath
  * @param outputPath
+ * @return {string}
  */
 export function resolveMd2Md(inputPath: string, outputPath: string): string {
     const {input, vars} = ArgvService.getConfig();
@@ -123,7 +124,7 @@ export function resolveMd2Md(inputPath: string, outputPath: string): string {
         vars: {
             ...PresetService.get(dirname(inputPath)),
             ...vars,
-        }
+        },
     });
     return result;
 }

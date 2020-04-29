@@ -10,7 +10,9 @@ import {logger} from '../utils';
 
 /**
  * Processes files of documentation (like index.yaml, *.md)
- * @return
+ * @param {string} tmpInputFolder
+ * @param {string} outputBundlePath
+ * @return {void}
  */
 export function processPages(tmpInputFolder: string, outputBundlePath: string) {
     const {

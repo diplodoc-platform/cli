@@ -6,10 +6,11 @@ function getConfig() {
     return _argv;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function init(argv: any) {
     _argv = {
         ...argv,
-        vars: JSON.parse(argv.vars)
+        vars: JSON.parse(argv.vars),
     } as YfmArgv;
 }
 

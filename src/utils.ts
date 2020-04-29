@@ -1,25 +1,32 @@
 import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green} from 'chalk';
 
+import {YfmToc} from './models';
+
 export interface ResolverOptions {
     inputPath: string;
     filename: string;
     fileExtension: string;
-    outputPath: string
+    outputPath: string;
     outputBundlePath: string;
 }
 
-export function transformToc(toc: any, pathToFileDirectory: string): any {
+export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): YfmToc|null {
     if (!toc) {
         return null;
     }
 
-    const localToc: any = JSON.parse(JSON.stringify(toc));
-    const baseTocPath: string = localToc.base;
+    const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
+    const baseTocPath: string = localToc.base || '';
     const navigationItemQueue = [localToc];
 
     while (navigationItemQueue.length) {
-        const navigationItem = navigationItemQueue.shift()!;
+        const navigationItem = navigationItemQueue.shift();
+
+        if (!navigationItem) {
+            continue;
+        }
+
         const {items, href} = navigationItem;
 
         if (items) {
@@ -44,6 +51,8 @@ export function transformToc(toc: any, pathToFileDirectory: string): any {
     return localToc;
 }
 
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateStaticMarkup(props: any, pathToBundle: string) {
     return `
         <!DOCTYPE html>
@@ -69,10 +78,10 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
 }
 
 export const logger = {
-    proc: function(pathToFile: string) {
+    proc: function (pathToFile: string) {
         console.log(`${blue('PROC')} Processing file ${pathToFile}`);
     },
-    copy: function(pathToFile: string) {
+    copy: function (pathToFile: string) {
         console.log(`${green('COPY')} Copying file ${pathToFile}`);
-    }
+    },
 };

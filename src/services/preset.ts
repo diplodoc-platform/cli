@@ -16,7 +16,7 @@ function add(path: string, varsPreset: string) {
 
     const combinedValues: YfmPreset = {
         ...parsedPreset.default || {},
-        ...parsedPreset[varsPreset] || {}
+        ...parsedPreset[varsPreset] || {},
     };
 
     const key = dirname(path);
@@ -25,10 +25,11 @@ function add(path: string, varsPreset: string) {
 
 function get(path: string): YfmPreset {
     let combinedValues: YfmPreset = {};
+    let localPath = path;
 
-    while (path !== '.') {
-        const presetValues: YfmPreset = presetStorage.get(path) || {};
-        path = dirname(path);
+    while (localPath !== '.') {
+        const presetValues: YfmPreset = presetStorage.get(localPath) || {};
+        localPath = dirname(localPath);
 
         combinedValues = {
             ...presetValues,
@@ -45,12 +46,7 @@ function get(path: string): YfmPreset {
     return combinedValues;
 }
 
-function getAll() {
-    return Object.fromEntries(presetStorage);
-}
-
 export default {
     add,
     get,
-    getAll,
 };
