@@ -75,11 +75,11 @@ function transformIncludes(input: string, options: ResolverOptions) {
             destPath: targetDestPath,
         };
         const sourceIncludeContent = readFileSync(includePath, 'utf8');
-        const destIncludeContent = transformMd2Md(sourceIncludeContent, includeOptions);
+        const {result} = transformMd2Md(sourceIncludeContent, includeOptions);
         includes.pop();
 
         shell.mkdir('-p', dirname(targetDestPath));
-        writeFileSync(targetDestPath, destIncludeContent);
+        writeFileSync(targetDestPath, result);
     }
 }
 
