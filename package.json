@@ -80,5 +80,9 @@
       "eslint --fix",
       "git add"
     ]
+  },
+  "pkg": {
+    "scripts": "build/index.js",
+    "assets": "build/app.js"
   }
 }
