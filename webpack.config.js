@@ -1,8 +1,6 @@
 const webpack = require('webpack');
 const {resolve} = require('path');
 
-const srcDir = resolve(__dirname, './src/app');
-
 module.exports = [
     {
         mode: 'production',
@@ -13,15 +11,6 @@ module.exports = [
             filename: 'app.js',
         },
         resolve: {
-            alias: {
-                interceptors: resolve(__dirname, srcDir, 'interceptors'),
-                components: resolve(__dirname, srcDir, 'components'),
-                contexts: resolve(__dirname, srcDir, 'contexts'),
-                styles: resolve(__dirname, srcDir, 'styles'),
-                router: resolve(__dirname, srcDir, 'router'),
-                assets: resolve(__dirname, srcDir, 'assets/'),
-                hoc: resolve(__dirname, srcDir, 'hoc'),
-            },
             extensions: ['.tsx', '.ts', '.js', '.scss'],
         },
         module: {
@@ -35,14 +24,7 @@ module.exports = [
                     use: [
                         'style-loader',
                         {loader: 'css-loader'},
-                        {
-                            loader: 'sass-loader',
-                            options: {
-                                sassOptions: {
-                                    includePaths: [resolve(srcDir, 'styles'), srcDir],
-                                },
-                            },
-                        },
+                        {loader: 'sass-loader'},
                     ],
                 }, {
                     test: /\.svg$/,

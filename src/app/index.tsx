@@ -1,17 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import {createRouter} from 'router';
 import App from './components/App/App';
 
 // @ts-ignore
-const props = window.__DATA__! || {};
-
-createRouter({
-    pathname: props.pathname
-});
+const props = window.__DATA__ || {};
 
 ReactDOM.render(
     <App {...props} />,
-    document.getElementById('root')
+    document.getElementById('root'),
 );
