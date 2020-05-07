@@ -1,6 +1,13 @@
 import React, {ReactElement} from 'react';
 
-import {DocLeadingPage, DocPage} from 'yfm-docs-components';
+import {
+    DocLeadingPage,
+    DocPage,
+    DocPageData,
+    DocLeadingPageData,
+    Lang,
+    Router,
+} from 'yfm-docs-components';
 
 import '../../interceptors/leading-page-links';
 
@@ -10,19 +17,29 @@ import 'yfm-docs-components/styles/themes.scss';
 import 'yfm-transform/dist/css/yfm.css';
 import './App.scss';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function App(props: any): ReactElement {
-    const {isLeading} = props;
-    const router = {
-        pathname: props.pathname,
-    };
+export interface DocProps {
+    data: DocLeadingPageData | DocPageData;
+}
+
+export interface AppProps {
+    lang: Lang;
+    router: Router;
+}
+
+export type DocInnerProps =
+    & DocProps
+    & AppProps;
+
+export function App(props: DocInnerProps): ReactElement {
+    const {data, router, lang} = props;
+    const pageProps = {router, lang, headerHeight: 0};
 
     return (
         // TODO(vladimirfedin): Replace Layout__content class.
         <div className="App Layout__content">
-            {isLeading
-                ? <DocLeadingPage {...props} router={router}/>
-                : <DocPage {...props} router={router}/>
+            {data.leading
+                ? <DocLeadingPage {...data} {...pageProps}/>
+                : <DocPage {...data} {...pageProps}/>
             }
         </div>
     );

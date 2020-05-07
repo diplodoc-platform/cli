@@ -12,14 +12,14 @@
             || e.oMatchesSelector;
 
         if (matches) {
+            e.matches = e.matchesSelector = matches;
+        } else {
             e.matches = e.matchesSelector = function (selector) {
                 const th = this;
                 return Array.prototype.some.call(document.querySelectorAll(selector), (el) => {
                     return el === th;
                 });
             };
-        } else {
-            e.matches = e.matchesSelector = matches;
         }
     })(Element.prototype);
 

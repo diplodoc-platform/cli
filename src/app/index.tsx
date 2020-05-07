@@ -3,8 +3,7 @@ import ReactDOM from 'react-dom';
 
 import App from './components/App/App';
 
-// @ts-ignore
-const props = window.__DATA__ || {};
+const props = (window as any).__DATA__ || {};
 
 ReactDOM.render(
     <App {...props} />,
