@@ -1,24 +1,45 @@
-import 'styles/default.scss'
-import 'styles/typography.scss';
-import 'styles/themes.scss';
-import 'yfm-transform/dist/css/yfm.css';
-
 import React, {ReactElement} from 'react';
 
-import DocLeadingPage from 'components/DocLeadingPage/DocLeadingPage';
-import DocPage from 'components/DocPage/DocPage';
+import {
+    DocLeadingPage,
+    DocPage,
+    DocPageData,
+    DocLeadingPageData,
+    Lang,
+    Router,
+} from 'yfm-docs-components';
 
-import 'interceptors/leading-page-links';
+import '../../interceptors/leading-page-links';
+
+import 'yfm-docs-components/styles/default.scss';
+import 'yfm-docs-components/styles/typography.scss';
+import 'yfm-docs-components/styles/themes.scss';
+import 'yfm-transform/dist/css/yfm.css';
 import './App.scss';
 
-export function App(props: any): ReactElement {
-    const {isLeading} = props;
+export interface DocProps {
+    data: DocLeadingPageData | DocPageData;
+}
+
+export interface AppProps {
+    lang: Lang;
+    router: Router;
+}
+
+export type DocInnerProps =
+    & DocProps
+    & AppProps;
+
+export function App(props: DocInnerProps): ReactElement {
+    const {data, router, lang} = props;
+    const pageProps = {router, lang, headerHeight: 0};
+
     return (
         // TODO(vladimirfedin): Replace Layout__content class.
         <div className="App Layout__content">
-            {isLeading
-                ? <DocLeadingPage {...props} />
-                : <DocPage {...props}/>
+            {data.leading
+                ? <DocLeadingPage {...data} {...pageProps}/>
+                : <DocPage {...data} {...pageProps}/>
             }
         </div>
     );

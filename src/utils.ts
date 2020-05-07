@@ -59,7 +59,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
         <html>
             <head>
                 <meta charset="utf-8">
-                <title>${props.toc.title}</title>
+                <title>${props.data.toc.title}</title>
                 <style type="text/css">
                     body {
                         height: 100vh;

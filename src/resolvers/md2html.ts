@@ -71,10 +71,16 @@ export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBund
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn({path: inputPath});
     const props = {
-        isLeading: inputPath.endsWith('.yaml'),
-        toc: transformToc(toc, pathToDir) || {},
-        pathname: join(pathToIndex, basename(outputPath)),
-        ...result,
+        data: {
+            leading: inputPath.endsWith('.yaml'),
+            toc: transformToc(toc, pathToDir) || {},
+            ...result,
+        },
+        router: {
+            pathname: join(pathToIndex, basename(outputPath)),
+        },
+        // TODO(vladimirfedin): CLOUDFRONT-3939
+        lang: 'ru',
     };
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
