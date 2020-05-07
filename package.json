@@ -9,6 +9,7 @@
     "url": "https://github.yandex-team.ru/data-ui/yfm-docs"
   },
   "bin": "build/index.js",
+  "main": "build/index.js",
   "files": [
     "build",
     "src"
