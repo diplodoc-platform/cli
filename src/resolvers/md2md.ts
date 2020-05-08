@@ -65,7 +65,7 @@ function transformIncludes(input: string, options: ResolverOptions) {
 
         if (includes.includes(includePath)) {
             log.error(`Circular includes: ${bold(includes.concat(path).join(' ▶ '))}`);
-            process.exit(1);
+            break;
         }
 
         includes.push(includePath);
@@ -74,12 +74,18 @@ function transformIncludes(input: string, options: ResolverOptions) {
             path: includePath,
             destPath: targetDestPath,
         };
-        const sourceIncludeContent = readFileSync(includePath, 'utf8');
-        const {result} = transformMd2Md(sourceIncludeContent, includeOptions);
-        includes.pop();
 
-        shell.mkdir('-p', dirname(targetDestPath));
-        writeFileSync(targetDestPath, result);
+        try {
+            const sourceIncludeContent = readFileSync(includePath, 'utf8');
+            const {result} = transformMd2Md(sourceIncludeContent, includeOptions);
+
+            shell.mkdir('-p', dirname(targetDestPath));
+            writeFileSync(targetDestPath, result);
+        } catch (e) {
+            log.error(`No such file or has no access to ${includePath} in ${path}`);
+        } finally {
+            includes.pop();
+        }
     }
 }
 

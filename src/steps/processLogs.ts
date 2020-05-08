@@ -4,6 +4,7 @@ import {ArgvService} from '../services';
 import {MAIN_TIMER_ID} from '../constants';
 
 export function processLogs(inputFolder: string) {
+    const replacementRegExp = new RegExp(inputFolder, 'ig');
     const {strict} = ArgvService.getConfig();
     const {info, warn, error} = log.get();
     const outputLogs = [
@@ -14,7 +15,7 @@ export function processLogs(inputFolder: string) {
     ];
 
     for (const outputLog of outputLogs) {
-        const preparedLog = outputLog.replace(inputFolder, '');
+        const preparedLog = outputLog.replace(replacementRegExp, '');
         console.log(preparedLog);
     }
 
