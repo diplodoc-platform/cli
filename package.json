@@ -32,7 +32,7 @@
     "walk-sync": "^2.1.0",
     "yargs": "^15.3.1",
     "yfm-docs-components": "0.0.1",
-    "yfm-transform": "^3.0.2"
+    "yfm-transform": "^3.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
