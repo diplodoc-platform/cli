@@ -12,6 +12,8 @@ import liquid from 'yfm-transform/lib/liquid';
 import {resolveRelativePath, isLocalUrl} from 'yfm-transform/lib/utils';
 
 import {ArgvService, PresetService} from '../services';
+import {getCustomPlugins} from '../utils';
+import {YFM_PLUGINS} from '../constants';
 
 const includes: string[] = [];
 
@@ -91,7 +93,7 @@ function transformIncludes(input: string, options: ResolverOptions) {
 
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets} = ArgvService.getConfig();
-    const {vars = {}, path} = options;
+    const {vars = {}, path, collectOfPlugins} = options;
     const output = liquid(input, vars, path, {
         conditions: true,
         substitutions: applyPresets,
@@ -99,6 +101,10 @@ function transformMd2Md(input: string, options: ResolverOptions) {
 
     // find and copy includes
     transformIncludes(output, options);
+
+    if (typeof collectOfPlugins === 'function') {
+        collectOfPlugins(output, options);
+    }
 
     // find and copy images
     findImages(output, options);
@@ -115,6 +121,23 @@ export interface ResolverOptions {
     root?: string;
     destPath?: string;
     destRoot?: string;
+    collectOfPlugins?: (input: string, options: ResolverOptions) => void;
+}
+
+interface Plugin {
+    collect: (input: string, options: ResolverOptions) => void;
+}
+
+function makeCollectOfPlugins(plugins: Plugin[]) {
+    const pluginsWithCollect = plugins.filter((plugin: Plugin) => {
+        return typeof plugin.collect === 'function';
+    });
+
+    return (output: string, options: ResolverOptions) => {
+        pluginsWithCollect.forEach((plugin: Plugin) => {
+            plugin.collect(output, options);
+        });
+    };
 }
 
 /**
@@ -124,13 +147,20 @@ export interface ResolverOptions {
  * @return {string}
  */
 export function resolveMd2Md(inputPath: string, outputPath: string): string {
-    const {input, vars} = ArgvService.getConfig();
+    const {input, output, vars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
     const content: string = readFileSync(resolvedInputPath, 'utf8');
+
+    const customPlugins = getCustomPlugins();
+    const plugins = [...YFM_PLUGINS, customPlugins];
+    const collectOfPlugins = makeCollectOfPlugins(plugins);
 
     const {result} = transformMd2Md(content, {
         path: resolvedInputPath,
         destPath: join(outputPath, basename(inputPath)),
+        root: resolve(input),
+        destRoot: resolve(output),
+        collectOfPlugins,
         vars: {
             ...PresetService.get(dirname(inputPath)),
             ...vars,

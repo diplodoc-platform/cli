@@ -84,7 +84,7 @@
     ]
   },
   "pkg": {
-    "scripts": "build/index.js",
+    "scripts": ["build/index.js", "build/plugins/*.js"],
     "assets": "build/app.js"
   }
 }

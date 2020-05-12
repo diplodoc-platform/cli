@@ -8,7 +8,7 @@ import log from 'yfm-transform/lib/log';
 import {YFM_PLUGINS} from '../constants';
 import {YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
-import {generateStaticMarkup, ResolverOptions, transformToc} from '../utils';
+import {generateStaticMarkup, getCustomPlugins, ResolverOptions, transformToc} from '../utils';
 
 export interface FileTransformOptions {
     path: string;
@@ -40,9 +40,12 @@ export const FileTransformer: Record<string, Function> = {
         /* Relative path from folder of .md file to root of user' output folder */
         const assetsPublicPath = relative(dirname(resolvedPath), resolve(input));
 
+        const customPlugins = getCustomPlugins();
+        const plugins = [...YFM_PLUGINS, ...customPlugins];
+
         return transform(content, {
             ...options,
-            plugins: YFM_PLUGINS,
+            plugins,
             vars: {
                 ...PresetService.get(dirname(path)),
                 ...vars,

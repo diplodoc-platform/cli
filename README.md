@@ -104,6 +104,17 @@ input-folder
     |-- faq_shared_block.md
 ```
 
+Чтобы использовать дополнительные плагины при сборке бинарного пакета, нужно положить их
+в директорию `build/plugins`, а в `build/plugins/index.js` экспортировать массив плагинов.
+
+```
+build
+|-- plugins
+    |-- index.js
+    |-- custom-plugin-1.js
+    |-- custom-plugin-2.js
+```
+
 ## Список возможных параметров
 ```bash
 --version        Текущая версия
