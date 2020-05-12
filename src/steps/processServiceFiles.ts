@@ -1,7 +1,5 @@
-import {basename, dirname, extname, resolve} from 'path';
+import {basename, extname} from 'path';
 import walkSync from 'walk-sync';
-import shell from 'shelljs';
-import {copyFileSync} from 'fs';
 
 import {ArgvService, PresetService, TocService} from '../services';
 import {logger} from '../utils';
@@ -13,8 +11,6 @@ import {logger} from '../utils';
 export function processServiceFiles() {
     const {
         input: inputFolderPath,
-        output: outputFolderPath,
-        outputFormat,
         varsPreset = '',
         ignore = [],
     } = ArgvService.getConfig();
@@ -40,17 +36,7 @@ export function processServiceFiles() {
         }
 
         if (fileBaseName === 'toc') {
-            TocService.add(path, inputFolderPath);
-
-            /* Should copy toc.yaml files to output dir only when running --output-format=md */
-            if (outputFormat === 'md') {
-                const outputDir = resolve(outputFolderPath, dirname(path));
-                const from = resolve(inputFolderPath, path);
-                const to = resolve(outputFolderPath, path);
-
-                shell.mkdir('-p', outputDir);
-                copyFileSync(from, to);
-            }
+            TocService.add(path);
         }
     }
 }
