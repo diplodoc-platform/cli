@@ -120,7 +120,10 @@ function _filterToc(items: YfmToc[], vars: Record<string, string>) {
  */
 function _copyTocDir(tocPath: string, destDir: string) {
     const {dir: tocDir} = parse(tocPath);
-    const files: string[] = walkSync(tocDir, {globs: ['**/*.*']});
+    const files: string[] = walkSync(tocDir, {
+        globs: ['**/*.*'],
+        ignore: ['**/toc.yaml'],
+    });
 
     files.forEach((relPath) => {
         const from = resolve(tocDir, relPath);
