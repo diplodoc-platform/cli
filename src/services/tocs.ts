@@ -1,6 +1,6 @@
 import {dirname, join, parse, resolve} from 'path';
-import {copyFileSync, readFileSync} from 'fs';
-import {safeLoad} from 'js-yaml';
+import {copyFileSync, readFileSync, writeFileSync} from 'fs';
+import {safeLoad, safeDump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import evalExp from 'yfm-transform/lib/liquid/evaluation';
@@ -12,9 +12,15 @@ import {YfmToc} from '../models';
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
 
-function add(path: string, basePath = '') {
+function add(path: string) {
+    const {
+        input: inputFolderPath,
+        output: outputFolderPath,
+        outputFormat,
+    } = ArgvService.getConfig();
+
     const pathToDir: string = dirname(path);
-    const content = readFileSync(resolve(basePath, path), 'utf8');
+    const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
     const {vars, input} = ArgvService.getConfig();
     const combinedVars = {
@@ -27,6 +33,14 @@ function add(path: string, basePath = '') {
 
     /* Should remove all links with false expressions */
     parsedToc.items = _filterToc(parsedToc.items, combinedVars);
+
+    if (outputFormat === 'md') {
+        /* Should copy resolved and filtered toc to output folder */
+        const outputPath = resolve(outputFolderPath, path);
+        const outputToc = safeDump(parsedToc);
+        shell.mkdir('-p', dirname(outputPath));
+        writeFileSync(outputPath, outputToc);
+    }
 
     /* Store parsed toc for .md output format */
     storage.set(path, parsedToc);
