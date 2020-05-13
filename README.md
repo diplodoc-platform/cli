@@ -113,6 +113,7 @@ input-folder
 --varsPreset,    Набор пресетов <default|external|internal>
 --output-format  Выходной формат <html|md>
 --vars, -v       Список переменных markdown шаблона
+--apply-presets  Подставить пресеты
 --strict, -s     Запуск в строгом режиме
 ```
 Подробнее `yfm-docs --help`

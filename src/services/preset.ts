@@ -1,19 +1,10 @@
-import {dirname, resolve} from 'path';
-import {readFileSync} from 'fs';
-import {safeLoad} from 'js-yaml';
+import {dirname} from 'path';
 
-import {ArgvService} from './index';
 import {DocPreset, YfmPreset} from '../models';
 
 const presetStorage: Map<string, YfmPreset> = new Map();
 
-function add(path: string, varsPreset: string) {
-    const {input: inputFolderPath} = ArgvService.getConfig();
-    const pathToPresetFile = resolve(inputFolderPath, path);
-
-    const content = readFileSync(pathToPresetFile, 'utf8');
-    const parsedPreset: DocPreset = safeLoad(content);
-
+function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
     const combinedValues: YfmPreset = {
         ...parsedPreset.default || {},
         ...parsedPreset[varsPreset] || {},

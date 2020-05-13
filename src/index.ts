@@ -37,6 +37,11 @@ const _yargs = yargs
         default: '{}',
         describe: 'List of markdown variables',
     })
+    .option('apply-presets', {
+        default: true,
+        describe: 'Should apply presets. Only for --output-format=md',
+        type: 'boolean',
+    })
     .option('strict', {
         alias: 's',
         default: false,

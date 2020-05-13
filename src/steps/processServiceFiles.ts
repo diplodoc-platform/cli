@@ -1,8 +1,12 @@
-import {basename, extname} from 'path';
+import {basename, dirname, extname, resolve} from 'path';
 import walkSync from 'walk-sync';
+import {readFileSync, writeFileSync} from 'fs';
+import {safeLoad, safeDump} from 'js-yaml';
 
 import {ArgvService, PresetService, TocService} from '../services';
 import {logger} from '../utils';
+import {DocPreset} from '../models';
+import shell from 'shelljs';
 
 /**
  * Processes services files (like toc.yaml, presets.yaml).
@@ -11,8 +15,11 @@ import {logger} from '../utils';
 export function processServiceFiles() {
     const {
         input: inputFolderPath,
+        output: outputFolderPath,
         varsPreset = '',
         ignore = [],
+        outputFormat,
+        applyPresets,
     } = ArgvService.getConfig();
 
     const serviceFilePaths: string[] = walkSync(inputFolderPath, {
@@ -32,7 +39,30 @@ export function processServiceFiles() {
         logger.proc(path);
 
         if (fileBaseName === 'presets') {
-            PresetService.add(path, varsPreset);
+            const pathToPresetFile = resolve(inputFolderPath, path);
+            const content = readFileSync(pathToPresetFile, 'utf8');
+            const parsedPreset: DocPreset = safeLoad(content);
+
+            PresetService.add(parsedPreset, path, varsPreset);
+
+            if (outputFormat === 'md' && !applyPresets) {
+                /* Should save filtered presets.yaml only when --apply-presets=false */
+                const outputPath = resolve(outputFolderPath, path);
+                const filteredPreset: Record<string, Object> = {
+                    default: parsedPreset.default,
+                };
+
+                if (parsedPreset[varsPreset]) {
+                    filteredPreset[varsPreset] = parsedPreset[varsPreset];
+                }
+
+                const outputPreset = safeDump(filteredPreset, {
+                    lineWidth: 120,
+                });
+
+                shell.mkdir('-p', dirname(outputPath));
+                writeFileSync(outputPath, outputPreset);
+            }
         }
 
         if (fileBaseName === 'toc') {
