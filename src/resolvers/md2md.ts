@@ -90,8 +90,12 @@ function transformIncludes(input: string, options: ResolverOptions) {
 }
 
 function transformMd2Md(input: string, options: ResolverOptions) {
+    const {applyPresets} = ArgvService.getConfig();
     const {vars = {}, path} = options;
-    const output = liquid(input, vars, path);
+    const output = liquid(input, vars, path, {
+        conditions: true,
+        substitutions: applyPresets,
+    });
 
     // find and copy includes
     transformIncludes(output, options);

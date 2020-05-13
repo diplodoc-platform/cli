@@ -8,6 +8,7 @@ export interface YfmConfig {
     outputFormat: string;
     allowHTML: string;
     vars: Record<string, string>;
+    applyPresets: boolean;
     strict: boolean;
 }
 
