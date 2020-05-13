@@ -2,6 +2,7 @@ import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green} from 'chalk';
 
 import {YfmToc} from './models';
+import {YFM_PLUGINS} from './constants';
 
 export interface ResolverOptions {
     inputPath: string;
@@ -97,4 +98,10 @@ export function getCustomPlugins() {
     } catch (e) {
         return [];
     }
+}
+
+export function getPlugins() {
+    const customPlugins = getCustomPlugins();
+
+    return [...YFM_PLUGINS, ...customPlugins];
 }

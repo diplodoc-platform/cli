@@ -12,8 +12,7 @@ import liquid from 'yfm-transform/lib/liquid';
 import {resolveRelativePath, isLocalUrl} from 'yfm-transform/lib/utils';
 
 import {ArgvService, PresetService} from '../services';
-import {getCustomPlugins} from '../utils';
-import {YFM_PLUGINS} from '../constants';
+import {getPlugins} from '../utils';
 
 const includes: string[] = [];
 
@@ -151,8 +150,7 @@ export function resolveMd2Md(inputPath: string, outputPath: string): string {
     const resolvedInputPath = resolve(input, inputPath);
     const content: string = readFileSync(resolvedInputPath, 'utf8');
 
-    const customPlugins = getCustomPlugins();
-    const plugins = [...YFM_PLUGINS, customPlugins];
+    const plugins = getPlugins();
     const collectOfPlugins = makeCollectOfPlugins(plugins);
 
     const {result} = transformMd2Md(content, {
