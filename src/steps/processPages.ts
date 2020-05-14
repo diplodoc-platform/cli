@@ -1,6 +1,7 @@
 import {basename, dirname, extname, resolve} from 'path';
 import shell from 'shelljs';
 import {copyFileSync, writeFileSync} from 'fs';
+import {bold} from 'chalk';
 
 import log from 'yfm-transform/lib/log';
 
@@ -71,7 +72,7 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
 
             writeFileSync(outputPath, outputFileContent);
         } catch {
-            log.error(`No such file or has no access to ${resolvedPathToFile}`);
+            log.error(`No such file or has no access to ${bold(resolvedPathToFile)}`);
         }
     }
 }

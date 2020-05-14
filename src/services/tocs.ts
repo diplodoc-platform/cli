@@ -5,6 +5,7 @@ import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import evalExp from 'yfm-transform/lib/liquid/evaluation';
 import log from 'yfm-transform/lib/log';
+import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
@@ -169,7 +170,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
                 item.items = (item.items || []).concat(includeToc.items);
                 delete item.include;
             } catch (err) {
-                log.error(`Error while including toc: ${includeTocPath}`);
+                log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
                 delete item.include;
                 return acc;
             }
