@@ -92,7 +92,7 @@ function transformIncludes(input: string, options: ResolverOptions) {
 
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets} = ArgvService.getConfig();
-    const {vars = {}, path, collectOfPlugins} = options;
+    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins} = options;
     const output = liquid(input, vars, path, {
         conditions: true,
         substitutions: applyPresets,
@@ -102,7 +102,13 @@ function transformMd2Md(input: string, options: ResolverOptions) {
     transformIncludes(output, options);
 
     if (typeof collectOfPlugins === 'function') {
-        collectOfPlugins(output, options);
+        collectOfPlugins(output, {
+            vars,
+            path,
+            root,
+            destPath,
+            destRoot,
+        });
     }
 
     // find and copy images
