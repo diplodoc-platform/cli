@@ -82,7 +82,7 @@ function transformIncludes(input: string, options: ResolverOptions) {
             shell.mkdir('-p', dirname(targetDestPath));
             writeFileSync(targetDestPath, result);
         } catch (e) {
-            log.error(`No such file or has no access to ${includePath} in ${path}`);
+            log.error(`No such file or has no access to ${bold(includePath)} in ${bold(path)}`);
         } finally {
             includes.pop();
         }
