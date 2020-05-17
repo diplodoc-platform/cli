@@ -3,7 +3,7 @@
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "",
   "license": "UNLICENSED",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "repository": {
     "type": "git",
     "url": "https://github.yandex-team.ru/data-ui/yfm-docs"
@@ -84,7 +84,10 @@
     ]
   },
   "pkg": {
-    "scripts": ["build/index.js", "build/plugins/*.js"],
+    "scripts": [
+      "build/index.js",
+      "build/plugins/*.js"
+    ],
     "assets": "build/app.js"
   }
 }
