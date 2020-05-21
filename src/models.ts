@@ -1,3 +1,5 @@
+import {Stage} from './constants';
+
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
@@ -26,6 +28,7 @@ export interface YfmToc {
     name: string;
     href: string;
     items: YfmToc[];
+    stage?: Stage;
     base?: string;
     title?: string;
     when?: boolean|string;
