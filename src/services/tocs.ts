@@ -9,6 +9,7 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
+import {Stage} from '../constants';
 
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
@@ -23,6 +24,12 @@ function add(path: string) {
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
+
+    // Should ignore toc with tech-preview stage.
+    if (parsedToc.stage === Stage.TECH_PREVIEW) {
+        return;
+    }
+
     const {vars, input} = ArgvService.getConfig();
     const combinedVars = {
         ...PresetService.get(pathToDir),
@@ -164,15 +171,20 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
             const includeTocPath = resolve(sourcesDir, path);
 
             try {
-                const includeToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
+                const includeToc: YfmToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
+
+                // Should ignore included toc with tech-preview stage.
+                if (includeToc.stage === Stage.TECH_PREVIEW) {
+                    return acc;
+                }
 
                 _copyTocDir(includeTocPath, tocDir);
                 item.items = (item.items || []).concat(includeToc.items);
-                delete item.include;
             } catch (err) {
                 log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
-                delete item.include;
                 return acc;
+            } finally {
+                delete item.include;
             }
         }
 

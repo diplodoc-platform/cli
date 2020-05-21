@@ -8,6 +8,12 @@ export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
 
+export enum Stage {
+    NEW = 'new',
+    PREVIEW = 'preview',
+    TECH_PREVIEW = 'tech-preview',
+}
+
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images} = plugins;
