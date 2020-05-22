@@ -5,7 +5,13 @@ import {readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID} from './constants';
-import {processAssets, processPages, processServiceFiles, processLogs} from './steps';
+import {
+    processAssets,
+    processExcludedFiles,
+    processLogs,
+    processPages,
+    processServiceFiles,
+} from './steps';
 import {ArgvService} from './services';
 
 const _yargs = yargs
@@ -92,6 +98,8 @@ const {
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
 
 processServiceFiles();
+
+processExcludedFiles();
 
 processPages(tmpInputFolder, outputBundlePath);
 
