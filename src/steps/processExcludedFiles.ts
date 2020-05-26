@@ -16,7 +16,7 @@ export function processExcludedFiles() {
 
     const allContentFiles: string[] = walkSync(inputFolderPath, {
         directories: false,
-        includeBasePath: false,
+        includeBasePath: true,
         globs: [
             '**/*.md',
             '**/index.yaml',
@@ -25,10 +25,11 @@ export function processExcludedFiles() {
         // Ignores service directories like "_includes", "_templates" and etc.
         ignore: ['**/_*/**/*'],
     });
-    const tocSpecifiedFiles = new Set(TocService.getNavigationPaths());
-    const excludedFiles = allContentFiles
-        .filter((filePath) => !tocSpecifiedFiles.has(filePath))
+    const resolvedNavPath = TocService.getNavigationPaths()
         .map((filePath) => resolve(inputFolderPath, filePath));
+    const tocSpecifiedFiles = new Set(resolvedNavPath);
+    const excludedFiles = allContentFiles
+        .filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
     shell.rm(excludedFiles);
 }
