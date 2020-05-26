@@ -3,9 +3,16 @@ import shell from 'shelljs';
 import {resolve, join} from 'path';
 import {readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
+import log from 'yfm-transform/lib/log';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID} from './constants';
-import {processAssets, processPages, processServiceFiles, processLogs} from './steps';
+import {
+    processAssets,
+    processExcludedFiles,
+    processLogs,
+    processPages,
+    processServiceFiles,
+} from './steps';
 import {ArgvService} from './services';
 
 const _yargs = yargs
@@ -59,7 +66,11 @@ try {
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
     const content = readFileSync(resolve(pathToConfig), 'utf8');
     _yargs.config(safeLoad(content) || {});
-} catch {}
+} catch (error) {
+    if (error.name === 'YAMLException') {
+        log.error(`Error to parse .yfm: ${error.message}`);
+    }
+}
 
 
 /* Create user' output folder if doesn't exists */
@@ -92,6 +103,8 @@ const {
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
 
 processServiceFiles();
+
+processExcludedFiles();
 
 processPages(tmpInputFolder, outputBundlePath);
 

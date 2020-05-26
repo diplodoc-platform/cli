@@ -10,6 +10,7 @@ function getConfig() {
 function init(argv: any) {
     _argv = {
         ...argv,
+        ignore: Array.isArray(argv.ignore) ? argv.ignore : [],
         vars: JSON.parse(argv.vars),
     } as YfmArgv;
 }
