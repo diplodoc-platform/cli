@@ -7,7 +7,7 @@ import Token from 'markdown-it/lib/token';
 
 // @ts-ignore
 import imsize from 'markdown-it-imsize';
-import log from 'yfm-transform/lib/log';
+import log, {Logger} from 'yfm-transform/lib/log';
 import liquid from 'yfm-transform/lib/liquid';
 import {resolveRelativePath, isLocalUrl} from 'yfm-transform/lib/utils';
 
@@ -92,7 +92,7 @@ function transformIncludes(input: string, options: ResolverOptions) {
 
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets} = ArgvService.getConfig();
-    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins} = options;
+    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log} = options;
     const output = liquid(input, vars, path, {
         conditions: true,
         substitutions: applyPresets,
@@ -108,6 +108,7 @@ function transformMd2Md(input: string, options: ResolverOptions) {
             root,
             destPath,
             destRoot,
+            log,
         });
     }
 
@@ -123,6 +124,7 @@ function transformMd2Md(input: string, options: ResolverOptions) {
 export interface ResolverOptions {
     vars: Record<string, string>;
     path: string;
+    log: Logger;
     root?: string;
     destPath?: string;
     destRoot?: string;
@@ -169,6 +171,7 @@ export function resolveMd2Md(inputPath: string, outputPath: string): string {
             ...PresetService.get(dirname(inputPath)),
             ...vars,
         },
+        log,
     });
     return result;
 }
