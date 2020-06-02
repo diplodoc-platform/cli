@@ -126,6 +126,7 @@ build
 --vars, -v       Список переменных markdown шаблона
 --apply-presets  Подставить пресеты
 --strict, -s     Запуск в строгом режиме
+--allowHTML      Разрешить использование HTML в md файлах
 ```
 Подробнее `yfm-docs --help`
 

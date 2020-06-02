@@ -55,6 +55,11 @@ const _yargs = yargs
         describe: 'Run in strict mode',
         type: 'boolean',
     })
+    .option('allowHTML', {
+        default: false,
+        describe: 'Allow to use HTML in Markdown files',
+        type: 'boolean',
+    })
     .example('yfm-docs -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .help();
