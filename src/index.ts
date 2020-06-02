@@ -66,9 +66,9 @@ const _yargs = yargs
 
 console.time(MAIN_TIMER_ID);
 
+const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
 try {
     // Combine passed argv and properties from configuration file.
-    const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
     const content = readFileSync(resolve(pathToConfig), 'utf8');
     _yargs.config(safeLoad(content) || {});
 } catch (error) {
@@ -120,6 +120,11 @@ if (outputFormat === 'html') {
 
 /* Copy all generated files to user' output folder */
 shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+
+/* Copy configuration file */
+if (outputFormat === 'md') {
+    shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+}
 
 /* Remove temporary folders */
 shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
