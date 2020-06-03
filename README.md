@@ -145,5 +145,4 @@ npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
 ## License
 
-Mozilla Public License
-Version 2.0
+MIT
