@@ -62,6 +62,7 @@ const _yargs = yargs
     })
     .example('yfm-docs -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
+    .version(VERSION)
     .help();
 
 console.time(MAIN_TIMER_ID);

@@ -54,6 +54,9 @@ module.exports = [
         },
         plugins: [
             new webpack.BannerPlugin({banner: '#!/usr/bin/env node', raw: true}),
+            new webpack.DefinePlugin({
+                VERSION: JSON.stringify(require('./package.json').version),
+            }),
         ],
     },
 ];
