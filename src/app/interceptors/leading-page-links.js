@@ -29,19 +29,19 @@
                 event.preventDefault();
 
                 const href = event.target.href;
-                const httpRegex = /^(https?):\/\//i;
-
-                if (httpRegex.test(href) || href.endsWith('.html') || href.includes('#')) {
-                    window.location.href = href;
-                    return;
-                }
+                const pathWithExtRegex = /\.\w+$/i;
 
                 if (href.endsWith('/')) {
                     window.location.href = href + 'index.html';
                     return;
                 }
 
-                window.location.href = href + '.html';
+                if (!pathWithExtRegex.test(href)) {
+                    window.location.href = href + '.html';
+                    return;
+                }
+
+                window.location.href = href;
             }
         });
     }
