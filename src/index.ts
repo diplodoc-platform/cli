@@ -5,7 +5,7 @@ import {readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
 import log from 'yfm-transform/lib/log';
 
-import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID} from './constants';
+import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
 import {
     processAssets,
     processExcludedFiles,
@@ -60,6 +60,10 @@ const _yargs = yargs
         describe: 'Allow to use HTML in Markdown files',
         type: 'boolean',
     })
+    .option('ignore-stage', {
+        default: Stage.SKIP,
+        describe: 'Ignore tocs with stage',
+    })
     .example('yfm-docs -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .version(VERSION)
@@ -77,7 +81,6 @@ try {
         log.error(`Error to parse .yfm: ${error.message}`);
     }
 }
-
 
 /* Create user' output folder if doesn't exists */
 const userOutputFolder = resolve(_yargs.argv.output);

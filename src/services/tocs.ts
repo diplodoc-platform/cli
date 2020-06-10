@@ -19,14 +19,15 @@ function add(path: string) {
         input: inputFolderPath,
         output: outputFolderPath,
         outputFormat,
+        ignoreStage,
     } = ArgvService.getConfig();
 
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
     const parsedToc: YfmToc = safeLoad(content);
 
-    // Should ignore toc with tech-preview stage.
-    if (parsedToc.stage === Stage.TECH_PREVIEW) {
+    // Should ignore toc with specified stage.
+    if (parsedToc.stage === ignoreStage) {
         return;
     }
 

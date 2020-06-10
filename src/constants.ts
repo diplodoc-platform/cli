@@ -12,6 +12,7 @@ export enum Stage {
     NEW = 'new',
     PREVIEW = 'preview',
     TECH_PREVIEW = 'tech-preview',
+    SKIP = 'skip',
 }
 
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
