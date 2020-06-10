@@ -25,6 +25,7 @@ function transformMd2Md(input: string, options: ResolverOptions) {
             destRoot,
             log,
             copyFile,
+            collectOfPlugins,
         });
     }
 
