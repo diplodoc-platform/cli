@@ -12,6 +12,7 @@ export interface YfmConfig {
     vars: Record<string, string>;
     applyPresets: boolean;
     strict: boolean;
+    ignoreStage: string;
 }
 
 export interface YfmArgv extends YfmConfig {
