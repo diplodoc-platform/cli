@@ -4,6 +4,7 @@ import {safeLoad, safeDump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import evalExp from 'yfm-transform/lib/liquid/evaluation';
+import liquid from 'yfm-transform/lib/liquid';
 import log from 'yfm-transform/lib/log';
 import {bold} from 'chalk';
 
@@ -37,8 +38,13 @@ function add(path: string) {
         ...vars,
     };
 
+    /* Should make substitutions in title */
+    if (parsedToc.title) {
+        parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
+    }
+
     /* Should resolve all includes */
-    parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input));
+    parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
 
     /* Should remove all links with false expressions */
     parsedToc.items = _filterToc(parsedToc.items, combinedVars);
@@ -158,15 +164,37 @@ function _copyTocDir(tocPath: string, destDir: string) {
 }
 
 /**
+ * Liquid substitutions in toc file.
+ * @param input
+ * @param vars
+ * @param path
+ * @return {string}
+ * @private
+ */
+function _liquidSubstitutions(input: string, vars: Record<string, string>, path: string) {
+    return liquid(input, vars, path, {
+        conditions: false,
+        substitutions: true,
+    });
+}
+
+/**
  * Replaces include fields in toc file by resolved toc.
  * @param items
  * @param tocDir
  * @param sourcesDir
+ * @param vars
  * @return
  * @private
  */
-function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
+function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>) {
     return items.reduce((acc, item) => {
+        if (item.name) {
+            const tocPath = join(tocDir, 'toc.yaml');
+
+            item.name = _liquidSubstitutions(item.name, vars, tocPath);
+        }
+
         if (item.include) {
             const {path} = item.include;
             const includeTocPath = resolve(sourcesDir, path);
@@ -190,7 +218,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string) {
         }
 
         if (item.items) {
-            item.items = _replaceIncludes(item.items, tocDir, sourcesDir);
+            item.items = _replaceIncludes(item.items, tocDir, sourcesDir, vars);
         }
 
         return acc.concat(item);
