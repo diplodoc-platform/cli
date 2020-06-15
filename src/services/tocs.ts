@@ -128,9 +128,14 @@ function _normalizeHref(href: string): string {
  */
 function _filterToc(items: YfmToc[], vars: Record<string, string>) {
     return items
-        .filter(({when}) => (
-            when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars))
-        ))
+        .filter((item) => {
+            const {when} = item;
+            const whenResult = when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
+
+            delete item.when;
+
+            return whenResult;
+        })
         .filter((el) => {
             if (el.items) {
                 el.items = _filterToc(el.items, vars);
