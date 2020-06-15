@@ -172,6 +172,11 @@ function _copyTocDir(tocPath: string, destDir: string) {
  * @private
  */
 function _liquidSubstitutions(input: string, vars: Record<string, string>, path: string) {
+    const {outputFormat, applyPresets} = ArgvService.getConfig();
+    if (outputFormat === 'md' && !applyPresets) {
+        return input;
+    }
+
     return liquid(input, vars, path, {
         conditions: false,
         substitutions: true,
