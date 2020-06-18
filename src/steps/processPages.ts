@@ -3,7 +3,7 @@ import shell from 'shelljs';
 import {copyFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 
-import log from 'yfm-transform/lib/log';
+import log from '@doc-tools/transform/lib/log';
 
 import {ArgvService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';

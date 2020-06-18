@@ -2,8 +2,8 @@ import {basename, dirname, join, relative, resolve} from 'path';
 import {readFileSync} from 'fs';
 import yaml from 'js-yaml';
 
-import transform, {Output} from 'yfm-transform';
-import log from 'yfm-transform/lib/log';
+import transform, {Output} from '@doc-tools/transform';
+import log from '@doc-tools/transform/lib/log';
 
 import {YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';

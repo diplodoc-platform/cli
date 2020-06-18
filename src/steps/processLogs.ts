@@ -1,4 +1,4 @@
-import log from 'yfm-transform/lib/log';
+import log from '@doc-tools/transform/lib/log';
 
 import {ArgvService} from '../services';
 import {MAIN_TIMER_ID} from '../constants';

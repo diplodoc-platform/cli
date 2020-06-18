@@ -2,8 +2,8 @@ import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve} from 'path';
 import shell from 'shelljs';
 
-import log, {Logger} from 'yfm-transform/lib/log';
-import liquid from 'yfm-transform/lib/liquid';
+import log, {Logger} from '@doc-tools/transform/lib/log';
+import liquid from '@doc-tools/transform/lib/liquid';
 
 import {ArgvService, PresetService} from '../services';
 import {getPlugins} from '../utils';

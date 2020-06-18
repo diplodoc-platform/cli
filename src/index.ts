@@ -3,7 +3,7 @@ import shell from 'shelljs';
 import {resolve, join} from 'path';
 import {readFileSync} from 'fs';
 import {safeLoad} from 'js-yaml';
-import log from 'yfm-transform/lib/log';
+import log from '@doc-tools/transform/lib/log';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
 import {

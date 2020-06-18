@@ -3,9 +3,9 @@ import {copyFileSync, readFileSync, writeFileSync} from 'fs';
 import {safeLoad, safeDump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
-import evalExp from 'yfm-transform/lib/liquid/evaluation';
-import liquid from 'yfm-transform/lib/liquid';
-import log from 'yfm-transform/lib/log';
+import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
+import liquid from '@doc-tools/transform/lib/liquid';
+import log from '@doc-tools/transform/lib/log';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';

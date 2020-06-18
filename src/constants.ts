@@ -1,4 +1,4 @@
-import {plugins} from 'yfm-transform';
+import {plugins} from '@doc-tools/transform';
 import {dirname} from 'path';
 
 export const BUILD_FOLDER = 'build';
