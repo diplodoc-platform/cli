@@ -7,14 +7,14 @@ import {
     DocLeadingPageData,
     Lang,
     Router,
-} from 'yfm-docs-components';
+} from '@doc-tools/components';
 
 import '../../interceptors/leading-page-links';
 
-import 'yfm-docs-components/styles/default.scss';
-import 'yfm-docs-components/styles/typography.scss';
-import 'yfm-docs-components/styles/themes.scss';
-import 'yfm-transform/dist/css/yfm.css';
+import '@doc-tools/components/styles/default.scss';
+import '@doc-tools/components/styles/typography.scss';
+import '@doc-tools/components/styles/themes.scss';
+import '@doc-tools/transform/dist/css/yfm.css';
 import './App.scss';
 
 export interface DocProps {
