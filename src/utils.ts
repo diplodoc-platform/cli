@@ -105,3 +105,7 @@ export function getPlugins() {
 
     return [...YFM_PLUGINS, ...customPlugins];
 }
+
+export function isExternalHref(href: string) {
+    return href.startsWith('http') || href.startsWith('//');
+}
