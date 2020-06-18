@@ -11,6 +11,7 @@ import {bold} from 'chalk';
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
 import {Stage} from '../constants';
+import {isExternalHref} from '../utils';
 
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
@@ -81,7 +82,7 @@ function add(path: string) {
             navigationItemQueue.push(...items);
         }
 
-        if (navigationItem.href) {
+        if (navigationItem.href && !isExternalHref(navigationItem.href)) {
             const href = `${pathToDir}/${navigationItem.href}`;
             storage.set(href, parsedToc);
 
