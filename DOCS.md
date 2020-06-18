@@ -96,7 +96,7 @@ items:
 
 ## Файлы пресетов <a name="presets"></a>
 
-Набор значений [YFM переменных](https://github.yandex-team.ru/data-ui/yfm/blob/master/DOCS.md#vars) можно описать в
+Набор значений [YFM переменных](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars) можно описать в
 специальных файлах пресетов: `presets.yaml`.
 
 Каждый файл пресетов должен содержать секцию `default`.

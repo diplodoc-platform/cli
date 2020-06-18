@@ -1,12 +1,12 @@
 {
-  "name": "yfm-docs",
+  "name": "@doc-tools/docs",
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "Создавай документацию с помощью yfm-docs в Markdown и HTML форматах.",
   "license": "MIT",
-  "version": "0.7.0",
+  "version": "0.0.1",
   "repository": {
     "type": "git",
-    "url": "https://github.yandex-team.ru/data-ui/yfm-docs"
+    "url": "git@github.com:yandex-cloud/yfm-docs.git"
   },
   "bin": "build/index.js",
   "main": "build/index.js",
@@ -31,8 +31,8 @@
     "shelljs": "^0.8.3",
     "walk-sync": "^2.1.0",
     "yargs": "^15.3.1",
-    "yfm-docs-components": "0.0.1",
-    "yfm-transform": "^3.5.0"
+    "@doc-tools/components": "^0.0.3",
+    "@doc-tools/transform": "^0.0.12"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",

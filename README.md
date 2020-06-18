@@ -7,7 +7,7 @@ Yfm-docs позволяет собрать полноценный докумен
 
 ## Установка
 ```shell script
-npm i yfm-docs -g
+npm i @doc-tools/docs -g
 ```
 
 ## Использование
