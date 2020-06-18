@@ -89,5 +89,15 @@
       "build/plugins/*.js"
     ],
     "assets": "build/app.js"
-  }
+  },
+  "keywords": [
+    "markdown",
+    "yandex",
+    "docs",
+    "yfm",
+    "documentation",
+    "tool",
+    "tools",
+    "generator"
+  ]
 }
