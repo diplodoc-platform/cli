@@ -1,8 +1,8 @@
 {
   "name": "yfm-docs",
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
-  "description": "",
-  "license": "UNLICENSED",
+  "description": "Создавай документацию с помощью yfm-docs в Markdown и HTML форматах.",
+  "license": "MIT",
   "version": "0.7.0",
   "repository": {
     "type": "git",
