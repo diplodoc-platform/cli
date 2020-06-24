@@ -67,7 +67,8 @@ export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBund
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
-    const pathToIndex: string = pathToDir === tocBase ? '' : pathToDir.replace(tocBase, '..');
+    const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}/`, '');
+    const relativePathToIndex = relative(dirname(inputPath), `${tocBase}/`);
 
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn({path: inputPath});
@@ -78,7 +79,7 @@ export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBund
             ...result,
         },
         router: {
-            pathname: join(pathToIndex, basename(outputPath)),
+            pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
         },
         // TODO(vladimirfedin): CLOUDFRONT-3939
         lang: 'ru',
