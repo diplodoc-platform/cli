@@ -34,7 +34,7 @@ export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): Yfm
             navigationItemQueue.push(...navigationItem.items);
         }
 
-        if (href) {
+        if (href && !isExternalHref(href)) {
             /* Path to directory with toc.yaml */
             const pathToIndexDirectory: string = relative(pathToFileDirectory, baseTocPath);
 
