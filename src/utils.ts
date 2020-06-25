@@ -3,6 +3,7 @@ import {blue, green} from 'chalk';
 
 import {YfmToc} from './models';
 import {YFM_PLUGINS} from './constants';
+import {ArgvService} from './services';
 
 export interface ResolverOptions {
     inputPath: string;
@@ -78,12 +79,22 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
     `;
 }
 
+function writeLog(msg: string) {
+    const {quiet} = ArgvService.getConfig();
+
+    if (quiet) {
+        return;
+    }
+
+    console.log(msg);
+}
+
 export const logger = {
     proc: function (pathToFile: string) {
-        console.log(`${blue('PROC')} Processing file ${pathToFile}`);
+        writeLog(`${blue('PROC')} Processing file ${pathToFile}`);
     },
     copy: function (pathToFile: string) {
-        console.log(`${green('COPY')} Copying file ${pathToFile}`);
+        writeLog(`${green('COPY')} Copying file ${pathToFile}`);
     },
 };
 

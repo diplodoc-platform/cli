@@ -18,6 +18,7 @@ export interface YfmConfig {
 export interface YfmArgv extends YfmConfig {
     input: string;
     output: string;
+    quiet: string;
 }
 
 export interface DocPreset {

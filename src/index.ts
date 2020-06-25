@@ -64,6 +64,12 @@ const _yargs = yargs
         default: Stage.SKIP,
         describe: 'Ignore tocs with stage',
     })
+    .option('quiet', {
+        alias: 'q',
+        default: false,
+        describe: 'Run in quiet mode. Don\'t write logs to stdout',
+        type: 'boolean',
+    })
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .version(VERSION)
@@ -107,6 +113,7 @@ ArgvService.init({
 const {
     output: outputFolderPath,
     outputFormat,
+    quiet,
 } = ArgvService.getConfig();
 
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
@@ -133,4 +140,6 @@ if (outputFormat === 'md') {
 /* Remove temporary folders */
 shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
 
-processLogs(tmpInputFolder);
+if (!quiet) {
+    processLogs(tmpInputFolder);
+}
