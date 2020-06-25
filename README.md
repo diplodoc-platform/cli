@@ -12,7 +12,7 @@ npm i @doc-tools/docs -g
 
 ## Использование
 ```shell script
-docs -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
+yfm-docs -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```
 
 ## Список возможных параметров
