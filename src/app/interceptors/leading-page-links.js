@@ -31,14 +31,16 @@
                 const href = event.target.href;
                 const pathWithExtRegex = /\.\w+$/i;
 
-                if (href.endsWith('/')) {
-                    window.location.href = href + 'index.html';
-                    return;
-                }
+                if (!href.startsWith('http')) {
+                    if (href.endsWith('/')) {
+                        window.location.href = href + 'index.html';
+                        return;
+                    }
 
-                if (!pathWithExtRegex.test(href)) {
-                    window.location.href = href + '.html';
-                    return;
+                    if (!pathWithExtRegex.test(href)) {
+                        window.location.href = href + '.html';
+                        return;
+                    }
                 }
 
                 window.location.href = href;
