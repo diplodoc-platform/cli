@@ -8,7 +8,9 @@
     "type": "git",
     "url": "git@github.com:yandex-cloud/yfm-docs.git"
   },
-  "bin": "build/index.js",
+  "bin": {
+    "yfm": "build/index.js"
+  },
   "main": "build/index.js",
   "files": [
     "build",
