@@ -113,7 +113,6 @@ ArgvService.init({
 const {
     output: outputFolderPath,
     outputFormat,
-    quiet,
 } = ArgvService.getConfig();
 
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
@@ -140,6 +139,4 @@ if (outputFormat === 'md') {
 /* Remove temporary folders */
 shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
 
-if (!quiet) {
-    processLogs(tmpInputFolder);
-}
+processLogs(tmpInputFolder);
