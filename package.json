@@ -24,7 +24,7 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
-    "@doc-tools/components": "^1.0.0",
+    "@doc-tools/components": "^1.0.1",
     "@doc-tools/transform": "^1.0.0",
     "chalk": "^4.0.0",
     "js-yaml": "^3.13.1",
