@@ -31,5 +31,5 @@ export function processExcludedFiles() {
     const excludedFiles = allContentFiles
         .filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
-    shell.rm(excludedFiles);
+    shell.rm('-f', excludedFiles);
 }
