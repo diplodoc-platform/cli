@@ -17,7 +17,7 @@ export enum Stage {
 
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
-const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images} = plugins;
+const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images, video} = plugins;
 export const YFM_PLUGINS = [
     attrs,
     meta,
@@ -32,4 +32,5 @@ export const YFM_PLUGINS = [
     code,
     imsize,
     sup,
+    video,
 ];
