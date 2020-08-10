@@ -1,88 +1,94 @@
+**english** | [русский](https://github.com/yandex-cloud/yfm-docs/blob/master/README.ru.md)
+- - -
+
 [![NPM version](https://img.shields.io/npm/v/@doc-tools/docs.svg?style=flat)](https://www.npmjs.org/package/@doc-tools/docs)
 
 # yfm-docs
 
-Yfm-docs позволяет собрать полноценный документационный проект: с навигацией, внутренними переходами и полной поддержкой
-[Yandex Flavored Markdown (YFM)](https://www.npmjs.com/package/@doc-tools/transform). Например, как [документация Яндекс.Облака](https://cloud.yandex.ru/docs).
+Yfm-docs lets you build a full-fledged documentation project: with navigation, internal transitions, and full
+[Yandex Flavored Markdown (YFM)](https://www.npmjs.com/package/@doc-tools/transform) support. For example, [Yandex.Cloud documentation](https://cloud.yandex.ru/docs).
 
-![Пример отображения страницы документации](docsAssets/overview.jpg)
+![Example of displaying a documentation page](docsAssets/overview.jpg)
 
-## Установка
+## Installation
+
 ```shell script
 npm i @doc-tools/docs -g
 ```
 
-## Использование
+## Usage
+
 ```shell script
 yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```
 
-## Список возможных параметров
+## List of possible parameters
 
 - `--input, -i`
 
-    Путь до директории проекта (обязательный параметр).
+    Path to the project directory (required parameter).
 
 - `--output, -o`
 
-    Путь к директории для выходных данных (обязательный параметр).
+    Path to the output directory (required parameter).
 
 - `--allowHTML`
 
-    Разрешить использование HTML в md файлах.
+    Allow the use of HTML in MD files.
 
 - `--varsPreset`
 
-    Название используемого [пресета](./DOCS.md#presets).
+    Name of the used [preset](./DOCS.md#presets).
 
 - `--vars, -v`
 
-    Значения [YFM переменных](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars)
+    Values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars)
 
 - `--strict, -s`
 
-    Запуск в строгом режиме.
+    Start in strict mode.
 
-    Предупреждения YFM трактуются как ошибки. По-умолчанию, выключено.
+    YFM warnings are treated as errors. Disabled by default.
 
 - `--quiet, -q`
 
-    Запуск в тихом режиме.
+    Start in quiet mode.
 
-    Не выводить логи в stdout. По-умолчанию, выключено.
+    Do not output logs to stdout. Disabled by default.
 
 - `--config, -c`
 
-    Путь до [файла конфигурации YFM](./DOCS.md#config).
+    Path to the [YFM configuration file](./DOCS.md#config).
 
 - `--output-format`
 
-    Формат генерации: html или md. По-умолчанию, html.
+    Generation format: HTML or MD. By default, HTML.
 
 - `--apply-presets`
 
-    Подставлять ли [пресеты](./DOCS.md#presets) при конвертации md2md.
+    Shows whether to apply [presets](./DOCS.md#presets) when converting md2md.
 
 - `--version`
 
-    Текущая версия.
+    Current version.
 
 - `--help`
 
-    Список команд.
+    List of commands.
 
-Подробнее `yfm-docs --help`
+Learn more `yfm-docs --help`
 
-[Более подробное описание структуры проекта](./DOCS.md)
+[Learn more about the project structure](./DOCS.md)
 
-## Результат сборки
+## Build result
 
-Собранный проект представляет собой набор статических HTML, которые можно просмотреть локально, разместить на хостинге,
-в GitHub Pages или в [S3](https://cloud.yandex.ru/services/storage):
+The built project is a set of static HTML pages that can be viewed locally, hosted on a hosting service,
+on GitHub Pages, or in [S3](https://cloud.yandex.ru/services/storage):
+
 ```
 input-folder
-|-- index.html (Разводящая страница документации)
-|-- quickstart.html  (Файлы документации и изображения)
+|-- index.html (Documentation landing page)
+|-- quickstart.html (Document files and images)
 |-- pages
     |-- faq.html
     |-- how-to.html
@@ -93,22 +99,23 @@ input-folder
     |-- faq_shared_block.html
 ```
 
-### Сборка в YFM
+### Building a project in YFM
 
-Так же можно собрать проект в YFM с помощью ключа `--output-format=md`.
+You can also build your project in YFM using the `--output-format=md` key.
 
-В этом случае
-- будут подставлены [вставки в файлах оглавлений](./DOCS.md#tocIncludes);
-- вычислены условия в контенте и в файлах оглавлений;
-- подставлены переменные, если указан параметр `apply-presets`;
-- скопированы все файлы, которые указаны в файлах оглавления, и используемые в них картинки и [файлы вставок](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#includes).
+In this case:
 
-Подробнее про переменные и условия в [документации YFM](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars).
+- [Inserts in ToC files]( are applied./DOCS.md#tocIncludes).
+- Conditions in the content and ToC files are calculated.
+- Variables are applied if the `apply-presets` parameter is specified.
+- All files specified in the ToC files, images used in them, and [insert files](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#includes) will be copied.
+
+Learn more about variables and conditions in [YFM documentation](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars).
 
 ```
 input-folder
-|-- index.yaml (Разводящая страница документации)
-|-- quickstart.md (Файлы документации и изображения)
+|-- index.yaml (Documentation landing page)
+|-- quickstart.md (Document files and images)
 |-- pages
     |-- faq.md
     |-- how-to.md
@@ -119,15 +126,17 @@ input-folder
     |-- faq_shared_block.md
 ```
 
-## Исходники
-### Установка
+## Source files
+
+### Installation
 
 ```bash
 cd yfm-docs
 npm ci && npm run build
 ```
 
-### Использование
+### Usage
+
 ```bash
 npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```

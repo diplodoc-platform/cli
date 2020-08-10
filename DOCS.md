@@ -1,26 +1,29 @@
-# Структура YFM проекта
+**english** | [русский](https://github.com/yandex-cloud/yfm-docs/blob/master/DOCS.ru.md)
+- - -
 
-## Содержание
+# YFM project structure
 
-- [Пример структуры проекта](#example)
-- [Оглавление документа](#toc)
-    - [Условия видимости разделов](#tocWhen)
-    - [Вставки оглавлений](#tocIncludes)
-- [Объявление переменных](#presets)
-- [Разводящая страница](#page)
-- [Файл конфигурации](#config)
+## Table of contents
 
-## Пример структуры проекта <a name="example"></a>
+- [Sample project structure](#example)
+- [Table of contents](#toc)
+    - [Conditions for displaying sections](#tocWhen)
+    - [Inserting tables of contents](#tocIncludes)
+- [Declaring variables](#presets)
+- [Landing page](#page)
+- [Configuration file](#config)
 
-В качестве максимально полного примера YFM проекта можно смотреть исходники [документации Яндекс.Облака](https://github.com/yandex-cloud/docs).
+## Sample project structure <a name="example"></a>
+
+For the most complete example of a YFM project, see the [Yandex.Cloud documentation](https://github.com/yandex-cloud/docs) source.
 
 ```
 input-folder
-|-- .yfm (Файл конфигурации YFM)
-|-- toc.yaml (Файл навигации)
-|-- presets.yaml (Набор пресетов с переменными)
-|-- index.yaml (Разводящая страница документации)
-|-- quickstart.md (Файлы документации и изображения)
+|-- .yfm (YFM configuration file)
+|-- toc.yaml (Navigation file)
+|-- presets.yaml (A set of presets with variables)
+|-- index.yaml (Documentation landing page)
+|-- quickstart.md (Document files and images)
 |-- pages
     |-- faq.md
     |-- how-to.md
@@ -31,83 +34,84 @@ input-folder
     |-- faq_shared_block.md
 ```
 
-## Оглавление документа <a name="toc"></a>
+## Table of contents <a name="toc"></a>
 
-Структура документа описывается в файле `toc.yaml`:
+The document structure is described in a file named `toc.yaml`:
 
-* Только файлы, указанные в toc.yaml, обрабатываются при сборке документации.
-* Содержание документа генерируется на основе toc.yaml.
+* Only the files listed in toc.yaml are processed when building the documentation.
+* A document's table of contents is generated based on the toc.yaml file.
 
-Файл `toc.yaml` имеет следующую структуру:
+The `toc.yaml` file structure is a follows:
 
 ```yaml
-- title: Имя документа
+- title: Document name
   href: index.yaml
-- name: Имя раздела
+- name: Section name
   href: path/to/file.md
   items:
-    - name: Имя группы разделов
+    - name: Section group name
       items:
-        - name: Имя раздела
+        - name: Section name
           href: path/to/file.md
-        - name: Имя вложенного блока
+        - name: Nested block name
           items:
-            - name: Имя раздела во вложенном блоке
+            - name: Name of a section in the nested block
               href: path/to/some/file.md
-    - name: Имя другого раздела
+    - name: Name of another section
       href: path/to/another/file.md
-    - name: Раздел с условным вхождением
+    - name: Conditionally included section
       href: path/to/conditional/file.md
       when: version == 12
-    - name: Имя заимствованного блока
+    - name: Name of an imported block
       include:
         path: another/toc.yaml
 ```
 
-* `title` — название документа. Название отображается в содержании документа над списком всех разделов.
-* `name` — имя блока или раздела.
-* `href` — относительный путь до файла с YFM-контентом.
-* `items` — группирующий элемент для отдельных разделов. Сгруппированные разделы отображаются в одном блоке в содержании документа.
-* `when` — [условный оператор](#tocIncludes). Позволяет включать в документ отдельные разделы или блоки в зависимости от значений переменных.
-* `include` — элемент, который позволяет [вставить другое оглавление](#tocIncludes) (другой файл `toc.yaml`) как подраздел. Должен содержать дочениний элемент `path`.
-* `path` — путь до оглавления, которое нужно вставить.
+* `title`: Document name. The name is displayed in the document's table of contents above the list of all sections.
+* `name`: Block or section name.
+* `href`: Relative path to the file with YFM content.
+* `items`: Grouping element for individual sections. Grouped sections are displayed in a single block in the document's table of contents.
+* `when`: [Conditional operator](#tocIncludes). Lets you include separate sections or blocks in the document, depending on the values of variables.
+* `include`: This element lets you [insert another table of contents](#tocIncludes) (a different `toc.yaml` file) as a subsection. It should contain the `path` child element named.
+* `path`: Path to the table of contents to insert.
 
-### Условия видимости разделов <a name="tocWhen"></a>
+### Conditions for displaying sections <a name="tocWhen"></a>
 
-Вы можете включать в документ отдельные разделы или блоки в зависимости от значений [YFM переменных](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). Это удобно, например, для сборки документации разных версий сервиса из одних и тех же исходных файлов.
+You can include separate sections or blocks in a document, depending on the values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). This is useful, for example, when building the documentation for different versions of a service from the same source files.
 
-Условие видимости описывается в параметре `when`:
+The display condition is described in the `when` parameter:
 
 ```when: version == 12```
 
-Доступны операторы сравнения: ==, !=, <, >, <=, >=.
+Available comparison operators: ==, !=, <, >, <=, >=.
 
-### Вставки оглавлений <a name="tocIncludes"></a>
+### Inserting tables of contents <a name="tocIncludes"></a>
 
-Вы можете включить в свой документ оглавление другого документа (другой файл `toc.yaml`) как подраздел. Так вы сможете независимо поддерживать отдельные разделы и потом собирать документ из крупных блоков. Это может быть полезно, напримеер, если вы поддерживаете две версии документа: упрощенную справку для пользователей и более полное руководство администратора.
+You can include the table of contents of another document (a different `toc.yaml` file) as a subsection in your document. This way you can independently maintain separate sections and then build a document from large blocks. This can be useful, for example, if you support two versions of a document: a simplified help for users and a more complete administrator's guide.
 
-## Объявление переменных <a name="presets"></a>
+## Declaring variables <a name="presets"></a>
 
-В YFM вы можете объявлять и использовать [переменные](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). При сборке переменные будут подставлены в текст документации или использованы для вычисления условий. Это удобно, например, для сборки документации разных версий сервиса из одних и тех же исходных файлов.
+In YFM, you can declare and use [variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). When making a build, variables are substituted into the text of a document or used to calculate conditions. This is useful, for example, when building the documentation for different versions of a service from the same source files.
 
-Набор значений переменных объявляется в файлах пресетов: `presets.yaml`:
+A set of variable values is declared in preset files named `presets.yaml`:
 
 ```yaml
 default:
-    position: Волшебник
+    position: The Wizard
 internal:
-    place: Изумрудный город
+    place: Emerald City
 external:
-    place: Страна Оз
+    place: The Land of Oz
 ```
-* Каждый файл пресетов должен содержать секцию `default`.
-* При вычислении переменных берутся значения из секции `default` и из секции указанной в параметре `varsPreset`, с приоритетом последней.
 
-Пресеты удобны, например, если вы собираете документацию в двух режимах: внутренней и внешней. Создайте пресет с секциями `internal` и `external` и вам не понадобится хранить значения переменных в скриптах сборки.
+* Each preset file must contain a section named `default`.
+* When calculating variables, values are taken from the `default` section and the section specified in the `varsPreset` parameter, with the latter taking precedence.
 
-Файлов пресетов может быть несколько. Они будут накладываться в порядке уменьшения приоритета: от ближайшего к конвертируемому сейчас файлу до самого близкого к корню проекта. Но мы рекомендуем ограничится максимально верхнеуровневыми пресетами.
+Presets are convenient, for example, if you build documentation in two modes: internal and external. Create a preset with `internal` and `external` sections and you won't need to store variable values in build scripts.
 
-**Пример**
+There may be multiple preset files. They are applied in order of decreasing priority: from the file closest to the one being converted to the file closest to the project root. We recommend using top-level presets.
+
+**Example**
 
 ```
 input-folder
@@ -122,46 +126,45 @@ input-folder
     |-- how-to.md
 ```
 
-* При сборке файла `faq.md` значения переменных, объявленные в файле `presets.yaml` номер 1, будут иметь приоритет над файлом номер 2.
-* При сборке файла `quickstart.md` будут учитываться только значения переменных, объявленные в файле `presets.yaml` номер 2.
+* When building a file named `faq.md`, the variable values declared in `presets.yaml` file 1 take priority over file 2.
+* When building a file named `quickstart.md`, only the variable values declared in `presets.yaml` file 2 are taken into account.
 
+## Landing page <a name="page"></a>
 
-## Разводящая страница <a name="page"></a>
+To quickly navigate a section, it's often more convenient to display a set of links to the main sections on the first screen rather than an overview text. With Yfm-docs, you can make them not just links, but easy-to-click tiles.
 
-Для быстрой навигации по разделу, часто удобно сделать первый экран в разделе не обзорным текстом, а набором ссылок на основные разделы. Yfm-docs позволяет сделать их не просто ссылками, а удобными для клика плитками.
+![Sample landing page](./docsAssets/landing.jpg)
 
-![Пример разводящей страницы](./docsAssets/landing.jpg)
-
-Пример файла:
+Sample file:
 
 ```yaml
-# Заголовок и описание
-title: "Биллинг в облаке"
-description: "Биллинг — это сервис в составе Яндекс.Облака, который позволяет получать информацию о количестве потребленных ресурсов, проверять расходы денежных средств и оплачивать ресурсы. В Яндекс.Облаке вы платите только за потребленные ресурсы и только за время их фактического использования."
-# Мета-информация title, description, keywords и т.п. (title вкладки и разные SEO-теги)
+# Header and description
+title: "Billing in the cloud"
+description: "Billing is a Yandex.Cloud service that lets you get information about the amount of resources used, monitor your costs, and pay for resources. In Yandex.Cloud, you only pay for resources consumed and the time they're in use.
+# Meta information such as title, description, keywords, and so on (title tabs and different SEO tags)
 meta:
-  title: "Биллинг в облаке"
-# Блок с ссылками
+  title: "Billing in the cloud"
+# Block with links
 links:
-- title: "Начало работы"
-  description: "Как создать свою первую виртуальную машину"
+- title: "Getting started"
+  description: "How to create your first VM"
   href: "#"
-- title: "Базовые операции"
-  description: "Пошаговые инструкции по операциям настройки, подключения, изменения"
+- title: "Basic operations"
+  description: "Step-by-step instructions for setup, connect, and update operations"
   href: "#"
 ```
 
-## Файл конфигурации <a name="config"></a>
+## Configuration file <a name="config"></a>
 
-Проект может содержать файл настроек. По умолчанию, используется файл `.yfm` в корне проекта.
+A project may contain a configuration file. By default, a `.yfm` file is used in the root of the project.
 
-Имя | Описание | Тип | Значение по-умолчанию
-:--- | :--- | :--- | :---
-allowHTML | Разрешено ли использование HTML | bool | false
-varsPreset | Имя используемого пресета | string | 'default'
-strict | Допустимы ли предупреждения в логах yfm-transform | bool | false
-ignore | Список файлов исключаемые из сборки | [] | undefined
-vars | Переменные | {} | undefined
+| Name | Description | Type | Default value |
+| :--- | :--- | :--- | :--- |
+| allowHTML | Shows whether it's allowed to use HTML | bool | false |
+| varsPreset | Name of the preset used | string | 'default' |
+| strict | Shows whether warnings are acceptable in yfm-transform logs | bool | false |
+| ignore | List of files excluded from the build | [] | undefined |
+| vars | Variables | {} | undefined |
 
 ```yaml
 allowHTML: true
