@@ -1,7 +1,7 @@
 {
   "name": "@doc-tools/docs",
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
-  "description": "Создавай документацию с помощью yfm-docs в Markdown и HTML форматах.",
+  "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "license": "MIT",
   "version": "1.1.7",
   "repository": {
