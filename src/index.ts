@@ -103,6 +103,7 @@ shell.mkdir(tmpInputFolder, tmpOutputFolder);
  * Please, change files only in temporary folders.
  */
 shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
+shell.chmod('-R', 'u+w', tmpInputFolder);
 
 ArgvService.init({
     ..._yargs.argv,
