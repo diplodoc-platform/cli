@@ -11,13 +11,13 @@ import {getPlugins} from '../utils';
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile} = options;
-    const output = liquid(input, vars, path, {
+    let output = liquid(input, vars, path, {
         conditions: true,
         substitutions: applyPresets,
     });
 
     if (typeof collectOfPlugins === 'function') {
-        collectOfPlugins(output, {
+        output = collectOfPlugins(output, {
             vars,
             path,
             root,
@@ -43,11 +43,11 @@ export interface ResolverOptions {
     root?: string;
     destPath?: string;
     destRoot?: string;
-    collectOfPlugins?: (input: string, options: ResolverOptions) => void;
+    collectOfPlugins?: (input: string, options: ResolverOptions) => string;
 }
 
 interface Plugin {
-    collect: (input: string, options: ResolverOptions) => void;
+    collect: (input: string, options: ResolverOptions) => string | void;
 }
 
 function makeCollectOfPlugins(plugins: Plugin[]) {
@@ -56,9 +56,15 @@ function makeCollectOfPlugins(plugins: Plugin[]) {
     });
 
     return (output: string, options: ResolverOptions) => {
+        let collectsOutput = output;
+
         pluginsWithCollect.forEach((plugin: Plugin) => {
-            plugin.collect(output, options);
+            const collectOutput = plugin.collect(collectsOutput, options);
+
+            collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
         });
+
+        return collectsOutput;
     };
 }
 
