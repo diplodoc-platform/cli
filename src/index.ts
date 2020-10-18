@@ -12,6 +12,7 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
+    publishFiles,
 } from './steps';
 import {ArgvService} from './services';
 
@@ -70,6 +71,31 @@ const _yargs = yargs
         describe: 'Run in quiet mode. Don\'t write logs to stdout',
         type: 'boolean',
     })
+    .option('publish', {
+        default: false,
+        describe: 'Should upload output files to S3 storage',
+        type: 'boolean',
+    })
+    .option('storage-endpoint', {
+        describe: 'Endpoint of S3 storage',
+        type: 'string',
+    })
+    .option('storage-bucket', {
+        describe: 'Bucket name of S3 storage',
+        type: 'string',
+    })
+    .option('storage-prefix', {
+        describe: 'Prefix will be added to each output file at S3 storage',
+        type: 'string',
+    })
+    .option('storage-key-id', {
+        describe: 'Access key id of S3 storage',
+        type: 'string',
+    })
+    .option('storage-secret-key', {
+        describe: 'Access key secret of S3 storage',
+        type: 'string',
+    })
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .version(VERSION)
@@ -114,6 +140,7 @@ ArgvService.init({
 const {
     output: outputFolderPath,
     outputFormat,
+    publish,
 } = ArgvService.getConfig();
 
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
@@ -135,6 +162,11 @@ shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
 /* Copy configuration file */
 if (outputFormat === 'md') {
     shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+}
+
+/* Upload output files to S3 storage */
+if (publish) {
+    publishFiles();
 }
 
 /* Remove temporary folders */

@@ -96,6 +96,9 @@ export const logger = {
     copy: function (pathToFile: string) {
         writeLog(`${green('COPY')} Copying file ${pathToFile}`);
     },
+    upload: function (pathToFile: string) {
+        writeLog(`${green('UPLOAD')} Uploading file ${pathToFile}`);
+    },
 };
 
 // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
