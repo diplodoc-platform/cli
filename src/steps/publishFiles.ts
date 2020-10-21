@@ -15,34 +15,12 @@ export function publishFiles() {
     const {
         output: outputFolderPath,
         ignore = [],
-        storageEndpoint,
-        storageBucket,
-        storagePrefix,
-        storageKeyId,
-        storageSecretKey,
+        storageEndpoint: endpoint,
+        storageBucket: bucket,
+        storagePrefix: prefix,
+        storageKeyId: accessKeyId,
+        storageSecretKey: secretAccessKey,
     } = ArgvService.getConfig();
-
-    const endpoint = storageEndpoint ?? process.env.STORAGE_ENDPOINT;
-    const bucket = storageBucket ?? process.env.STORAGE_BUCKET;
-    const prefix = storagePrefix ?? process.env.STORAGE_PREFIX ?? '';
-    const accessKeyId = storageKeyId ?? process.env.STORAGE_KEY_ID;
-    const secretAccessKey = storageSecretKey ?? process.env.STORAGE_SECRET_KEY;
-
-    if (!endpoint) {
-        throw new Error('Endpoint of S3 storage must be provided');
-    }
-
-    if (!bucket) {
-        throw new Error('Bucket name of S3 storage must be provided');
-    }
-
-    if (!accessKeyId) {
-        throw new Error('Key Id of S3 storage must be provided');
-    }
-
-    if (!secretAccessKey) {
-        throw new Error('Secret key of S3 storage must be provided');
-    }
 
     const s3Client = new S3({
         endpoint, accessKeyId, secretAccessKey,

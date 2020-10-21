@@ -165,6 +165,11 @@ A project may contain a configuration file. By default, a `.yfm` file is used in
 | strict | Shows whether warnings are acceptable in yfm-transform logs | bool | false |
 | ignore | List of files excluded from the build | [] | undefined |
 | vars | Variables | {} | undefined |
+| publish | Should upload output files to S3 storage | bool | false |
+| storageEndpoint | Endpoint of S3 storage | string | undefined |
+| storageBucket | Bucket name of S3 storage | string | undefined |
+| storagePrefix | Root directory prefix of S3 storage | string | "" |
+| storageKeyId | Access key id of S3 storage. Access secret key S3 storage must be provided in `YFM_STORAGE_SECRET_KEY` environment variable. | string | undefined |
 
 ```yaml
 allowHTML: true

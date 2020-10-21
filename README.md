@@ -72,26 +72,6 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Should upload output files to S3 storage. Disabled by default.
 
-- `--storage-endpoint`
-
-    Endpoint of S3 storage
-
-- `--storage-bucket`
-
-    Bucket name of S3 storage
-
-- `--storage-prefix`
-
-    Root directory prefix of S3 storage. By default, `/`.
-
-- `--storage-key-id`
-
-    Access key id of S3 storage
-
-- `--storage-secret-key`
-
-    Access key secret of S3 storage
-
 - `--version`
 
     Current version.
@@ -110,7 +90,7 @@ The built project is a set of static HTML pages that can be viewed locally, host
 on GitHub Pages, or in [S3](https://cloud.yandex.ru/services/storage):
 
 ```
-input-folder
+output-folder
 |-- index.html (Documentation landing page)
 |-- quickstart.html (Document files and images)
 |-- pages

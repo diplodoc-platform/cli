@@ -20,11 +20,11 @@ export interface YfmArgv extends YfmConfig {
     output: string;
     quiet: string;
     publish: boolean;
-    storageEndpoint?: string;
-    storageBucket?: string;
-    storagePrefix?: string;
-    storageKeyId?: string;
-    storageSecretKey?: string;
+    storageEndpoint: string;
+    storageBucket: string;
+    storagePrefix: string;
+    storageKeyId: string;
+    storageSecretKey: string;
 }
 
 export interface DocPreset {
