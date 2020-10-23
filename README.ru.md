@@ -66,6 +66,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Подставлять ли [пресеты](./DOCS.ru.md#presets) при конвертации md2md.
 
+- `--publish`
+
+    Опубликовать сгенерированные файлы в S3. По умолчанию выключено.
+
 - `--version`
 
     Текущая версия.
@@ -83,7 +87,7 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 Собранный проект представляет собой набор статических HTML, которые можно просмотреть локально, разместить на хостинге,
 в GitHub Pages или в [S3](https://cloud.yandex.ru/services/storage):
 ```
-input-folder
+output-folder
 |-- index.html (Разводящая страница документации)
 |-- quickstart.html  (Файлы документации и изображения)
 |-- pages

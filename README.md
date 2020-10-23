@@ -68,6 +68,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Shows whether to apply [presets](./DOCS.md#presets) when converting md2md.
 
+- `--publish`
+
+    Should upload output files to S3 storage. Disabled by default.
+
 - `--version`
 
     Current version.
@@ -86,7 +90,7 @@ The built project is a set of static HTML pages that can be viewed locally, host
 on GitHub Pages, or in [S3](https://cloud.yandex.ru/services/storage):
 
 ```
-input-folder
+output-folder
 |-- index.html (Documentation landing page)
 |-- quickstart.html (Document files and images)
 |-- pages

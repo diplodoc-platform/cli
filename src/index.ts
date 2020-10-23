@@ -1,9 +1,6 @@
 import * as yargs from 'yargs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
-import {readFileSync} from 'fs';
-import {safeLoad} from 'js-yaml';
-import log from '@doc-tools/transform/lib/log';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
 import {
@@ -12,8 +9,10 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
+    publishFiles,
 } from './steps';
 import {ArgvService} from './services';
+import {argvValidator} from './validator';
 
 const _yargs = yargs
     .option('config', {
@@ -70,6 +69,12 @@ const _yargs = yargs
         describe: 'Run in quiet mode. Don\'t write logs to stdout',
         type: 'boolean',
     })
+    .option('publish', {
+        default: false,
+        describe: 'Should upload output files to S3 storage',
+        type: 'boolean',
+    })
+    .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .version(VERSION)
@@ -78,15 +83,6 @@ const _yargs = yargs
 console.time(MAIN_TIMER_ID);
 
 const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
-try {
-    // Combine passed argv and properties from configuration file.
-    const content = readFileSync(resolve(pathToConfig), 'utf8');
-    _yargs.config(safeLoad(content) || {});
-} catch (error) {
-    if (error.name === 'YAMLException') {
-        log.error(`Error to parse .yfm: ${error.message}`);
-    }
-}
 
 /* Create user' output folder if doesn't exists */
 const userOutputFolder = resolve(_yargs.argv.output);
@@ -114,6 +110,7 @@ ArgvService.init({
 const {
     output: outputFolderPath,
     outputFormat,
+    publish,
 } = ArgvService.getConfig();
 
 const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
@@ -135,6 +132,11 @@ shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
 /* Copy configuration file */
 if (outputFormat === 'md') {
     shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+}
+
+/* Upload output files to S3 storage */
+if (publish) {
+    publishFiles();
 }
 
 /* Remove temporary folders */

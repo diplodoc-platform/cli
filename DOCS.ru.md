@@ -165,6 +165,11 @@ varsPreset | Имя используемого пресета | string | 'defaul
 strict | Допустимы ли предупреждения в логах yfm-transform | bool | false
 ignore | Список файлов исключаемые из сборки | [] | undefined
 vars | Переменные | {} | undefined
+publish | Опубликовать сгенерированные файлы в S3 | bool | false
+storageEndpoint | Адрес S3-совместимого хранилища | string | undefined
+storageBucket | Имя бакета в S3-совместимом хранилище | string | undefined
+storagePrefix | Префикс корневой директории в S3-совместимом хранилище | string | ""
+storageKeyId | Идентификатор ключа доступа в S3-совместимом хранилище. Секрет ключа доступа должен быть объявлен в переменной окружения `YFM_STORAGE_SECRET_KEY`. | string | undefined
 
 ```yaml
 allowHTML: true
