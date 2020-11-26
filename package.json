@@ -45,6 +45,7 @@
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
     "@types/chalk": "^2.2.0",
+    "@types/lodash": "^4.14.167",
     "@types/js-yaml": "^4.0.0",
     "@types/markdown-it": "^10.0.0",
     "@types/mime-types": "^2.1.0",

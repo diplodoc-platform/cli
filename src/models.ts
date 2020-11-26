@@ -14,6 +14,7 @@ export interface YfmConfig {
     resolveConditions: boolean;
     strict: boolean;
     ignoreStage: string;
+    singlePage: boolean;
 }
 
 export interface YfmArgv extends YfmConfig {
@@ -42,6 +43,7 @@ export interface YfmToc extends Filter {
     title?: string;
     include?: YfmTocInclude;
     id?: string;
+    singlePage?: boolean;
 }
 
 export interface YfmTocInclude {
@@ -68,4 +70,9 @@ export interface LeadingPageLinks extends Filter {
 export interface Filter {
     when?: boolean|string;
     [key: string]: unknown;
+}
+
+export interface SinglePageResult {
+    path: string;
+    content: string;
 }

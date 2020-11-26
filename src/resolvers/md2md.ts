@@ -10,7 +10,7 @@ import {getPlugins} from '../utils';
 
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets, resolveConditions} = ArgvService.getConfig();
-    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile} = options;
+    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
     let output = liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
@@ -26,6 +26,7 @@ function transformMd2Md(input: string, options: ResolverOptions) {
             log,
             copyFile,
             collectOfPlugins,
+            singlePage,
         });
     }
 
@@ -40,6 +41,7 @@ export interface ResolverOptions {
     path: string;
     log: Logger;
     copyFile: (targetPath: string, targetDestPath: string, options?: ResolverOptions) => void;
+    singlePage?: boolean;
     root?: string;
     destPath?: string;
     destRoot?: string;
@@ -68,13 +70,17 @@ function makeCollectOfPlugins(plugins: Plugin[]) {
     };
 }
 
+export interface ResolveMd2MdOptions {
+    inputPath: string;
+    outputPath: string;
+    singlePage?: boolean;
+}
 /**
  * Transforms raw markdown file to public markdown document.
- * @param inputPath
- * @param outputPath
+ * @param ResolveMd2MdOptions
  * @return {string}
  */
-export function resolveMd2Md(inputPath: string, outputPath: string): string {
+export function resolveMd2Md({inputPath, outputPath, singlePage}: ResolveMd2MdOptions): string {
     const {input, output, vars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
     const content: string = readFileSync(resolvedInputPath, 'utf8');
@@ -88,6 +94,7 @@ export function resolveMd2Md(inputPath: string, outputPath: string): string {
         root: resolve(input),
         destRoot: resolve(output),
         collectOfPlugins,
+        singlePage,
         vars: {
             ...PresetService.get(dirname(inputPath)),
             ...vars,
