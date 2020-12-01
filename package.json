@@ -25,10 +25,11 @@
   },
   "dependencies": {
     "@doc-tools/components": "^1.5.3",
-    "@doc-tools/transform": "^1.8.5",
+    "@doc-tools/transform": "^2.0.0-alpha.2",
     "@octokit/core": "^3.3.0",
     "aws-sdk": "^2.773.0",
     "chalk": "^4.0.0",
+    "highlight.js": "^10.4.0",
     "js-yaml": "^4.0.0",
     "markdown-it": "^10.0.0",
     "markdown-it-imsize": "^2.0.1",
