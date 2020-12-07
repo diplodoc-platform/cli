@@ -26,7 +26,7 @@ export function processExcludedFiles() {
         ignore: ['**/_*/**/*'],
     });
     const resolvedNavPath = TocService.getNavigationPaths()
-        .map((filePath) => resolve(inputFolderPath, filePath));
+        .map((filePath) => resolve(inputFolderPath, filePath).replace(/\\/g, '/'));
     const tocSpecifiedFiles = new Set(resolvedNavPath);
     const excludedFiles = allContentFiles
         .filter((filePath) => !tocSpecifiedFiles.has(filePath));
