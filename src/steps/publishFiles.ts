@@ -7,6 +7,8 @@ import mime from 'mime-types';
 import {ArgvService} from '../services';
 import {logger} from '../utils';
 
+const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
+
 /**
  * Publishes output files to S3 compatible storage
  * @return {void}
@@ -17,7 +19,7 @@ export function publishFiles() {
         ignore = [],
         storageEndpoint: endpoint,
         storageBucket: bucket,
-        storagePrefix: prefix,
+        storagePrefix: prefix = DEFAULT_PREFIX,
         storageKeyId: accessKeyId,
         storageSecretKey: secretAccessKey,
     } = ArgvService.getConfig();
