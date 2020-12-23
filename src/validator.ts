@@ -27,11 +27,6 @@ const validators: Record<string, ValidatorProps> = {
         errorMessage: 'Bucket name of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
     },
-    'storagePrefix': {
-        errorMessage: 'S3 storage prefix must be provided when publishes.',
-        validateFn: notEmptyStringValidator,
-        defaultValue: process.env.YFM_STORAGE_PREFIX ?? '',
-    },
     'storageKeyId': {
         errorMessage: 'Key Id of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
