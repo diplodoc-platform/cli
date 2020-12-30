@@ -29,16 +29,26 @@
                 event.preventDefault();
 
                 const href = event.target.href;
-                const pathWithExtRegex = /\.\w+$/i;
+                const locationOrigin = window.location.origin;
 
-                if (!href.startsWith('http')) {
+                if (href.startsWith(locationOrigin)) {
+                    const mainFileName = 'index';
+                    const extention = '.html';
+
                     if (href.endsWith('/')) {
-                        window.location.href = href + 'index.html';
+                        window.location.href = `${href}${mainFileName}${extention}`;
                         return;
                     }
 
-                    if (!pathWithExtRegex.test(href)) {
-                        window.location.href = href + '.html';
+                    if (href.endsWith(`/${mainFileName}`)) {
+                        window.location.href = `${href}${extention}`;
+                        return;
+                    }
+
+                    const splitedHref = href.split('#');
+                    if (splitedHref.length > 1 && !splitedHref[0].endsWith(extention)) {
+                        splitedHref[0] += extention;
+                        window.location.href = splitedHref.join('');
                         return;
                     }
                 }
