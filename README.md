@@ -109,7 +109,7 @@ You can also build your project in YFM using the `--output-format=md` key.
 
 In this case:
 
-- [Inserts in ToC files]( are applied./DOCS.md#tocIncludes).
+- Inserts in ToC files [are applied](./DOCS.md#tocIncludes).
 - Conditions in the content and ToC files are calculated.
 - Variables are applied if the `apply-presets` parameter is specified.
 - All files specified in the ToC files, images used in them, and [insert files](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#includes) will be copied.
