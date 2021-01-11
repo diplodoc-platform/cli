@@ -20,6 +20,7 @@ export function processServiceFiles() {
         ignore = [],
         outputFormat,
         applyPresets,
+        resolveConditions,
     } = ArgvService.getConfig();
 
     const serviceFilePaths: string[] = walkSync(inputFolderPath, {
@@ -45,8 +46,8 @@ export function processServiceFiles() {
 
             PresetService.add(parsedPreset, path, varsPreset);
 
-            if (outputFormat === 'md' && !applyPresets) {
-                /* Should save filtered presets.yaml only when --apply-presets=false */
+            if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
+                /* Should save filtered presets.yaml only when --apply-presets=false or --resolve-conditions=false */
                 const outputPath = resolve(outputFolderPath, path);
                 const filteredPreset: Record<string, Object> = {
                     default: parsedPreset.default,

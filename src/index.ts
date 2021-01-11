@@ -48,6 +48,11 @@ const _yargs = yargs
         describe: 'Should apply presets. Only for --output-format=md',
         type: 'boolean',
     })
+    .option('resolve-conditions', {
+        default: true,
+        describe: 'Should resolve conditions. Only for --output-format=md',
+        type: 'boolean',
+    })
     .option('strict', {
         alias: 's',
         default: false,
