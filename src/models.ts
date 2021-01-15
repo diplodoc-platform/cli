@@ -48,3 +48,21 @@ export interface YfmTocInclude {
     repo: string;
     path: string;
 }
+
+export interface YfmLanding {
+    title: string;
+    description?: string;
+    meta?: {
+        title?: string;
+        noIndex?: boolean;
+    };
+    links: YfmLandingLinks[];
+    href?: string;
+    when?: boolean|string;
+}
+
+export interface YfmLandingLinks {
+    title?: string;
+    description?: string;
+    href?: string;
+}
