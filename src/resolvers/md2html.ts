@@ -12,18 +12,17 @@ import {generateStaticMarkup, getPlugins, ResolverOptions, transformToc} from '.
 export interface FileTransformOptions {
     path: string;
     root?: string;
-    updatedContent?: string;
 }
 
 export const FileTransformer: Record<string, Function> = {
-    '.yaml': function ({path, updatedContent}: FileTransformOptions): Object {
+    '.yaml': function ({path}: FileTransformOptions): Object {
         const {input} = ArgvService.getConfig();
         const resolvedPath = resolve(input, path);
         let data = {};
 
         try {
-            const content = updatedContent || readFileSync(resolvedPath, 'utf8');
-            data = yaml.safeLoad(content);
+            const content = readFileSync(resolvedPath, 'utf8');
+            data = yaml.load(content) as string;
         } catch {
             log.error('');
         }
@@ -64,11 +63,7 @@ export const FileTransformer: Record<string, Function> = {
  * @param outputBundlePath
  * @return {string}
  */
-export function resolveMd2HTML(
-    {inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions,
-    updatedContent?: string,
-): string {
-
+export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions): string {
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
@@ -76,7 +71,7 @@ export function resolveMd2HTML(
     const relativePathToIndex = relative(dirname(inputPath), `${tocBase}/`);
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn({path: inputPath, updatedContent});
+    const {result} = transformFn({path: inputPath});
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),

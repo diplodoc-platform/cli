@@ -40,6 +40,10 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
 
             shell.mkdir('-p', outputDir);
 
+            if (fileBaseName === 'index' && fileExtension === '.yaml') {
+                LeadingService.filterFile(pathToFile);
+            }
+
             if (outputFormat === 'md') {
                 if (fileExtension === '.yaml') {
                     const from = resolvedPathToFile;
@@ -61,20 +65,13 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
                     continue;
                 }
 
-                const isLeadingPage = fileBaseName === 'index' && fileExtension === '.yaml';
-                const filteredContent = () => LeadingService.getContentFilteredFile(pathToFile);
-
-                const resolverOptions = {
+                outputFileContent = resolveMd2HTML({
                     inputPath: pathToFile,
                     outputBundlePath,
                     fileExtension,
                     outputPath,
                     filename,
-                };
-
-                outputFileContent = isLeadingPage
-                    ? resolveMd2HTML(resolverOptions, filteredContent())
-                    : resolveMd2HTML(resolverOptions);
+                });
             }
 
             writeFileSync(outputPath, outputFileContent);

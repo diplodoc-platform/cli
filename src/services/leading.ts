@@ -1,19 +1,20 @@
 import {dirname, resolve} from 'path';
-import {readFileSync} from 'fs';
-import {safeDump, safeLoad} from 'js-yaml';
+import {readFileSync, writeFileSync} from 'fs';
+import {dump, load} from 'js-yaml';
 
 import {ArgvService, PresetService} from './index';
 import {LeadingPage, LeadingPageLinks} from '../models';
 import {filterFiles} from './utils';
 
-function getContentFilteredFile(path: string) {
+function filterFile(path: string) {
     const {
         input: inputFolderPath,
     } = ArgvService.getConfig();
 
     const pathToDir: string = dirname(path);
-    const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedIndex: LeadingPage = safeLoad(content);
+    const filePath = resolve(inputFolderPath, path);
+    const content = readFileSync(filePath, 'utf8');
+    const parsedIndex: LeadingPage = load(content) as LeadingPage;
 
     const {vars} = ArgvService.getConfig();
     const combinedVars = {
@@ -24,9 +25,9 @@ function getContentFilteredFile(path: string) {
     /* Should remove all links with false expressions */
     parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars) as LeadingPageLinks[];
 
-    return safeDump(parsedIndex);
+    writeFileSync(filePath, dump(parsedIndex));
 }
 
 export default {
-    getContentFilteredFile,
+    filterFile,
 };

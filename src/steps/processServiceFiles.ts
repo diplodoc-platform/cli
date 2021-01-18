@@ -1,7 +1,7 @@
 import {basename, dirname, extname, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {readFileSync, writeFileSync} from 'fs';
-import {safeLoad, safeDump} from 'js-yaml';
+import {load, dump} from 'js-yaml';
 
 import {ArgvService, PresetService, TocService} from '../services';
 import {logger} from '../utils';
@@ -41,7 +41,7 @@ export function processServiceFiles() {
         if (fileBaseName === 'presets') {
             const pathToPresetFile = resolve(inputFolderPath, path);
             const content = readFileSync(pathToPresetFile, 'utf8');
-            const parsedPreset: DocPreset = safeLoad(content);
+            const parsedPreset: DocPreset = load(content) as DocPreset;
 
             PresetService.add(parsedPreset, path, varsPreset);
 
@@ -56,7 +56,7 @@ export function processServiceFiles() {
                     filteredPreset[varsPreset] = parsedPreset[varsPreset];
                 }
 
-                const outputPreset = safeDump(filteredPreset, {
+                const outputPreset = dump(filteredPreset, {
                     lineWidth: 120,
                 });
 

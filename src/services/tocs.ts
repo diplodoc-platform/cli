@@ -1,6 +1,6 @@
 import {dirname, join, parse, resolve} from 'path';
 import {copyFileSync, readFileSync, writeFileSync} from 'fs';
-import {safeLoad, safeDump} from 'js-yaml';
+import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@doc-tools/transform/lib/liquid';
@@ -26,7 +26,7 @@ function add(path: string) {
 
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedToc: YfmToc = safeLoad(content);
+    const parsedToc: YfmToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
     if (parsedToc.stage === ignoreStage) {
@@ -53,7 +53,7 @@ function add(path: string) {
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
         const outputPath = resolve(outputFolderPath, path);
-        const outputToc = safeDump(parsedToc);
+        const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
     }
@@ -185,7 +185,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             const includeTocPath = resolve(sourcesDir, path);
 
             try {
-                const includeToc: YfmToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
+                const includeToc: YfmToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {
