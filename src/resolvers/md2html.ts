@@ -66,7 +66,8 @@ export const FileTransformer: Record<string, Function> = {
  */
 export function resolveMd2HTML(
     {inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions,
-    updatedContent?: string): string {
+    updatedContent?: string,
+): string {
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;

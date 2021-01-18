@@ -91,7 +91,7 @@ on GitHub Pages, or in [S3](https://cloud.yandex.ru/services/storage):
 
 ```
 output-folder
-|-- index.html (Documentation landing page)
+|-- index.html (Documentation leading page)
 |-- quickstart.html (Document files and images)
 |-- pages
     |-- faq.html
@@ -118,7 +118,7 @@ Learn more about variables and conditions in [YFM documentation](https://github.
 
 ```
 input-folder
-|-- index.yaml (Documentation landing page)
+|-- index.yaml (Documentation leading page)
 |-- quickstart.md (Document files and images)
 |-- pages
     |-- faq.md

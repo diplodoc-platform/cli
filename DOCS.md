@@ -10,7 +10,7 @@
     - [Conditions for displaying sections](#tocWhen)
     - [Inserting tables of contents](#tocIncludes)
 - [Declaring variables](#presets)
-- [Landing page](#page)
+- [Leading page](#page)
 - [Configuration file](#config)
 
 ## Sample project structure <a name="example"></a>
@@ -22,7 +22,7 @@ input-folder
 |-- .yfm (YFM configuration file)
 |-- toc.yaml (Navigation file)
 |-- presets.yaml (A set of presets with variables)
-|-- index.yaml (Documentation landing page)
+|-- index.yaml (Documentation leading page)
 |-- quickstart.md (Document files and images)
 |-- pages
     |-- faq.md
@@ -129,11 +129,11 @@ input-folder
 * When building a file named `faq.md`, the variable values declared in `presets.yaml` file 1 take priority over file 2.
 * When building a file named `quickstart.md`, only the variable values declared in `presets.yaml` file 2 are taken into account.
 
-## Landing page <a name="page"></a>
+## Leading page <a name="page"></a>
 
 To quickly navigate a section, it's often more convenient to display a set of links to the main sections on the first screen rather than an overview text. With Yfm-docs, you can make them not just links, but easy-to-click tiles.
 
-![Sample landing page](./docsAssets/landing.jpg)
+![Sample leading page](./docsAssets/leading.jpg)
 
 Sample file:
 
