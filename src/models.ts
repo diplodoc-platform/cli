@@ -49,20 +49,19 @@ export interface YfmTocInclude {
     path: string;
 }
 
-export interface YfmLanding {
+export interface LeadingPage {
     title: string;
     description?: string;
     meta?: {
         title?: string;
         noIndex?: boolean;
     };
-    links: YfmLandingLinks[];
-    href?: string;
-    when?: boolean|string;
+    links: LeadingPageLinks[];
 }
 
-export interface YfmLandingLinks {
+export interface LeadingPageLinks {
     title?: string;
     description?: string;
     href?: string;
+    when?: boolean | string;
 }

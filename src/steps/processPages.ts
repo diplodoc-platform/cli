@@ -5,7 +5,7 @@ import {bold} from 'chalk';
 
 import log from '@doc-tools/transform/lib/log';
 
-import {ArgvService, LandingService, TocService} from '../services';
+import {ArgvService, LeadingService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {logger} from '../utils';
 
@@ -40,10 +40,6 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
 
             shell.mkdir('-p', outputDir);
 
-            if (fileBaseName === 'index' && fileExtension === '.yaml') {
-                LandingService.add(pathToFile);
-            }
-
             if (outputFormat === 'md') {
                 if (fileExtension === '.yaml') {
                     const from = resolvedPathToFile;
@@ -65,13 +61,20 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
                     continue;
                 }
 
-                outputFileContent = resolveMd2HTML({
+                const isLeadingPage = fileBaseName === 'index' && fileExtension === '.yaml';
+                const filteredContent = () => LeadingService.getContentFilteredFile(pathToFile);
+
+                const resolverOptions = {
                     inputPath: pathToFile,
                     outputBundlePath,
                     fileExtension,
                     outputPath,
                     filename,
-                });
+                };
+
+                outputFileContent = isLeadingPage
+                    ? resolveMd2HTML(resolverOptions, filteredContent())
+                    : resolveMd2HTML(resolverOptions);
             }
 
             writeFileSync(outputPath, outputFileContent);

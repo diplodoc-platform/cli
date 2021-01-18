@@ -1,19 +1,19 @@
 import {dirname, resolve} from 'path';
 import {readFileSync} from 'fs';
-import {safeLoad} from 'js-yaml';
+import {safeDump, safeLoad} from 'js-yaml';
 
 import {ArgvService, PresetService} from './index';
-import {YfmLanding, YfmLandingLinks} from '../models';
+import {LeadingPage, LeadingPageLinks} from '../models';
 import {filterFiles} from './utils';
 
-function add(path: string) {
+function getContentFilteredFile(path: string) {
     const {
         input: inputFolderPath,
     } = ArgvService.getConfig();
 
     const pathToDir: string = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedIndex: YfmLanding = safeLoad(content);
+    const parsedIndex: LeadingPage = safeLoad(content);
 
     const {vars} = ArgvService.getConfig();
     const combinedVars = {
@@ -22,9 +22,11 @@ function add(path: string) {
     };
 
     /* Should remove all links with false expressions */
-    parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars) as YfmLandingLinks[];
+    parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars) as LeadingPageLinks[];
+
+    return safeDump(parsedIndex);
 }
 
 export default {
-    add,
+    getContentFilteredFile,
 };
