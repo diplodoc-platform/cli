@@ -24,9 +24,9 @@ function add(path: string) {
         ignoreStage,
     } = ArgvService.getConfig();
 
-    const pathToDir: string = dirname(path);
+    const pathToDir = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedToc: YfmToc = load(content) as YfmToc;
+    const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
     if (parsedToc.stage === ignoreStage) {
@@ -48,7 +48,7 @@ function add(path: string) {
     parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
 
     /* Should remove all links with false expressions */
-    parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars) as YfmToc[];
+    parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
 
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
@@ -185,7 +185,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             const includeTocPath = resolve(sourcesDir, path);
 
             try {
-                const includeToc: YfmToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
+                const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {

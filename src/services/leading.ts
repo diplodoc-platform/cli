@@ -3,7 +3,7 @@ import {readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 
 import {ArgvService, PresetService} from './index';
-import {LeadingPage, LeadingPageLinks} from '../models';
+import {LeadingPage} from '../models';
 import {filterFiles} from './utils';
 
 function filterFile(path: string) {
@@ -11,10 +11,10 @@ function filterFile(path: string) {
         input: inputFolderPath,
     } = ArgvService.getConfig();
 
-    const pathToDir: string = dirname(path);
+    const pathToDir = dirname(path);
     const filePath = resolve(inputFolderPath, path);
     const content = readFileSync(filePath, 'utf8');
-    const parsedIndex: LeadingPage = load(content) as LeadingPage;
+    const parsedIndex = load(content) as LeadingPage;
 
     const {vars} = ArgvService.getConfig();
     const combinedVars = {
@@ -23,7 +23,7 @@ function filterFile(path: string) {
     };
 
     /* Should remove all links with false expressions */
-    parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars) as LeadingPageLinks[];
+    parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars);
 
     writeFileSync(filePath, dump(parsedIndex));
 }

@@ -41,7 +41,7 @@ export function processServiceFiles() {
         if (fileBaseName === 'presets') {
             const pathToPresetFile = resolve(inputFolderPath, path);
             const content = readFileSync(pathToPresetFile, 'utf8');
-            const parsedPreset: DocPreset = load(content) as DocPreset;
+            const parsedPreset = load(content) as DocPreset;
 
             PresetService.add(parsedPreset, path, varsPreset);
 

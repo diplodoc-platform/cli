@@ -66,5 +66,5 @@ export interface LeadingPageLinks extends Filter {
 
 export interface Filter {
     when?: boolean|string;
-    [key: string]: any;
+    [key: string]: unknown;
 }
