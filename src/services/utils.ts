@@ -16,7 +16,7 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         delete item.when;
 
         if (whenResult) {
-            let property = item[itemsKey];
+            let property = item[itemsKey] as Filter[];
             if (property) {
                 property = filterFiles(property, itemsKey, vars);
             }

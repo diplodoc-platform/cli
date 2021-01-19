@@ -39,7 +39,7 @@ export interface YfmToc extends Filter {
     stage?: Stage;
     base?: string;
     title?: string;
-    include: YfmTocInclude;
+    include?: YfmTocInclude;
     id?: string;
 }
 
