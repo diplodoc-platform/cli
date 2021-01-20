@@ -5,7 +5,7 @@ import {bold} from 'chalk';
 
 import log from '@doc-tools/transform/lib/log';
 
-import {ArgvService, TocService} from '../services';
+import {ArgvService, LeadingService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {logger} from '../utils';
 
@@ -39,6 +39,10 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
             let outputFileContent = '';
 
             shell.mkdir('-p', outputDir);
+
+            if (fileBaseName === 'index' && fileExtension === '.yaml') {
+                LeadingService.filterFile(pathToFile);
+            }
 
             if (outputFormat === 'md') {
                 if (fileExtension === '.yaml') {

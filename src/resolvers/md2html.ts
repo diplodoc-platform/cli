@@ -22,7 +22,7 @@ export const FileTransformer: Record<string, Function> = {
 
         try {
             const content = readFileSync(resolvedPath, 'utf8');
-            data = yaml.safeLoad(content);
+            data = yaml.load(content) as string;
         } catch {
             log.error('');
         }

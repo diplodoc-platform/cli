@@ -1,9 +1,8 @@
 import {dirname, join, parse, resolve} from 'path';
 import {copyFileSync, readFileSync, writeFileSync} from 'fs';
-import {safeLoad, safeDump} from 'js-yaml';
+import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
-import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
 import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
 import {bold} from 'chalk';
@@ -12,6 +11,7 @@ import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
 import {Stage} from '../constants';
 import {isExternalHref} from '../utils';
+import {filterFiles} from './utils';
 
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
@@ -24,9 +24,9 @@ function add(path: string) {
         ignoreStage,
     } = ArgvService.getConfig();
 
-    const pathToDir: string = dirname(path);
+    const pathToDir = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedToc: YfmToc = safeLoad(content);
+    const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
     if (parsedToc.stage === ignoreStage) {
@@ -48,12 +48,16 @@ function add(path: string) {
     parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
 
     /* Should remove all links with false expressions */
-    parsedToc.items = _filterToc(parsedToc.items, combinedVars);
+    try {
+        parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+    } catch (error) {
+        log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+    }
 
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
         const outputPath = resolve(outputFolderPath, path);
-        const outputToc = safeDump(parsedToc);
+        const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
     }
@@ -121,32 +125,6 @@ function _normalizeHref(href: string): string {
 }
 
 /**
- * Filters tocs by expression and removes empty toc' items.
- * @param items
- * @param vars
- * @return {YfmToc}
- * @private
- */
-function _filterToc(items: YfmToc[], vars: Record<string, string>) {
-    return items
-        .filter((item) => {
-            const {when} = item;
-            const whenResult = when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
-
-            delete item.when;
-
-            return whenResult;
-        })
-        .filter((el) => {
-            if (el.items) {
-                el.items = _filterToc(el.items, vars);
-            }
-            // If toc has no items, don't include it into navigation tree.
-            return !(Array.isArray(el.items) && el.items.length === 0);
-        });
-}
-
-/**
  * Copies all files of include toc to original dir.
  * @param tocPath
  * @param destDir
@@ -211,7 +189,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             const includeTocPath = resolve(sourcesDir, path);
 
             try {
-                const includeToc: YfmToc = safeLoad(readFileSync(includeTocPath, 'utf8'));
+                const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {

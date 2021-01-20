@@ -1,7 +1,7 @@
 import {Arguments} from 'yargs';
 import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
-import {safeLoad} from 'js-yaml';
+import {load} from 'js-yaml';
 import log from '@doc-tools/transform/lib/log';
 
 function notEmptyStringValidator(value: string): Boolean {
@@ -44,7 +44,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         // Combine passed argv and properties from configuration file.
         const pathToConfig = argv.config ? String(argv.config) : join(String(argv.input), '.yfm');
         const content = readFileSync(resolve(pathToConfig), 'utf8');
-        Object.assign(argv, safeLoad(content) || {});
+        Object.assign(argv, load(content) || {});
     } catch (error) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse .yfm: ${error.message}`);

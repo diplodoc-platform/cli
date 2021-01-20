@@ -33,19 +33,39 @@ export interface DocPreset {
     [varsPreset: string]: YfmPreset;
 }
 
-export interface YfmToc {
+export interface YfmToc extends Filter {
     name: string;
     href: string;
     items: YfmToc[];
     stage?: Stage;
     base?: string;
     title?: string;
-    when?: boolean|string;
-    include: YfmTocInclude;
+    include?: YfmTocInclude;
     id?: string;
 }
 
 export interface YfmTocInclude {
     repo: string;
     path: string;
+}
+
+export interface LeadingPage {
+    title: string;
+    description?: string;
+    meta?: {
+        title?: string;
+        noIndex?: boolean;
+    };
+    links: LeadingPageLinks[];
+}
+
+export interface LeadingPageLinks extends Filter {
+    title?: string;
+    description?: string;
+    href?: string;
+}
+
+export interface Filter {
+    when?: boolean|string;
+    [key: string]: unknown;
 }
