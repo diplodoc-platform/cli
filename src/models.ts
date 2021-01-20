@@ -11,6 +11,7 @@ export interface YfmConfig {
     allowHTML: string;
     vars: Record<string, string>;
     applyPresets: boolean;
+    resolveConditions: boolean;
     strict: boolean;
     ignoreStage: string;
 }

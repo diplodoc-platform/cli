@@ -1,4 +1,4 @@
-import {basename, dirname, extname, resolve} from 'path';
+import {dirname, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {readFileSync, writeFileSync} from 'fs';
 import {load, dump} from 'js-yaml';
@@ -20,53 +20,59 @@ export function processServiceFiles() {
         ignore = [],
         outputFormat,
         applyPresets,
+        resolveConditions,
     } = ArgvService.getConfig();
 
-    const serviceFilePaths: string[] = walkSync(inputFolderPath, {
+    const presetsFilePaths: string[] = walkSync(inputFolderPath, {
         directories: false,
         includeBasePath: false,
         globs: [
-            '**/toc.yaml',
             '**/presets.yaml',
         ],
         ignore,
     });
 
-    for (const path of serviceFilePaths) {
-        const fileExtension: string = extname(path);
-        const fileBaseName: string = basename(path, fileExtension);
-
+    for (const path of presetsFilePaths) {
         logger.proc(path);
 
-        if (fileBaseName === 'presets') {
-            const pathToPresetFile = resolve(inputFolderPath, path);
-            const content = readFileSync(pathToPresetFile, 'utf8');
-            const parsedPreset = load(content) as DocPreset;
+        const pathToPresetFile = resolve(inputFolderPath, path);
+        const content = readFileSync(pathToPresetFile, 'utf8');
+        const parsedPreset = load(content) as DocPreset;
 
-            PresetService.add(parsedPreset, path, varsPreset);
+        PresetService.add(parsedPreset, path, varsPreset);
 
-            if (outputFormat === 'md' && !applyPresets) {
-                /* Should save filtered presets.yaml only when --apply-presets=false */
-                const outputPath = resolve(outputFolderPath, path);
-                const filteredPreset: Record<string, Object> = {
-                    default: parsedPreset.default,
-                };
+        if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
+            /* Should save filtered presets.yaml only when --apply-presets=false or --resolve-conditions=false */
+            const outputPath = resolve(outputFolderPath, path);
+            const filteredPreset: Record<string, Object> = {
+                default: parsedPreset.default,
+            };
 
-                if (parsedPreset[varsPreset]) {
-                    filteredPreset[varsPreset] = parsedPreset[varsPreset];
-                }
-
-                const outputPreset = dump(filteredPreset, {
-                    lineWidth: 120,
-                });
-
-                shell.mkdir('-p', dirname(outputPath));
-                writeFileSync(outputPath, outputPreset);
+            if (parsedPreset[varsPreset]) {
+                filteredPreset[varsPreset] = parsedPreset[varsPreset];
             }
-        }
 
-        if (fileBaseName === 'toc') {
-            TocService.add(path);
+            const outputPreset = dump(filteredPreset, {
+                lineWidth: 120,
+            });
+
+            shell.mkdir('-p', dirname(outputPath));
+            writeFileSync(outputPath, outputPreset);
         }
+    }
+
+    const tocFilePaths: string[] = walkSync(inputFolderPath, {
+        directories: false,
+        includeBasePath: false,
+        globs: [
+            '**/toc.yaml',
+        ],
+        ignore,
+    });
+
+    for (const path of tocFilePaths) {
+        logger.proc(path);
+
+        TocService.add(path);
     }
 }
