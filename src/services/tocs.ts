@@ -48,7 +48,11 @@ function add(path: string) {
     parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
 
     /* Should remove all links with false expressions */
-    parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+    try {
+        parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+    } catch (error) {
+        log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+    }
 
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
