@@ -7,11 +7,11 @@
 
 - [Sample project structure](#example)
 - [Table of contents](#toc)
-    - [Conditions for displaying sections](#tocWhen)
     - [Inserting tables of contents](#tocIncludes)
 - [Declaring variables](#presets)
 - [Leading page](#page)
 - [Configuration file](#config)
+- [Conditions for displaying sections](#conditionalOperatorWhen)
 
 ## Sample project structure <a name="example"></a>
 
@@ -75,16 +75,6 @@ The `toc.yaml` file structure is a follows:
 * `include`: This element lets you [insert another table of contents](#tocIncludes) (a different `toc.yaml` file) as a subsection. It should contain the `path` child element named.
 * `path`: Path to the table of contents to insert.
 
-### Conditions for displaying sections <a name="tocWhen"></a>
-
-You can include separate sections or blocks in a document, depending on the values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). This is useful, for example, when building the documentation for different versions of a service from the same source files.
-
-The display condition is described in the `when` parameter:
-
-```when: version == 12```
-
-Available comparison operators: ==, !=, <, >, <=, >=.
-
 ### Inserting tables of contents <a name="tocIncludes"></a>
 
 You can include the table of contents of another document (a different `toc.yaml` file) as a subsection in your document. This way you can independently maintain separate sections and then build a document from large blocks. This can be useful, for example, if you support two versions of a document: a simplified help for users and a more complete administrator's guide.
@@ -135,7 +125,7 @@ To quickly navigate a section, it's often more convenient to display a set of li
 
 ![Sample leading page](./docsAssets/leading.jpg)
 
-Sample file:
+The `index.yaml` file structure is a follows:
 
 ```yaml
 # Header and description
@@ -144,15 +134,29 @@ description: "Billing is a Yandex.Cloud service that lets you get information ab
 # Meta information such as title, description, keywords, and so on (title tabs and different SEO tags)
 meta:
   title: "Billing in the cloud"
+  noIndex: true
 # Block with links
 links:
 - title: "Getting started"
   description: "How to create your first VM"
   href: "#"
+  when: version == 12
 - title: "Basic operations"
   description: "Step-by-step instructions for setup, connect, and update operations"
   href: "#"
+  links:
+  - title: "Some basic operation"
+    description: "Description about some basic operation"
+    href: "#"
 ```
+* `title`: Document name. The name is displayed in the document's table of contents above the list of all sections.
+* `description`: Document description.
+* `meta`: Meta information such as title, description, keywords, and etc.
+* `links`: Grouping element for individual sections. Grouped sections are displayed like links on page.
+  * `title`: Name of link.
+  * `description`: Page description.
+  * `href`: Relative path to the file with YFM content.
+  * `when`: [Conditional operator](#tocIncludes). Lets you include separate sections or blocks in the document, depending on the values of variables.
 
 ## Configuration file <a name="config"></a>
 
@@ -178,3 +182,13 @@ varsPreset: "default"
 ignore:
     "**/includes/*.md"
 ```
+
+## Conditions for displaying sections <a name="conditionalOperatorWhen"></a>
+
+You can include separate sections or blocks in a document, depending on the values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). This is useful, for example, when building the documentation for different versions of a service from the same source files.
+
+The display condition is described in the `when` parameter:
+
+```when: version == 12```
+
+Available comparison operators: ==, !=, <, >, <=, >=.
