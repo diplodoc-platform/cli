@@ -10,7 +10,8 @@ import {Filter} from '../models';
  */
 export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars: Record<string, string>): T[] {
     if (!Array.isArray(items)) {
-        const errorMessage = `Error while filtering: item has invalid key '${itemsKey}' equals ${JSON.stringify(items)}`;
+        const errorMessage
+            = `Error while filtering: item has invalid key '${itemsKey}' equals ${JSON.stringify(items)}`;
         throw new Error(errorMessage);
     }
 
