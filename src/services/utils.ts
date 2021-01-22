@@ -14,7 +14,7 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         throw new Error(errorMessage);
     }
 
-    return items.filter((item: T) => {
+    return items.reduce((result: T[], item: T) => {
         const {when} = item;
         const whenResult = when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
 
@@ -23,14 +23,11 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         if (whenResult) {
             const property = item[itemsKey] as T[] | undefined;
 
-            if (property) {
-                (item[itemsKey] as T[]) = filterFiles(property, itemsKey, vars);
-            }
+            const filteredItems = property === undefined ? [item] : filterFiles(item[itemsKey] as T[], itemsKey, vars);
 
-            // If file has no items, don't include it into navigation tree.
-            return !(Array.isArray(item[itemsKey]) && (item[itemsKey] as T[]).length === 0);
+            result.push(...filteredItems);
         }
 
-        return whenResult;
-    });
+        return result;
+    }, []);
 }
