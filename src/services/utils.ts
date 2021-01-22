@@ -21,14 +21,14 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         delete item.when;
 
         if (whenResult) {
-            let property = item[itemsKey] as T[] | undefined;
+            const property = item[itemsKey] as T[] | undefined;
 
             if (property) {
-                property = filterFiles(property, itemsKey, vars);
+                (item[itemsKey] as T[]) = filterFiles(property, itemsKey, vars);
             }
 
             // If file has no items, don't include it into navigation tree.
-            return !(Array.isArray(property) && property.length === 0);
+            return !(Array.isArray(item[itemsKey]) && (item[itemsKey] as T[]).length === 0);
         }
 
         return whenResult;
