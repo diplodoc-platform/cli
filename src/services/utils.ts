@@ -23,9 +23,18 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         if (whenResult) {
             const property = item[itemsKey] as T[] | undefined;
 
-            const filteredItems = property === undefined ? [item] : filterFiles(item[itemsKey] as T[], itemsKey, vars);
+            if (property === undefined) {
+                result.push(item);
+            } else {
+                const filteredProperty = filterFiles(property, itemsKey, vars);
 
-            result.push(...filteredItems);
+                if (filteredProperty.length !== 0) {
+                    result.push({
+                        ...item,
+                        [itemsKey]: filteredProperty,
+                    });
+                }
+            }
         }
 
         return result;
