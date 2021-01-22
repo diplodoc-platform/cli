@@ -71,7 +71,7 @@ The `toc.yaml` file structure is a follows:
 * `name`: Block or section name.
 * `href`: Relative path to the file with YFM content.
 * `items`: Grouping element for individual sections. Grouped sections are displayed in a single block in the document's table of contents.
-* `when`: [Conditional operator](#tocIncludes). Lets you include separate sections or blocks in the document, depending on the values of variables.
+* `when`: [Conditional operator](#conditionalOperatorWhen). Lets you include separate sections or blocks in the document, depending on the values of variables.
 * `include`: This element lets you [insert another table of contents](#tocIncludes) (a different `toc.yaml` file) as a subsection. It should contain the `path` child element named.
 * `path`: Path to the table of contents to insert.
 
@@ -112,7 +112,7 @@ links:
   * `title`: Name of link.
   * `description`: Page description.
   * `href`: Relative path to the file with YFM content.
-  * `when`: [Conditional operator](#tocIncludes). Lets you include separate sections or blocks in the document, depending on the values of variables.
+  * `when`: [Conditional operator](#conditionalOperatorWhen). Lets you include separate sections or blocks in the document, depending on the values of variables.
 
 ## Declaring variables <a name="presets"></a>
 
