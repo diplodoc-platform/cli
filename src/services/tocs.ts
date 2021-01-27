@@ -1,6 +1,6 @@
 import {dirname, join, parse, resolve} from 'path';
 import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
-import {safeLoad, safeDump} from 'js-yaml';
+import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@doc-tools/transform/lib/liquid';
@@ -29,7 +29,7 @@ function add(path: string) {
 
     const pathToDir = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
-    const parsedToc = safeLoad(content) as YfmToc;
+    const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
     if (parsedToc.stage === ignoreStage) {
@@ -66,7 +66,7 @@ function add(path: string) {
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
         const outputPath = resolve(outputFolderPath, path);
-        const outputToc = safeDump(parsedToc);
+        const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
 
@@ -77,7 +77,7 @@ function add(path: string) {
 
             const outputSinglePageDir = resolve(dirname(outputPath), SINGLE_PAGE_FOLDER);
             const outputSinglePageTocPath = resolve(outputSinglePageDir, 'toc.yaml');
-            const outputSinglePageToc = safeDump(parsedSinglePageToc);
+            const outputSinglePageToc = dump(parsedSinglePageToc);
 
             shell.mkdir('-p', outputSinglePageDir);
             writeFileSync(outputSinglePageTocPath, outputSinglePageToc);
@@ -224,7 +224,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             const includeTocPath = resolve(sourcesDir, path);
 
             try {
-                const includeToc = safeLoad(readFileSync(includeTocPath, 'utf8')) as YfmToc;
+                const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {

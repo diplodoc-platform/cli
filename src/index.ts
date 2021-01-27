@@ -74,9 +74,9 @@ const _yargs = yargs
         describe: 'Run in quiet mode. Don\'t write logs to stdout',
         type: 'boolean',
     })
-    .option('singlePage', {
+    .option('single-page', {
         default: false,
-        describe: 'Build a single page in the output folder also',
+        describe: 'Beta functionality: Build a single page in the output folder also',
         type: 'boolean',
     })
     .option('publish', {
