@@ -1,17 +1,19 @@
 import {dirname, join, parse, resolve} from 'path';
-import {copyFileSync, readFileSync, writeFileSync} from 'fs';
+import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
+import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utils';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
-import {Stage} from '../constants';
+import {Stage, SINGLE_PAGE_FOLDER} from '../constants';
 import {isExternalHref} from '../utils';
 import {filterFiles} from './utils';
+import {cloneDeep as _cloneDeep} from 'lodash';
 
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
@@ -22,6 +24,7 @@ function add(path: string) {
         output: outputFolderPath,
         outputFormat,
         ignoreStage,
+        singlePage,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -54,46 +57,34 @@ function add(path: string) {
         log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
     }
 
-    if (outputFormat === 'md') {
-        /* Should copy resolved and filtered toc to output folder */
-        const outputPath = resolve(outputFolderPath, path);
-        const outputToc = dump(parsedToc);
-        shell.mkdir('-p', dirname(outputPath));
-        writeFileSync(outputPath, outputToc);
-    }
-
     /* Store parsed toc for .md output format */
     storage.set(path, parsedToc);
 
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
 
-    const navigationItemQueue = [parsedToc];
+    if (outputFormat === 'md') {
+        /* Should copy resolved and filtered toc to output folder */
+        const outputPath = resolve(outputFolderPath, path);
+        const outputToc = dump(parsedToc);
+        shell.mkdir('-p', dirname(outputPath));
+        writeFileSync(outputPath, outputToc);
 
-    while (navigationItemQueue.length) {
-        const navigationItem = navigationItemQueue.shift();
+        if (singlePage) {
+            const parsedSinglePageToc = _cloneDeep(parsedToc);
+            const currentPath = resolve(outputFolderPath, path);
+            prepareTocForSinglePageMode(parsedSinglePageToc, {root: outputFolderPath, currentPath});
 
-        if (!navigationItem) {
-            continue;
-        }
+            const outputSinglePageDir = resolve(dirname(outputPath), SINGLE_PAGE_FOLDER);
+            const outputSinglePageTocPath = resolve(outputSinglePageDir, 'toc.yaml');
+            const outputSinglePageToc = dump(parsedSinglePageToc);
 
-        if (navigationItem.items) {
-            const items = navigationItem.items.map(((item: YfmToc, index: number) => {
-                // Generate personal id for each navigation item
-                item.id = `${item.name}-${index}-${Math.random()}`;
-                return item;
-            }));
-            navigationItemQueue.push(...items);
-        }
-
-        if (navigationItem.href && !isExternalHref(navigationItem.href)) {
-            const href = `${pathToDir}/${navigationItem.href}`;
-            storage.set(href, parsedToc);
-
-            const navigationPath = _normalizeHref(href);
-            navigationPaths.push(navigationPath);
+            shell.mkdir('-p', outputSinglePageDir);
+            writeFileSync(outputSinglePageTocPath, outputSinglePageToc);
         }
     }
+
+    prepareNavigationPaths(parsedToc, pathToDir);
 }
 
 function getForPath(path: string): YfmToc|undefined {
@@ -102,6 +93,50 @@ function getForPath(path: string): YfmToc|undefined {
 
 function getNavigationPaths(): string[] {
     return [...navigationPaths];
+}
+
+function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
+    function processItems(items: YfmToc[], pathToDir: string) {
+        items.forEach((item) => {
+            if (!parsedToc.singlePage && item.items) {
+                const preparedSubItems = item.items.map(((item: YfmToc, index: number) => {
+                    // Generate personal id for each navigation item
+                    item.id = `${item.name}-${index}-${Math.random()}`;
+                    return item;
+                }));
+                processItems(preparedSubItems, pathToDir);
+            }
+
+            if (item.href && !isExternalHref(item.href)) {
+                const href = `${pathToDir}/${item.href}`;
+                storage.set(href, parsedToc);
+
+                const navigationPath = _normalizeHref(href);
+                navigationPaths.push(navigationPath);
+            }
+        });
+    }
+
+    processItems([parsedToc], pathToDir);
+}
+
+function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; currentPath: string}) {
+    const {root, currentPath} = options;
+
+    function processItems(items: YfmToc[]) {
+        items.forEach((item) => {
+            if (item.items) {
+                processItems(item.items);
+            }
+
+            if (item.href && !isExternalHref(item.href)) {
+                item.href = getSinglePageAnchorId({root, currentPath, pathname: item.href});
+            }
+        });
+    }
+
+    processItems(parsedToc.items);
+    parsedToc.singlePage = true;
 }
 
 /**
@@ -214,8 +249,27 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
     }, [] as YfmToc[]);
 }
 
+function getTocDir(pagePath: string): string {
+    const {output: outputFolderPath} = ArgvService.getConfig();
+
+    const tocDir = dirname(pagePath);
+    const tocPath = resolve(tocDir, 'toc.yaml');
+
+
+    if (!tocDir.includes(outputFolderPath)) {
+        throw new Error('Error while finding toc dir');
+    }
+
+    if (existsSync(tocPath)) {
+        return tocDir;
+    }
+
+    return getTocDir(tocDir);
+}
+
 export default {
     add,
     getForPath,
     getNavigationPaths,
+    getTocDir,
 };

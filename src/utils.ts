@@ -1,7 +1,7 @@
 import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green} from 'chalk';
 
-import {YfmToc} from './models';
+import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
 import {ArgvService} from './services';
 
@@ -43,7 +43,7 @@ export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): Yfm
             const filename: string = basename(href, fileExtension);
             const transformedFilename: string = format({
                 name: filename,
-                ext: '.html',
+                ext: toc.singlePage ? '' : '.html',
             });
 
             navigationItem.href = join(pathToIndexDirectory, dirname(href), transformedFilename);
@@ -123,3 +123,10 @@ export function getPlugins() {
 export function isExternalHref(href: string) {
     return href.startsWith('http') || href.startsWith('//');
 }
+
+export const joinSinglePageResults = (singlePageResults: SinglePageResult[]) => {
+    const delimeter = '\n\n<hr class="yfm-page__delimeter">\n\n';
+    return singlePageResults.map((page) => {
+        return page.content;
+    }).join(delimeter);
+};
