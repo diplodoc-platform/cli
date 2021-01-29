@@ -66,6 +66,14 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Подставлять ли [пресеты](./DOCS.ru.md#presets) при конвертации md2md.
 
+- `--resolve-conditions`
+
+    Показывает, применять ли условия при преобразовании md2md.
+
+- `--ignore-stage`
+
+    Игнорировать tocs.
+
 - `--publish`
 
     Опубликовать сгенерированные файлы в S3. По умолчанию выключено.
