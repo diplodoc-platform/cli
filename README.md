@@ -68,6 +68,14 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Shows whether to apply [presets](./DOCS.md#presets) when converting md2md.
 
+- `--resolve-conditions`
+
+    Shows whether to apply conditions when converting md2md.
+
+- `--ignore-stage`
+
+    Ignore tocs with stage.
+
 - `--publish`
 
     Should upload output files to S3 storage. Disabled by default.
