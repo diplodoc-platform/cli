@@ -14,7 +14,6 @@ function transformMd2Md(input: string, options: ResolverOptions) {
     let output = liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
-        conditionsInCode: !applyPresets,
     });
 
     if (typeof collectOfPlugins === 'function') {
