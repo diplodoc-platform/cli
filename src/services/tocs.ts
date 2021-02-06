@@ -20,15 +20,18 @@ const navigationPaths: string[] = [];
 
 function add(path: string) {
     const {
-        input: inputFolderPath,
+        input,
         output: outputFolderPath,
         outputFormat,
         ignoreStage,
         singlePage,
+        vars,
+        resolveConditions,
+        applyPresets,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
-    const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
+    const content = readFileSync(resolve(input, path), 'utf8');
     const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
@@ -36,14 +39,13 @@ function add(path: string) {
         return;
     }
 
-    const {vars, input} = ArgvService.getConfig();
     const combinedVars = {
         ...PresetService.get(pathToDir),
         ...vars,
     };
 
     /* Should make substitutions in title */
-    if (parsedToc.title) {
+    if (applyPresets && parsedToc.title) {
         parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
     }
 
@@ -51,10 +53,12 @@ function add(path: string) {
     parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
 
     /* Should remove all links with false expressions */
-    try {
-        parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
-    } catch (error) {
-        log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+    if (resolveConditions) {
+        try {
+            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+        } catch (error) {
+            log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+        }
     }
 
     /* Store parsed toc for .md output format */
