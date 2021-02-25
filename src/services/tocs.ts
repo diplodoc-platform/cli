@@ -25,6 +25,9 @@ function add(path: string) {
         outputFormat,
         ignoreStage,
         singlePage,
+        vars,
+        resolveConditions,
+        applyPresets,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -36,25 +39,31 @@ function add(path: string) {
         return;
     }
 
-    const {vars, input} = ArgvService.getConfig();
     const combinedVars = {
         ...PresetService.get(pathToDir),
         ...vars,
     };
 
     /* Should make substitutions in title */
-    if (parsedToc.title) {
+    if (applyPresets && parsedToc.title) {
         parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
     }
 
     /* Should resolve all includes */
-    parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
+    parsedToc.items = _replaceIncludes(
+        parsedToc.items,
+        join(inputFolderPath, pathToDir),
+        resolve(inputFolderPath),
+        combinedVars,
+    );
 
     /* Should remove all links with false expressions */
-    try {
-        parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
-    } catch (error) {
-        log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+    if (resolveConditions) {
+        try {
+            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+        } catch (error) {
+            log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+        }
     }
 
     /* Store parsed toc for .md output format */

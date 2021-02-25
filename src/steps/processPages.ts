@@ -26,6 +26,7 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
         output: outputFolderPath,
         outputFormat,
         singlePage,
+        resolveConditions,
     } = ArgvService.getConfig();
 
     for (const pathToFile of TocService.getNavigationPaths()) {
@@ -55,7 +56,7 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
                 shell.mkdir('-p', outputSinglePageFileDir);
             }
 
-            if (fileBaseName === 'index' && fileExtension === '.yaml') {
+            if (resolveConditions && fileBaseName === 'index' && fileExtension === '.yaml') {
                 LeadingService.filterFile(pathToFile);
             }
 
@@ -74,7 +75,11 @@ export function processPages(tmpInputFolder: string, outputBundlePath: string) {
                     outputSinglePageDir &&
                     !(singlePagePaths[outputSinglePageDir] && singlePagePaths[outputSinglePageDir].has(pathToFile))
                 ) {
-                    const outputSinglePageContent = resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFileDir, singlePage});
+                    const outputSinglePageContent = resolveMd2Md({
+                        inputPath: pathToFile,
+                        outputPath: outputSinglePageFileDir,
+                        singlePage,
+                    });
 
                     const absolutePathToFile = resolve(outputFolderPath, pathToFile);
                     const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
