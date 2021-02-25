@@ -20,7 +20,7 @@ const navigationPaths: string[] = [];
 
 function add(path: string) {
     const {
-        input,
+        input: inputFolderPath,
         output: outputFolderPath,
         outputFormat,
         ignoreStage,
@@ -31,7 +31,7 @@ function add(path: string) {
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
-    const content = readFileSync(resolve(input, path), 'utf8');
+    const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
     const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
@@ -50,7 +50,12 @@ function add(path: string) {
     }
 
     /* Should resolve all includes */
-    parsedToc.items = _replaceIncludes(parsedToc.items, join(input, pathToDir), resolve(input), combinedVars);
+    parsedToc.items = _replaceIncludes(
+        parsedToc.items,
+        join(inputFolderPath, pathToDir),
+        resolve(inputFolderPath),
+        combinedVars,
+    );
 
     /* Should remove all links with false expressions */
     if (resolveConditions) {
