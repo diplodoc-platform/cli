@@ -7,10 +7,10 @@
 
 - [Sample project structure](#example)
 - [Table of contents](#toc)
-    - [Conditions for displaying sections](#tocWhen)
     - [Inserting tables of contents](#tocIncludes)
-- [Declaring variables](#presets)
 - [Leading page](#page)
+- [Declaring variables](#presets)
+    - [Conditions for displaying sections](#conditionalOperatorWhen)
 - [Configuration file](#config)
 
 ## Sample project structure <a name="example"></a>
@@ -71,23 +71,48 @@ The `toc.yaml` file structure is a follows:
 * `name`: Block or section name.
 * `href`: Relative path to the file with YFM content.
 * `items`: Grouping element for individual sections. Grouped sections are displayed in a single block in the document's table of contents.
-* `when`: [Conditional operator](#tocIncludes). Lets you include separate sections or blocks in the document, depending on the values of variables.
+* `when`: [Conditional operator](#conditionalOperatorWhen). Lets you include separate sections or blocks in the document, depending on the values of variables.
 * `include`: This element lets you [insert another table of contents](#tocIncludes) (a different `toc.yaml` file) as a subsection. It should contain the `path` child element named.
 * `path`: Path to the table of contents to insert.
-
-### Conditions for displaying sections <a name="tocWhen"></a>
-
-You can include separate sections or blocks in a document, depending on the values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). This is useful, for example, when building the documentation for different versions of a service from the same source files.
-
-The display condition is described in the `when` parameter:
-
-```when: version == 12```
-
-Available comparison operators: ==, !=, <, >, <=, >=.
 
 ### Inserting tables of contents <a name="tocIncludes"></a>
 
 You can include the table of contents of another document (a different `toc.yaml` file) as a subsection in your document. This way you can independently maintain separate sections and then build a document from large blocks. This can be useful, for example, if you support two versions of a document: a simplified help for users and a more complete administrator's guide.
+
+## Leading page <a name="page"></a>
+
+To quickly navigate a section, it's often more convenient to display a set of links to the main sections on the first screen rather than an overview text. With Yfm-docs, you can make them not just links, but easy-to-click tiles.
+
+![Sample leading page](./docsAssets/leading.jpg)
+
+The `index.yaml` file structure is a follows:
+
+```yaml
+# Header and description
+title: "Billing in the cloud"
+description: "Billing is a Yandex.Cloud service that lets you get information about the amount of resources used, monitor your costs, and pay for resources. In Yandex.Cloud, you only pay for resources consumed and the time they're in use.
+# Meta information such as title, description, keywords, and so on (title tabs and different SEO tags)
+meta:
+  title: "Billing in the cloud"
+  noIndex: true
+# Block with links
+links:
+- title: "Getting started"
+  description: "How to create your first VM"
+  href: "#"
+  when: version == 12
+- title: "Basic operations"
+  description: "Step-by-step instructions for setup, connect, and update operations"
+  href: "#"
+```
+* `title`: Document name. The name is displayed in the document's table of contents above the list of all sections.
+* `description`: Document description.
+* `meta`: Meta information such as title, description, keywords, and etc.
+* `links`: Grouping element for individual sections. Grouped sections are displayed like links on page.
+  * `title`: Name of link.
+  * `description`: Page description.
+  * `href`: Relative path to the file with YFM content.
+  * `when`: [Conditional operator](#conditionalOperatorWhen). Lets you include separate sections or blocks in the document, depending on the values of variables.
 
 ## Declaring variables <a name="presets"></a>
 
@@ -129,30 +154,15 @@ input-folder
 * When building a file named `faq.md`, the variable values declared in `presets.yaml` file 1 take priority over file 2.
 * When building a file named `quickstart.md`, only the variable values declared in `presets.yaml` file 2 are taken into account.
 
-## Leading page <a name="page"></a>
+### Conditions for displaying sections <a name="conditionalOperatorWhen"></a>
 
-To quickly navigate a section, it's often more convenient to display a set of links to the main sections on the first screen rather than an overview text. With Yfm-docs, you can make them not just links, but easy-to-click tiles.
+You can include separate sections or blocks in a document, depending on the values of [YFM variables](https://github.com/yandex-cloud/yfm-transform/blob/master/DOCS.md#vars). This is useful, for example, when building the documentation for different versions of a service from the same source files.
 
-![Sample leading page](./docsAssets/leading.jpg)
+The display condition is described in the `when` parameter:
 
-Sample file:
+```when: version == 12```
 
-```yaml
-# Header and description
-title: "Billing in the cloud"
-description: "Billing is a Yandex.Cloud service that lets you get information about the amount of resources used, monitor your costs, and pay for resources. In Yandex.Cloud, you only pay for resources consumed and the time they're in use.
-# Meta information such as title, description, keywords, and so on (title tabs and different SEO tags)
-meta:
-  title: "Billing in the cloud"
-# Block with links
-links:
-- title: "Getting started"
-  description: "How to create your first VM"
-  href: "#"
-- title: "Basic operations"
-  description: "Step-by-step instructions for setup, connect, and update operations"
-  href: "#"
-```
+Available comparison operators: ==, !=, <, >, <=, >=.
 
 ## Configuration file <a name="config"></a>
 
