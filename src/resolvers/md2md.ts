@@ -9,9 +9,9 @@ import {ArgvService, PresetService} from '../services';
 import {getPlugins} from '../utils';
 
 function transformMd2Md(input: string, options: ResolverOptions) {
-    const {applyPresets, resolveConditions} = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
-    let output = liquid(input, vars, path, {
+    let output = disableLiquid ? input : liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
     });
