@@ -51,6 +51,16 @@
                         window.location.href = splitedHref.join('');
                         return;
                     }
+
+                    // ../file-name
+                    // ../fileName
+                    const regexpOnlyFileName = /(?:\/[a-zA-Z-]+)$/gm;
+                    const match = href.match(regexpOnlyFileName);
+
+                    if (!href.includes('cloud.yandex.ru') && match && match.length) {
+                        window.location.href = `${href}${extention}`;
+                        return;
+                    }
                 }
 
                 window.location.href = href;
