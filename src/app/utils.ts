@@ -56,6 +56,9 @@ export function withSavingSetting<T>(settingName: string, onChange: (value: T) =
     };
 }
 
-export function changeThemeClassname(theme: Theme) {
-    document.body.className = `yc-root ${theme === 'light' ? 'yc-root_theme_light' : 'yc-root_theme_dark'}`;
+export function updateRootClassName(theme: Theme, isMobile = false) {
+    const themeClassName = theme === 'light' ? 'yc-root_theme_light' : 'yc-root_theme_dark';
+    const mobileClassName = isMobile ? 'mobile' : '';
+
+    document.body.className = `yc-root ${themeClassName} ${mobileClassName}`;
 }
