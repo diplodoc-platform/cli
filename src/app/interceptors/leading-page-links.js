@@ -40,11 +40,6 @@
                         return;
                     }
 
-                    if (href.endsWith(`/${mainFileName}`)) {
-                        window.location.href = `${href}${extention}`;
-                        return;
-                    }
-
                     const splitedHref = href.split('#');
                     if (splitedHref.length > 1 && !splitedHref[0].endsWith(extention)) {
                         splitedHref[0] += extention;
@@ -52,12 +47,11 @@
                         return;
                     }
 
-                    // ../file-name
-                    // ../fileName
+                    // ../file-name, ../fileName, ../index
                     const regexpOnlyFileName = /(?:\/[a-zA-Z-]+)$/gm;
                     const match = href.match(regexpOnlyFileName);
 
-                    if (!href.includes('cloud.yandex.ru') && match && match.length) {
+                    if (match && match.length) {
                         window.location.href = `${href}${extention}`;
                         return;
                     }
