@@ -1,6 +1,7 @@
 import * as yargs from 'yargs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
+import * as dotEnv from 'dotenv';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
 import {
@@ -13,6 +14,10 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
+import {getClient} from './client/client';
+
+const dotEnvPath = resolve(process.cwd(), '.env');
+dotEnv.config({path: dotEnvPath});
 
 const _yargs = yargs
     .option('config', {
@@ -129,27 +134,34 @@ processServiceFiles();
 
 processExcludedFiles();
 
-processPages(tmpInputFolder, outputBundlePath);
+async function asyncProcess() {
+    const client = getClient(_yargs.argv.input, pathToConfig);
+    await processPages(tmpInputFolder, outputBundlePath, client);
 
-/* Should copy all assets only when running --output-format=html */
-if (outputFormat === 'html') {
-    processAssets(outputBundlePath);
+    /* Should copy all assets only when running --output-format=html */
+    if (outputFormat === 'html') {
+        processAssets(outputBundlePath);
+    }
+
+    /* Copy all generated files to user' output folder */
+    shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+
+    /* Copy configuration file */
+    if (outputFormat === 'md') {
+        shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+    }
+
+    /* Upload output files to S3 storage */
+    if (publish) {
+        publishFiles();
+    }
+
+    /* Remove temporary folders */
+    shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
+
+    processLogs(tmpInputFolder);
 }
 
-/* Copy all generated files to user' output folder */
-shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+asyncProcess();
 
-/* Copy configuration file */
-if (outputFormat === 'md') {
-    shell.cp('-r', resolve(pathToConfig), userOutputFolder);
-}
-
-/* Upload output files to S3 storage */
-if (publish) {
-    publishFiles();
-}
-
-/* Remove temporary folders */
-shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-
-processLogs(tmpInputFolder);
+export { };

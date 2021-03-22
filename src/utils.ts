@@ -61,6 +61,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
         <html>
             <head>
                 <meta charset="utf-8">
+                ${getMetadata(props.data.meta)}
                 <title>${props.data.toc.title}</title>
                 <style type="text/css">
                     body {
@@ -77,6 +78,17 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
             </body>
         </html>
     `;
+}
+
+function getMetadata(metadata: { [key: string]: string }): string {
+    const metaNames = Object.getOwnPropertyNames(metadata);
+    let meta = '';
+
+    metaNames.forEach((name: string) => {
+        meta += `\n<meta name="${name}" content="${metadata[name]}">`;
+    });
+
+    return meta;
 }
 
 function writeLog(msg: string) {

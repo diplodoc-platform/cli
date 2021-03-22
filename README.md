@@ -140,6 +140,17 @@ input-folder
 
 ## Source files
 
+### Preparation
+
+You need to add `.env` file into repo root with data below:
+
+```bash
+OWNER=
+REPO=
+TOKEN=
+BASE_URL=
+```
+
 ### Installation
 
 ```bash
