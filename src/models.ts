@@ -14,6 +14,7 @@ interface YfmConfig {
     vars: Record<string, string>;
     applyPresets: boolean;
     resolveConditions: boolean;
+    disableLiquid: boolean;
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;

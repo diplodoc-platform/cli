@@ -1,4 +1,4 @@
-import React, {ReactElement, useState, useEffect} from 'react';
+import React, {ReactElement, useState, useEffect, useCallback} from 'react';
 
 import {
     DocLeadingPage,
@@ -10,7 +10,7 @@ import {
     Theme,
     TextSizes,
 } from '@doc-tools/components';
-import {getDocSettings, withSavingSetting, changeThemeClassname} from '../../utils';
+import {getDocSettings, withSavingSetting, updateRootClassName} from '../../utils';
 
 import '../../interceptors/leading-page-links';
 
@@ -33,10 +33,13 @@ export type DocInnerProps =
     & DocProps
     & AppProps;
 
+const MOBILE_VIEW_WIDTH_BREAKPOINT = 900;
+
 export function App(props: DocInnerProps): ReactElement {
     const {data, router, lang} = props;
 
     const docSettings = getDocSettings();
+    const [isMobileView, setIsMobileView] = useState(document.body.clientWidth <= MOBILE_VIEW_WIDTH_BREAKPOINT);
     const [wideFormat, setWideFormat] = useState(docSettings.wideFormat);
     const [fullScreen, setFullScreen] = useState(docSettings.fullScreen);
     const [showMiniToc, setShowMiniToc] = useState(docSettings.showMiniToc);
@@ -54,16 +57,23 @@ export function App(props: DocInnerProps): ReactElement {
         onChangeFullScreen: withSavingSetting<boolean>('fullScreen', setFullScreen),
         onChangeWideFormat: withSavingSetting<boolean>('wideFormat', setWideFormat),
         onChangeShowMiniToc: withSavingSetting<boolean>('showMiniToc', setShowMiniToc),
-        onChangeTheme: withSavingSetting<Theme>('theme', (value: Theme) => {
-            setTheme(value);
-            changeThemeClassname(value);
-        }),
+        onChangeTheme: withSavingSetting<Theme>('theme', setTheme),
         onChangeTextSize: withSavingSetting<TextSizes>('textSize', setTextSize),
     };
 
-    useEffect(() => {
-        changeThemeClassname(theme);
+    const onResizeHandler = useCallback(() => {
+        setIsMobileView(document.body.clientWidth <= MOBILE_VIEW_WIDTH_BREAKPOINT);
     }, []);
+
+    useEffect(() => {
+        window.addEventListener('resize', onResizeHandler);
+
+        return () => window.removeEventListener('resize', onResizeHandler);
+    }, []);
+
+    useEffect(() => {
+        updateRootClassName(theme, isMobileView);
+    }, [theme, isMobileView]);
 
     return (
         // TODO(vladimirfedin): Replace Layout__content class.

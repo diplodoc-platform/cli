@@ -71,6 +71,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 - `--resolve-conditions`
 
     Shows whether to apply conditions when converting md2md.
+    
+- `--disable-liquid`
+    
+    Indicates whether to disable the use of the template engine
 
 - `--ignore-stage`
 

@@ -62,6 +62,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
             <head>
                 <meta charset="utf-8">
                 ${getMetadata(props.data.meta)}
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${props.data.toc.title}</title>
                 <style type="text/css">
                     body {

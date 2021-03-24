@@ -58,6 +58,11 @@ const _yargs = yargs
         describe: 'Should resolve conditions. Only for --output-format=md',
         type: 'boolean',
     })
+    .option('disable-liquid', {
+        default: false,
+        describe: 'Disable template engine',
+        type: 'boolean',
+    })
     .option('strict', {
         alias: 's',
         default: false,
