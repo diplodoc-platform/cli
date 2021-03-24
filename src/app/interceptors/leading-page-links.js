@@ -40,15 +40,11 @@
                         return;
                     }
 
-                    if (href.endsWith(`/${mainFileName}`)) {
-                        window.location.href = `${href}${extention}`;
-                        return;
-                    }
-
+                    // https://../file-name, https://../file-name#fragment
                     const splitedHref = href.split('#');
-                    if (splitedHref.length > 1 && !splitedHref[0].endsWith(extention)) {
+                    if (splitedHref.length > 0 && !splitedHref[0].endsWith(extention)) {
                         splitedHref[0] += extention;
-                        window.location.href = splitedHref.join('');
+                        window.location.href = splitedHref.join('#');
                         return;
                     }
                 }
