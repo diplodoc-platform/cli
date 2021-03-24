@@ -80,6 +80,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Should upload output files to S3 storage. Disabled by default.
 
+- `--contributors`
+
+    Should add contributors into files. Disabled by default.
+
 - `--version`
 
     Current version.
@@ -145,10 +149,11 @@ input-folder
 You need to add `.env` file into repo root with data below:
 
 ```bash
-OWNER=
-REPO=
-TOKEN=
-BASE_URL=
+OWNER= 
+REPO= # docs
+TOKEN= # personal access token
+BASE_URL= # for ex: https://api.github.com
+TYPE= # github 
 ```
 
 ### Installation

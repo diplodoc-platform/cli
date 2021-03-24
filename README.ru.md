@@ -78,6 +78,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Опубликовать сгенерированные файлы в S3. По умолчанию выключено.
 
+- `--contributors`
+
+    Должен добавлять контрибьюторов в файлы. По умолчанию выключено.
+
 - `--version`
 
     Текущая версия.
@@ -135,6 +139,19 @@ input-folder
 ```
 
 ## Исходники
+
+### Подготовка
+
+Необходимо добавить `.env` файл в рут репозитория с данными ниже:
+
+```bash
+OWNER= 
+REPO= # docs
+TOKEN= # personal access token
+BASE_URL= # for ex: https://api.github.com
+TYPE= 
+```
+
 ### Установка
 
 ```bash

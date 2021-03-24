@@ -23,10 +23,11 @@ export async function processPages(tmpInputFolder: string, outputBundlePath: str
         output: outputFolderPath,
         outputFormat,
         singlePage,
+        contributors,
     } = ArgvService.getConfig();
 
     const allContributors = await getAllContributors(client);
-    const contributorsExist = Object.getOwnPropertyNames(allContributors);
+    const contributorsExist = Object.getOwnPropertyNames(allContributors).length > 0 && contributors;
 
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathToDir: string = dirname(pathToFile);

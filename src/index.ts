@@ -73,6 +73,11 @@ const _yargs = yargs
         default: Stage.SKIP,
         describe: 'Ignore tocs with stage',
     })
+    .option('contributors', {
+        default: false,
+        describe: 'Should add contributors into files',
+        type: 'boolean',
+    })
     .option('quiet', {
         alias: 'q',
         default: false,

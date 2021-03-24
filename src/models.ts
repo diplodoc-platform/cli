@@ -17,6 +17,7 @@ interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
+    contributors: boolean;
 }
 
 export interface YfmArgv extends YfmConfig {
