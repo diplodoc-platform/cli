@@ -1,12 +1,13 @@
 import {readFileSync, writeFileSync} from 'fs';
-import {basename, dirname, join, resolve} from 'path';
+import {dirname, resolve} from 'path';
 import shell from 'shelljs';
-
 import log, {Logger} from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
 import {ArgvService, PresetService} from '../services';
-import {getPlugins} from '../utils';
+import {getPlugins, logger} from '../utils';
+import {ResolveMd2MdOptions} from '../models';
+import {addMetadata} from '../services/contributors';
 
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
@@ -70,27 +71,30 @@ function makeCollectOfPlugins(plugins: Plugin[]) {
     };
 }
 
-export interface ResolveMd2MdOptions {
-    inputPath: string;
-    outputPath: string;
-    singlePage?: boolean;
-}
 /**
  * Transforms raw markdown file to public markdown document.
  * @param ResolveMd2MdOptions
  * @return {string}
  */
-export function resolveMd2Md({inputPath, outputPath, singlePage}: ResolveMd2MdOptions): string {
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
+    const {inputPath, outputPath, singlePage, contributorsData} = options;
     const {input, output, vars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedInputPath, 'utf8');
+
+    let content: string = readFileSync(resolvedInputPath, 'utf8');
 
     const plugins = getPlugins();
     const collectOfPlugins = makeCollectOfPlugins(plugins);
 
+    if (contributorsData) {
+        const {fileData, client} = contributorsData;
+        fileData.fileContent = content;
+        content = await addMetadata(fileData, client);
+    }
+
     const {result} = transformMd2Md(content, {
         path: resolvedInputPath,
-        destPath: join(outputPath, basename(inputPath)),
+        destPath: outputPath,
         root: resolve(input),
         destRoot: resolve(output),
         collectOfPlugins,
@@ -102,7 +106,9 @@ export function resolveMd2Md({inputPath, outputPath, singlePage}: ResolveMd2MdOp
         log,
         copyFile,
     });
-    return result;
+
+    writeFileSync(outputPath, result);
+    logger.proc(`Finish md2md for ${inputPath}`);
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: ResolverOptions) {

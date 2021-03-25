@@ -5,14 +5,6 @@ import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
 import {ArgvService} from './services';
 
-export interface ResolverOptions {
-    inputPath: string;
-    filename: string;
-    fileExtension: string;
-    outputPath: string;
-    outputBundlePath: string;
-}
-
 export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): YfmToc|null {
     if (!toc) {
         return null;

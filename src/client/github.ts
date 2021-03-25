@@ -1,4 +1,5 @@
 import {Octokit} from '@octokit/core';
+import {existsSync} from 'fs';
 import {SimpleGit} from 'simple-git';
 import {Contributors} from '../models';
 import {ContributorDTO, GithubClient, GithubContributorDTO, GithubLogsDTO, YfmConfig} from './models';
@@ -44,6 +45,10 @@ async function getRepoContributors(octokit: Octokit, yfmConfig: YfmConfig): Prom
 }
 
 async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<Contributors> {
+    if (!existsSync(filePath)) {
+        return {};
+    }
+
     const logs = await gitSource.log({file: filePath});
     const commits = logs.all as unknown as GithubLogsDTO[];
 

@@ -1,13 +1,13 @@
 import {basename, dirname, join, relative, resolve} from 'path';
-import {readFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
 
 import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
 
-import {YfmToc} from '../models';
+import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
-import {generateStaticMarkup, getPlugins, ResolverOptions, transformToc} from '../utils';
+import {generateStaticMarkup, getPlugins, transformToc} from '../utils';
 
 export interface FileTransformOptions {
     path: string;
@@ -63,7 +63,9 @@ export const FileTransformer: Record<string, Function> = {
  * @param outputBundlePath
  * @return {string}
  */
-export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBundlePath}: ResolverOptions): string {
+export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
+    const {inputPath, fileExtension, outputPath, outputBundlePath} = options;
+
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
@@ -87,5 +89,6 @@ export function resolveMd2HTML({inputPath, fileExtension, outputPath, outputBund
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
 
-    return generateStaticMarkup(props, relativePathToBundle);
+    const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
+    writeFileSync(outputPath, outputFileContent);
 }

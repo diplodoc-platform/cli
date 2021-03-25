@@ -9,8 +9,9 @@ import {Client, SourceType, YfmConfig} from './models';
 
 function getClient(rootPath: string, pathToYfmConfig: string): Client {
     const yfmConfig = getYfmConfig(pathToYfmConfig);
+    const type = process.env.TYPE || yfmConfig.type || '';
 
-    switch (yfmConfig.type) {
+    switch (type) {
         case SourceType.github:
             return {
                 getLogsByPath: getGithubLogsFunction(rootPath),

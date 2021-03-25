@@ -1,3 +1,4 @@
+import {Client} from './client/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
@@ -89,4 +90,44 @@ export interface Contributor {
 
 export interface Contributors {
     [login: string]: Contributor;
+}
+
+export interface FileData {
+    tmpInputfilePath: string;
+    inputFolderPathLength: number;
+    allContributors: Contributors;
+    fileContent: string;
+}
+
+export interface MetaDataOptions {
+    contributorsData?: {
+        fileData: FileData;
+        client: Client;
+    };
+}
+
+export interface ResolveMd2MdOptions extends MetaDataOptions {
+    inputPath: string;
+    outputPath: string;
+    singlePage?: boolean;
+}
+
+export interface ResolverOptions extends MetaDataOptions {
+    inputPath: string;
+    filename: string;
+    fileExtension: string;
+    outputPath: string;
+    outputBundlePath: string;
+}
+
+export interface PathData {
+    pathToFile: string;
+    resolvedPathToFile: string;
+    filename: string;
+    fileBaseName: string;
+    fileExtension: string;
+    outputDir: string;
+    outputPath: string;
+    outputFormat: string;
+    outputBundlePath: string;
 }

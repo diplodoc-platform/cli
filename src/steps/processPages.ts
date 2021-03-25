@@ -8,9 +8,10 @@ import log from '@doc-tools/transform/lib/log';
 import {ArgvService, LeadingService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
-import {Contributor, Contributors, SinglePageResult} from '../models';
+import {MetaDataOptions, FileData, SinglePageResult, PathData, Contributors} from '../models';
 import {SINGLE_PAGE_FOLDER} from '../constants';
-import {Client, ContributorDTO} from '../client/models';
+import {Client} from '../client/models';
+import {getAllContributors} from '../services/contributors';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -28,183 +29,192 @@ export async function processPages(tmpInputFolder: string, outputBundlePath: str
     } = ArgvService.getConfig();
 
     const allContributors = await getAllContributors(client);
-    const contributorsExist = Object.getOwnPropertyNames(allContributors).length > 0 && contributors;
+    const isContributorsExist = Object.getOwnPropertyNames(allContributors).length > 0 && contributors;
+    const inputFolderPathLength = inputFolderPath.length;
+
+    const promises: Promise<void>[] = [];
 
     for (const pathToFile of TocService.getNavigationPaths()) {
-        const pathToDir: string = dirname(pathToFile);
-        const filename: string = basename(pathToFile);
-        const fileExtension: string = extname(pathToFile);
-        const fileBaseName: string = basename(filename, fileExtension);
-        const outputDir = resolve(outputFolderPath, pathToDir);
-        const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
+        const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
 
-        const outputFileName = `${fileBaseName}.${outputFormat}`;
-        const outputPath: string = resolve(outputDir, outputFileName);
+        logger.proc(pathToFile);
 
-        let outputSinglePageDir, outputSinglePageFileDir;
-        if (outputFormat === 'md' && singlePage) {
-            outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
-            outputSinglePageFileDir = resolve(outputSinglePageDir, pathToDir);
+        if (singlePage && outputFormat === 'md') {
+            await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
-        logger.proc(resolvedPathToFile.replace(tmpInputFolder, ''));
-
-        try {
-            let outputFileContent = '';
-
-            shell.mkdir('-p', outputDir);
-            if (outputSinglePageFileDir) {
-                shell.mkdir('-p', outputSinglePageFileDir);
-            }
-
-            if (resolveConditions && fileBaseName === 'index' && fileExtension === '.yaml') {
-                LeadingService.filterFile(pathToFile);
-            }
-
-            if (outputFormat === 'md') {
-                if (fileExtension === '.yaml') {
-                    const from = resolvedPathToFile;
-                    const to = resolve(outputDir, filename);
-
-                    copyFileSync(from, to);
-                    continue;
-                }
-
-                outputFileContent = resolveMd2Md({inputPath: pathToFile, outputPath: outputDir});
-
-                if (contributorsExist) {
-                    const fileContributors = await client.getLogsByPath(pathToFile);
-                    outputFileContent = await addMetadata(outputFileContent, allContributors, fileContributors);
-                }
-
-                if (outputSinglePageFileDir &&
-                    outputSinglePageDir &&
-                    !(singlePagePaths[outputSinglePageDir] && singlePagePaths[outputSinglePageDir].has(pathToFile))
-                ) {
-                    const outputSinglePageContent = resolveMd2Md({
-                        inputPath: pathToFile,
-                        outputPath: outputSinglePageFileDir,
-                        singlePage,
-                    });
-
-                    const absolutePathToFile = resolve(outputFolderPath, pathToFile);
-                    const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
-
-                    singlePageResults[outputSinglePageDir] = singlePageResults[outputSinglePageDir] || [];
-                    singlePageResults[outputSinglePageDir].push({
-                        path: relativePathToOriginalFile,
-                        content: outputSinglePageContent,
-                    });
-
-                    singlePagePaths[outputSinglePageDir] = singlePagePaths[outputSinglePageDir] || new Set();
-                    singlePagePaths[outputSinglePageDir].add(pathToFile);
-                }
-            }
-
-            if (outputFormat === 'html') {
-                if (fileExtension !== '.yaml' && fileExtension !== '.md') {
-                    const from = resolvedPathToFile;
-                    const to = resolve(outputDir, filename);
-
-                    copyFileSync(from, to);
-                    continue;
-                }
-
-                outputFileContent = resolveMd2HTML({
-                    inputPath: pathToFile,
-                    outputBundlePath,
-                    fileExtension,
-                    outputPath,
-                    filename,
-                });
-            }
-
-            writeFileSync(outputPath, outputFileContent);
-        } catch (e) {
-            console.log(e);
-            log.error(` No such file or has no access to ${bold(resolvedPathToFile)}`);
-        }
-
-        if (outputSinglePageDir && outputSinglePageDir) {
-            const singlePageFn = join(outputSinglePageDir, 'index.md');
-            const content = joinSinglePageResults(singlePageResults[outputSinglePageDir]);
-
-            writeFileSync(singlePageFn, content);
-        }
+        promises.push(preparingPagesByOutputFormat(
+            pathData,
+            client,
+            allContributors,
+            isContributorsExist,
+            inputFolderPathLength,
+            resolveConditions));
     }
+
+    await Promise.all(promises);
 }
 
-async function getAllContributors(client: Client): Promise<Contributors> {
+function getPathData(
+    pathToFile: string,
+    inputFolderPath: string,
+    outputFolderPath: string,
+    outputFormat: string,
+    outputBundlePath: string,
+): PathData {
+    const pathToDir: string = dirname(pathToFile);
+    const filename: string = basename(pathToFile);
+    const fileExtension: string = extname(pathToFile);
+    const fileBaseName: string = basename(filename, fileExtension);
+    const outputDir = resolve(outputFolderPath, pathToDir);
+    const outputFileName = `${fileBaseName}.${outputFormat}`;
+
+    const pathData: PathData = {
+        pathToFile,
+        resolvedPathToFile: resolve(inputFolderPath, pathToFile),
+        filename,
+        fileBaseName,
+        fileExtension,
+        outputDir,
+        outputPath: resolve(outputDir, outputFileName),
+        outputFormat,
+        outputBundlePath,
+    };
+
+    return pathData;
+}
+
+async function preparingSinglePages(pathData: PathData, singlePage: boolean, outputFolderPath: string): Promise<void> {
     try {
-        const repoContributors = await client.repoClient.getRepoContributors();
+        const {pathToFile, outputPath, fileExtension} = pathData;
+        const pathToDir: string = dirname(pathToFile);
+        const outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
+        const outputSinglePageFileDir = resolve(outputSinglePageDir, pathToDir);
 
-        const contributors: Contributors = {};
+        shell.mkdir('-p', outputSinglePageFileDir);
 
-        repoContributors.forEach((contributor: ContributorDTO) => {
-            const {login, avatar = ''} = contributor;
-            if (login) {
-                contributors[login] = {
-                    avatar,
-                    login,
-                    name: '',
-                };
-            }
-        });
+        const isExistFileAsSinglePage =
+            singlePagePaths[outputSinglePageDir] && singlePagePaths[outputSinglePageDir].has(pathToFile);
 
-        return contributors;
+        if (!(fileExtension === '.yaml') && !isExistFileAsSinglePage) {
+            const outputSinglePageContent =
+                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFileDir, singlePage});
+
+            const absolutePathToFile = resolve(outputFolderPath, pathToFile);
+            const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
+
+            singlePageResults[outputSinglePageDir] = singlePageResults[outputSinglePageDir] || [];
+            singlePageResults[outputSinglePageDir].push({
+                path: relativePathToOriginalFile,
+                content: outputSinglePageContent,
+            });
+
+            singlePagePaths[outputSinglePageDir] = singlePagePaths[outputSinglePageDir] || new Set();
+            singlePagePaths[outputSinglePageDir].add(pathToFile);
+        }
+
+        const singlePageFn = join(outputSinglePageDir, 'index.md');
+        const content = joinSinglePageResults(singlePageResults[outputSinglePageDir]);
+
+        writeFileSync(singlePageFn, content);
     } catch (error) {
         console.log(error);
-        log.error(`Getting contributors was failed. Error: ${JSON.stringify(error)}`);
-        throw error;
     }
 }
 
-async function addMetadata(fileContent: string, allContributors: Contributors, fileContributors: Contributors): Promise<string> {
-    // Search by format:
-    // ---
-    // metaName1: metaValue1
-    // metaName2: meta value2
-    // incorrectMetadata
-    // ---
-    const regexpMetadata = '(?<=-{3}\\r\\n)((.*\\r\\n)*)(?=-{3}\\r\\n)';
-    // Search by format:
-    // ---
-    // main content 123
-    const regexpFileContent = '---((.*\\r\\n)*)';
-    const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
-    const matches = regexpParseFileContent.exec(fileContent);
+async function preparingPagesByOutputFormat(
+    path: PathData,
+    client: Client,
+    allContributors: Contributors,
+    isContributorsExist: boolean,
+    inputFolderPathLength: number,
+    resolveConditions: boolean): Promise<void> {
+    const {
+        filename,
+        fileExtension,
+        fileBaseName,
+        outputDir,
+        resolvedPathToFile,
+        outputFormat,
+        pathToFile,
+    } = path;
 
-    const contributorsValue = await getFileContributors(allContributors, fileContributors);
+    try {
+        shell.mkdir('-p', outputDir);
 
-    if (matches && matches.length > 0) {
-        const [, fileMetadata, , fileMainContent] = matches;
-
-        return `${getUpdatedMetadata(contributorsValue, fileMetadata)}${fileMainContent}`;
-    }
-
-    return `${getUpdatedMetadata(contributorsValue)}${fileContent}`;
-}
-
-async function getFileContributors(allContributors: Contributors, fileContributors: Contributors): Promise<string> {
-    const contributors: Contributor[] = [];
-
-    Object.keys(fileContributors).forEach((login: string) => {
-        if (allContributors[login]) {
-            contributors.push({
-                ...fileContributors[login],
-                ...allContributors[login],
-            });
+        if (resolveConditions && fileBaseName === 'index' && fileExtension === '.yaml') {
+            LeadingService.filterFile(pathToFile);
         }
-    });
 
-    return `contributors: ${JSON.stringify(contributors)}`;
+        if (outputFormat === 'md' && fileExtension === '.yaml' ||
+            outputFormat === 'html' && fileExtension !== '.yaml' && fileExtension !== '.md') {
+            copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
+            return;
+        }
+
+        const conributorsOptions: MetaDataOptions = {
+            contributorsData: undefined,
+        };
+
+        if (isContributorsExist && pathToFile.includes('ru')) {
+            const fileData: FileData = {
+                tmpInputfilePath: resolvedPathToFile,
+                inputFolderPathLength,
+                allContributors,
+                fileContent: '',
+            };
+
+            conributorsOptions.contributorsData = {
+                fileData,
+                client,
+            };
+        }
+
+        switch (outputFormat) {
+            case 'md':
+                await processingFileToMd(path, conributorsOptions);
+                return;
+            case 'html':
+                await processingFileToHtml(path);
+                return;
+        }
+    } catch (e) {
+        console.log(e);
+        log.error(` No such file or has no access to ${bold(resolvedPathToFile)}`);
+    }
 }
 
-function getUpdatedMetadata(metaContributorsValue: string, defaultMetadata = ''): string {
-    const metadataСarriage = '\r\n';
-    const metadataBorder = `---${metadataСarriage}`;
+async function processingFileToMd(path: PathData, conributorsOptions: MetaDataOptions): Promise<void> {
+    const {outputPath, pathToFile} = path;
 
-    const newMetadata = `${defaultMetadata}${metadataСarriage}${metaContributorsValue}${metadataСarriage}`;
+    await resolveMd2Md({
+        inputPath: pathToFile,
+        outputPath,
+        ...conributorsOptions,
+    });
+}
 
-    return `${metadataBorder}${newMetadata}${metadataBorder}`;
+async function processingFileToHtml(path: PathData): Promise<void> {
+    const {
+        outputBundlePath,
+        filename,
+        fileExtension,
+        outputPath,
+        pathToFile,
+    } = path;
+
+    await resolveMd2HTML({
+        inputPath: pathToFile,
+        outputBundlePath,
+        fileExtension,
+        outputPath,
+        filename,
+    });
+}
+
+function copyFileWithoutChanges(resolvedPathToFile: string, outputDir: string, filename: string): void {
+    const from = resolvedPathToFile;
+    const to = resolve(outputDir, filename);
+
+    copyFileSync(from, to);
 }
