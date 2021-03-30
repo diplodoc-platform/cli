@@ -74,6 +74,10 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
 }
 
 function getMetadata(metadata: { [key: string]: string }): string {
+    if (!metadata) {
+        return '';
+    }
+
     const metaNames = Object.getOwnPropertyNames(metadata);
     let meta = '';
 

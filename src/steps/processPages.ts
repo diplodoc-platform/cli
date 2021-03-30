@@ -8,8 +8,8 @@ import log from '@doc-tools/transform/lib/log';
 import {ArgvService, LeadingService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
-import {MetaDataOptions, FileData, SinglePageResult, PathData, Contributors} from '../models';
-import {SINGLE_PAGE_FOLDER} from '../constants';
+import {MetaDataOptions, SinglePageResult, PathData, Contributors} from '../models';
+import {Lang, SINGLE_PAGE_FOLDER} from '../constants';
 import {Client} from '../client/models';
 import {getAllContributors} from '../services/contributors';
 
@@ -17,7 +17,7 @@ const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(tmpInputFolder: string, outputBundlePath: string, client: Client): Promise<void> {
+export async function processPages(outputBundlePath: string, client: Client): Promise<void> {
 
     const {
         input: inputFolderPath,
@@ -28,8 +28,8 @@ export async function processPages(tmpInputFolder: string, outputBundlePath: str
         resolveConditions,
     } = ArgvService.getConfig();
 
-    const allContributors = await getAllContributors(client);
-    const isContributorsExist = Object.getOwnPropertyNames(allContributors).length > 0 && contributors;
+    const allContributors = contributors ? await getAllContributors(client) : {};
+    const isContributorsExist = contributors && Object.getOwnPropertyNames(allContributors).length > 0;
     const inputFolderPathLength = inputFolderPath.length;
 
     const promises: Promise<void>[] = [];
@@ -43,11 +43,12 @@ export async function processPages(tmpInputFolder: string, outputBundlePath: str
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
+        // Get contributors only for RU files, because EN files manually generated
         promises.push(preparingPagesByOutputFormat(
             pathData,
             client,
             allContributors,
-            isContributorsExist,
+            isContributorsExist && pathToFile.startsWith(Lang.RU),
             inputFolderPathLength,
             resolveConditions));
     }
@@ -142,40 +143,40 @@ async function preparingPagesByOutputFormat(
     try {
         shell.mkdir('-p', outputDir);
 
-        if (resolveConditions && fileBaseName === 'index' && fileExtension === '.yaml') {
+        const isYamlFileExtension = fileExtension === '.yaml';
+
+        if (resolveConditions && fileBaseName === 'index' && isYamlFileExtension) {
             LeadingService.filterFile(pathToFile);
         }
 
-        if (outputFormat === 'md' && fileExtension === '.yaml' ||
-            outputFormat === 'html' && fileExtension !== '.yaml' && fileExtension !== '.md') {
+        if (outputFormat === 'md' && isYamlFileExtension ||
+            outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md') {
             copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
             return;
         }
 
-        const conributorsOptions: MetaDataOptions = {
+        const metaDataOptions: MetaDataOptions = {
             contributorsData: undefined,
         };
 
-        if (isContributorsExist && pathToFile.includes('ru')) {
-            const fileData: FileData = {
-                tmpInputfilePath: resolvedPathToFile,
-                inputFolderPathLength,
-                allContributors,
-                fileContent: '',
-            };
-
-            conributorsOptions.contributorsData = {
-                fileData,
+        if (isContributorsExist) {
+            metaDataOptions.contributorsData = {
+                fileData: {
+                    tmpInputfilePath: resolvedPathToFile,
+                    inputFolderPathLength,
+                    allContributors,
+                    fileContent: '',
+                },
                 client,
             };
         }
 
         switch (outputFormat) {
             case 'md':
-                await processingFileToMd(path, conributorsOptions);
+                await processingFileToMd(path, metaDataOptions);
                 return;
             case 'html':
-                await processingFileToHtml(path);
+                await processingFileToHtml(path, metaDataOptions);
                 return;
         }
     } catch (e) {
@@ -184,17 +185,24 @@ async function preparingPagesByOutputFormat(
     }
 }
 
-async function processingFileToMd(path: PathData, conributorsOptions: MetaDataOptions): Promise<void> {
+function copyFileWithoutChanges(resolvedPathToFile: string, outputDir: string, filename: string): void {
+    const from = resolvedPathToFile;
+    const to = resolve(outputDir, filename);
+
+    copyFileSync(from, to);
+}
+
+async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
     const {outputPath, pathToFile} = path;
 
     await resolveMd2Md({
         inputPath: pathToFile,
         outputPath,
-        ...conributorsOptions,
+        ...metaDataOptions,
     });
 }
 
-async function processingFileToHtml(path: PathData): Promise<void> {
+async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
     const {
         outputBundlePath,
         filename,
@@ -209,12 +217,6 @@ async function processingFileToHtml(path: PathData): Promise<void> {
         fileExtension,
         outputPath,
         filename,
+        ...metaDataOptions,
     });
-}
-
-function copyFileWithoutChanges(resolvedPathToFile: string, outputDir: string, filename: string): void {
-    const from = resolvedPathToFile;
-    const to = resolve(outputDir, filename);
-
-    copyFileSync(from, to);
 }

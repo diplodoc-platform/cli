@@ -16,6 +16,11 @@ export enum Stage {
     SKIP = 'skip',
 }
 
+export enum Lang {
+    RU = 'ru',
+    EN = 'en',
+}
+
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images, video} = plugins;

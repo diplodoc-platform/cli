@@ -1,6 +1,6 @@
 import log from '@doc-tools/transform/lib/log';
 
-import {Contributor, Contributors, FileData} from '../models';
+import {Contributors, FileData} from '../models';
 import {Client, ContributorDTO} from '../client/models';
 
 async function getAllContributors(client: Client): Promise<Contributors> {
@@ -14,7 +14,6 @@ async function getAllContributors(client: Client): Promise<Contributors> {
             if (login) {
                 contributors[login] = {
                     avatar,
-                    login,
                     name: '',
                 };
             }
@@ -39,11 +38,12 @@ async function addMetadata(fileData: FileData, client: Client): Promise<string> 
     // Search by format:
     // ---
     // main content 123
-    const regexpFileContent = '---((.*\\r\\n)*)';
+    const regexpFileContent = '---((.*[\r\n]*)*)';
     const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
     const matches = regexpParseFileContent.exec(fileData.fileContent);
 
-    const contributorsValue = await getFileContributors(fileData, client);
+    const contributors = await getFileContributorsString(fileData, client);
+    const contributorsValue = `contributors: ${contributors}`;
 
     if (matches && matches.length > 0) {
         const [, fileMetadata, , fileMainContent] = matches;
@@ -54,23 +54,24 @@ async function addMetadata(fileData: FileData, client: Client): Promise<string> 
     return `${getUpdatedMetadata(contributorsValue)}${fileData.fileContent}`;
 }
 
-async function getFileContributors(fileData: FileData, client: Client): Promise<string> {
+async function getFileContributorsString(fileData: FileData, client: Client): Promise<string> {
     const {tmpInputfilePath, inputFolderPathLength, allContributors} = fileData;
 
     const relativeFilePath = tmpInputfilePath.substring(inputFolderPathLength);
     const fileContributors = await client.getLogsByPath(relativeFilePath);
 
-    const contributors: Contributor[] = [];
+    const contributors: Contributors = {};
 
     Object.keys(fileContributors).forEach((login: string) => {
         if (allContributors[login]) {
-            contributors.push({
+            contributors[login] = {
                 ...fileContributors[login],
-                ...allContributors[login],
-            });
+                avatar: allContributors[login].avatar,
+            };
         }
     });
-    return `contributors: ${JSON.stringify(contributors)}`;
+
+    return JSON.stringify(contributors).replace(/"/g, '\'');
 }
 
 function getUpdatedMetadata(metaContributorsValue: string, defaultMetadata = ''): string {
@@ -85,4 +86,5 @@ function getUpdatedMetadata(metaContributorsValue: string, defaultMetadata = '')
 export {
     getAllContributors,
     addMetadata,
+    getFileContributorsString,
 };

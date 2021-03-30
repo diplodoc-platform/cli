@@ -9,6 +9,80 @@ import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
 import {addMetadata} from '../services/contributors';
 
+export interface ResolverOptions {
+    vars: Record<string, string>;
+    path: string;
+    log: Logger;
+    copyFile: (targetPath: string, targetDestPath: string, options?: ResolverOptions) => void;
+    singlePage?: boolean;
+    root?: string;
+    destPath?: string;
+    destRoot?: string;
+    collectOfPlugins?: (input: string, options: ResolverOptions) => string;
+}
+
+interface Plugin {
+    collect: (input: string, options: ResolverOptions) => string | void;
+}
+
+/**
+ * Transforms raw markdown file to public markdown document.
+ * @param ResolveMd2MdOptions
+ * @return {string}
+ */
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
+    const {inputPath, outputPath, singlePage, contributorsData} = options;
+    const {input, output, vars} = ArgvService.getConfig();
+    const resolvedInputPath = resolve(input, inputPath);
+
+    let content: string = readFileSync(resolvedInputPath, 'utf8');
+
+    if (contributorsData) {
+        const {fileData, client} = contributorsData;
+        fileData.fileContent = content;
+        content = await addMetadata(fileData, client);
+    }
+
+    const plugins = getPlugins();
+    const collectOfPlugins = makeCollectOfPlugins(plugins);
+
+    const {result} = transformMd2Md(content, {
+        path: resolvedInputPath,
+        destPath: outputPath,
+        root: resolve(input),
+        destRoot: resolve(output),
+        collectOfPlugins,
+        singlePage,
+        vars: {
+            ...PresetService.get(dirname(inputPath)),
+            ...vars,
+        },
+        log,
+        copyFile,
+    });
+
+    writeFileSync(outputPath, result);
+    logger.proc(`was finished md2md for ${inputPath}`);
+}
+
+function makeCollectOfPlugins(plugins: Plugin[]) {
+    const pluginsWithCollect = plugins.filter((plugin: Plugin) => {
+        return typeof plugin.collect === 'function';
+    });
+
+    return (output: string, options: ResolverOptions) => {
+        let collectsOutput = output;
+
+        pluginsWithCollect.forEach((plugin: Plugin) => {
+            const collectOutput = plugin.collect(collectsOutput, options);
+
+            collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
+        });
+
+        return collectsOutput;
+    };
+}
+
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
@@ -35,80 +109,6 @@ function transformMd2Md(input: string, options: ResolverOptions) {
         result: output,
         logs: log.get(),
     };
-}
-
-export interface ResolverOptions {
-    vars: Record<string, string>;
-    path: string;
-    log: Logger;
-    copyFile: (targetPath: string, targetDestPath: string, options?: ResolverOptions) => void;
-    singlePage?: boolean;
-    root?: string;
-    destPath?: string;
-    destRoot?: string;
-    collectOfPlugins?: (input: string, options: ResolverOptions) => string;
-}
-
-interface Plugin {
-    collect: (input: string, options: ResolverOptions) => string | void;
-}
-
-function makeCollectOfPlugins(plugins: Plugin[]) {
-    const pluginsWithCollect = plugins.filter((plugin: Plugin) => {
-        return typeof plugin.collect === 'function';
-    });
-
-    return (output: string, options: ResolverOptions) => {
-        let collectsOutput = output;
-
-        pluginsWithCollect.forEach((plugin: Plugin) => {
-            const collectOutput = plugin.collect(collectsOutput, options);
-
-            collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
-        });
-
-        return collectsOutput;
-    };
-}
-
-/**
- * Transforms raw markdown file to public markdown document.
- * @param ResolveMd2MdOptions
- * @return {string}
- */
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, singlePage, contributorsData} = options;
-    const {input, output, vars} = ArgvService.getConfig();
-    const resolvedInputPath = resolve(input, inputPath);
-
-    let content: string = readFileSync(resolvedInputPath, 'utf8');
-
-    const plugins = getPlugins();
-    const collectOfPlugins = makeCollectOfPlugins(plugins);
-
-    if (contributorsData) {
-        const {fileData, client} = contributorsData;
-        fileData.fileContent = content;
-        content = await addMetadata(fileData, client);
-    }
-
-    const {result} = transformMd2Md(content, {
-        path: resolvedInputPath,
-        destPath: outputPath,
-        root: resolve(input),
-        destRoot: resolve(output),
-        collectOfPlugins,
-        singlePage,
-        vars: {
-            ...PresetService.get(dirname(inputPath)),
-            ...vars,
-        },
-        log,
-        copyFile,
-    });
-
-    writeFileSync(outputPath, result);
-    logger.proc(`Finish md2md for ${inputPath}`);
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: ResolverOptions) {

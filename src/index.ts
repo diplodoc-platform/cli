@@ -1,7 +1,7 @@
 import * as yargs from 'yargs';
+import * as dotEnv from 'dotenv';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
-import * as dotEnv from 'dotenv';
 
 import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
 import {
@@ -146,7 +146,7 @@ processExcludedFiles();
 
 async function asyncProcess() {
     const client = getClient(_yargs.argv.input, pathToConfig);
-    await processPages(tmpInputFolder, outputBundlePath, client);
+    await processPages(outputBundlePath, client);
 
     /* Should copy all assets only when running --output-format=html */
     if (outputFormat === 'html') {
@@ -166,10 +166,10 @@ async function asyncProcess() {
         publishFiles();
     }
 
+    processLogs(tmpInputFolder);
+
     /* Remove temporary folders */
     shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-
-    processLogs(tmpInputFolder);
 }
 
 asyncProcess();

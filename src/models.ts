@@ -82,9 +82,8 @@ export interface SinglePageResult {
     content: string;
 }
 
-export interface Contributor {
+interface Contributor {
     avatar: string;
-    login: string;
     name: string;
 }
 
