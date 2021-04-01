@@ -86,7 +86,7 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
 - `--contributors`
 
-    Should add contributors into files. Disabled by default.
+    Should attach files' contributors. Disabled by default.
 
 - `--version`
 
@@ -158,6 +158,16 @@ REPO= # docs
 TOKEN= # personal access token
 BASE_URL= # for ex: https://api.github.com
 TYPE= # github 
+```
+
+or you can update .yfm file into docs repo 
+
+```bash
+endpoint: 
+type: 
+token: 
+owner: 
+repo: 
 ```
 
 ### Installation

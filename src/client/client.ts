@@ -3,24 +3,26 @@ import yaml from 'js-yaml';
 import log from '@doc-tools/transform/lib/log';
 import {join, resolve} from 'path';
 import simpleGit, {SimpleGit} from 'simple-git';
-import {LogFunction} from '../models';
-import {getGithubClient, getGithubLogs} from './github';
-import {Client, SourceType, YfmConfig} from './models';
+import {ContributorsFunction} from '../models';
+import {getAllContributors, getGithubClient, getGithubContributors} from './github';
+import {Client, ClientOptions, RepoClient, SourceType, YfmConfig} from './models';
 
-function getClient(rootPath: string, pathToYfmConfig: string): Client {
+async function getClient(rootPath: string, pathToYfmConfig: string, options: ClientOptions): Promise<Client> {
     const yfmConfig = getYfmConfig(pathToYfmConfig);
     const type = process.env.TYPE || yfmConfig.type || '';
 
+    let client;
+
     switch (type) {
-        case SourceType.github:
+        case SourceType.gitHub:
+            client = getGithubClient(yfmConfig);
             return {
-                getLogsByPath: getGithubLogsFunction(rootPath),
-                repoClient: getGithubClient(yfmConfig),
+                getContributorsByPath: await getGithubContributorsByPathFunction(rootPath, client, options),
             };
         default:
+            client = getGithubClient(yfmConfig);
             return {
-                getLogsByPath: getGithubLogsFunction(rootPath),
-                repoClient: getGithubClient(yfmConfig),
+                getContributorsByPath: await getGithubContributorsByPathFunction(rootPath, client, options),
             };
     }
 }
@@ -37,15 +39,16 @@ function getYfmConfig(pathToYfmConfig: string): YfmConfig {
     return yfmConfig as YfmConfig;
 }
 
-function getGithubLogsFunction(rootPath: string): LogFunction {
+async function getGithubContributorsByPathFunction(rootPath: string, client: RepoClient, options: ClientOptions): Promise<ContributorsFunction> {
     const gitSource: SimpleGit = simpleGit(rootPath, {binary: 'git'});
+    const allContributors = options.isContributorsExist ? await getAllContributors(client) : {};
 
-    const getLogsFunction = async (path: string) => {
+    const getGithubContributorsFunction = async (path: string) => {
         const filePath = join(rootPath, path);
-        return getGithubLogs(gitSource, filePath);
+        return getGithubContributors(gitSource, allContributors, filePath);
     };
 
-    return getLogsFunction;
+    return getGithubContributorsFunction;
 }
 
 export {getClient};

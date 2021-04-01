@@ -5,7 +5,7 @@ export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
-export type LogFunction = (path: string) => Promise<Contributors>;
+export type ContributorsFunction = (path: string) => Promise<Contributors>;
 
 interface YfmConfig {
     varsPreset: VarsPreset;
@@ -85,6 +85,7 @@ export interface SinglePageResult {
 interface Contributor {
     avatar: string;
     name: string;
+    login: string;
 }
 
 export interface Contributors {
@@ -94,7 +95,6 @@ export interface Contributors {
 export interface FileData {
     tmpInputfilePath: string;
     inputFolderPathLength: number;
-    allContributors: Contributors;
     fileContent: string;
 }
 

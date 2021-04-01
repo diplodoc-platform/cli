@@ -1,31 +1,5 @@
-import log from '@doc-tools/transform/lib/log';
-
-import {Contributors, FileData} from '../models';
-import {Client, ContributorDTO} from '../client/models';
-
-async function getAllContributors(client: Client): Promise<Contributors> {
-    try {
-        const repoContributors = await client.repoClient.getRepoContributors();
-
-        const contributors: Contributors = {};
-
-        repoContributors.forEach((contributor: ContributorDTO) => {
-            const {login, avatar = ''} = contributor;
-            if (login) {
-                contributors[login] = {
-                    avatar,
-                    name: '',
-                };
-            }
-        });
-
-        return contributors;
-    } catch (error) {
-        console.log(error);
-        log.error(`Getting contributors was failed. Error: ${JSON.stringify(error)}`);
-        throw error;
-    }
-}
+import {FileData} from '../models';
+import {Client} from '../client/models';
 
 async function addMetadata(fileData: FileData, client: Client): Promise<string> {
     // Search by format:
@@ -55,23 +29,12 @@ async function addMetadata(fileData: FileData, client: Client): Promise<string> 
 }
 
 async function getFileContributorsString(fileData: FileData, client: Client): Promise<string> {
-    const {tmpInputfilePath, inputFolderPathLength, allContributors} = fileData;
+    const {tmpInputfilePath, inputFolderPathLength} = fileData;
 
     const relativeFilePath = tmpInputfilePath.substring(inputFolderPathLength);
-    const fileContributors = await client.getLogsByPath(relativeFilePath);
+    const fileContributors = await client.getContributorsByPath(relativeFilePath);
 
-    const contributors: Contributors = {};
-
-    Object.keys(fileContributors).forEach((login: string) => {
-        if (allContributors[login]) {
-            contributors[login] = {
-                ...fileContributors[login],
-                avatar: allContributors[login].avatar,
-            };
-        }
-    });
-
-    return JSON.stringify(contributors).replace(/"/g, '\'');
+    return JSON.stringify(fileContributors).replace(/"/g, '\'');
 }
 
 function getUpdatedMetadata(metaContributorsValue: string, defaultMetadata = ''): string {
@@ -84,7 +47,6 @@ function getUpdatedMetadata(metaContributorsValue: string, defaultMetadata = '')
 }
 
 export {
-    getAllContributors,
     addMetadata,
     getFileContributorsString,
 };

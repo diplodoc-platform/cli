@@ -1,17 +1,20 @@
-import {LogFunction} from '../models';
+import {ContributorsFunction} from '../models';
 
 export enum SourceType {
-    github = 'github',
+    gitHub = 'gitHub',
     bitbucket = 'bitbucket',
     arcanum = 'arcanum',
 }
 
-export interface Client {
-    getLogsByPath: LogFunction;
-    repoClient: GithubClient;
+export interface ClientOptions {
+    isContributorsExist: boolean;
 }
 
-export interface GithubClient {
+export interface Client {
+    getContributorsByPath: ContributorsFunction;
+}
+
+export interface RepoClient {
     getRepoContributors: () => Promise<ContributorDTO[]>;
 }
 

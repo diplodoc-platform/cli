@@ -8,17 +8,15 @@ import log from '@doc-tools/transform/lib/log';
 import {ArgvService, LeadingService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
-import {MetaDataOptions, SinglePageResult, PathData, Contributors} from '../models';
-import {Lang, SINGLE_PAGE_FOLDER} from '../constants';
+import {MetaDataOptions, SinglePageResult, PathData} from '../models';
+import {SINGLE_PAGE_FOLDER} from '../constants';
 import {Client} from '../client/models';
-import {getAllContributors} from '../services/contributors';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
 export async function processPages(outputBundlePath: string, client: Client): Promise<void> {
-
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -27,10 +25,6 @@ export async function processPages(outputBundlePath: string, client: Client): Pr
         contributors,
         resolveConditions,
     } = ArgvService.getConfig();
-
-    const allContributors = contributors ? await getAllContributors(client) : {};
-    const isContributorsExist = contributors && Object.getOwnPropertyNames(allContributors).length > 0;
-    const inputFolderPathLength = inputFolderPath.length;
 
     const promises: Promise<void>[] = [];
 
@@ -43,14 +37,9 @@ export async function processPages(outputBundlePath: string, client: Client): Pr
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
-        // Get contributors only for RU files, because EN files manually generated
-        promises.push(preparingPagesByOutputFormat(
-            pathData,
-            client,
-            allContributors,
-            isContributorsExist && pathToFile.startsWith(Lang.RU),
-            inputFolderPathLength,
-            resolveConditions));
+        const metaDataOptions = getMetaDataOptions(client, contributors, pathData, inputFolderPath.length);
+
+        promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions));
     }
 
     await Promise.all(promises);
@@ -123,13 +112,33 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
     }
 }
 
+function getMetaDataOptions(
+    client: Client,
+    isContributorsExist: boolean,
+    pathData: PathData,
+    inputFolderPathLength: number,
+): MetaDataOptions {
+    const metaDataOptions: MetaDataOptions = {};
+
+    if (isContributorsExist) {
+        metaDataOptions.contributorsData = {
+            fileData: {
+                tmpInputfilePath: pathData.resolvedPathToFile,
+                inputFolderPathLength,
+                fileContent: '',
+            },
+            client,
+        };
+    }
+
+    return metaDataOptions;
+}
+
 async function preparingPagesByOutputFormat(
     path: PathData,
-    client: Client,
-    allContributors: Contributors,
-    isContributorsExist: boolean,
-    inputFolderPathLength: number,
-    resolveConditions: boolean): Promise<void> {
+    metaDataOptions: MetaDataOptions,
+    resolveConditions: boolean,
+): Promise<void> {
     const {
         filename,
         fileExtension,
@@ -153,22 +162,6 @@ async function preparingPagesByOutputFormat(
             outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md') {
             copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
             return;
-        }
-
-        const metaDataOptions: MetaDataOptions = {
-            contributorsData: undefined,
-        };
-
-        if (isContributorsExist) {
-            metaDataOptions.contributorsData = {
-                fileData: {
-                    tmpInputfilePath: resolvedPathToFile,
-                    inputFolderPathLength,
-                    allContributors,
-                    fileContent: '',
-                },
-                client,
-            };
         }
 
         switch (outputFormat) {

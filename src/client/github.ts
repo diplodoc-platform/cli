@@ -1,10 +1,11 @@
+import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {existsSync} from 'fs';
 import {SimpleGit} from 'simple-git';
 import {Contributors} from '../models';
-import {ContributorDTO, GithubClient, GithubContributorDTO, GithubLogsDTO, YfmConfig} from './models';
+import {ContributorDTO, RepoClient, GithubContributorDTO, GithubLogsDTO, YfmConfig} from './models';
 
-function getGithubClient(yfmConfig: YfmConfig): GithubClient {
+function getGithubClient(yfmConfig: YfmConfig): RepoClient {
     const httpClientByToken = getHttpClientByToken(yfmConfig);
 
     return {
@@ -44,40 +45,70 @@ async function getRepoContributors(octokit: Octokit, yfmConfig: YfmConfig): Prom
     return contributors;
 }
 
-async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<Contributors> {
-    if (!existsSync(filePath)) {
+async function getGithubContributors(gitSource: SimpleGit, allContributors: Contributors, filePath: string): Promise<Contributors> {
+    if (Object.keys(allContributors).length === 0) {
         return {};
     }
 
-    const logs = await gitSource.log({file: filePath});
-    const commits = logs.all as unknown as GithubLogsDTO[];
-
+    const commits = await getGithubLogs(gitSource, filePath);
     const contributors: Contributors = {};
 
     if (commits) {
         commits.forEach((commit: GithubLogsDTO) => {
             const login = getLoginByEmail(commit.author_email);
-            contributors[login] = {
-                login: login,
-                name: commit.author_name,
-                avatar: '',
-            };
+            if (allContributors[login]) {
+                contributors[login] = {
+                    login,
+                    name: commit.author_name,
+                    avatar: allContributors[login].avatar || '',
+                };
+            }
         });
     }
 
     return contributors;
 }
 
-function getLoginByEmail(email: string): string {
-    const regexpLogin = /(.*)(?=@.*)/;
-
-    const match = email.match(regexpLogin);
-
-    if (match && match.length) {
-        return match[0];
+async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<GithubLogsDTO[]> {
+    if (!existsSync(filePath)) {
+        return [];
     }
 
-    return email;
+    const logs = await gitSource.log({file: filePath});
+    const commits = logs.all as unknown as GithubLogsDTO[];
+
+    return commits;
 }
 
-export {getGithubClient, getGithubLogs};
+function getLoginByEmail(email: string): string {
+    const [login] = email.split('@');
+
+    return login || email;
+}
+
+async function getAllContributors(client: RepoClient): Promise<Contributors> {
+    try {
+        const repoContributors = await client.getRepoContributors();
+
+        const contributors: Contributors = {};
+
+        repoContributors.forEach((contributor: ContributorDTO) => {
+            const {login, avatar = ''} = contributor;
+            if (login) {
+                contributors[login] = {
+                    login,
+                    avatar,
+                    name: '',
+                };
+            }
+        });
+
+        return contributors;
+    } catch (error) {
+        console.log(error);
+        log.error(`Getting contributors was failed. Error: ${JSON.stringify(error)}`);
+        throw error;
+    }
+}
+
+export {getGithubClient, getGithubContributors, getAllContributors};

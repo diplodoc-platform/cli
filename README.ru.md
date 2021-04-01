@@ -84,7 +84,7 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
 - `--contributors`
 
-    Должен добавлять контрибьюторов в файлы. По умолчанию выключено.
+    Добавить контрибьюторов в файлы. По умолчанию выключено.
 
 - `--version`
 
@@ -154,6 +154,16 @@ REPO= # docs
 TOKEN= # personal access token
 BASE_URL= # for ex: https://api.github.com
 TYPE= 
+```
+
+или обновить .yfm файл в docs репозитории:
+
+```bash
+endpoint: 
+type: 
+token: 
+owner: 
+repo: 
 ```
 
 ### Установка
