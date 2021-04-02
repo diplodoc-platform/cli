@@ -38,9 +38,9 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     let content: string = readFileSync(resolvedInputPath, 'utf8');
 
     if (contributorsData) {
-        const {fileData, client} = contributorsData;
+        const {fileData, vcsConnector} = contributorsData;
         fileData.fileContent = content;
-        content = await addMetadata(fileData, client);
+        content = await addMetadata(fileData, vcsConnector);
     }
 
     const plugins = getPlugins();

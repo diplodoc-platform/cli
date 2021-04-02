@@ -45,9 +45,9 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     let contributors = '';
 
     if (contributorsData) {
-        const {fileData, client} = contributorsData;
+        const {fileData, vcsConnector} = contributorsData;
         fileData.fileContent = content;
-        contributors = await getFileContributorsString(fileData, client);
+        contributors = await getFileContributorsString(fileData, vcsConnector);
     }
 
     const transformFn: Function = FileTransformer[fileExtension];

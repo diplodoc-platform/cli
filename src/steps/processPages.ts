@@ -10,13 +10,13 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
 import {MetaDataOptions, SinglePageResult, PathData} from '../models';
 import {SINGLE_PAGE_FOLDER} from '../constants';
-import {Client} from '../client/models';
+import {VCSConnector} from '../vcsConnector/models';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string, client: Client): Promise<void> {
+export async function processPages(outputBundlePath: string, vcsConnector: VCSConnector): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -37,7 +37,7 @@ export async function processPages(outputBundlePath: string, client: Client): Pr
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
-        const metaDataOptions = getMetaDataOptions(client, contributors, pathData, inputFolderPath.length);
+        const metaDataOptions = getMetaDataOptions(vcsConnector, contributors, pathData, inputFolderPath.length);
 
         promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions));
     }
@@ -113,7 +113,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
 }
 
 function getMetaDataOptions(
-    client: Client,
+    vcsConnector: VCSConnector,
     isContributorsExist: boolean,
     pathData: PathData,
     inputFolderPathLength: number,
@@ -127,7 +127,7 @@ function getMetaDataOptions(
                 inputFolderPathLength,
                 fileContent: '',
             },
-            client,
+            vcsConnector,
         };
     }
 

@@ -14,8 +14,8 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
-import {getClient} from './client/client';
-import {ClientOptions} from './client/models';
+import {getVCSConnector} from './vcsConnector';
+import {VCSConnectorOptions} from './vcsConnector/models';
 
 const dotEnvPath = resolve(process.cwd(), '.env');
 dotEnv.config({path: dotEnvPath});
@@ -126,7 +126,7 @@ async function main() {
     const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
 
-    await processingPages(pathToConfig, outputBundlePath);
+    await processingPages(outputBundlePath);
 
     // process additional files
     switch (outputFormat) {
@@ -164,13 +164,13 @@ function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: str
     shell.chmod('-R', 'u+w', tmpInputFolder);
 }
 
-async function processingPages(pathToConfig: string, outputBundlePath: string): Promise<void> {
+async function processingPages(outputBundlePath: string): Promise<void> {
     const {contributors} = ArgvService.getConfig();
 
-    const options: ClientOptions = {
+    const options: VCSConnectorOptions = {
         isContributorsExist: contributors,
     };
 
-    const client = await getClient(_yargs.argv.input, pathToConfig, options);
-    await processPages(outputBundlePath, client);
+    const vcsConnector = await getVCSConnector(_yargs.argv.input, options);
+    await processPages(outputBundlePath, vcsConnector);
 }

@@ -1,7 +1,7 @@
 import {FileData} from '../models';
-import {Client} from '../client/models';
+import {VCSConnector} from '../vcsConnector/models';
 
-async function addMetadata(fileData: FileData, client: Client): Promise<string> {
+async function addMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     // Search by format:
     // ---
     // metaName1: metaValue1
@@ -16,7 +16,7 @@ async function addMetadata(fileData: FileData, client: Client): Promise<string> 
     const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
     const matches = regexpParseFileContent.exec(fileData.fileContent);
 
-    const contributors = await getFileContributorsString(fileData, client);
+    const contributors = await getFileContributorsString(fileData, vcsConnector);
     const contributorsValue = `contributors: ${contributors}`;
 
     if (matches && matches.length > 0) {
@@ -28,11 +28,11 @@ async function addMetadata(fileData: FileData, client: Client): Promise<string> 
     return `${getUpdatedMetadata(contributorsValue)}${fileData.fileContent}`;
 }
 
-async function getFileContributorsString(fileData: FileData, client: Client): Promise<string> {
+async function getFileContributorsString(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     const {tmpInputfilePath, inputFolderPathLength} = fileData;
 
     const relativeFilePath = tmpInputfilePath.substring(inputFolderPathLength);
-    const fileContributors = await client.getContributorsByPath(relativeFilePath);
+    const fileContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
 
     return JSON.stringify(fileContributors).replace(/"/g, '\'');
 }

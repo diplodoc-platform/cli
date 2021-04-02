@@ -1,4 +1,4 @@
-import {Client} from './client/models';
+import {VCSConnector, YfmConfig} from './vcsConnector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
@@ -7,7 +7,7 @@ export type YfmPreset = Record<string, string>;
 
 export type ContributorsFunction = (path: string) => Promise<Contributors>;
 
-interface YfmConfig {
+interface YfmDocConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
@@ -22,7 +22,7 @@ interface YfmConfig {
     contributors: boolean;
 }
 
-export interface YfmArgv extends YfmConfig {
+export interface YfmDocArgv extends YfmDocConfig, YfmConfig {
     input: string;
     output: string;
     quiet: string;
@@ -101,7 +101,7 @@ export interface FileData {
 export interface MetaDataOptions {
     contributorsData?: {
         fileData: FileData;
-        client: Client;
+        vcsConnector: VCSConnector;
     };
 }
 

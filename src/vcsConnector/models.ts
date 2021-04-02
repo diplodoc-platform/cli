@@ -6,15 +6,15 @@ export enum SourceType {
     arcanum = 'arcanum',
 }
 
-export interface ClientOptions {
+export interface VCSConnectorOptions {
     isContributorsExist: boolean;
 }
 
-export interface Client {
+export interface VCSConnector {
     getContributorsByPath: ContributorsFunction;
 }
 
-export interface RepoClient {
+export interface RepoVCSConnector {
     getRepoContributors: () => Promise<ContributorDTO[]>;
 }
 
@@ -36,9 +36,11 @@ export interface GithubLogsDTO {
 }
 
 export interface YfmConfig {
-    endpoint: string;
     type: string;
-    token?: string;
-    owner?: string;
-    repo?: string;
+    github?: {
+        endpoint: string;
+        token: string;
+        owner: string;
+        repo: string;
+    };
 }

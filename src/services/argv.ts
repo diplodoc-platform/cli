@@ -1,6 +1,6 @@
-import {YfmArgv} from '../models';
+import {YfmDocArgv} from '../models';
 
-let _argv!: YfmArgv;
+let _argv!: YfmDocArgv;
 
 function getConfig() {
     return _argv;
@@ -12,7 +12,7 @@ function init(argv: any) {
         ...argv,
         ignore: Array.isArray(argv.ignore) ? argv.ignore : [],
         vars: JSON.parse(argv.vars),
-    } as YfmArgv;
+    } as YfmDocArgv;
 }
 
 export default {

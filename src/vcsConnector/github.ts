@@ -2,40 +2,35 @@ import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {existsSync} from 'fs';
 import {SimpleGit} from 'simple-git';
+import {ArgvService} from '../services';
 import {Contributors} from '../models';
-import {ContributorDTO, RepoClient, GithubContributorDTO, GithubLogsDTO, YfmConfig} from './models';
+import {ContributorDTO, RepoVCSConnector, GithubContributorDTO, GithubLogsDTO} from './models';
 
-function getGithubClient(yfmConfig: YfmConfig): RepoClient {
-    const httpClientByToken = getHttpClientByToken(yfmConfig);
+function getGithubVCSConnector(): RepoVCSConnector {
+    const httpClientByToken = getHttpClientByToken();
 
     return {
-        getRepoContributors: async () => getRepoContributors(httpClientByToken, yfmConfig),
+        getRepoContributors: async () => getContributors(httpClientByToken),
     };
 }
 
-function getHttpClientByToken(yfmConfig: YfmConfig): Octokit {
+function getHttpClientByToken(): Octokit {
     const {TOKEN, BASE_URL} = process.env;
-    const token = TOKEN || yfmConfig.token || '';
-    const endpoint = BASE_URL || yfmConfig.endpoint || '';
+    const {github} = ArgvService.getConfig();
+    const token = TOKEN || github && github.token || '';
+    const endpoint = BASE_URL || github && github.endpoint || '';
 
     const octokit = new Octokit({auth: token, baseUrl: endpoint});
 
     return octokit;
 }
 
-async function getRepoContributors(octokit: Octokit, yfmConfig: YfmConfig): Promise<ContributorDTO[]> {
-    const {OWNER, REPO} = process.env;
-    const owner = OWNER || yfmConfig.owner || '';
-    const repo = REPO || yfmConfig.repo || '';
-
-    const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {
-        owner,
-        repo,
-    });
+async function getContributors(octokit: Octokit): Promise<ContributorDTO[]> {
+    const repoContributors = await getRepoContributors(octokit);
 
     const contributors: ContributorDTO[] = [];
 
-    commits.data.forEach((githubContributor: GithubContributorDTO) => {
+    repoContributors.forEach((githubContributor: GithubContributorDTO) => {
         contributors.push({
             avatar: githubContributor.avatar_url,
             login: githubContributor.login,
@@ -43,6 +38,25 @@ async function getRepoContributors(octokit: Octokit, yfmConfig: YfmConfig): Prom
     });
 
     return contributors;
+}
+
+async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
+    const {OWNER, REPO} = process.env;
+    const {github} = ArgvService.getConfig();
+    const owner = OWNER || github && github.owner || '';
+    const repo = REPO || github && github.repo || '';
+
+    try {
+        const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {
+            owner,
+            repo,
+        });
+
+        return commits.data;
+    } catch (error) {
+        log.warn(error);
+        return [];
+    }
 }
 
 async function getGithubContributors(gitSource: SimpleGit, allContributors: Contributors, filePath: string): Promise<Contributors> {
@@ -86,9 +100,9 @@ function getLoginByEmail(email: string): string {
     return login || email;
 }
 
-async function getAllContributors(client: RepoClient): Promise<Contributors> {
+async function getAllContributors(repoVCSConnector: RepoVCSConnector): Promise<Contributors> {
     try {
-        const repoContributors = await client.getRepoContributors();
+        const repoContributors = await repoVCSConnector.getRepoContributors();
 
         const contributors: Contributors = {};
 
@@ -106,9 +120,9 @@ async function getAllContributors(client: RepoClient): Promise<Contributors> {
         return contributors;
     } catch (error) {
         console.log(error);
-        log.error(`Getting contributors was failed. Error: ${JSON.stringify(error)}`);
+        log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
         throw error;
     }
 }
 
-export {getGithubClient, getGithubContributors, getAllContributors};
+export {getGithubVCSConnector, getGithubContributors, getAllContributors};
