@@ -149,21 +149,22 @@ input-folder
 Необходимо добавить `.env` файл в рут репозитория с данными ниже:
 
 ```bash
-OWNER= 
-REPO= # docs
-TOKEN= # personal access token
-BASE_URL= # for ex: https://api.github.com
-TYPE= 
+GITHUB_OWNER= 
+GITHUB_REPO= # docs
+GITHUB_TOKEN= # personal access token
+GITHUB_BASE_URL= # for ex: https://api.github.com
+TYPE= # github 
 ```
 
 или обновить .yfm файл в docs репозитории:
 
 ```bash
-endpoint: 
-type: 
-token: 
-owner: 
-repo: 
+type:
+github: 
+    endpoint: 
+    token: 
+    owner: 
+    repo:  
 ```
 
 ### Установка

@@ -17,13 +17,7 @@ module.exports = [
             rules: [
                 {
                     test: /\.[tj]sx?$/,
-                    use: {
-                        loader: 'babel-loader',
-                        options: {
-                            presets: ['@babel/env', '@babel/react'],
-                            plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-syntax-top-level-await'],
-                        },
-                    },
+                    loader: 'babel-loader',
                     exclude: /node_modules/,
                 }, {
                     test: /\.s?css$/,
@@ -54,13 +48,7 @@ module.exports = [
         module: {
             rules: [{
                 test: /\.[tj]sx?$/,
-                use: {
-                    loader: 'babel-loader',
-                    options: {
-                        presets: ['@babel/env', '@babel/react'],
-                        plugins: ['@babel/plugin-transform-runtime', '@babel/plugin-syntax-top-level-await'],
-                    },
-                },
+                loader: 'babel-loader',
                 exclude: /node_modules/,
             }],
         },

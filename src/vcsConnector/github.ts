@@ -15,10 +15,10 @@ function getGithubVCSConnector(): RepoVCSConnector {
 }
 
 function getHttpClientByToken(): Octokit {
-    const {TOKEN, BASE_URL} = process.env;
+    const {GITHUB_TOKEN, GITHUB_BASE_URL} = process.env;
     const {github} = ArgvService.getConfig();
-    const token = TOKEN || github && github.token || '';
-    const endpoint = BASE_URL || github && github.endpoint || '';
+    const token = GITHUB_TOKEN || github && github.token || '';
+    const endpoint = GITHUB_BASE_URL || github && github.endpoint || '';
 
     const octokit = new Octokit({auth: token, baseUrl: endpoint});
 
@@ -41,10 +41,10 @@ async function getContributors(octokit: Octokit): Promise<ContributorDTO[]> {
 }
 
 async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
-    const {OWNER, REPO} = process.env;
+    const {GITHUB_OWNER, GITHUB_REPO} = process.env;
     const {github} = ArgvService.getConfig();
-    const owner = OWNER || github && github.owner || '';
-    const repo = REPO || github && github.repo || '';
+    const owner = GITHUB_OWNER || github && github.owner || '';
+    const repo = GITHUB_REPO || github && github.repo || '';
 
     try {
         const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {
