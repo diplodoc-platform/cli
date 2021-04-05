@@ -1,4 +1,4 @@
-import {ContributorsFunction} from '../models';
+import {Contributors, ContributorsFunction} from '../models';
 
 export enum SourceType {
     GITHUB = 'gitHub',
@@ -15,7 +15,7 @@ export interface VCSConnector {
 }
 
 export interface RepoVCSConnector {
-    getRepoContributors: () => Promise<ContributorDTO[]>;
+    getRepoContributors: () => Promise<Contributors>;
 }
 
 export interface ContributorDTO {
@@ -43,4 +43,10 @@ export interface YfmConfig {
         owner: string;
         repo: string;
     };
+}
+
+export interface UserDTO {
+    email: string;
+    login: string;
+    name: string;
 }

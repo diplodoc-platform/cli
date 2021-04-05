@@ -5,7 +5,7 @@ export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
-export type ContributorsFunction = (path: string) => Promise<Contributors>;
+export type ContributorsFunction = (path: string) => Promise<Contributor[]>;
 
 interface YfmDocConfig {
     varsPreset: VarsPreset;
@@ -82,14 +82,14 @@ export interface SinglePageResult {
     content: string;
 }
 
-interface Contributor {
+export interface Contributor {
     avatar: string;
-    name: string;
     login: string;
+    name: string;
 }
 
 export interface Contributors {
-    [login: string]: Contributor;
+    [emailOrLogin: string]: Contributor;
 }
 
 export interface FileData {
@@ -129,4 +129,13 @@ export interface PathData {
     outputPath: string;
     outputFormat: string;
     outputBundlePath: string;
+}
+
+interface User {
+    email: string;
+    name: string;
+}
+
+export interface Users {
+    [login: string]: User;
 }

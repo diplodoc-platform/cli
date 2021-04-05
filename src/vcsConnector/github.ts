@@ -3,8 +3,8 @@ import {Octokit} from '@octokit/core';
 import {existsSync} from 'fs';
 import {SimpleGit} from 'simple-git';
 import {ArgvService} from '../services';
-import {Contributors} from '../models';
-import {ContributorDTO, RepoVCSConnector, GithubContributorDTO, GithubLogsDTO} from './models';
+import {Contributor, Contributors, Users} from '../models';
+import {ContributorDTO, RepoVCSConnector, GithubContributorDTO, GithubLogsDTO, UserDTO} from './models';
 
 function getGithubVCSConnector(): RepoVCSConnector {
     const httpClientByToken = getHttpClientByToken();
@@ -25,16 +25,41 @@ function getHttpClientByToken(): Octokit {
     return octokit;
 }
 
-async function getContributors(octokit: Octokit): Promise<ContributorDTO[]> {
+async function getContributors(octokit: Octokit): Promise<Contributors> {
     const repoContributors = await getRepoContributors(octokit);
+    const promises: Promise<UserDTO | null>[] = [];
 
-    const contributors: ContributorDTO[] = [];
+    repoContributors.forEach((contributor: ContributorDTO) => {
+        if (contributor.login) {
+            promises.push(getRepoUser(octokit, contributor.login));
+        }
+    });
+
+    const repoUsers = await Promise.all(promises);
+    const users: Users = {};
+
+    repoUsers.forEach((user: UserDTO | null) => {
+        if (user) {
+            users[user.login] = {
+                name: user.name,
+                email: user.email,
+            };
+        }
+    });
+
+    const contributors: Contributors = {};
 
     repoContributors.forEach((githubContributor: GithubContributorDTO) => {
-        contributors.push({
-            avatar: githubContributor.avatar_url,
-            login: githubContributor.login,
-        });
+        /* eslint-disable camelcase */
+        const {login, avatar_url = ''} = githubContributor;
+        if (login) {
+            const user = users[login];
+            contributors[user.email || login] = {
+                avatar: avatar_url,
+                login: login,
+                name: user.name,
+            };
+        }
     });
 
     return contributors;
@@ -59,23 +84,39 @@ async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> 
     }
 }
 
-async function getGithubContributors(gitSource: SimpleGit, allContributors: Contributors, filePath: string): Promise<Contributors> {
+async function getRepoUser(octokit: Octokit, username: string): Promise<UserDTO | null> {
+    try {
+        const user = await octokit.request('GET /users/{username}', {
+            username,
+        });
+
+        return user.data as UserDTO;
+    } catch (error) {
+        log.warn('Getting user for GitHub has been failed. Error: ', error);
+        return null;
+    }
+}
+
+async function getGithubContributors(gitSource: SimpleGit, allContributors: Contributors, filePath: string): Promise<Contributor[]> {
     if (Object.keys(allContributors).length === 0) {
-        return {};
+        return [];
     }
 
     const commits = await getGithubLogs(gitSource, filePath);
-    const contributors: Contributors = {};
+    const contributors: Contributor[] = [];
 
     if (commits) {
         commits.forEach((commit: GithubLogsDTO) => {
-            const login = getLoginByEmail(commit.author_email);
-            if (allContributors[login]) {
-                contributors[login] = {
-                    login,
+            const user = allContributors[commit.author_email];
+
+            if (user) {
+                contributors.push(user);
+            } else {
+                contributors.push({
+                    avatar: '',
+                    login: commit.author_email,
                     name: commit.author_name,
-                    avatar: allContributors[login].avatar || '',
-                };
+                });
             }
         });
     }
@@ -94,30 +135,11 @@ async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<Gi
     return commits;
 }
 
-function getLoginByEmail(email: string): string {
-    const [login] = email.split('@');
-
-    return login || email;
-}
-
 async function getAllContributors(repoVCSConnector: RepoVCSConnector): Promise<Contributors> {
     try {
         const repoContributors = await repoVCSConnector.getRepoContributors();
 
-        const contributors: Contributors = {};
-
-        repoContributors.forEach((contributor: ContributorDTO) => {
-            const {login, avatar = ''} = contributor;
-            if (login) {
-                contributors[login] = {
-                    login,
-                    avatar,
-                    name: '',
-                };
-            }
-        });
-
-        return contributors;
+        return repoContributors;
     } catch (error) {
         console.log(error);
         log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
