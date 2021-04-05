@@ -54,7 +54,7 @@ async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> 
 
         return commits.data;
     } catch (error) {
-        log.warn(error);
+        log.warn('Getting contributors was failed with error', error);
         return [];
     }
 }
