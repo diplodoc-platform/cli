@@ -12,7 +12,7 @@ async function getVCSConnector(rootPath: string, options: VCSConnectorOptions): 
     let vcsConnector;
 
     switch (repoType) {
-        case SourceType.gitHub:
+        case SourceType.GITHUB:
             vcsConnector = getGithubVCSConnector();
             return {
                 getContributorsByPath: await getGithubContributorsByPathFunction(rootPath, vcsConnector, options),

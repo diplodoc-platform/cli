@@ -10,13 +10,14 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
 import {MetaDataOptions, SinglePageResult, PathData} from '../models';
 import {SINGLE_PAGE_FOLDER} from '../constants';
-import {VCSConnector} from '../vcsConnector/models';
+import {VCSConnector, VCSConnectorOptions} from '../vcsConnector/models';
+import {getVCSConnector} from '../vcsConnector';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string, vcsConnector: VCSConnector): Promise<void> {
+export async function processPages(outputBundlePath: string, userInputFolderPath: string): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -25,6 +26,12 @@ export async function processPages(outputBundlePath: string, vcsConnector: VCSCo
         contributors,
         resolveConditions,
     } = ArgvService.getConfig();
+
+    const options: VCSConnectorOptions = {
+        isContributorsExist: contributors,
+    };
+
+    const vcsConnector = await getVCSConnector(userInputFolderPath, options);
 
     const promises: Promise<void>[] = [];
 

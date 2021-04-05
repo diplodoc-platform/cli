@@ -1,9 +1,9 @@
 import {ContributorsFunction} from '../models';
 
 export enum SourceType {
-    gitHub = 'gitHub',
-    bitbucket = 'bitbucket',
-    arcanum = 'arcanum',
+    GITHUB = 'gitHub',
+    BITBUCKET = 'bitbucket',
+    ARCANUM = 'arcanum',
 }
 
 export interface VCSConnectorOptions {

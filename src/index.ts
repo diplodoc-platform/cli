@@ -14,8 +14,6 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
-import {getVCSConnector} from './vcsConnector';
-import {VCSConnectorOptions} from './vcsConnector/models';
 
 const dotEnvPath = resolve(process.cwd(), '.env');
 dotEnv.config({path: dotEnvPath});
@@ -126,7 +124,7 @@ async function main() {
     const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
 
-    await processingPages(outputBundlePath);
+    await processPages(outputBundlePath, _yargs.argv.input);
 
     // process additional files
     switch (outputFormat) {
@@ -162,15 +160,4 @@ function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: str
     // Please, change files only in temporary folders.
     shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
     shell.chmod('-R', 'u+w', tmpInputFolder);
-}
-
-async function processingPages(outputBundlePath: string): Promise<void> {
-    const {contributors} = ArgvService.getConfig();
-
-    const options: VCSConnectorOptions = {
-        isContributorsExist: contributors,
-    };
-
-    const vcsConnector = await getVCSConnector(_yargs.argv.input, options);
-    await processPages(outputBundlePath, vcsConnector);
 }
