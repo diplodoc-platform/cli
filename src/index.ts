@@ -1,5 +1,4 @@
 import * as yargs from 'yargs';
-import * as dotEnv from 'dotenv';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
 
@@ -14,9 +13,6 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
-
-const dotEnvPath = resolve(process.cwd(), '.env');
-dotEnv.config({path: dotEnvPath});
 
 const _yargs = yargs
     .option('config', {
@@ -124,7 +120,7 @@ async function main() {
     const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
 
-    await processPages(outputBundlePath, _yargs.argv.input);
+    await processPages(outputBundlePath);
 
     // process additional files
     switch (outputFormat) {

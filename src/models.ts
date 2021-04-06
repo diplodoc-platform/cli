@@ -1,4 +1,4 @@
-import {VCSConnector, YfmConfig} from './vcsConnector/models';
+import {VCSConnector, VCSConnectorConfig, YfmConfig} from './vcs-connector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
@@ -7,7 +7,7 @@ export type YfmPreset = Record<string, string>;
 
 export type ContributorsFunction = (path: string) => Promise<Contributor[]>;
 
-interface YfmDocConfig {
+interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
@@ -19,10 +19,9 @@ interface YfmDocConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
-    contributors: boolean;
 }
 
-export interface YfmDocArgv extends YfmDocConfig, YfmConfig {
+export interface YfmArgv extends YfmConfig, VCSConnectorConfig {
     input: string;
     output: string;
     quiet: string;
@@ -32,6 +31,8 @@ export interface YfmDocArgv extends YfmDocConfig, YfmConfig {
     storagePrefix: string;
     storageKeyId: string;
     storageSecretKey: string;
+    contributors: boolean;
+    connector?: VCSConnectorConfig;
 }
 
 export interface DocPreset {

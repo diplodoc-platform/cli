@@ -1,5 +1,5 @@
 import {relative, dirname, basename, extname, format, join} from 'path';
-import {blue, green} from 'chalk';
+import {blue, green, grey} from 'chalk';
 
 import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
@@ -99,6 +99,9 @@ function writeLog(msg: string) {
 }
 
 export const logger = {
+    info: function (pathToFile: string, extraMessage?: string) {
+        writeLog(`${grey('INFO')} ${extraMessage} ${pathToFile}`);
+    },
     proc: function (pathToFile: string) {
         writeLog(`${blue('PROC')} Processing file ${pathToFile}`);
     },

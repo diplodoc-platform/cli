@@ -1,5 +1,5 @@
 import {FileData} from '../models';
-import {VCSConnector} from '../vcsConnector/models';
+import {VCSConnector} from '../vcs-connector/models';
 
 async function addMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     // Search by format:

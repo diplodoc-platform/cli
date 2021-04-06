@@ -10,30 +10,25 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
 import {MetaDataOptions, SinglePageResult, PathData} from '../models';
 import {SINGLE_PAGE_FOLDER} from '../constants';
-import {VCSConnector, VCSConnectorOptions} from '../vcsConnector/models';
-import {getVCSConnector} from '../vcsConnector';
+import {VCSConnector} from '../vcs-connector/models';
+import {getVCSConnector} from '../vcs-connector';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string, userInputFolderPath: string): Promise<void> {
+export async function processPages(outputBundlePath: string): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
         outputFormat,
         singlePage,
-        contributors,
         resolveConditions,
+        connector,
     } = ArgvService.getConfig();
 
-    const options: VCSConnectorOptions = {
-        isContributorsExist: contributors,
-    };
-
-    const vcsConnector = await getVCSConnector(userInputFolderPath, options);
-
     const promises: Promise<void>[] = [];
+    const vcsConnector = await getVCSConnector(connector && connector.type);
 
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
@@ -44,7 +39,7 @@ export async function processPages(outputBundlePath: string, userInputFolderPath
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
-        const metaDataOptions = getMetaDataOptions(vcsConnector, contributors, pathData, inputFolderPath.length);
+        const metaDataOptions = getMetaDataOptions(vcsConnector, pathData, inputFolderPath.length);
 
         promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions));
     }
@@ -119,15 +114,12 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
     }
 }
 
-function getMetaDataOptions(
-    vcsConnector: VCSConnector,
-    isContributorsExist: boolean,
-    pathData: PathData,
-    inputFolderPathLength: number,
-): MetaDataOptions {
+function getMetaDataOptions(vcsConnector: VCSConnector | undefined, pathData: PathData, inputFolderPathLength: number): MetaDataOptions {
+    const {contributors} = ArgvService.getConfig();
+
     const metaDataOptions: MetaDataOptions = {};
 
-    if (isContributorsExist) {
+    if (contributors && vcsConnector) {
         metaDataOptions.contributorsData = {
             fileData: {
                 tmpInputfilePath: pathData.resolvedPathToFile,

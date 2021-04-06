@@ -153,18 +153,19 @@ GITHUB_OWNER=
 GITHUB_REPO= # docs
 GITHUB_TOKEN= # personal access token
 GITHUB_BASE_URL= # for ex: https://api.github.com
-TYPE= # github 
+VCS_CONNECTOR_TYPE= # github 
 ```
 
 или обновить .yfm файл в docs репозитории:
 
 ```bash
-type:
-github: 
-    endpoint: 
-    token: 
-    owner: 
-    repo:  
+connector:
+    type:
+    github: 
+        endpoint: 
+        token: 
+        owner: 
+        repo: 
 ```
 
 ### Установка

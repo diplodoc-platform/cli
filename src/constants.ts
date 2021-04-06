@@ -40,3 +40,7 @@ export const YFM_PLUGINS = [
     sup,
     video,
 ];
+
+export const infoMessages = {
+    processingHasBeenFinished: 'Processing file has been finished. File path',
+};

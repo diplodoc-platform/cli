@@ -1,16 +1,17 @@
 import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
+import {join} from 'path';
 import {existsSync} from 'fs';
-import {SimpleGit} from 'simple-git';
+import simpleGit, {SimpleGit} from 'simple-git';
 import {ArgvService} from '../services';
-import {Contributor, Contributors, Users} from '../models';
-import {ContributorDTO, RepoVCSConnector, GithubContributorDTO, GithubLogsDTO, UserDTO} from './models';
+import {Contributor, Contributors, ContributorsFunction, Users} from '../models';
+import {ContributorDTO, GithubContributorDTO, GithubLogsDTO, UserDTO, VCSConnector} from './models';
 
-function getGithubVCSConnector(): RepoVCSConnector {
+async function getGitHubVCSConnector(): Promise<VCSConnector> {
     const httpClientByToken = getHttpClientByToken();
 
     return {
-        getRepoContributors: async () => getContributors(httpClientByToken),
+        getContributorsByPath: await getGithubContributorsByPathFunction(httpClientByToken),
     };
 }
 
@@ -25,44 +26,64 @@ function getHttpClientByToken(): Octokit {
     return octokit;
 }
 
-async function getContributors(octokit: Octokit): Promise<Contributors> {
-    const repoContributors = await getRepoContributors(octokit);
-    const promises: Promise<UserDTO | null>[] = [];
+async function getGithubContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
+    const {contributors, input: rootPath} = ArgvService.getConfig();
 
-    repoContributors.forEach((contributor: ContributorDTO) => {
-        if (contributor.login) {
-            promises.push(getRepoUser(octokit, contributor.login));
-        }
-    });
+    const gitSource: SimpleGit = simpleGit(rootPath, {binary: 'git'});
 
-    const repoUsers = await Promise.all(promises);
-    const users: Users = {};
+    const allContributors = contributors ? await getAllContributors(httpClientByToken) : {};
 
-    repoUsers.forEach((user: UserDTO | null) => {
-        if (user) {
-            users[user.login] = {
-                name: user.name,
-                email: user.email,
-            };
-        }
-    });
+    const getGithubContributorsFunction = async (path: string) => {
+        const filePath = join(rootPath, path);
+        return getGithubContributors(gitSource, allContributors, filePath);
+    };
 
-    const contributors: Contributors = {};
+    return getGithubContributorsFunction;
+}
 
-    repoContributors.forEach((githubContributor: GithubContributorDTO) => {
-        /* eslint-disable camelcase */
-        const {login, avatar_url = ''} = githubContributor;
-        if (login) {
-            const user = users[login];
-            contributors[user.email || login] = {
-                avatar: avatar_url,
-                login: login,
-                name: user.name,
-            };
-        }
-    });
+async function getAllContributors(httpClientByToken: Octokit): Promise<Contributors> {
+    try {
+        const repoContributors = await getRepoContributors(httpClientByToken);
+        const promises: Promise<UserDTO | null>[] = [];
 
-    return contributors;
+        repoContributors.forEach((contributor: ContributorDTO) => {
+            if (contributor.login) {
+                promises.push(getRepoUser(httpClientByToken, contributor.login));
+            }
+        });
+
+        const repoUsers = await Promise.all(promises);
+        const users: Users = {};
+
+        repoUsers.forEach((user: UserDTO | null) => {
+            if (user) {
+                users[user.login] = {
+                    name: user.name,
+                    email: user.email,
+                };
+            }
+        });
+
+        const contributors: Contributors = {};
+
+        repoContributors.forEach((githubContributor: GithubContributorDTO) => {
+            const {login, avatar_url: avatarUrl = ''} = githubContributor;
+            if (login) {
+                const user = users[login];
+                contributors[user.email || login] = {
+                    avatar: avatarUrl,
+                    login: login,
+                    name: user.name,
+                };
+            }
+        });
+
+        return contributors;
+    } catch (error) {
+        console.log(error);
+        log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
+        throw error;
+    }
 }
 
 async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
@@ -135,16 +156,4 @@ async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<Gi
     return commits;
 }
 
-async function getAllContributors(repoVCSConnector: RepoVCSConnector): Promise<Contributors> {
-    try {
-        const repoContributors = await repoVCSConnector.getRepoContributors();
-
-        return repoContributors;
-    } catch (error) {
-        console.log(error);
-        log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
-        throw error;
-    }
-}
-
-export {getGithubVCSConnector, getGithubContributors, getAllContributors};
+export default getGitHubVCSConnector;

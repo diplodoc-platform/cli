@@ -29,7 +29,6 @@
     "@doc-tools/transform": "^1.7.3",
     "aws-sdk": "^2.773.0",
     "chalk": "^4.0.0",
-    "dotenv": "^8.2.0",
     "js-yaml": "^4.0.0",
     "markdown-it": "^10.0.0",
     "markdown-it-imsize": "^2.0.1",

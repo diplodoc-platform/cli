@@ -9,7 +9,7 @@ import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
 import {generateStaticMarkup, getPlugins, logger, transformToc} from '../utils';
 import {getFileContributorsString} from '../services/contributors';
-import {Lang} from '../constants';
+import {infoMessages, Lang} from '../constants';
 
 export interface FileTransformOptions {
     path: string;
@@ -72,7 +72,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
 
     const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
     writeFileSync(outputPath, outputFileContent);
-    logger.proc(`was finished md2html for ${inputPath}`);
+    logger.info(inputPath, infoMessages.processingHasBeenFinished);
 }
 
 
@@ -81,8 +81,8 @@ function YamlFileTransformer(content: string): Object {
 
     try {
         data = yaml.load(content) as string;
-    } catch {
-        log.error('');
+    } catch (error) {
+        log.error(`Yaml transform has been failed. Error: ${error}`);
     }
 
     return {
