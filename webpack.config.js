@@ -17,7 +17,7 @@ module.exports = [
             rules: [
                 {
                     test: /\.[tj]sx?$/,
-                    loader: 'babel-loader',
+                    use: ['babel-loader'],
                     exclude: /node_modules/,
                 }, {
                     test: /\.s?css$/,
