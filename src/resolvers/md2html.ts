@@ -9,7 +9,7 @@ import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
 import {generateStaticMarkup, getPlugins, logger, transformToc} from '../utils';
 import {getFileContributorsString} from '../services/contributors';
-import {infoMessages, Lang} from '../constants';
+import {PROCESSING_HAS_BEEN_FINISHED, Lang} from '../constants';
 
 export interface FileTransformOptions {
     path: string;
@@ -72,7 +72,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
 
     const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
     writeFileSync(outputPath, outputFileContent);
-    logger.info(inputPath, infoMessages.processingHasBeenFinished);
+    logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
 }
 
 

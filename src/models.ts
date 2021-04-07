@@ -19,6 +19,7 @@ interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
+    connector?: VCSConnectorConfig;
 }
 
 export interface YfmArgv extends YfmConfig {
@@ -32,7 +33,6 @@ export interface YfmArgv extends YfmConfig {
     storageKeyId: string;
     storageSecretKey: string;
     contributors: boolean;
-    connector?: VCSConnectorConfig;
 }
 
 export interface DocPreset {

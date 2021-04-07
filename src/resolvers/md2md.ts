@@ -8,7 +8,7 @@ import {ArgvService, PresetService} from '../services';
 import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
 import {addMetadata} from '../services/contributors';
-import {infoMessages} from '../constants';
+import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
 
 export interface ResolverOptions {
     vars: Record<string, string>;
@@ -63,7 +63,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     });
 
     writeFileSync(outputPath, result);
-    logger.info(inputPath, infoMessages.processingHasBeenFinished);
+    logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
 }
 
 function makeCollectOfPlugins(plugins: Plugin[]) {
