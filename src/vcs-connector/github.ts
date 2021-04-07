@@ -17,9 +17,13 @@ async function getGitHubVCSConnector(): Promise<VCSConnector> {
 
 function getHttpClientByToken(): Octokit {
     const {GITHUB_TOKEN, GITHUB_BASE_URL} = process.env;
-    const {github} = ArgvService.getConfig();
-    const token = GITHUB_TOKEN || github && github.token || '';
-    const endpoint = GITHUB_BASE_URL || github && github.endpoint || '';
+    const {connector} = ArgvService.getConfig();
+    const token = GITHUB_TOKEN || connector && connector.gitHub.token || '';
+    const endpoint = GITHUB_BASE_URL || connector && connector.gitHub.endpoint || '';
+
+    if (!token || !endpoint) {
+        log.warn('Invalid token or endpoint');
+    }
 
     const octokit = new Octokit({auth: token, baseUrl: endpoint});
 
@@ -88,9 +92,9 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
 
 async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
     const {GITHUB_OWNER, GITHUB_REPO} = process.env;
-    const {github} = ArgvService.getConfig();
-    const owner = GITHUB_OWNER || github && github.owner || '';
-    const repo = GITHUB_REPO || github && github.repo || '';
+    const {connector} = ArgvService.getConfig();
+    const owner = GITHUB_OWNER || connector && connector.gitHub.owner || '';
+    const repo = GITHUB_REPO || connector && connector.gitHub.repo || '';
 
     try {
         const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {
@@ -151,9 +155,7 @@ async function getGithubLogs(gitSource: SimpleGit, filePath: string): Promise<Gi
     }
 
     const logs = await gitSource.log({file: filePath});
-    const commits = logs.all as unknown as GithubLogsDTO[];
-
-    return commits;
+    return logs.all as unknown as GithubLogsDTO[];
 }
 
 export default getGitHubVCSConnector;

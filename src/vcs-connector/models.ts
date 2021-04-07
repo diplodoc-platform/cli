@@ -26,7 +26,7 @@ export interface GithubLogsDTO {
 
 export interface VCSConnectorConfig {
     type: string;
-    github?: {
+    gitHub: {
         endpoint: string;
         token: string;
         owner: string;

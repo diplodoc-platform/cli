@@ -24,11 +24,11 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         outputFormat,
         singlePage,
         resolveConditions,
-        connector,
     } = ArgvService.getConfig();
 
+    const vcsConnector = await getVCSConnector();
+
     const promises: Promise<void>[] = [];
-    const vcsConnector = await getVCSConnector(connector && connector.type);
 
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
@@ -122,7 +122,7 @@ function getMetaDataOptions(vcsConnector: VCSConnector | undefined, pathData: Pa
     if (contributors && vcsConnector) {
         metaDataOptions.contributorsData = {
             fileData: {
-                tmpInputfilePath: pathData.resolvedPathToFile,
+                tmpInputFilePath: pathData.resolvedPathToFile,
                 inputFolderPathLength,
                 fileContent: '',
             },

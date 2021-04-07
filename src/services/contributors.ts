@@ -29,9 +29,9 @@ async function addMetadata(fileData: FileData, vcsConnector: VCSConnector): Prom
 }
 
 async function getFileContributorsString(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
-    const {tmpInputfilePath, inputFolderPathLength} = fileData;
+    const {tmpInputFilePath, inputFolderPathLength} = fileData;
 
-    const relativeFilePath = tmpInputfilePath.substring(inputFolderPathLength);
+    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
     const fileContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
 
     return JSON.stringify(fileContributors).replace(/"/g, '\'');

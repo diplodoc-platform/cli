@@ -78,14 +78,13 @@ function getMetadata(metadata: { [key: string]: string }): string {
         return '';
     }
 
-    const metaNames = Object.getOwnPropertyNames(metadata);
-    let meta = '';
+    const metaEntries = Object.entries(metadata);
 
-    metaNames.forEach((name: string) => {
-        meta += `\n<meta name="${name}" content="${metadata[name]}">`;
-    });
-
-    return meta;
+    return metaEntries
+        .map(([name, content]) => {
+            return `<meta name="${name}" content="${content}">`;
+        })
+        .join('\n');
 }
 
 function writeLog(msg: string) {

@@ -1,4 +1,4 @@
-import {VCSConnector, VCSConnectorConfig, YfmConfig} from './vcs-connector/models';
+import {VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
@@ -21,7 +21,7 @@ interface YfmConfig {
     singlePage: boolean;
 }
 
-export interface YfmArgv extends YfmConfig, VCSConnectorConfig {
+export interface YfmArgv extends YfmConfig {
     input: string;
     output: string;
     quiet: string;
@@ -94,7 +94,7 @@ export interface Contributors {
 }
 
 export interface FileData {
-    tmpInputfilePath: string;
+    tmpInputFilePath: string;
     inputFolderPathLength: number;
     fileContent: string;
 }
