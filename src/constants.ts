@@ -42,3 +42,5 @@ export const YFM_PLUGINS = [
 ];
 
 export const PROCESSING_HAS_BEEN_FINISHED = 'Processing file has been finished. File path';
+export const getMsgСonfigurationMustBeProvided =
+    (repo: string) => `Сonfiguration must be provided for ${repo} like env variable or in .yfm file`;

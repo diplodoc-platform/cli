@@ -5,7 +5,8 @@ import {existsSync} from 'fs';
 import simpleGit, {SimpleGit} from 'simple-git';
 import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsFunction, Users} from '../models';
-import {ContributorDTO, GithubContributorDTO, GithubLogsDTO, UserDTO, VCSConnector} from './models';
+import {ContributorDTO, GithubContributorDTO, GithubLogsDTO, SourceType, UserDTO, VCSConnector} from './models';
+import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 async function getGitHubVCSConnector(): Promise<VCSConnector> {
     const httpClientByToken = getHttpClientByToken();
@@ -22,7 +23,7 @@ function getHttpClientByToken(): Octokit {
     const endpoint = GITHUB_BASE_URL || connector && connector.gitHub.endpoint || '';
 
     if (!token || !endpoint) {
-        log.warn('Invalid token or endpoint');
+        log.warn(getMsgСonfigurationMustBeProvided(SourceType.GITHUB));
     }
 
     const octokit = new Octokit({auth: token, baseUrl: endpoint});
@@ -31,14 +32,14 @@ function getHttpClientByToken(): Octokit {
 }
 
 async function getGithubContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
-    const {contributors, input: rootPath} = ArgvService.getConfig();
+    const {contributors, rootInput} = ArgvService.getConfig();
 
-    const gitSource: SimpleGit = simpleGit(rootPath, {binary: 'git'});
+    const gitSource: SimpleGit = simpleGit(rootInput, {binary: 'git'});
 
     const allContributors = contributors ? await getAllContributors(httpClientByToken) : {};
 
     const getGithubContributorsFunction = async (path: string) => {
-        const filePath = join(rootPath, path);
+        const filePath = join(rootInput, path);
         return getGithubContributors(gitSource, allContributors, filePath);
     };
 
@@ -95,6 +96,10 @@ async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> 
     const {connector} = ArgvService.getConfig();
     const owner = GITHUB_OWNER || connector && connector.gitHub.owner || '';
     const repo = GITHUB_REPO || connector && connector.gitHub.repo || '';
+
+    if (!owner || !repo) {
+        log.warn(getMsgСonfigurationMustBeProvided(SourceType.GITHUB));
+    }
 
     try {
         const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {

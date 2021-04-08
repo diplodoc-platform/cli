@@ -111,7 +111,7 @@ async function main() {
 
     preparingTemporaryFolders(userOutputFolder, tmpInputFolder, tmpOutputFolder);
 
-    ArgvService.init({..._yargs.argv, input: tmpInputFolder, output: tmpOutputFolder});
+    ArgvService.init({..._yargs.argv, rootInput: _yargs.argv.input, input: tmpInputFolder, output: tmpOutputFolder});
     const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
 
     processServiceFiles();

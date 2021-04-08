@@ -23,6 +23,7 @@ interface YfmConfig {
 }
 
 export interface YfmArgv extends YfmConfig {
+    rootInput: string;
     input: string;
     output: string;
     quiet: string;
