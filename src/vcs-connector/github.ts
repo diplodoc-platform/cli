@@ -99,6 +99,7 @@ async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> 
 
     if (!owner || !repo) {
         log.warn(getMsgСonfigurationMustBeProvided(SourceType.GITHUB));
+        return [];
     }
 
     try {
