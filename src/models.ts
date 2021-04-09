@@ -1,10 +1,13 @@
+import {VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
-export interface YfmConfig {
+export type ContributorsFunction = (path: string) => Promise<Contributor[]>;
+
+interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
@@ -16,9 +19,11 @@ export interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
+    connector?: VCSConnectorConfig;
 }
 
 export interface YfmArgv extends YfmConfig {
+    rootInput: string;
     input: string;
     output: string;
     quiet: string;
@@ -28,6 +33,7 @@ export interface YfmArgv extends YfmConfig {
     storagePrefix: string;
     storageKeyId: string;
     storageSecretKey: string;
+    contributors: boolean;
 }
 
 export interface DocPreset {
@@ -76,4 +82,62 @@ export interface Filter {
 export interface SinglePageResult {
     path: string;
     content: string;
+}
+
+export interface Contributor {
+    avatar: string;
+    login: string;
+    name: string;
+}
+
+export interface Contributors {
+    [emailOrLogin: string]: Contributor;
+}
+
+export interface FileData {
+    tmpInputFilePath: string;
+    inputFolderPathLength: number;
+    fileContent: string;
+}
+
+export interface MetaDataOptions {
+    contributorsData?: {
+        fileData: FileData;
+        vcsConnector: VCSConnector;
+    };
+}
+
+export interface ResolveMd2MdOptions extends MetaDataOptions {
+    inputPath: string;
+    outputPath: string;
+    singlePage?: boolean;
+}
+
+export interface ResolverOptions extends MetaDataOptions {
+    inputPath: string;
+    filename: string;
+    fileExtension: string;
+    outputPath: string;
+    outputBundlePath: string;
+}
+
+export interface PathData {
+    pathToFile: string;
+    resolvedPathToFile: string;
+    filename: string;
+    fileBaseName: string;
+    fileExtension: string;
+    outputDir: string;
+    outputPath: string;
+    outputFormat: string;
+    outputBundlePath: string;
+}
+
+interface User {
+    email: string;
+    name: string;
+}
+
+export interface Users {
+    [login: string]: User;
 }

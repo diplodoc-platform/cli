@@ -73,6 +73,11 @@ const _yargs = yargs
         default: Stage.SKIP,
         describe: 'Ignore tocs with stage',
     })
+    .option('contributors', {
+        default: false,
+        describe: 'Should attach files` contributors',
+        type: 'boolean',
+    })
     .option('quiet', {
         alias: 'q',
         default: false,
@@ -97,64 +102,58 @@ const _yargs = yargs
 
 console.time(MAIN_TIMER_ID);
 
-const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
+main();
 
-/* Create user' output folder if doesn't exists */
-const userOutputFolder = resolve(_yargs.argv.output);
-shell.mkdir('-p', userOutputFolder);
+async function main() {
+    const userOutputFolder = resolve(_yargs.argv.output);
+    const tmpInputFolder = resolve(_yargs.argv.output, TMP_INPUT_FOLDER);
+    const tmpOutputFolder = resolve(_yargs.argv.output, TMP_OUTPUT_FOLDER);
 
-/* Create temporary input/output folders */
-const tmpInputFolder = resolve(_yargs.argv.output, TMP_INPUT_FOLDER);
-const tmpOutputFolder = resolve(_yargs.argv.output, TMP_OUTPUT_FOLDER);
-shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-shell.mkdir(tmpInputFolder, tmpOutputFolder);
+    preparingTemporaryFolders(userOutputFolder, tmpInputFolder, tmpOutputFolder);
 
-/*
- * Copy all user' files to the temporary folder to avoid user' file changing.
- * Please, change files only in temporary folders.
- */
-shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
-shell.chmod('-R', 'u+w', tmpInputFolder);
+    ArgvService.init({..._yargs.argv, rootInput: _yargs.argv.input, input: tmpInputFolder, output: tmpOutputFolder});
+    const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
 
-ArgvService.init({
-    ..._yargs.argv,
-    input: tmpInputFolder,
-    output: tmpOutputFolder,
-});
+    processServiceFiles();
+    processExcludedFiles();
 
-const {
-    output: outputFolderPath,
-    outputFormat,
-    publish,
-} = ArgvService.getConfig();
+    const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
+    const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
 
-const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
+    await processPages(outputBundlePath);
 
-processServiceFiles();
+    // process additional files
+    switch (outputFormat) {
+        case 'html':
+            processAssets(outputBundlePath);
+            break;
+        case 'md':
+            shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+            break;
+    }
 
-processExcludedFiles();
+    // Copy all generated files to user' output folder
+    shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
 
-processPages(tmpInputFolder, outputBundlePath);
+    // Upload output files to S3 storage
+    if (publish) {
+        publishFiles();
+    }
 
-/* Should copy all assets only when running --output-format=html */
-if (outputFormat === 'html') {
-    processAssets(outputBundlePath);
+    processLogs(tmpInputFolder);
+
+    shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
 }
 
-/* Copy all generated files to user' output folder */
-shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string) {
+    shell.mkdir('-p', userOutputFolder);
 
-/* Copy configuration file */
-if (outputFormat === 'md') {
-    shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+    // Create temporary input/output folders
+    shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
+    shell.mkdir(tmpInputFolder, tmpOutputFolder);
+
+    // Copy all user' files to the temporary folder to avoid user' file changing.
+    // Please, change files only in temporary folders.
+    shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
+    shell.chmod('-R', 'u+w', tmpInputFolder);
 }
-
-/* Upload output files to S3 storage */
-if (publish) {
-    publishFiles();
-}
-
-/* Remove temporary folders */
-shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-
-processLogs(tmpInputFolder);

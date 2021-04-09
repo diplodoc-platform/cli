@@ -1,17 +1,9 @@
 import {relative, dirname, basename, extname, format, join} from 'path';
-import {blue, green} from 'chalk';
+import {blue, green, grey} from 'chalk';
 
 import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
 import {ArgvService} from './services';
-
-export interface ResolverOptions {
-    inputPath: string;
-    filename: string;
-    fileExtension: string;
-    outputPath: string;
-    outputBundlePath: string;
-}
 
 export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): YfmToc|null {
     if (!toc) {
@@ -61,6 +53,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
         <html>
             <head>
                 <meta charset="utf-8">
+                ${getMetadata(props.data.meta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${props.data.toc.title}</title>
                 <style type="text/css">
@@ -80,6 +73,20 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
     `;
 }
 
+function getMetadata(metadata: { [key: string]: string }): string {
+    if (!metadata) {
+        return '';
+    }
+
+    const metaEntries = Object.entries(metadata);
+
+    return metaEntries
+        .map(([name, content]) => {
+            return `<meta name="${name}" content="${content}">`;
+        })
+        .join('\n');
+}
+
 function writeLog(msg: string) {
     const {quiet} = ArgvService.getConfig();
 
@@ -91,6 +98,9 @@ function writeLog(msg: string) {
 }
 
 export const logger = {
+    info: function (pathToFile: string, extraMessage?: string) {
+        writeLog(`${grey('INFO')} ${extraMessage} ${pathToFile}`);
+    },
     proc: function (pathToFile: string) {
         writeLog(`${blue('PROC')} Processing file ${pathToFile}`);
     },

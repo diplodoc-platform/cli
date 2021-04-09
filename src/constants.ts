@@ -16,6 +16,11 @@ export enum Stage {
     SKIP = 'skip',
 }
 
+export enum Lang {
+    RU = 'ru',
+    EN = 'en',
+}
+
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images, video} = plugins;
@@ -35,3 +40,7 @@ export const YFM_PLUGINS = [
     sup,
     video,
 ];
+
+export const PROCESSING_HAS_BEEN_FINISHED = 'Processing file has been finished. File path';
+export const getMsgСonfigurationMustBeProvided =
+    (repo: string) => `Сonfiguration must be provided for ${repo} like env variable or in .yfm file`;

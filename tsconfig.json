@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "esnext",
     "esModuleInterop": true,
     "pretty": true,
     "newLine": "lf",
@@ -15,7 +15,7 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "allowJs": true,
-    "target": "es2019",
+    "target": "es2020",
     "moduleResolution": "node",
     "declaration": false,
     "outDir": "build",

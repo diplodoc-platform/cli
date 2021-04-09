@@ -84,6 +84,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Should upload output files to S3 storage. Disabled by default.
 
+- `--contributors`
+
+    Should attach files' contributors. Disabled by default.
+
 - `--version`
 
     Current version.
@@ -143,6 +147,30 @@ input-folder
 ```
 
 ## Source files
+
+### Preparation
+
+You need to add `.env` file into repo root with data below:
+
+```bash
+GITHUB_OWNER= 
+GITHUB_REPO= # docs
+GITHUB_TOKEN= # personal access token
+GITHUB_BASE_URL= # for ex: https://api.github.com
+VCS_CONNECTOR_TYPE= # gitHub 
+```
+
+or you can update .yfm file into docs repo 
+
+```bash
+connector:
+    type:
+    gitHub: 
+        endpoint: 
+        token: 
+        owner: 
+        repo: 
+```
 
 ### Installation
 
