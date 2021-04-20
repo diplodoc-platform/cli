@@ -9,10 +9,12 @@ import {ContributorDTO, GithubContributorDTO, GithubLogsDTO, SourceType, UserDTO
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 async function getGitHubVCSConnector(): Promise<VCSConnector> {
-    const httpClientByToken = getHttpClientByToken();
+    const {contributors} = ArgvService.getConfig();
 
     return {
-        getContributorsByPath: await getGithubContributorsByPathFunction(httpClientByToken),
+        getContributorsByPath: contributors
+            ? await getGithubContributorsByPathFunction()
+            : () => Promise.resolve([]),
     };
 }
 
@@ -31,8 +33,9 @@ function getHttpClientByToken(): Octokit {
     return octokit;
 }
 
-async function getGithubContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
+async function getGithubContributorsByPathFunction(): Promise<ContributorsFunction> {
     const {contributors, rootInput} = ArgvService.getConfig();
+    const httpClientByToken = getHttpClientByToken();
 
     const gitSource: SimpleGit = simpleGit(rootInput, {binary: 'git'});
 
