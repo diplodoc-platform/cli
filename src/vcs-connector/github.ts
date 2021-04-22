@@ -78,11 +78,13 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
             const {login, avatar_url: avatarUrl = ''} = githubContributor;
             if (login) {
                 const user = users[login];
-                contributors[user.email || login] = {
-                    avatar: avatarUrl,
-                    login: login,
-                    name: user.name,
-                };
+                if (user) {
+                    contributors[user.email || login] = {
+                        avatar: avatarUrl,
+                        login: login,
+                        name: user.name,
+                    };
+                }
             }
         });
 
