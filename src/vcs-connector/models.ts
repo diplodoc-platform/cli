@@ -1,11 +1,27 @@
-import {ContributorsFunction} from '../models';
+import { Contributors, ContributorsFunction, UserByLoginFunction } from '../models';
+
+export interface ConnectorValidatorProps {
+    validateFn: (value: any) => Boolean;
+    defaultValue?: any;
+    errorMessage?: string;
+    warnMessage?: string;
+    relatedValidator?: Record<string, ConnectorValidatorProps>;
+}
 
 export enum SourceType {
-    GITHUB = 'gitHub',
+    GITHUB = 'github',
+}
+
+export enum GitHubConnectorFields {
+    OWNER = 'owner',
+    REPO = 'repo',
+    TOKEN = 'token',
+    ENDPOINT = 'endpoint',
 }
 
 export interface VCSConnector {
     getContributorsByPath: ContributorsFunction;
+    getUserByLogin: UserByLoginFunction;
 }
 
 export interface ContributorDTO {
@@ -14,19 +30,19 @@ export interface ContributorDTO {
 }
 
 /* eslint-disable camelcase */
-export interface GithubContributorDTO {
+export interface GitHubContributorDTO {
     login?: string;
     avatar_url?: string;
 }
 
-export interface GithubLogsDTO {
+export interface GitHubLogsDTO {
     author_email: string;
     author_name: string;
 }
 
 export interface VCSConnectorConfig {
     type: string;
-    gitHub: {
+    [SourceType.GITHUB]: {
         endpoint: string;
         token: string;
         owner: string;
@@ -35,7 +51,12 @@ export interface VCSConnectorConfig {
 }
 
 export interface UserDTO {
+    avatar_url: string;
     email: string;
     login: string;
     name: string;
+}
+
+export interface FileContributors {
+    contributors: Contributors;
 }

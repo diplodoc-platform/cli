@@ -10,6 +10,8 @@ import {ArgvService, PresetService, TocService} from '../services';
 import {generateStaticMarkup, getPlugins, logger, transformToc} from '../utils';
 import {getFileContributorsString} from '../services/contributors';
 import {PROCESSING_HAS_BEEN_FINISHED, Lang} from '../constants';
+import { getAuthorDetails } from '../services/authors';
+import { VCSConnector } from '../vcs-connector/models';
 
 export interface FileTransformOptions {
     path: string;
@@ -74,7 +76,6 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
 }
-
 
 function YamlFileTransformer(content: string): Object {
     let data = {};

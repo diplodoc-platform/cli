@@ -1,11 +1,12 @@
-import {VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
+import { FileContributors, VCSConnector, VCSConnectorConfig } from './vcs-connector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
-export type ContributorsFunction = (path: string) => Promise<Contributor[]>;
+export type ContributorsFunction = (path: string) => Promise<FileContributors>;
+export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
 
 interface YfmConfig {
     varsPreset: VarsPreset;
@@ -86,6 +87,7 @@ export interface SinglePageResult {
 
 export interface Contributor {
     avatar: string;
+    email: string;
     login: string;
     name: string;
 }
@@ -134,10 +136,12 @@ export interface PathData {
 }
 
 interface User {
+    avatar: string;
     email: string;
+    login: string;
     name: string;
 }
 
 export interface Users {
-    [login: string]: User;
+    [emailOrLogin: string]: User;
 }

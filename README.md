@@ -86,7 +86,7 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
 - `--contributors`
 
-    Should attach files' contributors. Disabled by default.
+    Should attach contributors into files. Disabled by default.
 
 - `--version`
 
@@ -157,7 +157,7 @@ GITHUB_OWNER=
 GITHUB_REPO= # docs
 GITHUB_TOKEN= # personal access token
 GITHUB_BASE_URL= # for ex: https://api.github.com
-VCS_CONNECTOR_TYPE= # gitHub 
+VCS_CONNECTOR_TYPE= # github 
 ```
 
 or you can update .yfm file into docs repo 
@@ -165,7 +165,7 @@ or you can update .yfm file into docs repo
 ```bash
 connector:
     type:
-    gitHub: 
+    github: 
         endpoint: 
         token: 
         owner: 
