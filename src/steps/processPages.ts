@@ -187,7 +187,7 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
     await resolveMd2Md({
         inputPath: pathToFile,
         outputPath,
-        ...metaDataOptions,
+        metadata: metaDataOptions,
     });
 }
 
@@ -206,6 +206,6 @@ async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOpt
         fileExtension,
         outputPath,
         filename,
-        ...metaDataOptions,
+        metadata: metaDataOptions,
     });
 }

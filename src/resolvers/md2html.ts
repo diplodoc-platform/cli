@@ -37,12 +37,16 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
 
+    const updatedMetadata = metadata && metadata.isAddContributors
+        ? await getUpdatedMetadata(result, metadata, content)
+        : result.meta;
+
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
             toc: transformToc(toc, pathToDir) || {},
             ...result,
-            meta: metadata ? await getUpdatedMetadata(result, metadata, content) : result.meta,
+            meta: updatedMetadata,
         },
         router: {
             pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
