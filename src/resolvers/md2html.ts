@@ -8,10 +8,8 @@ import log from '@doc-tools/transform/lib/log';
 import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
 import {generateStaticMarkup, getPlugins, logger, transformToc} from '../utils';
-import {getFileContributorsString} from '../services/contributors';
 import {PROCESSING_HAS_BEEN_FINISHED, Lang} from '../constants';
-import { getAuthorDetails } from '../services/authors';
-import { VCSConnector } from '../vcs-connector/models';
+import {getUpdatedMetadata} from '../services/metadata';
 
 export interface FileTransformOptions {
     path: string;
@@ -23,16 +21,8 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
-/**
- * Transforms markdown file to HTML format.
- * @param inputPath
- * @param fileExtension
- * @param outputPath
- * @param outputBundlePath
- * @return {string}
- */
 export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
-    const {inputPath, fileExtension, outputPath, outputBundlePath, contributorsData} = options;
+    const {inputPath, fileExtension, outputPath, outputBundlePath, metadata} = options;
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
@@ -44,24 +34,15 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
-    let contributors = '';
-
-    if (contributorsData) {
-        const {fileData, vcsConnector} = contributorsData;
-        fileData.fileContent = content;
-        contributors = await getFileContributorsString(fileData, vcsConnector);
-    }
-
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
-    const metadata = result.meta ? {...result.meta, contributors} : {contributors};
 
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
             toc: transformToc(toc, pathToDir) || {},
             ...result,
-            meta: metadata,
+            meta: metadata ? await getUpdatedMetadata(result, metadata, content) : result.meta,
         },
         router: {
             pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),

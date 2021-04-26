@@ -1,4 +1,4 @@
-import { FileContributors, VCSConnector, VCSConnectorConfig } from './vcs-connector/models';
+import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
 import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
@@ -103,24 +103,25 @@ export interface FileData {
 }
 
 export interface MetaDataOptions {
-    contributorsData?: {
-        fileData: FileData;
-        vcsConnector: VCSConnector;
-    };
+    fileData: FileData;
+    isAddContributors?: boolean;
+    vcsConnector?: VCSConnector;
 }
 
-export interface ResolveMd2MdOptions extends MetaDataOptions {
+export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
     singlePage?: boolean;
+    metadata?: MetaDataOptions;
 }
 
-export interface ResolverOptions extends MetaDataOptions {
+export interface ResolverOptions {
     inputPath: string;
     filename: string;
     fileExtension: string;
     outputPath: string;
     outputBundlePath: string;
+    metadata?: MetaDataOptions;
 }
 
 export interface PathData {

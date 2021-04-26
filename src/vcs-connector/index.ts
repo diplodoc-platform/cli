@@ -2,7 +2,7 @@ import {ArgvService} from '../services';
 import getGitHubVCSConnector from './github';
 import {VCSConnector, SourceType} from './models';
 
-export async function getVCSConnector(): Promise<VCSConnector | null> {
+export async function getVCSConnector(): Promise<VCSConnector | undefined> {
     const {connector} = ArgvService.getConfig();
     const connectorType = process.env.VCS_CONNECTOR_TYPE || connector && connector.type;
 
@@ -10,6 +10,6 @@ export async function getVCSConnector(): Promise<VCSConnector | null> {
         case SourceType.GITHUB:
             return getGitHubVCSConnector();
         default:
-            return null;
+            return;
     }
 }

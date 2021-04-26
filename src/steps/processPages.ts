@@ -39,7 +39,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
-        const metaDataOptions = getMetaDataOptions(vcsConnector, pathData, inputFolderPath.length);
+        const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
 
         promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions));
     }
@@ -114,21 +114,18 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
     }
 }
 
-function getMetaDataOptions(vcsConnector: VCSConnector | null, pathData: PathData, inputFolderPathLength: number): MetaDataOptions {
+function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector): MetaDataOptions {
     const {contributors} = ArgvService.getConfig();
 
-    const metaDataOptions: MetaDataOptions = {};
-
-    if (contributors && vcsConnector) {
-        metaDataOptions.contributorsData = {
-            fileData: {
-                tmpInputFilePath: pathData.resolvedPathToFile,
-                inputFolderPathLength,
-                fileContent: '',
-            },
-            vcsConnector,
-        };
-    }
+    const metaDataOptions: MetaDataOptions = {
+        vcsConnector,
+        fileData: {
+            tmpInputFilePath: pathData.resolvedPathToFile,
+            inputFolderPathLength,
+            fileContent: '',
+        },
+        isAddContributors: Boolean(contributors && vcsConnector),
+    };
 
     return metaDataOptions;
 }

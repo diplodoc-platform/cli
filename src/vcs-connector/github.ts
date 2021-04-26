@@ -1,24 +1,26 @@
 import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
-import { normalize } from 'path';
-import { ArgvService } from '../services';
-import { Contributor, Contributors, ContributorsFunction } from '../models';
-import { ContributorDTO, FileContributors, GitHubConnectorFields, SourceType, UserDTO, VCSConnector } from './models';
-import { ALL_CONTRIBUTORS_HAS_BEEN_GOTTEN } from '../constants';
-import { execPromisifyFunction, logger } from '../utils';
-import { validateConnectorFields } from './connector-validator';
+import {normalize} from 'path';
+import {ArgvService} from '../services';
+import {Contributor, Contributors, ContributorsFunction} from '../models';
+import {ContributorDTO, FileContributors, GitHubConnectorFields, SourceType, UserDTO, VCSConnector} from './models';
+import {ALL_CONTRIBUTORS_HAS_BEEN_GOTTEN} from '../constants';
+import {execPromisifyFunction, logger} from '../utils';
+import {validateConnectorFields} from './connector-validator';
 
 const contributorsByPath: Map<string, FileContributors> = new Map();
 
-async function getGitHubVCSConnector(): Promise<VCSConnector | null> {
-    const { contributors } = ArgvService.getConfig();
+async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
+    const {contributors} = ArgvService.getConfig();
 
     const httpClientByToken = getHttpClientByToken();
     if (!httpClientByToken) {
-        return null;
+        return;
     }
 
-    contributors && await getAllContributorsTocFiles(httpClientByToken);
+    if (contributors) {
+        await getAllContributorsTocFiles(httpClientByToken);
+    }
 
     return {
         getContributorsByPath: contributors
@@ -29,7 +31,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | null> {
 }
 
 function getHttpClientByToken(): Octokit | null {
-    const { connector } = ArgvService.getConfig();
+    const {connector} = ArgvService.getConfig();
 
     const neededProperties = [GitHubConnectorFields.TOKEN, GitHubConnectorFields.ENDPOINT];
     const validatedFileds = validateConnectorFields(SourceType.GITHUB, neededProperties, connector);
@@ -47,15 +49,15 @@ function getHttpClientByToken(): Octokit | null {
 }
 
 async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<void> {
-    const { rootInput } = ArgvService.getConfig();
+    const {rootInput} = ArgvService.getConfig();
     const allContributors = await getAllContributors(httpClientByToken);
 
-    const fullLogString = await execPromisifyFunction(`cd ${rootInput} && git log --pretty=format:"%ae, %an" --name-only`);
+    const fullRepoLogString = await execPromisifyFunction(`cd ${rootInput} && git log --pretty=format:"%ae, %an" --name-only`);
 
-    const logs = fullLogString.split('\n\n');
+    const repoLogs = fullRepoLogString.split('\n\n');
 
-    for (let log of logs) {
-        const dataArray = log.split('\n');
+    for (const repoLog of repoLogs) {
+        const dataArray = repoLog.split('\n');
 
         const userData = dataArray[0];
         const [email, authorName] = userData.split(', ');
@@ -76,7 +78,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
                     email,
                     login: '',
                     name: authorName,
-                }
+                },
             };
         }
 
@@ -132,7 +134,7 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
 
         repoUsers.forEach((user: UserDTO | null) => {
             if (user) {
-                const { email, login, name, avatar_url: avatarUrl } = user;
+                const {email, login, name, avatar_url: avatarUrl} = user;
                 contributors[email || login] = {
                     avatar: avatarUrl,
                     email,
@@ -151,7 +153,7 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
 }
 
 async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
-    const { connector } = ArgvService.getConfig();
+    const {connector} = ArgvService.getConfig();
 
     const neededProperties = [GitHubConnectorFields.OWNER, GitHubConnectorFields.REPO];
     const validatedFileds = validateConnectorFields(SourceType.GITHUB, neededProperties, connector);
@@ -201,7 +203,7 @@ async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Cont
         return null;
     }
 
-    const { avatar_url: avatar, email, login, name } = user;
+    const {avatar_url: avatar, email, login, name} = user;
 
     return {
         avatar,

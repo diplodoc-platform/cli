@@ -1,35 +1,12 @@
-import { readFileSync } from 'fs';
-import { dirname, join } from 'path';
-import { Contributor, Contributors, FileData } from '../models';
-import { FileContributors, VCSConnector } from '../vcs-connector/models';
-import { getUpdatedAuthorString } from './authors';
+import {readFileSync} from 'fs';
+import {dirname, join} from 'path';
+import {Contributor, Contributors, FileData} from '../models';
+import {FileContributors, VCSConnector} from '../vcs-connector/models';
 
-async function addMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
-    // Search by format:
-    // ---
-    // metaName1: metaValue1
-    // metaName2: meta value2
-    // incorrectMetadata
-    // ---
-    const regexpMetadata = '(?<=-{3}\\r\\n)((.*\\r\\n)*)(?=-{3}\\r\\n)';
-    // Search by format:
-    // ---
-    // main content 123
-    const regexpFileContent = '---((.*[\r\n]*)*)';
-
-    const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
-    const matches = regexpParseFileContent.exec(fileData.fileContent);
-
+async function getFileContributorsMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     const contributors = await getFileContributorsString(fileData, vcsConnector);
-    const contributorsValue = `contributors: ${contributors}`;
 
-    if (matches && matches.length > 0) {
-        const [, fileMetadata, , fileMainContent] = matches;
-
-        return `${getUpdatedMetadata(contributorsValue, vcsConnector, fileMetadata)}${fileMainContent}`;
-    }
-
-    return `${getUpdatedMetadata(contributorsValue, vcsConnector)}${fileData.fileContent}`;
+    return `contributors: ${contributors}`;
 }
 
 async function getFileContributorsString(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
@@ -51,12 +28,11 @@ async function getFileContributorsString(fileData: FileData, vcsConnector: VCSCo
 }
 
 async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: VCSConnector): Promise<Contributors> {
-    const { fileContent, inputFolderPathLength } = fileData;
+    const {fileContent, inputFolderPathLength} = fileData;
 
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)
     const regexpIncludeContents = /(?<=[{%]\sinclude\s).+(?=\s[%}])/gm;
-
 
     const includeContents = fileContent.match(regexpIncludeContents);
     if (!includeContents || includeContents.length === 0) {
@@ -64,12 +40,11 @@ async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: V
     }
 
     const includesContributors: Contributors[] = [];
-
     const relativeIncludeFilePaths: Set<string> = getRelativeIncludeFilePaths(fileData, includeContents);
 
     for (const relativeIncludeFilePath of relativeIncludeFilePaths.values()) {
         const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength);
-        let includeContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
+        const includeContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
 
         const contentIncludeFile: string = readFileSync(relativeIncludeFilePath, 'utf8');
 
@@ -89,7 +64,7 @@ async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: V
 }
 
 function getRelativeIncludeFilePaths(fileData: FileData, includeContents: string[]): Set<string> {
-    const { tmpInputFilePath } = fileData;
+    const {tmpInputFilePath} = fileData;
     const relativeIncludeFilePaths: Set<string> = new Set();
 
     // Include example: [createfolder](create-folder.md)
@@ -110,18 +85,7 @@ function getRelativeIncludeFilePaths(fileData: FileData, includeContents: string
     return relativeIncludeFilePaths;
 }
 
-async function getUpdatedMetadata(metaContributorsValue: string, vcsConnector: VCSConnector, defaultMetadata = ''): Promise<string> {
-    const metadataСarriage = '\r\n';
-    const metadataBorder = `---${metadataСarriage}`;
-
-    let updatedDefaultMetadata = await getUpdatedAuthorString(vcsConnector, defaultMetadata);
-
-    const newMetadata = `${updatedDefaultMetadata}${metadataСarriage}${metaContributorsValue}${metadataСarriage}`;
-
-    return `${metadataBorder}${newMetadata}${metadataBorder}`;
-}
-
 export {
-    addMetadata,
+    getFileContributorsMetadata,
     getFileContributorsString,
 };
