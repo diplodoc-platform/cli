@@ -1,14 +1,14 @@
 import log from '@doc-tools/transform/lib/log';
-import { ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig } from './models';
-import { getMsgСonfigurationMustBeProvided } from '../constants';
+import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './models';
+import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 const connectorValidator: Record<string, ConnectorValidatorProps> = {
     'type': {
-        warnMessage: `'type' must be provided for repo.`,
+        warnMessage: '\'type\' must be provided for repo.',
         validateFn: notEmptyValue,
     },
     [SourceType.GITHUB]: {
-        warnMessage: `'github' object must be filled needed fields`,
+        warnMessage: '\'github\' object must be filled needed fields',
         validateFn: notEmptyObject,
         relatedValidator: {
             [GitHubConnectorFields.ENDPOINT]: {
@@ -31,7 +31,7 @@ const connectorValidator: Record<string, ConnectorValidatorProps> = {
                 validateFn: notEmptyValue,
                 defaultValue: process.env.GITHUB_REPO,
             },
-        }
+        },
     },
 };
 
@@ -45,9 +45,8 @@ function notEmptyValue(value: string | undefined): boolean {
 
 export function validateConnectorFields(
     sourceType: SourceType,
-    validatingFieldNames: GitHubConnectorFields[],
-    repoProperties?: VCSConnectorConfig)
-    : { [key: string]: any } {
+    fieldNames: GitHubConnectorFields[],
+    repoProperties?: VCSConnectorConfig): { [key: string]: any } {
 
     const repoValidator = connectorValidator[sourceType];
 
@@ -66,7 +65,7 @@ export function validateConnectorFields(
     let isValidProperties = true;
     const validatedFields: { [key: string]: any } = {};
 
-    for (const property of validatingFieldNames) {
+    for (const property of fieldNames) {
         const propertyValidator = relatedRepoValidator[property];
 
         if (!propertyValidator) {
@@ -74,7 +73,7 @@ export function validateConnectorFields(
             continue;
         }
 
-        const propertyValue = propertyValidator.defaultValue || repoProperties[sourceType][property];
+        const propertyValue = propertyValidator.defaultValue || repoProperties[sourceType]![property];
 
         if (!propertyValidator.validateFn(propertyValue)) {
             createLog(propertyValidator);

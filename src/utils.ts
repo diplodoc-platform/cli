@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import shell from 'shelljs';
 import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green, grey} from 'chalk';
@@ -144,31 +143,9 @@ export const joinSinglePageResults = (singlePageResults: SinglePageResult[]) => 
     }).join(delimeter);
 };
 
-export const PromiseAllValues = async (object: object) => {
-
-    return _.zipObject(_.keys(object), await Promise.all(_.values(object)));
-};
-
-export const allObject = (obj: object) => {
-    try {
-        console.log('12');
-        return Promise.all(
-            Object.entries(obj).map(async ([k, v]) => {
-                console.log('test');
-                return [k, await v];
-            })
-        ).then(Object.fromEntries)
-            .catch((error) => {
-                return error;
-            });
-    } catch (error) {
-        console.log('Error', error);
-    }
-};
-
 export function execPromisifyFunction(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
-        shell.exec(command, { async: true }, (code: number, stdout: string, stderr: string) => {
+        shell.exec(command, {async: true}, (code: number, stdout: string, stderr: string) => {
             if (code === 1 || code === 0) {
                 resolve(stdout);
             } else {

@@ -1,4 +1,4 @@
-import { Contributors, ContributorsFunction, UserByLoginFunction } from '../models';
+import {Contributors, ContributorsFunction, UserByLoginFunction} from '../models';
 
 export interface ConnectorValidatorProps {
     validateFn: (value: any) => Boolean;
@@ -42,7 +42,7 @@ export interface GitHubLogsDTO {
 
 export interface VCSConnectorConfig {
     type: string;
-    [SourceType.GITHUB]: {
+    [SourceType.GITHUB]?: {
         endpoint: string;
         token: string;
         owner: string;

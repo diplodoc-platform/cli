@@ -58,11 +58,9 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 
     for (const repoLog of repoLogs) {
         const dataArray = repoLog.split('\n');
-
         const userData = dataArray[0];
         const [email, authorName] = userData.split(', ');
 
-        // TODO think about login as key
         const contributorByEmail = allContributors[email];
 
         let newContributor: Contributors = {};
@@ -84,28 +82,32 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 
         const paths = dataArray.splice(1);
 
-        paths.forEach((path: string) => {
-            const normalizePath = normalize(`${path.startsWith('/') ? '' : '/'}${path}`);
-
-            if (!contributorsByPath.has(normalizePath)) {
-                contributorsByPath.set(normalizePath, {
-                    contributors: newContributor,
-                });
-                return;
-            }
-
-            const oldContributors = contributorsByPath.get(normalizePath);
-
-            contributorsByPath.set(normalizePath, {
-                contributors: {
-                    ...oldContributors?.contributors,
-                    ...newContributor,
-                },
-            });
-        });
+        addContributorByPath(paths, newContributor);
     }
 
     logger.info('', ALL_CONTRIBUTORS_HAS_BEEN_GOTTEN);
+}
+
+function addContributorByPath(paths: string[], newContributor: Contributors): void {
+    paths.forEach((path: string) => {
+        const normalizePath = normalize(`${path.startsWith('/') ? '' : '/'}${path}`);
+
+        if (!contributorsByPath.has(normalizePath)) {
+            contributorsByPath.set(normalizePath, {
+                contributors: newContributor,
+            });
+            return;
+        }
+
+        const oldContributors = contributorsByPath.get(normalizePath);
+
+        contributorsByPath.set(normalizePath, {
+            contributors: {
+                ...oldContributors?.contributors,
+                ...newContributor,
+            },
+        });
+    });
 }
 
 async function getContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
@@ -146,7 +148,6 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
 
         return contributors;
     } catch (error) {
-        console.log(error);
         log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
         throw error;
     }

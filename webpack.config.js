@@ -3,7 +3,7 @@ const {resolve} = require('path');
 
 module.exports = [
     {
-        mode: 'development',
+        mode: 'production',
         target: 'web',
         entry: './src/app/index.tsx',
         output: {
@@ -32,13 +32,12 @@ module.exports = [
                 },
             ],
         },
-        devtool: 'source-map',
     },
     {
-        mode: 'development',
+        mode: 'production',
         target: 'node',
         entry: './src/index.ts',
-        devtool: 'source-map',
+        devtool: 'eval-source-map',
         resolve: {
             extensions: ['.tsx', '.ts', '.js'],
         },
