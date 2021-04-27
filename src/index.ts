@@ -75,7 +75,7 @@ const _yargs = yargs
     })
     .option('contributors', {
         default: false,
-        describe: 'Should attach files contributors',
+        describe: 'Should attach contributors into files',
         type: 'boolean',
     })
     .option('quiet', {

@@ -4,7 +4,7 @@ import {normalize} from 'path';
 import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsFunction} from '../models';
 import {ContributorDTO, FileContributors, GitHubConnectorFields, SourceType, UserDTO, VCSConnector} from './models';
-import {ALL_CONTRIBUTORS_HAS_BEEN_GOTTEN} from '../constants';
+import {ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED} from '../constants';
 import {execPromisifyFunction, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
@@ -85,7 +85,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
         addContributorByPath(paths, newContributor);
     }
 
-    logger.info('', ALL_CONTRIBUTORS_HAS_BEEN_GOTTEN);
+    logger.info('', ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED);
 }
 
 function addContributorByPath(paths: string[], newContributor: Contributors): void {

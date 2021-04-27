@@ -135,14 +135,3 @@ export interface PathData {
     outputFormat: string;
     outputBundlePath: string;
 }
-
-interface User {
-    avatar: string;
-    email: string;
-    login: string;
-    name: string;
-}
-
-export interface Users {
-    [emailOrLogin: string]: User;
-}
