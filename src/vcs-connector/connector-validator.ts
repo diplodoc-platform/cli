@@ -2,36 +2,38 @@ import log from '@doc-tools/transform/lib/log';
 import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './models';
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 
+const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
+    [GitHubConnectorFields.ENDPOINT]: {
+        warnMessage: `'${GitHubConnectorFields.ENDPOINT}' must be provided for GitHub repo.`,
+        validateFn: notEmptyValue,
+        defaultValue: process.env.GITHUB_BASE_URL,
+    },
+    [GitHubConnectorFields.TOKEN]: {
+        warnMessage: `'${GitHubConnectorFields.TOKEN}' must be provided for GitHub repo.`,
+        validateFn: notEmptyValue,
+        defaultValue: process.env.GITHUB_TOKEN,
+    },
+    [GitHubConnectorFields.OWNER]: {
+        warnMessage: `'${GitHubConnectorFields.OWNER}' must be provided for GitHub repo.`,
+        validateFn: notEmptyValue,
+        defaultValue: process.env.GITHUB_OWNER,
+    },
+    [GitHubConnectorFields.REPO]: {
+        warnMessage: `'${GitHubConnectorFields.REPO}' must be provided for GitHub repo.`,
+        validateFn: notEmptyValue,
+        defaultValue: process.env.GITHUB_REPO,
+    },
+};
+
 const connectorValidator: Record<string, ConnectorValidatorProps> = {
     'type': {
         warnMessage: '\'type\' must be provided for repo.',
         validateFn: notEmptyValue,
     },
     [SourceType.GITHUB]: {
-        warnMessage: '\'github\' object must be filled needed fields',
+        warnMessage: `'${SourceType.GITHUB}' object must be filled needed fields.`,
         validateFn: notEmptyObject,
-        relatedValidator: {
-            [GitHubConnectorFields.ENDPOINT]: {
-                warnMessage: `'${GitHubConnectorFields.ENDPOINT}' must be provided for GitHub repo.`,
-                validateFn: notEmptyValue,
-                defaultValue: process.env.GITHUB_BASE_URL,
-            },
-            [GitHubConnectorFields.TOKEN]: {
-                warnMessage: `'${GitHubConnectorFields.TOKEN}' must be provided for GitHub repo.`,
-                validateFn: notEmptyValue,
-                defaultValue: process.env.GITHUB_TOKEN,
-            },
-            [GitHubConnectorFields.OWNER]: {
-                warnMessage: `'${GitHubConnectorFields.OWNER}' must be provided for GitHub repo.`,
-                validateFn: notEmptyValue,
-                defaultValue: process.env.GITHUB_OWNER,
-            },
-            [GitHubConnectorFields.REPO]: {
-                warnMessage: `'${GitHubConnectorFields.REPO}' must be provided for GitHub repo.`,
-                validateFn: notEmptyValue,
-                defaultValue: process.env.GITHUB_REPO,
-            },
-        },
+        relatedValidator: githubConnectorValidator,
     },
 };
 
@@ -46,7 +48,7 @@ function notEmptyValue(value: string | undefined): boolean {
 export function validateConnectorFields(
     sourceType: SourceType,
     fieldNames: GitHubConnectorFields[],
-    repoProperties?: VCSConnectorConfig): { [key: string]: any } {
+    repoProperties?: VCSConnectorConfig): Record<string, any> {
 
     const repoValidator = connectorValidator[sourceType];
 
@@ -63,7 +65,7 @@ export function validateConnectorFields(
     }
 
     let isValidProperties = true;
-    const validatedFields: { [key: string]: any } = {};
+    const validatedFields: Record<string, any> = {};
 
     for (const property of fieldNames) {
         const propertyValidator = relatedRepoValidator[property];

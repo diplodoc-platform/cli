@@ -104,7 +104,7 @@ export interface FileData {
 
 export interface MetaDataOptions {
     fileData: FileData;
-    isAddContributors?: boolean;
+    hasContributors?: boolean;
     vcsConnector?: VCSConnector;
 }
 

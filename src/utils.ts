@@ -74,7 +74,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
     `;
 }
 
-function getMetadata(metadata: { [key: string]: string }): string {
+function getMetadata(metadata: Record<string, string>): string {
     if (!metadata) {
         return '';
     }

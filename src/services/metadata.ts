@@ -36,10 +36,10 @@ async function getContentWithUpdatedMetadata(options: MetaDataOptions, fileConte
 }
 
 async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string> {
-    const {isAddContributors, vcsConnector, fileData} = options;
+    const {hasContributors, vcsConnector, fileData} = options;
     let contributorsMetaData = '';
 
-    if (isAddContributors && vcsConnector) {
+    if (hasContributors && vcsConnector) {
         const updatedFileData = {
             ...fileData,
             fileContent,
@@ -61,10 +61,10 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     return `${metadataBorder}${updatedMetadata}${metadataBorder}`;
 }
 
-async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileContent: string): Promise<{ [key: string]: any }> {
+async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileContent: string): Promise<Record<string, any>> {
     const {vcsConnector} = options;
 
-    const newMetadata: { [key: string]: any } = {
+    const newMetadata: Record<string, any> = {
         contributors: await getContributorsMetadata(options, fileContent),
     };
 
@@ -77,7 +77,7 @@ async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileCon
         ...meta,
     };
 
-    const updatedAuthor = await getAuthorMetadata(meta as { [key: string]: any }, vcsConnector);
+    const updatedAuthor = await getAuthorMetadata(meta as Record<string, any>, vcsConnector);
 
     return {
         ...updatedMetadata,
@@ -87,9 +87,9 @@ async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileCon
 }
 
 async function getContributorsMetadata(options: MetaDataOptions, fileContent: string): Promise<string> {
-    const {isAddContributors, vcsConnector, fileData} = options;
+    const {hasContributors, vcsConnector, fileData} = options;
 
-    if (isAddContributors && vcsConnector) {
+    if (hasContributors && vcsConnector) {
         const updatedFileData = {
             ...fileData,
             fileContent,
@@ -101,7 +101,7 @@ async function getContributorsMetadata(options: MetaDataOptions, fileContent: st
     return JSON.stringify([]);
 }
 
-async function getAuthorMetadata(meta: { [key: string]: any }, vcsConnector?: VCSConnector): Promise<string | null> {
+async function getAuthorMetadata(meta: Record<string, any>, vcsConnector?: VCSConnector): Promise<string | null> {
     if (meta.author && vcsConnector) {
         const updatedAuthor = await getAuthorDetails(vcsConnector, meta.author);
 

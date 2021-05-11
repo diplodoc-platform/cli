@@ -124,7 +124,7 @@ function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, v
             inputFolderPathLength,
             fileContent: '',
         },
-        isAddContributors: Boolean(contributors && vcsConnector),
+        hasContributors: Boolean(contributors && vcsConnector),
     };
 
     return metaDataOptions;
