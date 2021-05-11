@@ -41,6 +41,7 @@ export const YFM_PLUGINS = [
     video,
 ];
 
-export const PROCESSING_HAS_BEEN_FINISHED = 'Processing file has been finished. File path';
+export const PROCESSING_HAS_BEEN_FINISHED = 'Processing file has been finished:';
+export const ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED = 'All contributors have been received.';
 export const getMsgСonfigurationMustBeProvided =
     (repo: string) => `Сonfiguration must be provided for ${repo} like env variable or in .yfm file`;

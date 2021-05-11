@@ -9,11 +9,7 @@ import {logger} from '../utils';
 
 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
 
-/**
- * Publishes output files to S3 compatible storage
- * @return {void}
- */
-export function publishFiles() {
+export function publishFilesToS3(): void {
     const {
         output: outputFolderPath,
         ignore = [],

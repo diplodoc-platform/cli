@@ -9,7 +9,7 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
-    publishFiles,
+    publishFilesToS3,
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
@@ -75,7 +75,7 @@ const _yargs = yargs
     })
     .option('contributors', {
         default: false,
-        describe: 'Should attach files` contributors',
+        describe: 'Should attach contributors into files',
         type: 'boolean',
     })
     .option('quiet', {
@@ -135,9 +135,8 @@ async function main() {
     // Copy all generated files to user' output folder
     shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
 
-    // Upload output files to S3 storage
     if (publish) {
-        publishFiles();
+        publishFilesToS3();
     }
 
     processLogs(tmpInputFolder);

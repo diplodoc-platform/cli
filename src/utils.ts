@@ -1,3 +1,4 @@
+import shell from 'shelljs';
 import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green, grey} from 'chalk';
 
@@ -73,7 +74,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string) {
     `;
 }
 
-function getMetadata(metadata: { [key: string]: string }): string {
+function getMetadata(metadata: Record<string, string>): string {
     if (!metadata) {
         return '';
     }
@@ -141,3 +142,15 @@ export const joinSinglePageResults = (singlePageResults: SinglePageResult[]) => 
         return page.content;
     }).join(delimeter);
 };
+
+export function execAsync(command: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+        shell.exec(command, {async: true}, (code: number, stdout: string, stderr: string) => {
+            if (code === 1 || code === 0) {
+                resolve(stdout);
+            } else {
+                reject(stderr);
+            }
+        });
+    });
+}

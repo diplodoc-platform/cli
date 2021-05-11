@@ -7,8 +7,8 @@ import liquid from '@doc-tools/transform/lib/liquid';
 import {ArgvService, PresetService} from '../services';
 import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
-import {addMetadata} from '../services/contributors';
 import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
+import {getContentWithUpdatedMetadata} from '../services/metadata';
 
 export interface ResolverOptions {
     vars: Record<string, string>;
@@ -26,22 +26,15 @@ interface Plugin {
     collect: (input: string, options: ResolverOptions) => string | void;
 }
 
-/**
- * Transforms raw markdown file to public markdown document.
- * @param ResolveMd2MdOptions
- * @return {string}
- */
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, singlePage, contributorsData} = options;
+    const {inputPath, outputPath, singlePage, metadata} = options;
     const {input, output, vars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
 
     let content: string = readFileSync(resolvedInputPath, 'utf8');
 
-    if (contributorsData) {
-        const {fileData, vcsConnector} = contributorsData;
-        fileData.fileContent = content;
-        content = await addMetadata(fileData, vcsConnector);
+    if (metadata && metadata.isContributorsEnabled) {
+        content = await getContentWithUpdatedMetadata(metadata, content);
     }
 
     const plugins = getPlugins();
@@ -84,6 +77,19 @@ function makeCollectOfPlugins(plugins: Plugin[]) {
     };
 }
 
+function copyFile(targetPath: string, targetDestPath: string, options?: ResolverOptions) {
+    shell.mkdir('-p', dirname(targetDestPath));
+
+    if (options) {
+        const sourceIncludeContent = readFileSync(targetPath, 'utf8');
+        const {result} = transformMd2Md(sourceIncludeContent, options);
+
+        writeFileSync(targetDestPath, result);
+    } else {
+        shell.cp(targetPath, targetDestPath);
+    }
+}
+
 function transformMd2Md(input: string, options: ResolverOptions) {
     const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
@@ -110,17 +116,4 @@ function transformMd2Md(input: string, options: ResolverOptions) {
         result: output,
         logs: log.get(),
     };
-}
-
-function copyFile(targetPath: string, targetDestPath: string, options?: ResolverOptions) {
-    shell.mkdir('-p', dirname(targetDestPath));
-
-    if (options) {
-        const sourceIncludeContent = readFileSync(targetPath, 'utf8');
-        const {result} = transformMd2Md(sourceIncludeContent, options);
-
-        writeFileSync(targetDestPath, result);
-    } else {
-        shell.cp(targetPath, targetDestPath);
-    }
 }

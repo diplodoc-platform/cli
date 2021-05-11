@@ -3,4 +3,4 @@ export * from './processExcludedFiles';
 export * from './processLogs';
 export * from './processPages';
 export * from './processServiceFiles';
-export * from './publishFiles';
+export * from './publishFilesToS3';
