@@ -5,7 +5,7 @@ import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsFunction} from '../models';
 import {ContributorDTO, FileContributors, GitHubConnectorFields, SourceType, UserDTO, VCSConnector} from './models';
 import {ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED} from '../constants';
-import {execPromisifyFunction, logger} from '../utils';
+import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
 const contributorsByPath: Map<string, FileContributors> = new Map();
@@ -52,7 +52,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const {rootInput} = ArgvService.getConfig();
     const allContributors = await getAllContributors(httpClientByToken);
 
-    const fullRepoLogString = await execPromisifyFunction(`cd ${rootInput} && git log --pretty=format:"%ae, %an" --name-only`);
+    const fullRepoLogString = await execAsync(`cd ${rootInput} && git log --pretty=format:"%ae, %an" --name-only`);
 
     const repoLogs = fullRepoLogString.split('\n\n');
 

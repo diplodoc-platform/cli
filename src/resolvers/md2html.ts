@@ -37,7 +37,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
 
-    const updatedMetadata = metadata && metadata.hasContributors
+    const updatedMetadata = metadata && metadata.isContributorsEnabled
         ? await getUpdatedMetadata(result, metadata, content)
         : result.meta;
 

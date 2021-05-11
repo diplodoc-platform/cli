@@ -33,7 +33,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
     let content: string = readFileSync(resolvedInputPath, 'utf8');
 
-    if (metadata && metadata.hasContributors) {
+    if (metadata && metadata.isContributorsEnabled) {
         content = await getContentWithUpdatedMetadata(metadata, content);
     }
 

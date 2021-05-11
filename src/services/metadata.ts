@@ -36,10 +36,10 @@ async function getContentWithUpdatedMetadata(options: MetaDataOptions, fileConte
 }
 
 async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string> {
-    const {hasContributors, vcsConnector, fileData} = options;
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
     let contributorsMetaData = '';
 
-    if (hasContributors && vcsConnector) {
+    if (isContributorsEnabled && vcsConnector) {
         const updatedFileData = {
             ...fileData,
             fileContent,
@@ -87,9 +87,9 @@ async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileCon
 }
 
 async function getContributorsMetadata(options: MetaDataOptions, fileContent: string): Promise<string> {
-    const {hasContributors, vcsConnector, fileData} = options;
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
 
-    if (hasContributors && vcsConnector) {
+    if (isContributorsEnabled && vcsConnector) {
         const updatedFileData = {
             ...fileData,
             fileContent,
