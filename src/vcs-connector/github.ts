@@ -31,7 +31,11 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
 }
 
 function getHttpClientByToken(): Octokit | null {
-    const {connector} = ArgvService.getConfig();
+    const {connector, contributors} = ArgvService.getConfig();
+
+    if (!contributors) {
+        return null;
+    }
 
     const neededProperties = [GitHubConnectorFields.TOKEN, GitHubConnectorFields.ENDPOINT];
     const validatedFileds = validateConnectorFields(SourceType.GITHUB, neededProperties, connector);
