@@ -90,6 +90,7 @@ export interface Contributor {
     email: string;
     login: string;
     name: string;
+    url: string;
 }
 
 export interface Contributors {
