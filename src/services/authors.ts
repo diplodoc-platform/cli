@@ -7,7 +7,7 @@ async function updateAuthorMetadataString(defaultMetadata = '', vcsConnector?: V
 
     // Include example: author: authorLogin
     // Regexp result: authorLogin
-    const regexpAuthor = /(?<=author:\s).+(?=\r\n)/g;
+    const regexpAuthor = /(?<=author:\s).+(?=\r?\n)/g;
     const matchAuthor = defaultMetadata.match(regexpAuthor);
 
     if (matchAuthor && matchAuthor?.length > 0) {
