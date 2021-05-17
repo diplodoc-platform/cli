@@ -30,11 +30,6 @@ export interface ContributorDTO {
 }
 
 /* eslint-disable camelcase */
-export interface GitHubContributorDTO {
-    login?: string;
-    avatar_url?: string;
-}
-
 export interface GitHubLogsDTO {
     author_email: string;
     author_name: string;
@@ -52,6 +47,7 @@ export interface VCSConnectorConfig {
 
 export interface UserDTO {
     avatar_url: string;
+    html_url: string;
     email: string;
     login: string;
     name: string;

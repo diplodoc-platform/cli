@@ -80,6 +80,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
                     email,
                     login: '',
                     name: authorName,
+                    url: '',
                 },
             };
         }
@@ -140,12 +141,13 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
 
         repoUsers.forEach((user: UserDTO | null) => {
             if (user) {
-                const {email, login, name, avatar_url: avatarUrl} = user;
+                const {email, login, name, avatar_url: avatarUrl, html_url: url} = user;
                 contributors[email || login] = {
                     avatar: avatarUrl,
                     email,
                     login,
                     name,
+                    url,
                 };
             }
         });
@@ -208,13 +210,14 @@ async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Cont
         return null;
     }
 
-    const {avatar_url: avatar, email, login, name} = user;
+    const {avatar_url: avatar, html_url: url, email, login, name} = user;
 
     return {
         avatar,
         email,
         login,
         name,
+        url,
     };
 }
 
