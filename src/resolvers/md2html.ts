@@ -77,7 +77,7 @@ function YamlFileTransformer(content: string): Object {
 }
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, vars, ...options} = ArgvService.getConfig();
+    const {input, vars, lintOptions, disableLint, ...options} = ArgvService.getConfig();
     const {path} = transformOptions;
     const resolvedPath: string = resolve(input, path);
 
@@ -87,6 +87,8 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     return transform(content, {
         ...options,
         plugins: getPlugins(),
+        lintOptions,
+        disableLint,
         vars: {
             ...PresetService.get(dirname(path)),
             ...vars,

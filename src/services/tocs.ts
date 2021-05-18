@@ -205,7 +205,9 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
         return input;
     }
 
-    return liquid(input, vars, path, {
+    return liquid(input, {
+        vars,
+        path,
         conditions: false,
         substitutions: true,
     });

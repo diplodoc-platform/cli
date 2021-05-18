@@ -1,5 +1,6 @@
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
 import {Stage} from './constants';
+import {LintRulesOptions} from '@doc-tools/transform/lib/lintRules/models';
 
 export type VarsPreset = 'internal'|'external';
 
@@ -21,6 +22,8 @@ interface YfmConfig {
     ignoreStage: string;
     singlePage: boolean;
     connector?: VCSConnectorConfig;
+    disableLint: boolean;
+    lintOptions: LintRulesOptions;
 }
 
 export interface YfmArgv extends YfmConfig {

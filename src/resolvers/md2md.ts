@@ -3,11 +3,15 @@ import {dirname, resolve} from 'path';
 import shell from 'shelljs';
 import log, {Logger} from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
+import {
+    LintRuleParams,
+    LintRuleFunction,
+} from '@doc-tools/transform/lib/lintRules/models';
 
 import {ArgvService, PresetService} from '../services';
 import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
-import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
+import {PROCESSING_HAS_BEEN_FINISHED, YFM_PREPROCESS_LINT_RULES} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
 export interface ResolverOptions {
@@ -20,6 +24,7 @@ export interface ResolverOptions {
     destPath?: string;
     destRoot?: string;
     collectOfPlugins?: (input: string, options: ResolverOptions) => string;
+    lintMarkdown?: (params: LintRuleParams) => void;
 }
 
 interface Plugin {
@@ -37,6 +42,8 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         content = await getContentWithUpdatedMetadata(metadata, content);
     }
 
+    const lintMarkdown = makeLintMarkdown(YFM_PREPROCESS_LINT_RULES);
+
     const plugins = getPlugins();
     const collectOfPlugins = makeCollectOfPlugins(plugins);
 
@@ -53,10 +60,19 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         },
         log,
         copyFile,
+        lintMarkdown,
     });
 
     writeFileSync(outputPath, result);
     logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
+}
+
+function makeLintMarkdown(lintRules: LintRuleFunction[]) {
+    return (params: LintRuleParams) => {
+        lintRules.forEach((lintRule) => {
+            lintRule(params);
+        });
+    };
 }
 
 function makeCollectOfPlugins(plugins: Plugin[]) {
@@ -91,14 +107,23 @@ function copyFile(targetPath: string, targetDestPath: string, options?: Resolver
 }
 
 function transformMd2Md(input: string, options: ResolverOptions) {
-    const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
-    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
-    let output = disableLiquid ? input : liquid(input, vars, path, {
+    const {applyPresets, resolveConditions, disableLiquid, lintOptions, disableLint} = ArgvService.getConfig();
+    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, lintMarkdown, log, copyFile, singlePage} = options;
+
+    if (lintMarkdown && !disableLint) {
+        lintMarkdown({input, lintOptions, commonOptions: {log, path}});
+    }
+
+    let output = disableLiquid ? input : liquid(input, {
+        vars,
+        path,
         conditions: resolveConditions,
         substitutions: applyPresets,
+        lintOptions,
+        disableLint,
     });
 
-    if (typeof collectOfPlugins === 'function') {
+    if (collectOfPlugins) {
         output = collectOfPlugins(output, {
             vars,
             path,

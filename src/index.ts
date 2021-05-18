@@ -94,6 +94,11 @@ const _yargs = yargs
         describe: 'Should upload output files to S3 storage',
         type: 'boolean',
     })
+    .option('disable-lint', {
+        default: false,
+        describe: 'Disable lint checks',
+        type: 'boolean',
+    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')

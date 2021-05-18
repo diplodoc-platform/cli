@@ -1,4 +1,5 @@
 import {plugins} from '@doc-tools/transform';
+import preprocessLintRules from '@doc-tools/transform/lib/lintRules/preprocessRules';
 import {dirname} from 'path';
 
 export const BUILD_FOLDER = 'build';
@@ -40,6 +41,12 @@ export const YFM_PLUGINS = [
     sup,
     video,
 ];
+
+const {inlineCodeMaxLen, titleSyntax} = preprocessLintRules;
+export const YFM_PREPROCESS_LINT_RULES = [
+    inlineCodeMaxLen,
+    titleSyntax,
+].filter(Boolean);
 
 export const PROCESSING_HAS_BEEN_FINISHED = 'Processing file has been finished:';
 export const ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED = 'All contributors have been received.';
