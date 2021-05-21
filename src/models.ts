@@ -20,6 +20,7 @@ interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
+    removeHiddenItems: boolean;
     connector?: VCSConnectorConfig;
 }
 

@@ -28,6 +28,7 @@ function add(path: string) {
         vars,
         resolveConditions,
         applyPresets,
+        removeHiddenItems,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -55,9 +56,12 @@ function add(path: string) {
     );
 
     /* Should remove all links with false expressions */
-    if (resolveConditions) {
+    if (resolveConditions || removeHiddenItems) {
         try {
-            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars, {
+                resolveConditions,
+                removeHiddenItems,
+            });
         } catch (error) {
             log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
         }

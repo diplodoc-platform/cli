@@ -22,7 +22,7 @@ function filterFile(path: string) {
 
     /* Should remove all links with false expressions */
     try {
-        parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars);
+        parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars, {resolveConditions: true});
         writeFileSync(filePath, dump(parsedIndex));
     } catch (error) {
         log.error(`Error while filtering index file: ${path}. Error message: ${error}`);
