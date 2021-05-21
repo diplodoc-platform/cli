@@ -82,6 +82,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
         const pathToDir: string = dirname(pathToFile);
         const outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
         const outputSinglePageFileDir = resolve(outputSinglePageDir, pathToDir);
+        const outputSinglePageFn = resolve(outputSinglePageDir, pathToFile);
 
         shell.mkdir('-p', outputSinglePageFileDir);
 
@@ -90,7 +91,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
 
         if (!(fileExtension === '.yaml') && !isExistFileAsSinglePage) {
             const outputSinglePageContent =
-                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFileDir, singlePage});
+                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFn, singlePage});
 
             const absolutePathToFile = resolve(outputFolderPath, pathToFile);
             const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
