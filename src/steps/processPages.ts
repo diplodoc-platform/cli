@@ -30,12 +30,14 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     const promises: Promise<void>[] = [];
 
+    const singlePageNavigationPaths = TocService.getSinglePageNavigationPaths();
+
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
 
         logger.proc(pathToFile);
 
-        if (singlePage && outputFormat === 'md') {
+        if (singlePage && outputFormat === 'md' && singlePageNavigationPaths.has(pathToFile)) {
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 

@@ -139,9 +139,10 @@ export function isExternalHref(href: string) {
 
 export const joinSinglePageResults = (singlePageResults: SinglePageResult[]) => {
     const delimeter = '\n\n<hr class="yfm-page__delimeter">\n\n';
-    return singlePageResults.map((page) => {
-        return page.content;
-    }).join(delimeter);
+    return singlePageResults
+        .filter(({content}) => content)
+        .map(({content}) => content)
+        .join(delimeter);
 };
 
 export function execAsync(command: string): Promise<string> {
