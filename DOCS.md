@@ -74,6 +74,7 @@ The `toc.yaml` file structure is a follows:
 * `when`: [Conditional operator](#conditionalOperatorWhen). Lets you include separate sections or blocks in the document, depending on the values of variables.
 * `include`: This element lets you [insert another table of contents](#tocIncludes) (a different `toc.yaml` file) as a subsection. It should contain the `path` child element named.
 * `path`: Path to the table of contents to insert.
+* `hidden` — Specifies the page that should be hidden in the table of contents, but accessible via a direct link. You can also to exclude hidden pages from the build result using `--remove-hidden-toc-items=true` key.
 
 ### Inserting tables of contents <a name="tocIncludes"></a>
 
@@ -180,7 +181,7 @@ A project may contain a configuration file. By default, a `.yfm` file is used in
 | storageBucket | Bucket name of S3 storage | string | undefined |
 | storagePrefix | Root directory prefix of S3 storage | string | "" |
 | storageKeyId | Access key id of S3 storage. Access secret key S3 storage must be provided in `YFM_STORAGE_SECRET_KEY` environment variable. | string | undefined |
-
+| removeHiddenTocItems | Should whether to remove hidden pages from the build result | bool | false |
 ```yaml
 allowHTML: true
 strict: true
