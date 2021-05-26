@@ -6,6 +6,7 @@ import {merge} from 'lodash';
 import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
 import {ArgvService, PresetService} from './services';
+import {filterFiles} from './services/utils';
 
 export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): YfmToc|null {
     if (!toc) {
@@ -13,6 +14,13 @@ export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): Yfm
     }
 
     const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
+
+    if (localToc.items) {
+        localToc.items = filterFiles(localToc.items, 'items', {}, {
+            removeHiddenTocItems: true,
+        });
+    }
+
     const baseTocPath: string = localToc.base || '';
     const navigationItemQueue = [localToc];
 
