@@ -94,7 +94,7 @@ const _yargs = yargs
         describe: 'Should upload output files to S3 storage',
         type: 'boolean',
     })
-    .option('remove-hidden-items', {
+    .option('remove-hidden-toc-items', {
         default: true,
         describe: 'Remove hidden toc items',
         type: 'boolean',

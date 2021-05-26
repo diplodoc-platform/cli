@@ -3,7 +3,7 @@ import {Filter} from '../models';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
-    removeHiddenItems?: boolean;
+    removeHiddenTocItems?: boolean;
 }
 
 /**
@@ -17,7 +17,7 @@ export interface FilterFilesOptions {
 export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars: Record<string, string>, options: FilterFilesOptions): T[] {
     const {
         resolveConditions,
-        removeHiddenItems,
+        removeHiddenTocItems,
     } = options || {};
 
     if (!Array.isArray(items)) {
@@ -37,7 +37,7 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
             delete item.when;
         }
 
-        if (shouldProcessItem && removeHiddenItems) {
+        if (shouldProcessItem && removeHiddenTocItems) {
             shouldProcessItem = !item.hidden;
 
             delete item.hidden;

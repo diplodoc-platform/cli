@@ -29,7 +29,7 @@ function add(path: string) {
         vars,
         resolveConditions,
         applyPresets,
-        removeHiddenItems,
+        removeHiddenTocItems,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -57,11 +57,11 @@ function add(path: string) {
     );
 
     /* Should remove all links with false expressions */
-    if (resolveConditions || removeHiddenItems) {
+    if (resolveConditions || removeHiddenTocItems) {
         try {
             parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars, {
                 resolveConditions,
-                removeHiddenItems,
+                removeHiddenTocItems,
             });
         } catch (error) {
             log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
@@ -85,7 +85,7 @@ function add(path: string) {
             const parsedSinglePageToc = _cloneDeep(parsedToc);
             const currentPath = resolve(outputFolderPath, path);
             parsedSinglePageToc.items = filterFiles(parsedSinglePageToc.items, 'items', {}, {
-                removeHiddenItems: true,
+                removeHiddenTocItems: true,
             });
 
             prepareTocForSinglePageMode(parsedSinglePageToc, {root: outputFolderPath, currentPath});
