@@ -95,7 +95,7 @@ const _yargs = yargs
         type: 'boolean',
     })
     .option('remove-hidden-toc-items', {
-        default: true,
+        default: false,
         describe: 'Remove hidden toc items',
         type: 'boolean',
     })
