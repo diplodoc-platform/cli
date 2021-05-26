@@ -14,7 +14,7 @@ export interface FilterFilesOptions {
  * @param options
  * @return {T[]}
  */
-export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars: Record<string, string>, options: FilterFilesOptions): T[] {
+export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars: Record<string, string>, options?: FilterFilesOptions): T[] {
     const {
         resolveConditions,
         removeHiddenTocItems,
@@ -27,7 +27,7 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
     }
 
     return items.reduce((result: T[], item: T) => {
-        let shouldProcessItem: boolean | unknown = true;
+        let shouldProcessItem = true;
 
         if (resolveConditions) {
             const {when} = item;
