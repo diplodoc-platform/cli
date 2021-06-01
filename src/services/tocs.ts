@@ -8,10 +8,10 @@ import log from '@doc-tools/transform/lib/log';
 import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utils';
 import {bold} from 'chalk';
 
-import {ArgvService, PresetService} from './index';
+import {ArgvService} from './index';
 import {YfmToc} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER} from '../constants';
-import {isExternalHref} from '../utils';
+import {isExternalHref, mergeVars} from '../utils';
 import {filterFiles} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
 
@@ -39,10 +39,7 @@ function add(path: string) {
         return;
     }
 
-    const combinedVars = {
-        ...PresetService.get(pathToDir),
-        ...vars,
-    };
+    const combinedVars = mergeVars(path, vars);
 
     /* Should make substitutions in title */
     if (applyPresets && parsedToc.title) {
