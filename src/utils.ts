@@ -157,5 +157,5 @@ export function execAsync(command: string): Promise<string> {
 }
 
 export const mergeVars = (inputPath: string, vars: Record<string, string>) => (
-    merge(PresetService.get(dirname(inputPath)), vars)
+    merge({}, PresetService.get(dirname(inputPath)), vars)
 );

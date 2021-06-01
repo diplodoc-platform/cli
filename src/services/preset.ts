@@ -23,10 +23,7 @@ function get(path: string): YfmPreset {
         const presetValues: YfmPreset = presetStorage.get(localPath) || {};
         localPath = dirname(localPath);
 
-        combinedValues = merge(
-            presetValues,
-            combinedValues,
-        );
+        combinedValues = merge(presetValues, combinedValues);
     }
 
     // Add root' presets
