@@ -95,6 +95,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 - `--help`
 
     List of commands.
+    
+- `--remove-hidden-toc-items`
+    
+    Should whether to remove hidden pages from the build result. Disabled by default.
 
 Learn more `yfm-docs --help`
 

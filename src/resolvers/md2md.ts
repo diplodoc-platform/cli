@@ -26,7 +26,7 @@ interface Plugin {
     collect: (input: string, options: ResolverOptions) => string | void;
 }
 
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
     const {inputPath, outputPath, singlePage, metadata} = options;
     const {input, output, vars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
@@ -52,8 +52,12 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         copyFile,
     });
 
-    writeFileSync(outputPath, result);
-    logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
+    if (singlePage) {
+        return result;
+    } else {
+        writeFileSync(outputPath, result);
+        logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
+    }
 }
 
 function makeCollectOfPlugins(plugins: Plugin[]) {

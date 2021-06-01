@@ -30,12 +30,14 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     const promises: Promise<void>[] = [];
 
+    const singlePageNavigationPaths = TocService.getSinglePageNavigationPaths();
+
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
 
         logger.proc(pathToFile);
 
-        if (singlePage && outputFormat === 'md') {
+        if (singlePage && outputFormat === 'md' && singlePageNavigationPaths.has(pathToFile)) {
             await preparingSinglePages(pathData, singlePage, outputFolderPath);
         }
 
@@ -82,6 +84,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
         const pathToDir: string = dirname(pathToFile);
         const outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
         const outputSinglePageFileDir = resolve(outputSinglePageDir, pathToDir);
+        const outputSinglePageFn = resolve(outputSinglePageDir, pathToFile);
 
         shell.mkdir('-p', outputSinglePageFileDir);
 
@@ -90,7 +93,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
 
         if (!(fileExtension === '.yaml') && !isExistFileAsSinglePage) {
             const outputSinglePageContent =
-                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFileDir, singlePage});
+                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFn, singlePage});
 
             const absolutePathToFile = resolve(outputFolderPath, pathToFile);
             const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);

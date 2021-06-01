@@ -17,6 +17,7 @@ import {cloneDeep as _cloneDeep} from 'lodash';
 
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
+const singlePageNavigationPaths: Set<string> = new Set();
 
 function add(path: string) {
     const {
@@ -28,6 +29,7 @@ function add(path: string) {
         vars,
         resolveConditions,
         applyPresets,
+        removeHiddenTocItems,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -55,9 +57,12 @@ function add(path: string) {
     );
 
     /* Should remove all links with false expressions */
-    if (resolveConditions) {
+    if (resolveConditions || removeHiddenTocItems) {
         try {
-            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars);
+            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars, {
+                resolveConditions,
+                removeHiddenTocItems,
+            });
         } catch (error) {
             log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
         }
@@ -79,6 +84,10 @@ function add(path: string) {
         if (singlePage) {
             const parsedSinglePageToc = _cloneDeep(parsedToc);
             const currentPath = resolve(outputFolderPath, path);
+            parsedSinglePageToc.items = filterFiles(parsedSinglePageToc.items, 'items', {}, {
+                removeHiddenTocItems: true,
+            });
+
             prepareTocForSinglePageMode(parsedSinglePageToc, {root: outputFolderPath, currentPath});
 
             const outputSinglePageDir = resolve(dirname(outputPath), SINGLE_PAGE_FOLDER);
@@ -101,6 +110,10 @@ function getNavigationPaths(): string[] {
     return [...navigationPaths];
 }
 
+function getSinglePageNavigationPaths(): Set<string> {
+    return new Set(singlePageNavigationPaths);
+}
+
 function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
     function processItems(items: YfmToc[], pathToDir: string) {
         items.forEach((item) => {
@@ -119,6 +132,10 @@ function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
 
                 const navigationPath = _normalizeHref(href);
                 navigationPaths.push(navigationPath);
+
+                if (!item.hidden) {
+                    singlePageNavigationPaths.add(navigationPath);
+                }
             }
         });
     }
@@ -277,5 +294,6 @@ export default {
     add,
     getForPath,
     getNavigationPaths,
+    getSinglePageNavigationPaths,
     getTocDir,
 };
