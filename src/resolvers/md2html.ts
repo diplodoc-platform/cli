@@ -6,8 +6,8 @@ import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
 
 import {ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PresetService, TocService} from '../services';
-import {generateStaticMarkup, getPlugins, logger, transformToc} from '../utils';
+import {ArgvService, TocService} from '../services';
+import {generateStaticMarkup, getPlugins, logger, mergeVars, transformToc} from '../utils';
 import {PROCESSING_HAS_BEEN_FINISHED, Lang} from '../constants';
 import {getUpdatedMetadata} from '../services/metadata';
 
@@ -87,10 +87,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     return transform(content, {
         ...options,
         plugins: getPlugins(),
-        vars: {
-            ...PresetService.get(dirname(path)),
-            ...vars,
-        },
+        vars: mergeVars(path, vars),
         root: resolve(input),
         path: resolvedPath,
         assetsPublicPath,
