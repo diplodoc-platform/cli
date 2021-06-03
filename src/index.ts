@@ -2,7 +2,14 @@ import * as yargs from 'yargs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
 
-import {BUNDLE_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, MAIN_TIMER_ID, Stage} from './constants';
+import {
+    BUNDLE_FOLDER,
+    TMP_INPUT_FOLDER,
+    TMP_OUTPUT_FOLDER,
+    MAIN_TIMER_ID,
+    REDIRECTS_FILENAME,
+    Stage,
+} from './constants';
 import {
     processAssets,
     processExcludedFiles,
@@ -124,6 +131,7 @@ async function main() {
 
     const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
+    const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
 
     await processPages(outputBundlePath);
 
@@ -132,9 +140,15 @@ async function main() {
         case 'html':
             processAssets(outputBundlePath);
             break;
-        case 'md':
+        case 'md': {
             shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+
+            try {
+                shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
+            } catch {}
+
             break;
+        }
     }
 
     // Copy all generated files to user' output folder

@@ -3,6 +3,7 @@ import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
 import {load} from 'js-yaml';
 import log from '@doc-tools/transform/lib/log';
+import {REDIRECTS_FILENAME} from './constants';
 
 function notEmptyStringValidator(value: string): Boolean {
     return Boolean(value) && Boolean(value?.length);
@@ -39,6 +40,41 @@ const validators: Record<string, ValidatorProps> = {
     },
 };
 
+interface Redirect {
+    from: string;
+    to: string;
+}
+
+interface RedirectsConfig {
+    common: Redirect[];
+    [lang: string]: Redirect[];
+}
+
+function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: string) {
+    const redirects: Redirect[] = Object.keys(redirectsConfig).reduce((res, redirectSectionName) => {
+        const sectionRedirects = redirectsConfig[redirectSectionName];
+        res.push(...sectionRedirects);
+        return res;
+    }, [] as Redirect[]);
+
+    const getContext = (from: string, to: string) => ` [Context: \n- from: ${from}\n- to: ${to} ]`;
+    const formatMessage = (message: string, pathname: string, from: string, to: string) => (
+        `${pathname}: ${message} ${getContext(from, to)}`
+    );
+
+    redirects.forEach((redirect) => {
+        const {from, to} = redirect;
+
+        if (!from || !to) {
+            throw new Error(formatMessage('One of the two parameters is missing', pathToRedirects, from, to));
+        }
+
+        if (from === to) {
+            throw new Error(formatMessage('Parameters must be different', pathToRedirects, from, to));
+        }
+    });
+}
+
 export function argvValidator(argv: Arguments<Object>): Boolean {
     try {
         // Combine passed argv and properties from configuration file.
@@ -48,6 +84,22 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
     } catch (error) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse .yfm: ${error.message}`);
+        }
+    }
+
+    try {
+        const pathToRedirects = join(String(argv.input), REDIRECTS_FILENAME);
+        const redirectsContent = readFileSync(resolve(pathToRedirects), 'utf8');
+        const redirects = load(redirectsContent);
+
+        validateRedirects(redirects as RedirectsConfig, pathToRedirects);
+    } catch (error) {
+        if (error.name === 'YAMLException') {
+            log.error(`Error to parse redirects.yaml: ${error.message}`);
+        }
+
+        if (error.code !== 'ENOENT') {
+            throw error;
         }
     }
 
