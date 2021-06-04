@@ -4,8 +4,8 @@ import shell from 'shelljs';
 import log, {Logger} from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ArgvService} from '../services';
-import {getPlugins, logger, mergeVars} from '../utils';
+import {ArgvService, PresetService} from '../services';
+import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
 import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
@@ -47,7 +47,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         destRoot: resolve(output),
         collectOfPlugins,
         singlePage,
-        vars: mergeVars(inputPath, vars),
+        vars: {
+            ...PresetService.get(dirname(inputPath)),
+            ...vars,
+        },
         log,
         copyFile,
     });

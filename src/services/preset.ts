@@ -1,15 +1,14 @@
 import {dirname} from 'path';
-import {merge} from 'lodash';
 
 import {DocPreset, YfmPreset} from '../models';
 
 const presetStorage: Map<string, YfmPreset> = new Map();
 
 function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
-    const combinedValues: YfmPreset = merge(
-        parsedPreset.default || {},
-        parsedPreset[varsPreset] || {},
-    );
+    const combinedValues: YfmPreset = {
+        ...parsedPreset.default || {},
+        ...parsedPreset[varsPreset] || {},
+    };
 
     const key = dirname(path);
     presetStorage.set(key, combinedValues);
@@ -23,14 +22,17 @@ function get(path: string): YfmPreset {
         const presetValues: YfmPreset = presetStorage.get(localPath) || {};
         localPath = dirname(localPath);
 
-        combinedValues = merge(presetValues, combinedValues);
+        combinedValues = {
+            ...presetValues,
+            ...combinedValues,
+        };
     }
 
     // Add root' presets
-    combinedValues = merge(
-        presetStorage.get('.'),
-        combinedValues,
-    );
+    combinedValues = {
+        ...presetStorage.get('.'),
+        ...combinedValues,
+    };
 
     return combinedValues;
 }
