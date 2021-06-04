@@ -1,11 +1,10 @@
 import shell from 'shelljs';
 import {relative, dirname, basename, extname, format, join} from 'path';
 import {blue, green, grey} from 'chalk';
-import {merge} from 'lodash';
 
 import {YfmToc, SinglePageResult} from './models';
 import {YFM_PLUGINS} from './constants';
-import {ArgvService, PresetService} from './services';
+import {ArgvService} from './services';
 import {filterFiles} from './services/utils';
 
 export function transformToc(toc: YfmToc|null, pathToFileDirectory: string): YfmToc|null {
@@ -164,7 +163,3 @@ export function execAsync(command: string): Promise<string> {
         });
     });
 }
-
-export const mergeVars = (inputPath: string, vars: Record<string, string>) => (
-    merge({}, PresetService.get(dirname(inputPath)), vars)
-);
