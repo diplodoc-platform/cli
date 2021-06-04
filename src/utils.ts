@@ -140,6 +140,14 @@ export function getPlugins() {
     return [...YFM_PLUGINS, ...customPlugins];
 }
 
+export function getCustomLintRules() {
+    try {
+        return requireDynamically('./lint-rules');
+    } catch (e) {
+        return [];
+    }
+}
+
 export function isExternalHref(href: string) {
     return href.startsWith('http') || href.startsWith('//');
 }

@@ -9,6 +9,7 @@ export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
 export const SINGLE_PAGE_FOLDER = '_single_page';
 export const REDIRECTS_FILENAME = 'redirects.yaml';
+export const LINT_CONFIG_FILENAME = 'yfmlint.yaml';
 
 export enum Stage {
     NEW = 'new',
