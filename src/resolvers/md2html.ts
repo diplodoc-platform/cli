@@ -1,7 +1,6 @@
 import {basename, dirname, join, relative, resolve} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
-import merge from 'lodash/merge';
 
 import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
@@ -106,15 +105,9 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
             log,
         };
 
-        const preparedLintConfig = merge({}, lintConfig, {
-            'log-levels': {
-                MD033: options.allowHTML ? 'disabled' : 'error',
-            },
-        });
-
         yfmlint({
             input: content,
-            lintConfig: preparedLintConfig,
+            lintConfig,
             pluginOptions,
             plugins,
             customLintRules: getCustomLintRules(),
