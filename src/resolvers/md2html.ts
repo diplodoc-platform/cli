@@ -6,6 +6,7 @@ import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
 import {
     default as yfmlint,
+    LintMarkdownFunctionOptions,
     PluginOptions,
 } from '@doc-tools/transform/lib/yfmlint';
 
@@ -96,21 +97,32 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     const assetsPublicPath = relative(dirname(path), resolve(input));
 
     if (!disableLint) {
-        const pluginOptions: PluginOptions = {
-            ...options,
-            vars,
-            root,
-            path,
-            assetsPublicPath,
-            log,
+        const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
+            const {input, path} = opts; // eslint-disable-line no-shadow
+
+            const pluginOptions: PluginOptions = {
+                ...options,
+                vars,
+                root,
+                path,
+                disableLint,
+                lintMarkdown, // Should pass the function for linting included files
+                assetsPublicPath,
+                log,
+            };
+
+            yfmlint({
+                input,
+                lintConfig,
+                pluginOptions,
+                plugins,
+                customLintRules: getCustomLintRules(),
+            });
         };
 
-        yfmlint({
+        lintMarkdown({
             input: content,
-            lintConfig,
-            pluginOptions,
-            plugins,
-            customLintRules: getCustomLintRules(),
+            path,
         });
     }
 
