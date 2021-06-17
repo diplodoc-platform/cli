@@ -88,10 +88,17 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         }
     }
 
+    let lintConfig = {};
     try {
         const pathToConfig = join(String(argv.input), LINT_CONFIG_FILENAME);
         const content = readFileSync(resolve(pathToConfig), 'utf8');
-        const lintConfig = load(content) || {};
+
+        lintConfig = load(content) || {};
+    } catch (error) {
+        if (error.name === 'YAMLException') {
+            log.error(`Error to parse yfmlint.yaml: ${error.message}`);
+        }
+    } finally {
         const preparedLintConfig = merge(lintConfig, {
             'log-levels': {
                 MD033: argv.allowHTML ? 'disabled' : 'error',
@@ -99,10 +106,6 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         });
 
         Object.assign(argv, {lintConfig: preparedLintConfig});
-    } catch (error) {
-        if (error.name === 'YAMLException') {
-            log.error(`Error to parse yfmlint.yaml: ${error.message}`);
-        }
     }
 
     try {
