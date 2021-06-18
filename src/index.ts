@@ -8,7 +8,6 @@ import {
     TMP_OUTPUT_FOLDER,
     MAIN_TIMER_ID,
     REDIRECTS_FILENAME,
-    LINT_CONFIG_FILENAME,
     Stage,
 } from './constants';
 import {
@@ -107,11 +106,6 @@ const _yargs = yargs
         describe: 'Remove hidden toc items',
         type: 'boolean',
     })
-    .option('disable-lint', {
-        default: false,
-        describe: 'Disable lint checks',
-        type: 'boolean',
-    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
@@ -138,7 +132,6 @@ async function main() {
     const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
     const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
     const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
-    const pathToLintConfig = join(_yargs.argv.input, LINT_CONFIG_FILENAME);
 
     await processPages(outputBundlePath);
 
@@ -152,10 +145,6 @@ async function main() {
 
             try {
                 shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
-            } catch {}
-
-            try {
-                shell.cp('-r', resolve(pathToLintConfig), userOutputFolder);
             } catch {}
 
             break;
