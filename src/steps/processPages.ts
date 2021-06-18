@@ -10,7 +10,7 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
 import {MetaDataOptions, SinglePageResult, PathData} from '../models';
 import {SINGLE_PAGE_FOLDER} from '../constants';
-import {VCSConnector} from '../vcs-connector/models';
+import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};

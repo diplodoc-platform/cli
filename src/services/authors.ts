@@ -1,4 +1,4 @@
-import {VCSConnector} from '../vcs-connector/models';
+import {VCSConnector} from '../vcs-connector/connector-models';
 
 async function updateAuthorMetadataString(defaultMetadata = '', vcsConnector?: VCSConnector): Promise<string> {
     if (!vcsConnector) {

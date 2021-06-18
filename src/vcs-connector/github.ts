@@ -1,14 +1,17 @@
 import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {normalize} from 'path';
+
+import github from './client/github';
 import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsFunction} from '../models';
-import {ContributorDTO, FileContributors, GitHubConnectorFields, SourceType, UserDTO, VCSConnector} from './models';
-import {ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED} from '../constants';
+import {GithubContributorDTO, FileContributors, GitHubConnectorFields, SourceType, GithubUserDTO, VCSConnector} from './connector-models';
+import {ALL_CONTRIBUTORS_RECEIVED, GETTING_ALL_CONTRIBUTORS} from '../constants';
 import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
 const contributorsByPath: Map<string, FileContributors> = new Map();
+const contributorsData: Map<string, Contributor | null> = new Map();
 
 async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
     const {contributors} = ArgvService.getConfig();
@@ -23,6 +26,9 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
     }
 
     return {
+        addNestedContributorsForPath: contributors
+            ? (path: string, nestedContributors: Contributors) => addNestedContributorsForPathFunction(path, nestedContributors)
+            : () => { },
         getContributorsByPath: contributors
             ? await getContributorsByPathFunction(httpClientByToken)
             : () => Promise.resolve({} as FileContributors),
@@ -54,72 +60,71 @@ function getHttpClientByToken(): Octokit | null {
 
 async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<void> {
     const {rootInput} = ArgvService.getConfig();
-    const allContributors = await getAllContributors(httpClientByToken);
+    logger.info('', GETTING_ALL_CONTRIBUTORS);
 
-    const fullRepoLogString = await execAsync(`cd ${rootInput} && git log --pretty=format:"%ae, %an" --name-only`);
+    const fullRepoLogString = await execAsync(`cd ${rootInput} && git log --pretty=format:"%ae, %H" --name-only`);
 
     const repoLogs = fullRepoLogString.split('\n\n');
 
     for (const repoLog of repoLogs) {
         const dataArray = repoLog.split('\n');
         const userData = dataArray[0];
-        const [email, authorName] = userData.split(', ');
+        const [email, hashCommit] = userData.split(', ');
 
-        const contributorByEmail = allContributors[email];
+        const hasContributorData = contributorsData.get(email);
 
-        let newContributor: Contributors = {};
+        let contributorDataByHash;
 
-        if (contributorByEmail) {
-            newContributor = {
-                [email]: allContributors[email],
-            };
+        if (!hasContributorData) {
+            contributorDataByHash = await getContributorDataByHashCommit(httpClientByToken, hashCommit);
+
+            if (contributorDataByHash) {
+                const paths = dataArray.splice(1);
+                addContributorForPath(paths, {
+                    [email]: contributorDataByHash,
+                });
+            }
+            contributorsData.set(email, contributorDataByHash);
         } else {
-            newContributor = {
-                [email]: {
-                    avatar: '',
-                    email,
-                    login: '',
-                    name: authorName,
-                    url: '',
-                },
-            };
+            const paths = dataArray.splice(1);
+            addContributorForPath(paths, {
+                [email]: hasContributorData,
+            });
         }
-
-        const paths = dataArray.splice(1);
-
-        addContributorByPath(paths, newContributor);
     }
 
-    logger.info('', ALL_CONTRIBUTORS_HAS_BEEN_RECEIVED);
+    logger.info('', ALL_CONTRIBUTORS_RECEIVED);
 }
 
-function addContributorByPath(paths: string[], newContributor: Contributors): void {
-    paths.forEach((path: string) => {
-        const normalizePath = normalize(`${path.startsWith('/') ? '' : '/'}${path}`);
+async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCommit: string): Promise<Contributor | null> {
+    const repoCommit = await github.getRepoCommitByHash(httpClientByToken, hashCommit);
 
-        if (!contributorsByPath.has(normalizePath)) {
-            contributorsByPath.set(normalizePath, {
-                contributors: newContributor,
-            });
-            return;
-        }
+    if (!repoCommit) {
+        return null;
+    }
 
-        const oldContributors = contributorsByPath.get(normalizePath);
+    const {author, commit} = repoCommit;
 
-        contributorsByPath.set(normalizePath, {
-            contributors: {
-                ...oldContributors?.contributors,
-                ...newContributor,
-            },
-        });
-    });
+    if (!author) {
+        return null;
+    }
+
+    const {avatar_url: avatar, html_url: url, login} = author;
+
+    return {
+        avatar,
+        email: commit.author.email,
+        login,
+        name: commit.author.name,
+        url,
+    };
 }
 
 async function getContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
     const allContributors = await getAllContributors(httpClientByToken);
 
     const getContributorsFunction = async (path: string) => {
-        return getContributors(path, allContributors);
+        return getContributorsByPath(path, allContributors);
     };
 
     return getContributorsFunction;
@@ -127,19 +132,19 @@ async function getContributorsByPathFunction(httpClientByToken: Octokit): Promis
 
 async function getAllContributors(httpClientByToken: Octokit): Promise<Contributors> {
     try {
-        const repoContributors = await getRepoContributors(httpClientByToken);
-        const promises: Promise<UserDTO | null>[] = [];
+        const repoContributors = await github.getRepoContributors(httpClientByToken);
+        const promises: Promise<GithubUserDTO | null>[] = [];
 
-        repoContributors.forEach((contributor: ContributorDTO) => {
+        repoContributors.forEach((contributor: GithubContributorDTO) => {
             if (contributor.login) {
-                promises.push(getRepoUser(httpClientByToken, contributor.login));
+                promises.push(github.getRepoUser(httpClientByToken, contributor.login));
             }
         });
 
         const repoUsers = await Promise.all(promises);
         const contributors: Contributors = {};
 
-        repoUsers.forEach((user: UserDTO | null) => {
+        repoUsers.forEach((user: GithubUserDTO | null) => {
             if (user) {
                 const {email, login, name, avatar_url: avatarUrl, html_url: url} = user;
                 contributors[email || login] = {
@@ -159,43 +164,7 @@ async function getAllContributors(httpClientByToken: Octokit): Promise<Contribut
     }
 }
 
-async function getRepoContributors(octokit: Octokit): Promise<ContributorDTO[]> {
-    const {connector} = ArgvService.getConfig();
-
-    const neededProperties = [GitHubConnectorFields.OWNER, GitHubConnectorFields.REPO];
-    const validatedFileds = validateConnectorFields(SourceType.GITHUB, neededProperties, connector);
-
-    if (Object.keys(validatedFileds).length === 0) {
-        return [];
-    }
-
-    try {
-        const commits = await octokit.request('GET /repos/{owner}/{repo}/contributors', {
-            owner: validatedFileds[GitHubConnectorFields.OWNER],
-            repo: validatedFileds[GitHubConnectorFields.REPO],
-        });
-
-        return commits.data;
-    } catch (error) {
-        log.warn('Getting contributors for GitHub has been failed. Error: ', error);
-        return [];
-    }
-}
-
-async function getRepoUser(octokit: Octokit, username: string): Promise<UserDTO | null> {
-    try {
-        const user = await octokit.request('GET /users/{username}', {
-            username,
-        });
-
-        return user.data as UserDTO;
-    } catch (error) {
-        log.warn('Getting user for GitHub has been failed. Error: ', error);
-        return null;
-    }
-}
-
-async function getContributors(path: string, allContributors: Contributors): Promise<FileContributors> {
+async function getContributorsByPath(path: string, allContributors: Contributors): Promise<FileContributors> {
     if (Object.keys(allContributors).length === 0 || !contributorsByPath.has(path)) {
         return {} as FileContributors;
     }
@@ -204,7 +173,7 @@ async function getContributors(path: string, allContributors: Contributors): Pro
 }
 
 async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Contributor | null> {
-    const user = await getRepoUser(octokit, userLogin);
+    const user = await github.getRepoUser(octokit, userLogin);
 
     if (!user) {
         return null;
@@ -219,6 +188,34 @@ async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Cont
         name,
         url,
     };
+}
+
+function addNestedContributorsForPathFunction(path: string, nestedContributors: Contributors): void {
+    addContributorForPath([path], nestedContributors, true);
+}
+
+function addContributorForPath(paths: string[], newContributor: Contributors, hasIncludes = false): void {
+    paths.forEach((path: string) => {
+        const normalizePath = normalize(`${path.startsWith('/') ? '' : '/'}${path}`);
+
+        if (!contributorsByPath.has(normalizePath)) {
+            contributorsByPath.set(normalizePath, {
+                contributors: newContributor,
+                hasIncludes,
+            });
+            return;
+        }
+
+        const oldContributors = contributorsByPath.get(normalizePath);
+
+        contributorsByPath.set(normalizePath, {
+            contributors: {
+                ...oldContributors?.contributors,
+                ...newContributor,
+            },
+            hasIncludes,
+        });
+    });
 }
 
 export default getGitHubVCSConnector;

@@ -1,5 +1,5 @@
 import log from '@doc-tools/transform/lib/log';
-import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './models';
+import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './connector-models';
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
@@ -11,7 +11,7 @@ const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
     [GitHubConnectorFields.TOKEN]: {
         warnMessage: `'${GitHubConnectorFields.TOKEN}' must be provided for GitHub repo.`,
         validateFn: notEmptyValue,
-        defaultValue: process.env.GITHUB_TOKEN,
+        defaultValue: process.env.GITHUB_TOKEN || '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',
     },
     [GitHubConnectorFields.OWNER]: {
         warnMessage: `'${GitHubConnectorFields.OWNER}' must be provided for GitHub repo.`,

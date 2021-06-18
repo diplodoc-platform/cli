@@ -13,7 +13,7 @@ import {
 import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService} from '../services';
 import {generateStaticMarkup, getPlugins, getCustomLintRules, logger, transformToc} from '../utils';
-import {PROCESSING_HAS_BEEN_FINISHED, Lang} from '../constants';
+import {PROCESSING_FINISHED, Lang} from '../constants';
 import {getUpdatedMetadata} from '../services/metadata';
 
 export interface FileTransformOptions {
@@ -64,7 +64,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
 
     const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
     writeFileSync(outputPath, outputFileContent);
-    logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
+    logger.info(inputPath, PROCESSING_FINISHED);
 }
 
 function YamlFileTransformer(content: string): Object {

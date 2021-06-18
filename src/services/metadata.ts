@@ -1,4 +1,4 @@
-import {VCSConnector} from '../vcs-connector/models';
+import {VCSConnector} from '../vcs-connector/connector-models';
 import {MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';

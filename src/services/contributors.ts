@@ -1,7 +1,7 @@
 import {readFileSync} from 'fs';
 import {dirname, join} from 'path';
 import {Contributor, Contributors, FileData} from '../models';
-import {FileContributors, VCSConnector} from '../vcs-connector/models';
+import {FileContributors, VCSConnector} from '../vcs-connector/connector-models';
 
 async function getFileContributorsMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     const contributors = await getFileContributorsString(fileData, vcsConnector);
@@ -14,7 +14,12 @@ async function getFileContributorsString(fileData: FileData, vcsConnector: VCSCo
 
     const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
     const fileContributors: FileContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
-    const nestedContributors: Contributors = await getContributorsForNestedFiles(fileData, vcsConnector);
+    let nestedContributors: Contributors = {};
+
+    if (!fileContributors.hasIncludes) {
+        nestedContributors = await getContributorsForNestedFiles(fileData, vcsConnector);
+        vcsConnector.addNestedContributorsForPath(relativeFilePath, nestedContributors);
+    }
 
     const fileContributorsWithContributorsIncludedFiles: Contributors = {
         ...fileContributors.contributors,

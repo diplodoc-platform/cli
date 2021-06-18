@@ -1,12 +1,13 @@
-import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/models';
-import {Stage} from './constants';
 import {LintConfig} from '@doc-tools/transform/lib/yfmlint';
+import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
+import {Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
 export type ContributorsFunction = (path: string) => Promise<FileContributors>;
+export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
 
 interface YfmConfig {
@@ -98,7 +99,7 @@ export interface Contributor {
 }
 
 export interface Contributors {
-    [emailOrLogin: string]: Contributor;
+    [email: string]: Contributor;
 }
 
 export interface FileData {
