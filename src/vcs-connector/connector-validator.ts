@@ -11,7 +11,7 @@ const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
     [GitHubConnectorFields.TOKEN]: {
         warnMessage: `'${GitHubConnectorFields.TOKEN}' must be provided for GitHub repo.`,
         validateFn: notEmptyValue,
-        defaultValue: process.env.GITHUB_TOKEN || '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',
+        defaultValue: process.env.GITHUB_TOKEN,
     },
     [GitHubConnectorFields.OWNER]: {
         warnMessage: `'${GitHubConnectorFields.OWNER}' must be provided for GitHub repo.`,

@@ -35,7 +35,7 @@ async function getRepoUser(octokit: Octokit, username: string): Promise<GithubUs
 
         return user.data as GithubUserDTO;
     } catch (error) {
-        log.warn('Getting user for GitHub has been failed.', {username}, error);
+        log.warn(`Getting user for GitHub has been failed. Username: ${username}. Error: ${error}`);
         return null;
     }
 }
