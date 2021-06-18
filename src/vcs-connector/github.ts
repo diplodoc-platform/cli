@@ -6,7 +6,7 @@ import github from './client/github';
 import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsFunction} from '../models';
 import {GithubContributorDTO, FileContributors, GitHubConnectorFields, SourceType, GithubUserDTO, VCSConnector} from './connector-models';
-import {ALL_CONTRIBUTORS_RECEIVED, FIRST_COMMIT_FROM_ROBOT_IN_GITHUB, GETTING_ALL_CONTRIBUTORS} from '../constants';
+import {ALL_CONTRIBUTORS_RECEIVED, GETTING_ALL_CONTRIBUTORS} from '../constants';
 import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
@@ -62,8 +62,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const {rootInput} = ArgvService.getConfig();
     logger.info('', GETTING_ALL_CONTRIBUTORS);
 
-    const fullRepoLogString = await execAsync(
-        `cd ${rootInput} && git log ${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD --pretty=format:"%ae, %H" --name-only`);
+    const fullRepoLogString = await execAsync(`cd ${rootInput} && git log --pretty=format:"%ae, %H" --name-only`);
 
     const repoLogs = fullRepoLogString.split('\n\n');
 

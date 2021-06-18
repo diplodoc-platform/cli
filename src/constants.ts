@@ -48,5 +48,3 @@ export const GETTING_ALL_CONTRIBUTORS = 'Getting all contributors.';
 export const ALL_CONTRIBUTORS_RECEIVED = 'All contributors received.';
 export const getMsgСonfigurationMustBeProvided =
     (repo: string) => `Сonfiguration must be provided for ${repo} like env variables or in .yfm file`;
-
-export const FIRST_COMMIT_FROM_ROBOT_IN_GITHUB = '2dce14271359cd20d7e874956d604de087560cf4';
