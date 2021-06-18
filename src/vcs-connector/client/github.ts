@@ -28,7 +28,7 @@ async function getRepoContributors(octokit: Octokit): Promise<GithubContributorD
 
         return commits.data;
     } catch (error) {
-        log.warn('Getting contributors for GitHub has been failed. Error: ', error);
+        log.warn(`Getting contributors for GitHub has been failed. Error: ${error}`);
         return [];
     }
 }
@@ -65,7 +65,7 @@ async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: strin
 
         return commit.data;
     } catch (error) {
-        log.warn('Getting commit by sha has been failed for GitHub. Error: ', error);
+        log.warn(`Getting commit by sha has been failed for GitHub. Error: ${error}`);
         return null;
     }
 }

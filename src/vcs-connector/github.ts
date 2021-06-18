@@ -13,7 +13,12 @@ import {
     GithubUserDTO,
     VCSConnector,
 } from './connector-models';
-import {ALL_CONTRIBUTORS_RECEIVED, GETTING_ALL_CONTRIBUTORS} from '../constants';
+import {
+    ALL_CONTRIBUTORS_RECEIVED,
+    FIRST_COMMIT_FROM_ROBOT_IN_GITHUB,
+    GETTING_ALL_CONTRIBUTORS,
+    REGEXP_BRANCH_NAME,
+} from '../constants';
 import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
@@ -71,11 +76,26 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const {rootInput} = ArgvService.getConfig();
     logger.info('', GETTING_ALL_CONTRIBUTORS);
 
-    const commandGetLogs = 'git log --pretty=format:"%ae, %H" --name-only';
+    const commandGetLogs = `git log ${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD --pretty=format:"%ae, %H" --name-only`;
+    // TODO: remove after fix issue with sync from github to bb
+    const mainBranch = await execAsync(`cd ${rootInput} && git branch --show-current`);
     const fullRepoLogString = await execAsync(`cd ${rootInput} && git checkout master --quiet && ${commandGetLogs}`);
 
     const repoLogs = fullRepoLogString.split('\n\n');
+    await matchContributionsForEachPath(repoLogs, httpClientByToken);
 
+    const branch = mainBranch.match(REGEXP_BRANCH_NAME);
+    if (branch && branch.length > 0) {
+        await execAsync(`cd ${rootInput} && git checkout ${branch[0]}`);
+    } else {
+        log.warn(`Changing branch failed for GitHub. 
+            Main branch: ${mainBranch}.Parsed branch: ${JSON.stringify(branch)}`);
+    }
+
+    logger.info('', ALL_CONTRIBUTORS_RECEIVED);
+}
+
+async function matchContributionsForEachPath(repoLogs: string[], httpClientByToken: Octokit): Promise<void> {
     for (const repoLog of repoLogs) {
         const dataArray = repoLog.split('\n');
         const userData = dataArray[0];
@@ -104,8 +124,6 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
             });
         }
     }
-
-    logger.info('', ALL_CONTRIBUTORS_RECEIVED);
 }
 
 async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCommit: string,
