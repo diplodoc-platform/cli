@@ -7,7 +7,7 @@ import liquid from '@doc-tools/transform/lib/liquid';
 import {ArgvService, PresetService} from '../services';
 import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
-import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
+import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
 export interface ResolverOptions {
@@ -59,7 +59,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         return result;
     } else {
         writeFileSync(outputPath, result);
-        logger.info(inputPath, PROCESSING_HAS_BEEN_FINISHED);
+        logger.info(inputPath, PROCESSING_FINISHED);
     }
 }
 

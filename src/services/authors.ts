@@ -1,14 +1,12 @@
-import {VCSConnector} from '../vcs-connector/models';
+import {REGEXP_AUTHOR} from '../constants';
+import {VCSConnector} from '../vcs-connector/connector-models';
 
 async function updateAuthorMetadataString(defaultMetadata = '', vcsConnector?: VCSConnector): Promise<string> {
     if (!vcsConnector) {
         return defaultMetadata;
     }
 
-    // Include example: author: authorLogin
-    // Regexp result: authorLogin
-    const regexpAuthor = /(?<=author:\s).+(?=\r?\n)/g;
-    const matchAuthor = defaultMetadata.match(regexpAuthor);
+    const matchAuthor = defaultMetadata.match(REGEXP_AUTHOR);
 
     if (matchAuthor && matchAuthor?.length > 0) {
         const authorLogin = matchAuthor[0];

@@ -1,7 +1,8 @@
 import {readFileSync} from 'fs';
 import {dirname, join} from 'path';
+import {REGEXP_INCLUDE_CONTENTS, REGEXP_INCLUDE_FILE_PATH} from '../constants';
 import {Contributor, Contributors, FileData} from '../models';
-import {FileContributors, VCSConnector} from '../vcs-connector/models';
+import {FileContributors, VCSConnector} from '../vcs-connector/connector-models';
 
 async function getFileContributorsMetadata(fileData: FileData, vcsConnector: VCSConnector): Promise<string> {
     const contributors = await getFileContributorsString(fileData, vcsConnector);
@@ -14,7 +15,12 @@ async function getFileContributorsString(fileData: FileData, vcsConnector: VCSCo
 
     const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
     const fileContributors: FileContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
-    const nestedContributors: Contributors = await getContributorsForNestedFiles(fileData, vcsConnector);
+    let nestedContributors: Contributors = {};
+
+    if (!fileContributors.hasIncludes) {
+        nestedContributors = await getContributorsForNestedFiles(fileData, vcsConnector);
+        vcsConnector.addNestedContributorsForPath(relativeFilePath, nestedContributors);
+    }
 
     const fileContributorsWithContributorsIncludedFiles: Contributors = {
         ...fileContributors.contributors,
@@ -30,11 +36,7 @@ async function getFileContributorsString(fileData: FileData, vcsConnector: VCSCo
 async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: VCSConnector): Promise<Contributors> {
     const {fileContent, inputFolderPathLength} = fileData;
 
-    // Include example: {% include [createfolder](create-folder.md) %}
-    // Regexp result: [createfolder](create-folder.md)
-    const regexpIncludeContents = /(?<=[{%]\sinclude\s).+(?=\s[%}])/gm;
-
-    const includeContents = fileContent.match(regexpIncludeContents);
+    const includeContents = fileContent.match(REGEXP_INCLUDE_CONTENTS);
     if (!includeContents || includeContents.length === 0) {
         return {};
     }
@@ -67,12 +69,8 @@ function getRelativeIncludeFilePaths(fileData: FileData, includeContents: string
     const {tmpInputFilePath} = fileData;
     const relativeIncludeFilePaths: Set<string> = new Set();
 
-    // Include example: [createfolder](create-folder.md)
-    // Regexp result: create-folder.md
-    const regexpIncludeFilePath = /(?<=[(]).+(?=[)])/g;
-
     includeContents.forEach((includeContent: string) => {
-        const relativeIncludeFilePath = includeContent.match(regexpIncludeFilePath);
+        const relativeIncludeFilePath = includeContent.match(REGEXP_INCLUDE_FILE_PATH);
 
         if (relativeIncludeFilePath && relativeIncludeFilePath.length !== 0) {
             const relativeIncludeFilePathWithoutHash = relativeIncludeFilePath[0].split('#');

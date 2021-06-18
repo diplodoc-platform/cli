@@ -1,5 +1,5 @@
 import log from '@doc-tools/transform/lib/log';
-import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './models';
+import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './connector-models';
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
