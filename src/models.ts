@@ -6,7 +6,7 @@ export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
 
-export type ContributorsFunction = (path: string) => Promise<FileContributors>;
+export type ContributorsByPathFunction = (path: string) => Promise<FileContributors>;
 export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
 

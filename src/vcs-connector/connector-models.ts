@@ -1,4 +1,9 @@
-import {Contributors, ContributorsFunction as ContributorsByPathFunction, NestedContributorsForPathFunction, UserByLoginFunction} from '../models';
+import {
+    Contributors,
+    ContributorsByPathFunction,
+    NestedContributorsForPathFunction,
+    UserByLoginFunction,
+} from '../models';
 
 /* eslint-disable camelcase */
 export interface ConnectorValidatorProps {

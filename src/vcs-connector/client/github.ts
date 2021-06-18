@@ -1,7 +1,13 @@
 import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {ArgvService} from '../../services';
-import {GithubContributorDTO, GithubCommitDTO, GitHubConnectorFields, SourceType, GithubUserDTO} from '../connector-models';
+import {
+    GithubContributorDTO,
+    GithubCommitDTO,
+    GitHubConnectorFields,
+    SourceType,
+    GithubUserDTO,
+} from '../connector-models';
 import {validateConnectorFields} from '../connector-validator';
 
 async function getRepoContributors(octokit: Octokit): Promise<GithubContributorDTO[]> {

@@ -4,8 +4,15 @@ import {normalize} from 'path';
 
 import github from './client/github';
 import {ArgvService} from '../services';
-import {Contributor, Contributors, ContributorsFunction} from '../models';
-import {GithubContributorDTO, FileContributors, GitHubConnectorFields, SourceType, GithubUserDTO, VCSConnector} from './connector-models';
+import {Contributor, Contributors, ContributorsByPathFunction} from '../models';
+import {
+    GithubContributorDTO,
+    FileContributors,
+    GitHubConnectorFields,
+    SourceType,
+    GithubUserDTO,
+    VCSConnector,
+} from './connector-models';
 import {ALL_CONTRIBUTORS_RECEIVED, GETTING_ALL_CONTRIBUTORS} from '../constants';
 import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
@@ -27,7 +34,8 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
 
     return {
         addNestedContributorsForPath: contributors
-            ? (path: string, nestedContributors: Contributors) => addNestedContributorsForPathFunction(path, nestedContributors)
+            ? (path: string, nestedContributors: Contributors) =>
+                addNestedContributorsForPathFunction(path, nestedContributors)
             : () => { },
         getContributorsByPath: contributors
             ? await getContributorsByPathFunction(httpClientByToken)
@@ -98,7 +106,8 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     logger.info('', ALL_CONTRIBUTORS_RECEIVED);
 }
 
-async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCommit: string): Promise<Contributor | null> {
+async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCommit: string,
+): Promise<Contributor | null> {
     const repoCommit = await github.getRepoCommitByHash(httpClientByToken, hashCommit);
 
     if (!repoCommit) {
@@ -122,7 +131,7 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
     };
 }
 
-async function getContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsFunction> {
+async function getContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsByPathFunction> {
     const allContributors = await getAllContributors(httpClientByToken);
 
     const getContributorsFunction = async (path: string) => {

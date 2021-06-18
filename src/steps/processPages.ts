@@ -117,7 +117,8 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
     }
 }
 
-function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector): MetaDataOptions {
+function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector,
+): MetaDataOptions {
     const {contributors} = ArgvService.getConfig();
 
     const metaDataOptions: MetaDataOptions = {
