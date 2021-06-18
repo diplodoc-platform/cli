@@ -3,10 +3,9 @@ import {dirname, resolve} from 'path';
 import shell from 'shelljs';
 import log, {Logger} from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
-import yfmlint from '@doc-tools/transform/lib/yfmlint';
 
 import {ArgvService, PresetService} from '../services';
-import {getPlugins, getCustomLintRules, logger} from '../utils';
+import {getPlugins, logger} from '../utils';
 import {ResolveMd2MdOptions} from '../models';
 import {PROCESSING_HAS_BEEN_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
@@ -96,24 +95,14 @@ function copyFile(targetPath: string, targetDestPath: string, options?: Resolver
 }
 
 function transformMd2Md(input: string, options: ResolverOptions) {
-    const {applyPresets, resolveConditions, disableLiquid, lintConfig, disableLint} = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
-
-    if (!disableLint) {
-        yfmlint({
-            input,
-            lintConfig,
-            pluginOptions: {log, path},
-            customLintRules: getCustomLintRules(),
-        });
-    }
-
     let output = disableLiquid ? input : liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
     });
 
-    if (collectOfPlugins) {
+    if (typeof collectOfPlugins === 'function') {
         output = collectOfPlugins(output, {
             vars,
             path,
