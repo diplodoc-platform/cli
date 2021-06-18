@@ -3,8 +3,7 @@ import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
 import {load} from 'js-yaml';
 import log from '@doc-tools/transform/lib/log';
-import {REDIRECTS_FILENAME, LINT_CONFIG_FILENAME} from './constants';
-import merge from 'lodash/merge';
+import {REDIRECTS_FILENAME} from './constants';
 
 function notEmptyStringValidator(value: string): Boolean {
     return Boolean(value) && Boolean(value?.length);
@@ -86,26 +85,6 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse .yfm: ${error.message}`);
         }
-    }
-
-    let lintConfig = {};
-    try {
-        const pathToConfig = join(String(argv.input), LINT_CONFIG_FILENAME);
-        const content = readFileSync(resolve(pathToConfig), 'utf8');
-
-        lintConfig = load(content) || {};
-    } catch (error) {
-        if (error.name === 'YAMLException') {
-            log.error(`Error to parse yfmlint.yaml: ${error.message}`);
-        }
-    } finally {
-        const preparedLintConfig = merge(lintConfig, {
-            'log-levels': {
-                MD033: argv.allowHTML ? 'disabled' : 'error',
-            },
-        });
-
-        Object.assign(argv, {lintConfig: preparedLintConfig});
     }
 
     try {

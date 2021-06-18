@@ -1,4 +1,3 @@
-import {LintConfig} from '@doc-tools/transform/lib/yfmlint';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {Stage} from './constants';
 
@@ -24,8 +23,6 @@ interface YfmConfig {
     singlePage: boolean;
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
-    disableLint: boolean;
-    lintConfig: LintConfig;
 }
 
 export interface YfmArgv extends YfmConfig {
