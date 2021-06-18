@@ -4,7 +4,7 @@ import {normalize} from 'path';
 
 import github from './client/github';
 import {ArgvService} from '../services';
-import {Contributor, Contributors, ContributorsByPathFunction} from '../models';
+import {Contributor, Contributors, ContributorsByPathFunction, NestedContributorsForPathFunction} from '../models';
 import {
     GithubContributorDTO,
     FileContributors,
@@ -28,8 +28,8 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         return;
     }
 
-    let addNestedContributorsForPath: Function = () => { };
-    let getContributorsByPath: Function = () => Promise.resolve({} as FileContributors);
+    let addNestedContributorsForPath: NestedContributorsForPathFunction = () => { };
+    let getContributorsByPath: ContributorsByPathFunction = () => Promise.resolve({} as FileContributors);
 
     if (contributors) {
         await getAllContributorsTocFiles(httpClientByToken);
