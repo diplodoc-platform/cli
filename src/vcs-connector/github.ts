@@ -28,18 +28,19 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         return;
     }
 
+    let addNestedContributorsForPath: Function = () => { };
+    let getContributorsByPath: Function = () => Promise.resolve({} as FileContributors);
+
     if (contributors) {
         await getAllContributorsTocFiles(httpClientByToken);
+        addNestedContributorsForPath = (path: string, nestedContributors: Contributors) =>
+            addNestedContributorsForPathFunction(path, nestedContributors);
+        getContributorsByPath = await getContributorsByPathFunction(httpClientByToken);
     }
 
     return {
-        addNestedContributorsForPath: contributors
-            ? (path: string, nestedContributors: Contributors) =>
-                addNestedContributorsForPathFunction(path, nestedContributors)
-            : () => { },
-        getContributorsByPath: contributors
-            ? await getContributorsByPathFunction(httpClientByToken)
-            : () => Promise.resolve({} as FileContributors),
+        addNestedContributorsForPath,
+        getContributorsByPath,
         getUserByLogin: (login: string) => getUserByLogin(httpClientByToken, login),
     };
 }
