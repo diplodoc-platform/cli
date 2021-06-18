@@ -70,7 +70,8 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const {rootInput} = ArgvService.getConfig();
     logger.info('', GETTING_ALL_CONTRIBUTORS);
 
-    const fullRepoLogString = await execAsync(`cd ${rootInput} && git log --pretty=format:"%ae, %H" --name-only`);
+    const commandGetLogs = 'git log --pretty=format:"%ae, %H" --name-only';
+    const fullRepoLogString = await execAsync(`cd ${rootInput} && git checkout master --quiet && ${commandGetLogs}`);
 
     const repoLogs = fullRepoLogString.split('\n\n');
 
