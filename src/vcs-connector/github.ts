@@ -17,7 +17,6 @@ import {
     ALL_CONTRIBUTORS_RECEIVED,
     FIRST_COMMIT_FROM_ROBOT_IN_GITHUB,
     GETTING_ALL_CONTRIBUTORS,
-    REGEXP_BRANCH_NAME,
 } from '../constants';
 import {execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
@@ -77,19 +76,23 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     logger.info('', GETTING_ALL_CONTRIBUTORS);
 
     const commandGetLogs = `git log ${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD --pretty=format:"%ae, %H" --name-only`;
-    // TODO: remove after fix issue with sync from github to bb
-    const mainBranch = await execAsync(`cd ${rootInput} && git branch --show-current`);
-    const fullRepoLogString = await execAsync(`cd ${rootInput} && git checkout master --quiet && ${commandGetLogs}`);
+    const masterDir = './_yfm-master';
+    const tmpMasterBranch = 'yfm-tmp-master';
 
-    const repoLogs = fullRepoLogString.split('\n\n');
-    await matchContributionsForEachPath(repoLogs, httpClientByToken);
-
-    const branch = mainBranch.match(REGEXP_BRANCH_NAME);
-    if (branch && branch.length > 0) {
-        await execAsync(`cd ${rootInput} && git checkout ${branch[0]}`);
-    } else {
-        log.warn(`Changing branch failed for GitHub. 
-            Main branch: ${mainBranch}.Parsed branch: ${JSON.stringify(branch)}`);
+    try {
+        const fullRepoLogString = await execAsync(
+            `cd ${rootInput} &&
+            git worktree add -b ${tmpMasterBranch} ${masterDir} origin/master &&
+            cd ${masterDir} && ${commandGetLogs}`,
+        );
+        const repoLogs = fullRepoLogString.split('\n\n');
+        await matchContributionsForEachPath(repoLogs, httpClientByToken);
+    } finally {
+        await execAsync(
+            `cd ${rootInput} &&
+            git worktree remove ${masterDir} &&
+            git branch -d ${tmpMasterBranch}`,
+        );
     }
 
     logger.info('', ALL_CONTRIBUTORS_RECEIVED);
