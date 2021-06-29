@@ -5,7 +5,7 @@ import S3 from 'aws-sdk/clients/s3';
 import mime from 'mime-types';
 
 import {ArgvService} from '../services';
-import {logger} from '../utils';
+import {convertBackSlashToSlash, logger} from '../utils';
 
 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
 
@@ -36,7 +36,7 @@ export function publishFilesToS3(): void {
         const params: S3.Types.PutObjectRequest = {
             ContentType: mimeType ? mimeType : undefined,
             Bucket: bucket,
-            Key: join(prefix, pathToFile),
+            Key: convertBackSlashToSlash(join(prefix, pathToFile)),
             Body: readFileSync(resolve(outputFolderPath, pathToFile)),
         };
 

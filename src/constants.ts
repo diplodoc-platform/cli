@@ -22,6 +22,10 @@ export enum Lang {
     EN = 'en',
 }
 
+export enum Platforms {
+    WINDOWS = 'win32',
+}
+
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 const {notes, attrs, anchors, code, cut, deflist, includes, imsize, meta, sup, tabs, links, images, video} = plugins;
