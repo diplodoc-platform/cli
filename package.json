@@ -3,7 +3,7 @@
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "license": "MIT",
-  "version": "1.11.5",
+  "version": "1.11.6",
   "repository": {
     "type": "git",
     "url": "git@github.com:yandex-cloud/yfm-docs.git"
@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@doc-tools/components": "^1.5.3",
-    "@doc-tools/transform": "^1.8.1",
+    "@doc-tools/transform": "^1.8.3",
     "@octokit/core": "^3.3.0",
     "aws-sdk": "^2.773.0",
     "chalk": "^4.0.0",
