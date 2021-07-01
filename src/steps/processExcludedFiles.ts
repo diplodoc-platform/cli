@@ -3,6 +3,7 @@ import walkSync from 'walk-sync';
 import shell from 'shelljs';
 
 import {ArgvService, TocService} from '../services';
+import {convertBackSlashToSlash} from '../utils';
 
 /**
  * Removes all content files that unspecified in toc files or ignored.
@@ -26,7 +27,7 @@ export function processExcludedFiles() {
         ignore: ['**/_*/**/*'],
     });
     const resolvedNavPath = TocService.getNavigationPaths()
-        .map((filePath) => resolve(inputFolderPath, filePath).replace(/\\/g, '/'));
+        .map((filePath) => convertBackSlashToSlash(resolve(inputFolderPath, filePath)));
     const tocSpecifiedFiles = new Set(resolvedNavPath);
     const excludedFiles = allContentFiles
         .filter((filePath) => !tocSpecifiedFiles.has(filePath));

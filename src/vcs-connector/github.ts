@@ -18,7 +18,7 @@ import {
     FIRST_COMMIT_FROM_ROBOT_IN_GITHUB,
     GETTING_ALL_CONTRIBUTORS,
 } from '../constants';
-import {execAsync, logger} from '../utils';
+import {addSlashPrefix, execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 
 const contributorsByPath: Map<string, FileContributors> = new Map();
@@ -230,7 +230,7 @@ function addNestedContributorsForPathFunction(path: string, nestedContributors: 
 
 function addContributorForPath(paths: string[], newContributor: Contributors, hasIncludes = false): void {
     paths.forEach((path: string) => {
-        const normalizePath = normalize(`${path.startsWith('/') ? '' : '/'}${path}`);
+        const normalizePath = normalize(addSlashPrefix(path));
 
         if (!contributorsByPath.has(normalizePath)) {
             contributorsByPath.set(normalizePath, {
