@@ -30,7 +30,6 @@ export default class YfmPlugin {
 
     getPlugins() {
         const customPlugins = this.getCustomPlugins();
-
         return [...YFM_PLUGINS, ...customPlugins];
     }
 
