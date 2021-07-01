@@ -24,6 +24,8 @@ export enum Lang {
 
 export enum Platforms {
     WINDOWS = 'win32',
+    MAC = 'darwin',
+    LINUX = 'linux',
 }
 
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
