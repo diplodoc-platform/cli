@@ -1,3 +1,5 @@
+import {Logger} from '@doc-tools/transform/lib/log';
+
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {Stage} from './constants';
 
@@ -8,6 +10,7 @@ export type YfmPreset = Record<string, string>;
 export type ContributorsByPathFunction = (path: string) => Promise<FileContributors>;
 export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
+export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
 
 interface YfmConfig {
     varsPreset: VarsPreset;
@@ -109,6 +112,22 @@ export interface MetaDataOptions {
     fileData: FileData;
     isContributorsEnabled?: boolean;
     vcsConnector?: VCSConnector;
+}
+
+export interface PluginOptions {
+    vars: Record<string, string>;
+    path: string;
+    log: Logger;
+    copyFile: (targetPath: string, targetDestPath: string, options?: PluginOptions) => void;
+    singlePage?: boolean;
+    root?: string;
+    destPath?: string;
+    destRoot?: string;
+    collectOfPlugins?: (input: string, options: PluginOptions) => string;
+}
+
+export interface Plugin {
+    collect: (input: string, options: PluginOptions) => string | void;
 }
 
 export interface ResolveMd2MdOptions {
