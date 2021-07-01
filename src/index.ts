@@ -121,46 +121,48 @@ async function main() {
     const tmpInputFolder = resolve(_yargs.argv.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(_yargs.argv.output, TMP_OUTPUT_FOLDER);
 
-    preparingTemporaryFolders(userOutputFolder, tmpInputFolder, tmpOutputFolder);
+    try {
+        preparingTemporaryFolders(userOutputFolder, tmpInputFolder, tmpOutputFolder);
 
-    ArgvService.init({..._yargs.argv, rootInput: _yargs.argv.input, input: tmpInputFolder, output: tmpOutputFolder});
-    const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
+        ArgvService.init({..._yargs.argv, rootInput: _yargs.argv.input, input: tmpInputFolder, output: tmpOutputFolder});
+        const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
 
-    processServiceFiles();
-    processExcludedFiles();
+        processServiceFiles();
+        processExcludedFiles();
 
-    const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
-    const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
-    const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
+        const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
+        const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
+        const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
 
-    await processPages(outputBundlePath);
+        await processPages(outputBundlePath);
 
-    // process additional files
-    switch (outputFormat) {
-        case 'html':
-            processAssets(outputBundlePath);
-            break;
-        case 'md': {
-            shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+        // process additional files
+        switch (outputFormat) {
+            case 'html':
+                processAssets(outputBundlePath);
+                break;
+            case 'md': {
+                shell.cp('-r', resolve(pathToConfig), userOutputFolder);
 
-            try {
-                shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
-            } catch {}
+                try {
+                    shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
+                } catch { }
 
-            break;
+                break;
+            }
         }
+
+        // Copy all generated files to user' output folder
+        shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+
+        if (publish) {
+            publishFilesToS3();
+        }
+    } finally {
+        processLogs(tmpInputFolder);
+
+        shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
     }
-
-    // Copy all generated files to user' output folder
-    shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
-
-    if (publish) {
-        publishFilesToS3();
-    }
-
-    processLogs(tmpInputFolder);
-
-    shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
 }
 
 function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string) {
