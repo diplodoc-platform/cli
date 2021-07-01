@@ -4,7 +4,7 @@ import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ArgvService, PresetService, YfmPlugin} from '../services';
+import {ArgvService, PresetService, PluginService} from '../services';
 import {logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
@@ -26,7 +26,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         destPath: outputPath,
         root: resolve(input),
         destRoot: resolve(output),
-        collectOfPlugins: YfmPlugin.collectionOfPlugins,
+        collectOfPlugins: PluginService.getCollectOfPlugins(),
         singlePage,
         vars: {
             ...PresetService.get(dirname(inputPath)),
