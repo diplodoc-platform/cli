@@ -20,14 +20,23 @@ async function updateAuthorMetadataString(defaultMetadata = '', vcsConnector?: V
     return defaultMetadata;
 }
 
-async function getAuthorDetails(vcsConnector: VCSConnector, authorLogin: string): Promise<string | null> {
-    const user = await vcsConnector.getUserByLogin(authorLogin);
-
-    if (user) {
-        return JSON.stringify(user).replace(/"/g, '\'');
+async function getAuthorDetails(vcsConnector: VCSConnector, author: string | object): Promise<string | null> {
+    if (typeof author === 'object') {
+        return JSON.stringify(author).replace(/"/g, '\'');
     }
 
-    return null;
+    try {
+        JSON.parse(author);
+        return author.replace(/"/g, '\'');
+    } catch {
+        const user = await vcsConnector.getUserByLogin(author);
+
+        if (user) {
+            return JSON.stringify(user).replace(/"/g, '\'');
+        }
+
+        return null;
+    }
 }
 
 export {

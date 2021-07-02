@@ -1,4 +1,3 @@
-import log from '@doc-tools/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {normalize} from 'path';
 
@@ -6,11 +5,9 @@ import github from './client/github';
 import {ArgvService} from '../services';
 import {Contributor, Contributors, ContributorsByPathFunction, NestedContributorsForPathFunction} from '../models';
 import {
-    GithubContributorDTO,
     FileContributors,
     GitHubConnectorFields,
     SourceType,
-    GithubUserDTO,
     VCSConnector,
 } from './connector-models';
 import {
@@ -39,7 +36,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         await getAllContributorsTocFiles(httpClientByToken);
         addNestedContributorsForPath = (path: string, nestedContributors: Contributors) =>
             addNestedContributorsForPathFunction(path, nestedContributors);
-        getContributorsByPath = await getContributorsByPathFunction(httpClientByToken);
+        getContributorsByPath = async (path: string) => getFileContributorsByPath(path);
     }
 
     return {
@@ -100,6 +97,10 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 
 async function matchContributionsForEachPath(repoLogs: string[], httpClientByToken: Octokit): Promise<void> {
     for (const repoLog of repoLogs) {
+        if (!repoLog) {
+            continue;
+        }
+
         const dataArray = repoLog.split('\n');
         const userData = dataArray[0];
         const [email, hashCommit] = userData.split(', ');
@@ -154,52 +155,8 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
     };
 }
 
-async function getContributorsByPathFunction(httpClientByToken: Octokit): Promise<ContributorsByPathFunction> {
-    const allContributors = await getAllContributors(httpClientByToken);
-
-    const getContributorsFunction = async (path: string) => {
-        return getContributorsByPath(path, allContributors);
-    };
-
-    return getContributorsFunction;
-}
-
-async function getAllContributors(httpClientByToken: Octokit): Promise<Contributors> {
-    try {
-        const repoContributors = await github.getRepoContributors(httpClientByToken);
-        const promises: Promise<GithubUserDTO | null>[] = [];
-
-        repoContributors.forEach((contributor: GithubContributorDTO) => {
-            if (contributor.login) {
-                promises.push(github.getRepoUser(httpClientByToken, contributor.login));
-            }
-        });
-
-        const repoUsers = await Promise.all(promises);
-        const contributors: Contributors = {};
-
-        repoUsers.forEach((user: GithubUserDTO | null) => {
-            if (user) {
-                const {email, login, name, avatar_url: avatarUrl, html_url: url} = user;
-                contributors[email || login] = {
-                    avatar: avatarUrl,
-                    email,
-                    login,
-                    name,
-                    url,
-                };
-            }
-        });
-
-        return contributors;
-    } catch (error) {
-        log.error(`Getting of contributors has been failed. Error: ${JSON.stringify(error)}`);
-        throw error;
-    }
-}
-
-async function getContributorsByPath(path: string, allContributors: Contributors): Promise<FileContributors> {
-    if (Object.keys(allContributors).length === 0 || !contributorsByPath.has(path)) {
+async function getFileContributorsByPath(path: string): Promise<FileContributors> {
+    if (contributorsData.size === 0 || !contributorsByPath.has(path)) {
         return {} as FileContributors;
     }
 
