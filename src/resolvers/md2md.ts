@@ -1,30 +1,14 @@
 import {readFileSync, writeFileSync} from 'fs';
 import {dirname, resolve} from 'path';
 import shell from 'shelljs';
-import log, {Logger} from '@doc-tools/transform/lib/log';
+import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ArgvService, PresetService} from '../services';
-import {getPlugins, logger} from '../utils';
-import {ResolveMd2MdOptions} from '../models';
+import {ArgvService, PresetService, PluginService} from '../services';
+import {logger} from '../utils';
+import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
-
-export interface ResolverOptions {
-    vars: Record<string, string>;
-    path: string;
-    log: Logger;
-    copyFile: (targetPath: string, targetDestPath: string, options?: ResolverOptions) => void;
-    singlePage?: boolean;
-    root?: string;
-    destPath?: string;
-    destRoot?: string;
-    collectOfPlugins?: (input: string, options: ResolverOptions) => string;
-}
-
-interface Plugin {
-    collect: (input: string, options: ResolverOptions) => string | void;
-}
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
     const {inputPath, outputPath, singlePage, metadata} = options;
@@ -37,15 +21,12 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         content = await getContentWithUpdatedMetadata(metadata, content);
     }
 
-    const plugins = getPlugins();
-    const collectOfPlugins = makeCollectOfPlugins(plugins);
-
     const {result} = transformMd2Md(content, {
         path: resolvedInputPath,
         destPath: outputPath,
         root: resolve(input),
         destRoot: resolve(output),
-        collectOfPlugins,
+        collectOfPlugins: PluginService.getCollectOfPlugins(),
         singlePage,
         vars: {
             ...PresetService.get(dirname(inputPath)),
@@ -63,25 +44,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
     }
 }
 
-function makeCollectOfPlugins(plugins: Plugin[]) {
-    const pluginsWithCollect = plugins.filter((plugin: Plugin) => {
-        return typeof plugin.collect === 'function';
-    });
-
-    return (output: string, options: ResolverOptions) => {
-        let collectsOutput = output;
-
-        pluginsWithCollect.forEach((plugin: Plugin) => {
-            const collectOutput = plugin.collect(collectsOutput, options);
-
-            collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
-        });
-
-        return collectsOutput;
-    };
-}
-
-function copyFile(targetPath: string, targetDestPath: string, options?: ResolverOptions) {
+function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
     shell.mkdir('-p', dirname(targetDestPath));
 
     if (options) {
@@ -94,7 +57,7 @@ function copyFile(targetPath: string, targetDestPath: string, options?: Resolver
     }
 }
 
-function transformMd2Md(input: string, options: ResolverOptions) {
+function transformMd2Md(input: string, options: PluginOptions) {
     const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
     const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
     let output = disableLiquid ? input : liquid(input, vars, path, {

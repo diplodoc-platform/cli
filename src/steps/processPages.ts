@@ -5,7 +5,7 @@ import {bold} from 'chalk';
 
 import log from '@doc-tools/transform/lib/log';
 
-import {ArgvService, LeadingService, TocService} from '../services';
+import {ArgvService, LeadingService, TocService, PluginService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {joinSinglePageResults, logger} from '../utils';
 import {MetaDataOptions, SinglePageResult, PathData} from '../models';
@@ -31,6 +31,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     const promises: Promise<void>[] = [];
 
     const singlePageNavigationPaths = TocService.getSinglePageNavigationPaths();
+    PluginService.setPlugins();
 
     for (const pathToFile of TocService.getNavigationPaths()) {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
