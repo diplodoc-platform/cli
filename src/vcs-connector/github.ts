@@ -1,5 +1,5 @@
 import {Octokit} from '@octokit/core';
-import {normalize} from 'path';
+import {join, normalize} from 'path';
 
 import github from './client/github';
 import {ArgvService} from '../services';
@@ -77,10 +77,12 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const tmpMasterBranch = 'yfm-tmp-master';
 
     try {
-        const fullRepoLogString = await execAsync(
+        await execAsync(
             `cd ${rootInput} &&
-            git worktree add -b ${tmpMasterBranch} ${masterDir} origin/master &&
-            cd ${masterDir} && ${commandGetLogs}`,
+            git worktree add -b ${tmpMasterBranch} ${masterDir} origin/master`,
+        );
+        const fullRepoLogString = await execAsync(
+            `cd ${join(rootInput, masterDir)} && ${commandGetLogs}`,
         );
         const repoLogs = fullRepoLogString.split('\n\n');
         await matchContributionsForEachPath(repoLogs, httpClientByToken);

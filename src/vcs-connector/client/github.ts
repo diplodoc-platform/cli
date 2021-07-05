@@ -41,7 +41,7 @@ async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: strin
 
         return commit.data;
     } catch (error) {
-        log.warn(`Getting commit by sha has been failed for GitHub. Error: ${error}`);
+        log.warn(`Getting commit by sha has been failed for GitHub. SHA commit: ${hashCommit}. Error: ${error}`);
         return null;
     }
 }
