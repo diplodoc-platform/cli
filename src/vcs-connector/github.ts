@@ -77,21 +77,13 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const tmpMasterBranch = 'yfm-tmp-master';
 
     try {
-        await execAsync(
-            `cd ${rootInput} &&
-            git worktree add -b ${tmpMasterBranch} ${masterDir} origin/master`,
-        );
-        const fullRepoLogString = await execAsync(
-            `cd ${join(rootInput, masterDir)} && ${commandGetLogs}`,
-        );
+        await execAsync(`cd ${rootInput} && git worktree add -b ${tmpMasterBranch} ${masterDir} origin/master`);
+        const fullRepoLogString = await execAsync(`cd ${join(rootInput, masterDir)} && ${commandGetLogs}`);
+
         const repoLogs = fullRepoLogString.split('\n\n');
         await matchContributionsForEachPath(repoLogs, httpClientByToken);
     } finally {
-        await execAsync(
-            `cd ${rootInput} &&
-            git worktree remove ${masterDir} &&
-            git branch -d ${tmpMasterBranch}`,
-        );
+        await execAsync(`cd ${rootInput} && git worktree remove ${masterDir} && git branch -d ${tmpMasterBranch}`);
     }
 
     logger.info('', ALL_CONTRIBUTORS_RECEIVED);
