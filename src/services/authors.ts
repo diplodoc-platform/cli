@@ -1,3 +1,4 @@
+import {replaceDoubleToSingleQuotes} from '../utils';
 import {REGEXP_AUTHOR} from '../constants';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -20,14 +21,24 @@ async function updateAuthorMetadataString(defaultMetadata = '', vcsConnector?: V
     return defaultMetadata;
 }
 
-async function getAuthorDetails(vcsConnector: VCSConnector, authorLogin: string): Promise<string | null> {
-    const user = await vcsConnector.getUserByLogin(authorLogin);
-
-    if (user) {
-        return JSON.stringify(user).replace(/"/g, '\'');
+async function getAuthorDetails(vcsConnector: VCSConnector, author: string | object): Promise<string | null> {
+    if (typeof author === 'object') {
+        // Avoiding problems when adding to html markup
+        return replaceDoubleToSingleQuotes(JSON.stringify(author));
     }
 
-    return null;
+    try {
+        JSON.parse(author);
+        return replaceDoubleToSingleQuotes(author);
+    } catch {
+        const user = await vcsConnector.getUserByLogin(author);
+
+        if (user) {
+            return replaceDoubleToSingleQuotes(JSON.stringify(user));
+        }
+
+        return null;
+    }
 }
 
 export {

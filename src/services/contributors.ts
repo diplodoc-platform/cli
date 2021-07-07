@@ -1,5 +1,7 @@
 import {readFileSync} from 'fs';
 import {dirname, join} from 'path';
+
+import {replaceDoubleToSingleQuotes} from '../utils';
 import {REGEXP_INCLUDE_CONTENTS, REGEXP_INCLUDE_FILE_PATH} from '../constants';
 import {Contributor, Contributors, FileData} from '../models';
 import {FileContributors, VCSConnector} from '../vcs-connector/connector-models';
@@ -30,7 +32,7 @@ async function getFileContributorsString(fileData: FileData, vcsConnector: VCSCo
     const contributorsArray: Contributor[] =
         Object.entries(fileContributorsWithContributorsIncludedFiles).map(([, contributor]) => contributor);
 
-    return JSON.stringify(contributorsArray).replace(/"/g, '\'');
+    return replaceDoubleToSingleQuotes(JSON.stringify(contributorsArray));
 }
 
 async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: VCSConnector): Promise<Contributors> {

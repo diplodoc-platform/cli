@@ -46,12 +46,6 @@ export interface FileContributors {
     hasIncludes: boolean;
 }
 
-
-export interface GithubContributorDTO {
-    login?: string;
-    avatar?: string;
-}
-
 export interface GithubCommitDTO {
     commit: {
         author: {

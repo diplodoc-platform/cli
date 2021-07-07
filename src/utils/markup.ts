@@ -1,7 +1,7 @@
 import {SinglePageResult} from '../models';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function generateStaticMarkup(props: any, pathToBundle: string) {
+export function generateStaticMarkup(props: any, pathToBundle: string): string {
     return `
         <!DOCTYPE html>
         <html>
@@ -41,10 +41,14 @@ function getMetadata(metadata: Record<string, string>): string {
         .join('\n');
 }
 
-export const joinSinglePageResults = (singlePageResults: SinglePageResult[]) => {
+export function joinSinglePageResults(singlePageResults: SinglePageResult[]): string {
     const delimeter = '\n\n<hr class="yfm-page__delimeter">\n\n';
     return singlePageResults
         .filter(({content}) => content)
         .map(({content}) => content)
         .join(delimeter);
-};
+}
+
+export function replaceDoubleToSingleQuotes(str: string): string {
+    return str.replace(/"/g, '\'');
+}
