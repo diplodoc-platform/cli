@@ -12,14 +12,17 @@ import {getContentWithUpdatedMetadata} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
     const {inputPath, outputPath, singlePage, metadata} = options;
-    const {input, output, vars} = ArgvService.getConfig();
+    const {input, output, vars: configVars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
-
-    let content: string = readFileSync(resolvedInputPath, 'utf8');
-
-    if (metadata && metadata.isContributorsEnabled) {
-        content = await getContentWithUpdatedMetadata(metadata, content);
-    }
+    const vars = {
+        ...PresetService.get(dirname(inputPath)),
+        ...configVars,
+    };
+    const content = await getContentWithUpdatedMetadata(
+        readFileSync(resolvedInputPath, 'utf8'),
+        metadata,
+        vars.__system,
+    );
 
     const {result} = transformMd2Md(content, {
         path: resolvedInputPath,
@@ -28,10 +31,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         destRoot: resolve(output),
         collectOfPlugins: PluginService.getCollectOfPlugins(),
         singlePage,
-        vars: {
-            ...PresetService.get(dirname(inputPath)),
-            ...vars,
-        },
+        vars,
         log,
         copyFile,
     });

@@ -2,8 +2,17 @@ import {VCSConnector} from '../vcs-connector/connector-models';
 import {MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
+import {replaceDoubleToSingleQuotes} from '../utils';
+import {isObject} from './utils';
 
-async function getContentWithUpdatedMetadata(options: MetaDataOptions, fileContent: string): Promise<string> {
+async function getContentWithUpdatedMetadata(
+    fileContent: string,
+    options?: MetaDataOptions,
+    systemVars?: unknown,
+): Promise<string> {
+    if (!options?.isContributorsEnabled && !systemVars) {
+        return fileContent;
+    }
     // Search by format:
     // ---
     // metaName1: metaValue1
@@ -21,15 +30,23 @@ async function getContentWithUpdatedMetadata(options: MetaDataOptions, fileConte
 
     const newMetadatas = [];
 
-    newMetadatas.push(await getContributorsMetadataString(options, fileContent));
+    if (systemVars && isObject(systemVars)) {
+        newMetadatas.push(getSystemVarsMetadataString(systemVars));
+    }
 
-    if (matches && matches.length > 0) {
-        const [, fileMetadata, , fileMainContent] = matches;
-        let updatedDefaultMetadata = '';
+    if (options) {
+        if (options.isContributorsEnabled) {
+            newMetadatas.push(await getContributorsMetadataString(options, fileContent));
+        }
 
-        updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
+        if (matches && matches.length > 0) {
+            const [, fileMetadata, , fileMainContent] = matches;
+            let updatedDefaultMetadata = '';
 
-        return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+            updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
+
+            return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+        }
     }
 
     return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
@@ -109,6 +126,12 @@ async function getAuthorMetadata(meta: Record<string, any>, vcsConnector?: VCSCo
     }
 
     return null;
+}
+
+function getSystemVarsMetadataString(systemVars: object) {
+    const stringifiedVars = replaceDoubleToSingleQuotes(JSON.stringify(systemVars));
+
+    return `__system: ${stringifiedVars}`;
 }
 
 export {

@@ -115,7 +115,7 @@ export interface MetaDataOptions {
 }
 
 export interface PluginOptions {
-    vars: Record<string, string>;
+    vars: YfmPreset;
     path: string;
     log: Logger;
     copyFile: (targetPath: string, targetDestPath: string, options?: PluginOptions) => void;
