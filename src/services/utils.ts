@@ -63,3 +63,7 @@ export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars
         return result;
     }, []);
 }
+
+export function isObject(o: unknown): o is object {
+    return typeof o === 'object' && o !== null;
+}
