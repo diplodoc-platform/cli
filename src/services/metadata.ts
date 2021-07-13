@@ -5,8 +5,7 @@ import {getFileContributorsMetadata, getFileContributorsString} from './contribu
 import {replaceDoubleToSingleQuotes} from '../utils';
 import {isObject} from './utils';
 
-async function
-getContentWithUpdatedMetadata(
+async function getContentWithUpdatedMetadata(
     fileContent: string,
     options?: MetaDataOptions,
     systemVars?: unknown,
