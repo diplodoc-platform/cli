@@ -2,7 +2,6 @@ import {VCSConnector} from '../vcs-connector/connector-models';
 import {MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
-import {replaceDoubleToSingleQuotes} from '../utils';
 import {isObject} from './utils';
 
 async function getContentWithUpdatedMetadata(
@@ -129,9 +128,7 @@ async function getAuthorMetadata(meta: Record<string, any>, vcsConnector?: VCSCo
 }
 
 function getSystemVarsMetadataString(systemVars: object) {
-    const stringifiedVars = replaceDoubleToSingleQuotes(JSON.stringify(systemVars));
-
-    return `__system: ${stringifiedVars}`;
+    return `__system: ${JSON.stringify(systemVars)}`;
 }
 
 export {
