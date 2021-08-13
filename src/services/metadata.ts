@@ -9,7 +9,7 @@ async function getContentWithUpdatedMetadata(
     options?: MetaDataOptions,
     systemVars?: unknown,
 ): Promise<string> {
-    if (!options?.isContributorsEnabled && !systemVars) {
+    if (!options?.isContributorsEnabled && (!options?.addSystemMeta || !systemVars)) {
         return fileContent;
     }
     // Search by format:
@@ -29,12 +29,14 @@ async function getContentWithUpdatedMetadata(
 
     const newMetadatas = [];
 
-    if (systemVars && isObject(systemVars)) {
-        newMetadatas.push(getSystemVarsMetadataString(systemVars));
-    }
-
     if (options) {
-        if (options.isContributorsEnabled) {
+        const {isContributorsEnabled, addSystemMeta} = options;
+
+        if (addSystemMeta && systemVars && isObject(systemVars)) {
+            newMetadatas.push(getSystemVarsMetadataString(systemVars));
+        }
+
+        if (isContributorsEnabled) {
             newMetadatas.push(await getContributorsMetadataString(options, fileContent));
         }
 
