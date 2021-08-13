@@ -40,6 +40,7 @@ export interface YfmArgv extends YfmConfig {
     storageKeyId: string;
     storageSecretKey: string;
     contributors: boolean;
+    addSystemMeta: boolean;
 }
 
 export interface DocPreset {
@@ -112,6 +113,7 @@ export interface MetaDataOptions {
     fileData: FileData;
     isContributorsEnabled?: boolean;
     vcsConnector?: VCSConnector;
+    addSystemMeta?: boolean;
 }
 
 export interface PluginOptions {

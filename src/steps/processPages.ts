@@ -120,7 +120,7 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
 
 function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector,
 ): MetaDataOptions {
-    const {contributors} = ArgvService.getConfig();
+    const {contributors, addSystemMeta} = ArgvService.getConfig();
 
     const metaDataOptions: MetaDataOptions = {
         vcsConnector,
@@ -130,6 +130,7 @@ function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, v
             fileContent: '',
         },
         isContributorsEnabled: Boolean(contributors && vcsConnector),
+        addSystemMeta,
     };
 
     return metaDataOptions;

@@ -85,6 +85,11 @@ const _yargs = yargs
         describe: 'Should attach contributors into files',
         type: 'boolean',
     })
+    .option('add-system-meta', {
+        default: false,
+        describe: 'Should add system section variables form presets into files meta data',
+        type: 'boolean',
+    })
     .option('quiet', {
         alias: 'q',
         default: false,

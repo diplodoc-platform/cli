@@ -88,6 +88,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Should attach contributors into files. Disabled by default.
 
+- `--add-system-meta`
+
+    Should add system section variables from presets to file meta data. Disabled by default.
+
 - `--version`
 
     Current version.
