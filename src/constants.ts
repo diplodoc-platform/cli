@@ -1,6 +1,5 @@
 import {dirname} from 'path';
 const notes = require('@doc-tools/transform/lib/plugins/notes');
-const attrs = require('@doc-tools/transform/lib/plugins/attrs');
 const anchors = require('@doc-tools/transform/lib/plugins/anchors');
 const code = require('@doc-tools/transform/lib/plugins/code');
 const cut = require('@doc-tools/transform/lib/plugins/cut');
@@ -13,6 +12,11 @@ const video = require('@doc-tools/transform/lib/plugins/video');
 const includes = require('@doc-tools/transform/lib/plugins/includes');
 const links = require('@doc-tools/transform/lib/plugins/links');
 const images = require('@doc-tools/transform/lib/plugins/images');
+
+anchors.collect = require('@doc-tools/transform/lib/plugins/anchors/collect');
+includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
+links.collect = require('@doc-tools/transform/lib/plugins/links/collect');
+images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
 
 export const BUILD_FOLDER = 'build';
 export const BUNDLE_FOLDER = '_bundle';
@@ -44,7 +48,6 @@ export enum Platforms {
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 export const YFM_PLUGINS = [
-    attrs,
     meta,
     deflist,
     includes,
