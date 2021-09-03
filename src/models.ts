@@ -1,7 +1,7 @@
 import {Logger} from '@doc-tools/transform/lib/log';
 
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
-import {Stage} from './constants';
+import {Lang, Stage} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
@@ -26,6 +26,7 @@ interface YfmConfig {
     singlePage: boolean;
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
+    lang?: Lang;
 }
 
 export interface YfmArgv extends YfmConfig {

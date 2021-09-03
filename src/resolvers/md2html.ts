@@ -30,7 +30,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}/`, '');
     const relativePathToIndex = relative(dirname(inputPath), `${tocBase}/`);
 
-    const {input} = ArgvService.getConfig();
+    const {input, lang} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
@@ -51,8 +51,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
         router: {
             pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
         },
-        // TODO(vladimirfedin): CLOUDFRONT-3939
-        lang: Lang.RU,
+        lang: lang || Lang.RU,
     };
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
