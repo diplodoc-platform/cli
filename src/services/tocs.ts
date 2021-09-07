@@ -197,6 +197,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
     const files: string[] = walkSync(tocDir, {
         globs: ['**/*.*'],
         ignore: ['**/toc.yaml'],
+        directories: false,
     });
 
     files.forEach((relPath) => {
