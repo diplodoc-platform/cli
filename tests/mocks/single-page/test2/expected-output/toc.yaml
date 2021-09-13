@@ -1,7 +1,6 @@
 title: Single page
+href: index.yaml
 items:
-  - name: First
-    href: index.md
   - name: Second
     href: second.md
 base: .

@@ -1,15 +1,13 @@
-const {readFileSync} = require('fs');
-const shell = require('shelljs');
-const {resolve, join, extname} = require('path');
-const walkSync = require('walk-sync');
-const {load} = require('js-yaml');
-const isEqual = require('lodash/isEqual');
+import {readFileSync} from 'fs';
+import shell from 'shelljs';
+import {resolve, join, extname} from 'path';
+import walkSync from 'walk-sync';
+import {load} from 'js-yaml';
+import isEqual from 'lodash/isEqual';
+
 const yfmDocsPath = require.resolve('../build');
 
-function isEqualDirectories({
-    expectedOutputPath,
-    outputPath,
-}) {
+export function isEqualDirectories(expectedOutputPath: string, outputPath: string): boolean {
     let isEqualOutput = true;
 
     const filesFromExpectedOutput = walkSync(expectedOutputPath, {
@@ -23,8 +21,10 @@ function isEqualDirectories({
             const expectedContent = readFileSync(resolve(expectedOutputPath, expectedFilePath), 'utf8');
             const outputContent = readFileSync(resolve(outputPath, expectedFilePath), 'utf8');
 
-            let preparedExpectedContent = expectedContent;
-            let preparedOutputContent = outputContent;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let preparedExpectedContent: any = expectedContent;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            let preparedOutputContent: any = outputContent;
 
             if (fileExtension === '.yaml') {
                 preparedExpectedContent = load(expectedContent);
@@ -43,18 +43,21 @@ function isEqualDirectories({
     return isEqualOutput;
 }
 
-function runYfmDocs({
-    inputPath,
-    outputPath,
-}) {
+export function runYfmDocs(inputPath: string, outputPath: string): void {
     shell.rm('-rf', outputPath);
     shell.rm('-rf', `${outputPath}-html`);
 
-    shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML`);
-    shell.exec(`node ${yfmDocsPath} --input ${outputPath} --output ${outputPath}-html --allowHTML`);
+    shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet`);
+    shell.exec(`node ${yfmDocsPath} --input ${outputPath} --output ${outputPath}-html --allowHTML --quiet`);
 }
 
-function getTestPaths({testRootPath}) {
+export interface TestPaths {
+    inputPath: string;
+    outputPath: string;
+    expectedOutputPath: string;
+}
+
+export function getTestPaths(testRootPath: string): TestPaths {
     const inputPath = resolve(join(testRootPath, 'input'));
     const outputPath = resolve(join(testRootPath, 'output'));
     const expectedOutputPath = resolve(join(testRootPath, 'expected-output'));
@@ -65,9 +68,3 @@ function getTestPaths({testRootPath}) {
         expectedOutputPath,
     };
 }
-
-module.exports = {
-    isEqualDirectories,
-    runYfmDocs,
-    getTestPaths,
-};

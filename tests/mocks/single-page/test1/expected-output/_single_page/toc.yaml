@@ -1,0 +1,11 @@
+title: Single page
+items:
+  - name: First
+    href: '#_index'
+  - name: Second
+    href: '#_second'
+  - name: Third
+    href: '#_pages_third'
+base: .
+href: index.md
+singlePage: true

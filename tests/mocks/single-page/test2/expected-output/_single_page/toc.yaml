@@ -1,8 +1,6 @@
 title: Single page
 href: index.md
 items:
-  - name: First
-    href: '#_index'
   - name: Second
     href: '#_second'
 base: .
