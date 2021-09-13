@@ -1,0 +1,6 @@
+title: Single page
+href: index.yaml
+items:
+  - name: Second
+    href: second.md
+base: .
