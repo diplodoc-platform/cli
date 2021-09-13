@@ -1,0 +1,7 @@
+title: Single page
+items:
+  - name: First
+    href: index.md
+  - name: Second
+    href: second.md
+base: .
