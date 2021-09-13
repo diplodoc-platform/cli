@@ -5,7 +5,7 @@ import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
-import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utils';
+import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utilsFS';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
