@@ -1,4 +1,4 @@
-import {dirname, join, parse, resolve} from 'path';
+import {dirname, extname, join, parse, resolve} from 'path';
 import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
@@ -136,7 +136,8 @@ function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
                 const navigationPath = _normalizeHref(href);
                 navigationPaths.push(navigationPath);
 
-                if (!item.hidden) {
+                const isYamlFileExtension = extname(item.href) === '.yaml';
+                if (!item.hidden && !isYamlFileExtension) {
                     singlePageNavigationPaths.add(navigationPath);
                 }
             }
