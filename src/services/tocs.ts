@@ -163,6 +163,7 @@ function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; 
     }
 
     processItems(parsedToc.items);
+    parsedToc.href = 'index.md';
     parsedToc.singlePage = true;
 }
 
