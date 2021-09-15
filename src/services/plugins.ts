@@ -1,3 +1,5 @@
+import {LintRule, LintConfig} from '@doc-tools/transform/lib/yfmlint';
+
 import {PluginOptions, Plugin, CollectionOfPluginsFunction} from '../models';
 import {YFM_PLUGINS} from '../constants';
 
@@ -53,6 +55,22 @@ export function getHeadContent(): string {
         return requireDynamically('./head-content.js');
     } catch (e) {
         return '';
+    }
+}
+
+export function getCustomLintRules(): LintRule[] {
+    try {
+        return requireDynamically('./lint-rules');
+    } catch (e) {
+        return [];
+    }
+}
+
+export function getDefaultLintConfig(): LintConfig | undefined {
+    try {
+        return requireDynamically('./default-lint-config');
+    } catch (e) {
+        return undefined;
     }
 }
 

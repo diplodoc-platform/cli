@@ -4,6 +4,11 @@ import yaml from 'js-yaml';
 
 import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
+import {
+    default as yfmlint,
+    LintMarkdownFunctionOptions,
+    PluginOptions,
+} from '@doc-tools/transform/lib/yfmlint';
 
 import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService, PluginService} from '../services';
@@ -76,22 +81,58 @@ function YamlFileTransformer(content: string): Object {
 }
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, vars, ...options} = ArgvService.getConfig();
-    const {path} = transformOptions;
-    const resolvedPath: string = resolve(input, path);
+    const {input, vars: argVars, lintConfig, disableLint, ...options} = ArgvService.getConfig();
+    const {path: filePath} = transformOptions;
+
+    const plugins = PluginService.getPlugins();
+    const vars = {
+        ...PresetService.get(dirname(filePath)),
+        ...argVars,
+    };
+    const root = resolve(input);
+    const path: string = resolve(input, filePath);
 
     /* Relative path from folder of .md file to root of user' output folder */
-    const assetsPublicPath = relative(dirname(resolvedPath), resolve(input));
+    const assetsPublicPath = relative(dirname(path), resolve(input));
+
+    if (!disableLint) {
+        const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
+            const {input, path, sourceMap} = opts; // eslint-disable-line no-shadow
+
+            const pluginOptions: PluginOptions = {
+                ...options,
+                vars,
+                root,
+                path,
+                disableLint,
+                lintMarkdown, // Should pass the function for linting included files
+                assetsPublicPath,
+                log,
+            };
+
+            yfmlint({
+                input,
+                lintConfig,
+                pluginOptions,
+                plugins,
+                defaultLintConfig: PluginService.getDefaultLintConfig(),
+                customLintRules: PluginService.getCustomLintRules(),
+                sourceMap,
+            });
+        };
+
+        lintMarkdown({
+            input: content,
+            path,
+        });
+    }
 
     return transform(content, {
         ...options,
-        plugins: PluginService.getPlugins(),
-        vars: {
-            ...PresetService.get(dirname(path)),
-            ...vars,
-        },
-        root: resolve(input),
-        path: resolvedPath,
+        plugins,
+        vars,
+        root,
+        path,
         assetsPublicPath,
     });
 }
