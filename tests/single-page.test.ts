@@ -1,4 +1,4 @@
-import {isEqualDirectories, runYfmDocs, getTestPaths} from './utils';
+import {compareDirectories, runYfmDocs, getTestPaths} from './utils';
 
 describe('Single page', () => {
     test('Test1', () => {
@@ -7,9 +7,15 @@ describe('Single page', () => {
 
         runYfmDocs(inputPath, outputPath);
 
-        const isEqualOutput = isEqualDirectories(outputPath, expectedOutputPath);
+        const compareResult = compareDirectories(outputPath, expectedOutputPath);
 
-        expect(true).toEqual(isEqualOutput);
+        if (typeof compareResult === 'boolean') {
+            expect(true).toEqual(compareResult);
+        } else {
+            const {expectedContent, outputContent} = compareResult;
+
+            expect(expectedContent).toEqual(outputContent);
+        }
     });
 
     test('Test2', () => {
@@ -18,9 +24,15 @@ describe('Single page', () => {
 
         runYfmDocs(inputPath, outputPath);
 
-        const isEqualOutput = isEqualDirectories(outputPath, expectedOutputPath);
+        const compareResult = compareDirectories(outputPath, expectedOutputPath);
 
-        expect(true).toEqual(isEqualOutput);
+        if (typeof compareResult === 'boolean') {
+            expect(true).toEqual(compareResult);
+        } else {
+            const {expectedContent, outputContent} = compareResult;
+
+            expect(expectedContent).toEqual(outputContent);
+        }
     });
 
     test('Test3', () => {
@@ -29,8 +41,14 @@ describe('Single page', () => {
 
         runYfmDocs(inputPath, outputPath);
 
-        const isEqualOutput = isEqualDirectories(outputPath, expectedOutputPath);
+        const compareResult = compareDirectories(outputPath, expectedOutputPath);
 
-        expect(true).toEqual(isEqualOutput);
+        if (typeof compareResult === 'boolean') {
+            expect(true).toEqual(compareResult);
+        } else {
+            const {expectedContent, outputContent} = compareResult;
+
+            expect(expectedContent).toEqual(outputContent);
+        }
     });
 });

@@ -7,40 +7,51 @@ import isEqual from 'lodash/isEqual';
 
 const yfmDocsPath = require.resolve('../build');
 
-export function isEqualDirectories(expectedOutputPath: string, outputPath: string): boolean {
-    let isEqualOutput = true;
 
+function getFileContent(filePath: string) {
+    try {
+        return readFileSync(filePath, 'utf8');
+    } catch {
+        return '';
+    }
+}
+
+export type CompareResult = {
+    expectedContent: string;
+    outputContent: string;
+} | boolean;
+
+export function compareDirectories(expectedOutputPath: string, outputPath: string): CompareResult {
     const filesFromExpectedOutput = walkSync(expectedOutputPath, {
         directories: false,
         includeBasePath: false,
     });
+    let compareResult: CompareResult = true;
 
     filesFromExpectedOutput.forEach((expectedFilePath) => {
-        try {
-            const fileExtension = extname(expectedFilePath);
-            const expectedContent = readFileSync(resolve(expectedOutputPath, expectedFilePath), 'utf8');
-            const outputContent = readFileSync(resolve(outputPath, expectedFilePath), 'utf8');
+        const fileExtension = extname(expectedFilePath);
+        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
+        const outputContent = getFileContent(resolve(outputPath, expectedFilePath));
 
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let preparedExpectedContent: any = expectedContent;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let preparedOutputContent: any = outputContent;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let preparedExpectedContent: any = expectedContent;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let preparedOutputContent: any = outputContent;
 
-            if (fileExtension === '.yaml') {
-                preparedExpectedContent = load(expectedContent);
-                preparedOutputContent = load(outputContent);
-            }
+        if (fileExtension === '.yaml') {
+            preparedExpectedContent = load(expectedContent);
+            preparedOutputContent = load(outputContent);
+        }
 
-            if (!isEqual(preparedExpectedContent, preparedOutputContent)) {
-                isEqualOutput = false;
-            }
-        } catch (e) {
-            console.error(e);
-            isEqualOutput = false;
+        if (!isEqual(preparedExpectedContent, preparedOutputContent)) {
+            compareResult = {
+                expectedContent: preparedExpectedContent,
+                outputContent: preparedOutputContent,
+            };
         }
     });
 
-    return isEqualOutput;
+    return compareResult;
 }
 
 export function runYfmDocs(inputPath: string, outputPath: string): void {
