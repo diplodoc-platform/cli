@@ -89,12 +89,11 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "lint-staged"
+      "pre-commit": "lint-staged && npm run test"
     }
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
-      "npm run test",
       "eslint --fix",
       "git add"
     ]
