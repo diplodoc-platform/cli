@@ -1,4 +1,5 @@
 import {Logger} from '@doc-tools/transform/lib/log';
+import {LintConfig} from '@doc-tools/transform/lib/yfmlint';
 
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {Lang, Stage} from './constants';
@@ -29,6 +30,8 @@ interface YfmConfig {
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
     lang?: Lang;
+    disableLint: boolean;
+    lintConfig: LintConfig;
 }
 
 export interface YfmArgv extends YfmConfig {

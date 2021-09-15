@@ -3,6 +3,7 @@ import {dirname, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
+import yfmlint from '@doc-tools/transform/lib/yfmlint';
 
 import {ArgvService, PresetService, PluginService} from '../services';
 import {logger} from '../utils';
@@ -58,7 +59,13 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
+    const {
+        applyPresets,
+        resolveConditions,
+        disableLiquid,
+        lintConfig,
+        disableLint,
+    } = ArgvService.getConfig();
     const {
         vars = {},
         path,
@@ -76,7 +83,30 @@ function transformMd2Md(input: string, options: PluginOptions) {
         substitutions: applyPresets,
     });
 
-    if (typeof collectOfPlugins === 'function') {
+    let output = input, sourceMap;
+    if (!disableLiquid) {
+        const liquidResult = liquid(input, vars, path, {
+            conditions: resolveConditions,
+            substitutions: applyPresets,
+            withSourceMap: true,
+        });
+
+        output = liquidResult.output;
+        sourceMap = liquidResult.sourceMap;
+    }
+
+    if (!disableLint) {
+        yfmlint({
+            input: output,
+            defaultLintConfig: PluginService.getDefaultLintConfig(),
+            lintConfig,
+            pluginOptions: {log, path},
+            customLintRules: PluginService.getCustomLintRules(),
+            sourceMap,
+        });
+    }
+
+    if (collectOfPlugins) {
         output = collectOfPlugins(output, {
             vars,
             path,

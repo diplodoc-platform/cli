@@ -102,6 +102,8 @@
     "scripts": [
       "build/index.js",
       "build/plugins/*.js",
+      "build/lint-rules/*.js",
+      "build/default-lint-config.js",
       "build/head-content.js"
     ],
     "assets": "build/app.js"
