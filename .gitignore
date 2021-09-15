@@ -2,7 +2,7 @@ build
 input
 output
 output-html
-!test/**/input
+!tests/**/input
 
 # libraries
 npm-debug.log
