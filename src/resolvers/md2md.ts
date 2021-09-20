@@ -78,11 +78,6 @@ function transformMd2Md(input: string, options: PluginOptions) {
         singlePage,
     } = options;
 
-    let output = disableLiquid ? input : liquid(input, vars, path, {
-        conditions: resolveConditions,
-        substitutions: applyPresets,
-    });
-
     let output = input, sourceMap;
     if (!disableLiquid) {
         const liquidResult = liquid(input, vars, path, {
