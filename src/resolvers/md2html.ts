@@ -3,6 +3,7 @@ import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
 
 import transform, {Output} from '@doc-tools/transform';
+import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
 import {
     default as yfmlint,
@@ -81,7 +82,7 @@ function YamlFileTransformer(content: string): Object {
 }
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, vars: argVars, lintConfig, disableLint, ...options} = ArgvService.getConfig();
+    const {input, vars: argVars, lintConfig, disableLint, disableLiquid, ...options} = ArgvService.getConfig();
     const {path: filePath} = transformOptions;
 
     const plugins = PluginService.getPlugins();
@@ -91,6 +92,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     };
     const root = resolve(input);
     const path: string = resolve(input, filePath);
+    let preparedContent = content;
 
     /* Relative path from folder of .md file to root of user' output folder */
     const assetsPublicPath = relative(dirname(path), resolve(input));
@@ -121,18 +123,28 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
             });
         };
 
+        let sourceMap;
+        if (!disableLiquid) {
+            const liquidResult = liquid(content, vars, path, {withSourceMap: true});
+
+            preparedContent = liquidResult.output;
+            sourceMap = liquidResult.sourceMap;
+        }
+
         lintMarkdown({
-            input: content,
+            input: preparedContent,
             path,
+            sourceMap,
         });
     }
 
-    return transform(content, {
+    return transform(preparedContent, {
         ...options,
         plugins,
         vars,
         root,
         path,
         assetsPublicPath,
+        disableLiquid: true,
     });
 }
