@@ -1,7 +1,7 @@
 import {PluginOptions, Plugin, CollectionOfPluginsFunction} from '../models';
 import {YFM_PLUGINS} from '../constants';
 
-let plugins: any[];
+let plugins: Function[] | Plugin[];
 let collectionOfPlugins: CollectionOfPluginsFunction;
 
 export function setPlugins(): void {
@@ -18,7 +18,7 @@ export function getCollectOfPlugins(): CollectionOfPluginsFunction {
 }
 
 function makeCollectOfPlugins(): CollectionOfPluginsFunction {
-    const pluginsWithCollect = plugins.filter((plugin: Plugin) => {
+    const pluginsWithCollect = (plugins as Plugin[]).filter((plugin: Plugin) => {
         return typeof plugin.collect === 'function';
     });
 

@@ -117,14 +117,14 @@ function getSinglePageNavigationPaths(): Set<string> {
     return new Set(singlePageNavigationPaths);
 }
 
-function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
+function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
     function processItems(items: YfmToc[], pathToDir: string) {
         items.forEach((item) => {
             if (!parsedToc.singlePage && item.items) {
-                const preparedSubItems = item.items.map(((item: YfmToc, index: number) => {
+                const preparedSubItems = item.items.map(((yfmToc: YfmToc, index: number) => {
                     // Generate personal id for each navigation item
-                    item.id = `${item.name}-${index}-${Math.random()}`;
-                    return item;
+                    yfmToc.id = `${yfmToc.name}-${index}-${Math.random()}`;
+                    return yfmToc;
                 }));
                 processItems(preparedSubItems, pathToDir);
             }
@@ -143,7 +143,7 @@ function prepareNavigationPaths(parsedToc: YfmToc, pathToDir: string) {
         });
     }
 
-    processItems([parsedToc], pathToDir);
+    processItems([parsedToc], dirPath);
 }
 
 function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; currentPath: string}) {

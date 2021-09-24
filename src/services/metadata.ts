@@ -1,5 +1,5 @@
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {MetaDataOptions} from '../models';
+import {Metadata, MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
@@ -79,10 +79,14 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     return `${metadataBorder}${updatedMetadata}${metadataBorder}`;
 }
 
-async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileContent: string): Promise<Record<string, any>> {
+async function getUpdatedMetadata(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result: any,
+    options: MetaDataOptions,
+    fileContent: string): Promise<Metadata> {
     const {vcsConnector} = options;
 
-    const newMetadata: Record<string, any> = {
+    const newMetadata: Metadata = {
         contributors: await getContributorsMetadata(options, fileContent),
     };
 
@@ -95,7 +99,7 @@ async function getUpdatedMetadata(result: any, options: MetaDataOptions, fileCon
         ...meta,
     };
 
-    const updatedAuthor = await getAuthorMetadata(meta as Record<string, any>, vcsConnector);
+    const updatedAuthor = await getAuthorMetadata(meta as Metadata, vcsConnector);
 
     return {
         ...updatedMetadata,
@@ -119,7 +123,7 @@ async function getContributorsMetadata(options: MetaDataOptions, fileContent: st
     return JSON.stringify([]);
 }
 
-async function getAuthorMetadata(meta: Record<string, any>, vcsConnector?: VCSConnector): Promise<string | null> {
+async function getAuthorMetadata(meta: Metadata, vcsConnector?: VCSConnector): Promise<string | null> {
     if (meta.author && vcsConnector) {
         const updatedAuthor = await getAuthorDetails(vcsConnector, meta.author);
 

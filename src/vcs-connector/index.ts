@@ -10,6 +10,6 @@ export async function getVCSConnector(): Promise<VCSConnector | undefined> {
         case SourceType.GITHUB:
             return getGitHubVCSConnector();
         default:
-            return;
+            return undefined;
     }
 }

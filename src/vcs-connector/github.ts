@@ -26,7 +26,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
 
     const httpClientByToken = getHttpClientByToken();
     if (!httpClientByToken) {
-        return;
+        return undefined;
     }
 
     let addNestedContributorsForPath: NestedContributorsForPathFunction = () => { };

@@ -10,7 +10,7 @@ import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | g> {
     const {inputPath, outputPath, singlePage, metadata} = options;
     const {input, output, vars: configVars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
@@ -38,10 +38,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
 
     if (singlePage) {
         return result;
-    } else {
-        writeFileSync(outputPath, result);
-        logger.info(inputPath, PROCESSING_FINISHED);
     }
+
+    writeFileSync(outputPath, result);
+    logger.info(inputPath, PROCESSING_FINISHED);
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
@@ -59,7 +59,18 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
 
 function transformMd2Md(input: string, options: PluginOptions) {
     const {applyPresets, resolveConditions, disableLiquid} = ArgvService.getConfig();
-    const {vars = {}, path, root, destPath, destRoot, collectOfPlugins, log, copyFile, singlePage} = options;
+    const {
+        vars = {},
+        path,
+        root,
+        destPath,
+        destRoot,
+        collectOfPlugins,
+        log: pluginLog,
+        copyFile: pluginCopyFile,
+        singlePage,
+    } = options;
+
     let output = disableLiquid ? input : liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
@@ -72,8 +83,8 @@ function transformMd2Md(input: string, options: PluginOptions) {
             root,
             destPath,
             destRoot,
-            log,
-            copyFile,
+            log: pluginLog,
+            copyFile: pluginCopyFile,
             collectOfPlugins,
             singlePage,
         });
@@ -81,6 +92,6 @@ function transformMd2Md(input: string, options: PluginOptions) {
 
     return {
         result: output,
-        logs: log.get(),
+        logs: pluginLog.get(),
     };
 }

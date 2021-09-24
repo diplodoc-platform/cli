@@ -14,7 +14,12 @@ export interface FilterFilesOptions {
  * @param options
  * @return {T[]}
  */
-export function filterFiles<T extends Filter>(items: T[], itemsKey: string, vars: Record<string, string>, options?: FilterFilesOptions): T[] {
+export function filterFiles<T extends Filter>(
+    items: T[],
+    itemsKey: string,
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+): T[] {
     const {
         resolveConditions,
         removeHiddenTocItems,

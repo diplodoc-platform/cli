@@ -4,6 +4,7 @@ import {readFileSync} from 'fs';
 import {load} from 'js-yaml';
 import log from '@doc-tools/transform/lib/log';
 import {REDIRECTS_FILENAME} from './constants';
+import {ConnectorValidatorProps} from './vcs-connector/connector-models';
 
 function notEmptyStringValidator(value: string): Boolean {
     return Boolean(value) && Boolean(value?.length);
@@ -13,13 +14,7 @@ function requiredValueValidator(value: unknown): Boolean {
     return Boolean(value);
 }
 
-interface ValidatorProps {
-    errorMessage?: string;
-    validateFn?: (value: any) => Boolean;
-    defaultValue?: any;
-}
-
-const validators: Record<string, ValidatorProps> = {
+const validators: Record<string, ConnectorValidatorProps> = {
     'storageEndpoint': {
         errorMessage: 'Endpoint of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
