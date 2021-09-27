@@ -10,7 +10,7 @@ import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | g> {
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
     const {inputPath, outputPath, singlePage, metadata} = options;
     const {input, output, vars: configVars} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
