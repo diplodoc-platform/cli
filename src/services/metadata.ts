@@ -80,8 +80,7 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
 }
 
 async function getUpdatedMetadata(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    result: any,
+    meta: Metadata | undefined,
     options: MetaDataOptions,
     fileContent: string): Promise<Metadata> {
     const {vcsConnector} = options;
@@ -90,19 +89,14 @@ async function getUpdatedMetadata(
         contributors: await getContributorsMetadata(options, fileContent),
     };
 
-    if (!result.meta) {
+    if (!meta) {
         return newMetadata;
     }
-
-    const {meta} = result;
-    const updatedMetadata = {
-        ...meta,
-    };
 
     const updatedAuthor = await getAuthorMetadata(meta as Metadata, vcsConnector);
 
     return {
-        ...updatedMetadata,
+        ...meta,
         ...newMetadata,
         author: updatedAuthor,
     };

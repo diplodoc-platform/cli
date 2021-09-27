@@ -34,8 +34,8 @@ async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: strin
 
     try {
         const commit = await httpClientByToken.request('GET /repos/{owner}/{repo}/commits/{commit_sha}', {
-            owner: validatedFileds[GitHubConnectorFields.OWNER],
-            repo: validatedFileds[GitHubConnectorFields.REPO],
+            owner: validatedFileds[GitHubConnectorFields.OWNER] as string,
+            repo: validatedFileds[GitHubConnectorFields.REPO] as string,
             commit_sha: hashCommit,
         });
 

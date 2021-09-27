@@ -38,7 +38,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const {result} = transformFn(content, {path: inputPath});
 
     const updatedMetadata = metadata && metadata.isContributorsEnabled
-        ? await getUpdatedMetadata(result, metadata, content)
+        ? await getUpdatedMetadata(result?.meta, metadata, content)
         : result.meta;
 
     const props = {

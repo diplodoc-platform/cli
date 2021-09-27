@@ -48,8 +48,7 @@ function notEmptyValue(value: string | undefined): boolean {
 export function validateConnectorFields(
     sourceType: SourceType,
     fieldNames: GitHubConnectorFields[],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    repoProperties?: VCSConnectorConfig): Record<string, any> {
+    repoProperties?: VCSConnectorConfig): Record<string, unknown> {
 
     const repoValidator = connectorValidator[sourceType];
 
@@ -66,8 +65,7 @@ export function validateConnectorFields(
     }
 
     let isValidProperties = true;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const validatedFields: Record<string, any> = {};
+    const validatedFields: Record<string, unknown> = {};
 
     for (const property of fieldNames) {
         const propertyValidator = relatedRepoValidator[property];

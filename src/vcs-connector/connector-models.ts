@@ -9,8 +9,7 @@ import {
 export interface ConnectorValidatorProps {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     validateFn: (value: any) => Boolean;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    defaultValue?: any;
+    defaultValue?: unknown;
     errorMessage?: string;
     warnMessage?: string;
     relatedValidator?: Record<string, ConnectorValidatorProps>;
