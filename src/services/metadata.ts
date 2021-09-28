@@ -79,10 +79,7 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     return `${metadataBorder}${updatedMetadata}${metadataBorder}`;
 }
 
-async function getUpdatedMetadata(
-    meta: Metadata | undefined,
-    options: MetaDataOptions,
-    fileContent: string): Promise<Metadata> {
+async function getUpdatedMetadata(options: MetaDataOptions, fileContent: string, meta?: Metadata): Promise<Metadata> {
     const {vcsConnector} = options;
 
     const newMetadata: Metadata = {
