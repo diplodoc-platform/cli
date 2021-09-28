@@ -37,12 +37,20 @@ const connectorValidator: Record<string, ConnectorValidatorProps> = {
     },
 };
 
-function notEmptyObject(filed?: object): boolean {
-    return Boolean(filed && Object.getOwnPropertyNames(filed).length);
+function notEmptyObject(filed?: unknown): boolean {
+    if (typeof filed === 'object') {
+        return Boolean(filed && Object.getOwnPropertyNames(filed).length);
+    }
+
+    return false;
 }
 
-function notEmptyValue(value: string | undefined): boolean {
-    return Boolean(value);
+function notEmptyValue(value?: unknown): boolean {
+    if (typeof value === 'string') {
+        return Boolean(value);
+    }
+
+    return false;
 }
 
 export function validateConnectorFields(

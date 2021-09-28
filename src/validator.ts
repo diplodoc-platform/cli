@@ -6,8 +6,12 @@ import log from '@doc-tools/transform/lib/log';
 import {REDIRECTS_FILENAME} from './constants';
 import {ConnectorValidatorProps} from './vcs-connector/connector-models';
 
-function notEmptyStringValidator(value: string): Boolean {
-    return Boolean(value) && Boolean(value?.length);
+function notEmptyStringValidator(value: unknown): Boolean {
+    if (typeof value === 'string') {
+        return Boolean(value);
+    }
+
+    return false;
 }
 
 function requiredValueValidator(value: unknown): Boolean {

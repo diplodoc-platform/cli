@@ -7,8 +7,7 @@ import {
 
 /* eslint-disable camelcase */
 export interface ConnectorValidatorProps {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    validateFn: (value: any) => Boolean;
+    validateFn: (value: unknown) => Boolean;
     defaultValue?: unknown;
     errorMessage?: string;
     warnMessage?: string;
