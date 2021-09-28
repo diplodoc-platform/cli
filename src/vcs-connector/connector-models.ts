@@ -7,8 +7,8 @@ import {
 
 /* eslint-disable camelcase */
 export interface ConnectorValidatorProps {
-    validateFn: (value: any) => Boolean;
-    defaultValue?: any;
+    validateFn: (value: unknown) => Boolean;
+    defaultValue?: unknown;
     errorMessage?: string;
     warnMessage?: string;
     relatedValidator?: Record<string, ConnectorValidatorProps>;

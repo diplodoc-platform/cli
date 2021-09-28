@@ -6,6 +6,8 @@ import {Lang, Stage} from './constants';
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type Metadata = Record<string, any>;
 
 export type ContributorsByPathFunction = (path: string) => Promise<FileContributors>;
 export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;

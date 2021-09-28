@@ -37,18 +37,26 @@ const connectorValidator: Record<string, ConnectorValidatorProps> = {
     },
 };
 
-function notEmptyObject(filed?: object): boolean {
-    return Boolean(filed && Object.getOwnPropertyNames(filed).length);
+function notEmptyObject(filed?: unknown): boolean {
+    if (typeof filed === 'object') {
+        return Boolean(filed && Object.getOwnPropertyNames(filed).length);
+    }
+
+    return false;
 }
 
-function notEmptyValue(value: string | undefined): boolean {
-    return Boolean(value);
+function notEmptyValue(value?: unknown): boolean {
+    if (typeof value === 'string') {
+        return Boolean(value);
+    }
+
+    return false;
 }
 
 export function validateConnectorFields(
     sourceType: SourceType,
     fieldNames: GitHubConnectorFields[],
-    repoProperties?: VCSConnectorConfig): Record<string, any> {
+    repoProperties?: VCSConnectorConfig): Record<string, unknown> {
 
     const repoValidator = connectorValidator[sourceType];
 
@@ -65,7 +73,7 @@ export function validateConnectorFields(
     }
 
     let isValidProperties = true;
-    const validatedFields: Record<string, any> = {};
+    const validatedFields: Record<string, unknown> = {};
 
     for (const property of fieldNames) {
         const propertyValidator = relatedRepoValidator[property];
@@ -75,7 +83,7 @@ export function validateConnectorFields(
             continue;
         }
 
-        const propertyValue = propertyValidator.defaultValue || repoProperties[sourceType]![property];
+        const propertyValue = propertyValidator.defaultValue || repoProperties[sourceType]?.[property];
 
         if (!propertyValidator.validateFn(propertyValue)) {
             createLog(propertyValidator);

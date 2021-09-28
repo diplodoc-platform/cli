@@ -26,7 +26,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
 
     const httpClientByToken = getHttpClientByToken();
     if (!httpClientByToken) {
-        return;
+        return undefined;
     }
 
     let addNestedContributorsForPath: NestedContributorsForPathFunction = () => { };
@@ -61,8 +61,8 @@ function getHttpClientByToken(): Octokit | null {
     }
 
     const octokit = new Octokit({
-        auth: validatedFileds[GitHubConnectorFields.TOKEN],
-        baseUrl: validatedFileds[GitHubConnectorFields.ENDPOINT],
+        auth: validatedFileds[GitHubConnectorFields.TOKEN] as string,
+        baseUrl: validatedFileds[GitHubConnectorFields.ENDPOINT] as string,
     });
 
     return octokit;

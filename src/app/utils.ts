@@ -40,7 +40,7 @@ export function saveSetting<T>(name: string, value: T) {
     sessionStorage.setItem(name, String(value));
 }
 
-export function strToBoolean(str: any) {
+export function strToBoolean(str: string | boolean) {
     if (typeof str === 'boolean') {
         return str;
     }
