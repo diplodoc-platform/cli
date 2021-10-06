@@ -112,6 +112,11 @@ const _yargs = yargs
         describe: 'Remove hidden toc items',
         type: 'boolean',
     })
+    .option('disable-lint', {
+        default: false,
+        describe: 'Should whether to turn of a linter',
+        type: 'boolean',
+    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
