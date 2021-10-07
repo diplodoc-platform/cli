@@ -1,4 +1,5 @@
 import {SinglePageResult} from '../models';
+import {PluginService} from '../services';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateStaticMarkup(props: any, pathToBundle: string): string {
@@ -15,6 +16,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string): string {
                         height: 100vh;
                     }
                 </style>
+                ${PluginService.getHeadContent()}
             </head>
             <body class="yc-root yc-root_theme_light">
                 <div id="root"></div>

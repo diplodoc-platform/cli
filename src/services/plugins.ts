@@ -48,6 +48,14 @@ function getCustomPlugins(): Function[] {
     }
 }
 
+export function getHeadContent(): string {
+    try {
+        return requireDynamically('./head-content.js');
+    } catch (e) {
+        return '';
+    }
+}
+
 // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
 function requireDynamically(path: string) {
     return eval(`require('${path}');`); // Ensure Webpack does not analyze the require statement
