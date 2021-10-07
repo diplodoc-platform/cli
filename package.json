@@ -101,7 +101,8 @@
   "pkg": {
     "scripts": [
       "build/index.js",
-      "build/plugins/*.js"
+      "build/plugins/*.js",
+      "build/head-content.js"
     ],
     "assets": "build/app.js"
   },
