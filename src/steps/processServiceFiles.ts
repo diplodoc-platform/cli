@@ -17,8 +17,7 @@ type tocItem = {
 };
 
 export function processServiceFiles(): void {
-    const {input: inputFolderPath, ignore = []} = ArgvService.getConfig();
-
+    const {input: inputFolderPath, addMapFile, ignore = []} = ArgvService.getConfig();
     const getFilePathsByGlobals = (globs: string[]): string[] => {
         return walkSync(inputFolderPath, {
             directories: false,
@@ -30,7 +29,9 @@ export function processServiceFiles(): void {
 
     preparingPresetFiles(getFilePathsByGlobals);
     preparingTocFiles(getFilePathsByGlobals);
-    preparingMapFile(getFilePathsByGlobals);
+    if(addMapFile){
+        preparingMapFile(getFilePathsByGlobals);
+    }
 }
 
 function preparingPresetFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {

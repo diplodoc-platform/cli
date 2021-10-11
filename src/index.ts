@@ -90,6 +90,11 @@ const _yargs = yargs
         describe: 'Should add system section variables form presets into files meta data',
         type: 'boolean',
     })
+    .option('add-map-file', {
+        default: false,
+        describe: 'Should add all paths of documentation into file.json',
+        type: 'boolean',
+    })
     .option('quiet', {
         alias: 'q',
         default: false,
