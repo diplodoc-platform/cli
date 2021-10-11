@@ -9,7 +9,7 @@ import {convertBackSlashToSlash} from 'utils/path';
 const yfmDocsPath = require.resolve('../build');
 
 
-function getFileContent(filePath: string) {
+export function getFileContent(filePath: string) {
     try {
         return readFileSync(filePath, 'utf8');
     } catch {
@@ -57,12 +57,47 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
     return compareResult;
 }
 
-export function runYfmDocs(inputPath: string, outputPath: string): void {
-    shell.rm('-rf', outputPath);
-    shell.rm('-rf', `${outputPath}-html`);
+export function compareFiles(outputPath, expectedOutputPath) {
+    let compareResult: CompareResult = true;
+    const expectedContent = getFileContent(expectedOutputPath);
+    const outputContent = getFileContent(outputPath);
 
-    shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet`);
-    shell.exec(`node ${yfmDocsPath} --input ${outputPath} --output ${outputPath}-html --allowHTML --quiet`);
+    const convertedExpectedContent = convertBackSlashToSlash(expectedContent);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let preparedExpectedContent: any = convertedExpectedContent;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let preparedOutputContent: any = outputContent;
+
+    if (!isEqual(preparedExpectedContent, preparedOutputContent)) {
+        compareResult = {
+            expectedContent: preparedExpectedContent,
+            outputContent: preparedOutputContent,
+        };
+    }
+
+    return compareResult
+}
+
+interface RunYfmDocsArgs {
+    md2md?: boolean;
+    md2html?: boolean;
+    args?: string
+}
+
+export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = ''}: RunYfmDocsArgs = {}): void {
+    shell.rm('-rf', outputPath);
+
+    if (md2md && md2html) {
+        shell.rm('-rf', `${outputPath}-html`);
+
+        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet ${args}`);
+        shell.exec(`node ${yfmDocsPath} --input ${outputPath} --output ${outputPath}-html --allowHTML --quiet ${args}`);
+    } else if (md2md) {
+        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet ${args}`);
+    } else {
+        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --allowHTML --quiet ${args}`);
+    }
 }
 
 export interface TestPaths {
