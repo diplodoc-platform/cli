@@ -47,6 +47,7 @@ export interface YfmArgv extends YfmConfig {
     storageSecretKey: string;
     contributors: boolean;
     addSystemMeta: boolean;
+    addMapFile: boolean;
 }
 
 export interface DocPreset {

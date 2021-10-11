@@ -1,0 +1,18 @@
+{
+	"files": [
+		"en/",
+		"en/index",
+		"en/settings",
+		"en/plugins/index",
+		"en/plugins/import",
+		"en/project/index",
+		"en/project/config",
+		"ru/",
+		"ru/index",
+		"ru/settings",
+		"ru/plugins/index",
+		"ru/plugins/import",
+		"ru/project/index",
+		"ru/project/config"
+	]
+}

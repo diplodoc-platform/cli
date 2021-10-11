@@ -27,9 +27,9 @@ export function processExcludedFiles() {
         // Ignores service directories like "_includes", "_templates" and etc.
         ignore: ['**/_*/**/*'],
     });
-    const resolvedNavPath = TocService.getNavigationPaths()
+    const navigationPaths = TocService.getNavigationPaths()
         .map((filePath) => convertBackSlashToSlash(resolve(inputFolderPath, filePath)));
-    const tocSpecifiedFiles = new Set(resolvedNavPath);
+    const tocSpecifiedFiles = new Set(navigationPaths);
     const excludedFiles = allContentFiles
         .filter((filePath) => !tocSpecifiedFiles.has(filePath));
 

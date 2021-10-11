@@ -1,0 +1,7 @@
+items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    include:
+      mode: link
+      path: folder2/toc.yaml
