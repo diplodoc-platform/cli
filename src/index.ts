@@ -20,6 +20,7 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
+import {prepareMapFile} from './steps/processMapFile';
 
 const _yargs = yargs
     .option('config', {
@@ -90,6 +91,11 @@ const _yargs = yargs
         describe: 'Should add system section variables form presets into files meta data',
         type: 'boolean',
     })
+    .option('add-map-file', {
+        default: false,
+        describe: 'Should add all paths of documentation into file.json',
+        type: 'boolean',
+    })
     .option('quiet', {
         alias: 'q',
         default: false,
@@ -135,10 +141,14 @@ async function main() {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
+        const {output: outputFolderPath, outputFormat, publish, addMapFile} = ArgvService.getConfig();
 
         processServiceFiles();
         processExcludedFiles();
+
+        if (addMapFile) {
+            prepareMapFile();
+        }
 
         const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
         const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
