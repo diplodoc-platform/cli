@@ -1,17 +1,17 @@
 import {writeFileSync} from 'fs';
 import {extname, join, resolve} from 'path';
 
-import {ArgvService, TocService} from "../services";
-import {convertBackSlashToSlash} from "../utils";
+import {ArgvService, TocService} from '../services';
+import {convertBackSlashToSlash} from '../utils';
 
-export function preparingMapFile(): void {
+export function prepareMapFile(): void {
     const resolvedNavPath = TocService.getNavigationPaths()
         .map((filePath) => {
-            const map = convertBackSlashToSlash(filePath).replace(extname(filePath), '')
+            const map = convertBackSlashToSlash(filePath).replace(extname(filePath), '');
             if (map.endsWith('/index')) {
                 return map.replace('/index', '/');
             }
-            return map
+            return map;
         });
 
     const {o: outputFolderPath} = ArgvService.getConfig();
