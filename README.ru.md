@@ -90,6 +90,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Добавить переменные из секции system пресетов в мета данные файлов. По умолчанию выключено.
 
+- `--add-map-file`
+
+    Добавить создание file.json со всеми путями к документации. По умолчанию выключено.
+
 - `--version`
 
     Текущая версия.
@@ -99,7 +103,7 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
     Список команд.
 
 - `--remove-hidden-toc-items`
-    
+
     Показывает, удалять ли скрытые страницы из результата сборки. По умолчанию выключено.
 
 Подробнее `yfm-docs --help`
@@ -157,11 +161,11 @@ input-folder
 Необходимо добавить `.env` файл в рут репозитория с данными ниже:
 
 ```bash
-GITHUB_OWNER= 
+GITHUB_OWNER=
 GITHUB_REPO= # docs
 GITHUB_TOKEN= # personal access token
 GITHUB_BASE_URL= # for ex: https://api.github.com
-VCS_CONNECTOR_TYPE= # github 
+VCS_CONNECTOR_TYPE= # github
 ```
 
 или обновить .yfm файл в docs репозитории:
@@ -169,11 +173,11 @@ VCS_CONNECTOR_TYPE= # github
 ```bash
 connector:
     type:
-    github: 
-        endpoint: 
-        token: 
-        owner: 
-        repo: 
+    github:
+        endpoint:
+        token:
+        owner:
+        repo:
 ```
 
 ### Установка

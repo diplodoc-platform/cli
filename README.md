@@ -71,9 +71,9 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 - `--resolve-conditions`
 
     Shows whether to apply conditions when converting md2md.
-    
+
 - `--disable-liquid`
-    
+
     Indicates whether to disable the use of the template engine
 
 - `--ignore-stage`
@@ -92,6 +92,10 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 
     Should add system section variables from presets to file meta data. Disabled by default.
 
+- `--add-map-file`
+
+    Should add all paths of documentation into file.json. Disabled by default.
+
 - `--version`
 
     Current version.
@@ -99,9 +103,9 @@ yfm -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 - `--help`
 
     List of commands.
-    
+
 - `--remove-hidden-toc-items`
-    
+
     Should whether to remove hidden pages from the build result. Disabled by default.
 
 Learn more `yfm-docs --help`
@@ -161,23 +165,23 @@ input-folder
 You need to add `.env` file into repo root with data below:
 
 ```bash
-GITHUB_OWNER= 
+GITHUB_OWNER=
 GITHUB_REPO= # docs
 GITHUB_TOKEN= # personal access token
 GITHUB_BASE_URL= # for ex: https://api.github.com
-VCS_CONNECTOR_TYPE= # github 
+VCS_CONNECTOR_TYPE= # github
 ```
 
-or you can update .yfm file into docs repo 
+or you can update .yfm file into docs repo
 
 ```bash
 connector:
     type:
-    github: 
-        endpoint: 
-        token: 
-        owner: 
-        repo: 
+    github:
+        endpoint:
+        token:
+        owner:
+        repo:
 ```
 
 ### Installation
