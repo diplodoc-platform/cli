@@ -20,6 +20,7 @@ import {
 } from './steps';
 import {ArgvService} from './services';
 import {argvValidator} from './validator';
+import {preparingMapFile} from "./steps/processMapFile";
 
 const _yargs = yargs
     .option('config', {
@@ -140,7 +141,7 @@ async function main() {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        const {output: outputFolderPath, outputFormat, publish} = ArgvService.getConfig();
+        const {output: outputFolderPath, outputFormat, publish, addMapFile} = ArgvService.getConfig();
 
         processServiceFiles();
         processExcludedFiles();
@@ -169,6 +170,10 @@ async function main() {
 
         // Copy all generated files to user' output folder
         shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+
+        if(addMapFile){
+            preparingMapFile();
+        }
 
         if (publish) {
             publishFilesToS3();
