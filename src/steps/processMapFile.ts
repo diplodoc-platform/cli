@@ -8,8 +8,8 @@ export function preparingMapFile(): void {
     const resolvedNavPath = TocService.getNavigationPaths()
         .map((filePath) => {
             const map = convertBackSlashToSlash(filePath).replace(extname(filePath), '')
-            if (map.endsWith('index')) {
-                return map.replace('index', '');
+            if (map.endsWith('/index')) {
+                return map.replace('/index', '/');
             }
             return map
         });
