@@ -162,7 +162,7 @@ async function main() {
                 processAssets(outputBundlePath);
                 break;
             case 'md': {
-                shell.cp('-r', resolve(pathToConfig), userOutputFolder);
+                shell.cp('-r', resolve(pathToConfig), tmpOutputFolder);
 
                 try {
                     shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
@@ -173,7 +173,7 @@ async function main() {
         }
 
         // Copy all generated files to user' output folder
-        shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+        shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
 
         if (publish) {
             publishFilesToS3();
