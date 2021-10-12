@@ -162,6 +162,7 @@ async function main() {
                 processAssets(outputBundlePath);
                 break;
             case 'md': {
+                shell.cp('-r', resolve(pathToConfig), outputFolderPath);
                 shell.cp('-r', resolve(pathToConfig), userOutputFolder);
 
                 try {
