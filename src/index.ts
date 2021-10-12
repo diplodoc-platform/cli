@@ -146,6 +146,10 @@ async function main() {
         processServiceFiles();
         processExcludedFiles();
 
+        if (addMapFile) {
+            prepareMapFile();
+        }
+
         const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
         const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
         const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
@@ -170,10 +174,6 @@ async function main() {
 
         // Copy all generated files to user' output folder
         shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
-
-        if (addMapFile) {
-            prepareMapFile();
-        }
 
         if (publish) {
             publishFilesToS3();

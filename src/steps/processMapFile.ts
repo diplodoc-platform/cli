@@ -1,5 +1,5 @@
 import {writeFileSync} from 'fs';
-import {extname, join, resolve} from 'path';
+import {extname, join} from 'path';
 
 import {ArgvService, TocService} from '../services';
 import {convertBackSlashToSlash} from '../utils';
@@ -14,10 +14,9 @@ export function prepareMapFile(): void {
             return map;
         });
 
-    const {o: outputFolderPath} = ArgvService.getConfig();
-    const outputPath = resolve(outputFolderPath);
+    const {output: outputFolderPath} = ArgvService.getConfig();
     const filesMapBuffer = Buffer.from(JSON.stringify(resolvedNavPath, null, '\t'), 'utf8');
-    const mapFile = join(outputPath, 'files.json');
+    const mapFile = join(outputFolderPath, 'files.json');
 
     writeFileSync(mapFile, filesMapBuffer);
 }
