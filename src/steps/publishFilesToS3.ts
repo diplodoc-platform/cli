@@ -2,7 +2,7 @@ import {readFileSync} from 'fs';
 import walkSync from 'walk-sync';
 import {resolve, join} from 'path';
 import S3 from 'aws-sdk/clients/s3';
-import mime from 'mime-types';
+import mime from 'mime';
 
 import {ArgvService} from '../services';
 import {convertBackSlashToSlash, logger} from '../utils';
@@ -31,8 +31,11 @@ export function publishFilesToS3(): void {
     });
 
     for (const pathToFile of filesToPublish) {
-        const mimeType = mime.lookup(pathToFile);
+        mime.define({
+            'text/plain': ['yfm'],
+        }, true);
 
+        const mimeType = mime.getType(pathToFile);
         const params: S3.Types.PutObjectRequest = {
             ContentType: mimeType ? mimeType : undefined,
             Bucket: bucket,
