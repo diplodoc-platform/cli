@@ -13,6 +13,7 @@ type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
 
 export function processServiceFiles(): void {
     const {input: inputFolderPath, ignore = []} = ArgvService.getConfig();
+
     const getFilePathsByGlobals = (globs: string[]): string[] => {
         return walkSync(inputFolderPath, {
             directories: false,
@@ -81,6 +82,7 @@ function saveFilteredPresets(path: string, parsedPreset: DocPreset): void {
 function preparingTocFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {
     try {
         const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
+
         for (const path of tocFilePaths) {
             logger.proc(path);
 
@@ -91,5 +93,3 @@ function preparingTocFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction)
         throw error;
     }
 }
-
-
