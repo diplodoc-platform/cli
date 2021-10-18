@@ -45,6 +45,11 @@ export enum Platforms {
     LINUX = 'linux',
 }
 
+export enum IncludeModes {
+    MERGE = 'merge',
+    LINK = 'link'
+}
+
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
 
 export const YFM_PLUGINS = [

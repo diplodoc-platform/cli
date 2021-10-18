@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {resolve, relative} from 'path';
 import walkSync from 'walk-sync';
 import shell from 'shelljs';
 
@@ -12,6 +12,7 @@ import {convertBackSlashToSlash} from '../utils';
 export function processExcludedFiles() {
     const {
         input: inputFolderPath,
+        output: outputFolderPath,
         ignore,
     } = ArgvService.getConfig();
 
@@ -33,4 +34,14 @@ export function processExcludedFiles() {
         .filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
     shell.rm('-f', excludedFiles);
+
+    const includedTocPaths = TocService.getIncludedTocPaths()
+        .map((filePath) => {
+            const relativeTocPath = relative(inputFolderPath, filePath);
+            const destTocPath = resolve(outputFolderPath, relativeTocPath);
+
+            return convertBackSlashToSlash(destTocPath);
+        });
+
+    shell.rm('-f', includedTocPaths);
 }

@@ -1,0 +1,12 @@
+items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    items:
+      - name: A1
+        href: folder1/a1.md
+      - name: folder1
+        items:
+          - name: A1
+            href: folder1/folder2/a1.md
+base: .
