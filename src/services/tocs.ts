@@ -1,4 +1,4 @@
-import {dirname, extname, join, parse, resolve} from 'path';
+import {dirname, extname, join, parse, resolve, relative} from 'path';
 import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
@@ -10,7 +10,7 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
-import {Stage, SINGLE_PAGE_FOLDER} from '../constants';
+import {Stage, SINGLE_PAGE_FOLDER, IncludeModes} from '../constants';
 import {isExternalHref} from '../utils';
 import {filterFiles} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
@@ -18,6 +18,7 @@ import {cloneDeep as _cloneDeep} from 'lodash';
 const storage: Map<string, YfmToc> = new Map();
 const navigationPaths: string[] = [];
 const singlePageNavigationPaths: Set<string> = new Set();
+const includedTocPaths: Set<string> = new Set();
 
 function add(path: string) {
     const {
@@ -117,6 +118,10 @@ function getSinglePageNavigationPaths(): Set<string> {
     return new Set(singlePageNavigationPaths);
 }
 
+function getIncludedTocPaths(): string[] {
+    return [...includedTocPaths];
+}
+
 function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
     function processItems(items: YfmToc[], pathToDir: string) {
         items.forEach((item) => {
@@ -212,6 +217,31 @@ function _copyTocDir(tocPath: string, destDir: string) {
 }
 
 /**
+ * Make hrefs relative to the main toc in the included toc.
+ * @param includedToc
+ * @param includeTocDir
+ * @param tocDir
+ * @return
+ * @private
+ */
+function _replaceIncludesHrefs(includedToc: YfmToc, includeTocDir: string, tocDir: string) {
+    if (includedToc.items) {
+        includedToc.items.forEach((item) => {
+            if (item.href) {
+                item.href = relative(tocDir, resolve(includeTocDir, item.href));
+            }
+
+            _replaceIncludesHrefs(item, includeTocDir, tocDir);
+        });
+    }
+
+    if (includedToc.include) {
+        const {path} = includedToc.include;
+        includedToc.include.path = relative(tocDir, resolve(includeTocDir, path));
+    }
+}
+
+/**
  * Liquid substitutions in toc file.
  * @param input
  * @param vars
@@ -249,8 +279,10 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
         }
 
         if (item.include) {
-            const {path} = item.include;
-            const includeTocPath = resolve(sourcesDir, path);
+            const {path, mode = IncludeModes.MERGE} = item.include;
+            const includeTocPath = mode === IncludeModes.MERGE
+                ? resolve(sourcesDir, path)
+                : resolve(tocDir, path);
 
             try {
                 const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
@@ -260,7 +292,15 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                     return acc;
                 }
 
-                _copyTocDir(includeTocPath, tocDir);
+                if (mode === IncludeModes.MERGE) {
+                    _copyTocDir(includeTocPath, tocDir);
+                } else if (mode === IncludeModes.LINK) {
+                    _replaceIncludesHrefs(includeToc, dirname(includeTocPath), tocDir);
+                }
+
+                /* Save the path to exclude toc from the output directory in the next step */
+                includedTocPaths.add(includeTocPath);
+
                 item.items = (item.items || []).concat(includeToc.items);
             } catch (err) {
                 log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
@@ -302,4 +342,5 @@ export default {
     getNavigationPaths,
     getSinglePageNavigationPaths,
     getTocDir,
+    getIncludedTocPaths,
 };
