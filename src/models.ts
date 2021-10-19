@@ -1,7 +1,7 @@
 import {Logger} from '@doc-tools/transform/lib/log';
 
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
-import {Lang, Stage, IncludeModes} from './constants';
+import {Lang, Stage, IncludeMode} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
@@ -66,7 +66,7 @@ export interface YfmToc extends Filter {
 export interface YfmTocInclude {
     repo: string;
     path: string;
-    mode?: IncludeModes;
+    mode?: IncludeMode;
 }
 
 export interface LeadingPage {

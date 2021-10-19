@@ -10,7 +10,7 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
-import {Stage, SINGLE_PAGE_FOLDER, IncludeModes} from '../constants';
+import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
 import {isExternalHref} from '../utils';
 import {filterFiles} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
@@ -279,8 +279,8 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
         }
 
         if (item.include) {
-            const {path, mode = IncludeModes.MERGE} = item.include;
-            const includeTocPath = mode === IncludeModes.MERGE
+            const {path, mode = IncludeMode.MERGE} = item.include;
+            const includeTocPath = mode === IncludeMode.MERGE
                 ? resolve(sourcesDir, path)
                 : resolve(tocDir, path);
 
@@ -292,9 +292,9 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                     return acc;
                 }
 
-                if (mode === IncludeModes.MERGE) {
+                if (mode === IncludeMode.MERGE) {
                     _copyTocDir(includeTocPath, tocDir);
-                } else if (mode === IncludeModes.LINK) {
+                } else if (mode === IncludeMode.LINK) {
                     _replaceIncludesHrefs(includeToc, dirname(includeTocPath), tocDir);
                 }
 
