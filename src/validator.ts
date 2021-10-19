@@ -83,7 +83,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         Object.assign(argv, load(content) || {});
     } catch (error) {
         if (error.name === 'YAMLException') {
-            log.error(`Error to parse .yfm: ${error.message}`);
+            log.error(`Error to parse ${YFM_CONFIG_FILENAME}: ${error.message}`);
         }
     }
 
@@ -95,7 +95,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         lintConfig = load(content) || {};
     } catch (error) {
         if (error.name === 'YAMLException') {
-            log.error(`Error to parse yfmlint.yaml: ${error.message}`);
+            log.error(`Error to parse ${LINT_CONFIG_FILENAME}: ${error.message}`);
         }
     } finally {
         const preparedLintConfig = merge(lintConfig, {
@@ -115,7 +115,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         validateRedirects(redirects as RedirectsConfig, pathToRedirects);
     } catch (error) {
         if (error.name === 'YAMLException') {
-            log.error(`Error to parse redirects.yaml: ${error.message}`);
+            log.error(`Error to parse ${REDIRECTS_FILENAME}: ${error.message}`);
         }
 
         if (error.code !== 'ENOENT') {
