@@ -194,7 +194,7 @@ ignore:
 
 ## Linter configuration file <a name="lint-config"></a>
 
-A project may contain a linter configuration file. By default, a `yfmlint.yaml` file is used in the root of the project.
+A project may contain a linter configuration file. By default, a `.yfmlint` file is used in the root of the project.
 
 The default config looks like this:
 
@@ -258,7 +258,7 @@ Rules with the prefix `MD` are provided by the library [markdownlint](https://gi
 A detailed description of all the rules with `MD` prefix can be found [here](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md).
 A detailed description of all the rules with `YFM` prefix can be found [here](https://github.com/yandex-cloud/yfm-transform/blob/master/lib/yfmlint/README.md).
 
-In the `yfmlint.yaml` config in the `log-levels` section, you can override the logging level separately for each rule: `error`, `warn`, `disabled`.
+In the `.yfmlint` config in the `log-levels` section, you can override the logging level separately for each rule: `error`, `warn`, `disabled`.
 
 In the root section of the config, you can configure the values passed to the rules. For example:
 
