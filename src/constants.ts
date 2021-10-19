@@ -45,7 +45,7 @@ export enum Platforms {
     LINUX = 'linux',
 }
 
-export enum IncludeModes {
+export enum IncludeMode {
     MERGE = 'merge',
     LINK = 'link'
 }
