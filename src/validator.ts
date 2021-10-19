@@ -4,7 +4,7 @@ import {readFileSync} from 'fs';
 import {load} from 'js-yaml';
 import merge from 'lodash/merge';
 import log from '@doc-tools/transform/lib/log';
-import {REDIRECTS_FILENAME, LINT_CONFIG_FILENAME} from './constants';
+import {REDIRECTS_FILENAME, LINT_CONFIG_FILENAME, YFM_CONFIG_FILENAME} from './constants';
 import {ConnectorValidatorProps} from './vcs-connector/connector-models';
 
 function notEmptyStringValidator(value: unknown): Boolean {
@@ -78,7 +78,7 @@ function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: st
 export function argvValidator(argv: Arguments<Object>): Boolean {
     try {
         // Combine passed argv and properties from configuration file.
-        const pathToConfig = argv.config ? String(argv.config) : join(String(argv.input), '.yfm');
+        const pathToConfig = argv.config ? String(argv.config) : join(String(argv.input), YFM_CONFIG_FILENAME);
         const content = readFileSync(resolve(pathToConfig), 'utf8');
         Object.assign(argv, load(content) || {});
     } catch (error) {
