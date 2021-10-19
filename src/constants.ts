@@ -25,6 +25,7 @@ export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
 export const SINGLE_PAGE_FOLDER = '_single_page';
+export const YFM_CONFIG_FILENAME = '.yfm';
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 export const LINT_CONFIG_FILENAME = 'yfmlint.yaml';
 

@@ -9,6 +9,7 @@ import {
     MAIN_TIMER_ID,
     REDIRECTS_FILENAME,
     LINT_CONFIG_FILENAME,
+    YFM_CONFIG_FILENAME,
     Stage,
 } from './constants';
 import {
@@ -147,7 +148,7 @@ async function main() {
         processExcludedFiles();
 
         const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
-        const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, '.yfm');
+        const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, YFM_CONFIG_FILENAME);
         const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
         const pathToLintConfig = join(_yargs.argv.input, LINT_CONFIG_FILENAME);
 
