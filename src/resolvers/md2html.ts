@@ -138,6 +138,8 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         });
     }
 
+    const isLiquided = !disableLint && !disableLiquid;
+
     return transform(preparedContent, {
         ...options,
         plugins,
@@ -145,6 +147,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         root,
         path,
         assetsPublicPath,
-        disableLiquid: true,
+        isLiquided,
     });
 }
