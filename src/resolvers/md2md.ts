@@ -84,6 +84,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             conditions: resolveConditions,
             substitutions: applyPresets,
             withSourceMap: true,
+            keepNotVar: true,
         });
 
         output = liquidResult.output;
