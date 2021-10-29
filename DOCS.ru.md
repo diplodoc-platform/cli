@@ -291,7 +291,7 @@ YFM001:
 MD013:
   line_length: 100 # default: 80 characters
   code_blocks: false # exclude this rule for code_blocks
-  tables: fales # exclude this rule for tables
+  tables: false # exclude this rule for tables
   headings: false # exclude this rule for headings
 
 # Inline HTML
