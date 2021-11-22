@@ -272,6 +272,8 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
  */
 function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>) {
     return items.reduce((acc, item) => {
+        let includedInlineItems: YfmToc[] | null = null;
+
         if (item.name) {
             const tocPath = join(tocDir, 'toc.yaml');
 
@@ -301,7 +303,11 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                 /* Save the path to exclude toc from the output directory in the next step */
                 includedTocPaths.add(includeTocPath);
 
-                item.items = (item.items || []).concat(includeToc.items);
+                if (item.name) {
+                    item.items = (item.items || []).concat(includeToc.items);
+                } else {
+                    includedInlineItems = includeToc.items;
+                }
             } catch (err) {
                 log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
                 return acc;
@@ -314,7 +320,11 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             item.items = _replaceIncludes(item.items, tocDir, sourcesDir, vars);
         }
 
-        return acc.concat(item);
+        if (includedInlineItems) {
+            return acc.concat(includedInlineItems);
+        } else {
+            return acc.concat(item);
+        }
     }, [] as YfmToc[]);
 }
 
