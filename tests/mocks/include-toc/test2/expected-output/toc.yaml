@@ -1,0 +1,10 @@
+items:
+  - name: Name1
+    href: file1.md
+  - name: NameA
+    href: folder/fileA.md
+  - name: NameB
+    href: folder/fileB.md
+  - name: NameX
+    href: fileX.md
+base: .
