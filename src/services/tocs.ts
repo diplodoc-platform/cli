@@ -270,7 +270,7 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
  * @return
  * @private
  */
-function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>) {
+function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>): YfmToc[] {
     return items.reduce((acc, item) => {
         let includedInlineItems: YfmToc[] | null = null;
 
@@ -316,7 +316,9 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             }
         }
 
-        if (item.items) {
+        if (includedInlineItems) {
+            includedInlineItems = _replaceIncludes(includedInlineItems as YfmToc[], tocDir, sourcesDir, vars);
+        } else if (item.items) {
             item.items = _replaceIncludes(item.items, tocDir, sourcesDir, vars);
         }
 
