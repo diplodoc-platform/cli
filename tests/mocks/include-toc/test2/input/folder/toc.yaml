@@ -3,3 +3,4 @@ items:
     href: fileA.md
   - name: NameB
     href: fileB.md
+  - include: {path: folder/folder/toc.yaml }
