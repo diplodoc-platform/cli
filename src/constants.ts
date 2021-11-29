@@ -48,6 +48,7 @@ export enum Platforms {
 }
 
 export enum IncludeMode {
+    ROOT_MERGE = 'root_merge',
     MERGE = 'merge',
     LINK = 'link'
 }

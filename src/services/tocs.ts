@@ -218,27 +218,29 @@ function _copyTocDir(tocPath: string, destDir: string) {
 
 /**
  * Make hrefs relative to the main toc in the included toc.
- * @param includedToc
+ * @param items
  * @param includeTocDir
  * @param tocDir
  * @return
  * @private
  */
-function _replaceIncludesHrefs(includedToc: YfmToc, includeTocDir: string, tocDir: string) {
-    if (includedToc.items) {
-        includedToc.items.forEach((item) => {
-            if (item.href) {
-                item.href = relative(tocDir, resolve(includeTocDir, item.href));
-            }
+function _replaceIncludesHrefs(items: YfmToc[], includeTocDir: string, tocDir: string): YfmToc[] {
+    return items.reduce((acc, item) => {
+        if (item.href) {
+            item.href = relative(tocDir, resolve(includeTocDir, item.href));
+        }
 
-            _replaceIncludesHrefs(item, includeTocDir, tocDir);
-        });
-    }
+        if (item.items) {
+            item.items = _replaceIncludesHrefs(item.items, includeTocDir, tocDir);
+        }
 
-    if (includedToc.include) {
-        const {path} = includedToc.include;
-        includedToc.include.path = relative(tocDir, resolve(includeTocDir, path));
-    }
+        if (item.include) {
+            const {path} = item.include;
+            item.include.path = relative(tocDir, resolve(includeTocDir, path));
+        }
+
+        return acc.concat(item);
+    }, [] as YfmToc[]);
 }
 
 /**
@@ -281,10 +283,11 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
         }
 
         if (item.include) {
-            const {path, mode = IncludeMode.MERGE} = item.include;
-            const includeTocPath = mode === IncludeMode.MERGE
+            const {path, mode = IncludeMode.ROOT_MERGE} = item.include;
+            const includeTocPath = mode === IncludeMode.ROOT_MERGE
                 ? resolve(sourcesDir, path)
                 : resolve(tocDir, path);
+            const includeTocDir = dirname(includeTocPath);
 
             try {
                 const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
@@ -294,19 +297,27 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                     return acc;
                 }
 
-                if (mode === IncludeMode.MERGE) {
+                if (mode === IncludeMode.MERGE || mode === IncludeMode.ROOT_MERGE) {
                     _copyTocDir(includeTocPath, tocDir);
-                } else if (mode === IncludeMode.LINK) {
-                    _replaceIncludesHrefs(includeToc, dirname(includeTocPath), tocDir);
                 }
-
                 /* Save the path to exclude toc from the output directory in the next step */
                 includedTocPaths.add(includeTocPath);
 
+                let includedTocItems = (item.items || []).concat(includeToc.items);
+
+                /* Resolve nested toc inclusions */
+                const baseTocDir = mode === IncludeMode.LINK ? includeTocDir : tocDir;
+                includedTocItems = _replaceIncludes(includedTocItems, baseTocDir, sourcesDir, vars);
+
+                /* Make hrefs relative to the main toc */
+                if (mode === IncludeMode.LINK) {
+                    includedTocItems = _replaceIncludesHrefs(includedTocItems, includeTocDir, tocDir);
+                }
+
                 if (item.name) {
-                    item.items = (item.items || []).concat(includeToc.items);
+                    item.items = includedTocItems;
                 } else {
-                    includedInlineItems = includeToc.items;
+                    includedInlineItems = includedTocItems;
                 }
             } catch (err) {
                 log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
@@ -314,10 +325,6 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             } finally {
                 delete item.include;
             }
-        }
-
-        if (includedInlineItems) {
-            includedInlineItems = _replaceIncludes(includedInlineItems as YfmToc[], tocDir, sourcesDir, vars);
         } else if (item.items) {
             item.items = _replaceIncludes(item.items, tocDir, sourcesDir, vars);
         }
