@@ -111,9 +111,10 @@ export interface Contributors {
 }
 
 export interface FileData {
-    tmpInputFilePath: string;
-    inputFolderPathLength: number;
-    fileContent: string;
+    tmpInputFilePath?: string;
+    inputFolderPathLength?: number;
+    fileContent?: string;
+    sourcePath?: string;
 }
 
 export interface MetaDataOptions {
@@ -121,6 +122,7 @@ export interface MetaDataOptions {
     isContributorsEnabled?: boolean;
     vcsConnector?: VCSConnector;
     addSystemMeta?: boolean;
+    addSourcePath?: boolean;
 }
 
 export interface PluginOptions {

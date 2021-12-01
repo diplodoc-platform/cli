@@ -1,3 +1,6 @@
+import {safeLoadFront} from 'yaml-front-matter';
+import {dump} from 'js-yaml';
+
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {Metadata, MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
@@ -9,48 +12,74 @@ async function getContentWithUpdatedMetadata(
     options?: MetaDataOptions,
     systemVars?: unknown,
 ): Promise<string> {
-    if (!options?.isContributorsEnabled && (!options?.addSystemMeta || !systemVars)) {
+    let result;
+
+    result = getContentWithUpdatedStaticMetadata(fileContent, options, systemVars);
+    result = await getContentWithUpdatedDynamicMetadata(result, options);
+
+    return result;
+}
+
+function getContentWithUpdatedStaticMetadata(
+    fileContent: string,
+    options?: MetaDataOptions,
+    systemVars?: unknown,
+): string {
+    if (!options || (!options?.addSystemMeta || !systemVars) && !options?.addSourcePath) {
         return fileContent;
     }
-    // Search by format:
-    // ---
-    // metaName1: metaValue1
-    // metaName2: meta value2
-    // incorrectMetadata
-    // ---
-    const regexpMetadata = '(?<=-{3}\\r?\\n)((.*\\r?\\n)*)(?=-{3}\\r?\\n)';
-    // Search by format:
-    // ---
-    // main content 123
-    const regexpFileContent = '---((.*[\r?\n]*)*)';
 
-    const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
-    const matches = regexpParseFileContent.exec(fileContent);
+    const matches = matchMetadata(fileContent);
+    const newMetadatas: string[] = [];
 
-    const newMetadatas = [];
+    const {addSystemMeta, addSourcePath, fileData} = options;
 
-    if (options) {
-        const {isContributorsEnabled, addSystemMeta} = options;
-
-        if (addSystemMeta && systemVars && isObject(systemVars)) {
-            newMetadatas.push(getSystemVarsMetadataString(systemVars));
-        }
-
-        if (isContributorsEnabled) {
-            newMetadatas.push(await getContributorsMetadataString(options, fileContent));
-        }
-
-        if (matches && matches.length > 0) {
-            const [, fileMetadata, , fileMainContent] = matches;
-            let updatedDefaultMetadata = '';
-
-            updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
-
-            return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
-        }
+    if (addSystemMeta && systemVars && isObject(systemVars)) {
+        newMetadatas.push(getSystemVarsMetadataString(systemVars));
     }
 
-    return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
+    if (addSourcePath && fileData.sourcePath) {
+        const sourcePathMetadataString = `sourcePath: ${fileData.sourcePath}`;
+        newMetadatas.push(sourcePathMetadataString);
+    }
+
+    const {fileMetadata, fileMainContent} = matches;
+
+    return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+}
+
+async function getContentWithUpdatedDynamicMetadata(
+    fileContent: string,
+    options?: MetaDataOptions,
+): Promise<string> {
+    if (!options || !options?.isContributorsEnabled) {
+        return fileContent;
+    }
+
+    const matches = matchMetadata(fileContent);
+    const newMetadatas: string[] = [];
+
+    const {isContributorsEnabled} = options;
+
+    if (isContributorsEnabled) {
+        newMetadatas.push(await getContributorsMetadataString(options, fileContent));
+    }
+
+    const {fileMetadata, fileMainContent} = matches;
+
+    const updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
+
+    return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+}
+
+function matchMetadata(fileContent: string) {
+    const {__content: fileMainContent, ...metadata} = safeLoadFront(fileContent);
+    const fileMetadata = Object.keys(metadata).length ? dump(metadata) : '';
+
+    return {
+        fileMainContent,
+        fileMetadata,
+    };
 }
 
 async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string> {
@@ -74,7 +103,9 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     const metadataBorder = `---${metadataСarriage}`;
 
     const newMetadata = newMetadatas.join(metadataСarriage);
-    const updatedMetadata = `${defaultMetadata}${metadataСarriage}${newMetadata}${metadataСarriage}`;
+    const preparedDefaultMetadata = defaultMetadata.trimRight();
+    const defaultMetadataСarriage = preparedDefaultMetadata ? metadataСarriage : '';
+    const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}${metadataСarriage}`;
 
     return `${metadataBorder}${updatedMetadata}${metadataBorder}`;
 }
@@ -130,5 +161,6 @@ function getSystemVarsMetadataString(systemVars: object) {
 
 export {
     getContentWithUpdatedMetadata,
+    getContentWithUpdatedStaticMetadata,
     getUpdatedMetadata,
 };

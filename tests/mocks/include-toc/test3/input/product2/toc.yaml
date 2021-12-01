@@ -1,0 +1,10 @@
+title: Product 2 title
+items:
+- name: P2 Article
+  href: p2.md
+- name: Overlay1
+  include: { mode: link, path: overlay1/toc.yaml }
+- name: Overlay 2
+  include: { mode: link, path: overlay2/toc.yaml }
+- name: Overlay 3
+  include: { mode: link, path: overlay3/toc.yaml }

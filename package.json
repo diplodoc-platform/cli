@@ -61,6 +61,7 @@
     "@types/react": "^16.9.23",
     "@types/react-dom": "^16.9.5",
     "@types/shelljs": "^0.8.7",
+    "@types/yaml-front-matter": "^4.1.0",
     "@types/yargs": "^15.0.4",
     "@typescript-eslint/eslint-plugin": "^2.27.0",
     "@typescript-eslint/parser": "^2.29.0",
@@ -85,7 +86,8 @@
     "ts-jest": "^27.0.5",
     "typescript": "^3.9.2",
     "webpack": "^4.42.1",
-    "webpack-cli": "^3.3.11"
+    "webpack-cli": "^3.3.11",
+    "yaml-front-matter": "^4.1.1"
   },
   "husky": {
     "hooks": {

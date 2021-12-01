@@ -9,6 +9,7 @@ import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utilsFS';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
+import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
 import {isExternalHref} from '../utils';
@@ -200,6 +201,8 @@ function _normalizeHref(href: string): string {
  * @private
  */
 function _copyTocDir(tocPath: string, destDir: string) {
+    const {input: inputFolderPath} = ArgvService.getConfig();
+
     const {dir: tocDir} = parse(tocPath);
     const files: string[] = walkSync(tocDir, {
         globs: ['**/*.*'],
@@ -210,9 +213,24 @@ function _copyTocDir(tocPath: string, destDir: string) {
     files.forEach((relPath) => {
         const from = resolve(tocDir, relPath);
         const to = resolve(destDir, relPath);
+        const fileExtension = extname(relPath);
+        const isMdFile = fileExtension === '.md';
 
         shell.mkdir('-p', parse(to).dir);
-        copyFileSync(from, to);
+
+        if (isMdFile) {
+            const fileContent = readFileSync(from, 'utf8');
+            const sourcePath = relative(inputFolderPath, from);
+            const fileData = {sourcePath};
+            const updatedFileContent = getContentWithUpdatedStaticMetadata(fileContent, {
+                fileData,
+                addSourcePath: true,
+            });
+
+            writeFileSync(to, updatedFileContent);
+        } else {
+            copyFileSync(from, to);
+        }
     });
 }
 
@@ -320,7 +338,9 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                     includedInlineItems = includedTocItems;
                 }
             } catch (err) {
-                log.error(`Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`);
+                const message = `Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`;
+                console.log(message, err);
+                log.error(message);
                 return acc;
             } finally {
                 delete item.include;
