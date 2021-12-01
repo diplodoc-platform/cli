@@ -1,4 +1,4 @@
-import {dirname} from 'path';
+import {dirname, normalize} from 'path';
 
 import {DocPreset, YfmPreset} from '../models';
 
@@ -10,13 +10,13 @@ function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
         ...parsedPreset[varsPreset] || {},
     };
 
-    const key = dirname(path);
+    const key = dirname(normalize(path));
     presetStorage.set(key, combinedValues);
 }
 
 function get(path: string): YfmPreset {
     let combinedValues: YfmPreset = {};
-    let localPath = path;
+    let localPath = normalize(path);
 
     while (localPath !== '.') {
         const presetValues: YfmPreset = presetStorage.get(localPath) || {};
