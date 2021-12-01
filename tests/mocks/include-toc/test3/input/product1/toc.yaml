@@ -1,0 +1,3 @@
+title: Product 1 title
+items:
+- include: { mode: merge, path: core/toc_m.yaml }

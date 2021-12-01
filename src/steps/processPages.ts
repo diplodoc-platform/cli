@@ -175,8 +175,9 @@ async function preparingPagesByOutputFormat(
                 return;
         }
     } catch (e) {
-        console.log(e);
-        log.error(` No such file or has no access to ${bold(resolvedPathToFile)}`);
+        const message = `No such file or has no access to ${bold(resolvedPathToFile)}`;
+        console.log(message, e);
+        log.error(message);
     }
 }
 

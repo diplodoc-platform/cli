@@ -1,0 +1,2 @@
+items:
+- include: { mode: merge, path: product/toc_p.yaml }

@@ -1,0 +1,17 @@
+title: Product 2 title
+items:
+  - name: P2 Article
+    href: p2.md
+  - name: Overlay1
+    items:
+      - name: Article1
+        href: overlay1/article1.md
+  - name: Overlay 2
+    items:
+      - name: Article1
+        href: overlay2/article1.md
+  - name: Overlay 3
+    items:
+      - name: Article1
+        href: overlay3/article1.md
+base: product2
