@@ -25,31 +25,26 @@
 
     if (typeof document !== 'undefined') {
         document.addEventListener('click', (event) => {
-            if (event.target.matches('.dc-doc-layout__center a')) {
+            const href = event.target.href;
+            const locationOrigin = window.location.origin;
+
+            if (event.target.matches('.dc-doc-layout__center a') && href.startsWith(locationOrigin)) {
                 event.preventDefault();
 
-                const href = event.target.href;
-                const locationOrigin = window.location.origin;
+                const mainFileName = 'index';
+                const extention = '.html';
 
-                if (href.startsWith(locationOrigin)) {
-                    const mainFileName = 'index';
-                    const extention = '.html';
-
-                    if (href.endsWith('/')) {
-                        window.location.href = `${href}${mainFileName}${extention}`;
-                        return;
-                    }
-
-                    // https://../file-name, https://../file-name#fragment
-                    const splitedHref = href.split('#');
-                    if (splitedHref.length > 0 && !splitedHref[0].endsWith(extention)) {
-                        splitedHref[0] += extention;
-                        window.location.href = splitedHref.join('#');
-                        return;
-                    }
+                if (href.endsWith('/')) {
+                    window.location.href = `${href}${mainFileName}${extention}`;
+                    return;
                 }
 
-                window.location.href = href;
+                // https://../file-name, https://../file-name#fragment
+                const splitedHref = href.split('#');
+                if (splitedHref.length > 0 && !splitedHref[0].endsWith(extention)) {
+                    splitedHref[0] += extention;
+                    window.location.href = splitedHref.join('#');
+                }
             }
         });
     }
