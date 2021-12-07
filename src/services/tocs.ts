@@ -243,21 +243,21 @@ function _copyTocDir(tocPath: string, destDir: string) {
  * @private
  */
 function _replaceIncludesHrefs(items: YfmToc[], includeTocDir: string, tocDir: string): YfmToc[] {
-    return items.reduce((acc, item) => {
-        if (item.href) {
-            item.href = relative(tocDir, resolve(includeTocDir, item.href));
+    return items.reduce((acc, tocItem) => {
+        if (tocItem.href) {
+            tocItem.href = relative(tocDir, resolve(includeTocDir, tocItem.href));
         }
 
-        if (item.items) {
-            item.items = _replaceIncludesHrefs(item.items, includeTocDir, tocDir);
+        if (tocItem.items) {
+            tocItem.items = _replaceIncludesHrefs(tocItem.items, includeTocDir, tocDir);
         }
 
-        if (item.include) {
-            const {path} = item.include;
-            item.include.path = relative(tocDir, resolve(includeTocDir, path));
+        if (tocItem.include) {
+            const {path} = tocItem.include;
+            tocItem.include.path = relative(tocDir, resolve(includeTocDir, path));
         }
 
-        return acc.concat(item);
+        return acc.concat(tocItem);
     }, [] as YfmToc[]);
 }
 
