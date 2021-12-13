@@ -44,27 +44,27 @@ The document structure is described in a file named `toc.yaml`:
 The `toc.yaml` file structure is a follows:
 
 ```yaml
-- title: Document name
-  href: index.yaml
-- name: Section name
-  href: path/to/file.md
-  items:
-    - name: Section group name
-      items:
-        - name: Section name
-          href: path/to/file.md
-        - name: Nested block name
-          items:
-            - name: Name of a section in the nested block
-              href: path/to/some/file.md
-    - name: Name of another section
-      href: path/to/another/file.md
-    - name: Conditionally included section
-      href: path/to/conditional/file.md
-      when: version == 12
-    - name: Name of an imported block
-      include:
-        path: another/toc.yaml
+title: Document name
+href: index.yaml
+name: Section name
+href: path/to/file.md
+items:
+  - name: Section group name
+    items:
+      - name: Section name
+        href: path/to/file.md
+      - name: Nested block name
+        items:
+          - name: Name of a section in the nested block
+            href: path/to/some/file.md
+  - name: Name of another section
+    href: path/to/another/file.md
+  - name: Conditionally included section
+    href: path/to/conditional/file.md
+    when: version == 12
+  - name: Name of an imported block
+    include:
+      path: another/toc.yaml
 ```
 
 * `title`: Document name. The name is displayed in the document's table of contents above the list of all sections.
