@@ -64,6 +64,7 @@ items:
     when: version == 12
   - name: Name of an imported block
     include:
+      mode: link
       path: another/toc.yaml
 ```
 
