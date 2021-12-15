@@ -1,6 +1,3 @@
-import {safeLoadFront} from 'yaml-front-matter';
-import {dump} from 'js-yaml';
-
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {Metadata, MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
@@ -43,9 +40,13 @@ function getContentWithUpdatedStaticMetadata(
         newMetadatas.push(sourcePathMetadataString);
     }
 
-    const {fileMetadata, fileMainContent} = matches;
+    if (matches && matches.length > 0) {
+        const [, fileMetadata, , fileMainContent] = matches;
 
-    return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+        return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+    }
+
+    return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
 }
 
 async function getContentWithUpdatedDynamicMetadata(
@@ -65,21 +66,34 @@ async function getContentWithUpdatedDynamicMetadata(
         newMetadatas.push(await getContributorsMetadataString(options, fileContent));
     }
 
-    const {fileMetadata, fileMainContent} = matches;
+    if (matches && matches.length > 0) {
+        const [, fileMetadata, , fileMainContent] = matches;
+        let updatedDefaultMetadata = '';
 
-    const updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
+        updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
 
-    return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+        return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+    }
+
+    return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
 }
 
 function matchMetadata(fileContent: string) {
-    const {__content: fileMainContent, ...metadata} = safeLoadFront(fileContent);
-    const fileMetadata = Object.keys(metadata).length ? dump(metadata) : '';
+    // Search by format:
+    // ---
+    // metaName1: metaValue1
+    // metaName2: meta value2
+    // incorrectMetadata
+    // ---
+    const regexpMetadata = '(?<=-{3}\\r?\\n)((.*\\r?\\n)*)(?=-{3}\\r?\\n)';
+    // Search by format:
+    // ---
+    // main content 123
+    const regexpFileContent = '---((.*[\r?\n]*)*)';
 
-    return {
-        fileMainContent,
-        fileMetadata,
-    };
+    const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
+
+    return regexpParseFileContent.exec(fileContent);
 }
 
 async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string> {
