@@ -85,11 +85,11 @@ function matchMetadata(fileContent: string) {
     // metaName2: meta value2
     // incorrectMetadata
     // ---
-    const regexpMetadata = '(?<=-{3}\\r?\\n)((.*\\r?\\n)*)(?=-{3}\\r?\\n)';
+    const regexpMetadata = '(?<=-{3}\\r?\\n)((.*\\r?\\n)*?)(?=-{3}\\r?\\n)';
     // Search by format:
     // ---
     // main content 123
-    const regexpFileContent = '---((.*[\r?\n]*)*)';
+    const regexpFileContent = '-{3}((.*[\r?\n]*)*)';
 
     const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
 
