@@ -79,6 +79,10 @@ async function getContentWithUpdatedDynamicMetadata(
 }
 
 function matchMetadata(fileContent: string) {
+    if (!fileContent.startsWith('---')) {
+        return null;
+    }
+
     // Search by format:
     // ---
     // metaName1: metaValue1
