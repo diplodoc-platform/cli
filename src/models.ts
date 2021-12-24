@@ -165,6 +165,7 @@ export interface PluginOptions {
     log: Logger;
     copyFile: (targetPath: string, targetDestPath: string, options?: PluginOptions) => void;
     singlePage?: boolean;
+    singlePageRoot?: string;
     root?: string;
     destPath?: string;
     destRoot?: string;
@@ -179,6 +180,7 @@ export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
     singlePage?: boolean;
+    singlePageRoot?: string;
     metadata?: MetaDataOptions;
 }
 

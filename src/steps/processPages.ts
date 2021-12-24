@@ -39,7 +39,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         logger.proc(pathToFile);
 
         if (singlePage && outputFormat === 'md' && singlePageNavigationPaths.has(pathToFile)) {
-            await preparingSinglePages(pathData, singlePage, outputFolderPath);
+            promises.push(preparingSinglePages(pathData, singlePage, outputFolderPath));
         }
 
         const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
@@ -48,6 +48,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     }
 
     await Promise.all(promises);
+
+    if (singlePage) {
+        saveSinglePages();
+    }
 }
 
 function getPathData(
@@ -79,22 +83,39 @@ function getPathData(
     return pathData;
 }
 
+function saveSinglePages() {
+    try {
+        for (const singlePageDir of Object.keys(singlePagePaths)) {
+            if (singlePagePaths[singlePageDir].size) {
+                const singlePageFn = join(singlePageDir, 'index.md');
+                const content = joinSinglePageResults(singlePageResults[singlePageDir]);
+
+                writeFileSync(singlePageFn, content);
+            }
+        }
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 async function preparingSinglePages(pathData: PathData, singlePage: boolean, outputFolderPath: string): Promise<void> {
     try {
         const {pathToFile, outputPath, fileExtension} = pathData;
-        const pathToDir: string = dirname(pathToFile);
         const outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
-        const outputSinglePageFileDir = resolve(outputSinglePageDir, pathToDir);
-        const outputSinglePageFn = resolve(outputSinglePageDir, pathToFile);
 
-        shell.mkdir('-p', outputSinglePageFileDir);
+        singlePagePaths[outputSinglePageDir] = singlePagePaths[outputSinglePageDir] || new Set();
 
         const isExistFileAsSinglePage =
             singlePagePaths[outputSinglePageDir] && singlePagePaths[outputSinglePageDir].has(pathToFile);
 
         if (!(fileExtension === '.yaml') && !isExistFileAsSinglePage) {
             const outputSinglePageContent =
-                await resolveMd2Md({inputPath: pathToFile, outputPath: outputSinglePageFn, singlePage});
+                await resolveMd2Md({
+                    inputPath: pathToFile,
+                    outputPath,
+                    singlePage,
+                    singlePageRoot: outputSinglePageDir,
+                });
 
             const absolutePathToFile = resolve(outputFolderPath, pathToFile);
             const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
@@ -105,14 +126,8 @@ async function preparingSinglePages(pathData: PathData, singlePage: boolean, out
                 content: outputSinglePageContent,
             });
 
-            singlePagePaths[outputSinglePageDir] = singlePagePaths[outputSinglePageDir] || new Set();
             singlePagePaths[outputSinglePageDir].add(pathToFile);
         }
-
-        const singlePageFn = join(outputSinglePageDir, 'index.md');
-        const content = joinSinglePageResults(singlePageResults[outputSinglePageDir]);
-
-        writeFileSync(singlePageFn, content);
     } catch (error) {
         console.log(error);
     }

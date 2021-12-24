@@ -1,0 +1,14 @@
+items:
+  - name: Name1
+    href: '#_file1'
+  - name: NameA
+    href: '#_fileA'
+  - name: NameB
+    href: '#_fileB'
+  - name: NameC
+    href: '#_fileC'
+  - name: NameX
+    href: '#_fileX'
+base: .
+href: index.md
+singlePage: true

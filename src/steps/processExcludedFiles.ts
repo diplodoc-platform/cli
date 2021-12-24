@@ -43,5 +43,5 @@ export function processExcludedFiles() {
             return convertBackSlashToSlash(destTocPath);
         });
 
-    shell.rm('-f', includedTocPaths);
+    shell.rm('-rf', includedTocPaths);
 }

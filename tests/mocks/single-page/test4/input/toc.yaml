@@ -1,0 +1,7 @@
+title: Single page
+href: index.yaml
+items:
+  - name: Service 1
+    href: service1/index.md
+  - name: Service 2
+    href: service2/index.md
