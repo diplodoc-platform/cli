@@ -1,4 +1,4 @@
-import {dirname, extname, join, parse, resolve, relative} from 'path';
+import {dirname, extname, join, parse, resolve, relative, normalize} from 'path';
 import {copyFileSync, readFileSync, writeFileSync, existsSync, mkdirSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
@@ -98,6 +98,12 @@ async function add(path: string) {
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
 
+    const singlePageFilesInitialCount = singlePageNavigationPaths.size;
+
+    prepareNavigationPaths(parsedToc, pathToDir);
+
+    const singlePageFilesCount = singlePageNavigationPaths.size - singlePageFilesInitialCount;
+
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
         const outputPath = resolve(outputFolderPath, path);
@@ -105,7 +111,7 @@ async function add(path: string) {
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
 
-        if (singlePage) {
+        if (singlePage && singlePageFilesCount) {
             const parsedSinglePageToc = _cloneDeep(parsedToc);
             const currentPath = resolve(outputFolderPath, path);
             parsedSinglePageToc.items = filterFiles(parsedSinglePageToc.items, 'items', {}, {
@@ -122,8 +128,6 @@ async function add(path: string) {
             writeFileSync(outputSinglePageTocPath, outputSinglePageToc);
         }
     }
-
-    prepareNavigationPaths(parsedToc, pathToDir);
 }
 
 function getForPath(path: string): YfmToc|undefined {
@@ -169,7 +173,9 @@ function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
         });
     }
 
-    processItems([parsedToc], dirPath);
+    const clonedParsedToc = _cloneDeep(parsedToc);
+
+    processItems([clonedParsedToc], dirPath);
 }
 
 function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; currentPath: string}) {
@@ -201,15 +207,17 @@ function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; 
  * @private
  */
 function _normalizeHref(href: string): string {
-    if (href.endsWith('.md') || href.endsWith('.yaml')) {
-        return href;
+    const preparedHref = normalize(href);
+
+    if (preparedHref.endsWith('.md') || preparedHref.endsWith('.yaml')) {
+        return preparedHref;
     }
 
-    if (href.endsWith('/')) {
-        return `${href}index.yaml`;
+    if (preparedHref.endsWith('/')) {
+        return `${preparedHref}index.yaml`;
     }
 
-    return `${href}.md`;
+    return `${preparedHref}.md`;
 }
 
 /**
@@ -362,6 +370,18 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
     });
 }
 
+function addIncludeTocPath(includeTocPath: string) {
+    const {singlePage} = ArgvService.getConfig();
+
+    includedTocPaths.add(includeTocPath);
+
+    if (singlePage) {
+        const includeSinglePageTocDir = resolve(dirname(includeTocPath), SINGLE_PAGE_FOLDER);
+
+        includedTocPaths.add(includeSinglePageTocDir);
+    }
+}
+
 /**
  * Replaces include fields in toc file by resolved toc.
  * @param items
@@ -399,8 +419,9 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                 if (mode === IncludeMode.MERGE || mode === IncludeMode.ROOT_MERGE) {
                     _copyTocDir(includeTocPath, tocDir);
                 }
+
                 /* Save the path to exclude toc from the output directory in the next step */
-                includedTocPaths.add(includeTocPath);
+                addIncludeTocPath(includeTocPath);
 
                 let includedTocItems = (item.items || []).concat(includeToc.items);
 

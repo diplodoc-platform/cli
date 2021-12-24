@@ -1,12 +1,14 @@
 items:
   - name: A1
-    href: a1.md
+    href: '#_a1'
   - name: folder1
     items:
       - name: A1
-        href: folder1/a1.md
+        href: '#_folder1_a1'
       - name: folder1
         items:
           - name: A1
-            href: folder1/folder2/a1.md
+            href: '#_folder1_folder2_a1'
 base: .
+href: index.md
+singlePage: true
