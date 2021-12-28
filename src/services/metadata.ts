@@ -117,7 +117,7 @@ async function getContributorsMetadataString(options: MetaDataOptions, fileConte
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {
-    const metadataСarriage = '\r\n';
+    const metadataСarriage = '\n';
     const metadataBorder = `---${metadataСarriage}`;
 
     const newMetadata = newMetadatas.join(metadataСarriage);
