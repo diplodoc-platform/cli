@@ -1,4 +1,5 @@
 import {readFileSync} from 'fs';
+import {normalize} from 'path';
 import {metadataBorder} from '../../../src/constants';
 import {metadataСarriage, replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
 import {Contributor, Contributors, MetaDataOptions} from 'models';
@@ -156,13 +157,13 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
         };
 
         const getFileContributors = (path: string): Contributors => {
-            if (path === firstIncludeFilePath) {
+            if (path === normalize(firstIncludeFilePath)) {
                 return {
                     [includesContributorFromFirstFile.email]: includesContributorFromFirstFile,
                 };
             }
 
-            if (path === secondIncludeFilePath) {
+            if (path === normalize(secondIncludeFilePath)) {
                 return {
                     [includesContributorFromSecondFile.email]: includesContributorFromSecondFile,
                 };
