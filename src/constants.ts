@@ -12,6 +12,8 @@ const video = require('@doc-tools/transform/lib/plugins/video');
 const includes = require('@doc-tools/transform/lib/plugins/includes');
 const links = require('@doc-tools/transform/lib/plugins/links');
 const images = require('@doc-tools/transform/lib/plugins/images');
+const monospace = require('@doc-tools/transform/lib/plugins/monospace');
+const table = require('@doc-tools/transform/lib/plugins/table');
 
 anchors.collect = require('@doc-tools/transform/lib/plugins/anchors/collect');
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
@@ -69,6 +71,8 @@ export const YFM_PLUGINS = [
     imsize,
     sup,
     video,
+    monospace,
+    table,
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';
