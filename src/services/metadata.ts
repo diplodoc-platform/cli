@@ -3,6 +3,8 @@ import {Metadata, MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
+import {metadataСarriage} from '../utils';
+import {metadataBorder} from '../constants';
 
 async function getContentWithUpdatedMetadata(
     fileContent: string,
@@ -63,7 +65,11 @@ async function getContentWithUpdatedDynamicMetadata(
     const {isContributorsEnabled} = options;
 
     if (isContributorsEnabled) {
-        newMetadatas.push(await getContributorsMetadataString(options, fileContent));
+        const contributorsMetaData = await getContributorsMetadataString(options, fileContent);
+
+        if (contributorsMetaData) {
+            newMetadatas.push(contributorsMetaData);
+        }
     }
 
     if (matches && matches.length > 0) {
@@ -96,9 +102,8 @@ function matchMetadata(fileContent: string) {
     return regexpParseFileContent.exec(fileContent);
 }
 
-async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string> {
+async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string | undefined> {
     const {isContributorsEnabled, vcsConnector, fileData} = options;
-    let contributorsMetaData = '';
 
     if (isContributorsEnabled && vcsConnector) {
         const updatedFileData = {
@@ -106,22 +111,17 @@ async function getContributorsMetadataString(options: MetaDataOptions, fileConte
             fileContent,
         };
 
-        contributorsMetaData = await getFileContributorsMetadata(updatedFileData, vcsConnector);
+        return getFileContributorsMetadata(updatedFileData, vcsConnector);
     }
-
-    return contributorsMetaData;
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {
-    const metadataСarriage = '\r\n';
-    const metadataBorder = `---${metadataСarriage}`;
-
-    const newMetadata = newMetadatas.join(metadataСarriage);
+    const newMetadata = newMetadatas.join(metadataСarriage) + (newMetadatas.length ? metadataСarriage : '');
     const preparedDefaultMetadata = defaultMetadata.trimRight();
     const defaultMetadataСarriage = preparedDefaultMetadata ? metadataСarriage : '';
-    const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}${metadataСarriage}`;
+    const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}`;
 
-    return `${metadataBorder}${updatedMetadata}${metadataBorder}`;
+    return `${metadataBorder}${metadataСarriage}${updatedMetadata}${metadataBorder}${defaultMetadata.length ? '' : metadataСarriage}`;
 }
 
 async function getUpdatedMetadata(options: MetaDataOptions, fileContent: string, meta?: Metadata): Promise<Metadata> {

@@ -1,3 +1,5 @@
+import {platform} from 'process';
+import {Platforms} from '../constants';
 import {SinglePageResult} from '../models';
 import {PluginService} from '../services';
 
@@ -54,3 +56,5 @@ export function joinSinglePageResults(singlePageResults: SinglePageResult[]): st
 export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, '\'');
 }
+
+export const metadataСarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
