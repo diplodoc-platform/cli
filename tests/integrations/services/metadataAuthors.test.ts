@@ -1,16 +1,16 @@
-import { readFileSync } from 'fs';
-import { REGEXP_AUTHOR } from '../../../src/constants';
-import { replaceDoubleToSingleQuotes } from '../../../src/utils/markup';
-import { MetaDataOptions } from 'models';
-import { getContentWithUpdatedMetadata } from 'services/metadata';
-import { VCSConnector } from 'vcs-connector/connector-models';
+import {readFileSync} from 'fs';
+import {REGEXP_AUTHOR} from '../../../src/constants';
+import {replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
+import {MetaDataOptions} from 'models';
+import {getContentWithUpdatedMetadata} from 'services/metadata';
+import {VCSConnector} from 'vcs-connector/connector-models';
 
 const authorAliasInMetadataFilePath = 'mocks/fileContent/metadata/authorAliasInMetadata.md';
 const fullAuthorInMetadataFilePath = 'mocks/fileContent/metadata/fullAuthorInMetadata.md';
 const simpleMetadataFilePath = 'mocks/fileContent/metadata/simpleMetadata.md';
 
 jest.mock('services/contributors', () => ({
-    getFileContributorsMetadata: () => Promise.resolve('')
+    getFileContributorsMetadata: () => Promise.resolve(''),
 }));
 
 describe('getContentWithUpdatedMetadata (Authors)', () => {
@@ -44,7 +44,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             const matchAuthor = fileContent.match(REGEXP_AUTHOR);
 
             const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
-            const expectedFileContent = fileContent.replace(matchAuthor[0], replaceDoubleToSingleQuotes(JSON.stringify(expectedAuthorData)));
+            const expectedFileContent = fileContent
+                .replace(matchAuthor[0], replaceDoubleToSingleQuotes(JSON.stringify(expectedAuthorData)));
 
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -54,14 +55,15 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             const matchAuthor = fileContent.match(REGEXP_AUTHOR);
 
             const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
-            const expectedFileContent = fileContent.replace(matchAuthor[0], replaceDoubleToSingleQuotes(matchAuthor[0]));
+            const expectedFileContent = fileContent
+                .replace(matchAuthor[0], replaceDoubleToSingleQuotes(matchAuthor[0]));
 
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
     });
 
     describe('should return file content without updated author in metadata', () => {
-        let metaDataOptions: MetaDataOptions = {
+        const metaDataOptions: MetaDataOptions = {
             fileData: {},
         };
 
@@ -75,7 +77,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             expect(updatedFileContent).toEqual(fileContent);
         });
 
-        test('if metadata options has "isContributorsEnabled" equals true and "vcsConnector" equals undefined', async () => {
+        test('if metadata options has "isContributorsEnabled" equals true ' +
+            'and "vcsConnector" equals undefined', async () => {
             metaDataOptions.isContributorsEnabled = true;
             metaDataOptions.vcsConnector = undefined;
             const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
@@ -85,7 +88,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             expect(updatedFileContent).toEqual(fileContent);
         });
 
-        test('if metadata options has "isContributorsEnabled" equals true and "getUserByLogin" returns null', async () => {
+        test('if metadata options has "isContributorsEnabled" equals true ' +
+            'and "getUserByLogin" returns null', async () => {
             metaDataOptions.isContributorsEnabled = true;
             metaDataOptions.vcsConnector = {
                 ...defaultVCSConnector,

@@ -1,10 +1,9 @@
-import { readFileSync } from 'fs';
-import { metadataBorder } from '../../../src/constants';
-import { metadataСarriage } from '../../../src/utils/markup';
-import { replaceDoubleToSingleQuotes } from '../../../src/utils/markup';
-import { Contributor, Contributors, MetaDataOptions } from 'models';
-import { getContentWithUpdatedMetadata } from 'services/metadata';
-import { VCSConnector } from 'vcs-connector/connector-models';
+import {readFileSync} from 'fs';
+import {metadataBorder} from '../../../src/constants';
+import {metadataСarriage, replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
+import {Contributor, Contributors, MetaDataOptions} from 'models';
+import {getContentWithUpdatedMetadata} from 'services/metadata';
+import {VCSConnector} from 'vcs-connector/connector-models';
 
 const simpleMetadataFilePath = 'mocks/fileContent/metadata/simpleMetadata.md';
 const withoutMetadataFilePath = 'mocks/fileContent/metadata/withoutMetadata.md';
@@ -13,7 +12,7 @@ const firstIncludeFilePath = 'mocks/fileContent/metadata/includesContent/firstIn
 const secondIncludeFilePath = 'mocks/fileContent/metadata/includesContent/secondIncludeFile.md';
 
 describe('getContentWithUpdatedMetadata (Contributors)', () => {
-    let metaDataOptions: MetaDataOptions = {
+    const metaDataOptions: MetaDataOptions = {
         fileData: {
             tmpInputFilePath: '',
             inputFolderPathLength: 0,
@@ -28,108 +27,44 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
     describe('should return file content with updated contributors in metadata' +
         'if metadata options has "isContributorsEnabled" equals true.', () => {
-            beforeAll(() => {
-                metaDataOptions.isContributorsEnabled = true;
-                metaDataOptions.vcsConnector = defaultVCSConnector;
+        beforeAll(() => {
+            metaDataOptions.isContributorsEnabled = true;
+            metaDataOptions.vcsConnector = defaultVCSConnector;
+        });
+
+        test('"getContributorsByPath" does not return any contributors with includes contributors', async () => {
+            metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
+                contributors: {},
+                hasIncludes: true,
             });
+            const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-            test('"getContributorsByPath" does not return any contributors with includes contributors', async () => {
-                metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
-                    contributors: {},
-                    hasIncludes: true,
-                });
-                const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
+            const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
-                const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
+            const splitedFiledContent = fileContent.split(metadataBorder);
+            splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: []${metadataСarriage}`;
+            const expectedFileContent = splitedFiledContent.join(metadataBorder);
+            expect(updatedFileContent).toEqual(expectedFileContent);
+        });
 
-                const splitedFiledContent = fileContent.split(metadataBorder);
-                splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: []${metadataСarriage}`;
-                const expectedFileContent = splitedFiledContent.join(metadataBorder);
-                expect(updatedFileContent).toEqual(expectedFileContent);
-            });
-
-            test('File content does not have metadata and' +
+        test('File content does not have metadata and' +
                 '"getContributorsByPath" does not return any contributors with includes contributors', async () => {
-                    metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
-                        contributors: {},
-                        hasIncludes: true,
-                    });
-                    const fileContent = readFileSync(withoutMetadataFilePath, 'utf8');
-
-                    const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
-
-                    const border = `${metadataBorder}${metadataСarriage}`;
-                    const newMetadata = `${border}contributors: []${metadataСarriage}${border}`;
-                    const expectedFileContent = `${newMetadata}${fileContent}`;
-                    expect(updatedFileContent).toEqual(expectedFileContent);
-                });
-
-
-            test('"getContributorsByPath" returns contributors with includes contributors', async () => {
-                const contributorFirst: Contributor = {
-                    avatar: 'https://example.ru/logo.png',
-                    name: 'Name Surname 1',
-                    url: 'https://example.ru',
-                    email: 'alias_1@yandex.ru',
-                    login: 'alias_1',
-                };
-                const contributorSecond: Contributor = {
-                    avatar: 'https://example.ru/logo.png',
-                    name: 'Name Surname 2',
-                    url: 'https://example.ru',
-                    email: 'alias_2@yandex.ru',
-                    login: 'alias_2',
-                };
-                const expectedContributors: Contributors = {
-                    [contributorFirst.email]: contributorFirst,
-                    [contributorSecond.email]: contributorSecond,
-                }
-                const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
-                const expectedContributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
-
-                metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
-                    contributors: expectedContributors,
-                    hasIncludes: true,
-                });
-                const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
-
-                const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
-
-                const splitedFiledContent = fileContent.split(metadataBorder);
-                splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
-                const expectedFileContent = splitedFiledContent.join(metadataBorder);
-                expect(updatedFileContent).toEqual(expectedFileContent);
+            metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
+                contributors: {},
+                hasIncludes: true,
             });
+            const fileContent = readFileSync(withoutMetadataFilePath, 'utf8');
 
-            test('"getContributorsByPath" returns contributors without includes contributors and ' +
-                'file content does not have include contents', async () => {
-                    const contributorFirst: Contributor = {
-                        avatar: 'https://example.ru/logo.png',
-                        name: 'Name Surname 1',
-                        url: 'https://example.ru',
-                        email: 'alias_1@yandex.ru',
-                        login: 'alias_1',
-                    };
-                    const expectedContributors: Contributors = {
-                        [contributorFirst.email]: contributorFirst,
-                    }
-                    const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
-                    const expectedContributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
+            const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
-                    metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
-                        contributors: expectedContributors,
-                        hasIncludes: false,
-                    });
-                    const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
+            const border = `${metadataBorder}${metadataСarriage}`;
+            const newMetadata = `${border}contributors: []${metadataСarriage}${border}`;
+            const expectedFileContent = `${newMetadata}${fileContent}`;
+            expect(updatedFileContent).toEqual(expectedFileContent);
+        });
 
-                    const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
-                    const splitedFiledContent = fileContent.split(metadataBorder);
-                    splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
-                    const expectedFileContent = splitedFiledContent.join(metadataBorder);
-                    expect(updatedFileContent).toEqual(expectedFileContent);
-                });
-
+        test('"getContributorsByPath" returns contributors with includes contributors', async () => {
             const contributorFirst: Contributor = {
                 avatar: 'https://example.ru/logo.png',
                 name: 'Name Surname 1',
@@ -137,70 +72,145 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                 email: 'alias_1@yandex.ru',
                 login: 'alias_1',
             };
-            const includesContributorFromFirstFile: Contributor = {
+            const contributorSecond: Contributor = {
                 avatar: 'https://example.ru/logo.png',
-                name: 'Name Surname includes 1',
+                name: 'Name Surname 2',
                 url: 'https://example.ru',
-                email: 'alias_includes_1@yandex.ru',
-                login: 'alias_includes_1',
+                email: 'alias_2@yandex.ru',
+                login: 'alias_2',
             };
-            const includesContributorFromSecondFile: Contributor = {
+            const expectedContributors: Contributors = {
+                [contributorFirst.email]: contributorFirst,
+                [contributorSecond.email]: contributorSecond,
+            };
+            const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
+            const expectedContributorsString: string =
+                replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
+
+            metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
+                contributors: expectedContributors,
+                hasIncludes: true,
+            });
+            const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
+
+            const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
+
+            const splitedFiledContent = fileContent.split(metadataBorder);
+            splitedFiledContent[1] =
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+            const expectedFileContent = splitedFiledContent.join(metadataBorder);
+            expect(updatedFileContent).toEqual(expectedFileContent);
+        });
+
+        test('"getContributorsByPath" returns contributors without includes contributors and ' +
+                'file content does not have include contents', async () => {
+            const contributorFirst: Contributor = {
                 avatar: 'https://example.ru/logo.png',
-                name: 'Name Surname includes 2',
+                name: 'Name Surname 1',
                 url: 'https://example.ru',
-                email: 'alias_includes_2@yandex.ru',
-                login: 'alias_includes_2',
+                email: 'alias_1@yandex.ru',
+                login: 'alias_1',
             };
+            const expectedContributors: Contributors = {
+                [contributorFirst.email]: contributorFirst,
+            };
+            const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
+            const expectedContributorsString: string =
+                replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
 
-            const getFileContributors = (path: string): Contributors => {
-                if (path === firstIncludeFilePath) {
-                    return {
-                        [includesContributorFromFirstFile.email]: includesContributorFromFirstFile,
-                    };
-                }
+            metaDataOptions.vcsConnector.getContributorsByPath = () => Promise.resolve({
+                contributors: expectedContributors,
+                hasIncludes: false,
+            });
+            const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-                if (path === secondIncludeFilePath) {
-                    return {
-                        [includesContributorFromSecondFile.email]: includesContributorFromSecondFile,
-                    };
-                }
+            const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
+            const splitedFiledContent = fileContent.split(metadataBorder);
+            splitedFiledContent[1] =
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+            const expectedFileContent = splitedFiledContent.join(metadataBorder);
+            expect(updatedFileContent).toEqual(expectedFileContent);
+        });
+
+        const contributorFirst: Contributor = {
+            avatar: 'https://example.ru/logo.png',
+            name: 'Name Surname 1',
+            url: 'https://example.ru',
+            email: 'alias_1@yandex.ru',
+            login: 'alias_1',
+        };
+        const includesContributorFromFirstFile: Contributor = {
+            avatar: 'https://example.ru/logo.png',
+            name: 'Name Surname includes 1',
+            url: 'https://example.ru',
+            email: 'alias_includes_1@yandex.ru',
+            login: 'alias_includes_1',
+        };
+        const includesContributorFromSecondFile: Contributor = {
+            avatar: 'https://example.ru/logo.png',
+            name: 'Name Surname includes 2',
+            url: 'https://example.ru',
+            email: 'alias_includes_2@yandex.ru',
+            login: 'alias_includes_2',
+        };
+
+        const getFileContributors = (path: string): Contributors => {
+            if (path === firstIncludeFilePath) {
                 return {
-                    [contributorFirst.email]: contributorFirst,
+                    [includesContributorFromFirstFile.email]: includesContributorFromFirstFile,
                 };
             }
 
-            [
-                {
-                    title: 'when all files does not have information about includes contributors',
-                    getHasIncludes: (_path: string) => false,
-                    expectedContributorsArray: [contributorFirst, includesContributorFromFirstFile, includesContributorFromSecondFile],
-                },
-                {
-                    title: 'when first include file has information about includes contributors',
-                    getHasIncludes: (path: string) => path === firstIncludeFilePath ? true : false,
-                    expectedContributorsArray: [contributorFirst, includesContributorFromFirstFile],
-                },
-            ].forEach((item) => {
-                test(`"getContributorsByPath" returns contributors from main and includes files and ${item.title}`, async () => {
-                    const expectedContributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(item.expectedContributorsArray));
+            if (path === secondIncludeFilePath) {
+                return {
+                    [includesContributorFromSecondFile.email]: includesContributorFromSecondFile,
+                };
+            }
 
-                    metaDataOptions.vcsConnector.getContributorsByPath = (path: string) => Promise.resolve({
-                        contributors: getFileContributors(path),
-                        hasIncludes: item.getHasIncludes(path),
-                    });
-                    metaDataOptions.fileData.tmpInputFilePath = withIncludesFilePath;
-                    const fileContent = readFileSync(withIncludesFilePath, 'utf8');
+            return {
+                [contributorFirst.email]: contributorFirst,
+            };
+        };
 
-                    const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
+        [
+            {
+                title: 'when all files does not have information about includes contributors',
+                getHasIncludes: () => false,
+                expectedContributorsArray: [
+                    contributorFirst,
+                    includesContributorFromFirstFile,
+                    includesContributorFromSecondFile,
+                ],
+            },
+            {
+                title: 'when first include file has information about includes contributors',
+                getHasIncludes: (path: string) => path === firstIncludeFilePath,
+                expectedContributorsArray: [contributorFirst, includesContributorFromFirstFile],
+            },
+        ].forEach((item) => {
+            test('"getContributorsByPath" returns contributors from main ' +
+                `and includes files and ${item.title}`, async () => {
+                const expectedContributorsString: string = replaceDoubleToSingleQuotes(
+                    JSON.stringify(item.expectedContributorsArray));
 
-                    const splitedFiledContent = fileContent.split(metadataBorder);
-                    splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
-                    const expectedFileContent = splitedFiledContent.join(metadataBorder);
-                    expect(updatedFileContent).toEqual(expectedFileContent);
+                metaDataOptions.vcsConnector.getContributorsByPath = (path: string) => Promise.resolve({
+                    contributors: getFileContributors(path),
+                    hasIncludes: item.getHasIncludes(path),
                 });
+                metaDataOptions.fileData.tmpInputFilePath = withIncludesFilePath;
+                const fileContent = readFileSync(withIncludesFilePath, 'utf8');
+
+                const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
+
+                const splitedFiledContent = fileContent.split(metadataBorder);
+                splitedFiledContent[1] =
+                    `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+                const expectedFileContent = splitedFiledContent.join(metadataBorder);
+                expect(updatedFileContent).toEqual(expectedFileContent);
             });
         });
+    });
 
     describe('should return file content without updated contributors in metadata', () => {
         test('if metadata options has "isContributorsEnabled" equals false', async () => {
@@ -213,7 +223,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             expect(updatedFileContent).toEqual(fileContent);
         });
 
-        test('if metadata options has "isContributorsEnabled" equals true and "vcsConnector" equals undefined', async () => {
+        test('if metadata options has "isContributorsEnabled" equals true ' +
+            'and "vcsConnector" equals undefined', async () => {
             metaDataOptions.isContributorsEnabled = true;
             metaDataOptions.vcsConnector = undefined;
             const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');

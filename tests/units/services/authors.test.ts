@@ -1,7 +1,7 @@
 import * as units from 'utils/markup';
-import { REGEXP_AUTHOR } from '../../../src/constants';
-import { getAuthorDetails, updateAuthorMetadataString } from 'services/authors';
-import { VCSConnector } from 'vcs-connector/connector-models';
+import {REGEXP_AUTHOR} from '../../../src/constants';
+import {getAuthorDetails, updateAuthorMetadataString} from 'services/authors';
+import {VCSConnector} from 'vcs-connector/connector-models';
 
 const author = {
     avatar: 'https://example.ru/logo.png',

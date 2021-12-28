@@ -15,15 +15,3 @@ module.exports = {
   coverageDirectory: '<rootDir>/tests/coverage',
   moduleDirectories: ['node_modules', path.join(__dirname, 'src'), path.join(__dirname, 'tests')],
 };
-
-// module.exports = {
-
-//   verbose: true,
-//   // roots: ['<rootDir>', 'src', 'tests'],
-//   testMatch: ['<rootDir>/tests/**/*.test.ts'],
-
-//   transform: {
-//     '^.+\\.(ts|tsx|js|jsx)?$': 'ts-jest',
-//     'node_modules/variables/.+\\.(j|t)sx?$': 'ts-jest',
-//   },
-// };
