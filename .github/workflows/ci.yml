@@ -23,6 +23,6 @@ jobs:
       - name: Install Packages
         run: npm ci
       - name: Lint Files
-        run: lint-staged
+        run: npm run lint
       - name: Tests
         run: npm run test
