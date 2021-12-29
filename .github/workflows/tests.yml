@@ -22,7 +22,9 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           cache: 'npm'
-      - name: Install Packages
+      - name: Install packages for project
         run: npm ci
+      - name: Install packages for tests
+        run: cd tests && npm ci
       - name: Run tests
-        run: npm run test
+        run: cd tests && npm run test
