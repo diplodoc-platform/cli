@@ -1,7 +1,7 @@
 import {readFileSync} from 'fs';
 import {normalize} from 'path';
 import {metadataBorder} from '../../../src/constants';
-import {metadataСarriage, replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
+import {сarriage, replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
 import {Contributor, Contributors, MetaDataOptions} from 'models';
 import {getContentWithUpdatedMetadata} from 'services/metadata';
 import {VCSConnector} from 'vcs-connector/connector-models';
@@ -43,7 +43,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
             const splitedFiledContent = fileContent.split(metadataBorder);
-            splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: []${metadataСarriage}`;
+            splitedFiledContent[1] = `${splitedFiledContent[1]}contributors: []${сarriage}`;
             const expectedFileContent = splitedFiledContent.join(metadataBorder);
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -58,8 +58,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
             const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
 
-            const border = `${metadataBorder}${metadataСarriage}`;
-            const newMetadata = `${border}contributors: []${metadataСarriage}${border}`;
+            const border = `${metadataBorder}${сarriage}`;
+            const newMetadata = `${border}contributors: []${сarriage}${border}`;
             const expectedFileContent = `${newMetadata}${fileContent}`;
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -98,7 +98,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
             const splitedFiledContent = fileContent.split(metadataBorder);
             splitedFiledContent[1] =
-                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
             const expectedFileContent = splitedFiledContent.join(metadataBorder);
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -129,7 +129,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
             const splitedFiledContent = fileContent.split(metadataBorder);
             splitedFiledContent[1] =
-                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
             const expectedFileContent = splitedFiledContent.join(metadataBorder);
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -186,7 +186,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             },
             {
                 title: 'when first include file has information about includes contributors',
-                getHasIncludes: (path: string) => path === firstIncludeFilePath,
+                getHasIncludes: (path: string) => path === normalize(firstIncludeFilePath),
                 expectedContributorsArray: [contributorFirst, includesContributorFromFirstFile],
             },
         ].forEach((item) => {
@@ -206,7 +206,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
                 const splitedFiledContent = fileContent.split(metadataBorder);
                 splitedFiledContent[1] =
-                    `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${metadataСarriage}`;
+                    `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
                 const expectedFileContent = splitedFiledContent.join(metadataBorder);
                 expect(updatedFileContent).toEqual(expectedFileContent);
             });

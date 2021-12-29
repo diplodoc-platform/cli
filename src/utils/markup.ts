@@ -46,7 +46,7 @@ function getMetadata(metadata: Record<string, string>): string {
 }
 
 export function joinSinglePageResults(singlePageResults: SinglePageResult[]): string {
-    const delimeter = '\n\n<hr class="yfm-page__delimeter">\n\n';
+    const delimeter = `${сarriage}${сarriage}<hr class="yfm-page__delimeter">${сarriage}${сarriage}`;
     return singlePageResults
         .filter(({content}) => content)
         .map(({content}) => content)
@@ -57,4 +57,4 @@ export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, '\'');
 }
 
-export const metadataСarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
+export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';

@@ -2,7 +2,7 @@ import {compareDirectories, runYfmDocs, getTestPaths} from '../utils';
 
 describe('Include toc', () => {
     test('Toc is included in link mode', () => {
-        const testRootPath = '../mocks/include-toc/test1';
+        const testRootPath = 'mocks/include-toc/test1';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
 
         runYfmDocs(inputPath, outputPath);
@@ -19,7 +19,7 @@ describe('Include toc', () => {
     });
 
     test('Toc is included inline, not as a new section', () => {
-        const testRootPath = '../mocks/include-toc/test2';
+        const testRootPath = 'mocks/include-toc/test2';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
 
         runYfmDocs(inputPath, outputPath);
@@ -36,7 +36,7 @@ describe('Include toc', () => {
     });
 
     test('Nested toc inclusions with mixed including modes', () => {
-        const testRootPath = './tests/mocks/include-toc/test3';
+        const testRootPath = 'mocks/include-toc/test3';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
         runYfmDocs(inputPath, outputPath);
 

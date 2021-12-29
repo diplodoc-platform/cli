@@ -3,7 +3,7 @@ import {Metadata, MetaDataOptions} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
-import {metadataСarriage} from '../utils';
+import {сarriage} from '../utils';
 import {metadataBorder} from '../constants';
 
 async function getContentWithUpdatedMetadata(
@@ -120,12 +120,12 @@ async function getContributorsMetadataString(options: MetaDataOptions, fileConte
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {
-    const newMetadata = newMetadatas.join(metadataСarriage) + (newMetadatas.length ? metadataСarriage : '');
+    const newMetadata = newMetadatas.join(сarriage) + (newMetadatas.length ? сarriage : '');
     const preparedDefaultMetadata = defaultMetadata.trimRight();
-    const defaultMetadataСarriage = preparedDefaultMetadata ? metadataСarriage : '';
+    const defaultMetadataСarriage = preparedDefaultMetadata ? сarriage : '';
     const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}`;
 
-    return `${metadataBorder}${metadataСarriage}${updatedMetadata}${metadataBorder}${defaultMetadata.length ? '' : metadataСarriage}`;
+    return `${metadataBorder}${сarriage}${updatedMetadata}${metadataBorder}${defaultMetadata.length ? '' : сarriage}`;
 }
 
 async function getUpdatedMetadata(options: MetaDataOptions, fileContent: string, meta?: Metadata): Promise<Metadata> {
