@@ -25,12 +25,12 @@ jobs:
           os: ${{ matrix.os }}
           cache: 'npm'
       - name: Install packages for project
-        run: npm ci
+        run: npm i
       - run: npm run build
       - name: Install packages for tests
         run: |
           cd tests
-          npm ci
+          npm i
           npm i -g jest
       - name: Run tests
         run: |
