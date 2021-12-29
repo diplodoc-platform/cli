@@ -26,7 +26,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
         getUserByLogin: () => Promise.resolve(null),
     };
 
-    describe('should return file content with updated contributors in metadata' +
+    describe('should return file content with updated contributors in metadata ' +
         'if metadata options has "isContributorsEnabled" equals true.', () => {
         beforeAll(() => {
             metaDataOptions.isContributorsEnabled = true;
