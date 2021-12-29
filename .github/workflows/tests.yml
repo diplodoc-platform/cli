@@ -1,4 +1,4 @@
-name: Tests v1
+name: Tests
 
 on:
   push:
@@ -13,8 +13,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        node-version: [14.x, 16.x]
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [14.x]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
