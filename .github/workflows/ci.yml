@@ -1,4 +1,4 @@
-name: CI
+name: Tests
 
 on:
   push:
@@ -7,22 +7,17 @@ on:
     branches: [master]
 
 jobs:
-  verify_files:
-    name: Verify Files
-    runs-on: ubuntu-latest
+  build:
+    runs-on: [ubuntu-latest, macos-latest, windows-latest]
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Setup Node
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v2
         with:
-          node-version: '14.x'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
       - name: Install Packages
         run: npm ci
-      - name: Lint Files
-        run: npm run lint
       - name: Tests
         run: npm run test
