@@ -79,6 +79,10 @@ async function getContentWithUpdatedDynamicMetadata(
 }
 
 function matchMetadata(fileContent: string) {
+    if (!fileContent.startsWith('---')) {
+        return null;
+    }
+
     // Search by format:
     // ---
     // metaName1: metaValue1
@@ -113,7 +117,7 @@ async function getContributorsMetadataString(options: MetaDataOptions, fileConte
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {
-    const metadataСarriage = '\r\n';
+    const metadataСarriage = '\n';
     const metadataBorder = `---${metadataСarriage}`;
 
     const newMetadata = newMetadatas.join(metadataСarriage);
