@@ -1,5 +1,5 @@
 {
-  "name": "yfm-docs_tests",
+  "name": "yfm-docs-tests",
   "version": "1.0.0",
   "devDependencies": {
     "@types/jest": "^27.0.3",
