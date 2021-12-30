@@ -1,3 +1,5 @@
+import {platform} from 'process';
+import {Platforms} from '../constants';
 import {SinglePageResult} from '../models';
 import {PluginService} from '../services';
 
@@ -44,7 +46,7 @@ function getMetadata(metadata: Record<string, string>): string {
 }
 
 export function joinSinglePageResults(singlePageResults: SinglePageResult[]): string {
-    const delimeter = '\n\n<hr class="yfm-page__delimeter">\n\n';
+    const delimeter = `${сarriage}${сarriage}<hr class="yfm-page__delimeter">${сarriage}${сarriage}`;
     return singlePageResults
         .filter(({content}) => content)
         .map(({content}) => content)
@@ -54,3 +56,5 @@ export function joinSinglePageResults(singlePageResults: SinglePageResult[]): st
 export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, '\'');
 }
+
+export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';

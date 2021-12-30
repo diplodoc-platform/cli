@@ -98,3 +98,5 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 // Include example: author: authorLogin
 // Regexp result: authorLogin
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
+
+export const metadataBorder = '---';

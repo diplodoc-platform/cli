@@ -1,8 +1,8 @@
-import {compareDirectories, runYfmDocs, getTestPaths} from './utils';
+import {compareDirectories, runYfmDocs, getTestPaths} from '../utils';
 
-describe('Single page', () => {
-    test('Test1', () => {
-        const testRootPath = './tests/mocks/single-page/test1';
+describe('Include toc', () => {
+    test('Toc is included in link mode', () => {
+        const testRootPath = 'mocks/include-toc/test1';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
 
         runYfmDocs(inputPath, outputPath);
@@ -18,8 +18,8 @@ describe('Single page', () => {
         }
     });
 
-    test('Test2', () => {
-        const testRootPath = './tests/mocks/single-page/test2';
+    test('Toc is included inline, not as a new section', () => {
+        const testRootPath = 'mocks/include-toc/test2';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
 
         runYfmDocs(inputPath, outputPath);
@@ -35,10 +35,9 @@ describe('Single page', () => {
         }
     });
 
-    test('Test3', () => {
-        const testRootPath = './tests/mocks/single-page/test3';
+    test('Nested toc inclusions with mixed including modes', () => {
+        const testRootPath = 'mocks/include-toc/test3';
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
-
         runYfmDocs(inputPath, outputPath);
 
         const compareResult = compareDirectories(outputPath, expectedOutputPath);

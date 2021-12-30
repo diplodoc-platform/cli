@@ -4,6 +4,7 @@ import {resolve, join, extname} from 'path';
 import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import isEqual from 'lodash/isEqual';
+import {convertBackSlashToSlash} from 'utils/path';
 
 const yfmDocsPath = require.resolve('../build');
 
@@ -33,13 +34,15 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
         const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
         const outputContent = getFileContent(resolve(outputPath, expectedFilePath));
 
+        const convertedExpectedContent = convertBackSlashToSlash(expectedContent);
+
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let preparedExpectedContent: any = expectedContent;
+        let preparedExpectedContent: any = convertedExpectedContent;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedOutputContent: any = outputContent;
 
         if (fileExtension === '.yaml') {
-            preparedExpectedContent = load(expectedContent);
+            preparedExpectedContent = load(convertedExpectedContent);
             preparedOutputContent = load(outputContent);
         }
 

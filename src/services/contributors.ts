@@ -50,15 +50,20 @@ async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: V
         const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength);
         const includeContributors = await vcsConnector.getContributorsByPath(relativeFilePath);
 
-        const contentIncludeFile: string = readFileSync(relativeIncludeFilePath, 'utf8');
+        let nestedContributors: Contributors = {};
 
-        const newFileData: FileData = {
-            ...fileData,
-            fileContent: contentIncludeFile,
-            tmpInputFilePath: relativeIncludeFilePath,
-        };
+        if (!includeContributors.hasIncludes) {
+            const contentIncludeFile: string = readFileSync(relativeIncludeFilePath, 'utf8');
 
-        const nestedContributors = await getContributorsForNestedFiles(newFileData, vcsConnector);
+            const newFileData: FileData = {
+                ...fileData,
+                fileContent: contentIncludeFile,
+                tmpInputFilePath: relativeIncludeFilePath,
+            };
+
+            nestedContributors = await getContributorsForNestedFiles(newFileData, vcsConnector);
+            vcsConnector.addNestedContributorsForPath(relativeFilePath, nestedContributors);
+        }
 
         includesContributors.push(includeContributors.contributors);
         includesContributors.push(nestedContributors);
