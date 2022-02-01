@@ -1,5 +1,6 @@
 const webpack = require('webpack');
 const {resolve} = require('path');
+const ThreadsPlugin = require('threads-plugin');
 
 module.exports = [
     {
@@ -57,6 +58,7 @@ module.exports = [
             new webpack.DefinePlugin({
                 VERSION: JSON.stringify(require('./package.json').version),
             }),
+            new ThreadsPlugin(),
         ],
     },
 ];

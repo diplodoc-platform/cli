@@ -1,0 +1,115 @@
+import {dirname, relative, resolve} from 'path';
+import log from '@doc-tools/transform/lib/log';
+import {
+    default as yfmlint,
+    LintMarkdownFunctionOptions,
+    PluginOptions,
+} from '@doc-tools/transform/lib/yfmlint';
+import {readFileSync} from 'fs';
+
+import {ArgvService, PresetService, PluginService} from '../services';
+import {liquidMd2Html} from './md2html';
+import {liquidMd2Md} from './md2md';
+
+interface FileTransformOptions {
+    path: string;
+    root?: string;
+}
+
+const FileLinter: Record<string, Function> = {
+    '.md': MdFileLinter,
+};
+
+export interface ResolverLintOptions {
+    inputPath: string;
+    fileExtension: string;
+    onFinish?: () => void;
+}
+
+export function lintPage(options: ResolverLintOptions) {
+    const {inputPath, fileExtension, onFinish} = options;
+
+    const {input} = ArgvService.getConfig();
+    const resolvedPath: string = resolve(input, inputPath);
+    const content: string = readFileSync(resolvedPath, 'utf8');
+
+    const lintFn: Function = FileLinter[fileExtension];
+    if (!lintFn) {
+        return;
+    }
+
+    lintFn(content, {path: inputPath});
+
+    if (onFinish) {
+        onFinish();
+    }
+}
+
+function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {
+    const {
+        input,
+        vars: argVars,
+        lintConfig,
+        disableLiquid,
+        outputFormat,
+        ...options
+    } = ArgvService.getConfig();
+    const {path: filePath} = lintOptions;
+
+    const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();
+    const vars = {
+        ...PresetService.get(dirname(filePath)),
+        ...argVars,
+    };
+    const root = resolve(input);
+    const path: string = resolve(input, filePath);
+    let preparedContent = content;
+
+    /* Relative path from folder of .md file to root of user' output folder */
+    const assetsPublicPath = relative(dirname(path), root);
+
+    const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
+        const {input, path, sourceMap} = opts; // eslint-disable-line no-shadow
+
+        const pluginOptions: PluginOptions = {
+            ...options,
+            vars,
+            root,
+            path,
+            lintMarkdown, // Should pass the function for linting included files
+            assetsPublicPath,
+            disableLiquid,
+            log,
+        };
+
+        yfmlint({
+            input,
+            lintConfig,
+            pluginOptions,
+            // @ts-ignore
+            plugins,
+            defaultLintConfig: PluginService.getDefaultLintConfig(),
+            customLintRules: PluginService.getCustomLintRules(),
+            sourceMap,
+        });
+    };
+
+    let sourceMap;
+    if (!disableLiquid) {
+        let liquidResult;
+        if (outputFormat === 'md') {
+            liquidResult = liquidMd2Md(content, vars, path);
+        } else {
+            liquidResult = liquidMd2Html(content, vars, path);
+        }
+
+        preparedContent = liquidResult.output;
+        sourceMap = liquidResult.sourceMap;
+    }
+
+    lintMarkdown({
+        input: preparedContent,
+        path,
+        sourceMap,
+    });
+}

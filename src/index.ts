@@ -1,6 +1,7 @@
 import * as yargs from 'yargs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
+import 'threads/register';
 
 import {
     BUNDLE_FOLDER,
@@ -17,6 +18,8 @@ import {
     processExcludedFiles,
     processLogs,
     processPages,
+    processLinter,
+    initLinterWorkers,
     processServiceFiles,
     publishFilesToS3,
 } from './steps';
@@ -124,6 +127,16 @@ const _yargs = yargs
         describe: 'Should whether to turn of a linter',
         type: 'boolean',
     })
+    .option('lint', {
+        default: true,
+        describe: 'Should whether to run the linter',
+        type: 'boolean',
+    })
+    .option('lint-only', {
+        default: false,
+        describe: 'Should whether to run the linter only',
+        type: 'boolean',
+    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
@@ -132,7 +145,14 @@ const _yargs = yargs
 
 console.time(MAIN_TIMER_ID);
 
-main();
+main()
+    .then(() => {
+        process.exit(0);
+    })
+    .catch((err) => {
+        console.log(err);
+        process.exit(1);
+    });
 
 async function main() {
     const userOutputFolder = resolve(_yargs.argv.output);
@@ -148,7 +168,7 @@ async function main() {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        const {output: outputFolderPath, outputFormat, publish, addMapFile} = ArgvService.getConfig();
+        const {output: outputFolderPath, outputFormat, publish, lintOnly, addMapFile} = ArgvService.getConfig();
 
         processServiceFiles();
         processExcludedFiles();
@@ -162,34 +182,46 @@ async function main() {
         const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
         const pathToLintConfig = join(_yargs.argv.input, LINT_CONFIG_FILENAME);
 
-        await processPages(outputBundlePath);
+        /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
+        await initLinterWorkers();
 
-        // process additional files
-        switch (outputFormat) {
-            case 'html':
-                processAssets(outputBundlePath);
-                break;
-            case 'md': {
-                shell.cp('-r', resolve(pathToConfig), tmpOutputFolder);
+        await Promise.all([
+            processLinter(),
+            processPages(outputBundlePath),
+        ]);
 
-                try {
-                    shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
-                } catch { }
+        if (!lintOnly) {
+            // process additional files
+            switch (outputFormat) {
+                case 'html':
+                    processAssets(outputBundlePath);
+                    break;
+                case 'md': {
+                    shell.cp('-r', resolve(pathToConfig), userOutputFolder);
 
-                try {
-                    shell.cp('-r', resolve(pathToLintConfig), userOutputFolder);
-                } catch {}
+                    try {
+                        shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
+                    } catch {
+                    }
 
-                break;
+                    try {
+                        shell.cp('-r', resolve(pathToLintConfig), userOutputFolder);
+                    } catch {
+                    }
+
+                    break;
+                }
+            }
+
+            // Copy all generated files to user' output folder
+            shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
+
+            if (publish) {
+                publishFilesToS3();
             }
         }
-
-        // Copy all generated files to user' output folder
-        shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
-
-        if (publish) {
-            publishFilesToS3();
-        }
+    } catch (err) {
+        console.log(err);
     } finally {
         processLogs(tmpInputFolder);
 

@@ -3,13 +3,8 @@ import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
 
 import transform, {Output} from '@doc-tools/transform';
-import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
-import {
-    default as yfmlint,
-    LintMarkdownFunctionOptions,
-    PluginOptions,
-} from '@doc-tools/transform/lib/yfmlint';
+import liquid from '@doc-tools/transform/lib/liquid';
 
 import {ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PresetService, TocService, PluginService} from '../services';
@@ -81,8 +76,18 @@ function YamlFileTransformer(content: string): Object {
     };
 }
 
+export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
+    // @ts-ignore
+    const {conditionsInCode} = ArgvService.getConfig();
+
+    return liquid(input, vars, path, {
+        conditionsInCode,
+        withSourceMap: true,
+    });
+}
+
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, vars: argVars, lintConfig, disableLint, disableLiquid, ...options} = ArgvService.getConfig();
+    const {input, vars: argVars, ...options} = ArgvService.getConfig();
     const {path: filePath} = transformOptions;
 
     const plugins = PluginService.getPlugins();
@@ -92,61 +97,16 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     };
     const root = resolve(input);
     const path: string = resolve(input, filePath);
-    let preparedContent = content;
 
     /* Relative path from folder of .md file to root of user' output folder */
     const assetsPublicPath = relative(dirname(path), resolve(input));
 
-    if (!disableLint) {
-        const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
-            const {input, path, sourceMap} = opts; // eslint-disable-line no-shadow
-
-            const pluginOptions: PluginOptions = {
-                ...options,
-                vars,
-                root,
-                path,
-                disableLint,
-                lintMarkdown, // Should pass the function for linting included files
-                assetsPublicPath,
-                log,
-            };
-
-            yfmlint({
-                input,
-                lintConfig,
-                pluginOptions,
-                plugins,
-                defaultLintConfig: PluginService.getDefaultLintConfig(),
-                customLintRules: PluginService.getCustomLintRules(),
-                sourceMap,
-            });
-        };
-
-        let sourceMap;
-        if (!disableLiquid) {
-            const liquidResult = liquid(content, vars, path, {withSourceMap: true});
-
-            preparedContent = liquidResult.output;
-            sourceMap = liquidResult.sourceMap;
-        }
-
-        lintMarkdown({
-            input: preparedContent,
-            path,
-            sourceMap,
-        });
-    }
-
-    const isLiquided = !disableLint && !disableLiquid;
-
-    return transform(preparedContent, {
+    return transform(content, {
         ...options,
         plugins,
         vars,
         root,
         path,
         assetsPublicPath,
-        isLiquided,
     });
 }

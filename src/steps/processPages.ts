@@ -24,7 +24,12 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         outputFormat,
         singlePage,
         resolveConditions,
+        lintOnly,
     } = ArgvService.getConfig();
+
+    if (lintOnly) {
+        return;
+    }
 
     const vcsConnector = await getVCSConnector();
 

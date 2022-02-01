@@ -15,7 +15,12 @@ function init(argv: any) {
     } as YfmArgv;
 }
 
+function set(argv: YfmArgv) {
+    _argv = argv;
+}
+
 export default {
     getConfig,
     init,
+    set,
 };

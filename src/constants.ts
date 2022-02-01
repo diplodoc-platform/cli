@@ -1,4 +1,5 @@
 import {dirname} from 'path';
+const os = require('os');
 const notes = require('@doc-tools/transform/lib/plugins/notes');
 const anchors = require('@doc-tools/transform/lib/plugins/anchors');
 const code = require('@doc-tools/transform/lib/plugins/code');
@@ -76,6 +77,7 @@ export const YFM_PLUGINS = [
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';
+export const LINTING_FINISHED = 'Linting finished:';
 export const GETTING_ALL_CONTRIBUTORS = 'Getting all contributors.';
 export const ALL_CONTRIBUTORS_RECEIVED = 'All contributors received.';
 export const getMsgСonfigurationMustBeProvided =
@@ -98,5 +100,8 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 // Include example: author: authorLogin
 // Regexp result: authorLogin
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
+
+export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
+export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || (os.cpus().length - 1);
 
 export const metadataBorder = '---';

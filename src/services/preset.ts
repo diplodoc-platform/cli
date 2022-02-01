@@ -2,7 +2,9 @@ import {dirname, normalize} from 'path';
 
 import {DocPreset, YfmPreset} from '../models';
 
-const presetStorage: Map<string, YfmPreset> = new Map();
+export type PresetStorage = Map<string, YfmPreset>;
+
+let presetStorage: PresetStorage = new Map();
 
 function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
     const combinedValues: YfmPreset = {
@@ -37,7 +39,17 @@ function get(path: string): YfmPreset {
     return combinedValues;
 }
 
+function getPresetStorage(): Map<string, YfmPreset> {
+    return presetStorage;
+}
+
+function setPresetStorage(preset: Map<string, YfmPreset>): void {
+    presetStorage = preset;
+}
+
 export default {
     add,
     get,
+    getPresetStorage,
+    setPresetStorage,
 };
