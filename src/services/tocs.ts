@@ -16,10 +16,17 @@ import {isExternalHref} from '../utils';
 import {filterFiles} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
 
-const storage: Map<string, YfmToc> = new Map();
-const navigationPaths: string[] = [];
-const singlePageNavigationPaths: Set<string> = new Set();
-const includedTocPaths: Set<string> = new Set();
+export interface TocServiceData {
+    storage: Map<string, YfmToc>;
+    navigationPaths: string[];
+    singlePageNavigationPaths: Set<string>;
+    includedTocPaths: Set<string>;
+}
+
+const storage: TocServiceData['storage'] = new Map();
+let navigationPaths: TocServiceData['navigationPaths'] = [];
+const singlePageNavigationPaths: TocServiceData['singlePageNavigationPaths'] = new Set();
+const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 
 function add(path: string) {
     const {
@@ -375,6 +382,10 @@ function getTocDir(pagePath: string): string {
     return getTocDir(tocDir);
 }
 
+function setNavigationPaths(paths: TocServiceData['navigationPaths']) {
+    navigationPaths = paths;
+}
+
 export default {
     add,
     getForPath,
@@ -382,4 +393,5 @@ export default {
     getSinglePageNavigationPaths,
     getTocDir,
     getIncludedTocPaths,
+    setNavigationPaths,
 };

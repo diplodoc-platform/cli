@@ -2,7 +2,7 @@ import {TextSizes, Theme} from '@doc-tools/components';
 
 const DEFAULT_USER_SETTINGS = {
     theme: Theme.Light,
-    textSize: TextSizes.m,
+    textSize: TextSizes.M,
     showMiniToc: true,
     wideFormat: true,
     fullScreen: false,

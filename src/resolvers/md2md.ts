@@ -3,7 +3,6 @@ import {dirname, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
-import yfmlint from '@doc-tools/transform/lib/yfmlint';
 
 import {ArgvService, PresetService, PluginService} from '../services';
 import {logger} from '../utils';
@@ -19,6 +18,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         ...PresetService.get(dirname(inputPath)),
         ...configVars,
     };
+
     const content = await getContentWithUpdatedMetadata(
         readFileSync(resolvedInputPath, 'utf8'),
         metadata,
@@ -58,13 +58,23 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
     }
 }
 
-function transformMd2Md(input: string, options: PluginOptions) {
+export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
     const {
         applyPresets,
         resolveConditions,
+    } = ArgvService.getConfig();
+
+    return liquid(input, vars, path, {
+        conditions: resolveConditions,
+        substitutions: applyPresets,
+        withSourceMap: true,
+        keepNotVar: true,
+    });
+}
+
+function transformMd2Md(input: string, options: PluginOptions) {
+    const {
         disableLiquid,
-        lintConfig,
-        disableLint,
     } = ArgvService.getConfig();
     const {
         vars = {},
@@ -78,28 +88,12 @@ function transformMd2Md(input: string, options: PluginOptions) {
         singlePage,
     } = options;
 
-    let output = input, sourceMap;
+    let output = input;
+
     if (!disableLiquid) {
-        const liquidResult = liquid(input, vars, path, {
-            conditions: resolveConditions,
-            substitutions: applyPresets,
-            withSourceMap: true,
-            keepNotVar: true,
-        });
+        const liquidResult = liquidMd2Md(input, vars, path);
 
         output = liquidResult.output;
-        sourceMap = liquidResult.sourceMap;
-    }
-
-    if (!disableLint) {
-        yfmlint({
-            input: output,
-            defaultLintConfig: PluginService.getDefaultLintConfig(),
-            lintConfig,
-            pluginOptions: {log, path},
-            customLintRules: PluginService.getCustomLintRules(),
-            sourceMap,
-        });
     }
 
     if (collectOfPlugins) {

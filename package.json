@@ -36,6 +36,8 @@
     "react-dom": "^16.13.1",
     "shelljs": "^0.8.5",
     "simple-git": "^2.48.0",
+    "threads": "^1.7.0",
+    "threads-plugin": "^1.4.0",
     "walk-sync": "^2.1.0",
     "yargs": "^15.3.1"
   },
@@ -96,6 +98,7 @@
   "pkg": {
     "scripts": [
       "build/index.js",
+      "build/0.index.worker.js",
       "build/plugins/*.js",
       "build/lint-rules/*.js",
       "build/default-lint-config.js",
