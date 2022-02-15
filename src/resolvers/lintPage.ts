@@ -69,13 +69,13 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
     const assetsPublicPath = relative(dirname(path), root);
 
     const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
-        const {input, path, sourceMap} = opts; // eslint-disable-line no-shadow
+        const {input: localInput, path: localPath, sourceMap} = opts;
 
         const pluginOptions: PluginOptions = {
             ...options,
             vars,
             root,
-            path,
+            path: localPath,
             lintMarkdown, // Should pass the function for linting included files
             assetsPublicPath,
             disableLiquid,
@@ -83,10 +83,9 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         };
 
         yfmlint({
-            input,
+            input: localInput,
             lintConfig,
             pluginOptions,
-            // @ts-ignore
             plugins,
             defaultLintConfig: PluginService.getDefaultLintConfig(),
             customLintRules: PluginService.getCustomLintRules(),
