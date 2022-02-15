@@ -197,17 +197,9 @@ async function main() {
                     processAssets(outputBundlePath);
                     break;
                 case 'md': {
-                    shell.cp('-r', resolve(pathToConfig), userOutputFolder);
-
-                    try {
-                        shell.cp('-r', resolve(pathToRedirects), userOutputFolder);
-                    } catch {
-                    }
-
-                    try {
-                        shell.cp('-r', resolve(pathToLintConfig), userOutputFolder);
-                    } catch {
-                    }
+                    shell.cp(resolve(pathToConfig), tmpOutputFolder);
+                    shell.cp(resolve(pathToRedirects), tmpOutputFolder);
+                    shell.cp(resolve(pathToLintConfig), tmpOutputFolder);
 
                     break;
                 }
@@ -221,7 +213,7 @@ async function main() {
             }
         }
     } catch (err) {
-        console.log(err);
+        console.error(err);
     } finally {
         processLogs(tmpInputFolder);
 

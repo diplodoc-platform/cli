@@ -77,7 +77,6 @@ function YamlFileTransformer(content: string): Object {
 }
 
 export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
-    // @ts-ignore
     const {conditionsInCode} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
