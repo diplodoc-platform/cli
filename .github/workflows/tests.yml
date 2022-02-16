@@ -31,7 +31,6 @@ jobs:
         run: |
           cd tests
           npm ci
-          npm i -g jest
       - name: Run tests
         run: |
           cd tests
