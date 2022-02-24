@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@doc-tools/components": "^1.11.1",
-    "@doc-tools/transform": "^2.4.10",
+    "@doc-tools/transform": "^2.5.1",
     "@octokit/core": "^3.5.1",
     "aws-sdk": "^2.1054.0",
     "chalk": "^4.0.0",
