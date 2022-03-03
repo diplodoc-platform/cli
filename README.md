@@ -10,7 +10,19 @@ Yfm-docs lets you build a full-fledged documentation project: with navigation, i
 
 ![Example of displaying a documentation page](docsAssets/overview.jpg)
 
-[Documentation](https://ydocs.tech/ru/tools/docs/)
+## Documentation
+
+[ydocs.tech](https://ydocs.tech/en/tools/docs/)
+
+## Usage
+
+```bash
+npm i @doc-tools/docs -g
+```
+
+```bash
+npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
+```
 
 ## Source files
 
@@ -38,17 +50,11 @@ connector:
         repo:
 ```
 
-### Installation
+### Build from source
 
 ```bash
 cd yfm-docs
 npm ci && npm run build
-```
-
-### Usage
-
-```bash
-npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```
 
 ## License

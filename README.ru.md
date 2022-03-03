@@ -10,7 +10,20 @@ Yfm-docs позволяет собрать полноценный докумен
 
 ![Пример отображения страницы документации](docsAssets/overview.jpg)
 
-[Документация по использованию](https://ydocs.tech/ru/tools/docs/)
+## Документация
+
+[ydocs.tech](https://ydocs.tech/ru/tools/docs/)
+
+## Использование
+
+```bash
+npm i @doc-tools/docs -g
+```
+
+```bash
+npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
+```
+
 
 ## Исходники
 
@@ -38,17 +51,12 @@ connector:
         repo:
 ```
 
-### Установка
+### Сборка из исходников
 
 ```bash
 cd yfm-docs
 npm ci && npm run build
-```
-
-### Использование
-```bash
-npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
-```
+``
 
 ## License
 
