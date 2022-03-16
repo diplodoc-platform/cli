@@ -7,7 +7,8 @@ import {
 } from '@doc-tools/transform/lib/yfmlint';
 import {readFileSync} from 'fs';
 
-import {ArgvService, PresetService, PluginService} from '../services';
+import {ArgvService, PluginService} from '../services';
+import {getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
 
@@ -48,7 +49,6 @@ export function lintPage(options: ResolverLintOptions) {
 function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {
     const {
         input,
-        vars: argVars,
         lintConfig,
         disableLiquid,
         outputFormat,
@@ -57,10 +57,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
     const {path: filePath} = lintOptions;
 
     const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();
-    const vars = {
-        ...PresetService.get(dirname(filePath)),
-        ...argVars,
-    };
+    const vars = getVarsPerFile(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
     let preparedContent = content;
@@ -80,6 +77,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
             assetsPublicPath,
             disableLiquid,
             log,
+            getVarsPerFile: getVarsPerRelativeFile,
         };
 
         yfmlint({

@@ -7,8 +7,8 @@ import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
 import {ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PresetService, TocService, PluginService} from '../services';
-import {generateStaticMarkup, logger, transformToc} from '../utils';
+import {ArgvService, TocService, PluginService} from '../services';
+import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
 import {getUpdatedMetadata} from '../services/metadata';
 
@@ -86,14 +86,11 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
 }
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, vars: argVars, ...options} = ArgvService.getConfig();
+    const {input, ...options} = ArgvService.getConfig();
     const {path: filePath} = transformOptions;
 
     const plugins = PluginService.getPlugins();
-    const vars = {
-        ...PresetService.get(dirname(filePath)),
-        ...argVars,
-    };
+    const vars = getVarsPerFile(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
 
@@ -107,5 +104,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         root,
         path,
         assetsPublicPath,
+        getVarsPerFile: getVarsPerRelativeFile,
     });
 }

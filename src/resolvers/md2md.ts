@@ -4,20 +4,17 @@ import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ArgvService, PresetService, PluginService} from '../services';
-import {logger} from '../utils';
+import {ArgvService, PluginService} from '../services';
+import {logger, getVarsPerFile} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
     const {inputPath, outputPath, singlePage, metadata} = options;
-    const {input, output, vars: configVars} = ArgvService.getConfig();
+    const {input, output} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
-    const vars = {
-        ...PresetService.get(dirname(inputPath)),
-        ...configVars,
-    };
+    const vars = getVarsPerFile(inputPath);
 
     const content = await getContentWithUpdatedMetadata(
         readFileSync(resolvedInputPath, 'utf8'),
