@@ -122,19 +122,14 @@ const _yargs = yargs
         describe: 'Remove hidden toc items',
         type: 'boolean',
     })
-    .option('disable-lint', {
+    .option('lint-disabled', {
         default: false,
-        describe: 'Should whether to turn of a linter',
+        describe: 'Disable linting',
         type: 'boolean',
     })
-    .option('lint', {
-        default: true,
-        describe: 'Should whether to run the linter',
-        type: 'boolean',
-    })
-    .option('lint-only', {
+    .option('build-disabled', {
         default: false,
-        describe: 'Should whether to run the linter only',
+        describe: 'Disable building',
         type: 'boolean',
     })
     .check(argvValidator)
@@ -168,7 +163,14 @@ async function main() {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        const {output: outputFolderPath, outputFormat, publish, lintOnly, addMapFile} = ArgvService.getConfig();
+        const {
+            output: outputFolderPath,
+            outputFormat,
+            publish,
+            lintDisabled,
+            buildDisabled,
+            addMapFile,
+        } = ArgvService.getConfig();
 
         processServiceFiles();
         processExcludedFiles();
@@ -182,15 +184,19 @@ async function main() {
         const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
         const pathToLintConfig = join(_yargs.argv.input, LINT_CONFIG_FILENAME);
 
-        /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-        await initLinterWorkers();
+        if (!lintDisabled) {
+            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
+            await initLinterWorkers();
+        }
 
-        await Promise.all([
-            processLinter(),
-            processPages(outputBundlePath),
-        ]);
+        const processes = [
+            !lintDisabled && processLinter(),
+            !buildDisabled && processPages(outputBundlePath),
+        ].filter(Boolean) as Promise<void>[];
 
-        if (!lintOnly) {
+        await Promise.all(processes);
+
+        if (!buildDisabled) {
             // process additional files
             switch (outputFormat) {
                 case 'html':
