@@ -14,13 +14,6 @@ let navigationPathsChunks: (string[])[];
 
 export async function processLinter(): Promise<void> {
     const argvConfig = ArgvService.getConfig();
-    const {
-        lint,
-    } = argvConfig;
-
-    if (!lint) {
-        return;
-    }
 
     const navigationPaths = TocService.getNavigationPaths();
 
@@ -70,12 +63,6 @@ export async function processLinter(): Promise<void> {
 }
 
 export async function initLinterWorkers() {
-    const {lint} = ArgvService.getConfig();
-
-    if (!lint) {
-        return;
-    }
-
     const navigationPaths = TocService.getNavigationPaths();
     const chunkSize = getChunkSize(navigationPaths);
 
