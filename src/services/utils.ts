@@ -1,5 +1,5 @@
 import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
-import {Filter} from '../models';
+import {Filter, TextItems} from '../models';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -51,7 +51,7 @@ export function filterFiles<T extends Filter>(
 }
 
 export function filterTextItems(
-    items: string | ({text: string} & Filter | string)[],
+    items: undefined | TextItems,
     vars: Record<string, string>,
     options?: FilterFilesOptions,
 ) {
