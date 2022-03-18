@@ -76,12 +76,18 @@ export interface YfmTocInclude {
 
 export interface LeadingPage {
     title: string;
-    description?: string;
+    description?: TextItems;
     meta?: {
         title?: string;
         noIndex?: boolean;
     };
     links: LeadingPageLinks[];
+}
+
+export type TextItems = string | (TextItem | string)[];
+
+export interface TextItem extends Filter {
+    text: string;
 }
 
 export interface LeadingPageLinks extends Filter {

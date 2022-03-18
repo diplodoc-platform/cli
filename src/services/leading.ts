@@ -5,7 +5,7 @@ import log from '@doc-tools/transform/lib/log';
 
 import {ArgvService, PresetService} from './index';
 import {LeadingPage} from '../models';
-import {filterFiles} from './utils';
+import {filterTextItems, filterFiles} from './utils';
 
 function filterFile(path: string) {
     const {
@@ -25,6 +25,11 @@ function filterFile(path: string) {
 
     /* Should remove all links with false expressions */
     try {
+        parsedIndex.description = filterTextItems(
+            parsedIndex.description,
+            combinedVars,
+            {resolveConditions: true},
+        );
         parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars, {resolveConditions: true});
         writeFileSync(filePath, dump(parsedIndex));
     } catch (error) {

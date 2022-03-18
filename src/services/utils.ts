@@ -1,5 +1,5 @@
 import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
-import {Filter} from '../models';
+import {Filter, TextItems} from '../models';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -20,11 +20,6 @@ export function filterFiles<T extends Filter>(
     vars: Record<string, string>,
     options?: FilterFilesOptions,
 ): T[] {
-    const {
-        resolveConditions,
-        removeHiddenTocItems,
-    } = options || {};
-
     if (!Array.isArray(items)) {
         const errorMessage
             = `Error while filtering: item has invalid key '${itemsKey}' equals ${JSON.stringify(items)}`;
@@ -32,23 +27,9 @@ export function filterFiles<T extends Filter>(
     }
 
     return items.reduce((result: T[], item: T) => {
-        let shouldProcessItem = true;
+        const useItem = shouldProcessItem(item, vars, options);
 
-        if (resolveConditions) {
-            const {when} = item;
-            shouldProcessItem =
-                when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
-
-            delete item.when;
-        }
-
-        if (shouldProcessItem && removeHiddenTocItems) {
-            shouldProcessItem = !item.hidden;
-
-            delete item.hidden;
-        }
-
-        if (shouldProcessItem) {
+        if (useItem) {
             const property = item[itemsKey] as T[] | undefined;
 
             if (property === undefined) {
@@ -67,6 +48,52 @@ export function filterFiles<T extends Filter>(
 
         return result;
     }, []);
+}
+
+export function filterTextItems(
+    items: undefined | TextItems,
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
+    if (!Array.isArray(items)) {
+        return items;
+    }
+
+    return items.reduce((result: string[], item) => {
+        if (!isObject(item)) {
+            result.push(item);
+            return result;
+        }
+
+        const useItem = shouldProcessItem(item, vars, options);
+
+        if (useItem) {
+            result.push(item.text);
+        }
+
+        return result;
+    }, []);
+}
+
+function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, string>, options?: FilterFilesOptions) {
+    const {resolveConditions, removeHiddenTocItems} = options || {};
+    let useItem = true;
+
+    if (resolveConditions) {
+        const {when} = item;
+        useItem =
+            when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
+
+        delete item.when;
+    }
+
+    if (useItem && removeHiddenTocItems) {
+        useItem = !item.hidden;
+
+        delete item.hidden;
+    }
+
+    return useItem;
 }
 
 export function isObject(o: unknown): o is object {
