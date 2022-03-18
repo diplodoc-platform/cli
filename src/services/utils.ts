@@ -1,5 +1,5 @@
 import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
-import {Filter, LeadingPage} from '../models';
+import {Filter} from '../models';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -27,9 +27,9 @@ export function filterFiles<T extends Filter>(
     }
 
     return items.reduce((result: T[], item: T) => {
-        const shouldProcessItem = isShouldProcessItem(item, vars, options);
+        const useItem = shouldProcessItem(item, vars, options);
 
-        if (shouldProcessItem) {
+        if (useItem) {
             const property = item[itemsKey] as T[] | undefined;
 
             if (property === undefined) {
@@ -50,8 +50,8 @@ export function filterFiles<T extends Filter>(
     }, []);
 }
 
-export function filterDescription(
-    items: LeadingPage['description'],
+export function filterTextItems(
+    items: string | ({text: string} & Filter | string)[],
     vars: Record<string, string>,
     options?: FilterFilesOptions,
 ) {
@@ -65,9 +65,9 @@ export function filterDescription(
             return result;
         }
 
-        const shouldProcessItem = isShouldProcessItem(item, vars, options);
+        const useItem = shouldProcessItem(item, vars, options);
 
-        if (shouldProcessItem) {
+        if (useItem) {
             result.push(item.text);
         }
 
@@ -75,25 +75,25 @@ export function filterDescription(
     }, []);
 }
 
-function isShouldProcessItem<T extends Filter>(item: T, vars: Record<string, string>, options?: FilterFilesOptions) {
+function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, string>, options?: FilterFilesOptions) {
     const {resolveConditions, removeHiddenTocItems} = options || {};
-    let shouldProcessItem = true;
+    let useItem = true;
 
     if (resolveConditions) {
         const {when} = item;
-        shouldProcessItem =
+        useItem =
             when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
 
         delete item.when;
     }
 
-    if (shouldProcessItem && removeHiddenTocItems) {
-        shouldProcessItem = !item.hidden;
+    if (useItem && removeHiddenTocItems) {
+        useItem = !item.hidden;
 
         delete item.hidden;
     }
 
-    return shouldProcessItem;
+    return useItem;
 }
 
 export function isObject(o: unknown): o is object {

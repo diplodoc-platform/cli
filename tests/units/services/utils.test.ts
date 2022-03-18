@@ -1,15 +1,15 @@
-import {filterDescription, filterFiles} from "services/utils";
+import {filterTextItems, filterFiles} from "services/utils";
 import {Lang} from "../../../src/constants";
 
 const combinedVars = {
     lang: Lang.EN,
 };
 
-describe('filterDescription', () => {
+describe('filterTextItems', () => {
     test('string', () => {
         const description = 'test';
 
-        const result = filterDescription(
+        const result = filterTextItems(
             description,
             combinedVars,
             {resolveConditions: true},
@@ -24,7 +24,7 @@ describe('filterDescription', () => {
             'line2'
         ];
 
-        const result = filterDescription(
+        const result = filterTextItems(
             description,
             combinedVars,
             {resolveConditions: true},
@@ -44,7 +44,7 @@ describe('filterDescription', () => {
             text: 'line3',
         }];
 
-        const result = filterDescription(
+        const result = filterTextItems(
             description,
             combinedVars,
             {resolveConditions: true},
