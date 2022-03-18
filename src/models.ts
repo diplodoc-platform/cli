@@ -76,7 +76,7 @@ export interface YfmTocInclude {
 
 export interface LeadingPage {
     title: string;
-    description?: string;
+    description?: string | ({text: string} & Filter | string)[];
     meta?: {
         title?: string;
         noIndex?: boolean;
