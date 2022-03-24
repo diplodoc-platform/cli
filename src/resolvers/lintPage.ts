@@ -6,6 +6,7 @@ import {
     PluginOptions,
 } from '@doc-tools/transform/lib/yfmlint';
 import {readFileSync} from 'fs';
+import {bold} from 'chalk';
 
 import {ArgvService, PluginService} from '../services';
 import {getVarsPerFile, getVarsPerRelativeFile} from '../utils';
@@ -29,17 +30,23 @@ export interface ResolverLintOptions {
 
 export function lintPage(options: ResolverLintOptions) {
     const {inputPath, fileExtension, onFinish} = options;
-
     const {input} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedPath, 'utf8');
 
-    const lintFn: Function = FileLinter[fileExtension];
-    if (!lintFn) {
-        return;
+    try {
+        const content: string = readFileSync(resolvedPath, 'utf8');
+
+        const lintFn: Function = FileLinter[fileExtension];
+        if (!lintFn) {
+            return;
+        }
+
+        lintFn(content, {path: inputPath});
+    } catch (e) {
+        const message = `No such file or has no access to ${bold(resolvedPath)}`;
+        console.error(message, e);
+        log.error(message);
     }
-
-    lintFn(content, {path: inputPath});
 
     if (onFinish) {
         onFinish();
