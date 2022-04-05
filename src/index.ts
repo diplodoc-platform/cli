@@ -236,6 +236,6 @@ function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: str
 
     // Copy all user' files to the temporary folder to avoid user' file changing.
     // Please, change files only in temporary folders.
-    shell.cp('-r', resolve(_yargs.argv.input, '*'), tmpInputFolder);
+    shell.cp('-rL', resolve(_yargs.argv.input, '*'), tmpInputFolder);
     shell.chmod('-R', 'u+w', tmpInputFolder);
 }
