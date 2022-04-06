@@ -41,7 +41,10 @@ describe('filterTextItems', () => {
             text: 'line2',
             when: `lang == "${Lang.RU}"`,
         }, {
-            text: 'line3',
+            text: [
+                'line3',
+                'line4',
+            ]
         }];
 
         const result = filterTextItems(
@@ -50,7 +53,7 @@ describe('filterTextItems', () => {
             {resolveConditions: true},
         );
 
-        expect(result).toEqual(['line1', 'line3']);
+        expect(result).toEqual(['line1', 'line3', 'line4']);
     });
 });
 
@@ -63,7 +66,10 @@ describe('filterFiles', () => {
             title: 'line2',
             when: `lang == "${Lang.RU}"`,
         }, {
-            title: 'line3'
+            title: [
+                'line3',
+                'line4',
+            ]
         }];
 
         const result = filterFiles(links, 'links', combinedVars, {resolveConditions: true});
@@ -71,7 +77,10 @@ describe('filterFiles', () => {
         expect(result).toEqual([{
             title: 'line1',
         }, {
-            title: 'line3',
+            title: [
+                'line3',
+                'line4',
+            ]
         }]);
     });
 });
