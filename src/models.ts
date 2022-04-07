@@ -87,7 +87,7 @@ export interface LeadingPage {
 export type TextItems = string | (TextItem | string)[];
 
 export interface TextItem extends Filter {
-    text: string;
+    text: string | string[];
 }
 
 export interface LeadingPageLinks extends Filter {

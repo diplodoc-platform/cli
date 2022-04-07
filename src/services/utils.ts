@@ -68,7 +68,11 @@ export function filterTextItems(
         const useItem = shouldProcessItem(item, vars, options);
 
         if (useItem) {
-            result.push(item.text);
+            if (Array.isArray(item.text)) {
+                result.push(...item.text);
+            } else {
+                result.push(item.text);
+            }
         }
 
         return result;
