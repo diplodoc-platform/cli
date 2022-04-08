@@ -215,7 +215,7 @@ async function main() {
             shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
 
             if (publish) {
-                publishFilesToS3();
+                await publishFilesToS3();
             }
         }
     } catch (err) {
