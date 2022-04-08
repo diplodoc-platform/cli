@@ -42,10 +42,6 @@ export async function publishFilesToS3(): void {
 
         logger.upload(pathToFile);
 
-        return s3Client.upload(params, (error) => {
-            if (error) {
-                throw error;
-            }
-        }).promise();
+        return s3Client.upload(params).promise();
     }));
 }
