@@ -9,7 +9,7 @@ import {convertBackSlashToSlash, logger} from '../utils';
 
 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
 
-export function publishFilesToS3(): void {
+export async function publishFilesToS3(): void {
     const {
         output: outputFolderPath,
         ignore = [],
@@ -30,7 +30,7 @@ export function publishFilesToS3(): void {
         ignore,
     });
 
-    for (const pathToFile of filesToPublish) {
+    await Promise.all(filesToPublish.map(async (pathToFile) => {
         const mimeType = mime.lookup(pathToFile);
 
         const params: S3.Types.PutObjectRequest = {
@@ -42,10 +42,10 @@ export function publishFilesToS3(): void {
 
         logger.upload(pathToFile);
 
-        s3Client.upload(params, (error) => {
+        return s3Client.upload(params, (error) => {
             if (error) {
                 throw error;
             }
-        });
-    }
+        }).promise();
+    }));
 }
