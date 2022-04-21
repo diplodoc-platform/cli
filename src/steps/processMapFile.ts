@@ -20,12 +20,11 @@ type Toc = {
 
 export function prepareMapFile(): void {
     const {
-        input: inputFolderPath,
         output: outputFolderPath,
     } = ArgvService.getConfig();
 
     const navigationPaths = {
-        files: collectFiles(inputFolderPath),
+        files: collectFiles(outputFolderPath),
     };
 
     const filesMapBuffer = Buffer.from(JSON.stringify(navigationPaths, null, '\t'), 'utf8');
