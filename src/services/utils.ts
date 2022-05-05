@@ -79,6 +79,20 @@ export function filterTextItems(
     }, []);
 }
 
+export function firstFilterTextItems(
+    items: TextItems,
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
+    const filteredItems = filterTextItems(items, vars, options);
+
+    if (!Array.isArray(filteredItems)) {
+        return filteredItems || '';
+    }
+
+    return filteredItems[0] || '';
+}
+
 function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, string>, options?: FilterFilesOptions) {
     const {resolveConditions, removeHiddenTocItems} = options || {};
     let useItem = true;

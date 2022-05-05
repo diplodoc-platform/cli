@@ -13,7 +13,7 @@ import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
 import {isExternalHref} from '../utils';
-import {filterFiles} from './utils';
+import {filterFiles, firstFilterTextItems} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
 
 export interface TocServiceData {
@@ -54,6 +54,14 @@ function add(path: string) {
         ...PresetService.get(pathToDir),
         ...vars,
     };
+
+    if (parsedToc.title) {
+        parsedToc.title = firstFilterTextItems(
+            parsedToc.title,
+            combinedVars,
+            {resolveConditions: true},
+        );
+    }
 
     /* Should make substitutions in title */
     if (applyPresets && parsedToc.title) {
