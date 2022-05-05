@@ -64,7 +64,7 @@ function add(path: string) {
     }
 
     /* Should make substitutions in title */
-    if (applyPresets && parsedToc.title) {
+    if (applyPresets && typeof parsedToc.title === 'string') {
         parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
     }
 
