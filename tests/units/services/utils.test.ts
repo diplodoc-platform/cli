@@ -1,4 +1,4 @@
-import {filterTextItems, filterFiles} from "services/utils";
+import {filterTextItems, filterFiles, firstFilterTextItems} from "services/utils";
 import {Lang} from "../../../src/constants";
 
 const combinedVars = {
@@ -54,6 +54,50 @@ describe('filterTextItems', () => {
         );
 
         expect(result).toEqual(['line1', 'line3', 'line4']);
+    });
+});
+
+describe('firstFilterTextItems', () => {
+    test('string', () => {
+        const title = 'line1';
+
+        const result = firstFilterTextItems(
+            title,
+            combinedVars,
+            {resolveConditions: true},
+        );
+
+        expect(result).toEqual('line1');
+    });
+
+    test('string[]', () => {
+        const title = ['line1', 'line2'];
+
+        const result = firstFilterTextItems(
+            title,
+            combinedVars,
+            {resolveConditions: true},
+        );
+
+        expect(result).toEqual('line1');
+    });
+
+    test('TextItem[]', () => {
+        const title = [{
+            text: 'line1',
+            when: `lang == "${Lang.EN}"`,
+        }, {
+            text: 'line2',
+            when: `lang == "${Lang.RU}"`,
+        }];
+
+        const result = firstFilterTextItems(
+            title,
+            combinedVars,
+            {resolveConditions: true},
+        );
+
+        expect(result).toEqual('line1');
     });
 });
 

@@ -62,7 +62,7 @@ export interface YfmToc extends Filter {
     items: YfmToc[];
     stage?: Stage;
     base?: string;
-    title?: string;
+    title?: TextItems;
     include?: YfmTocInclude;
     id?: string;
     singlePage?: boolean;
@@ -75,11 +75,14 @@ export interface YfmTocInclude {
 }
 
 export interface LeadingPage {
-    title: string;
+    title: TextItems;
     description?: TextItems;
     meta?: {
-        title?: string;
+        title?: TextItems;
         noIndex?: boolean;
+    };
+    nav?: {
+        title: TextItems;
     };
     links: LeadingPageLinks[];
 }
