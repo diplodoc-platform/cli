@@ -7,11 +7,15 @@ import log from '@doc-tools/transform/lib/log';
 
 import {ArgvService, LeadingService, TocService, PluginService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {joinSinglePageResults, logger} from '../utils';
-import {MetaDataOptions, SinglePageResult, PathData} from '../models';
-import {SINGLE_PAGE_FOLDER} from '../constants';
+import {generateStaticMarkup, joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
+import {MetaDataOptions, SinglePageResult, PathData, YfmToc, ResolveMd2HTMLResult} from '../models';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
+import {
+    SINGLE_PAGE_FILENAME,
+    SINGLE_PAGE_DATA_FILENAME,
+    Lang,
+} from '../constants';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -30,7 +34,6 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     const promises: Promise<void>[] = [];
 
-    const singlePageNavigationPaths = TocService.getSinglePageNavigationPaths();
     PluginService.setPlugins();
 
     for (const pathToFile of TocService.getNavigationPaths()) {
@@ -38,19 +41,15 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
         logger.proc(pathToFile);
 
-        if (singlePage && outputFormat === 'md' && singlePageNavigationPaths.has(pathToFile)) {
-            promises.push(preparingSinglePages(pathData, singlePage, outputFolderPath));
-        }
-
         const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
 
-        promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions));
+        promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage));
     }
 
     await Promise.all(promises);
 
     if (singlePage) {
-        saveSinglePages();
+        await saveSinglePages(outputBundlePath);
     }
 }
 
@@ -67,70 +66,100 @@ function getPathData(
     const fileBaseName: string = basename(filename, fileExtension);
     const outputDir = resolve(outputFolderPath, pathToDir);
     const outputFileName = `${fileBaseName}.${outputFormat}`;
+    const outputPath = resolve(outputDir, outputFileName);
+    const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
+    const outputTocDir = TocService.getTocDir(resolvedPathToFile);
 
     const pathData: PathData = {
         pathToFile,
-        resolvedPathToFile: resolve(inputFolderPath, pathToFile),
+        resolvedPathToFile,
         filename,
         fileBaseName,
         fileExtension,
         outputDir,
-        outputPath: resolve(outputDir, outputFileName),
+        outputPath,
         outputFormat,
         outputBundlePath,
+        outputTocDir,
+        inputFolderPath,
+        outputFolderPath,
     };
 
     return pathData;
 }
 
-function saveSinglePages() {
-    try {
-        for (const singlePageDir of Object.keys(singlePagePaths)) {
-            if (singlePagePaths[singlePageDir].size) {
-                const singlePageFn = join(singlePageDir, 'index.md');
-                const content = joinSinglePageResults(singlePageResults[singlePageDir]);
+async function saveSinglePages(outputBundlePath: string) {
+    const {
+        input: inputFolderPath,
+        output: outputFolderPath,
+        lang,
+    } = ArgvService.getConfig();
 
-                writeFileSync(singlePageFn, content);
+    try {
+        await Promise.all(Object.keys(singlePageResults).map(async (tocDir) => {
+            if (!singlePageResults[tocDir].length) {
+                return;
             }
-        }
+
+            const singlePageBody = joinSinglePageResults(singlePageResults[tocDir], inputFolderPath, tocDir);
+            const tocPath = join(relative(inputFolderPath, tocDir), 'toc.yaml');
+            const toc: YfmToc|null = TocService.getForPath(tocPath) || null;
+            const preparedToc = transformTocForSinglePage(toc, {
+                root: inputFolderPath,
+                currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
+            });
+
+            const pageData = {
+                data: {
+                    leading: false,
+                    html: singlePageBody,
+                    headings: [],
+                    meta: {},
+                    toc: preparedToc,
+                },
+                router: {
+                    pathname: SINGLE_PAGE_FILENAME,
+                },
+                lang: lang || Lang.RU,
+            } as ResolveMd2HTMLResult;
+
+            const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
+            const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
+
+            // Save the full single page for viewing locally
+            const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
+            const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
+            const singlePageContent = generateStaticMarkup(pageData, relativeOutputBundlePath);
+
+            writeFileSync(singlePageFn, singlePageContent);
+            writeFileSync(singlePageDataFn, JSON.stringify(pageData));
+        }));
     } catch (error) {
         console.log(error);
     }
 }
 
-async function preparingSinglePages(pathData: PathData, singlePage: boolean, outputFolderPath: string): Promise<void> {
-    try {
-        const {pathToFile, outputPath, fileExtension} = pathData;
-        const outputSinglePageDir = resolve(TocService.getTocDir(outputPath), SINGLE_PAGE_FOLDER);
+function savePageResultForSinglePage(pageProps: ResolveMd2HTMLResult, pathData: PathData): void {
+    const {pathToFile, outputTocDir} = pathData;
 
-        singlePagePaths[outputSinglePageDir] = singlePagePaths[outputSinglePageDir] || new Set();
-
-        const isExistFileAsSinglePage =
-            singlePagePaths[outputSinglePageDir] && singlePagePaths[outputSinglePageDir].has(pathToFile);
-
-        if (!(fileExtension === '.yaml') && !isExistFileAsSinglePage) {
-            const outputSinglePageContent =
-                await resolveMd2Md({
-                    inputPath: pathToFile,
-                    outputPath,
-                    singlePage,
-                    singlePageRoot: outputSinglePageDir,
-                });
-
-            const absolutePathToFile = resolve(outputFolderPath, pathToFile);
-            const relativePathToOriginalFile = relative(outputSinglePageDir, absolutePathToFile);
-
-            singlePageResults[outputSinglePageDir] = singlePageResults[outputSinglePageDir] || [];
-            singlePageResults[outputSinglePageDir].push({
-                path: relativePathToOriginalFile,
-                content: outputSinglePageContent,
-            });
-
-            singlePagePaths[outputSinglePageDir].add(pathToFile);
-        }
-    } catch (error) {
-        console.log(error);
+    if (pageProps.data.leading) {
+        return;
     }
+
+    singlePagePaths[outputTocDir] = singlePagePaths[outputTocDir] || new Set();
+
+    if (singlePagePaths[outputTocDir].has(pathToFile)) {
+        return;
+    }
+
+    singlePagePaths[outputTocDir].add(pathToFile);
+
+    singlePageResults[outputTocDir] = singlePageResults[outputTocDir] || [];
+    singlePageResults[outputTocDir].push({
+        path: pathToFile,
+        content: pageProps.data.html,
+        title: pageProps.data.title,
+    });
 }
 
 function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector,
@@ -155,6 +184,7 @@ async function preparingPagesByOutputFormat(
     path: PathData,
     metaDataOptions: MetaDataOptions,
     resolveConditions: boolean,
+    singlePage: boolean,
 ): Promise<void> {
     const {
         filename,
@@ -185,9 +215,15 @@ async function preparingPagesByOutputFormat(
             case 'md':
                 await processingFileToMd(path, metaDataOptions);
                 return;
-            case 'html':
-                await processingFileToHtml(path, metaDataOptions);
+            case 'html': {
+                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
+
+                if (singlePage) {
+                    savePageResultForSinglePage(resolvedFileProps, path);
+                }
+
                 return;
+            }
         }
     } catch (e) {
         const message = `No such file or has no access to ${bold(resolvedPathToFile)}`;
@@ -213,7 +249,7 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
     });
 }
 
-async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
+async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<ResolveMd2HTMLResult> {
     const {
         outputBundlePath,
         filename,
@@ -222,7 +258,7 @@ async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOpt
         pathToFile,
     } = path;
 
-    await resolveMd2HTML({
+    return resolveMd2HTML({
         inputPath: pathToFile,
         outputBundlePath,
         fileExtension,

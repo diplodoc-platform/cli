@@ -1,4 +1,4 @@
-import {basename, dirname, join, relative, resolve} from 'path';
+import {basename, dirname, join, relative, resolve, sep} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
 
@@ -6,7 +6,7 @@ import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ResolverOptions, YfmToc} from '../models';
+import {ResolverOptions, YfmToc, ResolveMd2HTMLResult} from '../models';
 import {ArgvService, TocService, PluginService} from '../services';
 import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
@@ -22,14 +22,14 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
-export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
+export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveMd2HTMLResult> {
     const {inputPath, fileExtension, outputPath, outputBundlePath, metadata} = options;
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
-    const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}/`, '');
-    const relativePathToIndex = relative(dirname(inputPath), `${tocBase}/`);
+    const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
+    const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
 
     const {input, lang} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
@@ -61,6 +61,8 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
     const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
+
+    return props;
 }
 
 function YamlFileTransformer(content: string): Object {

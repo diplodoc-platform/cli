@@ -1,32 +1,28 @@
-import {dirname, extname, join, parse, resolve, relative, normalize} from 'path';
+import {dirname, extname, join, parse, resolve, relative, normalize, sep} from 'path';
 import {copyFileSync, readFileSync, writeFileSync, existsSync, mkdirSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@doc-tools/transform/lib/liquid';
 import log from '@doc-tools/transform/lib/log';
-import {getSinglePageAnchorId} from '@doc-tools/transform/lib/utilsFS';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc, IncluderFnOutputElement} from '../models';
-import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
+import {Stage, IncludeMode} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems} from './utils';
-import {cloneDeep as _cloneDeep} from 'lodash';
 import {getIncluder, isValidIncluder} from './includers';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
     navigationPaths: string[];
-    singlePageNavigationPaths: Set<string>;
     includedTocPaths: Set<string>;
 }
 
 const storage: TocServiceData['storage'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
-const singlePageNavigationPaths: TocServiceData['singlePageNavigationPaths'] = new Set();
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 
 async function add(path: string) {
@@ -35,7 +31,6 @@ async function add(path: string) {
         output: outputFolderPath,
         outputFormat,
         ignoreStage,
-        singlePage,
         vars,
         resolveConditions,
         applyPresets,
@@ -98,36 +93,15 @@ async function add(path: string) {
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
 
-    const singlePageFilesInitialCount = singlePageNavigationPaths.size;
-
-    prepareNavigationPaths(parsedToc, pathToDir);
-
-    const singlePageFilesCount = singlePageNavigationPaths.size - singlePageFilesInitialCount;
-
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
         const outputPath = resolve(outputFolderPath, path);
         const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
-
-        if (singlePage && singlePageFilesCount) {
-            const parsedSinglePageToc = _cloneDeep(parsedToc);
-            const currentPath = resolve(outputFolderPath, path);
-            parsedSinglePageToc.items = filterFiles(parsedSinglePageToc.items, 'items', {}, {
-                removeHiddenTocItems: true,
-            });
-
-            prepareTocForSinglePageMode(parsedSinglePageToc, {root: outputFolderPath, currentPath});
-
-            const outputSinglePageDir = resolve(dirname(outputPath), SINGLE_PAGE_FOLDER);
-            const outputSinglePageTocPath = resolve(outputSinglePageDir, 'toc.yaml');
-            const outputSinglePageToc = dump(parsedSinglePageToc);
-
-            shell.mkdir('-p', outputSinglePageDir);
-            writeFileSync(outputSinglePageTocPath, outputSinglePageToc);
-        }
     }
+
+    prepareNavigationPaths(parsedToc, pathToDir);
 }
 
 function getForPath(path: string): YfmToc|undefined {
@@ -136,10 +110,6 @@ function getForPath(path: string): YfmToc|undefined {
 
 function getNavigationPaths(): string[] {
     return [...navigationPaths];
-}
-
-function getSinglePageNavigationPaths(): Set<string> {
-    return new Set(singlePageNavigationPaths);
 }
 
 function getIncludedTocPaths(): string[] {
@@ -159,43 +129,16 @@ function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
             }
 
             if (item.href && !isExternalHref(item.href)) {
-                const href = `${pathToDir}/${item.href}`;
+                const href = join(pathToDir, item.href);
                 storage.set(href, parsedToc);
 
                 const navigationPath = _normalizeHref(href);
                 navigationPaths.push(navigationPath);
-
-                const isYamlFileExtension = extname(item.href) === '.yaml';
-                if (!item.hidden && !isYamlFileExtension) {
-                    singlePageNavigationPaths.add(navigationPath);
-                }
             }
         });
     }
 
-    const clonedParsedToc = _cloneDeep(parsedToc);
-
-    processItems([clonedParsedToc], dirPath);
-}
-
-function prepareTocForSinglePageMode(parsedToc: YfmToc, options: {root: string; currentPath: string}) {
-    const {root, currentPath} = options;
-
-    function processItems(items: YfmToc[]) {
-        items.forEach((item) => {
-            if (item.items) {
-                processItems(item.items);
-            }
-
-            if (item.href && !isExternalHref(item.href)) {
-                item.href = getSinglePageAnchorId({root, currentPath, pathname: item.href});
-            }
-        });
-    }
-
-    processItems(parsedToc.items);
-    parsedToc.href = 'index.md';
-    parsedToc.singlePage = true;
+    processItems([parsedToc], dirPath);
 }
 
 /**
@@ -213,7 +156,7 @@ function _normalizeHref(href: string): string {
         return preparedHref;
     }
 
-    if (preparedHref.endsWith('/')) {
+    if (preparedHref.endsWith(sep)) {
         return `${preparedHref}index.yaml`;
     }
 
@@ -371,15 +314,7 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
 }
 
 function addIncludeTocPath(includeTocPath: string) {
-    const {singlePage} = ArgvService.getConfig();
-
     includedTocPaths.add(includeTocPath);
-
-    if (singlePage) {
-        const includeSinglePageTocDir = resolve(dirname(includeTocPath), SINGLE_PAGE_FOLDER);
-
-        includedTocPaths.add(includeSinglePageTocDir);
-    }
 }
 
 /**
@@ -462,13 +397,13 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
 }
 
 function getTocDir(pagePath: string): string {
-    const {output: outputFolderPath} = ArgvService.getConfig();
+    const {input: inputFolderPath} = ArgvService.getConfig();
 
     const tocDir = dirname(pagePath);
     const tocPath = resolve(tocDir, 'toc.yaml');
 
 
-    if (!tocDir.includes(outputFolderPath)) {
+    if (!tocDir.includes(inputFolderPath)) {
         throw new Error('Error while finding toc dir');
     }
 
@@ -487,7 +422,6 @@ export default {
     add,
     getForPath,
     getNavigationPaths,
-    getSinglePageNavigationPaths,
     getTocDir,
     getIncludedTocPaths,
     setNavigationPaths,

@@ -34,6 +34,7 @@
     "highlight.js": "10.7.3",
     "js-yaml": "4.1.0",
     "mime-types": "2.1.34",
+    "node-html-parser": "^5.3.3",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "shelljs": "0.8.5",
