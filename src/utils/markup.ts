@@ -1,22 +1,28 @@
 import {platform} from 'process';
 import {Platforms} from '../constants';
-import {SinglePageResult} from '../models';
+import {ResolveMd2HTMLResult, SinglePageResult} from '../models';
 import {PluginService} from '../services';
+import {preprocessPageHtmlForSinglePage} from './singlePage';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function generateStaticMarkup(props: any, pathToBundle: string): string {
-    const {title: metaTitle} = props.data.meta || {};
+export interface GenerateStaticMarkup extends ResolveMd2HTMLResult {}
+
+export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: string): string {
+    const {title: metaTitle} = props.data.meta as {title?: string} || {};
     const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
 
-    const title = getTitle({metaTitle, tocTitle, pageTitle});
+    const title = getTitle({
+        metaTitle,
+        tocTitle: tocTitle as string,
+        pageTitle,
+    });
 
     return `
         <!DOCTYPE html>
         <html>
             <head>
                 <meta charset="utf-8">
-                ${getMetadata(props.data.meta)}
+                ${getMetadata(props.data.meta as Record<string, string>)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
                 <style type="text/css">
@@ -73,11 +79,11 @@ function getMetadata(metadata: Record<string, string>): string {
 
 export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
-export function joinSinglePageResults(singlePageResults: SinglePageResult[]): string {
+export function joinSinglePageResults(singlePageResults: SinglePageResult[], root: string, tocDir: string): string {
     const delimeter = `${сarriage}${сarriage}<hr class="yfm-page__delimeter">${сarriage}${сarriage}`;
     return singlePageResults
         .filter(({content}) => content)
-        .map(({content}) => content)
+        .map(({content, path, title}) => preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}))
         .join(delimeter);
 }
 

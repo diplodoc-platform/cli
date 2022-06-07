@@ -1,7 +1,0 @@
-title: Service 1
-items:
-  - name: First
-    href: '#_service1_index'
-base: service1
-href: index.md
-singlePage: true

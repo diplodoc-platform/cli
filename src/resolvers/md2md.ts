@@ -3,8 +3,6 @@ import {dirname, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
-import yfmlint from '@doc-tools/transform/lib/yfmlint';
-import {loadFront} from 'yaml-front-matter';
 
 import {ArgvService, PluginService} from '../services';
 import {logger, getVarsPerFile} from '../utils';
@@ -12,23 +10,17 @@ import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string | void> {
-    const {inputPath, outputPath, singlePage, singlePageRoot, metadata} = options;
-    const {input, output, vars: configVars} = ArgvService.getConfig();
+export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
+    const {inputPath, outputPath, metadata} = options;
+    const {input, output} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
     const vars = getVarsPerFile(inputPath);
 
-    let content = await getContentWithUpdatedMetadata(
+    const content = await getContentWithUpdatedMetadata(
         readFileSync(resolvedInputPath, 'utf8'),
         metadata,
         vars.__system,
     );
-
-    // Remove metadata when preparing single page
-    if (singlePage) {
-        const {__content} = loadFront(content);
-        content = __content;
-    }
 
     const {result} = transformMd2Md(content, {
         path: resolvedInputPath,
@@ -36,16 +28,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
         root: resolve(input),
         destRoot: resolve(output),
         collectOfPlugins: PluginService.getCollectOfPlugins(),
-        singlePage,
-        singlePageRoot,
         vars,
         log,
         copyFile,
     });
-
-    if (singlePage) {
-        return result;
-    }
 
     writeFileSync(outputPath, result);
     logger.info(inputPath, PROCESSING_FINISHED);
@@ -93,8 +79,6 @@ function transformMd2Md(input: string, options: PluginOptions) {
         collectOfPlugins,
         log: pluginLog,
         copyFile: pluginCopyFile,
-        singlePage,
-        singlePageRoot,
     } = options;
 
     let output = input;
@@ -115,8 +99,6 @@ function transformMd2Md(input: string, options: PluginOptions) {
             log: pluginLog,
             copyFile: pluginCopyFile,
             collectOfPlugins,
-            singlePage,
-            singlePageRoot,
         });
     }
 

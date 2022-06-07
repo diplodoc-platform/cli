@@ -130,6 +130,7 @@ export interface Filter {
 export interface SinglePageResult {
     path: string;
     content: string;
+    title?: string;
 }
 
 export interface Contributor {
@@ -165,7 +166,6 @@ export interface PluginOptions {
     log: Logger;
     copyFile: (targetPath: string, targetDestPath: string, options?: PluginOptions) => void;
     singlePage?: boolean;
-    singlePageRoot?: string;
     root?: string;
     destPath?: string;
     destRoot?: string;
@@ -179,8 +179,6 @@ export interface Plugin {
 export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
-    singlePage?: boolean;
-    singlePageRoot?: string;
     metadata?: MetaDataOptions;
 }
 
@@ -203,4 +201,23 @@ export interface PathData {
     outputPath: string;
     outputFormat: string;
     outputBundlePath: string;
+    outputTocDir: string;
+    inputFolderPath: string;
+    outputFolderPath: string;
+}
+
+export interface ResolveMd2HTMLResult {
+    data: {
+        leading: boolean;
+        toc: YfmToc;
+        html: string;
+        title?: string;
+        headings: unknown[];
+        assets?: unknown[];
+        meta?: object;
+    };
+    router: {
+        pathname: string;
+    };
+    lang: Lang;
 }

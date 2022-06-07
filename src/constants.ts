@@ -16,9 +16,7 @@ const images = require('@doc-tools/transform/lib/plugins/images');
 const monospace = require('@doc-tools/transform/lib/plugins/monospace');
 const table = require('@doc-tools/transform/lib/plugins/table');
 
-anchors.collect = require('@doc-tools/transform/lib/plugins/anchors/collect');
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
-links.collect = require('@doc-tools/transform/lib/plugins/links/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
 
 export const BUILD_FOLDER = 'build';
@@ -27,10 +25,11 @@ export const BUNDLE_FILENAME = 'app.js';
 export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
-export const SINGLE_PAGE_FOLDER = '_single_page';
 export const YFM_CONFIG_FILENAME = '.yfm';
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
+export const SINGLE_PAGE_FILENAME = 'single-page.html';
+export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 
 export enum Stage {
     NEW = 'new',
