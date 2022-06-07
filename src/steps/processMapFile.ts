@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 import walkSync from 'walk-sync';
 
 import {ArgvService} from '../services';
+import {isExternalHref} from '../utils';
 
 type TocItem = {
     name: string;
@@ -35,7 +36,7 @@ export function prepareMapFile(): void {
 
 function walkItems(items: TocItems, source: string) {
     return items.reduce((acc: string[], {href, items: subItems}) => {
-        if (href) {
+        if (href && !isExternalHref(href)) {
             acc.push(join(source, href).replace(extname(href), ''));
         }
 
