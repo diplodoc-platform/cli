@@ -5,6 +5,12 @@ import {PluginService} from '../services';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateStaticMarkup(props: any, pathToBundle: string): string {
+    const {title: metaTitle} = props.data.meta || {};
+    const {title: tocTitle} = props.data.toc;
+    const {title: pageTitle} = props.data;
+
+    const title = getTitle({metaTitle, tocTitle, pageTitle});
+
     return `
         <!DOCTYPE html>
         <html>
@@ -12,7 +18,7 @@ export function generateStaticMarkup(props: any, pathToBundle: string): string {
                 <meta charset="utf-8">
                 ${getMetadata(props.data.meta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${props.data.toc.title}</title>
+                <title>${title}</title>
                 <style type="text/css">
                     body {
                         height: 100vh;
@@ -29,6 +35,26 @@ export function generateStaticMarkup(props: any, pathToBundle: string): string {
             </body>
         </html>
     `;
+}
+
+interface GetTitleOptions {
+    tocTitle?: string;
+    metaTitle?: string;
+    pageTitle?: string;
+}
+
+function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
+    const resultPageTitle = metaTitle || pageTitle;
+
+    if (!resultPageTitle && tocTitle) {
+        return tocTitle;
+    }
+
+    if (resultPageTitle && !tocTitle) {
+        return resultPageTitle;
+    }
+
+    return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
 }
 
 function getMetadata(metadata: Record<string, string>): string {
