@@ -105,5 +105,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         path,
         assetsPublicPath,
         getVarsPerFile: getVarsPerRelativeFile,
+        extractTitle: true,
     });
 }
