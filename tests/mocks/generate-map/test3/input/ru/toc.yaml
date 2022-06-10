@@ -1,0 +1,22 @@
+title: Yandex Flavored Markdown
+items:
+  - name: Yandex Flavored Markdown
+    href: index.md
+  - name: Settings
+    href: settings.md
+  - name: Plugins
+    items:
+      - name: Overview
+        href: plugins/index.md
+      - name: Adding additional plugins
+        href: https://test.ru
+  - name: Organizing a YFM project
+    items:
+      - name: Overview
+        href: project/index.md
+      - name: Configuration file
+        href: https://test.ru
+  - name: folder1
+    include:
+      mode: link
+      path: folder1/toc.yaml

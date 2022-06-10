@@ -2,6 +2,7 @@ import {writeFileSync} from 'fs';
 import {extname, join} from 'path';
 
 import {ArgvService, TocService} from '../services';
+import {convertBackSlashToSlash} from '../utils';
 
 type TocItem = {
     name: string;
@@ -18,7 +19,7 @@ export function prepareMapFile(): void {
 
     const navigationPathsWithoutExtensions =
         TocService.getNavigationPaths().map((path) => {
-            let preparedPath = path.replace(extname(path), '');
+            let preparedPath = convertBackSlashToSlash(path.replace(extname(path), ''));
 
             if (preparedPath.endsWith('/index')) {
                 preparedPath = preparedPath.substring(0, preparedPath.length - 5);

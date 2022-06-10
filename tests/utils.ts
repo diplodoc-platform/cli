@@ -57,28 +57,6 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
     return compareResult;
 }
 
-export function compareFiles(outputPath, expectedOutputPath) {
-    let compareResult: CompareResult = true;
-    const expectedContent = getFileContent(expectedOutputPath);
-    const outputContent = getFileContent(outputPath);
-
-    const convertedExpectedContent = convertBackSlashToSlash(expectedContent);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let preparedExpectedContent: any = convertedExpectedContent;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let preparedOutputContent: any = outputContent;
-
-    if (!isEqual(preparedExpectedContent, preparedOutputContent)) {
-        compareResult = {
-            expectedContent: preparedExpectedContent,
-            outputContent: preparedOutputContent,
-        };
-    }
-
-    return compareResult
-}
-
 interface RunYfmDocsArgs {
     md2md?: boolean;
     md2html?: boolean;
