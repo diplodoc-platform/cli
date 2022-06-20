@@ -5,8 +5,6 @@
 		"ru/",
 		"ru/settings",
 		"ru/plugins/",
-		"ru/plugins/import",
-		"ru/project/",
-		"ru/project/config"
+		"ru/project/"
 	]
 }

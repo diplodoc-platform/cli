@@ -1,37 +1,26 @@
-import {getTestPaths, compareFiles, runYfmDocs} from '../utils';
+import {getTestPaths, runYfmDocs, getFileContent} from '../utils';
+
+const geretateMapTestTemplate = (testTitle, testRootPath, md2md = true, md2html = true) => {
+    test(testTitle, () => {
+        const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
+
+        runYfmDocs(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
+
+        const outputContent = getFileContent(outputPath + '/files.json');
+        const expectedContent = getFileContent(expectedOutputPath + '/files.json');
+
+        const prepareFileJsonToCompare = (file) => JSON.stringify(JSON.parse(file).files.sort())
+
+        expect(prepareFileJsonToCompare(outputContent)).toEqual(prepareFileJsonToCompare(expectedContent));
+    });
+}
 
 describe('Generate map for', () => {
-    test('project with single language and toc include', () => {
-        const testRootPath = 'mocks/generate-map/test1';
-        const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
+    geretateMapTestTemplate('project with single language and toc include', 'mocks/generate-map/test1')
 
-        runYfmDocs(inputPath, outputPath, {md2md: false, md2html: true, args: '--add-map-file'});
+    geretateMapTestTemplate('project with single language and toc include - only md2html', 'mocks/generate-map/test1', false)
 
-        const compareResult = compareFiles(outputPath, expectedOutputPath);
+    geretateMapTestTemplate('project with multiple language', 'mocks/generate-map/test2')
 
-        if (typeof compareResult === 'boolean') {
-            expect(true).toEqual(compareResult);
-        } else {
-            const {expectedContent, outputContent} = compareResult;
-
-            expect(expectedContent).toEqual(outputContent);
-        }
-    });
-
-    test('project with multiple language', () => {
-        const testRootPath = 'mocks/generate-map/test2';
-        const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
-
-        runYfmDocs(inputPath, outputPath, {md2md: false, md2html: true, args: '--add-map-file'});
-
-        const compareResult = compareFiles(outputPath, expectedOutputPath);
-
-        if (typeof compareResult === 'boolean') {
-            expect(true).toEqual(compareResult);
-        } else {
-            const {expectedContent, outputContent} = compareResult;
-
-            expect(expectedContent).toEqual(outputContent);
-        }
-    });
+    geretateMapTestTemplate('project with external links in toc', 'mocks/generate-map/test3')
 });
