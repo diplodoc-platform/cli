@@ -28,7 +28,7 @@ jobs:
         cache: 'npm'
     - run: npm ci
     - run: npm run build
-    - run: npx webpack --mode production --json static/webpack-stats.json
+    # - run: npx webpack --mode production --json static/webpack-stats.json
     
     - name: Run bundle-stats
       uses: vio/bundle-stats-action@v1
