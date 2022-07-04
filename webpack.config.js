@@ -3,6 +3,14 @@ const {resolve} = require('path');
 
 module.exports = [
     {
+        stats: {
+            assets: true,
+            entrypoints: true,
+            chunks: true,
+            modules: true,
+            builtAt: true,
+            hash: true
+        },
         mode: 'production',
         target: 'web',
         entry: './src/app/index.tsx',
