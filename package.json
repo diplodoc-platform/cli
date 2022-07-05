@@ -22,7 +22,7 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "test": "npm run build && jest"
+    "test": "npm run build && jest --coverage "
   },
   "dependencies": {
     "@doc-tools/components": "^1.10.1",
