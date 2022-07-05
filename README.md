@@ -1,3 +1,5 @@
+[![codecov.io](https://codecov.io/github/nanov94/yfm-docs/coverage.svg?branch=master)](https://codecov.io/github/nanov94/yfm-docs?branch=master)
+
 **english** | [русский](https://github.com/yandex-cloud/yfm-docs/blob/master/README.ru.md)
 - - -
 
