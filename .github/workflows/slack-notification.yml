@@ -2,8 +2,7 @@ name: Slack Notification
 
 on:
   push:
-    branches:
-      - development
+    branches: ['master']
   workflow_call:
     inputs:
       message:
