@@ -2,7 +2,8 @@ name: Slack Notification
 
 on:
   pull_request:
-    types: [closed]
+    branches: [ master ]
+    types: [ closed ]
   workflow_call:
     inputs:
       message:
@@ -14,6 +15,7 @@ on:
 
 jobs:
   slackNotification:
+    if: github.event.pull_request.merged == 'true'
     name: Slack Notification
     runs-on: ubuntu-latest
     steps:
