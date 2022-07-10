@@ -1,9 +1,9 @@
 name: Slack Notification
 
 on:
-  # push:
-  #   branches:
-  #     - development
+  push:
+    branches:
+      - development
   workflow_call:
     inputs:
       message:
