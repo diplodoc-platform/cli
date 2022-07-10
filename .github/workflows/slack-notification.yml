@@ -1,8 +1,8 @@
 name: Slack Notification
 
 on:
-  push:
-    branches: ['master']
+  pull_request:
+    types: [closed]
   workflow_call:
     inputs:
       message:
