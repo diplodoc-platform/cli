@@ -1,0 +1,35 @@
+name: Bundle size diff
+
+env:
+  IS_LOCAL_ENV: 'TRUE'
+  ANALYZE_BUNDLE: 'TRUE'
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+jobs:
+
+  slackNotification:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PERFORMANCE }}
+        SLACK_CHANNEL: performance
+        SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+        SLACK_MESSAGE: '111111111111111'
+        SLACK_TITLE: Message
+
+  slack-notification:
+    name: Slack Notification
+    uses: ./.github/workflows/slack-notification.yml
+    with:
+      message: 'dif 123' #${{steps.get-diff.outputs.base_file_string}}
+    secrets:
+      slack_webhook: ${{ secrets.SLACK_WEBHOOK_PERFORMANCE }}
+  

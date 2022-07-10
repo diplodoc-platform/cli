@@ -1,0 +1,30 @@
+name: Slack Notification
+
+on:
+  pull_request:
+    branches: [ master ]
+    types: [ closed ]
+  workflow_call:
+    inputs:
+      message:
+        required: true
+        type: string
+    secrets:
+      slack_webhook:
+        required: true
+
+jobs:
+  slackNotification:
+    if: github.event.pull_request.merged == 'true'
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Slack Notification
+      uses: rtCamp/action-slack-notify@v2
+      env:
+        SLACK_WEBHOOK: ${{ secrets.slack_webhook }}
+        SLACK_CHANNEL: performance
+        SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
+        SLACK_MESSAGE: ${{ inputs.message }}
+        SLACK_TITLE: Message
