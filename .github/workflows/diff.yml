@@ -9,7 +9,7 @@ on:
     branches: [ master ]
   workflow_dispatch:
   pull_request:
-    types: [opened, edited, synchronize, reopened, ready_for_review]
+    types: [opened, edited, synchronize, reopened, ready_for_review, closed]
 
 jobs:
 
@@ -18,6 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+    - run: echo ${{ github.event.pull_request.merged }}
     - name: Slack Notification
       uses: rtCamp/action-slack-notify@v2
       env:
@@ -27,8 +28,8 @@ jobs:
         SLACK_MESSAGE: 'dif file'
         SLACK_TITLE: Message
 
-  slack-notification:
-    if: github.event.pull_request.merged == 'true'
+  if_merged:
+    if: github.event.pull_request.merged == true
     name: Slack Notification
     uses: ./.github/workflows/slack-notification.yml
     with:
