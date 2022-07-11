@@ -4,8 +4,6 @@ on:
   push:
     branches: [ master ]
   workflow_call:
-    push:
-      branches: [ master ]
     inputs:
       message:
         required: true
