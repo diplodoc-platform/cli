@@ -5,8 +5,6 @@ env:
   ANALYZE_BUNDLE: 'TRUE'
 
 on:
-  push:
-    branches: [ master ]
   workflow_dispatch:
   pull_request:
     types: [opened, edited, synchronize, reopened, ready_for_review, closed]
@@ -20,6 +18,7 @@ jobs:
     - uses: actions/checkout@v2
     - run: echo ${{ github.event.pull_request.merged }}
     - name: Slack Notification
+      if: github.event.pull_request.merged == false
       uses: rtCamp/action-slack-notify@v2
       env:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PERFORMANCE }}

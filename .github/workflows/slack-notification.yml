@@ -24,3 +24,4 @@ jobs:
         SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
         SLACK_MESSAGE: ${{ inputs.message }}
         SLACK_TITLE: Message
+        SLACK_USERNAME: Bundle analuzer
