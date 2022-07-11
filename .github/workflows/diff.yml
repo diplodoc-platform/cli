@@ -22,14 +22,15 @@ jobs:
         SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_PERFORMANCE }}
         SLACK_CHANNEL: performance
         SLACK_COLOR: ${{ job.status }} # or a specific color like 'good' or '#ff00ff'
-        SLACK_MESSAGE: '111111111111111'
+        SLACK_MESSAGE: 'dif file'
         SLACK_TITLE: Message
 
   slack-notification:
+    if: github.event.pull_request.merged == 'true'
     name: Slack Notification
     uses: ./.github/workflows/slack-notification.yml
     with:
-      message: 'dif 123' #${{steps.get-diff.outputs.base_file_string}}
+      message: 'separate file' #${{steps.get-diff.outputs.base_file_string}}
     secrets:
       slack_webhook: ${{ secrets.SLACK_WEBHOOK_PERFORMANCE }}
   
