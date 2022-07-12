@@ -54,6 +54,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
         },
         lang: lang || Lang.RU,
     };
+
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
 
@@ -63,13 +64,20 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<void> {
 }
 
 function YamlFileTransformer(content: string): Object {
-    let data = {};
+    let data: {[key: string]: any} = {};
 
     try {
-        data = yaml.load(content) as string;
+        data = yaml.load(content) as {[key: string]: any};
     } catch (error) {
         log.error(`Yaml transform has been failed. Error: ${error}`);
     }
+
+    const links = data?.links.map(
+        (link: any) =>
+            link.href ? ({...link, href: link.href.replace(/.md$/gmu, '.html')}) : link,
+    );
+
+    if (links) { data.links = links; }
 
     return {
         result: {data},
