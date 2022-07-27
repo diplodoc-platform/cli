@@ -72,7 +72,24 @@ export interface YfmTocInclude {
     repo: string;
     path: string;
     mode?: IncludeMode;
+    includer?: IncluderName;
 }
+
+export const includersNames = ['sourcedocs'] as const;
+
+export type IncluderName = typeof includersNames[number];
+
+export type Includer = {
+    name: IncluderName;
+    generateTocs?: IncluderFn;
+    generateLeadingPages?: IncluderFn;
+};
+
+export type IncluderFn = (a0: IncluderFnParams) => IncluderFnOutput;
+
+export type IncluderFnParams = {include: YfmTocInclude; name: string; root: string};
+
+export type IncluderFnOutput = {path: string; content: LeadingPage | YfmToc}[];
 
 export interface LeadingPage {
     title: TextItems;
