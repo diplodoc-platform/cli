@@ -23,7 +23,7 @@ import {
     processServiceFiles,
     publishFilesToS3,
 } from './steps';
-import {ArgvService} from './services';
+import {ArgvService, Includers} from './services';
 import {argvValidator} from './validator';
 import {prepareMapFile} from './steps/processMapFile';
 
@@ -163,6 +163,8 @@ async function main() {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
+        Includers.init();
+
         const {
             output: outputFolderPath,
             outputFormat,
