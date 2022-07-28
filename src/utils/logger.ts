@@ -1,10 +1,10 @@
-import {blue, green, grey} from 'chalk';
+import {blue, green, grey, red} from 'chalk';
 import {ArgvService} from '../services';
 
-function writeLog(msg: string) {
+function writeLog(msg: string, fatal = false) {
     const {quiet} = ArgvService.getConfig();
 
-    if (quiet) {
+    if (quiet && !fatal) {
         return;
     }
 
@@ -23,5 +23,8 @@ export const logger = {
     },
     upload: function (pathToFile: string) {
         writeLog(`${green('UPLOAD')} Uploading file ${pathToFile}`);
+    },
+    error: function (pathToFile: string) {
+        writeLog(`${red('ERROR')} Failed processing ${pathToFile}`, true);
     },
 };

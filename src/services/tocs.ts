@@ -1,5 +1,5 @@
-import {dirname, extname, join, parse, resolve, relative, sep} from 'path';
-import {copyFileSync, readdirSync, readFileSync, writeFileSync, existsSync} from 'fs';
+import {dirname, extname, join, parse, resolve, relative} from 'path';
+import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
@@ -10,11 +10,12 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
-import {YfmToc, Includer, YfmTocInclude, IncluderFnParams, IncluderFnOutput} from '../models';
+import {YfmToc, IncluderFnOutput} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
-import {isExternalHref} from '../utils';
+import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems} from './utils';
 import {cloneDeep as _cloneDeep} from 'lodash';
+import {getIncluder, isValidIncluder} from './includers';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
@@ -27,129 +28,6 @@ const storage: TocServiceData['storage'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
 const singlePageNavigationPaths: TocServiceData['singlePageNavigationPaths'] = new Set();
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
-
-function includers(custom: Includer[]) {
-    type IncludersMap = {[key: string]: Includer};
-
-    const includersMap: IncludersMap = {};
-
-    for (const includer of custom) { includersMap[includer.name] = includer; }
-
-    console.log('includers:', JSON.stringify(includersMap, null, 4));
-
-    const hasValidIncluder = (include: YfmTocInclude) =>
-        include?.path?.length && include?.includer && includersMap[include.includer as keyof typeof includersMap];
-
-    const getIncluder = (include: YfmTocInclude) => {
-        if (hasValidIncluder(include)) { return includersMap[include.includer as keyof typeof includersMap]; }
-
-        throw new Error('includer not implemented');
-    };
-
-    return {hasValidIncluder, getIncluder};
-}
-
-function generateTocs(params: IncluderFnParams): IncluderFnOutput {
-    console.log('gen tocs params:', params);
-    const {
-        include: {path, mode},
-        name,
-        root,
-    } = params;
-
-    if (mode !== 'link') {
-        throw new Error('include with the includer supports only link mode, set mode: link');
-    }
-
-    return generateTocsRec(join(root, path), path, name);
-}
-
-function generateTocsRec(depth: string, current: string, name: string): IncluderFnOutput {
-    console.log('gen tocs rec params:', depth, current, name);
-
-    const contentFilter = ({name}: {name: string}) => /.md$/gmu.test(name) && !/^\./gmu.test(name);
-    const dirItem = ({name}: {name: string}) => ({
-        name,
-        include: {
-            path: name + sep + 'toc.yaml',
-            mode: 'link',
-        },
-    });
-    const fileItem = ({name}: {name: string}) => ({
-        name: name.replace(/.md$/gmu, ''),
-        href: name,
-    });
-
-    const dirItems = getDirs(resolve(depth)).map(dirItem);
-    const fileItems = getFiles(resolve(depth)).filter(contentFilter).map(fileItem);
-
-    const toc = {
-        name,
-        href: 'index.yaml',
-        items: [...dirItems, ...fileItems] as YfmToc[],
-    };
-
-    const recurse = dirItems.map(({name}) => generateTocsRec(join(depth, name), name, name));
-
-    return [{content: toc, path: join(depth, 'toc.yaml')}, ...recurse.flat(1)];
-}
-
-function generateLeadingPages(
-    params: IncluderFnParams,
-): IncluderFnOutput {
-    console.log('generate lps params:', params);
-    const {
-        include: {path, mode},
-        name,
-        root,
-    } = params;
-
-    if (mode !== 'link') {
-        throw new Error('include with the includer supports only link mode, set mode: link');
-    }
-
-    return generateLeadingPagesRec(join(root, path), path, name);
-}
-
-function generateLeadingPagesRec(
-    depth: string,
-    current: string,
-    name: string,
-): IncluderFnOutput {
-    console.log('gen lps rec params:', depth, current, name);
-
-    const contentFilter = ({name}: {name: string}) => /.md$/gmu.test(name) && !/^\./gmu.test(name);
-    const dirLink = ({name}: {name: string}) => ({
-        title: name,
-        href: name + sep,
-    });
-    const fileLink = ({name}: {name: string}) => ({
-        title: name.replace(/.md$/gmu, ''),
-        href: name,
-    });
-
-    const dirLinks = getDirs(resolve(depth)).map(dirLink);
-    const fileLinks = getFiles(resolve(depth)).filter(contentFilter).map(fileLink);
-
-    const index = {
-        title: name,
-        links: [...dirLinks, ...fileLinks],
-    };
-
-    const recurse = dirLinks.map(({title}) => generateTocsRec(join(depth, title), title, title));
-
-    return [{content: index, path: join(depth, 'index.yaml')}, ...recurse.flat(1)];
-
-}
-
-function getDirs(path: string) {
-    return readdirSync(path, {withFileTypes: true}).filter((i) => i.isDirectory());
-}
-
-function getFiles(path: string) {
-    return readdirSync(path, {withFileTypes: true}).filter((i) => i.isFile());
-}
-
 
 function add(path: string) {
     const {
@@ -164,8 +42,6 @@ function add(path: string) {
         removeHiddenTocItems,
         rootInput,
     } = ArgvService.getConfig();
-
-    console.log(JSON.stringify(ArgvService.getConfig()));
 
     const pathToDir = dirname(path);
     const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
@@ -194,48 +70,49 @@ function add(path: string) {
         parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
     }
 
-    console.log('parsed toc before:', JSON.stringify(parsedToc, null, 4));
-
-    const {hasValidIncluder, getIncluder} = includers([{
-        name: 'sourcedocs',
-        generateTocs,
-        generateLeadingPages,
-    }]);
-
     for (const item of parsedToc.items) {
-        if (!item?.include || !hasValidIncluder(item.include)) { continue; }
+        if (!item?.include?.includer) {
+            continue;
+        }
+
+        if (!isValidIncluder(item.include)) {
+            logger.info(resolve(inputFolderPath, path), `includer: ${item.include.includer} not implemented`);
+            logger.error(resolve(inputFolderPath, path));
+
+            process.exit(1);
+        }
 
         const output: IncluderFnOutput = [];
 
         const includer = getIncluder(item.include);
 
-        console.log('includer:', includer);
-
         const params = {include: item.include, root: rootInput, name: item.name};
 
-        if (includer.generateTocs) { output.push(...includer.generateTocs(params)); }
-        if (includer.generateLeadingPages) { output.push(...includer.generateLeadingPages(params)); }
+        if (includer.generateTocs) {
+            output.push(...includer.generateTocs(params));
+        }
 
-        // console.log('output:', JSON.stringify(output, null, 4));
+        if (includer.generateLeadingPages) {
+            output.push(...includer.generateLeadingPages(params));
+        }
 
-        // write files
+        if (includer.generateContent) {
+            output.push(...includer.generateContent(params));
+        }
 
-        console.log('root:', rootInput, 'inputFolderPath:', inputFolderPath);
+        // eslint-disable-next-line no-shadow
+        const prepared = output.map(({path, content}) => ({
+            content: content && typeof content === 'object' ? dump(content) : content,
+            path: path.replace(rootInput, inputFolderPath),
+        }) as {content: string; path: string});
 
-        const resolved = output.map(({path, content}) => ({
-            path: path.replace(rootInput, inputFolderPath), content,
-        }));
-
-        console.log('temp output:', JSON.stringify(resolved, null, 4));
-
-        for (const {content, path} of resolved) {
-            writeFileSync(path, dump(content));
+        // eslint-disable-next-line no-shadow
+        for (const {content, path} of prepared) {
+            writeFileSync(path, content);
         }
 
         item.include.path = join(item.include.path, 'toc.yaml');
     }
-
-    console.log('parsed toc after:', JSON.stringify(parsedToc, null, 4));
 
     /* Should resolve all includes */
     parsedToc.items = _replaceIncludes(
