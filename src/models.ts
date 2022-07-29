@@ -90,7 +90,9 @@ export type IncluderFn = (a0: IncluderFnParams) => IncluderFnOutput;
 
 export type IncluderFnParams = {include: YfmTocInclude; name: string; root: string};
 
-export type IncluderFnOutput = {path: string; content: LeadingPage | YfmToc | string}[];
+export type IncluderFnOutputElement = {path: string; content: LeadingPage | YfmToc | string};
+
+export type IncluderFnOutput = IncluderFnOutputElement[];
 
 export interface LeadingPage {
     title: TextItems;
