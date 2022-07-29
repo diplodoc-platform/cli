@@ -10,13 +10,9 @@ const isMdVisible = allPass([isMdExtension, complement(isHidden)]);
 
 function generateContent(params: IncluderFnParams): IncluderFnOutput {
     const {
-        include: {path, mode},
+        include: {path},
         root,
     } = params;
-
-    if (mode !== 'link') {
-        throw new Error('include with the includer supports only link mode, set mode: link');
-    }
 
     return generateContentRec(join(root, path));
 }
@@ -46,14 +42,10 @@ function generateContentRec(depth: string): IncluderFnOutput {
 
 function generateTocs(params: IncluderFnParams): IncluderFnOutput {
     const {
-        include: {path, mode},
+        include: {path},
         name,
         root,
     } = params;
-
-    if (mode !== 'link') {
-        throw new Error('include with the includer supports only link mode, set mode: link');
-    }
 
     return generateTocsRec(join(root, path), name);
 }
@@ -89,14 +81,10 @@ function generateLeadingPages(
     params: IncluderFnParams,
 ): IncluderFnOutput {
     const {
-        include: {path, mode},
+        include: {path},
         name,
         root,
     } = params;
-
-    if (mode !== 'link') {
-        throw new Error('include with the includer supports only link mode, set mode: link');
-    }
 
     return generateLeadingPagesRec(join(root, path), name);
 }

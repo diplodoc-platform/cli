@@ -10,7 +10,7 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
-import {YfmToc, IncluderFnOutput} from '../models';
+import {YfmToc, IncluderFnOutput, IncluderFnOutputElement} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems} from './utils';
@@ -40,7 +40,6 @@ function add(path: string) {
         resolveConditions,
         applyPresets,
         removeHiddenTocItems,
-        rootInput,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -70,49 +69,8 @@ function add(path: string) {
         parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
     }
 
-    for (const item of parsedToc.items) {
-        if (!item?.include?.includer) {
-            continue;
-        }
-
-        if (!isValidIncluder(item.include)) {
-            logger.info(resolve(inputFolderPath, path), `includer: ${item.include.includer} not implemented`);
-            logger.error(resolve(inputFolderPath, path));
-
-            process.exit(1);
-        }
-
-        const output: IncluderFnOutput = [];
-
-        const includer = getIncluder(item.include);
-
-        const params = {include: item.include, root: rootInput, name: item.name};
-
-        if (includer.generateTocs) {
-            output.push(...includer.generateTocs(params));
-        }
-
-        if (includer.generateLeadingPages) {
-            output.push(...includer.generateLeadingPages(params));
-        }
-
-        if (includer.generateContent) {
-            output.push(...includer.generateContent(params));
-        }
-
-        // eslint-disable-next-line no-shadow
-        const prepared = output.map(({path, content}) => ({
-            content: content && typeof content === 'object' ? dump(content) : content,
-            path: path.replace(rootInput, inputFolderPath),
-        }) as {content: string; path: string});
-
-        // eslint-disable-next-line no-shadow
-        for (const {content, path} of prepared) {
-            writeFileSync(path, content);
-        }
-
-        item.include.path = join(item.include.path, 'toc.yaml');
-    }
+    /* Apply includers to includes */
+    parsedToc.items = applyIncluders(parsedToc.items, path);
 
     /* Should resolve all includes */
     parsedToc.items = _replaceIncludes(
@@ -293,6 +251,66 @@ function _copyTocDir(tocPath: string, destDir: string) {
             copyFileSync(from, to);
         }
     });
+}
+
+function applyIncluders(items: YfmToc[], path: string) {
+    const {input: inputFolderPath, rootInput} = ArgvService.getConfig();
+
+    let result = items;
+
+    // eslint-disable-next-line no-shadow
+    const postprocess = ({content, path}: IncluderFnOutputElement) => ({
+        content: content && typeof content === 'object' ? dump(content) : content,
+        path: path.replace(rootInput, inputFolderPath),
+    });
+
+    const handler = (item: YfmToc) => {
+        if (!item?.include?.includer) { return item; }
+
+        if (!item.include.mode) {
+            item.include.mode = IncludeMode.LINK;
+        }
+
+        if (item.include.mode !== IncludeMode.LINK) {
+            throw new Error('include with the includer supports only link mode, set include mode to link');
+        }
+
+        if (!isValidIncluder(item.include)) {
+            throw new Error(`includer: ${item.include.includer} not implemented`);
+        }
+
+        const output: IncluderFnOutput = [];
+
+        const params = {include: item.include, name: item.name, root: rootInput};
+
+        const {generateTocs, generateLeadingPages, generateContent} = getIncluder(item.include);
+
+        if (generateTocs) { output.push(...generateTocs(params)); }
+
+        if (generateContent) { output.push(...generateContent(params)); }
+
+        if (generateLeadingPages) { output.push(...generateLeadingPages(params)); }
+
+        // eslint-disable-next-line no-shadow
+        output.map(postprocess).forEach(({content, path}: {content: string; path: string}) => {
+            writeFileSync(path, content);
+        });
+
+        item.include.path = join(item.include.path, 'toc.yaml');
+
+        return item;
+    };
+
+    try {
+        result = items.map(handler);
+
+    } catch (e) {
+        logger.error(resolve(rootInput, path), e.message);
+
+        process.exit(1);
+    }
+
+    return result;
 }
 
 /**

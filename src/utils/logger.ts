@@ -24,7 +24,11 @@ export const logger = {
     upload: function (pathToFile: string) {
         writeLog(`${green('UPLOAD')} Uploading file ${pathToFile}`);
     },
-    error: function (pathToFile: string) {
-        writeLog(`${red('ERROR')} Failed processing ${pathToFile}`, true);
+    error: function (pathToFile = '', extraMessage = '') {
+        let message = `${red('ERROR')} Fatal Failure`;
+        if (pathToFile.length) { message += ` File: ${pathToFile}`; }
+        if (extraMessage.length) { message += `\n${extraMessage}`; }
+
+        writeLog(message, true);
     },
 };
