@@ -92,7 +92,7 @@ export type IncluderFnParams = {include: YfmTocInclude; name: string; root: stri
 
 export type IncluderFnOutputElement = {path: string; content: LeadingPage | YfmToc | string};
 
-export type IncluderFnOutput = IncluderFnOutputElement[];
+export type IncluderFnOutput = Promise<IncluderFnOutputElement[]>;
 
 export interface LeadingPage {
     title: TextItems;

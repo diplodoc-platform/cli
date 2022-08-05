@@ -1,17 +1,21 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {readdirSync} from 'fs';
+const {promises: {readdir}} = require('fs');
 
-function getDirs(path: string) {
-    return readdirSync(path, {withFileTypes: true}).filter((i) => i.isDirectory());
+async function getDirs(path: string) {
+    const isDir = (i: any) => i.isDirectory();
+
+    return readdir(path, {withFileTypes: true}).then((list: any) => list.filter(isDir));
 }
 
-function getFiles(path: string) {
-    return readdirSync(path, {withFileTypes: true}).filter((i) => i.isFile());
+async function getFiles(path: string) {
+    const isFile = (i: any) => i.isFile();
+
+    return readdir(path, {withFileTypes: true}).then((list: any) => list.filter(isFile));
 }
 
 const complement = (fn: Function) => (x: any) => !fn(x);
 
-const isMdExtension = (str: string) => /.md$/gmu.test(str);
+const isMdExtension = (str: string): boolean => /.md$/gmu.test(str);
 
 const isHidden = (str: string) => /^\./gmu.test(str);
 
