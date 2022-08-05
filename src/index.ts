@@ -174,7 +174,7 @@ async function main() {
             addMapFile,
         } = ArgvService.getConfig();
 
-        processServiceFiles();
+        await processServiceFiles();
         processExcludedFiles();
 
         if (addMapFile) {

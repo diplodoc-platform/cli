@@ -10,7 +10,7 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
-import {YfmToc, IncluderFnOutput, IncluderFnOutputElement} from '../models';
+import {YfmToc, IncluderFnOutputElement} from '../models';
 import {Stage, SINGLE_PAGE_FOLDER, IncludeMode} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems} from './utils';
@@ -29,7 +29,7 @@ let navigationPaths: TocServiceData['navigationPaths'] = [];
 const singlePageNavigationPaths: TocServiceData['singlePageNavigationPaths'] = new Set();
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 
-function add(path: string) {
+async function add(path: string) {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -70,7 +70,7 @@ function add(path: string) {
     }
 
     /* Apply includers to includes */
-    parsedToc.items = applyIncluders(parsedToc.items, path);
+    parsedToc.items = await applyIncluders(parsedToc.items, path);
 
     /* Should resolve all includes */
     parsedToc.items = _replaceIncludes(
@@ -253,7 +253,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
     });
 }
 
-function applyIncluders(items: YfmToc[], path: string) {
+async function applyIncluders(items: YfmToc[], path: string) {
     const {input: inputFolderPath, rootInput} = ArgvService.getConfig();
 
     let result = items;
@@ -264,7 +264,7 @@ function applyIncluders(items: YfmToc[], path: string) {
         path: path.replace(rootInput, inputFolderPath),
     });
 
-    const handler = (item: YfmToc) => {
+    const handler = async (item: YfmToc) => {
         if (!item?.include?.includer) { return item; }
 
         if (!item.include.mode) {
@@ -279,22 +279,22 @@ function applyIncluders(items: YfmToc[], path: string) {
             throw new Error(`includer: ${item.include.includer} not implemented`);
         }
 
-        const output: IncluderFnOutput = [];
-
         const params = {include: item.include, name: item.name, root: rootInput};
 
         const {generateTocs, generateLeadingPages, generateContent} = getIncluder(item.include);
 
-        if (generateTocs) { output.push(...generateTocs(params)); }
+        const [tocs, pages, contents] = await Promise.all([
+            generateTocs ? generateTocs(params) : Promise.resolve([]),
+            generateLeadingPages ? generateLeadingPages(params) : Promise.resolve([]),
+            generateContent ? generateContent(params) : Promise.resolve([]),
+        ]);
 
-        if (generateContent) { output.push(...generateContent(params)); }
-
-        if (generateLeadingPages) { output.push(...generateLeadingPages(params)); }
-
-        // eslint-disable-next-line no-shadow
-        output.map(postprocess).forEach(({content, path}: {content: string; path: string}) => {
-            writeFileSync(path, content);
-        });
+        [...tocs, ...pages, ...contents]
+            .map(postprocess)
+            // eslint-disable-next-line no-shadow
+            .forEach(({content, path}: {content: string; path: string}) => {
+                writeFileSync(path, content);
+            });
 
         item.include.path = join(item.include.path, 'toc.yaml');
 
@@ -302,7 +302,7 @@ function applyIncluders(items: YfmToc[], path: string) {
     };
 
     try {
-        result = items.map(handler);
+        result = await Promise.all(items.map(handler));
 
     } catch (e) {
         logger.error(resolve(rootInput, path), e.message);

@@ -11,7 +11,7 @@ import shell from 'shelljs';
 
 type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
 
-export function processServiceFiles(): void {
+export async function processServiceFiles(): Promise<void> {
     const {input: inputFolderPath, ignore = []} = ArgvService.getConfig();
 
     const getFilePathsByGlobals = (globs: string[]): string[] => {
@@ -24,7 +24,7 @@ export function processServiceFiles(): void {
     };
 
     preparingPresetFiles(getFilePathsByGlobals);
-    preparingTocFiles(getFilePathsByGlobals);
+    await preparingTocFiles(getFilePathsByGlobals);
 }
 
 function preparingPresetFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {
@@ -79,14 +79,14 @@ function saveFilteredPresets(path: string, parsedPreset: DocPreset): void {
     writeFileSync(outputPath, outputPreset);
 }
 
-function preparingTocFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {
+async function preparingTocFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): Promise<void> {
     try {
         const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
 
         for (const path of tocFilePaths) {
             logger.proc(path);
 
-            TocService.add(path);
+            await TocService.add(path);
         }
     } catch (error) {
         log.error(`Preparing toc.yaml files failed. Error: ${error}`);
