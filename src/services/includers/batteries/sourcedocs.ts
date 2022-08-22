@@ -135,6 +135,10 @@ async function generateLeadingPagesRec(
     return [{content: index, path: join(depth, 'index.yaml')}, ...recurse.flat(1)];
 }
 
+async function generatePath(params: IncluderFnParams): Promise<string> {
+    return join(params.include.path, 'toc.yaml');
+}
+
 const name = 'sourcedocs';
 
-export {name, generateTocs, generateLeadingPages, generateContent};
+export {name, generateTocs, generateLeadingPages, generateContent, generatePath};

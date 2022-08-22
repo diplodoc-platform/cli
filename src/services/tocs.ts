@@ -281,7 +281,7 @@ async function applyIncluders(items: YfmToc[], path: string) {
 
         const params = {include: item.include, name: item.name, root: rootInput};
 
-        const {generateTocs, generateLeadingPages, generateContent} = getIncluder(item.include);
+        const {generateTocs, generateLeadingPages, generateContent, generatePath} = getIncluder(item.include);
 
         const [tocs, pages, contents] = await Promise.all([
             generateTocs ? generateTocs(params) : Promise.resolve([]),
@@ -296,7 +296,7 @@ async function applyIncluders(items: YfmToc[], path: string) {
                 writeFileSync(path, content);
             });
 
-        item.include.path = join(item.include.path, 'toc.yaml');
+        item.include.path = await generatePath(params);
 
         return item;
     };
