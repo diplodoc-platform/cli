@@ -84,15 +84,18 @@ export type Includer = {
     generateTocs?: IncluderFn;
     generateLeadingPages?: IncluderFn;
     generateContent?: IncluderFn;
+    generatePath: IncluderGeneratePathFn;
 };
 
-export type IncluderFn = (a0: IncluderFnParams) => IncluderFnOutput;
+export type IncluderFn = (params: IncluderFnParams) => IncluderFnOutput;
 
 export type IncluderFnParams = {include: YfmTocInclude; name: string; root: string};
 
 export type IncluderFnOutputElement = {path: string; content: LeadingPage | YfmToc | string};
 
 export type IncluderFnOutput = Promise<IncluderFnOutputElement[]>;
+
+export type IncluderGeneratePathFn = (params: IncluderFnParams) => Promise<string>;
 
 export interface LeadingPage {
     title: TextItems;
