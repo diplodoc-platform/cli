@@ -106,7 +106,9 @@ function matchMetadata(fileContent: string) {
     return regexpParseFileContent.exec(fileContent);
 }
 
-async function getContributorsMetadataString(options: MetaDataOptions, fileContent: string): Promise<string | undefined> {
+async function getContributorsMetadataString(
+    options: MetaDataOptions, fileContent: string,
+): Promise<string | undefined> {
     const {isContributorsEnabled, vcsConnector, fileData} = options;
 
     if (isContributorsEnabled && vcsConnector) {
@@ -117,6 +119,8 @@ async function getContributorsMetadataString(options: MetaDataOptions, fileConte
 
         return getFileContributorsMetadata(updatedFileData, vcsConnector);
     }
+
+    return undefined;
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {

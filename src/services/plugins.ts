@@ -76,5 +76,6 @@ export function getDefaultLintConfig(): LintConfig | undefined {
 
 // https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
 function requireDynamically(path: string) {
+    // eslint-disable-next-line no-eval
     return eval(`require('${path}');`); // Ensure Webpack does not analyze the require statement
 }
