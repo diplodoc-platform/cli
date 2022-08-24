@@ -24,9 +24,11 @@
     "prepublishOnly": "npm run lint && npm run build"
   },
   "dependencies": {
+    "@apidevtools/swagger-parser": "^10.1.0",
     "@doc-tools/components": "2.0.0",
     "@doc-tools/transform": "^2.8.2",
     "@octokit/core": "3.5.1",
+    "ajv": "^8.11.0",
     "aws-sdk": "2.1054.0",
     "chalk": "4.1.2",
     "highlight.js": "10.7.3",
@@ -36,6 +38,7 @@
     "react-dom": "16.14.0",
     "shelljs": "0.8.5",
     "simple-git": "2.48.0",
+    "slugify": "^1.6.5",
     "threads": "1.7.0",
     "threads-plugin": "1.4.0",
     "walk-sync": "2.2.0",

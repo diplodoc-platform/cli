@@ -1,5 +1,5 @@
 import {dirname, extname, join, parse, resolve, relative} from 'path';
-import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
+import {copyFileSync, readFileSync, writeFileSync, existsSync, mkdirSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
@@ -293,6 +293,8 @@ async function applyIncluders(items: YfmToc[], path: string) {
             .map(postprocess)
             // eslint-disable-next-line no-shadow
             .forEach(({content, path}: {content: string; path: string}) => {
+                mkdirSync(dirname(path), {recursive: true});
+
                 writeFileSync(path, content);
             });
 
