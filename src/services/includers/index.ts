@@ -1,4 +1,4 @@
-import {sourcedocs} from './batteries';
+import {sourcedocs, openapi} from './batteries';
 import {Includer, YfmTocInclude} from '../../models';
 
 type IncludersMap = {[key: string]: Includer};
@@ -10,6 +10,7 @@ function init(custom: Includer[] = []) {
 
     includersMap = {
         sourcedocs,
+        openapi,
     };
 
     for (const includer of custom) {

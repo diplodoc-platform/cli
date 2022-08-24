@@ -75,7 +75,7 @@ export interface YfmTocInclude {
     includer?: IncluderName;
 }
 
-export const includersNames = ['sourcedocs'] as const;
+export const includersNames = ['sourcedocs', 'openapi'] as const;
 
 export type IncluderName = typeof includersNames[number];
 
