@@ -40,6 +40,8 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<string
 
     writeFileSync(outputPath, result);
     logger.info(inputPath, PROCESSING_FINISHED);
+
+    return undefined;
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {

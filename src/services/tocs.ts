@@ -417,7 +417,9 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                     includedInlineItems = includedTocItems;
                 }
             } catch (err) {
-                const message = `Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`;
+                const message = (
+                    `Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`
+                );
                 console.log(message, err);
                 log.error(message);
                 return acc;
