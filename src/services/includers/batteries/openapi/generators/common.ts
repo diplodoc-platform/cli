@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {EOL, BLOCK} from '../constants';
 
 import {TitleDepth} from '../types';
@@ -27,8 +26,11 @@ function code(text: string) {
     return EOL + ['```', text, '```'].join(EOL) + EOL;
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function table(data: any[][]) {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const colgen = (col: any) => (Array.isArray(col) ? `${EOL}${table(col)}${EOL}` : ` ${col} `);
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const rowgen = (row: any) => `||${row.map(colgen).join('|')}||`;
 
     return `#|${block(data.map(rowgen))}|#`;
@@ -38,6 +40,7 @@ function cut(text: string, heading = '') {
     return block([`{% cut "${heading}" %}`, text, '{% endcut %}']) + EOL;
 }
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function block(elements: any[]) {
     return elements.filter(Boolean).join(BLOCK);
 }

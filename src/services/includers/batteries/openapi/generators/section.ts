@@ -1,3 +1,4 @@
+/* eslint-disable-next-line no-shadow */
 import {block, title, body, link, list} from './common';
 import {DESCRIPTION_SECTION_NAME, ENDPOINTS_SECTION_NAME} from '../constants';
 
@@ -18,10 +19,9 @@ function description(text?: string) {
 }
 
 function endpoints(data?: Endpoints) {
-    const links = (endpoints: Endpoints) =>
-        endpoints.map(({id, summary}: Endpoint) => link(summary ?? id, id + '.md'));
+    const linkMap = ({id, summary}: Endpoint) => link(summary ?? id, id + '.md');
 
-    return data?.length && block([title(2)(ENDPOINTS_SECTION_NAME), list(links(data))]);
+    return data?.length && block([title(2)(ENDPOINTS_SECTION_NAME), list(data.map(linkMap))]);
 }
 
 export {section};
