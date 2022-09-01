@@ -49,22 +49,23 @@ function parameters(params?: Parameters) {
     ]);
 }
 
-function responses(responses?: Responses) {
-    return responses?.length && block([
+function responses(resps?: Responses) {
+    return resps?.length && block([
         title(2)(RESPONSES_SECTION_NAME),
-        block(responses.map(response)),
+        block(resps.map(response)),
     ]);
 }
 
-function response(response: Response) {
+function response(resp: Response) {
     return block([
-        title(3)(response.code),
+        title(3)(resp.code),
         title(4)(DESCRIPTION_SECTION_NAME),
-        body(response.description),
-        response.schemas?.length && block(response.schemas.map(schema)),
+        body(resp.description),
+        resp.schemas?.length && block(resp.schemas.map(schema)),
     ]);
 }
 
+/* eslint-disable-next-line no-shadow */
 function schema({type, schema}: Schema) {
     return cut(code(JSON.stringify(schema, null, 4)), type);
 }

@@ -1,4 +1,4 @@
-/* eslint-disable no-shadow, @typescript-eslint/no-explicit-any */
+/* eslint-disable no-shadow */
 import slugify from 'slugify';
 
 import {TAG_NAMES_FIELD} from './constants';
@@ -46,7 +46,6 @@ function info(spec: OpenapiSpec): Info {
             name: contact.name,
             sources: [],
         };
-
         if (contact.url) {
             parsed.contact.sources.push({type: 'web', url: new URL(contact.url).href});
         }
@@ -116,10 +115,12 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> 
         const serverURLs = (endpoint.servers || servers || [{url: '/'}])
             .map(({url}: Server) => trimSlash(url));
 
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const parseResponse = ([code, response]: [string, {[key: string]: any}]) => {
             const parsed: Response = {code, description: response.description};
 
             if (response.content) {
+                /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 parsed.schemas = Object.entries<{[key: string]: any}>(response.content)
                     .map(([type, schema]) => ({type, schema}));
             }
@@ -127,6 +128,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> 
             return parsed;
         };
 
+        /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const parsedResponses: Responses = Object.entries<{[key: string]: any}>(responses ?? {})
             .map(parseResponse);
 
@@ -163,6 +165,7 @@ function trimSlash(str: string) {
 
 type VisiterParams = {path: string; method: Method; endpoint: OpenapiOperation};
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function visitPaths<T>(paths: {[key: string]: any}, visiter: (params: VisiterParams) => T): T[] {
     const results: T[] = [];
 

@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
 
 export type TitleDepth = typeof titleDepths[number];
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 export type OpenapiSpec = {[key: string]: any};
 
 export type OpenapiOperation = {
@@ -101,5 +101,6 @@ export type Schemas = Schema[];
 
 export type Schema = {
     type: string;
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     schema: {[key: string]: any};
 };
