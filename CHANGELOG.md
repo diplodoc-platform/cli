@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.25.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.24.0...v1.25.0) (2022-09-05)
+
+
+### Features
+
+* Allow to build a single page in one run ([1fc9692](https://github.com/yandex-cloud/yfm-docs/commit/1fc96924a7ded975b6b2da714653e820bb2c13db))
+
+### chore
+
+* Move single page logic from transform to builder ([ddd9540](https://github.com/yandex-cloud/yfm-docs/commit/ddd95404a5ba8ff5190615310456dbd6571e15f6))
+
 ## [1.24.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.23.2...v1.24.0) (2022-09-01)
 
 
