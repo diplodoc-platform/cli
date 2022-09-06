@@ -25,7 +25,6 @@ async function generateContent(params: IncluderFnParams): IncluderFnOutput {
 
     try {
         data = await parser.validate(join(root, path), {validate: {spec: true}});
-
     } catch (e) {
         throw Error('includer openapi: failed to parse specification');
     }
