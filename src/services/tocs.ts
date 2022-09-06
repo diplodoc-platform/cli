@@ -216,6 +216,10 @@ async function applyIncluders(items: YfmToc[], path: string) {
     });
 
     const handler = async (item: YfmToc) => {
+        if (item?.items?.length) {
+            item.items = await applyIncluders(item.items, path);
+        }
+
         if (!item?.include?.includer) { return item; }
 
         if (!item.include.mode) {
