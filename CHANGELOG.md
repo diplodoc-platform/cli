@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.25.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.25.0...v1.25.1) (2022-09-06)
+
+
+### Bug Fixes
+
+* **services/tocs:** apply includers recursively ([b3fdc38](https://github.com/yandex-cloud/yfm-docs/commit/b3fdc384ba4bee7440369d902721646623f28d41))
+* **services/tocs:** apply includers toc paths ([c5630e5](https://github.com/yandex-cloud/yfm-docs/commit/c5630e5d4d79409e5ab88bdbba45a95d4d620eda))
+
+
+### chore
+
+* release 1.25.0 ([cb6a333](https://github.com/yandex-cloud/yfm-docs/commit/cb6a33335ec3cbe61be099abdc758e2256ecfbe8))
+* release 1.25.1 ([3c3c097](https://github.com/yandex-cloud/yfm-docs/commit/3c3c097bd15e081ae1b39f86aaf4ce5970282a38))
+
 ## [1.25.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.24.1...v1.25.0) (2022-09-06)
 
 
