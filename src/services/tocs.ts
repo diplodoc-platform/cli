@@ -207,12 +207,16 @@ function _copyTocDir(tocPath: string, destDir: string) {
 async function applyIncluders(items: YfmToc[], path: string) {
     const {input: inputFolderPath, rootInput} = ArgvService.getConfig();
 
+    const root = join(rootInput, dirname(path));
+
+    const outputPath = join(inputFolderPath, dirname(path));
+
     let result = items;
 
     // eslint-disable-next-line no-shadow
     const postprocess = ({content, path}: IncluderFnOutputElement) => ({
         content: content && typeof content === 'object' ? dump(content) : content,
-        path: path.replace(rootInput, inputFolderPath),
+        path: path.replace(root, outputPath),
     });
 
     const handler = async (item: YfmToc) => {
@@ -234,7 +238,7 @@ async function applyIncluders(items: YfmToc[], path: string) {
             throw new Error(`includer: ${item.include.includer} not implemented`);
         }
 
-        const params = {include: item.include, name: item.name, root: rootInput};
+        const params = {include: item.include, name: item.name, root};
 
         const {generateTocs, generateLeadingPages, generateContent, generatePath} = getIncluder(item.include);
 
