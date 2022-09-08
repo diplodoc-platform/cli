@@ -1,0 +1,1 @@
+export {xliff} from './xliff';

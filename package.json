@@ -27,6 +27,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@doc-tools/components": "2.0.0",
     "@doc-tools/transform": "^2.8.2",
+    "@doc-tools/yfm2xliff": "0.0.3",
     "@octokit/core": "3.5.1",
     "ajv": "^8.11.0",
     "aws-sdk": "2.1054.0",

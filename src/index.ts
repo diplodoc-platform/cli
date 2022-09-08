@@ -1,4 +1,4 @@
-import * as yargs from 'yargs';
+import yargs, {Arguments} from 'yargs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
 import 'threads/register';
@@ -13,6 +13,8 @@ import {
     YFM_CONFIG_FILENAME,
     Stage,
 } from './constants';
+
+import {xliff} from './cmd';
 import {
     processAssets,
     processExcludedFiles,
@@ -27,7 +29,9 @@ import {ArgvService, Includers} from './services';
 import {argvValidator} from './validator';
 import {prepareMapFile} from './steps/processMapFile';
 
-const _yargs = yargs
+console.time(MAIN_TIMER_ID);
+
+yargs
     .option('config', {
         alias: 'c',
         describe: 'YFM configuration file',
@@ -135,31 +139,22 @@ const _yargs = yargs
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
+    .command(xliff)
+    .command('$0', 'the default command', () => {}, main)
     .version(VERSION)
-    .help();
+    .help()
+    .parse()
+;
 
-console.time(MAIN_TIMER_ID);
-
-main()
-    .then(() => {
-        process.exit(0);
-    })
-    .catch((err) => {
-        console.log(err);
-        process.exit(1);
-    });
-
-async function main() {
-    const userOutputFolder = resolve(_yargs.argv.output);
-    const tmpInputFolder = resolve(_yargs.argv.output, TMP_INPUT_FOLDER);
-    const tmpOutputFolder = resolve(_yargs.argv.output, TMP_OUTPUT_FOLDER);
+async function main(args: Arguments<any>) {
+    const userOutputFolder = resolve(args.output);
+    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
+    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
 
     try {
-        preparingTemporaryFolders(userOutputFolder, tmpInputFolder, tmpOutputFolder);
-
         ArgvService.init({
-            ..._yargs.argv,
-            rootInput: _yargs.argv.input,
+            ...args,
+            rootInput: args.input,
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
@@ -174,6 +169,8 @@ async function main() {
             addMapFile,
         } = ArgvService.getConfig();
 
+        preparingTemporaryFolders(args, userOutputFolder, tmpInputFolder, tmpOutputFolder);
+
         await processServiceFiles();
         processExcludedFiles();
 
@@ -182,9 +179,9 @@ async function main() {
         }
 
         const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
-        const pathToConfig = _yargs.argv.config || join(_yargs.argv.input, YFM_CONFIG_FILENAME);
-        const pathToRedirects = join(_yargs.argv.input, REDIRECTS_FILENAME);
-        const pathToLintConfig = join(_yargs.argv.input, LINT_CONFIG_FILENAME);
+        const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
+        const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
+        const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -229,7 +226,7 @@ async function main() {
     }
 }
 
-function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string) {
+function preparingTemporaryFolders(args: Arguments<any>, userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string) {
     shell.mkdir('-p', userOutputFolder);
 
     // Create temporary input/output folders
@@ -238,6 +235,6 @@ function preparingTemporaryFolders(userOutputFolder: string, tmpInputFolder: str
 
     // Copy all user' files to the temporary folder to avoid user' file changing.
     // Please, change files only in temporary folders.
-    shell.cp('-rL', resolve(_yargs.argv.input, '*'), tmpInputFolder);
+    shell.cp('-rL', resolve(args.input, '*'), tmpInputFolder);
     shell.chmod('-R', 'u+w', tmpInputFolder);
 }
