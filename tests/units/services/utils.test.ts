@@ -1,5 +1,7 @@
-import {filterTextItems, filterFiles, firstFilterTextItems} from "services/utils";
+import {filterTextItems, filterFiles, firstFilterTextItems, liquidField} from "services/utils";
 import {Lang} from "../../../src/constants";
+import {ArgvService} from "../../../src/services";
+import {YfmArgv} from "models";
 
 const combinedVars = {
     lang: Lang.EN,
@@ -126,5 +128,115 @@ describe('filterFiles', () => {
                 'line4',
             ]
         }]);
+    });
+});
+
+describe('liquidField', () => {
+    afterEach(() => {
+        ArgvService.set(undefined as YfmArgv);
+    });
+
+    test('substitution', () => {
+        ArgvService.set({
+            applyPresets: true,
+            resolveConditions: false,
+        } as YfmArgv);
+
+        const vars = {test: 'test'};
+
+        const result = liquidField('{{test}}', vars, '');
+
+        expect(result).toBe(vars.test);
+    });
+
+    test('substitution not var', () => {
+        ArgvService.set({
+            applyPresets: true,
+            resolveConditions: false,
+        } as YfmArgv);
+
+        const vars = {test: 'test'};
+
+        const result = liquidField('not_var{{test}}', vars, '');
+
+        expect(result).toBe('not_var{{test}}');
+    });
+
+    test('substitution disabled', () => {
+        ArgvService.set({
+            applyPresets: false,
+            resolveConditions: false,
+        } as YfmArgv);
+
+        const vars = {test: 'test'};
+
+        const result = liquidField('{{test}}', vars, '');
+
+        expect(result).toBe('{{test}}');
+    });
+
+    test('condition', () => {
+        ArgvService.set({
+            applyPresets: false,
+            resolveConditions: true
+        } as YfmArgv);
+
+        const vars = {type: 'a'};
+
+        const result = liquidField(`{% if type == 'a' %}a{% else %}b{% endif %}`, vars, '');
+
+        expect(result).toBe('a');
+    });
+
+    test('condition else', () => {
+        ArgvService.set({
+            applyPresets: false,
+            resolveConditions: true
+        } as YfmArgv);
+
+        const vars = {type: 'b'};
+
+        const result = liquidField(`{% if type == 'a' %}a{% else %}b{% endif %}`, vars, '');
+
+        expect(result).toBe('b');
+    });
+
+    test('condition disabled', () => {
+        ArgvService.set({
+            applyPresets: false,
+            resolveConditions: false
+        } as YfmArgv);
+
+        const vars = {type: 'a'};
+
+        const result = liquidField(`{% if type == 'a' %}value{% endif %}`, vars, '');
+
+        expect(result).toBe(`{% if type == 'a' %}value{% endif %}`);
+    });
+
+    test('condition and substitution', () => {
+        ArgvService.set({
+            applyPresets: true,
+            resolveConditions: true
+        } as YfmArgv);
+
+        const vars = {type: 'a', a: 'a', b: 'b'};
+
+        const result = liquidField(`{% if type == 'a' %}{{a}}{% else %}{{b}}{% endif %}`, vars, '');
+
+        expect(result).toBe(vars.a);
+    });
+
+    test('condition and substitution disabled', () => {
+        ArgvService.set({
+            applyPresets: false,
+            resolveConditions: false
+        } as YfmArgv);
+
+        const vars = {type: 'a', a: 'a', b: 'b'};
+
+        const result = liquidField(`{% if type == 'a' %}{{a}}{% else %}{{b}}{% endif %}`, vars, '');
+
+        expect(result).toBe(`{% if type == 'a' %}{{a}}{% else %}{{b}}{% endif %}`);
     });
 });
