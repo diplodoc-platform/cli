@@ -1,5 +1,7 @@
 import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
+import liquid from '@doc-tools/transform/lib/liquid';
+import {ArgvService} from './index';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -112,6 +114,32 @@ function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, strin
     }
 
     return useItem;
+}
+
+export function liquidFields(fields: undefined | string | string[], vars: Record<string, unknown>, path: string) {
+    if (!fields) {
+        return fields;
+    }
+    if (typeof fields === 'string') {
+        return liquidField(fields, vars, path);
+    }
+    return fields.map((item) => {
+        return liquidField(item, vars, path);
+    });
+}
+
+export function liquidField(input: string, vars: Record<string, unknown>, path: string) {
+    const {applyPresets, resolveConditions} = ArgvService.getConfig();
+    if (!applyPresets && !resolveConditions) {
+        return input;
+    }
+
+    return liquid(input, vars, path, {
+        substitutions: applyPresets,
+        conditions: resolveConditions,
+        keepNotVar: true,
+        withSourceMap: false,
+    });
 }
 
 export function isObject(o: unknown): o is object {
