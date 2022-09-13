@@ -12,7 +12,7 @@ import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc, IncluderFnOutputElement} from '../models';
 import {Stage, IncludeMode} from '../constants';
 import {isExternalHref, logger} from '../utils';
-import {filterFiles, firstFilterTextItems} from './utils';
+import {filterFiles, firstFilterTextItems, liquidField} from './utils';
 import {getIncluder, isValidIncluder} from './includers';
 
 export interface TocServiceData {
@@ -33,7 +33,6 @@ async function add(path: string) {
         ignoreStage,
         vars,
         resolveConditions,
-        applyPresets,
         removeHiddenTocItems,
     } = ArgvService.getConfig();
 
@@ -51,7 +50,7 @@ async function add(path: string) {
         ...vars,
     };
 
-    if (parsedToc.title) {
+    if (typeof parsedToc.title === 'string') {
         parsedToc.title = firstFilterTextItems(
             parsedToc.title,
             combinedVars,
@@ -59,9 +58,8 @@ async function add(path: string) {
         );
     }
 
-    /* Should make substitutions in title */
-    if (applyPresets && typeof parsedToc.title === 'string') {
-        parsedToc.title = _liquidSubstitutions(parsedToc.title, combinedVars, path);
+    if (typeof parsedToc.title === 'string') {
+        parsedToc.title = liquidField(parsedToc.title, combinedVars, path);
     }
 
     /* Apply includers to includes */
