@@ -120,16 +120,22 @@ export function liquidFields(fields: undefined | string | string[], vars: Record
     if (!fields) {
         return fields;
     }
+
     if (typeof fields === 'string') {
         return liquidField(fields, vars, path);
     }
+
     return fields.map((item) => {
-        return liquidField(item, vars, path);
+        if (typeof item === 'string') {
+            return liquidField(item, vars, path);
+        }
+        return item;
     });
 }
 
 export function liquidField(input: string, vars: Record<string, unknown>, path: string) {
     const {applyPresets, resolveConditions} = ArgvService.getConfig();
+
     if (!applyPresets && !resolveConditions) {
         return input;
     }
