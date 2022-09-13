@@ -117,12 +117,12 @@ function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, strin
 }
 
 export function liquidFields(fields: undefined | string | string[], vars: Record<string, unknown>, path: string) {
-    if (!fields) {
-        return fields;
-    }
-
     if (typeof fields === 'string') {
         return liquidField(fields, vars, path);
+    }
+
+    if (!Array.isArray(fields)) {
+        return fields;
     }
 
     return fields.map((item) => {
