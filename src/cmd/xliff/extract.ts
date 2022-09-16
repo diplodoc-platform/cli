@@ -1,12 +1,11 @@
-import {resolve, dirname} from 'path';
+import {resolve, join, dirname} from 'path';
 const {promises: {readFile, writeFile, mkdir}} = require('fs');
 
 const yfm2xliff = require('@doc-tools/yfm2xliff/lib/cjs');
 
-import {deepFiles} from '../../utils';
-import {
-    allPass, complement, isHidden, isMdExtension,
-} from '../../services/includers/batteries/common';
+import {ArgvService} from '../../services';
+import {glob, logger} from '../../utils';
+import {MD_EXT_NAME, SKL_EXT_NAME, XLF_EXT_NAME} from './constants';
 
 import {Arguments} from 'yargs';
 
@@ -16,42 +15,71 @@ const description = 'extract xliff and skeleton from yfm documentation';
 
 const extract = {command, description, handler};
 
-const filterMD = allPass([isMdExtension, complement(isHidden)]);
+const MD_GLOB = '**/*.md';
 
-const deepMDFiles = deepFiles(filterMD);
+const MDExtPattern = `\\.${MD_EXT_NAME}$`;
+const MDExtFlags = 'mui';
+const MDExtRegExp = new RegExp(MDExtPattern, MDExtFlags);
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 async function handler(args: Arguments<any>) {
+    ArgvService.init({
+        ...args,
+    });
+
     const {input, output} = args;
-    const paths = await deepMDFiles(input);
 
-    const data = await Promise.all(paths.map(async (path: string) => {
-        const outputPath = path.replace(input, output);
+    logger.info(input, `yfm xliff extract: extracting skeleton and xliff files from: ${input} to: ${output}`);
 
-        return {
-            md: await readFile(resolve(path), {encoding: 'utf-8'}),
-            mdPath: resolve(path),
-            sklPath: resolve(outputPath.replace(/.md$/gmu, '.skl.md')),
-            xlfPath: resolve(outputPath.replace(/.md$/gmu, '.xlf')),
-        };
-    }));
+    try {
+        let cache = {};
+        let found = [];
 
-    const xlfs = await Promise.all(data.map(async (datum) =>
-        ({extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath})));
+        ({state: {found, cache}} = await glob(join(input, MD_GLOB), {
+            nosort: true,
+            cache,
+        }));
 
-    await Promise.all(
-        xlfs.map(async ({
-            extracted: {skeleton, data: {skeletonFilename}, xliff},
-            xlfPath,
-        }) => {
-            await mkdir(dirname(xlfPath), {recursive: true});
+        const data = await Promise.all(found.map(async (path: string) => {
+            const outputPath = path.replace(input, output);
 
-            await Promise.all([
-                writeFile(skeletonFilename, skeleton),
-                writeFile(xlfPath, xliff),
-            ]);
-        }),
-    );
+            return {
+                md: await readFile(resolve(path), {encoding: 'utf-8'}),
+                mdPath: resolve(path),
+                sklPath: resolve(outputPath.replace(MDExtRegExp, `.${SKL_EXT_NAME}.${MD_EXT_NAME}`)),
+                xlfPath: resolve(outputPath.replace(MDExtRegExp, `.${XLF_EXT_NAME}`)),
+            };
+        }));
+
+        if (!data?.length) {
+            throw new Error('failed reading skeleton and xliff files');
+        }
+
+        logger.info(input, `yfm xliff extract: finished reading markdown from: ${input}`);
+
+        const xlfs = await Promise.all(data.map(async (datum) =>
+            ({extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath})));
+
+        await Promise.all(
+            xlfs.map(async ({
+                extracted: {skeleton, data: {skeletonFilename}, xliff},
+                xlfPath,
+            }) => {
+                await mkdir(dirname(xlfPath), {recursive: true});
+
+                await Promise.all([
+                    writeFile(skeletonFilename, skeleton),
+                    writeFile(xlfPath, xliff),
+                ]);
+            }),
+        );
+
+        logger.info(input, `yfm xliff extract: finished extracting skeleton and xliff files to: ${output}`);
+    } catch (err) {
+        logger.error(input, `yfm xliff extract: ${err}`);
+
+        process.exit(1);
+    }
 }
 
 export {extract};

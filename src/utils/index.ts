@@ -5,4 +5,4 @@ export * from './url';
 export * from './path';
 export * from './toc';
 export * from './presets';
-export * from './fs';
+export * from './glob';
