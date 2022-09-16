@@ -38,7 +38,10 @@ async function handler(args: Arguments<any>) {
 
     const {input, output} = args;
 
-    logger.info(input, `yfm xliff compose: composing skeleton and xliff files from: ${input} into documentation at: ${output}`);
+    logger.info(
+        input,
+        `yfm xliff compose: composing skeleton and xliff files from: ${input} into documentation at: ${output}`,
+    );
 
     try {
         let cache = {};
