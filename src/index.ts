@@ -146,6 +146,7 @@ yargs
     .parse()
 ;
 
+/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 async function main(args: Arguments<any>) {
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
@@ -226,7 +227,13 @@ async function main(args: Arguments<any>) {
     }
 }
 
-function preparingTemporaryFolders(args: Arguments<any>, userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string) {
+function preparingTemporaryFolders(
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    args: Arguments<any>,
+    userOutputFolder: string,
+    tmpInputFolder: string,
+    tmpOutputFolder: string) {
+
     shell.mkdir('-p', userOutputFolder);
 
     // Create temporary input/output folders

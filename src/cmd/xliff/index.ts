@@ -5,7 +5,8 @@ import {Argv} from 'yargs';
 
 const command = 'xliff';
 
-const description = 'extract xliff and skeleton from documentation files\ncompose xliff and skeleton into documentation';
+const description =
+    'extract xliff and skeleton from documentation files\ncompose xliff and skeleton into documentation';
 
 const xliff = {
     command,
