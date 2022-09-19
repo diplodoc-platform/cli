@@ -6,3 +6,4 @@ export * from './path';
 export * from './toc';
 export * from './presets';
 export * from './glob';
+export * from './file';

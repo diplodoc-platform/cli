@@ -10,7 +10,7 @@ import {ResolverOptions, YfmToc, ResolveMd2HTMLResult} from '../models';
 import {ArgvService, TocService, PluginService} from '../services';
 import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
-import {getUpdatedMetadata} from '../services/metadata';
+import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
 
 export interface FileTransformOptions {
     path: string;
@@ -31,7 +31,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
     const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
 
-    const {input, lang} = ArgvService.getConfig();
+    const {input, lang, allowCustomResources} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
@@ -42,12 +42,18 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         ? await getUpdatedMetadata(metadata, content, result?.meta)
         : result.meta;
 
+    let fileMeta = fileExtension === '.yaml' ? result.data.meta : updatedMetadata;
+
+    if (allowCustomResources && metadata?.resources) {
+        fileMeta = {...fileMeta, ...metadata?.resources};
+    }
+
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
             toc: transformToc(toc, pathToDir) || {},
             ...result,
-            meta: updatedMetadata,
+            meta: fileMeta,
         },
         router: {
             pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
@@ -104,8 +110,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     const root = resolve(input);
     const path: string = resolve(input, filePath);
 
-    /* Relative path from folder of .md file to root of user' output folder */
-    const assetsPublicPath = relative(dirname(path), resolve(input));
 
     return transform(content, {
         ...options,
@@ -113,7 +117,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         vars,
         root,
         path,
-        assetsPublicPath,
+        assetsPublicPath: getAssetsPublicPath(filePath),
         getVarsPerFile: getVarsPerRelativeFile,
         extractTitle: true,
     });

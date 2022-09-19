@@ -1,21 +1,31 @@
 import {basename, dirname, extname, resolve, join, relative} from 'path';
 import shell from 'shelljs';
-import {copyFileSync, writeFileSync} from 'fs';
+import {copyFileSync, readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
+import {dump, load} from 'js-yaml';
 
 import log from '@doc-tools/transform/lib/log';
 
 import {ArgvService, LeadingService, TocService, PluginService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {generateStaticMarkup, joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
-import {MetaDataOptions, SinglePageResult, PathData, YfmToc, ResolveMd2HTMLResult} from '../models';
+import {
+    MetaDataOptions,
+    SinglePageResult,
+    PathData,
+    YfmToc,
+    ResolveMd2HTMLResult,
+    Resources,
+    LeadingPage,
+} from '../models';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
 import {
     SINGLE_PAGE_FILENAME,
     SINGLE_PAGE_DATA_FILENAME,
-    Lang,
+    Lang, ResourceType,
 } from '../constants';
+import {getAssetsPublicPath, getResolvedResourcePaths} from '../services/metadata';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -28,6 +38,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         outputFormat,
         singlePage,
         resolveConditions,
+        allowCustomResources,
     } = ArgvService.getConfig();
 
     const vcsConnector = await getVCSConnector();
@@ -42,6 +53,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         logger.proc(pathToFile);
 
         const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
+
+        if (allowCustomResources && metaDataOptions.resources) {
+            metaDataOptions.resources = getResolvedResourcePaths(metaDataOptions.resources, getAssetsPublicPath(pathToFile));
+        }
 
         promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage));
     }
@@ -93,6 +108,7 @@ async function saveSinglePages(outputBundlePath: string) {
         input: inputFolderPath,
         output: outputFolderPath,
         lang,
+        resources,
     } = ArgvService.getConfig();
 
     try {
@@ -114,7 +130,7 @@ async function saveSinglePages(outputBundlePath: string) {
                     leading: false,
                     html: singlePageBody,
                     headings: [],
-                    meta: {},
+                    meta: resources || {},
                     toc: preparedToc,
                 },
                 router: {
@@ -164,7 +180,7 @@ function savePageResultForSinglePage(pageProps: ResolveMd2HTMLResult, pathData: 
 
 function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector,
 ): MetaDataOptions {
-    const {contributors, addSystemMeta} = ArgvService.getConfig();
+    const {contributors, addSystemMeta, resources, allowCustomResources} = ArgvService.getConfig();
 
     const metaDataOptions: MetaDataOptions = {
         vcsConnector,
@@ -176,6 +192,19 @@ function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, v
         isContributorsEnabled: Boolean(contributors && vcsConnector),
         addSystemMeta,
     };
+
+
+    if (allowCustomResources && resources) {
+        const allowedResources = Object.entries(resources).reduce((acc: Resources, [key, val]) => {
+            if (Object.keys(ResourceType).includes(key)) {
+                acc[key as keyof typeof ResourceType] = val;
+            }
+            return acc;
+        }, {});
+
+        metaDataOptions.resources = allowedResources;
+    }
+
 
     return metaDataOptions;
 }
@@ -195,6 +224,7 @@ async function preparingPagesByOutputFormat(
         outputFormat,
         pathToFile,
     } = path;
+    const {allowCustomResources} = ArgvService.getConfig();
 
     try {
         shell.mkdir('-p', outputDir);
@@ -203,6 +233,11 @@ async function preparingPagesByOutputFormat(
 
         if (resolveConditions && fileBaseName === 'index' && isYamlFileExtension) {
             LeadingService.filterFile(pathToFile);
+        }
+
+        if (outputFormat === 'md' && isYamlFileExtension && allowCustomResources) {
+            processingYamlFile(path, metaDataOptions);
+            return;
         }
 
         if (outputFormat === 'md' && isYamlFileExtension ||
@@ -230,6 +265,20 @@ async function preparingPagesByOutputFormat(
         console.log(message, e);
         log.error(message);
     }
+}
+//@ts-ignore
+function processingYamlFile(path: PathData, metaDataOptions: MetaDataOptions) {
+    const {pathToFile, outputFolderPath, inputFolderPath} = path;
+
+    const filePath = resolve(inputFolderPath, pathToFile);
+    const content = readFileSync(filePath, 'utf8');
+    const parsedContent = load(content) as LeadingPage;
+
+    if (metaDataOptions.resources) {
+        parsedContent.meta = {...parsedContent.meta, ...metaDataOptions.resources};
+    }
+
+    writeFileSync(resolve(outputFolderPath, pathToFile), dump(parsedContent));
 }
 
 function copyFileWithoutChanges(resolvedPathToFile: string, outputDir: string, filename: string): void {

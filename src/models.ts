@@ -2,7 +2,7 @@ import {Logger} from '@doc-tools/transform/lib/log';
 import {LintConfig} from '@doc-tools/transform/lib/yfmlint';
 
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
-import {Lang, Stage, IncludeMode} from './constants';
+import {Lang, Stage, IncludeMode, ResourceType} from './constants';
 
 export type VarsPreset = 'internal'|'external';
 
@@ -33,6 +33,7 @@ interface YfmConfig {
     lintDisabled: boolean;
     buildDisabled: boolean;
     lintConfig: LintConfig;
+    resources?: Resources;
 }
 
 export interface YfmArgv extends YfmConfig {
@@ -49,6 +50,7 @@ export interface YfmArgv extends YfmConfig {
     contributors: boolean;
     addSystemMeta: boolean;
     addMapFile: boolean;
+    allowCustomResources: boolean;
 }
 
 export interface DocPreset {
@@ -158,6 +160,7 @@ export interface MetaDataOptions {
     vcsConnector?: VCSConnector;
     addSystemMeta?: boolean;
     addSourcePath?: boolean;
+    resources?: Resources;
 }
 
 export interface PluginOptions {
@@ -221,3 +224,7 @@ export interface ResolveMd2HTMLResult {
     };
     lang: Lang;
 }
+
+export type Resources = {
+    [key in ResourceType]?: string[];
+};
