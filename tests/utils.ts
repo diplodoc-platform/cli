@@ -5,6 +5,7 @@ import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import isEqual from 'lodash/isEqual';
 import {convertBackSlashToSlash} from 'utils/path';
+import {Platforms} from "../src/constants";
 
 const yfmDocsPath = require.resolve('../build');
 
@@ -17,12 +18,20 @@ export function getFileContent(filePath: string) {
     }
 }
 
+function unifyWindowsNewLines(text) {
+    if (process.platform === Platforms.WINDOWS) {
+        return text.replace(/^(\r\n|\r|\n)/, '\r\n')
+    }
+
+    return text;
+}
+
 export type CompareResult = {
     expectedContent: string;
     outputContent: string;
 } | boolean;
 
-export function compareDirectories(expectedOutputPath: string, outputPath: string): CompareResult {
+export function compareDirectories(expectedOutputPath: string, outputPath: string, unifyCb?: Function): CompareResult {
     const filesFromExpectedOutput = walkSync(expectedOutputPath, {
         directories: false,
         includeBasePath: false,
@@ -31,19 +40,30 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
 
     filesFromExpectedOutput.forEach((expectedFilePath) => {
         const fileExtension = extname(expectedFilePath);
-        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
-        const outputContent = getFileContent(resolve(outputPath, expectedFilePath));
+        const outputContentPath = resolve(outputPath, expectedFilePath)
 
-        const convertedExpectedContent = convertBackSlashToSlash(expectedContent);
+        if(outputContentPath.includes('_bundle')) {
+            return;
+        }
+
+        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
+        const outputContent = getFileContent(outputContentPath);
+
+        const convertedExpectedContent = convertBackSlashToSlash(expectedContent)
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedExpectedContent: any = convertedExpectedContent;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedOutputContent: any = outputContent;
 
+        if (unifyCb) {
+            preparedExpectedContent = unifyCb(preparedExpectedContent)
+            preparedOutputContent = unifyCb(preparedOutputContent)
+        }
+
         if (fileExtension === '.yaml') {
             preparedExpectedContent = load(convertedExpectedContent);
-            preparedOutputContent = load(outputContent);
+            preparedOutputContent = load(convertBackSlashToSlash(outputContent));
         }
 
         if (!isEqual(preparedExpectedContent, preparedOutputContent)) {

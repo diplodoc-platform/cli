@@ -1,0 +1,13 @@
+.Header {
+    background-color: darkkhaki;
+}
+
+h1 {
+    /*font-family: 'Qwitcher Grypen', cursive;*/
+    font-family: 'QwitcherGrypen-Regular';
+}
+
+@font-face {
+    font-family: 'QwitcherGrypen-Regular';
+    src: url('https://yfm-test-doc123.martyanov-av.ui.yandex.net/docs-assets/yfm-test-doc123/test39/ru/_assets/fonts/QwitcherGrypen-Regular.ttf');
+}
