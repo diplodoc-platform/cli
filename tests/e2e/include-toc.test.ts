@@ -50,4 +50,29 @@ describe('Include toc', () => {
             expect(expectedContent).toEqual(outputContent);
         }
     });
+
+    test('Toc with expressions', () => {
+        const testRootPath = 'mocks/include-toc/test4';
+        const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
+
+        const vars = {
+            type: 'a',
+            a: 'A',
+            b: 'B',
+        };
+
+        runYfmDocs(inputPath, outputPath, {
+            args: `--vars='${JSON.stringify(vars)}'`,
+        });
+
+        const compareResult = compareDirectories(outputPath, expectedOutputPath);
+
+        if (typeof compareResult === 'boolean') {
+            expect(true).toEqual(compareResult);
+        } else {
+            const {expectedContent, outputContent} = compareResult;
+
+            expect(expectedContent).toEqual(outputContent);
+        }
+    });
 });
