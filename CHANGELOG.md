@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.0...v1.26.1) (2022-09-20)
+
+
+### Bug Fixes
+
+* **services/tocs:** fix format title ([#183](https://github.com/yandex-cloud/yfm-docs/issues/183)) ([9d2ab53](https://github.com/yandex-cloud/yfm-docs/commit/9d2ab5336ec64442fd43a1440d6f715e256c7021))
+
 ## [1.25.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.25.0...v1.25.1) (2022-09-06)
 
 
