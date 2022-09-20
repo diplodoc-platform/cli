@@ -5,7 +5,6 @@ import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import isEqual from 'lodash/isEqual';
 import {convertBackSlashToSlash} from 'utils/path';
-import {Platforms} from "../src/constants";
 
 const yfmDocsPath = require.resolve('../build');
 
@@ -18,20 +17,12 @@ export function getFileContent(filePath: string) {
     }
 }
 
-function unifyWindowsNewLines(text) {
-    if (process.platform === Platforms.WINDOWS) {
-        return text.replace(/^(\r\n|\r|\n)/, '\r\n')
-    }
-
-    return text;
-}
-
 export type CompareResult = {
     expectedContent: string;
     outputContent: string;
 } | boolean;
 
-export function compareDirectories(expectedOutputPath: string, outputPath: string, unifyCb?: Function): CompareResult {
+export function compareDirectories(expectedOutputPath: string, outputPath: string, preprocessContent?: Function): CompareResult {
     const filesFromExpectedOutput = walkSync(expectedOutputPath, {
         directories: false,
         includeBasePath: false,
@@ -56,9 +47,9 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedOutputContent: any = outputContent;
 
-        if (unifyCb) {
-            preparedExpectedContent = unifyCb(preparedExpectedContent)
-            preparedOutputContent = unifyCb(preparedOutputContent)
+        if (preprocessContent) {
+            preparedExpectedContent = preprocessContent(preparedExpectedContent)
+            preparedOutputContent = preprocessContent(preparedOutputContent)
         }
 
         if (fileExtension === '.yaml') {
