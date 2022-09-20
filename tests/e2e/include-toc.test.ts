@@ -62,7 +62,7 @@ describe('Include toc', () => {
         };
 
         runYfmDocs(inputPath, outputPath, {
-            args: `--vars='${JSON.stringify(vars)}'`,
+            args: `--vars="${JSON.stringify(vars).replace(/(")/g, '\\$1')}"`,
         });
 
         const compareResult = compareDirectories(outputPath, expectedOutputPath);
