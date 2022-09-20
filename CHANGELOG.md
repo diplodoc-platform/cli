@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.25.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.25.1...v1.25.2) (2022-09-20)
+## [1.26.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.0...v1.26.1) (2022-09-20)
 
 
 ### Bug Fixes
