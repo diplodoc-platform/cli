@@ -1,0 +1,20 @@
+title:
+  - text: "Title {% if type == 'a' %}{{ a }}{% else %}{{ b }}{% endif %}"
+    when: type == "a"
+  - text: "Title {% if type == 'a' %}{{ a }}{% else %}{{ b }}{% endif %}"
+    when: type == "b"
+description:
+  - text: "Desc {{ a }}"
+    when: type == "a"
+  - text: "Desc {{ b }}"
+    when: type == "b"
+meta:
+  title:
+    - text: "Meta {{ a }}"
+      when: type == "a"
+    - text: "Meta {{ b }}"
+      when: type == "b"
+links:
+  - title: A1
+    description: A1 desc
+    href: a1

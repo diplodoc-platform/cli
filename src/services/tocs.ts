@@ -50,7 +50,7 @@ async function add(path: string) {
         ...vars,
     };
 
-    if (typeof parsedToc.title === 'string') {
+    if (parsedToc.title) {
         parsedToc.title = firstFilterTextItems(
             parsedToc.title,
             combinedVars,
