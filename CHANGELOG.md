@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.27.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.1...v1.27.0) (2022-09-23)
+
+
+### Features
+
+* **cmd/xliff/compose:** compose xlf and skl into documentation ([2681cbb](https://github.com/yandex-cloud/yfm-docs/commit/2681cbb437328e180e80f1c2186e881685647c56))
+* **cmd/xliff/extract:** xliff extraction from documentation ([f4f4aaa](https://github.com/yandex-cloud/yfm-docs/commit/f4f4aaadb55169b7a9f79a4e3dfa5f32b0f16d7e))
+
+
+### Bug Fixes
+
+* linting errors ([e1a66a3](https://github.com/yandex-cloud/yfm-docs/commit/e1a66a3fa518ebace40c97ae61287bb13991a58f))
+
 ## [1.26.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.0...v1.26.1) (2022-09-20)
 
 
