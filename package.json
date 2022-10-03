@@ -23,6 +23,9 @@
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build"
   },
+  "engines": {
+    "node": "14.*"
+  },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@doc-tools/components": "2.0.0",
@@ -64,7 +67,7 @@
     "@types/lodash": "4.14.178",
     "@types/markdown-it": "10.0.3",
     "@types/mime-types": "2.1.1",
-    "@types/node": "12.20.41",
+    "@types/node": "14.*",
     "@types/react": "16.14.21",
     "@types/react-dom": "16.9.14",
     "@types/shelljs": "0.8.10",
