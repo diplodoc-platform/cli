@@ -1,8 +1,8 @@
 ---
 style:
-  - ../_assets/style/test.css
+  - _assets/style/test.css
 script:
-  - ../_assets/script/test1.js
+  - _assets/script/test1.js
 
 ---
 Lorem
