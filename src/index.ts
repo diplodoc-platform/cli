@@ -224,7 +224,7 @@ async function main(args: Arguments<any>) {
                             resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)));
 
                         //copy resources
-                        copyFiles(_yargs.argv.input, tmpOutputFolder, resourcePaths);
+                        copyFiles(args.input, tmpOutputFolder, resourcePaths);
                     }
 
                     break;
