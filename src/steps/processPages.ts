@@ -3,6 +3,7 @@ import shell from 'shelljs';
 import {copyFileSync, readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
+import {mapLimit, asyncify} from 'async';
 
 import log from '@doc-tools/transform/lib/log';
 
@@ -43,11 +44,12 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     const vcsConnector = await getVCSConnector();
 
-    const promises: Promise<void>[] = [];
-
     PluginService.setPlugins();
 
-    for (const pathToFile of TocService.getNavigationPaths()) {
+    const navigationPaths = TocService.getNavigationPaths();
+    const concurrency = 500;
+
+    await mapLimit(navigationPaths, concurrency, asyncify(async (pathToFile: string) => {
         const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
 
         logger.proc(pathToFile);
@@ -58,10 +60,8 @@ export async function processPages(outputBundlePath: string): Promise<void> {
             metaDataOptions.resources = getResolvedResourcePaths(metaDataOptions.resources, getAssetsPublicPath(pathToFile));
         }
 
-        promises.push(preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage));
-    }
-
-    await Promise.all(promises);
+        await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage);
+    }));
 
     if (singlePage) {
         await saveSinglePages(outputBundlePath);
