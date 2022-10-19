@@ -3,8 +3,7 @@ const {resolve} = require('path');
 const ThreadsPlugin = require('threads-plugin');
 
 const conditions = [
-    (req) => !/^\./.test(req),
-    (req) => !req.includes('threads-plugin'),
+    (req) => req.includes('@yandex-cloud/nodejs-sdk'),
 ];
 
 const filterBy = (predicates) =>
@@ -96,12 +95,12 @@ module.exports = [
             new ThreadsPlugin(),
         ],
         externals: [
-            function (ctx, req, cb) {
-                if (shouldExcludeDependency(req)) {
-                    return cb(null, 'commonjs ' + req);
+            function (context, request, callback) {
+                if (shouldExcludeDependency(request)) {
+                    return callback(null, 'commonjs ' + request);
                 }
 
-                return cb();
+                return callback();
             },
         ],
     },

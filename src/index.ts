@@ -14,7 +14,7 @@ import {
     Stage,
 } from './constants';
 
-import {xliff} from './cmd';
+import {xliff, translate} from './cmd';
 import {
     processAssets,
     processExcludedFiles,
@@ -147,6 +147,7 @@ yargs
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
     .command(xliff)
+    .command(translate)
     .command('$0', 'the default command', () => {}, main)
     .version(VERSION)
     .help()

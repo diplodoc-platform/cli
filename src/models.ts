@@ -34,6 +34,8 @@ interface YfmConfig {
     buildDisabled: boolean;
     lintConfig: LintConfig;
     resources?: Resources;
+    yandexCloudTranslateFolderId: string;
+    yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 }
 
 export interface YfmArgv extends YfmConfig {
@@ -227,4 +229,9 @@ export interface ResolveMd2HTMLResult {
 
 export type Resources = {
     [key in ResourceType]?: string[];
+};
+
+export type YandexCloudTranslateGlossaryPair = {
+  sourceText: string;
+  translatedText: string;
 };
