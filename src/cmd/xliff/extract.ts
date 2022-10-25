@@ -21,6 +21,16 @@ const MDExtPattern = `\\.${MD_EXT_NAME}$`;
 const MDExtFlags = 'mui';
 const MDExtRegExp = new RegExp(MDExtPattern, MDExtFlags);
 
+class ExtractError extends Error {
+    path: string;
+
+    constructor(message: string, path: string) {
+        super(message);
+
+        this.path = path;
+    }
+}
+
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 async function handler(args: Arguments<any>) {
     ArgvService.init({
@@ -29,7 +39,7 @@ async function handler(args: Arguments<any>) {
 
     const {input, output} = args;
 
-    logger.info(input, `yfm xliff extract: extracting skeleton and xliff files from: ${input} to: ${output}`);
+    logger.info(input, `extracting skeleton and xliff files from: ${input} to: ${output}`);
 
     try {
         let cache = {};
@@ -40,45 +50,102 @@ async function handler(args: Arguments<any>) {
             cache,
         }));
 
-        const data = await Promise.all(found.map(async (path: string) => {
+        const data = await Promise.all(found.map(readFn(input, output)));
+
+        if (!data?.length) {
+            throw new ExtractError('failed reading skeleton and xliff files', input);
+        }
+
+        logger.info(input, `finished reading markdown from: ${input}`);
+
+        const xlfs = await Promise.all(data.map(extractFn));
+
+        await Promise.all(xlfs.map(writeFn));
+
+        logger.info(input, `finished extracting skeleton and xliff files to: ${output}`);
+    } catch (err) {
+        if (err instanceof Error || err instanceof ExtractError) {
+            const message = err.message;
+
+            const file = err instanceof ExtractError ? err.path : '';
+
+            logger.error(file, message);
+        }
+    }
+}
+
+export type ReadFnOutput = {
+    md: string;
+    mdPath: string;
+    sklPath: string;
+    xlfPath: string;
+};
+
+function readFn(input: string, output: string) {
+    return async (path: string): Promise<ReadFnOutput> => {
+        let read;
+
+        logger.info(path, 'reading markdown');
+
+        try {
             const outputPath = path.replace(input, output);
 
-            return {
+            read = ({
                 md: await readFile(resolve(path), {encoding: 'utf-8'}),
                 mdPath: resolve(path),
                 sklPath: resolve(outputPath.replace(MDExtRegExp, `.${SKL_EXT_NAME}.${MD_EXT_NAME}`)),
                 xlfPath: resolve(outputPath.replace(MDExtRegExp, `.${XLF_EXT_NAME}`)),
-            };
-        }));
-
-        if (!data?.length) {
-            throw new Error('failed reading skeleton and xliff files');
+            });
+        } catch (err) {
+            throw new ExtractError(err.message, path);
         }
 
-        logger.info(input, `yfm xliff extract: finished reading markdown from: ${input}`);
+        return read;
+    };
+}
 
-        const xlfs = await Promise.all(data.map(async (datum) =>
-            ({extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath})));
+export type ExtractFnOutput = {
+    extracted: {
+        skeleton: string;
+        xliff: string;
+        data: {
+            skeletonFilename: string;
+        };
+    };
+    xlfPath: string;
+};
 
-        await Promise.all(
-            xlfs.map(async ({
-                extracted: {skeleton, data: {skeletonFilename}, xliff},
-                xlfPath,
-            }) => {
-                await mkdir(dirname(xlfPath), {recursive: true});
+async function extractFn(datum: ReadFnOutput): Promise<ExtractFnOutput> {
+    let extracted;
 
-                await Promise.all([
-                    writeFile(skeletonFilename, skeleton),
-                    writeFile(xlfPath, xliff),
-                ]);
-            }),
-        );
+    logger.info(datum.mdPath, 'extracting xliff and skeleton');
 
-        logger.info(input, `yfm xliff extract: finished extracting skeleton and xliff files to: ${output}`);
+    try {
+        extracted = {extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath};
     } catch (err) {
-        logger.error(input, `yfm xliff extract: ${err}`);
+        throw new ExtractError(err.message, datum.mdPath);
+    }
 
-        process.exit(1);
+    return extracted;
+}
+
+async function writeFn({
+    extracted: {skeleton, data: {skeletonFilename}, xliff},
+    xlfPath,
+}: ExtractFnOutput): Promise<void> {
+    const path = skeletonFilename + ' | ' + xlfPath;
+
+    logger.info(path, 'writing skeleton and xliff');
+
+    try {
+        await mkdir(dirname(xlfPath), {recursive: true});
+
+        await Promise.all([
+            writeFile(skeletonFilename, skeleton),
+            writeFile(xlfPath, xliff),
+        ]);
+    } catch (err) {
+        throw new ExtractError(err.message, path);
     }
 }
 
