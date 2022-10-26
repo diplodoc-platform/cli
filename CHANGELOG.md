@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.27.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.0...v1.27.1) (2022-10-26)
+
+
+### Bug Fixes
+
+* **cmd/xliff/compose:** error reporting ([338423a](https://github.com/yandex-cloud/yfm-docs/commit/338423a92e7b96458c19f897faf07316e86e5608))
+* **cmd/xliff/extract:** error reporting ([57c2d93](https://github.com/yandex-cloud/yfm-docs/commit/57c2d93303bca2b67c64be84f3a660943ff338ef))
+
 ## [1.27.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.26.1...v1.27.0) (2022-09-23)
 
 
