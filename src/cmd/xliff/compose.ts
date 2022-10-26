@@ -30,6 +30,16 @@ const composer = async (xliff: string, skeleton: string) => new Promise((res, re
         return res(composed);
     }));
 
+class ComposeError extends Error {
+    path: string;
+
+    constructor(message: string, path: string) {
+        super(message);
+
+        this.path = path;
+    }
+}
+
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 async function handler(args: Arguments<any>) {
     ArgvService.init({
@@ -38,54 +48,105 @@ async function handler(args: Arguments<any>) {
 
     const {input, output} = args;
 
-    logger.info(
-        input,
-        `yfm xliff compose: composing skeleton and xliff files from: ${input} into documentation at: ${output}`,
-    );
+    logger.info(input, 'composing skeleton and xliff files');
 
     try {
         let cache = {};
         let found = [];
 
         ({state: {found, cache}} = await glob(join(input, SKL_MD_GLOB), {
-            nosort: true,
+            nosort: false,
             cache,
         }));
 
         const sklPaths = found;
 
         ({state: {found, cache}} = await glob(join(input, XLF_GLOB), {
-            nosort: true,
+            nosort: false,
             cache,
         }));
 
         const xlfPaths = found;
 
         if (!xlfPaths?.length || xlfPaths?.length !== sklPaths?.length) {
-            throw new Error('failed reading skeleton and xliff files');
+            throw new ComposeError('failed reading skeleton and xliff files', input);
         }
 
+        logger.info(input, 'reading skeleton and xliff files');
+
         const [skls, xlfs, paths] = await Promise.all([
-            Promise.all(sklPaths.map(async (path: string) =>
-                readFile(resolve(path), {encoding: 'utf-8'}))),
-            Promise.all(xlfPaths.map(async (path: string) =>
-                readFile(resolve(path), {encoding: 'utf-8'}))),
+            Promise.all(sklPaths.map(readFn)),
+            Promise.all(xlfPaths.map(readFn)),
             Promise.all(xlfPaths.map(async (path: string) =>
                 path.replace(XLFExtRegExp, '').replace(input, output)))]);
 
-        logger.info(input, `yfm xliff compose: finished reading skeleton and xliff files from: ${input}`);
+        logger.info(input, 'finished reading skeleton and xliff files');
 
-        await Promise.all(paths.map(async (path, i) => {
-            await mkdir(dirname(path), {recursive: true});
+        const composed = await Promise.all(paths.map(composeFn(xlfs, skls)));
 
-            return writeFile(`${path}.md`, await composer(xlfs[i], skls[i]));
-        }));
+        await Promise.all(composed.map(writeFn));
 
-        logger.info(input, `yfm xliff compose: finished composing into documentation at: ${output}`);
+        logger.info(output, 'finished composing into documentation');
     } catch (err) {
-        logger.error(input, `yfm xliff compose: ${err}`);
+        if (err instanceof Error || err instanceof ComposeError) {
+            const message = err.message;
 
-        process.exit(1);
+            const file = err instanceof ComposeError ? err.path : '';
+
+            logger.error(file, message);
+        }
+    }
+}
+
+async function readFn(path: string) {
+    logger.info(path, 'reading file');
+
+    let file;
+
+    try {
+        file = readFile(resolve(path), {encoding: 'utf-8'});
+    } catch (err) {
+        throw new ComposeError(err.message, path);
+    }
+
+    return file;
+}
+
+export type ComposeFnOutput = {
+    path: string;
+    composed: string;
+};
+
+function composeFn(xlfs: string[], skls: string[]) {
+    return async (path: string, i: number): Promise<ComposeFnOutput> => {
+        logger.info(path, 'composing skeleton and xliff files');
+
+        let composed;
+
+        try {
+            composed = await composer(xlfs[i], skls[i]) as string;
+        } catch (err) {
+            throw new ComposeError(err.message, path);
+        }
+
+        return {
+            composed,
+            path,
+        };
+    };
+}
+
+async function writeFn({composed, path}: ComposeFnOutput) {
+    const file = `${path}.md`;
+
+    logger.info(file, 'writing composed file');
+
+    try {
+        await mkdir(dirname(path), {recursive: true});
+
+        return writeFile(file, composed);
+    } catch (err) {
+        throw new ComposeError(err.message, file);
     }
 }
 
