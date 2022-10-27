@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.28.0...v1.29.0) (2022-10-27)
+
+
+### Features
+
+* limit async operations to avoid heap out of memory ([e3ca5b6](https://github.com/yandex-cloud/yfm-docs/commit/e3ca5b65087584268e83c37e3b969dde4de2ae47))
+
 ## [1.28.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.1...v1.28.0) (2022-10-27)
 
 
