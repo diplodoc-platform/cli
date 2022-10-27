@@ -2,6 +2,16 @@ const webpack = require('webpack');
 const {resolve} = require('path');
 const ThreadsPlugin = require('threads-plugin');
 
+const conditions = [
+    (req) => !/^\./.test(req),
+    (req) => !req.includes('threads-plugin'),
+];
+
+const filterBy = (predicates) =>
+    (req) => predicates.every((predicate) => predicate(req));
+
+const shouldExcludeDependency = filterBy(conditions);
+
 module.exports = [
     {
         mode: 'production',
@@ -84,6 +94,15 @@ module.exports = [
                 VERSION: JSON.stringify(require('./package.json').version),
             }),
             new ThreadsPlugin(),
+        ],
+        externals: [
+            function (ctx, req, cb) {
+                if (shouldExcludeDependency(req)) {
+                    return cb(null, 'commonjs ' + req);
+                }
+
+                return cb();
+            },
         ],
     },
 ];
