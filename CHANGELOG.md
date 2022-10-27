@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.28.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.1...v1.28.0) (2022-10-27)
+
+
+### Features
+
+* allow load custom resources ([#184](https://github.com/yandex-cloud/yfm-docs/issues/184)) ([80c6624](https://github.com/yandex-cloud/yfm-docs/commit/80c66240409fefe3354b19a06ebffdc134abd358))
+
 ## [1.27.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.27.0...v1.27.1) (2022-10-26)
 
 
