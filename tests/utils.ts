@@ -22,7 +22,7 @@ export type CompareResult = {
     outputContent: string;
 } | boolean;
 
-export function compareDirectories(expectedOutputPath: string, outputPath: string): CompareResult {
+export function compareDirectories(expectedOutputPath: string, outputPath: string, preprocessContent?: Function): CompareResult {
     const filesFromExpectedOutput = walkSync(expectedOutputPath, {
         directories: false,
         includeBasePath: false,
@@ -31,19 +31,30 @@ export function compareDirectories(expectedOutputPath: string, outputPath: strin
 
     filesFromExpectedOutput.forEach((expectedFilePath) => {
         const fileExtension = extname(expectedFilePath);
-        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
-        const outputContent = getFileContent(resolve(outputPath, expectedFilePath));
+        const outputContentPath = resolve(outputPath, expectedFilePath)
 
-        const convertedExpectedContent = convertBackSlashToSlash(expectedContent);
+        if(outputContentPath.includes('_bundle')) {
+            return;
+        }
+
+        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
+        const outputContent = getFileContent(outputContentPath);
+
+        const convertedExpectedContent = convertBackSlashToSlash(expectedContent)
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedExpectedContent: any = convertedExpectedContent;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let preparedOutputContent: any = outputContent;
 
+        if (preprocessContent) {
+            preparedExpectedContent = preprocessContent(preparedExpectedContent)
+            preparedOutputContent = preprocessContent(preparedOutputContent)
+        }
+
         if (fileExtension === '.yaml') {
             preparedExpectedContent = load(convertedExpectedContent);
-            preparedOutputContent = load(outputContent);
+            preparedOutputContent = load(convertBackSlashToSlash(outputContent));
         }
 
         if (!isEqual(preparedExpectedContent, preparedOutputContent)) {

@@ -1,10 +1,14 @@
+import {dump} from 'js-yaml';
+
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {Metadata, MetaDataOptions} from '../models';
+import {Metadata, MetaDataOptions, Resources} from '../models';
 import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
 import {сarriage} from '../utils';
-import {metadataBorder} from '../constants';
+import {metadataBorder, ResourceType} from '../constants';
+import {dirname, join, relative, resolve} from 'path';
+import {ArgvService} from './index';
 
 async function getContentWithUpdatedMetadata(
     fileContent: string,
@@ -24,17 +28,22 @@ function getContentWithUpdatedStaticMetadata(
     options?: MetaDataOptions,
     systemVars?: unknown,
 ): string {
-    if (!options || (!options?.addSystemMeta || !systemVars) && !options?.addSourcePath) {
+    const newMetadatas: string[] = [];
+
+    if (!options || (!options?.addSystemMeta || !systemVars) && !options?.addSourcePath && !options.resources) {
         return fileContent;
     }
 
     const matches = matchMetadata(fileContent);
-    const newMetadatas: string[] = [];
 
     const {addSystemMeta, addSourcePath, fileData} = options;
 
     if (addSystemMeta && systemVars && isObject(systemVars)) {
         newMetadatas.push(getSystemVarsMetadataString(systemVars));
+    }
+
+    if (options.resources) {
+        newMetadatas.push(dump(options.resources));
     }
 
     if (addSourcePath && fileData.sourcePath) {
@@ -181,8 +190,31 @@ function getSystemVarsMetadataString(systemVars: object) {
     return `__system: ${JSON.stringify(systemVars)}`;
 }
 
+
+function getAssetsPublicPath(filePath: string) {
+    const {input} = ArgvService.getConfig();
+    const path: string = resolve(input, filePath);
+
+    /* Relative path from folder of .md file to root of user' output folder */
+    return relative(dirname(path), resolve(input));
+}
+
+function getResolvedResourcePaths(resources: Resources, assetsPublicPath: string) {
+    const metaResources = {...resources};
+
+    for (const type of Object.keys(metaResources) as Array<keyof typeof ResourceType>) {
+        metaResources[type] = metaResources[type]?.map((el) => {
+            return join(assetsPublicPath, el);
+        });
+    }
+
+    return metaResources;
+}
+
 export {
     getContentWithUpdatedMetadata,
     getContentWithUpdatedStaticMetadata,
     getUpdatedMetadata,
+    getResolvedResourcePaths,
+    getAssetsPublicPath,
 };

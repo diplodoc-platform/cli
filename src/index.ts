@@ -28,6 +28,8 @@ import {
 import {ArgvService, Includers} from './services';
 import {argvValidator} from './validator';
 import {prepareMapFile} from './steps/processMapFile';
+import {copyFiles} from './utils';
+import {Resources} from './models';
 
 console.time(MAIN_TIMER_ID);
 
@@ -136,6 +138,11 @@ yargs
         describe: 'Disable building',
         type: 'boolean',
     })
+    .option('allow-custom-resources', {
+        default: false,
+        describe: 'Allow loading custom resources',
+        type: 'boolean',
+    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
@@ -168,6 +175,8 @@ async function main(args: Arguments<any>) {
             lintDisabled,
             buildDisabled,
             addMapFile,
+            allowCustomResources,
+            resources,
         } = ArgvService.getConfig();
 
         preparingTemporaryFolders(args, userOutputFolder, tmpInputFolder, tmpOutputFolder);
@@ -206,6 +215,17 @@ async function main(args: Arguments<any>) {
                     shell.cp(resolve(pathToConfig), tmpOutputFolder);
                     shell.cp(resolve(pathToRedirects), tmpOutputFolder);
                     shell.cp(resolve(pathToLintConfig), tmpOutputFolder);
+
+                    if (resources && allowCustomResources) {
+                        const resourcePaths: string[] = [];
+
+                        // collect paths of all resources
+                        Object.keys(resources).forEach((type) =>
+                            resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)));
+
+                        //copy resources
+                        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+                    }
 
                     break;
                 }

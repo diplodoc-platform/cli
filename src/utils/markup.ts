@@ -1,13 +1,19 @@
 import {platform} from 'process';
-import {Platforms} from '../constants';
-import {ResolveMd2HTMLResult, SinglePageResult} from '../models';
+
+import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
+import {ResolveMd2HTMLResult, SinglePageResult, Resources} from '../models';
 import {PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
 
 export interface GenerateStaticMarkup extends ResolveMd2HTMLResult {}
 
+export interface TitleMeta {
+    title?: string;
+}
+export type Meta = TitleMeta & Resources;
+
 export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: string): string {
-    const {title: metaTitle} = props.data.meta as {title?: string} || {};
+    const {title: metaTitle, style, script} = props.data.meta as Meta || {};
     const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
 
@@ -16,6 +22,7 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
         tocTitle: tocTitle as string,
         pageTitle,
     });
+    const resources = getResources({style, script});
 
     return `
         <!DOCTYPE html>
@@ -31,6 +38,7 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
                     }
                 </style>
                 ${PluginService.getHeadContent()}
+                ${resources}
             </head>
             <body class="yc-root yc-root_theme_light">
                 <div id="root"></div>
@@ -68,13 +76,32 @@ function getMetadata(metadata: Record<string, string>): string {
         return '';
     }
 
-    const metaEntries = Object.entries(metadata);
+    // Exclude resources from meta, proceed them separately
+    const metaEntries = Object.keys(metadata).filter((key) => !Object.keys(ResourceType).includes(key));
 
     return metaEntries
         .map(([name, content]) => {
             return `<meta name="${name}" content="${content}">`;
         })
         .join('\n');
+}
+
+function getResources({style, script}: Resources) {
+    const resourcesTags: string[] = [];
+
+    if (style) {
+        style.forEach((el, id) => resourcesTags.push(
+            `<link rel="stylesheet" type="text/css" href="${el}" ${id === 0 && `id="${CUSTOM_STYLE}"`}>`,
+        ));
+    }
+
+    if (script) {
+        script.forEach((el) => resourcesTags.push(
+            `<script src="${el}"></script>`,
+        ));
+    }
+
+    return resourcesTags.join('\n');
 }
 
 export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';

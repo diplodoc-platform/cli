@@ -30,6 +30,7 @@ export const REDIRECTS_FILENAME = 'redirects.yaml';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
+export const CUSTOM_STYLE = 'custom-style';
 
 export enum Stage {
     NEW = 'new',
@@ -53,6 +54,11 @@ export enum IncludeMode {
     ROOT_MERGE = 'root_merge',
     MERGE = 'merge',
     LINK = 'link'
+}
+
+export enum ResourceType {
+    style = 'style',
+    script = 'script',
 }
 
 export const BUILD_FOLDER_PATH = dirname(process.mainModule?.filename || '');
