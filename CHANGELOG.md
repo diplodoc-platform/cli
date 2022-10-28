@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.29.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.0...v1.29.1) (2022-10-28)
+
+
+### Bug Fixes
+
+* exclude external dependencies from build ([df415bc](https://github.com/yandex-cloud/yfm-docs/commit/df415bc61809e1ffd4933c1676139e4442c32865))
+
 ## [1.29.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.28.0...v1.29.0) (2022-10-27)
 
 
