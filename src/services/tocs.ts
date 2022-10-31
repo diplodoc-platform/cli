@@ -62,6 +62,17 @@ async function add(path: string) {
         parsedToc.title = liquidField(parsedToc.title, combinedVars, path);
     }
 
+    /* Apply includers to includes */
+    parsedToc.items = await applyIncluders(parsedToc.items, path);
+
+    /* Should resolve all includes */
+    parsedToc.items = _replaceIncludes(
+        parsedToc.items,
+        join(inputFolderPath, pathToDir),
+        resolve(inputFolderPath),
+        combinedVars,
+    );
+
     /* Should remove all links with false expressions */
     if (resolveConditions || removeHiddenTocItems) {
         try {
@@ -73,17 +84,6 @@ async function add(path: string) {
             log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
         }
     }
-
-    /* Apply includers to includes */
-    parsedToc.items = await applyIncluders(parsedToc.items, path);
-
-    /* Should resolve all includes */
-    parsedToc.items = _replaceIncludes(
-        parsedToc.items,
-        join(inputFolderPath, pathToDir),
-        resolve(inputFolderPath),
-        combinedVars,
-    );
 
     /* Store parsed toc for .md output format */
     storage.set(path, parsedToc);
