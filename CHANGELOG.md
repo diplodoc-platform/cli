@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.30.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.1...v1.30.0) (2022-10-31)
+
+
+### Features
+
+* **cmd/translate:** translate documentation ([0b5c6b4](https://github.com/yandex-cloud/yfm-docs/commit/0b5c6b492234c081566934e1c2fa36ec92b08715))
+
+
+### Bug Fixes
+
+* **services/tocs:** fix `when` processing order ([19ff064](https://github.com/yandex-cloud/yfm-docs/commit/19ff0642e43abb1001300f2c24d19928130ce852))
+
 ## [1.29.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.0...v1.29.1) (2022-10-28)
 
 
