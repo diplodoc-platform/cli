@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.30.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.0...v1.30.1) (2022-10-31)
+
+
+### Bug Fixes
+
+* Revert "fix(services/tocs): fix `when` processing order" ([54134ab](https://github.com/yandex-cloud/yfm-docs/commit/54134abae0a1ca0883662da71233e30ffba54c18))
+
 ## [1.30.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.29.1...v1.30.0) (2022-10-31)
 
 
