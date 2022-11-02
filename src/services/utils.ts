@@ -23,33 +23,31 @@ export function filterFiles<T extends Filter>(
     options?: FilterFilesOptions,
 ): T[] {
     if (!Array.isArray(items)) {
-        const errorMessage
-            = `Error while filtering: item has invalid key '${itemsKey}' equals ${JSON.stringify(items)}`;
-        throw new Error(errorMessage);
+        return [];
     }
 
-    return items.reduce((result: T[], item: T) => {
-        const useItem = shouldProcessItem(item, vars, options);
+    const reducer = (results: T[], item: T) => {
+        if (shouldProcessItem(item, vars, options)) {
+            const prop = item[itemsKey] as T[];
 
-        if (useItem) {
-            const property = item[itemsKey] as T[] | undefined;
+            if (prop) {
+                const filteredProperty = filterFiles(prop, itemsKey, vars, options);
 
-            if (property === undefined) {
-                result.push(item);
-            } else {
-                const filteredProperty = filterFiles(property, itemsKey, vars, options);
-
-                if (filteredProperty.length !== 0) {
-                    result.push({
+                if (filteredProperty.length) {
+                    results.push({
                         ...item,
                         [itemsKey]: filteredProperty,
                     });
                 }
+            } else {
+                results.push(item);
             }
         }
 
-        return result;
-    }, []);
+        return results;
+    };
+
+    return items.reduce(reducer, []);
 }
 
 export function filterTextItems(
