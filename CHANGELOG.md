@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.30.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.1...v1.30.2) (2022-11-03)
+
+
+### Bug Fixes
+
+* **services/tocs:** includes with when ([f939ec4](https://github.com/yandex-cloud/yfm-docs/commit/f939ec42fd4855a79559f18410f308dcdacefb0a))
+* **services/utils:** handle null items filtering ([e5d14b5](https://github.com/yandex-cloud/yfm-docs/commit/e5d14b5b7fac64ccbc618dd6c1eef5ea2a4429fd))
+
 ## [1.30.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.0...v1.30.1) (2022-10-31)
 
 
