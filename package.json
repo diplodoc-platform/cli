@@ -38,6 +38,7 @@
     "async": "^3.2.4",
     "aws-sdk": "2.1054.0",
     "chalk": "4.1.2",
+    "dotenv": "^16.0.3",
     "fast-xml-parser": "^4.0.11",
     "glob": "^8.0.3",
     "highlight.js": "10.7.3",
