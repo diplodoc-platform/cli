@@ -1,15 +1,37 @@
 const webpack = require('webpack');
 const {resolve} = require('path');
 const ThreadsPlugin = require('threads-plugin');
+const dotenv = require('dotenv');
 
-const conditions = [
+dotenv.config();
+
+const {NODE_ENV} = process.env;
+
+const devExcludeConditions = [
+    (req) => !/^\./.test(req),
+    (req) => !req.includes('threads-plugin'),
+];
+
+const prodExcludeConditions = [
     (req) => req.includes('@yandex-cloud/nodejs-sdk'),
 ];
+
+const excludeConditions = NODE_ENV === 'development'
+    ? devExcludeConditions
+    : prodExcludeConditions;
 
 const filterBy = (predicates) =>
     (req) => predicates.every((predicate) => predicate(req));
 
-const shouldExcludeDependency = filterBy(conditions);
+const shouldExcludeDependency = filterBy(excludeConditions);
+
+function processDependencies(context, request, callback) {
+    if (shouldExcludeDependency(request)) {
+        return callback(null, 'commonjs ' + request);
+    }
+
+    return callback();
+}
 
 module.exports = [
     {
@@ -94,14 +116,6 @@ module.exports = [
             }),
             new ThreadsPlugin(),
         ],
-        externals: [
-            function (context, request, callback) {
-                if (shouldExcludeDependency(request)) {
-                    return callback(null, 'commonjs ' + request);
-                }
-
-                return callback();
-            },
-        ],
+        externals: [processDependencies],
     },
 ];
