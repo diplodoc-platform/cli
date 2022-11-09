@@ -21,7 +21,8 @@
     "start": "node build/index.js",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
-    "prepublishOnly": "npm run lint && npm run build"
+    "prepublishOnly": "npm run lint && npm run build",
+    "preinstall": "node src/scripts/preinstall.js"
   },
   "engines": {
     "node": "14.*"
