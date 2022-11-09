@@ -28,8 +28,8 @@
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
-    "@doc-tools/components": "2.0.0",
-    "@doc-tools/transform": "^2.8.2",
+    "@doc-tools/components": "^2.4.0",
+    "@doc-tools/transform": "^2.14.2",
     "@doc-tools/yfm2xliff": "0.0.3",
     "@octokit/core": "3.5.1",
     "@types/glob": "^8.0.0",
