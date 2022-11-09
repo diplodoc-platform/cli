@@ -32,8 +32,6 @@ async function add(path: string) {
         outputFormat,
         ignoreStage,
         vars,
-        resolveConditions,
-        removeHiddenTocItems,
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
@@ -62,23 +60,8 @@ async function add(path: string) {
         parsedToc.title = liquidField(parsedToc.title, combinedVars, path);
     }
 
-    /* Should remove all links with false expressions */
-    if (resolveConditions || removeHiddenTocItems) {
-        try {
-            parsedToc.items = filterFiles(parsedToc.items, 'items', combinedVars, {
-                resolveConditions,
-                removeHiddenTocItems,
-            });
-        } catch (error) {
-            log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
-        }
-    }
-
-    /* Apply includers to includes */
-    parsedToc.items = await applyIncluders(parsedToc.items, path);
-
-    /* Should resolve all includes */
-    parsedToc.items = _replaceIncludes(
+    parsedToc.items = await processTocItems(
+        path,
         parsedToc.items,
         join(inputFolderPath, pathToDir),
         resolve(inputFolderPath),
@@ -100,6 +83,28 @@ async function add(path: string) {
     }
 
     prepareNavigationPaths(parsedToc, pathToDir);
+}
+
+async function processTocItems(path: string, items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>) {
+    const {
+        resolveConditions,
+        removeHiddenTocItems,
+    } = ArgvService.getConfig();
+
+    /* Should remove all links with false expressions */
+    if (resolveConditions || removeHiddenTocItems) {
+        try {
+            items = filterFiles(items, 'items', vars, {
+                resolveConditions,
+                removeHiddenTocItems,
+            });
+        } catch (error) {
+            log.error(`Error while filtering toc file: ${path}. Error message: ${error}`);
+        }
+    }
+
+    /* Should resolve all includes */
+    return _replaceIncludes(path, items, tocDir, sourcesDir, vars);
 }
 
 function getForPath(path: string): YfmToc|undefined {
@@ -202,14 +207,12 @@ function _copyTocDir(tocPath: string, destDir: string) {
     });
 }
 
-async function applyIncluders(items: YfmToc[], path: string) {
+async function applyIncluder(path: string, item: YfmToc): Promise<void> {
     const {input: inputFolderPath, rootInput} = ArgvService.getConfig();
 
     const root = join(rootInput, dirname(path));
 
     const outputPath = join(inputFolderPath, dirname(path));
-
-    let result = items;
 
     // eslint-disable-next-line no-shadow
     const postprocess = ({content, path}: IncluderFnOutputElement) => ({
@@ -217,14 +220,10 @@ async function applyIncluders(items: YfmToc[], path: string) {
         path: path.replace(root, outputPath),
     });
 
-    const handler = async (item: YfmToc) => {
-        if (item?.items?.length) {
-            item.items = await applyIncluders(item.items, path);
-        }
+    try {
+        if (!item?.include) { return; }
 
-        if (!item?.include?.includer) { return item; }
-
-        if (!item.include.mode) {
+        if (!item?.include?.mode) {
             item.include.mode = IncludeMode.LINK;
         }
 
@@ -256,20 +255,11 @@ async function applyIncluders(items: YfmToc[], path: string) {
             });
 
         item.include.path = await generatePath(params);
-
-        return item;
-    };
-
-    try {
-        result = await Promise.all(items.map(handler));
-
     } catch (e) {
         logger.error(resolve(rootInput, path), e.message);
 
         process.exit(1);
     }
-
-    return result;
 }
 
 /**
@@ -325,6 +315,7 @@ function addIncludeTocPath(includeTocPath: string) {
 
 /**
  * Replaces include fields in toc file by resolved toc.
+ * @param path
  * @param items
  * @param tocDir
  * @param sourcesDir
@@ -332,8 +323,10 @@ function addIncludeTocPath(includeTocPath: string) {
  * @return
  * @private
  */
-function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>): YfmToc[] {
-    return items.reduce((acc, item) => {
+async function _replaceIncludes(path: string, items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>): Promise<YfmToc[]> {
+    const result: YfmToc[] = [];
+
+    for (const item of items) {
         let includedInlineItems: YfmToc[] | null = null;
 
         if (item.name) {
@@ -342,11 +335,15 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
             item.name = _liquidSubstitutions(item.name, vars, tocPath);
         }
 
+        if (item.include && item.include.includer) {
+            await applyIncluder(path, item);
+        }
+
         if (item.include) {
-            const {path, mode = IncludeMode.ROOT_MERGE} = item.include;
+            const {mode = IncludeMode.ROOT_MERGE} = item.include;
             const includeTocPath = mode === IncludeMode.ROOT_MERGE
-                ? resolve(sourcesDir, path)
-                : resolve(tocDir, path);
+                ? resolve(sourcesDir, item.include.path)
+                : resolve(tocDir, item.include.path);
             const includeTocDir = dirname(includeTocPath);
 
             try {
@@ -354,7 +351,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {
-                    return acc;
+                    continue;
                 }
 
                 if (mode === IncludeMode.MERGE || mode === IncludeMode.ROOT_MERGE) {
@@ -368,7 +365,7 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
 
                 /* Resolve nested toc inclusions */
                 const baseTocDir = mode === IncludeMode.LINK ? includeTocDir : tocDir;
-                includedTocItems = _replaceIncludes(includedTocItems, baseTocDir, sourcesDir, vars);
+                includedTocItems = await processTocItems(path, includedTocItems, baseTocDir, sourcesDir, vars);
 
                 /* Make hrefs relative to the main toc */
                 if (mode === IncludeMode.LINK) {
@@ -384,22 +381,25 @@ function _replaceIncludes(items: YfmToc[], tocDir: string, sourcesDir: string, v
                 const message = (
                     `Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`
                 );
-                console.log(message, err);
+
                 log.error(message);
-                return acc;
+
+                continue;
             } finally {
                 delete item.include;
             }
         } else if (item.items) {
-            item.items = _replaceIncludes(item.items, tocDir, sourcesDir, vars);
+            item.items = await processTocItems(path, item.items, tocDir, sourcesDir, vars);
         }
 
         if (includedInlineItems) {
-            return acc.concat(includedInlineItems);
+            result.push(...includedInlineItems);
         } else {
-            return acc.concat(item);
+            result.push(item);
         }
-    }, [] as YfmToc[]);
+    }
+
+    return result;
 }
 
 function getTocDir(pagePath: string): string {
