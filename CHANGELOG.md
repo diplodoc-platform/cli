@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.2...v1.31.0) (2022-11-09)
+
+
+### Features
+
+* add term plugin ([#182](https://github.com/yandex-cloud/yfm-docs/issues/182)) ([8608b58](https://github.com/yandex-cloud/yfm-docs/commit/8608b58df5acfc0f30619716d7d2176eedfedb89))
+
 ## [1.30.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.1...v1.30.2) (2022-11-03)
 
 
