@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.0...v1.31.1) (2022-11-10)
+
+
+### chore
+
+* release 1.31.1 ([37ed298](https://github.com/yandex-cloud/yfm-docs/commit/37ed2981ca3719d3c4be430365114190571f8db9))
+
 ## [1.31.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.30.2...v1.31.0) (2022-11-09)
 
 
