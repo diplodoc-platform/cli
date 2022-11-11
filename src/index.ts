@@ -21,6 +21,7 @@ import {
     processLogs,
     processPages,
     processLinter,
+    processPdfFiles,
     initLinterWorkers,
     processServiceFiles,
     publishFilesToS3,
@@ -118,6 +119,28 @@ yargs
         describe: 'Beta functionality: Build a single page in the output folder also',
         type: 'boolean',
     })
+    .option('pdf-file', {
+        default: false,
+        describe: 'Beta functionality: Build a pdf file in the output folder also',
+        type: 'boolean',
+    })
+    .option('pdf-include-dirs', {
+        default: ['**/'],
+        describe: 'Glob patterns relative to the root to include directories ' +
+            'to search for source files to create pdf file\n' +
+            'Example 1: --pdf-include-dirs "**/"\n' +
+            'Example 2: --pdf-include-dirs "**/dir1" "**/dir2"\n' +
+            'Syntax: https://en.wikipedia.org/wiki/Glob_(programming)#Syntax',
+        type: 'array',
+    })
+    .option('pdf-exclude-dirs', {
+        default: [],
+        describe: 'Glob patterns relative to the root to exclude directories ' +
+            'from the search for source files to create pdf file\n' +
+            'Example: --pdf-exclude-dirs "**/dir1" "**/dir2"\n' +
+            'Syntax: https://en.wikipedia.org/wiki/Glob_(programming)#Syntax',
+        type: 'array',
+    })
     .option('publish', {
         default: false,
         describe: 'Should upload output files to S3 storage',
@@ -166,6 +189,7 @@ async function main(args: Arguments<any>) {
             rootInput: args.input,
             input: tmpInputFolder,
             output: tmpOutputFolder,
+            userOutputFolder,
         });
         Includers.init();
 
@@ -178,6 +202,7 @@ async function main(args: Arguments<any>) {
             addMapFile,
             allowCustomResources,
             resources,
+            pdfFile,
         } = ArgvService.getConfig();
 
         preparingTemporaryFolders(args, userOutputFolder, tmpInputFolder, tmpOutputFolder);
@@ -235,6 +260,10 @@ async function main(args: Arguments<any>) {
             // Copy all generated files to user' output folder
             shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
 
+            if (pdfFile) {
+                await processPdfFiles();
+            }
+
             if (publish) {
                 await publishFilesToS3();
             }
@@ -246,6 +275,8 @@ async function main(args: Arguments<any>) {
 
         shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
     }
+
+    process.exit(0);
 }
 
 function preparingTemporaryFolders(

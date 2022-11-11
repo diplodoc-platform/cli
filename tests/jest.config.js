@@ -14,4 +14,7 @@ module.exports = {
   coverageProvider: 'v8',
   coverageDirectory: '<rootDir>/coverage',
   moduleDirectories: ['node_modules', path.join(__dirname, '../src'), path.join(__dirname, '../tests')],
+  moduleNameMapper: {
+    "@doc-tools/transform/dist/.*": '<rootDir>/mocks/yfm-dist.js',
+  },
 };

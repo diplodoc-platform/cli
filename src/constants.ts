@@ -32,6 +32,8 @@ export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
+export const PDF_SOURCE_FILENAME = 'pdf-source.html';
+export const PDF_FILENAME = 'single-page.pdf';
 
 export enum Stage {
     NEW = 'new',
@@ -112,3 +114,20 @@ export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
 export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || (os.cpus().length - 1);
 
 export const metadataBorder = '---';
+
+export const CHROMIUM_RESOLVER_OPTIONS = {
+    revision: '',
+    detectionPath: '',
+    folderName: '.chromium-browser-snapshots',
+    defaultHosts: ['https://storage.googleapis.com', 'https://npm.taobao.org/mirrors'],
+    hosts: [],
+    cacheRevisions: 2,
+    retry: 3,
+    silent: false,
+};
+
+export const PUPPETEER_PAGE_OPTIONS = {
+    format: 'A4',
+    printBackground: true,
+    margin: {top: '40px', bottom: '40px'},
+};

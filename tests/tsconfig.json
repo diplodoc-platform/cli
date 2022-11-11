@@ -11,7 +11,8 @@
     "types": [
       "node",
       "@types/jest",
-      "jest"
+      "jest",
+      "declarations.d.ts"
     ],
     "typeRoots": [
       "node_modules/@types"

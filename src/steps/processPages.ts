@@ -38,6 +38,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         output: outputFolderPath,
         outputFormat,
         singlePage,
+        pdfFile,
         resolveConditions,
         allowCustomResources,
     } = ArgvService.getConfig();
@@ -60,10 +61,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
             metaDataOptions.resources = getResolvedResourcePaths(metaDataOptions.resources, getAssetsPublicPath(pathToFile));
         }
 
-        await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage);
+        await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions);
     }));
 
-    if (singlePage) {
+    if (singlePage || pdfFile) {
         await saveSinglePages(outputBundlePath);
     }
 }
@@ -213,7 +214,6 @@ async function preparingPagesByOutputFormat(
     path: PathData,
     metaDataOptions: MetaDataOptions,
     resolveConditions: boolean,
-    singlePage: boolean,
 ): Promise<void> {
     const {
         filename,
@@ -224,7 +224,11 @@ async function preparingPagesByOutputFormat(
         outputFormat,
         pathToFile,
     } = path;
-    const {allowCustomResources} = ArgvService.getConfig();
+    const {
+        allowCustomResources,
+        singlePage,
+        pdfFile,
+    } = ArgvService.getConfig();
 
     try {
         shell.mkdir('-p', outputDir);
@@ -253,7 +257,7 @@ async function preparingPagesByOutputFormat(
             case 'html': {
                 const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
 
-                if (singlePage) {
+                if (singlePage || pdfFile) {
                     savePageResultForSinglePage(resolvedFileProps, path);
                 }
 

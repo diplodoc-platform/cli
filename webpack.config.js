@@ -10,6 +10,7 @@ const {NODE_ENV} = process.env;
 const devExcludeConditions = [
     (req) => !/^\./.test(req),
     (req) => !req.includes('threads-plugin'),
+    (req) => !req.includes('@doc-tools/transform'),
 ];
 
 const prodExcludeConditions = [
@@ -103,11 +104,21 @@ module.exports = [
             filename: 'index.js',
         },
         module: {
-            rules: [{
-                test: /\.[tj]sx?$/,
-                use: ['babel-loader'],
-                exclude: /node_modules/,
-            }],
+            rules: [
+                {
+                    test: /\.[tj]sx?$/,
+                    use: ['babel-loader'],
+                    exclude: /node_modules/,
+                },
+                {
+                    test: [/\.css$/, /\.js$/],
+                    use: 'raw-loader',
+                    include: [
+                        resolve('./node_modules/@doc-tools/transform/dist/css/yfm.css'),
+                        resolve('./node_modules/@doc-tools/transform/dist/js/yfm.js'),
+                    ],
+                },
+            ],
         },
         plugins: [
             new webpack.BannerPlugin({banner: '#!/usr/bin/env node', raw: true}),
