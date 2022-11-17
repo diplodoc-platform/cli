@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.1...v1.31.2) (2022-11-17)
+
+
+### Bug Fixes
+
+* **openapi:** generate docs without tags section ([5f5f1b5](https://github.com/yandex-cloud/yfm-docs/commit/5f5f1b5fe75ecf48cba63a145a90bd8933aa7fdf))
+
 ## [1.31.1](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.0...v1.31.1) (2022-11-10)
 
 
