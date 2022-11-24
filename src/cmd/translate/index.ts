@@ -221,7 +221,9 @@ function parseSourcesFromXLIFF(xliff: string) {
 
     const inputs = parser.parse(xliff)?.xliff?.file?.body['trans-unit'] ?? [];
 
-    return inputs.map(({source}: {source: string}) => source);
+    return Array.isArray(inputs)
+        ? inputs.map(({source}: {source: string}) => source)
+        : [inputs.source];
 }
 
 export type CreateXLIFFDocumentParams = {
