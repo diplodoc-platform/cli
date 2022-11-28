@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.31.3](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.2...v1.31.3) (2022-11-24)
+
+
+### Bug Fixes
+
+* **cmd/translate:** handle single line files ([7ab6cb1](https://github.com/yandex-cloud/yfm-docs/commit/7ab6cb15f57f36275ae9b235e02274afd342f071))
+
 ## [1.31.2](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.1...v1.31.2) (2022-11-17)
 
 
