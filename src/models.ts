@@ -77,30 +77,47 @@ export interface YfmTocInclude {
     repo: string;
     path: string;
     mode?: IncludeMode;
-    includer?: IncluderName;
+    includer?: YfmTocIncluder;
+    includers?: YfmTocIncluders;
 }
 
-export const includersNames = ['sourcedocs', 'openapi'] as const;
+export type YfmTocIncludersNormalized = YfmTocIncluderObject[];
 
-export type IncluderName = typeof includersNames[number];
+export type YfmTocIncluders = YfmTocIncluder[];
+
+export type YfmTocIncluder = YfmTocIncluderName | YfmTocIncluderObject;
+
+export const includersNames = [] as const;
+
+export type YfmTocIncluderName = typeof includersNames[number];
+
+export type YfmTocIncluderObject = {
+    name: string;
+    // arbitrary includer parameters
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+} | Record<string, any>;
 
 export type Includer = {
-    name: IncluderName;
-    generateTocs?: IncluderFn;
-    generateLeadingPages?: IncluderFn;
-    generateContent?: IncluderFn;
-    generatePath: IncluderGeneratePathFn;
+    name: YfmTocIncluderName;
+    includerFunction: IncluderFunction;
 };
 
-export type IncluderFn = (params: IncluderFnParams) => IncluderFnOutput;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type IncluderFunction = (args: IncluderFunctionParams) => Promise<any>;
 
-export type IncluderFnParams = {include: YfmTocInclude; name: string; root: string};
-
-export type IncluderFnOutputElement = {path: string; content: LeadingPage | YfmToc | string};
-
-export type IncluderFnOutput = Promise<IncluderFnOutputElement[]>;
-
-export type IncluderGeneratePathFn = (params: IncluderFnParams) => Promise<string>;
+export type IncluderFunctionParams = {
+    // item that contains include that uses includer
+    item: YfmToc;
+    // base read directory path
+    readBasePath: string;
+    // base write directory path
+    writeBasePath: string;
+    // toc with includer path
+    tocPath: string;
+    // arbitrary includer parameters
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    passedParams: Record<string, any>;
+};
 
 export interface LeadingPage {
     title: TextItems;

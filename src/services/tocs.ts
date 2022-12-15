@@ -1,5 +1,5 @@
 import {dirname, extname, join, parse, resolve, relative, normalize, sep} from 'path';
-import {copyFileSync, readFileSync, writeFileSync, existsSync, mkdirSync} from 'fs';
+import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
@@ -9,11 +9,11 @@ import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
-import {YfmToc, IncluderFnOutputElement} from '../models';
+import {YfmToc} from '../models';
 import {Stage, IncludeMode} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems, liquidField} from './utils';
-import {getIncluder, isValidIncluder} from './includers';
+import {applyIncluders, IncludersError} from './includers';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
@@ -207,61 +207,6 @@ function _copyTocDir(tocPath: string, destDir: string) {
     });
 }
 
-async function applyIncluder(path: string, item: YfmToc): Promise<void> {
-    const {input: inputFolderPath, rootInput} = ArgvService.getConfig();
-
-    const root = join(rootInput, dirname(path));
-
-    const outputPath = join(inputFolderPath, dirname(path));
-
-    // eslint-disable-next-line no-shadow
-    const postprocess = ({content, path}: IncluderFnOutputElement) => ({
-        content: content && typeof content === 'object' ? dump(content) : content,
-        path: path.replace(root, outputPath),
-    });
-
-    try {
-        if (!item?.include) { return; }
-
-        if (!item?.include?.mode) {
-            item.include.mode = IncludeMode.LINK;
-        }
-
-        if (item.include.mode !== IncludeMode.LINK) {
-            throw new Error('include with the includer supports only link mode, set include mode to link');
-        }
-
-        if (!isValidIncluder(item.include)) {
-            throw new Error(`includer: ${item.include.includer} not implemented`);
-        }
-
-        const params = {include: item.include, name: item.name, root};
-
-        const {generateTocs, generateLeadingPages, generateContent, generatePath} = getIncluder(item.include);
-
-        const [tocs, pages, contents] = await Promise.all([
-            generateTocs ? generateTocs(params) : Promise.resolve([]),
-            generateLeadingPages ? generateLeadingPages(params) : Promise.resolve([]),
-            generateContent ? generateContent(params) : Promise.resolve([]),
-        ]);
-
-        [...tocs, ...pages, ...contents]
-            .map(postprocess)
-            // eslint-disable-next-line no-shadow
-            .forEach(({content, path}: {content: string; path: string}) => {
-                mkdirSync(dirname(path), {recursive: true});
-
-                writeFileSync(path, content);
-            });
-
-        item.include.path = await generatePath(params);
-    } catch (e) {
-        logger.error(resolve(rootInput, path), e.message);
-
-        process.exit(1);
-    }
-}
-
 /**
  * Make hrefs relative to the main toc in the included toc.
  * @param items
@@ -335,8 +280,16 @@ async function _replaceIncludes(path: string, items: YfmToc[], tocDir: string, s
             item.name = _liquidSubstitutions(item.name, vars, tocPath);
         }
 
-        if (item.include && item.include.includer) {
-            await applyIncluder(path, item);
+        try {
+            await applyIncluders(path, item);
+        } catch (err) {
+            if (err instanceof Error || err instanceof IncludersError) {
+                const message = err.toString();
+
+                const file = err instanceof IncludersError ? err.path : path;
+
+                logger.error(file, message);
+            }
         }
 
         if (item.include) {
