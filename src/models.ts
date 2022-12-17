@@ -87,7 +87,7 @@ export type YfmTocIncluders = YfmTocIncluder[];
 
 export type YfmTocIncluder = YfmTocIncluderName | YfmTocIncluderObject;
 
-export const includersNames = [] as const;
+export const includersNames = ['sourcedocs'] as const;
 
 export type YfmTocIncluderName = typeof includersNames[number];
 
