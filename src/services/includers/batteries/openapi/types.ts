@@ -13,6 +13,7 @@ export type OpenapiOperation = {
     servers?: Servers;
     parameters?: Parameters;
     responses?: {};
+    requestBody?: any;
     'x-navtitle': string[];
 };
 
@@ -59,6 +60,7 @@ export type Endpoint = {
     servers: string[];
     parameters?: Parameters;
     responses?: Responses;
+    requestBody?: Schemas;
 };
 
 export type Specification = {
@@ -87,11 +89,14 @@ export type Server = {
 
 export type Parameters = Parameter[];
 
+export type In = 'path' | 'query' | 'header' | 'cookie';
+
 export type Parameter = {
     name: string;
-    in: string;
+    in: In;
     required: string;
     description: string;
+    schema: Schema;
 };
 
 export type Responses = Response[];
@@ -108,5 +113,5 @@ export type Schemas = Schema[];
 export type Schema = {
     type: string;
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    schema: {[key: string]: any};
+    schema: {[key: string]: Schema};
 };

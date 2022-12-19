@@ -110,7 +110,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
     const {paths, servers} = spec;
 
     const visiter = ({path, method, endpoint}: VisiterParams) => {
-        const {summary, description, tags = [], operationId, parameters, responses} = endpoint;
+        const {summary, description, tags = [], operationId, parameters, responses, requestBody} = endpoint;
 
         const opid = (path: string, method: string, id?: string) =>
             slugify(id ?? ([path, method].join('-')));
@@ -146,6 +146,8 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
             operationId,
             tags: tags.map((tag) => slugify(tag)),
             id: opid(path, method, operationId),
+            requestBody: requestBody?.content ? Object.entries<{[key: string]: any}>(requestBody.content)
+                .map(([type, schema]) => ({type, schema})) : undefined,
         };
 
         for (const tag of tags) {
