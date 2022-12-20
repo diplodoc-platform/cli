@@ -27,5 +27,10 @@
   },
   "include": ["src"],
   "exclude": ["node_modules"],
-  "types": ["node"]
+  "types": ["node"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
 }

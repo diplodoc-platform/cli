@@ -44,7 +44,8 @@ function getAllPlugins(): Function[] {
 
 function getCustomPlugins(): Function[] {
     try {
-        return requireDynamically('./plugins');
+        const customPlugins = requireDynamically('./plugins');
+        return Array.isArray(customPlugins) ? customPlugins : [];
     } catch (e) {
         return [];
     }

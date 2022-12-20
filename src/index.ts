@@ -72,6 +72,11 @@ yargs
         describe: 'Should resolve conditions. Only for --output-format=md',
         type: 'boolean',
     })
+    .option('conditions-in-code', {
+        default: false,
+        describe: 'Meet conditions in code blocks',
+        type: 'boolean',
+    })
     .option('disable-liquid', {
         default: false,
         describe: 'Disable template engine',

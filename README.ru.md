@@ -56,7 +56,14 @@ connector:
 ```bash
 cd yfm-docs
 npm ci && npm run build
-``
+```
+
+### Запуск TS-кода напрямую для возможности его подебажить в IDE
+
+```bash
+npm run start-ts
+```
+
 
 ## License
 

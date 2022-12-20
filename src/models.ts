@@ -19,10 +19,11 @@ interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
-    allowHTML: string;
+    allowHTML: boolean;
     vars: Record<string, string>;
     applyPresets: boolean;
     resolveConditions: boolean;
+    conditionsInCode: boolean;
     disableLiquid: boolean;
     strict: boolean;
     ignoreStage: string;
@@ -150,9 +151,9 @@ export interface Contributors {
 }
 
 export interface FileData {
-    tmpInputFilePath?: string;
-    inputFolderPathLength?: number;
-    fileContent?: string;
+    tmpInputFilePath: string;
+    inputFolderPathLength: number;
+    fileContent: string;
     sourcePath?: string;
 }
 

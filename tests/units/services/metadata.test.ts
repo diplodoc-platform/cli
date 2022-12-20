@@ -44,7 +44,11 @@ describe('getUpdatedMetadata', () => {
 
     beforeEach(() => {
         metaDataOptions = {
-            fileData: {},
+            fileData: {
+                tmpInputFilePath: '',
+                inputFolderPathLength: 0,
+                fileContent: '',
+            },
             isContributorsEnabled: true,
             vcsConnector: defaultVCSConnector,
         };
