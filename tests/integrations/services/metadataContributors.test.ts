@@ -17,6 +17,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
         fileData: {
             tmpInputFilePath: '',
             inputFolderPathLength: 0,
+            fileContent: '',
         },
     };
 

@@ -9,7 +9,7 @@ import {convertBackSlashToSlash, logger} from '../utils';
 
 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
 
-export async function publishFilesToS3(): void {
+export async function publishFilesToS3(): Promise<void> {
     const {
         output: outputFolderPath,
         ignore = [],

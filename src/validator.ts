@@ -87,7 +87,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         }
     }
 
-    let lintConfig = {};
+    let lintConfig: unknown = {};
     try {
         const pathToConfig = join(String(argv.input), LINT_CONFIG_FILENAME);
         const content = readFileSync(resolve(pathToConfig), 'utf8');

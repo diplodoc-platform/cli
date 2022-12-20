@@ -33,7 +33,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
 
         beforeAll(() => {
             metaDataOptions = {
-                fileData: {},
+                fileData: {
+                    tmpInputFilePath: '',
+                    inputFolderPathLength: 0,
+                    fileContent: '',
+                },
                 isContributorsEnabled: true,
                 vcsConnector: defaultVCSConnector,
             };
@@ -64,7 +68,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
 
     describe('should return file content without updated author in metadata', () => {
         const metaDataOptions: MetaDataOptions = {
-            fileData: {},
+            fileData: {
+                tmpInputFilePath: '',
+                inputFolderPathLength: 0,
+                fileContent: '',
+            },
         };
 
         test('if metadata options has "isContributorsEnabled" equals false', async () => {

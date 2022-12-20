@@ -194,9 +194,9 @@ function _copyTocDir(tocPath: string, destDir: string) {
         if (isMdFile) {
             const fileContent = readFileSync(from, 'utf8');
             const sourcePath = relative(inputFolderPath, from);
-            const fileData = {sourcePath};
-            const updatedFileContent = getContentWithUpdatedStaticMetadata(fileContent, {
-                fileData,
+            const updatedFileContent = getContentWithUpdatedStaticMetadata({
+                fileContent,
+                sourcePath,
                 addSourcePath: true,
             });
 

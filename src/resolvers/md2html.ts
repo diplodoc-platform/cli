@@ -11,6 +11,7 @@ import {ArgvService, TocService, PluginService} from '../services';
 import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
 import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
+import {MarkdownItPluginCb} from '@doc-tools/transform/lib/plugins/typings';
 
 export interface FileTransformOptions {
     path: string;
@@ -113,7 +114,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
 
     return transform(content, {
         ...options,
-        plugins,
+        plugins: plugins as MarkdownItPluginCb<any>[],
         vars,
         root,
         path,

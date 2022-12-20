@@ -17,37 +17,47 @@ async function getContentWithUpdatedMetadata(
 ): Promise<string> {
     let result;
 
-    result = getContentWithUpdatedStaticMetadata(fileContent, options, systemVars);
+    result = getContentWithUpdatedStaticMetadata({
+        fileContent,
+        sourcePath: options?.fileData?.sourcePath,
+        addSystemMeta: options?.addSystemMeta,
+        addSourcePath: options?.addSourcePath,
+        resources: options?.resources,
+        systemVars,
+    });
     result = await getContentWithUpdatedDynamicMetadata(result, options);
 
     return result;
 }
 
-function getContentWithUpdatedStaticMetadata(
-    fileContent: string,
-    options?: MetaDataOptions,
-    systemVars?: unknown,
-): string {
+function getContentWithUpdatedStaticMetadata({
+    fileContent, sourcePath, addSystemMeta, addSourcePath, resources, systemVars,
+}: {
+    fileContent: string;
+    sourcePath?: string;
+    addSystemMeta?: boolean;
+    addSourcePath?: boolean;
+    resources?: Resources;
+    systemVars?: unknown;
+}): string {
     const newMetadatas: string[] = [];
 
-    if (!options || (!options?.addSystemMeta || !systemVars) && !options?.addSourcePath && !options.resources) {
+    if ((!addSystemMeta || !systemVars) && !addSourcePath && !resources) {
         return fileContent;
     }
 
     const matches = matchMetadata(fileContent);
 
-    const {addSystemMeta, addSourcePath, fileData} = options;
-
     if (addSystemMeta && systemVars && isObject(systemVars)) {
         newMetadatas.push(getSystemVarsMetadataString(systemVars));
     }
 
-    if (options.resources) {
-        newMetadatas.push(dump(options.resources));
+    if (resources) {
+        newMetadatas.push(dump(resources));
     }
 
-    if (addSourcePath && fileData.sourcePath) {
-        const sourcePathMetadataString = `sourcePath: ${fileData.sourcePath}`;
+    if (addSourcePath && sourcePath) {
+        const sourcePathMetadataString = `sourcePath: ${sourcePath}`;
         newMetadatas.push(sourcePathMetadataString);
     }
 

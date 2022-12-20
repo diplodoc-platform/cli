@@ -57,6 +57,13 @@ cd yfm-docs
 npm ci && npm run build
 ```
 
+### Run TS directly for debug in IDE
+
+```bash
+npm run start-ts
+```
+
+
 ## License
 
 MIT
