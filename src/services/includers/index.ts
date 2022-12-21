@@ -5,7 +5,7 @@ import {isObject} from 'lodash';
 import {ArgvService} from '../index';
 import {IncludeMode} from '../../constants';
 import {logger} from '../../utils/logger';
-import {sourcedocs} from './batteries';
+import {sourcedocs, openapi} from './batteries';
 
 import type {
     Includer,
@@ -51,7 +51,7 @@ class IncludersError extends Error {
 function init(custom: Includer[] = []) {
     if (includersMap) { return; }
 
-    includersMap = {sourcedocs};
+    includersMap = {sourcedocs, openapi};
 
     for (const includer of custom) {
         includersMap[includer.name] = includer;

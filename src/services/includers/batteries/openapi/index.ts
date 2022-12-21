@@ -1,100 +1,71 @@
-/* eslint-disable no-shadow */
-import {join} from 'path';
+import {resolve, join, dirname} from 'path';
+import {mkdir, writeFile} from 'fs/promises';
 
 import parser from '@apidevtools/swagger-parser';
+import {dump} from 'js-yaml';
 
 import parsers from './parsers';
 import generators from './generators';
 
-import {
-    YfmToc,
-    IncluderFnParams,
-    IncluderFnOutput,
-    IncluderFnOutputElement,
-} from '../../../../models';
+import {IncluderFunctionParams, YfmToc} from '../../../../models';
 import {Endpoint, Info} from './types';
 
-async function generateContent(params: IncluderFnParams): IncluderFnOutput {
-    const {
-        include: {path},
-        root,
-    } = params;
+const name = 'openapi';
 
-    const includePath = fixpath(path);
+class OpenApiIncluderError extends Error {
+    path: string;
 
-    let data;
+    constructor(message: string, path: string) {
+        super(message);
 
-    try {
-        data = await parser.validate(join(root, path), {validate: {spec: true}});
-    } catch (e) {
-        throw Error('includer openapi: failed to parse specification');
+        this.name = 'OpenApiIncluderError';
+        this.path = path;
     }
-
-    const results = [];
-
-    const info: Info = parsers.info(data);
-    const spec = parsers.paths(data, parsers.tags(data));
-
-    const main: string = generators.main(info, spec);
-
-    results.push({
-        path: join(root, includePath, 'index.md'),
-        content: main,
-    });
-
-    spec.tags.forEach((tag, id) => {
-        const path = join(root, includePath, id, 'index.md');
-        const content = generators.section(tag);
-
-        results.push({path, content});
-
-        const {endpoints} = tag;
-        if (!endpoints) { return; }
-
-        endpoints.forEach((endpoint) => {
-            results.push(handleEndpointIncluder(endpoint, join(root, includePath, id)));
-        });
-    });
-
-    for (const endpoint of spec.endpoints) {
-        results.push(handleEndpointIncluder(endpoint, join(root, includePath)));
-    }
-
-    return results;
 }
 
-async function generateTocs(params: IncluderFnParams): IncluderFnOutput {
-    const {
-        name,
-        include: {path},
-        root,
-    } = params;
+async function includerFunction(params: IncluderFunctionParams) {
+    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage}} = params;
+
+    const tocDirPath = dirname(tocPath);
+
+    const contentPath = resolve(process.cwd(), readBasePath, input);
+
+    const leadingPageName = leadingPage?.name ?? 'Overview';
 
     let data;
 
     try {
-        data = await parser.validate(join(root, path), {validate: {spec: true}});
-
-    } catch (e) {
-        throw Error('includer openapi: failed to parse specification');
+        data = await parser.validate(contentPath, {validate: {spec: true}});
+    } catch (err) {
+        if (err instanceof Error) {
+            throw new OpenApiIncluderError(err.toString(), tocPath);
+        }
     }
 
-    const includePath = fixpath(path);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const writePath = join(writeBasePath, tocDirPath, params.item.include!.path);
 
-    const result = {
-        path: join(root, includePath, 'toc.yaml'),
-        content: {
-            name,
-            href: 'index.yaml',
-            items: [
+    try {
+        await mkdir(writePath, {recursive: true});
+        await generateToc(data, writePath, leadingPageName);
+        await generateContent(data, writePath);
+    } catch (err) {
+        if (err instanceof Error) {
+            throw new OpenApiIncluderError(err.toString(), tocPath);
+        }
+    }
+}
+
+async function generateToc(data: any, writePath: string, leadingPageName: string): Promise<any> {
+    const toc = {
+        name,
+        items: [
                 {
-                    hidden: true,
-                    name: 'index',
+                    name: leadingPageName,
                     href: 'index.md',
                 } as unknown as YfmToc,
-            ],
-        } as YfmToc,
-    };
+        ],
+    } as YfmToc;
 
     const {tags, endpoints} = parsers.paths(data, parsers.tags(data));
 
@@ -104,8 +75,7 @@ async function generateTocs(params: IncluderFnParams): IncluderFnOutput {
         const section: YfmToc = {
             name,
             items: [{
-                hidden: true,
-                name: 'index',
+                name: leadingPageName,
                 href: join(id, 'index.md'),
             } as unknown as YfmToc],
         } as YfmToc;
@@ -116,49 +86,55 @@ async function generateTocs(params: IncluderFnParams): IncluderFnOutput {
             section.items.push(handleEndpointRender(endpoint, id));
         });
 
-        result.content.items.push(section);
+        toc.items.push(section);
     });
 
     for (const endpoint of endpoints) {
-        result.content.items.push(handleEndpointRender(endpoint));
+        toc.items.push(handleEndpointRender(endpoint));
     }
 
-    return [result];
+    await mkdir(dirname(writePath), {recursive: true});
+    await writeFile(join(writePath, 'toc.yaml'), dump(toc));
 }
 
-async function generateLeadingPages(
-    params: IncluderFnParams,
-): IncluderFnOutput {
-    const {
-        name,
-        include: {path},
-        root,
-    } = params;
+async function generateContent(data: any, writePath: string): Promise<void> {
+    const results = [];
 
-    const includePath = fixpath(path);
+    const info: Info = parsers.info(data);
+    const spec = parsers.paths(data, parsers.tags(data));
 
-    return [
-        {
-            path: join(root, includePath, 'index.yaml'),
-            content: {
-                title: name,
-                links: [
-                    {title: 'index', href: 'index.md'},
-                ],
-            },
-        },
-    ];
+    const main: string = generators.main(info, spec);
+
+    results.push({
+        path: join(writePath, 'index.md'),
+        content: main,
+    });
+
+    spec.tags.forEach((tag, id) => {
+        const path = join(writePath, id, 'index.md');
+        const content = generators.section(tag);
+
+        results.push({path, content});
+
+        const {endpoints} = tag;
+        if (!endpoints) { return; }
+
+        endpoints.forEach((endpoint) => {
+            results.push(handleEndpointIncluder(endpoint, join(writePath, id)));
+        });
+    });
+
+    for (const endpoint of spec.endpoints) {
+        results.push(handleEndpointIncluder(endpoint, join(writePath)));
+    }
+
+    for (const {path, content} of results) {
+        await mkdir(dirname(path), {recursive: true});
+        await writeFile(path, content);
+    }
 }
 
-async function generatePath(params: IncluderFnParams): Promise<string> {
-    return join(fixpath(params.include.path), 'toc.yaml');
-}
-
-function fixpath(path: string) {
-    return path.replace(/\.[^.]+$/gmu, '');
-}
-
-function handleEndpointIncluder(endpoint: Endpoint, pathPrefix: string): IncluderFnOutputElement {
+function handleEndpointIncluder(endpoint: Endpoint, pathPrefix: string) {
     const path = join(pathPrefix, mdPath(endpoint));
     const content = generators.endpoint(endpoint);
 
@@ -184,12 +160,4 @@ export function mdPath(e: Endpoint): string {
     return `${e.id}.md`;
 }
 
-const name = 'openapi';
-
-export {
-    name,
-    generateTocs,
-    generateContent,
-    generateLeadingPages,
-    generatePath,
-};
+export {name, includerFunction};
