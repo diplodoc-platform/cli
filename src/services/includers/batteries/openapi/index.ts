@@ -10,8 +10,9 @@ import {
     YfmToc,
     IncluderFnParams,
     IncluderFnOutput,
+    IncluderFnOutputElement,
 } from '../../../../models';
-import {Info, Tag} from './types';
+import {Endpoint, Info} from './types';
 
 async function generateContent(params: IncluderFnParams): IncluderFnOutput {
     const {
@@ -32,16 +33,16 @@ async function generateContent(params: IncluderFnParams): IncluderFnOutput {
     const results = [];
 
     const info: Info = parsers.info(data);
-    const tags: Map<string, Tag> = parsers.paths(data, parsers.tags(data));
+    const spec = parsers.paths(data, parsers.tags(data));
 
-    const main: string = generators.main(info, tags);
+    const main: string = generators.main(info, spec);
 
     results.push({
         path: join(root, includePath, 'index.md'),
         content: main,
     });
 
-    tags.forEach((tag, id) => {
+    spec.tags.forEach((tag, id) => {
         const path = join(root, includePath, id, 'index.md');
         const content = generators.section(tag);
 
@@ -51,12 +52,13 @@ async function generateContent(params: IncluderFnParams): IncluderFnOutput {
         if (!endpoints) { return; }
 
         endpoints.forEach((endpoint) => {
-            const path = join(root, includePath, id, endpoint.id + '.md');
-            const content = generators.endpoint(endpoint);
-
-            results.push({path, content});
+            results.push(handleEndpointIncluder(endpoint, join(root, includePath, id)));
         });
     });
+
+    for (const endpoint of spec.endpoints) {
+        results.push(handleEndpointIncluder(endpoint, join(root, includePath)));
+    }
 
     return results;
 }
@@ -94,7 +96,7 @@ async function generateTocs(params: IncluderFnParams): IncluderFnOutput {
         } as YfmToc,
     };
 
-    const tags: Map<string, Tag> = parsers.paths(data, parsers.tags(data));
+    const {tags, endpoints} = parsers.paths(data, parsers.tags(data));
 
     tags.forEach((tag, id) => {
         const {name, endpoints} = tag;
@@ -111,16 +113,15 @@ async function generateTocs(params: IncluderFnParams): IncluderFnOutput {
         if (!endpoints) { return; }
 
         endpoints.forEach((endpoint) => {
-            const path = join(id, endpoint.id + '.md');
-
-            section.items.push({
-                href: path,
-                name: endpoint.summary ?? endpoint.id,
-            } as YfmToc);
+            section.items.push(handleEndpointRender(endpoint, id));
         });
 
         result.content.items.push(section);
     });
+
+    for (const endpoint of endpoints) {
+        result.content.items.push(handleEndpointRender(endpoint));
+    }
 
     return [result];
 }
@@ -155,6 +156,32 @@ async function generatePath(params: IncluderFnParams): Promise<string> {
 
 function fixpath(path: string) {
     return path.replace(/\.[^.]+$/gmu, '');
+}
+
+function handleEndpointIncluder(endpoint: Endpoint, pathPrefix: string): IncluderFnOutputElement {
+    const path = join(pathPrefix, mdPath(endpoint));
+    const content = generators.endpoint(endpoint);
+
+    return {path, content};
+}
+
+function handleEndpointRender(endpoint: Endpoint, pathPrefix?: string): YfmToc {
+    let path = mdPath(endpoint);
+    if (pathPrefix) {
+        path = join(pathPrefix, path);
+    }
+    return {
+        href: path,
+        name: sectionName(endpoint),
+    } as YfmToc;
+}
+
+export function sectionName(e: Endpoint): string {
+    return e.summary ?? e.operationId ?? `${e.method} ${e.path}`;
+}
+
+export function mdPath(e: Endpoint): string {
+    return `${e.id}.md`;
 }
 
 const name = 'openapi';

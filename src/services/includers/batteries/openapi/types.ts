@@ -50,6 +50,7 @@ export type Endpoints = Endpoint[];
 
 export type Endpoint = {
     id: string;
+    operationId?: string;
     method: Method;
     path: string;
     tags: string[];
@@ -58,6 +59,11 @@ export type Endpoint = {
     servers: string[];
     parameters?: Parameters;
     responses?: Responses;
+};
+
+export type Specification = {
+    tags: Map<string, Tag>;
+    endpoints: Endpoints;
 };
 
 export const methods = [
