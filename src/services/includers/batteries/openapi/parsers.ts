@@ -13,6 +13,8 @@ import {
     Server,
     Responses,
     Response,
+    Endpoint,
+    Specification,
 } from './types';
 
 function info(spec: OpenapiSpec): Info {
@@ -103,7 +105,8 @@ function tags(spec: OpenapiSpec): Map<string, Tag> {
     return parsed;
 }
 
-function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> {
+function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
+    const endpoints: Endpoints = [];
     const {paths, servers} = spec;
 
     const visiter = ({path, method, endpoint}: VisiterParams) => {
@@ -132,7 +135,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> 
         const parsedResponses: Responses = Object.entries<{[key: string]: any}>(responses ?? {})
             .map(parseResponse);
 
-        const parsedEndpoint = {
+        const parsedEndpoint: Endpoint = {
             servers: serverURLs,
             responses: parsedResponses,
             parameters,
@@ -140,6 +143,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> 
             description,
             path: trimSlash(path),
             method,
+            operationId,
             tags: tags.map((tag) => slugify(tag)),
             id: opid(path, method, operationId),
         };
@@ -153,11 +157,15 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Map<string, Tag> 
                 endpoints: old.endpoints.concat(parsedEndpoint),
             });
         }
+
+        if (!tags.length) {
+            endpoints.push(parsedEndpoint);
+        }
     };
 
     visitPaths(paths, visiter);
 
-    return tagsByID;
+    return {tags: tagsByID, endpoints};
 }
 
 function trimSlash(str: string) {

@@ -7,9 +7,10 @@ import {
     TAGS_SECTION_NAME,
 } from '../constants';
 
-import {Info, Contact, ContactSource, Tag} from '../types';
+import {Info, Contact, ContactSource, Tag, Specification} from '../types';
+import {mdPath, sectionName} from '../index';
 
-function main(info: Info, tags: Map<string, Tag>) {
+function main(info: Info, spec: Specification) {
     const license = info.license?.url ? link : body;
 
     const page = [
@@ -19,7 +20,7 @@ function main(info: Info, tags: Map<string, Tag>) {
         info.license && license(info.license.name, info.license.url as string),
         description(info.description),
         contact(info.contact),
-        sections(tags),
+        sections(spec),
     ];
 
     return block(page);
@@ -42,11 +43,13 @@ function description(text?: string) {
     return text?.length && block([title(2)(DESCRIPTION_SECTION_NAME), body(text)]);
 }
 
-function sections(tags: Map<string, Tag>) {
+function sections({tags, endpoints}: Specification) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
     const links = Array.from(tags).map(([_, {name, id}]: [any, Tag]) => link(name, id + sep + 'index.md'));
 
-    return tags?.size && block([title(2)(TAGS_SECTION_NAME), list(links)]);
+    links.push(...endpoints.map((e) => link(sectionName(e), mdPath(e))));
+
+    return links.length && block([title(2)(TAGS_SECTION_NAME), list(links)]);
 }
 
 export {main};
