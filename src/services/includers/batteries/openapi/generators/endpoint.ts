@@ -1,3 +1,5 @@
+import stringify from 'json-stringify-safe';
+
 import {block, title, body, table, code, cut} from './common';
 import {
     DESCRIPTION_SECTION_NAME,
@@ -67,7 +69,7 @@ function response(resp: Response) {
 
 /* eslint-disable-next-line no-shadow */
 function schema({type, schema}: Schema) {
-    return cut(code(JSON.stringify(schema, null, 4)), type);
+    return cut(code(stringify(schema, null, 4)), type);
 }
 
 export {endpoint};
