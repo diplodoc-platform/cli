@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.31.4](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.3...v1.31.4) (2022-12-21)
+
+
+### Bug Fixes
+
+* **includers/openapi:** openapi generator skips path without tags ([c533921](https://github.com/yandex-cloud/yfm-docs/commit/c53392171534d7089a00605664815baf2243bcdb))
+* parse JSON schema ([edf0e74](https://github.com/yandex-cloud/yfm-docs/commit/edf0e7423ce0115ba964f2de5af86abe2b78ea0a))
+
 ## [1.31.3](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.2...v1.31.3) (2022-11-24)
 
 
