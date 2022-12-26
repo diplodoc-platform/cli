@@ -1,3 +1,4 @@
+import log from '@doc-tools/transform/lib/log';
 import {blue, green, grey, red} from 'chalk';
 import {ArgvService} from '../services';
 
@@ -24,11 +25,11 @@ export const logger = {
     upload: function (pathToFile: string) {
         writeLog(`${green('UPLOAD')} Uploading file ${pathToFile}`);
     },
-    error: function (pathToFile = '', extraMessage = '') {
-        let message = `${red('ERROR')} Fatal Failure`;
-        if (pathToFile.length) { message += ` File: ${pathToFile}`; }
-        if (extraMessage.length) { message += `\n${extraMessage}`; }
+    error: function (pathToFile: string, extraMessage: string) {
+        const message = `${red('ERROR')} file: ${pathToFile} error: ${extraMessage}`;
 
         writeLog(message, true);
+
+        log.error(`file: ${pathToFile} ${extraMessage}`);
     },
 };
