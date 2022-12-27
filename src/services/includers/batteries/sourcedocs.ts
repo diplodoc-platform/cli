@@ -1,5 +1,5 @@
-import {writeFile, mkdir} from 'fs/promises';
-import {resolve, parse, join, dirname, relative} from 'path';
+import {readFile, writeFile, mkdir} from 'fs/promises';
+import {parse, join, dirname, relative} from 'path';
 
 import {updateWith} from 'lodash';
 import {dump} from 'js-yaml';
@@ -26,66 +26,47 @@ const MD_GLOB = '**/*.md';
 async function includerFunction(params: IncluderFunctionParams) {
     const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}} = params;
 
-    if (!input?.length) {
+    if (!input?.length || !item.include?.path) {
         throw new SourceDocsIncluderError('provide includer with input parameter', tocPath);
     }
 
-    const tocDirPath = dirname(tocPath);
+    try {
+        const leadingPageName = leadingPage?.name ?? 'Overview';
 
-    const contentPath = resolve(process.cwd(), readBasePath, input);
+        const tocDirPath = dirname(tocPath);
 
-    let cache = {};
-    let found = [];
+        const contentPath = join(readBasePath, input);
 
-    ({state: {found, cache}} = await glob(join(contentPath, MD_GLOB), {
-        nosort: true,
-        nocase: true,
-        cache,
-    }));
+        let cache = {};
+        let found = [];
 
-    const pattern = `^${readBasePath}`;
-    const flags = 'mui';
-    const regexp = new RegExp(pattern, flags);
+        ({state: {found, cache}} = await glob(join(contentPath, MD_GLOB), {
+            nosort: true,
+            nocase: true,
+            cache,
+        }));
 
-    const relatives = found
-        .map((path: string) => path.replace(regexp, ''))
-        .filter(Boolean);
+        const writePath = join(writeBasePath, tocDirPath, item.include.path);
 
-    const graph = createGraphFromPaths(relatives);
+        const filePaths = found.map((path) => relative(contentPath, path));
 
-    const graphKeys = Object.keys(graph);
+        await mkdir(writePath, {recursive: true});
 
-    if (!graphKeys.length) {
-        return;
+        for (const filePath of filePaths) {
+            const file = await readFile(join(contentPath, filePath));
+
+            await mkdir(dirname(join(writePath, filePath)), {recursive: true});
+            await writeFile(join(writePath, filePath), file);
+        }
+
+        const graph = createGraphFromPaths(filePaths);
+
+        const toc = createToc(leadingPageName, item.include.path)(graph, []);
+
+        await writeFile(join(writePath, 'toc.yaml'), dump(toc));
+    } catch (err) {
+        throw new SourceDocsIncluderError(err.toString(), tocPath);
     }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any, no-shadow
-    function createTocFromGraph(graph: Record<string, any>, cursor: string[]): Record<string, any> {
-        const currentHandler = (file: string) => ({
-            name: parse(file).name === 'index' ? (leadingPage?.name ?? 'Overview') : file,
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            href: relative(join(tocDirPath, item.include!.path), join(...cursor, file)),
-        });
-
-        const recursiveHandler = ((key: string) => createTocFromGraph(graph[key], [...cursor, key]));
-
-        return {
-            name: cursor[cursor.length - 1],
-            items: [
-                ...(graph.files ?? []).map(currentHandler),
-                ...Object.keys(graph).filter((key) => key !== 'files').map(recursiveHandler),
-            ],
-        };
-    }
-
-    const toc = createTocFromGraph(graph[graphKeys[0]], [graphKeys[0]]);
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const writePath = join(writeBasePath, tocDirPath, params.item.include!.path);
-
-    await mkdir(writePath, {recursive: true});
-
-    await writeFile(join(writePath, 'toc.yaml'), dump(toc));
 }
 
 function createGraphFromPaths(paths: string[]) {
@@ -95,6 +76,10 @@ function createGraphFromPaths(paths: string[]) {
     for (const path of paths) {
         const chunks = path.split('/').filter(Boolean);
         if (chunks.length < 2) {
+            if (chunks.length === 1) {
+                graph.files = chunks;
+            }
+
             continue;
         }
 
@@ -106,6 +91,30 @@ function createGraphFromPaths(paths: string[]) {
     }
 
     return graph;
+}
+
+function createToc(leadingPageName: string, tocName: string) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return function createTocRec(graph: Record<string, any>, cursor: string[]): Record<string, any> {
+        const handler = (file: string) => ({
+            name: parse(file).name === 'index' ? leadingPageName : file,
+            href: join(...cursor, file),
+        });
+
+        const recurse = (key: string) => createTocRec(graph[key], [...cursor, key]);
+
+        const current = {
+            name: cursor[cursor.length - 1] ?? tocName,
+            items: [
+                ...(graph.files ?? []).map(handler),
+                ...Object.keys(graph)
+                    .filter((key) => key !== 'files')
+                    .map(recurse),
+            ],
+        };
+
+        return current;
+    };
 }
 
 export {name, includerFunction};
