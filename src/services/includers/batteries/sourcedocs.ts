@@ -1,120 +1,24 @@
-import {readFile, writeFile, mkdir} from 'fs/promises';
-import {parse, join, dirname, relative} from 'path';
+import {logger} from '../../../utils/logger';
 
-import {updateWith} from 'lodash';
-import {dump} from 'js-yaml';
-
-import {glob} from '../../../utils/glob';
+import generic from './generic';
 
 import {IncluderFunctionParams} from '../../../models';
 
-class SourceDocsIncluderError extends Error {
-    path: string;
-
-    constructor(message: string, path: string) {
-        super(message);
-
-        this.name = 'SourceDocsIncluderError';
-        this.path = path;
-    }
-}
-
 const name = 'sourcedocs';
 
-const MD_GLOB = '**/*.md';
+const usage = `include:
+  path: <path-where-to-include>
+  includers:
+    - name: generic
+      input: <path-to-directory-with-markdown>
+      leadingPage:
+        name: <leading-page-name>
+`;
 
 async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}} = params;
+    logger.warn(params.tocPath, `sourcedocs inlcuder is getting depricated in favor of generic includer\n${usage}`);
 
-    if (!input?.length || !item.include?.path) {
-        throw new SourceDocsIncluderError('provide includer with input parameter', tocPath);
-    }
-
-    try {
-        const leadingPageName = leadingPage?.name ?? 'Overview';
-
-        const tocDirPath = dirname(tocPath);
-
-        const contentPath = join(readBasePath, input);
-
-        let cache = {};
-        let found = [];
-
-        ({state: {found, cache}} = await glob(join(contentPath, MD_GLOB), {
-            nosort: true,
-            nocase: true,
-            cache,
-        }));
-
-        const writePath = join(writeBasePath, tocDirPath, item.include.path);
-
-        const filePaths = found.map((path) => relative(contentPath, path));
-
-        await mkdir(writePath, {recursive: true});
-
-        for (const filePath of filePaths) {
-            const file = await readFile(join(contentPath, filePath));
-
-            await mkdir(dirname(join(writePath, filePath)), {recursive: true});
-            await writeFile(join(writePath, filePath), file);
-        }
-
-        const graph = createGraphFromPaths(filePaths);
-
-        const toc = createToc(leadingPageName, item.include.path)(graph, []);
-
-        await writeFile(join(writePath, 'toc.yaml'), dump(toc));
-    } catch (err) {
-        throw new SourceDocsIncluderError(err.toString(), tocPath);
-    }
-}
-
-function createGraphFromPaths(paths: string[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const graph: Record<string, any> = {};
-
-    for (const path of paths) {
-        const chunks = path.split('/').filter(Boolean);
-        if (chunks.length < 2) {
-            if (chunks.length === 1) {
-                graph.files = chunks;
-            }
-
-            continue;
-        }
-
-        const file = chunks.pop();
-
-        updateWith(graph, chunks, (old) => {
-            return old ? {files: [...old.files, file]} : {files: [file]};
-        }, Object);
-    }
-
-    return graph;
-}
-
-function createToc(leadingPageName: string, tocName: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return function createTocRec(graph: Record<string, any>, cursor: string[]): Record<string, any> {
-        const handler = (file: string) => ({
-            name: parse(file).name === 'index' ? leadingPageName : file,
-            href: join(...cursor, file),
-        });
-
-        const recurse = (key: string) => createTocRec(graph[key], [...cursor, key]);
-
-        const current = {
-            name: cursor[cursor.length - 1] ?? tocName,
-            items: [
-                ...(graph.files ?? []).map(handler),
-                ...Object.keys(graph)
-                    .filter((key) => key !== 'files')
-                    .map(recurse),
-            ],
-        };
-
-        return current;
-    };
+    await generic.includerFunction(params);
 }
 
 export {name, includerFunction};
