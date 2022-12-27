@@ -161,3 +161,5 @@ export function mdPath(e: Endpoint): string {
 }
 
 export {name, includerFunction};
+
+export default {name, includerFunction};

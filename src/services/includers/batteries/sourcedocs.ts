@@ -118,3 +118,5 @@ function createToc(leadingPageName: string, tocName: string) {
 }
 
 export {name, includerFunction};
+
+export default {name, includerFunction};
