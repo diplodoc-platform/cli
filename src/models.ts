@@ -27,9 +27,6 @@ interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
-    pdfFile: boolean;
-    pdfIncludeDirs: string[];
-    pdfExcludeDirs: string[];
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
     lang?: Lang;

@@ -21,7 +21,6 @@ import {
     processLogs,
     processPages,
     processLinter,
-    processPdfFiles,
     initLinterWorkers,
     processServiceFiles,
     publishFilesToS3,
@@ -189,7 +188,6 @@ async function main(args: Arguments<any>) {
             rootInput: args.input,
             input: tmpInputFolder,
             output: tmpOutputFolder,
-            userOutputFolder,
         });
         Includers.init();
 
@@ -202,7 +200,6 @@ async function main(args: Arguments<any>) {
             addMapFile,
             allowCustomResources,
             resources,
-            pdfFile,
         } = ArgvService.getConfig();
 
         preparingTemporaryFolders(args, userOutputFolder, tmpInputFolder, tmpOutputFolder);
@@ -259,10 +256,6 @@ async function main(args: Arguments<any>) {
 
             // Copy all generated files to user' output folder
             shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
-
-            if (pdfFile) {
-                await processPdfFiles();
-            }
 
             if (publish) {
                 await publishFilesToS3();
