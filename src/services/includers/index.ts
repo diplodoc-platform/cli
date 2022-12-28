@@ -74,15 +74,23 @@ async function applyIncluders(path: string, item: YfmToc) {
 
     item.include.includers = includers;
 
+    let index = 0;
+
     for (const {name, ...rest} of includers) {
         const includer = getIncluder(name);
 
-        await applyIncluder({path, item, includer, passedParams: rest});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const passedParams: Record<string, any> = {
+            ...rest,
+        };
+
+        await applyIncluder({path, item, includer, passedParams, index});
     }
 
     // contract to be fullfilled by the includer:
     // provide builder generated toc.yaml
     item.include.path = join(item.include.path, 'toc.yaml');
+    index++;
 }
 
 function includeHasIncluders(include: YfmTocInclude) {
@@ -174,22 +182,24 @@ export type applyIncluderParams = {
     includer: Includer;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Record<string, any>;
+    index: number;
 };
 
 async function applyIncluder(args: applyIncluderParams) {
     const {rootInput: readBasePath, input: writeBasePath} = ArgvService.getConfig();
 
-    const {path, item, includer, passedParams} = args;
+    const {path, item, includer, passedParams, index} = args;
 
     const params = {
+        tocPath: path,
         passedParams,
+        index,
         item,
         readBasePath,
         writeBasePath,
-        tocPath: path,
     };
 
-    await includer.includerFunction(params);
+    return await includer.includerFunction(params);
 }
 
 export {init, applyIncluders, IncludersError};

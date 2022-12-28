@@ -117,6 +117,7 @@ export type IncluderFunctionParams = {
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Record<string, any>;
+    index: number;
 };
 
 export interface LeadingPage {
