@@ -18,11 +18,33 @@ function endpoint(data: Endpoint) {
         description(data.description),
         request(data.path, data.method, data.servers),
         parameters(data.parameters),
+        sandbox({
+            params: data.parameters,
+            servers: data.servers,
+            path: data.path,
+        }),
         requestBody(data.requestBody?.[0]),
         responses(data.responses),
     ];
 
     return block(page);
+}
+
+function sandbox({
+    params,
+    servers,
+    path,
+}: {
+    params?: Parameters;
+    servers: string[];
+    path: string;
+}) {
+    const pathParams = params?.filter((param: Parameter) => param.in === 'path');
+
+    return `{% openapi sandbox %}${JSON.stringify({
+        pathParams,
+        path: servers[0] + '/' + path,
+    })}{% end openapi sandbox %}`;
 }
 
 function description(text?: string) {
