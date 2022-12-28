@@ -1,4 +1,5 @@
 import {dirname} from 'path';
+import openapiSandbox from './services/includers/batteries/openapi/plugin';
 const os = require('os');
 const notes = require('@doc-tools/transform/lib/plugins/notes');
 const anchors = require('@doc-tools/transform/lib/plugins/anchors');
@@ -81,6 +82,7 @@ export const YFM_PLUGINS = [
     monospace,
     table,
     term,
+    openapiSandbox,
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';
