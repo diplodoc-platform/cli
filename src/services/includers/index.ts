@@ -74,10 +74,25 @@ async function applyIncluders(path: string, item: YfmToc) {
 
     item.include.includers = includers;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let includerResults: Record<string, any> = {};
+    let passedFromPreviousKeys: Array<string> = [];
+
     for (const {name, ...rest} of includers) {
         const includer = getIncluder(name);
 
-        await applyIncluder({path, item, includer, passedParams: rest});
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const passedParams: Record<string, any> = {
+            ...rest,
+            ...includerResults,
+        };
+
+        includerResults = await applyIncluder({path, item, includer, passedParams, passedFromPreviousKeys});
+        if (!includerResults) {
+            includerResults = {};
+        }
+
+        passedFromPreviousKeys = Object.keys(includerResults);
     }
 
     // contract to be fullfilled by the includer:
@@ -174,14 +189,16 @@ export type applyIncluderParams = {
     includer: Includer;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Record<string, any>;
+    passedFromPreviousKeys: Array<string>;
 };
 
 async function applyIncluder(args: applyIncluderParams) {
     const {rootInput: readBasePath, input: writeBasePath} = ArgvService.getConfig();
 
-    const {path, item, includer, passedParams} = args;
+    const {path, item, includer, passedParams, passedFromPreviousKeys} = args;
 
     const params = {
+        passedFromPreviousKeys,
         passedParams,
         item,
         readBasePath,
@@ -189,7 +206,7 @@ async function applyIncluder(args: applyIncluderParams) {
         tocPath: path,
     };
 
-    await includer.includerFunction(params);
+    return await includer.includerFunction(params);
 }
 
 export {init, applyIncluders, IncludersError};
