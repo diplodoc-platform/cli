@@ -76,7 +76,7 @@ async function applyIncluders(path: string, item: YfmToc) {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let includerResults: Record<string, any> = {};
-    let passedFromPreviousKeys: Array<string> = [];
+    let passedFromPreviousKeys: Set<string> = new Set();
 
     for (const {name, ...rest} of includers) {
         const includer = getIncluder(name);
@@ -92,7 +92,7 @@ async function applyIncluders(path: string, item: YfmToc) {
             includerResults = {};
         }
 
-        passedFromPreviousKeys = Object.keys(includerResults);
+        passedFromPreviousKeys = new Set(Object.keys(includerResults));
     }
 
     // contract to be fullfilled by the includer:
@@ -189,7 +189,7 @@ export type applyIncluderParams = {
     includer: Includer;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Record<string, any>;
-    passedFromPreviousKeys: Array<string>;
+    passedFromPreviousKeys: Set<string>;
 };
 
 async function applyIncluder(args: applyIncluderParams) {
