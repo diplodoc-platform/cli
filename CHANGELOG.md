@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.4...v2.0.0) (2022-12-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* **services/includers:** includers now have new toc interface
+
+### Features
+
+* **includers/generic:** include markdown content ([4d4514c](https://github.com/yandex-cloud/yfm-docs/commit/4d4514cd40d40e087a0340591afbce94e0bdae17))
+* **includers/openapi:** rewrite ([509dbf9](https://github.com/yandex-cloud/yfm-docs/commit/509dbf990e246034657dea0936a85a2f30dcc189))
+* **includers/sourcedoc:** rewrite ([b03fbee](https://github.com/yandex-cloud/yfm-docs/commit/b03fbeeae02fe50dda5eef07bf00c3a5105ddb39))
+* **includers/unarchive:** unarchive input ([4801dc5](https://github.com/yandex-cloud/yfm-docs/commit/4801dc53ba0c56e781c525eb81644ce115796cf1))
+* **services/includers:** new architecture ([06d9b0c](https://github.com/yandex-cloud/yfm-docs/commit/06d9b0cb438b2f5abd87bcd333d4d1e0f30d0298))
+* **services/includers:** pass includer its index ([5bb3ce7](https://github.com/yandex-cloud/yfm-docs/commit/5bb3ce73d7ca5b8d7729d8362c944fc04dd6b805))
+* **utils/logger:** add warning message ([8071d26](https://github.com/yandex-cloud/yfm-docs/commit/8071d26ed627c2be12b5a6d2d0422c106e571c79))
+
+
+### Bug Fixes
+
+* **includers/generic:** resolve generated input ([376068b](https://github.com/yandex-cloud/yfm-docs/commit/376068bf1feabd374c21d9dee3cc64089884bda0))
+* **includers/openapi:** resolve generated input ([65f0297](https://github.com/yandex-cloud/yfm-docs/commit/65f0297830a414ff6061feab8c5b9cca1318a1c1))
+* **includers/sourcedocs:** paths resolution ([cca8ceb](https://github.com/yandex-cloud/yfm-docs/commit/cca8ceb739f17f7720ffc5b58abbc57dfb1028dc))
+* **utils/logger:** write warnings to the final log ([5fd7876](https://github.com/yandex-cloud/yfm-docs/commit/5fd7876e64b5ce419b81af45b40f01cba87a0001))
+
 ## [1.31.4](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.3...v1.31.4) (2022-12-21)
 
 
