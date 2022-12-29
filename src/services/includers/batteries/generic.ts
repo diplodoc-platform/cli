@@ -24,7 +24,7 @@ const name = 'generic';
 const MD_GLOB = '**/*.md';
 
 async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}} = params;
+    const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}, passedFromPreviousKeys} = params;
 
     if (!input?.length || !item.include?.path) {
         throw new GenericIncluderError('provide includer with input parameter', tocPath);
@@ -35,7 +35,9 @@ async function includerFunction(params: IncluderFunctionParams) {
 
         const tocDirPath = dirname(tocPath);
 
-        const contentPath = join(readBasePath, input);
+        const contentPath = passedFromPreviousKeys.has('input')
+            ? join(writeBasePath, input)
+            : join(readBasePath, input);
 
         let cache = {};
         let found = [];
