@@ -24,11 +24,13 @@ class OpenApiIncluderError extends Error {
 }
 
 async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage}} = params;
+    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage}, index} = params;
 
     const tocDirPath = dirname(tocPath);
 
-    const contentPath = resolve(process.cwd(), readBasePath, input);
+    const contentPath = index === 0
+        ? resolve(process.cwd(), writeBasePath, input)
+        : resolve(process.cwd(), readBasePath, input);
 
     const leadingPageName = leadingPage?.name ?? 'Overview';
 
