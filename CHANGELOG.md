@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.0...v2.0.1) (2023-01-09)
+
+
+### Bug Fixes
+
+* **interceptors:** intercept links without extension ([7f866c4](https://github.com/yandex-cloud/yfm-docs/commit/7f866c4087ee05af5be6b700b2485510eec423e6))
+
 ## [2.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v1.31.4...v2.0.0) (2022-12-29)
 
 
