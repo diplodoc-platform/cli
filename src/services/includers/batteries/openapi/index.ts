@@ -72,10 +72,10 @@ async function generateToc(data: any, writePath: string, leadingPageName: string
     const {tags, endpoints} = parsers.paths(data, parsers.tags(data));
 
     tags.forEach((tag, id) => {
-        const {name, endpoints} = tag;
+        const {name, endpoints, description} = tag;
 
         const section: YfmToc = {
-            name,
+            name: description ?? name,
             items: [{
                 name: leadingPageName,
                 href: join(id, 'index.md'),
