@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.1...v2.1.0) (2023-01-10)
+
+
+### Features
+
+* **includers/openapi:** request and response body params ([66372e9](https://github.com/yandex-cloud/yfm-docs/commit/66372e9e7e328e5694392bba192d5f1e73361c87))
+
 ## [2.0.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.0...v2.0.1) (2023-01-09)
 
 
