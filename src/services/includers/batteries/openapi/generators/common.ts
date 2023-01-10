@@ -29,7 +29,7 @@ function code(text: string) {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function table(data: any[][]) {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    const colgen = (col: any) => (Array.isArray(col) ? `${EOL}${table(col)}${EOL}` : ` ${col} `);
+    const colgen = (col: any) => (Array.isArray(col) ? `${EOL}${table(col)}${EOL}` : escapeTableColContent(` ${col} `));
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const rowgen = (row: any) => `||${row.map(colgen).join('|')}||`;
 
@@ -43,6 +43,11 @@ function cut(text: string, heading = '') {
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function block(elements: any[]) {
     return elements.filter(Boolean).join(BLOCK);
+}
+
+// https://stackoverflow.com/a/49834158
+function escapeTableColContent(cellContent: string) {
+    return cellContent.replace(/\|/gi, '<code>&#124;</code>');
 }
 
 export {list, link, title, body, mono, table, code, cut, block};

@@ -1,3 +1,5 @@
+import {JSONSchema6} from 'json-schema';
+
 export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
 
 export type TitleDepth = typeof titleDepths[number];
@@ -13,6 +15,7 @@ export type OpenapiOperation = {
     servers?: Servers;
     parameters?: Parameters;
     responses?: {};
+    requestBody?: any;
     'x-navtitle': string[];
 };
 
@@ -59,6 +62,7 @@ export type Endpoint = {
     servers: string[];
     parameters?: Parameters;
     responses?: Responses;
+    requestBody?: Schema;
 };
 
 export type Specification = {
@@ -87,11 +91,15 @@ export type Server = {
 
 export type Parameters = Parameter[];
 
+export type In = 'path' | 'query' | 'header' | 'cookie';
+
 export type Parameter = {
     name: string;
-    in: string;
-    required: string;
+    in: In;
+    required: boolean;
     description: string;
+    example: string | number;
+    schema: JSONSchema6;
 };
 
 export type Responses = Response[];
@@ -107,6 +115,7 @@ export type Schemas = Schema[];
 
 export type Schema = {
     type: string;
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    schema: {[key: string]: any};
+    schema: JSONSchema6;
 };
+
+export type Refs = { [typeName: string]: JSONSchema6 };

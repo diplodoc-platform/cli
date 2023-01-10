@@ -1,14 +1,15 @@
 import {resolve, join, dirname} from 'path';
 import {mkdir, writeFile} from 'fs/promises';
 
-import parser from '@apidevtools/swagger-parser';
 import {dump} from 'js-yaml';
 
 import parsers from './parsers';
 import generators from './generators';
 
 import {IncluderFunctionParams, YfmToc} from '../../../../models';
-import {Endpoint, Info} from './types';
+import {Endpoint, Info, Refs} from './types';
+import SwaggerParser from '@apidevtools/swagger-parser';
+import {JSONSchema6} from 'json-schema';
 
 const name = 'openapi';
 
@@ -36,11 +37,19 @@ async function includerFunction(params: IncluderFunctionParams) {
 
     let data;
 
+    const parser = new SwaggerParser();
     try {
         data = await parser.validate(contentPath, {validate: {spec: true}});
     } catch (err) {
         if (err instanceof Error) {
             throw new OpenApiIncluderError(err.toString(), tocPath);
+        }
+    }
+
+    const allRefs: Refs = {};
+    for (const file of Object.values(parser.$refs.values())) {
+        for (const [refName, schema] of Object.entries(file.components?.schemas || {}).concat(Object.entries(file))) {
+            allRefs[refName] = schema as JSONSchema6;
         }
     }
 
@@ -50,7 +59,7 @@ async function includerFunction(params: IncluderFunctionParams) {
     try {
         await mkdir(writePath, {recursive: true});
         await generateToc(data, writePath, leadingPageName);
-        await generateContent(data, writePath);
+        await generateContent(data, allRefs, writePath);
     } catch (err) {
         if (err instanceof Error) {
             throw new OpenApiIncluderError(err.toString(), tocPath);
@@ -99,13 +108,13 @@ async function generateToc(data: any, writePath: string, leadingPageName: string
     await writeFile(join(writePath, 'toc.yaml'), dump(toc));
 }
 
-async function generateContent(data: any, writePath: string): Promise<void> {
+async function generateContent(data: any, allRefs: Refs, writePath: string): Promise<void> {
     const results = [];
 
     const info: Info = parsers.info(data);
     const spec = parsers.paths(data, parsers.tags(data));
 
-    const main: string = generators.main(info, spec);
+    const main: string = generators.main(data, info, spec);
 
     results.push({
         path: join(writePath, 'index.md'),
@@ -122,12 +131,12 @@ async function generateContent(data: any, writePath: string): Promise<void> {
         if (!endpoints) { return; }
 
         endpoints.forEach((endpoint) => {
-            results.push(handleEndpointIncluder(endpoint, join(writePath, id)));
+            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id)));
         });
     });
 
     for (const endpoint of spec.endpoints) {
-        results.push(handleEndpointIncluder(endpoint, join(writePath)));
+        results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath)));
     }
 
     for (const {path, content} of results) {
@@ -136,9 +145,9 @@ async function generateContent(data: any, writePath: string): Promise<void> {
     }
 }
 
-function handleEndpointIncluder(endpoint: Endpoint, pathPrefix: string) {
+function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string) {
     const path = join(pathPrefix, mdPath(endpoint));
-    const content = generators.endpoint(endpoint);
+    const content = generators.endpoint(allRefs, endpoint);
 
     return {path, content};
 }

@@ -110,7 +110,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
     const {paths, servers} = spec;
 
     const visiter = ({path, method, endpoint}: VisiterParams) => {
-        const {summary, description, tags = [], operationId, parameters, responses} = endpoint;
+        const {summary, description, tags = [], operationId, parameters, responses, requestBody} = endpoint;
 
         const opid = (path: string, method: string, id?: string) =>
             slugify(id ?? ([path, method].join('-')));
@@ -125,7 +125,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
             if (response.content) {
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 parsed.schemas = Object.entries<{[key: string]: any}>(response.content)
-                    .map(([type, schema]) => ({type, schema}));
+                    .map(([type, schema]) => ({type, schema: schema.schema}));
             }
 
             return parsed;
@@ -134,6 +134,8 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const parsedResponses: Responses = Object.entries<{[key: string]: any}>(responses ?? {})
             .map(parseResponse);
+
+        const contentType = requestBody ? Object.keys(requestBody.content)[0] : undefined;
 
         const parsedEndpoint: Endpoint = {
             servers: serverURLs,
@@ -146,6 +148,10 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
             operationId,
             tags: tags.map((tag) => slugify(tag)),
             id: opid(path, method, operationId),
+            requestBody: contentType ? {
+                type: contentType,
+                schema: requestBody.content[contentType].schema,
+            } : undefined,
         };
 
         for (const tag of tags) {

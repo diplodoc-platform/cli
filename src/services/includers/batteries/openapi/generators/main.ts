@@ -9,8 +9,9 @@ import {
 
 import {Info, Contact, ContactSource, Tag, Specification} from '../types';
 import {mdPath, sectionName} from '../index';
+import {schemaCut} from './endpoint';
 
-function main(info: Info, spec: Specification) {
+function main(data: any, info: Info, spec: Specification) {
     const license = info.license?.url ? link : body;
 
     const page = [
@@ -21,6 +22,7 @@ function main(info: Info, spec: Specification) {
         description(info.description),
         contact(info.contact),
         sections(spec),
+        block([title(2)('OpenAPI'), schemaCut('Schema', data)]),
     ];
 
     return block(page);
