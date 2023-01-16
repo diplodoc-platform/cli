@@ -78,7 +78,10 @@ export function prepareTableRowData(allRefs: Refs, key: string, value: JSONSchem
     }
     const enumValues = value.enum?.map((s) => `\`${s}\``).join(', ');
     if (enumValues) {
-        description += `<br>Enum: ${enumValues}`;
+        description = concatNewLine(description, `Enum: ${enumValues}`);
+    }
+    if (value.default) {
+        description = concatNewLine(description, `Default: \`${value.default}\``);
     }
     return {type: `${value.type}`, description};
 }
@@ -190,4 +193,8 @@ function merge(value: JSONSchema6 | boolean): JSONSchema6 | undefined {
         return original;
     }
     return value;
+}
+
+function concatNewLine(prefix: string, suffix: string) {
+    return prefix.trim().length ? `${prefix}<br>${suffix}` : suffix;
 }
