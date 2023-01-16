@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.0...v2.1.1) (2023-01-16)
+
+
+### Bug Fixes
+
+* **includers/openapi:** no default values in description ([d821d80](https://github.com/yandex-cloud/yfm-docs/commit/d821d80f0abcc6e48d6d6401d1de18fb2fed78c0))
+* **includers/openapi:** ref with custom description fix ([d77592d](https://github.com/yandex-cloud/yfm-docs/commit/d77592db956a2ec9d20bb668a2747442b2be4fcf))
+* **includers/openapi:** undefined[] fix ([a055a3d](https://github.com/yandex-cloud/yfm-docs/commit/a055a3d0bff36ceb1466aab750cdee76bca8f8e2))
+
 ## [2.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.0.1...v2.1.0) (2023-01-10)
 
 
