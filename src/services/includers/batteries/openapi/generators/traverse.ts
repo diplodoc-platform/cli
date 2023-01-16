@@ -65,12 +65,9 @@ export function prepareTableRowData(allRefs: Refs, key: string, value: JSONSchem
     }
     if (value.type === 'array') {
         if (value.items && value.items !== true && !Array.isArray(value.items)) {
-            if (value.items.type === 'object') {
-                const ref = findRef(allRefs, value.items);
-                if (ref) {
-                    return {type: `${anchor(ref)}[]`, description, ref};
-                }
-                return {type: 'object[]', description};
+            const ref = findRef(allRefs, value.items);
+            if (ref) {
+                return {type: `${anchor(ref)}[]`, description, ref};
             }
             return {type: `${value.items.type}[]`, description};
         }
