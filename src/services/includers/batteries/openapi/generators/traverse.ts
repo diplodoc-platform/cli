@@ -95,7 +95,7 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
 }
 
 // объект-пример JSON-а тела запроса или ответа
-export function prepareSampleObject(schema: JSONSchema6) {
+export function prepareSampleObject(schema: JSONSchema6, callstack: any[] = []) {
     const result: { [key: string]: any } = {};
     const merged = merge(schema);
     if (!merged) {
@@ -107,30 +107,35 @@ export function prepareSampleObject(schema: JSONSchema6) {
             return;
         }
         const required = merged.required?.includes(key) ?? false;
-        result[key] = prepareSampleElement(key, value, required);
+        const possibleValue = prepareSampleElement(key, value, required, callstack);
+        if (possibleValue !== undefined) {
+            result[key] = possibleValue;
+        }
     });
     return result;
 }
 
-function prepareSampleElement(key: string, value: JSONSchema6, required: boolean): any {
+function prepareSampleElement(key: string, value: JSONSchema6, required: boolean, callstack: any[]): any {
     if (value.enum?.length) {
         return value.enum[0];
     }
-    if (value.default) {
+    if (value.default !== undefined) {
         return value.default;
     }
-    if (!required) {
-        return null;
+    if (!required && callstack.includes(value)) {
+        // stop recursive cyclic links
+        return undefined;
     }
+    const downCallstack = callstack.concat(value);
     switch (value.type) {
         case 'object':
-            return prepareSampleObject(value);
+            return prepareSampleObject(value, downCallstack);
         case 'array':
             if (!value.items || value.items === true || Array.isArray(value.items)) {
                 throw Error(`unsupported array items for ${key}`);
             }
             if (value.items.type === 'object') {
-                return [prepareSampleObject(value.items)];
+                return [prepareSampleObject(value.items, downCallstack)];
             }
             return [value.items.type];
         case 'string':
