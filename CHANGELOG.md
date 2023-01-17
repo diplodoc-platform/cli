@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.1...v2.1.2) (2023-01-17)
+
+
+### Bug Fixes
+
+* **includers/openapi:** no nulls in samples ([c2cb36e](https://github.com/yandex-cloud/yfm-docs/commit/c2cb36e1b004a81bed4c58a1420a1964941f550d))
+
 ## [2.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.0...v2.1.1) (2023-01-16)
 
 
