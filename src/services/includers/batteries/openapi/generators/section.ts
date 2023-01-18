@@ -1,17 +1,17 @@
 /* eslint-disable-next-line no-shadow */
-import {block, title, body, link, list} from './common';
+import {page, block, title, body, link, list} from './common';
 import {DESCRIPTION_SECTION_NAME, ENDPOINTS_SECTION_NAME} from '../constants';
 
 import {Tag, Endpoint, Endpoints} from '../types';
 
 function section(tag: Tag) {
-    const page = [
+    const sectionPage = [
         title(1)(tag.name),
         description(tag.description),
         endpoints(tag.endpoints),
     ];
 
-    return block(page);
+    return page(block(sectionPage));
 }
 
 function description(text?: string) {

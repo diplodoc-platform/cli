@@ -1,6 +1,6 @@
 import {sep} from 'path';
 
-import {block, title, body, mono, link, list} from './common';
+import {page, block, title, body, mono, link, list} from './common';
 import {
     DESCRIPTION_SECTION_NAME,
     CONTACTS_SECTION_NAME,
@@ -14,7 +14,7 @@ import {schemaCut} from './endpoint';
 function main(data: any, info: Info, spec: Specification) {
     const license = info.license?.url ? link : body;
 
-    const page = [
+    const mainPage = [
         title(1)(info.name),
         info.version?.length && body(mono(`version: ${info.version}`)),
         info.terms?.length && link('Terms of service', info.terms),
@@ -25,7 +25,7 @@ function main(data: any, info: Info, spec: Specification) {
         block([title(2)('OpenAPI'), schemaCut('Schema', data)]),
     ];
 
-    return block(page);
+    return page(block(mainPage));
 }
 
 function contact(data?: Contact) {
