@@ -59,7 +59,7 @@ export type Endpoint = {
     tags: string[];
     summary?: string;
     description?: string;
-    servers: string[];
+    servers: Servers;
     parameters?: Parameters;
     responses?: Responses;
     requestBody?: Schema;
@@ -87,6 +87,7 @@ export type Servers = Server[];
 
 export type Server = {
     url: string;
+    description?: string;
 };
 
 export type Parameters = Parameter[];
