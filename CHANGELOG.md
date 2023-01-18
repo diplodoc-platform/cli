@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.3...v2.2.0) (2023-01-18)
+
+
+### Features
+
+* **includers/openapi:** parse server description ([d594de6](https://github.com/yandex-cloud/yfm-docs/commit/d594de60889f4f1eb88c5a948006a4cd88f62eee))
+* **includers/openapi:** render server desription ([de6eab2](https://github.com/yandex-cloud/yfm-docs/commit/de6eab2acfe39cb6a367a6456e25f9c1c3f4392e))
+
+
+### Bug Fixes
+
+* **includers/openapi:** disable markdownlint ([a4fc501](https://github.com/yandex-cloud/yfm-docs/commit/a4fc5015029e21ec0fd8571b1d0dad97e23506ca))
+
 ## [2.1.3](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.2...v2.1.3) (2023-01-17)
 
 
