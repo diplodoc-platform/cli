@@ -115,8 +115,12 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
         const opid = (path: string, method: string, id?: string) =>
             slugify(id ?? ([path, method].join('-')));
 
-        const serverURLs = (endpoint.servers || servers || [{url: '/'}])
-            .map(({url}: Server) => trimSlash(url));
+        const parsedServers = (endpoint.servers || servers || [{url: '/'}])
+            .map((server: Server) => {
+                server.url = trimSlash(server.url);
+
+                return server;
+            });
 
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const parseResponse = ([code, response]: [string, {[key: string]: any}]) => {
@@ -138,7 +142,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
         const contentType = requestBody ? Object.keys(requestBody.content)[0] : undefined;
 
         const parsedEndpoint: Endpoint = {
-            servers: serverURLs,
+            servers: parsedServers,
             responses: parsedResponses,
             parameters,
             summary,
