@@ -1,4 +1,4 @@
-import {block, title, body, table, code, cut} from './common';
+import {page, block, title, body, table, code, cut} from './common';
 import {
     COOKIES_SECTION_NAME,
     HEADERS_SECTION_NAME,
@@ -24,7 +24,7 @@ import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParamete
 function endpoint(allRefs: Refs, data: Endpoint) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
-    const page = [
+    const endpointPage = [
         title(1)(data.summary ?? data.id),
         data.description?.length && body(data.description),
         request(data.path, data.method, data.servers),
@@ -33,7 +33,7 @@ function endpoint(allRefs: Refs, data: Endpoint) {
         responses(allRefs, pagePrintedRefs, data.responses),
     ];
 
-    return block(page);
+    return page(block(endpointPage));
 }
 
 function request(path: string, method: Method, servers: string[]) {

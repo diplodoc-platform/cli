@@ -1,4 +1,11 @@
-import {EOL, BLOCK} from '../constants';
+import {
+    EOL,
+    BLOCK,
+    HTML_COMMENTS_OPEN_DIRECTIVE,
+    HTML_COMMENTS_CLOSE_DIRECTIVE,
+    DISABLE_LINTER_DIRECTIVE,
+} from '../constants';
+
 
 import {TitleDepth} from '../types';
 
@@ -50,6 +57,10 @@ function escapeTableColContent(cellContent: string) {
     return cellContent.replace(/\|/gi, '<code>&#124;</code>');
 }
 
-export {list, link, title, body, mono, table, code, cut, block};
+function page(content: string) {
+    return `${HTML_COMMENTS_OPEN_DIRECTIVE} ${DISABLE_LINTER_DIRECTIVE} ${HTML_COMMENTS_CLOSE_DIRECTIVE}\n${content}`;
+}
+
+export {list, link, title, body, mono, table, code, cut, block, page};
 
 export default {list, link, title, body, mono, table, code, cut, block};
