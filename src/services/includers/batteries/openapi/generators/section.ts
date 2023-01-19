@@ -1,6 +1,6 @@
 /* eslint-disable-next-line no-shadow */
 import {page, block, title, body, link, list} from './common';
-import {DESCRIPTION_SECTION_NAME, ENDPOINTS_SECTION_NAME} from '../constants';
+import {ENDPOINTS_SECTION_NAME} from '../constants';
 
 import {Tag, Endpoint, Endpoints} from '../types';
 
@@ -15,7 +15,7 @@ function section(tag: Tag) {
 }
 
 function description(text?: string) {
-    return text?.length && block([title(2)(DESCRIPTION_SECTION_NAME), body(text)]);
+    return text?.length && body(text);
 }
 
 function endpoints(data?: Endpoints) {
