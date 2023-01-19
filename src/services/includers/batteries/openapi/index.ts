@@ -131,7 +131,6 @@ async function generateToc(params: generateTocParams): Promise<any> {
     await writeFile(join(writePath, 'toc.yaml'), dump(toc));
 }
 
-// async function generateContent(data: any, allRefs: Refs, writePath: string): Promise<void> {
 export type generateContentParams = {
     data: any;
     writePath: string;
