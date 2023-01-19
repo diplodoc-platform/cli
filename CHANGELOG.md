@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.2.0...v2.3.0) (2023-01-19)
+
+
+### Features
+
+* **includer/openapi:** full spec render mode parameter ([4d9c9a4](https://github.com/yandex-cloud/yfm-docs/commit/4d9c9a46dc7637500e3bc4c990f53f683125b926))
+
+
+### Bug Fixes
+
+* **includers/openapi:** delete Description title ([bae04e9](https://github.com/yandex-cloud/yfm-docs/commit/bae04e9567dfedad519902e8fc43bc196eb37f2f))
+
 ## [2.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.1.3...v2.2.0) (2023-01-18)
 
 
