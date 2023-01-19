@@ -4,7 +4,6 @@ import stringify from 'json-stringify-safe';
 
 import {page, block, title, body, mono, link, list, cut, code} from './common';
 import {
-    DESCRIPTION_SECTION_NAME,
     CONTACTS_SECTION_NAME,
     TAGS_SECTION_NAME,
     SPEC_RENDER_MODE_DEFAULT,
@@ -55,7 +54,7 @@ function contactSource(data: Contact) {
 }
 
 function description(text?: string) {
-    return text?.length && block([title(2)(DESCRIPTION_SECTION_NAME), body(text)]);
+    return text?.length && body(text);
 }
 
 function sections({tags, endpoints}: Specification) {

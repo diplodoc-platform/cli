@@ -1,7 +1,6 @@
 const EOL = '\n';
 const TAG_NAMES_FIELD = 'x-navtitle';
 const BLOCK = EOL.repeat(2);
-const DESCRIPTION_SECTION_NAME = 'Description';
 const CONTACTS_SECTION_NAME = 'Contacts';
 const TAGS_SECTION_NAME = 'Sections';
 const ENDPOINTS_SECTION_NAME = 'Endpoints';
@@ -22,7 +21,6 @@ const SPEC_SECTION_TYPE = 'Open API';
 export {
     TAG_NAMES_FIELD,
     BLOCK,
-    DESCRIPTION_SECTION_NAME,
     CONTACTS_SECTION_NAME,
     TAGS_SECTION_NAME,
     ENDPOINTS_SECTION_NAME,
@@ -45,7 +43,6 @@ export {
 export default {
     TAG_NAMES_FIELD,
     BLOCK,
-    DESCRIPTION_SECTION_NAME,
     CONTACTS_SECTION_NAME,
     TAGS_SECTION_NAME,
     ENDPOINTS_SECTION_NAME,
