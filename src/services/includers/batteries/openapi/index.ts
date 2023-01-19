@@ -7,11 +7,17 @@ import parsers from './parsers';
 import generators from './generators';
 
 import {IncluderFunctionParams, YfmToc} from '../../../../models';
-import {Endpoint, Info, Refs} from './types';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import {JSONSchema6} from 'json-schema';
 
+import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
+
+import {Endpoint, Info, Refs, LeadingPageSpecRenderMode} from './types';
+
 const name = 'openapi';
+
+const specRenderModeErr = `invalid spec display mode, available render modes:\
+${SPEC_RENDER_MODE_DEFAULT}, ${SPEC_RENDER_MODE_HIDDEN}`;
 
 class OpenApiIncluderError extends Error {
     path: string;
@@ -34,6 +40,11 @@ async function includerFunction(params: IncluderFunctionParams) {
         : resolve(process.cwd(), readBasePath, input);
 
     const leadingPageName = leadingPage?.name ?? 'Overview';
+
+    const leadingPageSpecRenderMode = leadingPage?.spec?.renderMode ?? SPEC_RENDER_MODE_DEFAULT;
+    if (!isSpecRenderModeValid(leadingPageSpecRenderMode)) {
+        throw new OpenApiIncluderError(specRenderModeErr, tocPath);
+    }
 
     let data;
 
@@ -58,8 +69,8 @@ async function includerFunction(params: IncluderFunctionParams) {
 
     try {
         await mkdir(writePath, {recursive: true});
-        await generateToc(data, writePath, leadingPageName);
-        await generateContent(data, allRefs, writePath);
+        await generateToc({data, writePath, leadingPageName});
+        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode});
     } catch (err) {
         if (err instanceof Error) {
             throw new OpenApiIncluderError(err.toString(), tocPath);
@@ -67,7 +78,19 @@ async function includerFunction(params: IncluderFunctionParams) {
     }
 }
 
-async function generateToc(data: any, writePath: string, leadingPageName: string): Promise<any> {
+function isSpecRenderModeValid(mode: string) {
+    return mode === SPEC_RENDER_MODE_DEFAULT || mode === SPEC_RENDER_MODE_HIDDEN;
+}
+
+export type generateTocParams = {
+    data: any;
+    writePath: string;
+    leadingPageName: string;
+};
+
+async function generateToc(params: generateTocParams): Promise<any> {
+    const {data, writePath, leadingPageName} = params;
+
     const toc = {
         name,
         items: [
@@ -108,13 +131,23 @@ async function generateToc(data: any, writePath: string, leadingPageName: string
     await writeFile(join(writePath, 'toc.yaml'), dump(toc));
 }
 
-async function generateContent(data: any, allRefs: Refs, writePath: string): Promise<void> {
+// async function generateContent(data: any, allRefs: Refs, writePath: string): Promise<void> {
+export type generateContentParams = {
+    data: any;
+    writePath: string;
+    allRefs: Refs;
+    leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
+};
+
+async function generateContent(params: generateContentParams): Promise<void> {
+    const {data, writePath, allRefs, leadingPageSpecRenderMode} = params;
+
     const results = [];
 
     const info: Info = parsers.info(data);
     const spec = parsers.paths(data, parsers.tags(data));
 
-    const main: string = generators.main(data, info, spec);
+    const main: string = generators.main({data, info, spec, leadingPageSpecRenderMode});
 
     results.push({
         path: join(writePath, 'index.md'),
