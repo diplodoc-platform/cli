@@ -1,5 +1,7 @@
 import {JSONSchema6} from 'json-schema';
 
+import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
+
 export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
 
 export type TitleDepth = typeof titleDepths[number];
@@ -120,3 +122,5 @@ export type Schema = {
 };
 
 export type Refs = { [typeName: string]: JSONSchema6 };
+
+export type LeadingPageSpecRenderMode = typeof SPEC_RENDER_MODE_DEFAULT | typeof SPEC_RENDER_MODE_HIDDEN;

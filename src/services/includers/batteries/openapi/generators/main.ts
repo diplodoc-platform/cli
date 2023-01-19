@@ -1,17 +1,31 @@
 import {sep} from 'path';
 
-import {page, block, title, body, mono, link, list} from './common';
+import stringify from 'json-stringify-safe';
+
+import {page, block, title, body, mono, link, list, cut, code} from './common';
 import {
     DESCRIPTION_SECTION_NAME,
     CONTACTS_SECTION_NAME,
     TAGS_SECTION_NAME,
+    SPEC_RENDER_MODE_DEFAULT,
+    SPEC_SECTION_NAME,
+    SPEC_SECTION_TYPE,
 } from '../constants';
 
-import {Info, Contact, ContactSource, Tag, Specification} from '../types';
+import {Info, Contact, ContactSource, Tag, Specification, LeadingPageSpecRenderMode} from '../types';
 import {mdPath, sectionName} from '../index';
-import {schemaCut} from './endpoint';
+// import {schemaCut} from './endpoint';
 
-function main(data: any, info: Info, spec: Specification) {
+export type mainParams = {
+    data: any;
+    info: Info;
+    spec: Specification;
+    leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
+};
+
+function main(params: mainParams) {
+    const {data, info, spec, leadingPageSpecRenderMode} = params;
+
     const license = info.license?.url ? link : body;
 
     const mainPage = [
@@ -22,7 +36,7 @@ function main(data: any, info: Info, spec: Specification) {
         description(info.description),
         contact(info.contact),
         sections(spec),
-        block([title(2)('OpenAPI'), schemaCut('Schema', data)]),
+        specification(data, leadingPageSpecRenderMode),
     ];
 
     return page(block(mainPage));
@@ -52,6 +66,11 @@ function sections({tags, endpoints}: Specification) {
     links.push(...endpoints.map((e) => link(sectionName(e), mdPath(e))));
 
     return links.length && block([title(2)(TAGS_SECTION_NAME), list(links)]);
+}
+
+function specification(data: any, renderMode: LeadingPageSpecRenderMode) {
+    return renderMode === SPEC_RENDER_MODE_DEFAULT &&
+        block([title(2)(SPEC_SECTION_NAME), cut(code(stringify(data, null, 4)), SPEC_SECTION_TYPE)]);
 }
 
 export {main};
