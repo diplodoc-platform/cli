@@ -14,7 +14,6 @@ import {
 
 import {Info, Contact, ContactSource, Tag, Specification, LeadingPageSpecRenderMode} from '../types';
 import {mdPath, sectionName} from '../index';
-// import {schemaCut} from './endpoint';
 
 export type mainParams = {
     data: any;
