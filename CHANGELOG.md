@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.0...v2.3.1) (2023-01-21)
+
+
+### Bug Fixes
+
+* **includers/openapi:** appropriate leading page title ([f112c1b](https://github.com/yandex-cloud/yfm-docs/commit/f112c1bfb06d61fca6bb391478c0bc685dcdd002))
+* **includers/openapi:** display req/res schema type ([111dc02](https://github.com/yandex-cloud/yfm-docs/commit/111dc02a24bcaf0ad0aa590d79a1d78422d2df9b))
+
 ## [2.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.2.0...v2.3.0) (2023-01-19)
 
 
