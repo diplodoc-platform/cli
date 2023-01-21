@@ -98,16 +98,19 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
     if (!obj) {
         return '';
     }
-    const schema = obj.schema;
+
+    const {type = 'schema', schema} = obj;
     const {content, tableRefs} = tableFromSchema(allRefs, schema);
+    const parsedSchema = prepareSampleObject(schema);
 
     const result = [
         block([
             title(3)('Body'),
-            schemaCut('Sample', prepareSampleObject(schema)),
+            cut(code(stringify(parsedSchema, null, 4)), type),
             content,
         ]),
     ];
+
     while (tableRefs.length > 0) {
         const tableRef = tableRefs.shift();
         if (tableRef && !pagePrintedRefs.has(tableRef)) {
@@ -121,6 +124,7 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
             pagePrintedRefs.add(tableRef);
         }
     }
+
     return block(result);
 }
 
@@ -137,10 +141,6 @@ function response(allRefs: Refs, visited: Set<string>, resp: Response) {
         body(resp.description),
         resp.schemas?.length && block(resp.schemas.map((s) => openapiBody(allRefs, visited, s))),
     ]);
-}
-
-export function schemaCut(heading: string, schema: any) {
-    return cut(code(stringify(schema, null, 4)), heading);
 }
 
 export {endpoint};
