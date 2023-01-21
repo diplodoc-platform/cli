@@ -6,6 +6,7 @@ import {page, block, title, body, mono, link, list, cut, code} from './common';
 import {
     CONTACTS_SECTION_NAME,
     TAGS_SECTION_NAME,
+    ENDPOINTS_SECTION_NAME,
     SPEC_RENDER_MODE_DEFAULT,
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
@@ -58,12 +59,26 @@ function description(text?: string) {
 }
 
 function sections({tags, endpoints}: Specification) {
+    const content = [];
+
     // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
-    const links = Array.from(tags).map(([_, {name, id}]: [any, Tag]) => link(name, id + sep + 'index.md'));
+    const taggedLinks = Array.from(tags).map(([_, {name, id}]: [any, Tag]) => link(name, id + sep + 'index.md'));
+    if (taggedLinks.length) {
+        content.push(
+            title(2)(TAGS_SECTION_NAME),
+            list(taggedLinks),
+        );
+    }
 
-    links.push(...endpoints.map((e) => link(sectionName(e), mdPath(e))));
+    const untaggedLinks = endpoints.map((endpoint) => link(sectionName(endpoint), mdPath(endpoint)));
+    if (untaggedLinks.length) {
+        content.push(
+            title(2)(ENDPOINTS_SECTION_NAME),
+            list(untaggedLinks),
+        );
+    }
 
-    return links.length && block([title(2)(TAGS_SECTION_NAME), list(links)]);
+    return content.length && block(content);
 }
 
 function specification(data: any, renderMode: LeadingPageSpecRenderMode) {
