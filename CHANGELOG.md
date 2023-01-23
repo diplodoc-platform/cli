@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.1...v2.3.2) (2023-01-23)
+
+
+### Bug Fixes
+
+* **includers/openapi:** move disable lint directive ([d77b9e1](https://github.com/yandex-cloud/yfm-docs/commit/d77b9e18aea3669322df99ef2214109a6c00c1f2))
+
 ## [2.3.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.0...v2.3.1) (2023-01-21)
 
 
