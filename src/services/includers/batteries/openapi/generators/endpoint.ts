@@ -19,6 +19,7 @@ import {
     Refs,
     Server,
     Servers,
+    Security,
 } from '../types';
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
@@ -31,12 +32,57 @@ function endpoint(allRefs: Refs, data: Endpoint) {
         title(1)(data.summary ?? data.id),
         data.description?.length && body(data.description),
         request(data.path, data.method, data.servers),
+        sandbox({
+            params: data.parameters,
+            servers: data.servers,
+            path: data.path,
+            security: data.security,
+            requestBody: data.requestBody,
+            method: data.method,
+        }),
         parameters(data.parameters),
         openapiBody(allRefs, pagePrintedRefs, data.requestBody),
         responses(allRefs, pagePrintedRefs, data.responses),
     ];
 
     return page(block(endpointPage));
+}
+
+function sandbox({
+    params,
+    servers,
+    path,
+    security,
+    requestBody,
+    method,
+}: {
+    params?: Parameters;
+    servers: Servers;
+    path: string;
+    security: Security[];
+    requestBody?: any;
+    method: string;
+}) {
+    const pathParams = params?.filter((param: Parameter) => param.in === 'path');
+    const queryParams = params?.filter((param: Parameter) => param.in === 'query');
+    const headers = params?.filter((param: Parameter) => param.in === 'header');
+    let bodyStr: null | string = null;
+    if (requestBody?.type === 'application/json') {
+        bodyStr = requestBody?.schema?.example
+            ? JSON.stringify(requestBody.schema.example, null, 2)
+            : '{}';
+    }
+
+    return `{% openapi sandbox %}${JSON.stringify({
+        pathParams,
+        queryParams,
+        headers,
+        body: bodyStr,
+        method,
+        security,
+        path: path,
+        host: servers?.[0].url,
+    })}{% end openapi sandbox %}`;
 }
 
 function request(path: string, method: Method, servers: Servers) {

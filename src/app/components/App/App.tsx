@@ -14,6 +14,9 @@ import {getDocSettings, withSavingSetting, updateRootClassName} from '../../util
 
 import '../../interceptors/leading-page-links';
 
+import '../../../services/includers/batteries/openapi/plugin/js';
+import '../../../services/includers/batteries/openapi/plugin/scss/style.scss';
+
 import '@doc-tools/components/styles/themes.scss';
 import '@doc-tools/components/styles/default.scss';
 import '@doc-tools/components/styles/typography.scss';

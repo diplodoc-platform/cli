@@ -20,6 +20,8 @@ const term = require('@doc-tools/transform/lib/plugins/term');
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
 
+import openapiSandbox from './services/includers/batteries/openapi/plugin';
+
 export const BUILD_FOLDER = 'build';
 export const BUNDLE_FOLDER = '_bundle';
 export const BUNDLE_FILENAME = 'app.js';
@@ -81,6 +83,7 @@ export const YFM_PLUGINS = [
     monospace,
     table,
     term,
+    openapiSandbox,
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';

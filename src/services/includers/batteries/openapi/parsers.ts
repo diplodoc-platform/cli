@@ -108,10 +108,17 @@ function tags(spec: OpenapiSpec): Map<string, Tag> {
 
 function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
     const endpoints: Endpoints = [];
-    const {paths, servers} = spec;
-
+    const {paths, servers, components = {}, security: globalSecurity = []} = spec;
     const visiter = ({path, method, endpoint}: VisiterParams) => {
-        const {summary, description, tags = [], operationId, parameters, responses, requestBody} = endpoint;
+        const {summary, description, tags = [], operationId, parameters, responses, requestBody, security = []} = endpoint;
+        const parsedSecurity = [...security, ...globalSecurity].reduce((arr, item) => {
+            arr.push(...Object.keys(item).reduce((acc, key) => {
+                // @ts-ignore
+                acc.push(components.securitySchemes[key]);
+                return acc;
+            }, []));
+            return arr;
+        }, []);
 
         const opid = (path: string, method: string, id?: string) =>
             slugify(id ?? ([path, method].join('-')));
@@ -163,6 +170,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
                 type: contentType,
                 schema: requestBody.content[contentType].schema,
             } : undefined,
+            security: parsedSecurity,
         };
 
         for (const tag of tags) {
