@@ -57,7 +57,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
 
         if (allowCustomResources && metaDataOptions.resources && outputFormat === 'html') {
-            metaDataOptions.resources = getResolvedResourcePaths(metaDataOptions.resources, getAssetsPublicPath(pathToFile));
+            metaDataOptions.resources = getResolvedResourcePaths(
+                metaDataOptions.resources,
+                getAssetsPublicPath(pathToFile),
+            );
         }
 
         await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage);
