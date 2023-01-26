@@ -6,7 +6,7 @@ import transform, {Output} from '@doc-tools/transform';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
 
-import {ResolverOptions, YfmToc, ResolveMd2HTMLResult} from '../models';
+import {ResolverOptions, YfmToc, ResolveMd2HTMLResult, LeadingPage} from '../models';
 import {ArgvService, TocService, PluginService} from '../services';
 import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
@@ -73,16 +73,22 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
 }
 
 function YamlFileTransformer(content: string): Object {
-    let data: {[key: string]: any} = {};
+    let data: LeadingPage | null = null;
 
     try {
-        data = yaml.load(content) as {[key: string]: any};
+        data = yaml.load(content) as LeadingPage;
     } catch (error) {
         log.error(`Yaml transform has been failed. Error: ${error}`);
     }
 
-    const links = data?.links.map(
-        (link: any) =>
+    if (!data) {
+        return {
+            result: {data: {}},
+        };
+    }
+
+    const links = data?.links?.map(
+        (link) =>
             link.href ? ({...link, href: link.href.replace(/.md$/gmu, '.html')}) : link,
     );
 
@@ -114,7 +120,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
 
     return transform(content, {
         ...options,
-        plugins: plugins as MarkdownItPluginCb<any>[],
+        plugins: plugins as MarkdownItPluginCb<unknown>[],
         vars,
         root,
         path,
