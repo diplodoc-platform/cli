@@ -1,5 +1,5 @@
 import {Refs} from '../types';
-import {JSONSchema6} from 'json-schema';
+import {JSONSchema6, JSONSchema6Definition} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
 
@@ -30,14 +30,8 @@ type PrepareSchemaTableResult = {
 function prepareSchemaTable(refs: Refs, schema: JSONSchema6): PrepareSchemaTableResult {
     const result: PrepareSchemaTableResult = {rows: [], refs: []};
     const merged = merge(schema);
-    if (!merged) {
-        return result;
-    }
     Object.entries(merged.properties || {}).forEach(([key, v]) => {
         const value = merge(v);
-        if (!value) {
-            return;
-        }
         const name = tableParameterName(key, schema.required?.includes(key) ?? false);
         const {type, description, ref} = prepareTableRowData(refs, key, value);
         result.rows.push([name, type, description]);
@@ -98,14 +92,8 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
 export function prepareSampleObject(schema: JSONSchema6, callstack: any[] = []) {
     const result: { [key: string]: any } = {};
     const merged = merge(schema);
-    if (!merged) {
-        return result;
-    }
     Object.entries(merged.properties || {}).forEach(([key, v]) => {
         const value = merge(v);
-        if (!value) {
-            return;
-        }
         const required = merged.required?.includes(key) ?? false;
         const possibleValue = prepareSampleElement(key, value, required, callstack);
         if (possibleValue !== undefined) {
@@ -163,38 +151,40 @@ function prepareSampleElement(key: string, value: JSONSchema6, required: boolean
 //     - $ref: '#/components/schemas/TimeInterval1'
 //   description: asfsdfsdf
 //   type: object
-function merge(value: JSONSchema6 | boolean): JSONSchema6 | undefined {
+function merge(value: JSONSchema6Definition): JSONSchema6 {
     if (typeof value === 'boolean') {
-        return undefined;
+        throw Error('Boolean value isn\'t supported');
     }
     if (value.additionalProperties) {
         const result = value.additionalProperties;
         if (typeof result === 'boolean') {
-            return undefined;
+            throw Error('Boolean in additionalProperties isn\'t supported');
         }
         result.description = value.description;
         return merge(result);
     }
-    if (value.allOf && value.allOf.length >= 1) {
-        // save original object to search it in Refs by ===
-        const original = value.allOf[0] as JSONSchema6;
-        const properties: { [key: string]: any } = {};
-        for (const element of value.allOf) {
-            if (typeof element === 'boolean') {
-                throw Error('Boolean in allOf isn\'t supported');
-            }
-            if (element.description) {
-                original.description = element.description;
-            }
-            const mergedElement = merge(element);
-            for (const [k, v] of Object.entries(mergedElement?.properties ?? {})) {
-                properties[k] = v;
-            }
-        }
-        original.properties = properties;
-        return original;
+    if (!value.allOf || value.allOf.length === 0) {
+        return value;
     }
-    return value;
+    if (value.allOf.length === 1) {
+        // save original object to search it in Refs by ===
+        return merge(value.allOf[0]);
+    }
+    let description = '';
+    const properties: { [key: string]: any } = {};
+    for (const element of value.allOf) {
+        if (typeof element === 'boolean') {
+            throw Error('Boolean in allOf isn\'t supported');
+        }
+        if (element.description) {
+            description = concatNewLine(description, element.description);
+        }
+        const mergedElement = merge(element);
+        for (const [k, v] of Object.entries(mergedElement?.properties ?? {})) {
+            properties[k] = v;
+        }
+    }
+    return {type: 'object', description, properties};
 }
 
 function concatNewLine(prefix: string, suffix: string) {
