@@ -14,7 +14,15 @@ export function tableParameterName(key: string, required?: boolean) {
 }
 
 export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: string; tableRefs: string[]} {
-    const {rows, refs} = prepareSchemaTable(allRefs, schema);
+    if (schema.enum) {
+        const {type, description} = prepareTableRowData(allRefs, schema);
+        const content = table([
+            ['Type', 'Description'],
+            [type, description],
+        ]);
+        return {content, tableRefs: []};
+    }
+    const {rows, refs} = prepareObjectSchemaTable(allRefs, schema);
     const content = table([
         ['Name', 'Type', 'Description'],
         ...rows,
@@ -22,13 +30,13 @@ export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: s
     return {content, tableRefs: refs};
 }
 
-type PrepareSchemaTableResult = {
+type PrepareObjectSchemaTableResult = {
     rows: TableRow[];
     refs: string[];
 };
 
-function prepareSchemaTable(refs: Refs, schema: JSONSchema6): PrepareSchemaTableResult {
-    const result: PrepareSchemaTableResult = {rows: [], refs: []};
+function prepareObjectSchemaTable(refs: Refs, schema: JSONSchema6): PrepareObjectSchemaTableResult {
+    const result: PrepareObjectSchemaTableResult = {rows: [], refs: []};
     const merged = merge(schema);
     if (!merged) {
         return result;
@@ -39,7 +47,7 @@ function prepareSchemaTable(refs: Refs, schema: JSONSchema6): PrepareSchemaTable
             return;
         }
         const name = tableParameterName(key, schema.required?.includes(key) ?? false);
-        const {type, description, ref} = prepareTableRowData(refs, key, value);
+        const {type, description, ref} = prepareTableRowData(refs, value, key);
         result.rows.push([name, type, description]);
         if (ref) {
             result.refs.push(ref);
@@ -54,7 +62,7 @@ type PrepareRowResult = {
   ref?: string;
 };
 
-export function prepareTableRowData(allRefs: Refs, key: string, value: JSONSchema6): PrepareRowResult {
+export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: string): PrepareRowResult {
     let description = value.description || '';
     if (value.type === 'object') {
         const ref = findRef(allRefs, value);
@@ -92,6 +100,9 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
             return k;
         }
         if (v.allOf && v.allOf === value.allOf) {
+            return k;
+        }
+        if (v.enum && v.enum === value.enum) {
             return k;
         }
     }
