@@ -81,7 +81,11 @@ export function prepareTableRowData(allRefs: Refs, key: string, value: JSONSchem
 function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
     for (const [k, v] of Object.entries(allRefs)) {
         // @apidevtools/swagger-parser guaranties, that in refs list there will be the same objects
-        if (value === v) {
+        // but same objects can have different descriptions
+        if (v.properties && v.properties === value.properties) {
+            return k;
+        }
+        if (v.allOf && v.allOf === value.allOf) {
             return k;
         }
     }

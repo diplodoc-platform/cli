@@ -85,16 +85,24 @@ async function add(path: string) {
     prepareNavigationPaths(parsedToc, pathToDir);
 }
 
-async function processTocItems(path: string, items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>) {
+async function processTocItems(
+    path: string,
+    items: YfmToc[],
+    tocDir: string,
+    sourcesDir: string,
+    vars: Record<string, string>,
+) {
     const {
         resolveConditions,
         removeHiddenTocItems,
     } = ArgvService.getConfig();
 
+    let preparedItems = items;
+
     /* Should remove all links with false expressions */
     if (resolveConditions || removeHiddenTocItems) {
         try {
-            items = filterFiles(items, 'items', vars, {
+            preparedItems = filterFiles(items, 'items', vars, {
                 resolveConditions,
                 removeHiddenTocItems,
             });
@@ -104,7 +112,7 @@ async function processTocItems(path: string, items: YfmToc[], tocDir: string, so
     }
 
     /* Should resolve all includes */
-    return _replaceIncludes(path, items, tocDir, sourcesDir, vars);
+    return _replaceIncludes(path, preparedItems, tocDir, sourcesDir, vars);
 }
 
 function getForPath(path: string): YfmToc|undefined {
@@ -268,7 +276,13 @@ function addIncludeTocPath(includeTocPath: string) {
  * @return
  * @private
  */
-async function _replaceIncludes(path: string, items: YfmToc[], tocDir: string, sourcesDir: string, vars: Record<string, string>): Promise<YfmToc[]> {
+async function _replaceIncludes(
+    path: string,
+    items: YfmToc[],
+    tocDir: string,
+    sourcesDir: string,
+    vars: Record<string, string>,
+): Promise<YfmToc[]> {
     const result: YfmToc[] = [];
 
     for (const item of items) {

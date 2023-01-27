@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.3](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.2...v2.3.3) (2023-01-26)
+
+
+### Bug Fixes
+
+* **includers/openapi:** ref with custom description fix (2nd try) ([39923fb](https://github.com/yandex-cloud/yfm-docs/commit/39923fba47b2ab74953e6104d6f3108b26d1432a))
+
 ## [2.3.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.1...v2.3.2) (2023-01-23)
 
 
