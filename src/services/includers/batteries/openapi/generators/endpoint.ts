@@ -83,7 +83,7 @@ function parameters(params?: Parameters) {
 }
 
 function parameterRow(param: Parameter) {
-    const row = prepareTableRowData({}, param.name, param.schema);
+    const row = prepareTableRowData({}, param.schema, param.name);
     let description = param.description;
     if (row.description.length) {
         description += `<br>${row.description}`;
@@ -118,6 +118,7 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
             const schemaTable = tableFromSchema(allRefs, ref);
             result.push(block([
                 title(3)(tableRef),
+                ref.description,
                 schemaTable.content,
             ]));
             tableRefs.push(...schemaTable.tableRefs);
