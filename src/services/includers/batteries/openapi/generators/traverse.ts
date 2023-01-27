@@ -102,6 +102,9 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
         if (v.allOf && v.allOf === value.allOf) {
             return k;
         }
+        if (v.enum && v.enum === value.enum) {
+            return k;
+        }
     }
     return undefined;
 }
