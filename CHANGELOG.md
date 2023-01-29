@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.4](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.3...v2.3.4) (2023-01-29)
+
+
+### Bug Fixes
+
+* **cmd/yfm2xliff:** update to newer lib version ([daecff8](https://github.com/yandex-cloud/yfm-docs/commit/daecff8b42a2cff7fc414638ab78fda3a3d1db23))
+
 ## [2.3.3](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.2...v2.3.3) (2023-01-26)
 
 
