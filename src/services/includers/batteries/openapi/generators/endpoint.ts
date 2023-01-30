@@ -22,6 +22,7 @@ import {
 } from '../types';
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
+import {concatNewLine} from '../../common';
 
 function endpoint(allRefs: Refs, data: Endpoint) {
     // try to remember, which tables we are already printed on page
@@ -84,12 +85,15 @@ function parameters(params?: Parameters) {
 
 function parameterRow(param: Parameter) {
     const row = prepareTableRowData({}, param.schema, param.name);
-    let description = param.description;
+    let description = param.description ?? '';
     if (row.description.length) {
-        description += `<br>${row.description}`;
+        description = concatNewLine(description, row.description);
     }
-    if (param.example) {
-        description += `<br>Example: \`${param.example}\``;
+    if (param.example !== undefined) {
+        description = concatNewLine(description, `Example: \`${param.example}\``);
+    }
+    if (param.default !== undefined) {
+        description = concatNewLine(description, `Default: \`${param.default}\``);
     }
     return [tableParameterName(param.name, param.required), row.type, description];
 }

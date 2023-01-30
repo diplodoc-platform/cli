@@ -96,12 +96,15 @@ export type Parameters = Parameter[];
 
 export type In = 'path' | 'query' | 'header' | 'cookie';
 
+export type Primitive = string | number | boolean;
+
 export type Parameter = {
     name: string;
     in: In;
     required: boolean;
-    description: string;
-    example: string | number;
+    description?: string;
+    example?: Primitive;
+    default?: Primitive;
     schema: JSONSchema6;
 };
 

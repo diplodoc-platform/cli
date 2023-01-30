@@ -2,6 +2,7 @@ import {Refs} from '../types';
 import {JSONSchema6, JSONSchema6Definition} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
+import {concatNewLine} from '../../common';
 
 type TableRow = [string, string, string];
 
@@ -200,8 +201,4 @@ function merge(value: JSONSchema6Definition): JSONSchema6 {
         }
     }
     return {type: 'object', description, properties};
-}
-
-function concatNewLine(prefix: string, suffix: string) {
-    return prefix.trim().length ? `${prefix}<br>${suffix}` : suffix;
 }
