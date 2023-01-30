@@ -2,17 +2,7 @@ import StateBlock from 'markdown-it/lib/rules_block/state_block';
 import Token from 'markdown-it/lib/token';
 import {MarkdownItPluginCb} from '@doc-tools/transform/lib/plugins/typings';
 import {Parameters, Parameter, Security} from '../types';
-import {
-    createColumn,
-    createParamInputsSection,
-    createBodyInputSection,
-    createLoaderContainer,
-    createResponseErrorContainer,
-    createResponseContainer,
-    createDiv,
-    createButton,
-} from './utils';
-import {ClassName, DataAttribute, Text} from './constants';
+import {escape} from 'html-escaper';
 
 function parserOpenapiSandboxBlock(state: StateBlock, start: number, end: number, silent: boolean) {
     let firstLine, lastLine, next, lastPos, found = false,
@@ -21,14 +11,20 @@ function parserOpenapiSandboxBlock(state: StateBlock, start: number, end: number
 
     const startMark = '{% openapi sandbox %}';
     const endMark = '{% end openapi sandbox %}';
-    if (pos + startMark.length > max) { return false; }
+    if (pos + startMark.length > max) {
+        return false;
+    }
 
-    if (state.src.slice(pos, pos + startMark.length) !== startMark) { return false; }
+    if (state.src.slice(pos, pos + startMark.length) !== startMark) {
+        return false;
+    }
     pos += startMark.length;
     firstLine = state.src.slice(pos, max);
 
 
-    if (silent) { return true; }
+    if (silent) {
+        return true;
+    }
     if (firstLine.slice(-endMark.length) === endMark) {
         firstLine = firstLine.slice(0, -endMark.length);
         found = true;
@@ -38,7 +34,9 @@ function parserOpenapiSandboxBlock(state: StateBlock, start: number, end: number
 
         next++;
 
-        if (next >= end) { break; }
+        if (next >= end) {
+            break;
+        }
 
         pos = state.bMarks[next] + state.tShift[next];
         max = state.eMarks[next];
@@ -74,7 +72,7 @@ type Data = {
     method: string;
     pathParams?: Parameters;
     queryParams?: Parameters;
-    headers?: Array<Parameter & {placeholder?: string}>;
+    headers?: Array<Parameter & { placeholder?: string }>;
     body?: string;
     security?: Security[];
 };
@@ -83,69 +81,25 @@ const openapiSandboxPlugin: MarkdownItPluginCb = (md) => {
     const openapiSandboxBlock = (jsonString: string) => {
         try {
             const data = JSON.parse(jsonString) as Data;
-            const sections = [];
-            const pathParamsSection = createParamInputsSection({
-                title: Text.PATH_PARAMS_SECTION_TITLE,
-                params: data.pathParams,
-                classNameInputs: ClassName.PATH_PARAM_INPUT,
-            });
-            if (pathParamsSection) {
-                sections.push(pathParamsSection);
-            }
+            const option = escape(JSON.stringify(data));
 
-            const queryParamsSection = createParamInputsSection({
-                title: Text.QUERY_PARAMS_SECTION_TITLE,
-                params: data.queryParams,
-                classNameInputs: ClassName.QUERY_PARAM_INPUT,
-            });
-            if (queryParamsSection) {
-                sections.push(queryParamsSection);
-            }
-
-            const hasOAuth2 = data.security?.find(({type}) => type === 'oauth2');
-            const headers = data.headers ? [...data.headers] : [];
-            if (hasOAuth2) {
-                headers.push({
-                    name: 'Authorization',
-                    schema: {
-                        type: 'string',
-                    },
-                    in: 'header',
-                    required: true,
-                    description: '',
-                    example: 'Bearer <token>',
-                });
-            }
-            const headersSection = createParamInputsSection({
-                title: Text.HEADER_PARAMS_SECTION_TITLE,
-                params: headers,
-                classNameInputs: ClassName.HEADER_INPUT,
-            });
-            if (headersSection) {
-                sections.push(headersSection);
-            }
-
-            const bodyInputSection = createBodyInputSection(data.body);
-            if (bodyInputSection) {
-                sections.push(bodyInputSection);
-            }
-
-            return createColumn([
-                createColumn([
-                    ...sections,
-                    createLoaderContainer(),
-                    createResponseErrorContainer(),
-                    createResponseContainer(),
-                    createDiv(
-                        createButton(Text.BUTTON_SUBMIT, {
-                            attributes: {
-                                [DataAttribute.METHOD]: data.method,
-                                [DataAttribute.REQUEST_URL]: (data.host ?? '') + '/' + data.path,
-                            },
-                        }),
-                    ),
-                ]),
-            ], {className: 'yfm-sandbox'});
+            return `<div class="yfm-sandbox" data-options="${option}"></div>`;
+            // ok // createColumn([
+            // ok //     createColumn([
+            // ok //         ...sections,
+            //         createLoaderContainer(),
+            //         createResponseErrorContainer(),
+            //         createResponseContainer(),
+            //         createDiv(
+            //             createButton(Text.BUTTON_SUBMIT, {
+            //                 attributes: {
+            //                     [DataAttribute.METHOD]: data.method,
+            //                     [DataAttribute.REQUEST_URL]: (data.host ?? '') + '/' + data.path,
+            //                 },
+            //             }),
+            //         ),
+            //     ]),
+            // ok // ], {className: 'yfm-sandbox'});
         } catch (error) {
             console.log(error);
             return jsonString;

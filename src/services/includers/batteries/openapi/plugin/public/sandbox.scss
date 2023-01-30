@@ -1,0 +1,56 @@
+.yfm-sandbox {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.yfm-sandbox-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.yfm-sandbox p {
+    margin: 0;
+}
+
+.yfm-sandbox-danger {
+    color: var(--yc-color-text-danger);
+}
+
+.yfm-sandbox-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.yfm-sandbox-hidden {
+    display: none!important;
+}
+
+.yfm-sandbox-loader {
+    display: inline-block;
+    backface-visibility: hidden;
+    animation: spin 1s linear infinite;
+    width: 36px;
+    height: 36px;
+
+    &__inner {
+        box-sizing: border-box;
+        height: 100%;
+        width: 50%;
+        margin-left: 50%;
+        border: 2px solid var(--yc-color-base-special);
+        border-left: none;
+        border-top-right-radius: 25px;
+        border-bottom-right-radius: 25px;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}

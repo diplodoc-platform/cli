@@ -14,8 +14,7 @@ import {getDocSettings, withSavingSetting, updateRootClassName} from '../../util
 
 import '../../interceptors/leading-page-links';
 
-import '../../../services/includers/batteries/openapi/plugin/js';
-import '../../../services/includers/batteries/openapi/plugin/scss/style.scss';
+import {Runtime as OpenapiSandbox} from '../../../services/includers/batteries/openapi/plugin/public';
 
 import '@doc-tools/components/styles/themes.scss';
 import '@doc-tools/components/styles/default.scss';
@@ -85,6 +84,7 @@ export function App(props: DocInnerProps): ReactElement {
                 ? <DocLeadingPage {...data} {...pageProps}/>
                 : <DocPage {...data} {...pageProps}/>
             }
+            <OpenapiSandbox />
         </div>
     );
 }
