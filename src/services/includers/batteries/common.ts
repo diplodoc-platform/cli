@@ -27,4 +27,8 @@ const compose = <R>(fn1: (a: R) => R, ...fns: Array<(a: R) => R>) =>
 
 const prop = (string: string) => (object: Object) => object[string as keyof typeof object];
 
-export {complement, isMdExtension, isHidden, allPass, compose, prop, getDirs, getFiles};
+function concatNewLine(prefix: string, suffix: string) {
+    return prefix.trim().length ? `${prefix}<br>${suffix}` : suffix;
+}
+
+export {complement, isMdExtension, isHidden, allPass, compose, prop, getDirs, getFiles, concatNewLine};
