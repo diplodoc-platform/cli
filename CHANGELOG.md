@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.3.5](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.4...v2.3.5) (2023-01-30)
+
+
+### Bug Fixes
+
+* **includers/openapi:** default value in query ([cdc00a3](https://github.com/yandex-cloud/yfm-docs/commit/cdc00a3cf95c72540bbd53f4796af563ea0286f2))
+* **includers/openapi:** excess properties in allOf ([ca120ee](https://github.com/yandex-cloud/yfm-docs/commit/ca120ee74dfcadc307c95137054b96e2dc7b0263))
+* **includers/openapi:** table for enums ([ca36fef](https://github.com/yandex-cloud/yfm-docs/commit/ca36fef23237cd077489f7404d62e5289e9de044))
+
 ## [2.3.4](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.3...v2.3.4) (2023-01-29)
 
 
