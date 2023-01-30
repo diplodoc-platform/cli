@@ -15,7 +15,6 @@ import {
     Responses,
     Response,
     Schema,
-    Method,
     Refs,
     Server,
     Servers,
@@ -31,15 +30,7 @@ function endpoint(allRefs: Refs, data: Endpoint) {
     const endpointPage = [
         title(1)(data.summary ?? data.id),
         data.description?.length && body(data.description),
-        request(data.path, data.method, data.servers),
-        sandbox({
-            params: data.parameters,
-            servers: data.servers,
-            path: data.path,
-            security: data.security,
-            requestBody: data.requestBody,
-            method: data.method,
-        }),
+        request(data),
         parameters(data.parameters),
         openapiBody(allRefs, pagePrintedRefs, data.requestBody),
         responses(allRefs, pagePrintedRefs, data.responses),
@@ -72,8 +63,7 @@ function sandbox({
             ? JSON.stringify(requestBody.schema.example, null, 2)
             : '{}';
     }
-
-    return `{% openapi sandbox %}${JSON.stringify({
+    const props = JSON.stringify({
         pathParams,
         queryParams,
         headers,
@@ -82,10 +72,13 @@ function sandbox({
         security,
         path: path,
         host: servers?.[0].url,
-    })}{% end openapi sandbox %}`;
+    });
+
+    return `{% openapi sandbox %}${props}{% end openapi sandbox %}`;
 }
 
-function request(path: string, method: Method, servers: Servers) {
+function request(data: Endpoint) {
+    const {path, method, servers} = data;
     const requestTableCols = ['method', 'url'];
 
     const hrefs = block(servers.map(({url}) => code(url + '/' + path)));
@@ -105,7 +98,18 @@ function request(path: string, method: Method, servers: Servers) {
         requestTableRow,
     ]);
 
-    return block([title(2)(REQUEST_SECTION_NAME), requestTable]);
+    return block([
+        title(2)(REQUEST_SECTION_NAME),
+        cut(sandbox({
+            params: data.parameters,
+            servers: data.servers,
+            path: data.path,
+            security: data.security,
+            requestBody: data.requestBody,
+            method: data.method,
+        }), 'sandbox'),
+        requestTable,
+    ]);
 }
 
 function parameters(params?: Parameters) {
