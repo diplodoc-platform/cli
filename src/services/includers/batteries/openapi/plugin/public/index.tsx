@@ -5,13 +5,13 @@ import {unescape} from 'html-escaper';
 import {Sandbox} from './sandbox';
 
 export const Runtime: React.FC = () => {
-    const [sandbox, setSandbox] = useState<Element | null>(null);
+    const [sandbox, setSandbox] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        setSandbox(document.querySelector('.yfm-sandbox'));
+        setSandbox(document.querySelector<HTMLElement>('.yfm-sandbox'));
     });
 
-    if (!sandbox) {
+    if (!sandbox || !sandbox.dataset.props) {
         return null;
     }
 
