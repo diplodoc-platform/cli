@@ -107,10 +107,14 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
     }
     return undefined;
 }
+type OpenApiSchema = JSONSchema6 & {example?: any};
 
 // sample key-value JSON body
-export function prepareSampleObject(schema: JSONSchema6, callstack: JSONSchema6[] = []) {
+export function prepareSampleObject(schema: OpenApiSchema, callstack: JSONSchema6[] = []) {
     const result: { [key: string]: any } = {};
+    if (schema.example) {
+        return schema.example;
+    }
     const merged = merge(schema);
     Object.entries(merged.properties || {}).forEach(([key, value]) => {
         const required = isRequired(key, merged);
@@ -122,8 +126,11 @@ export function prepareSampleObject(schema: JSONSchema6, callstack: JSONSchema6[
     return result;
 }
 
-function prepareSampleElement(key: string, v: JSONSchema6Definition, required: boolean, callstack: JSONSchema6[]): any {
+function prepareSampleElement(key: string, v: OpenApiSchema, required: boolean, callstack: JSONSchema6[]): any {
     const value = merge(v);
+    if (value.example) {
+        return value.example;
+    }
     if (value.enum?.length) {
         return value.enum[0];
     }
@@ -142,7 +149,10 @@ function prepareSampleElement(key: string, v: JSONSchema6Definition, required: b
             if (!value.items || value.items === true || Array.isArray(value.items)) {
                 throw Error(`unsupported array items for ${key}`);
             }
-            return [prepareSampleElement(key, value.items, isRequired(key, value), downCallstack)];
+            if (value.items.type === 'object') {
+                return [prepareSampleObject(value.items, downCallstack)];
+            }
+            return [value.items.type];
         case 'string':
             switch (value.format) {
                 case 'uuid':

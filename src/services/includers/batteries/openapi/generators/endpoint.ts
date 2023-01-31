@@ -59,10 +59,9 @@ function sandbox({
     const headers = params?.filter((param: Parameter) => param.in === 'header');
     let bodyStr: null | string = null;
     if (requestBody?.type === 'application/json') {
-        bodyStr = requestBody?.schema?.example
-            ? JSON.stringify(requestBody.schema.example, null, 2)
-            : '{}';
+        bodyStr = JSON.stringify(prepareSampleObject(requestBody?.schema ?? {}), null, 2);
     }
+
     const props = JSON.stringify({
         pathParams,
         searchParams,
