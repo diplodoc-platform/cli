@@ -12,6 +12,7 @@ export const Error = ({message}: ErrorState) => {
             theme="danger"
             type="container"
             view="filled"
+            className="yfm-sandbox-card"
         >
             <Text
                 variant="body-3"

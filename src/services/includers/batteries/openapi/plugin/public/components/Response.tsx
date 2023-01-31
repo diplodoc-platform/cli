@@ -27,6 +27,7 @@ export const Response: React.FC<ResponseState> = ({
                 theme="info"
                 type="container"
                 view="filled"
+                className="yfm-sandbox-card"
             >
                 <Text
                     variant="code-2"
