@@ -1,33 +1,69 @@
-import React from 'react';
+import React, {Dispatch, SetStateAction} from 'react';
+import {TextInput, Text} from '@gravity-ui/uikit';
+
 import {Parameter} from '../../../types';
 
+import {FormValueState, ParamType} from '../types';
 import {Column} from './Column';
-import {Input} from './Input';
-import {Title} from './Title';
 
 export const Params: React.FC<{
-    params?: Array<Parameter & { placeholder?: string }>;
     title: string;
-    classNameInputs: string;
-}> = ({params, title, classNameInputs}) => {
+    params?: Array<Parameter & { placeholder?: string }>;
+    type: ParamType;
+    setState: Dispatch<SetStateAction<FormValueState>>;
+    state: FormValueState;
+    setValidateError: Dispatch<SetStateAction<FormValueState>>;
+    validateError: FormValueState;
+}> = ({
+    params,
+    title,
+    type,
+    setState,
+    state,
+    setValidateError,
+    validateError,
+}) => {
     if (!params || !params.length) {
         return null;
     }
 
+    const createOnChange = (paramName: string) => (value: string) => {
+        setState((prevState) => ({
+            ...prevState,
+            [type]: {
+                ...prevState[type],
+                [paramName]: value,
+            },
+        }));
+        setValidateError((prevState) => ({
+            ...prevState,
+            [type]: {
+                ...prevState[type],
+                [paramName]: undefined,
+            },
+        }));
+    };
+
     return (
-        <Column gap={0}>
-            <Title level={3}>{title}</Title>
+        <Column gap={15}>
+            <Text variant="header-1">{title}</Text>
             <Column gap={10}>
-                { params.map((param) => (
-                    <Input
-                        value={ param.example ? String(param.example) : '' }
-                        name={ param.name }
-                        label={ param.name }
-                        placeholder={ param.placeholder }
-                        required={ param.required }
-                        className={ classNameInputs }
-                    />
-                )) }
+                {params.map((param, index) => (
+                    <Column gap={5} key={index}>
+                        <Text variant="body-2">
+                            {param.name}
+                            {Boolean(param.required) && <Text variant="body-2" color="danger">*</Text>}:
+                        </Text>
+
+                        <TextInput
+                            value={state[type][param.name]}
+                            name={param.name}
+                            placeholder={param.placeholder}
+                            onUpdate={createOnChange(param.name)}
+                            error={validateError[type][param.name]}
+                        />
+                    </Column>
+                ))}
             </Column>
         </Column>
     );

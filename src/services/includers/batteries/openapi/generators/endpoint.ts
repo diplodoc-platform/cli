@@ -55,7 +55,7 @@ function sandbox({
     method: string;
 }) {
     const pathParams = params?.filter((param: Parameter) => param.in === 'path');
-    const queryParams = params?.filter((param: Parameter) => param.in === 'query');
+    const searchParams = params?.filter((param: Parameter) => param.in === 'query');
     const headers = params?.filter((param: Parameter) => param.in === 'header');
     let bodyStr: null | string = null;
     if (requestBody?.type === 'application/json') {
@@ -65,7 +65,7 @@ function sandbox({
     }
     const props = JSON.stringify({
         pathParams,
-        queryParams,
+        searchParams,
         headers,
         body: bodyStr,
         method,
@@ -100,15 +100,15 @@ function request(data: Endpoint) {
 
     return block([
         title(2)(REQUEST_SECTION_NAME),
-        cut(sandbox({
+        requestTable,
+        sandbox({
             params: data.parameters,
             servers: data.servers,
             path: data.path,
             security: data.security,
             requestBody: data.requestBody,
             method: data.method,
-        }), 'sandbox'),
-        requestTable,
+        }),
     ]);
 }
 

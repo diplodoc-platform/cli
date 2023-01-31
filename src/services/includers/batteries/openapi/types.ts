@@ -2,9 +2,16 @@ import {JSONSchema6} from 'json-schema';
 
 import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
 
-export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
-
-export type TitleDepth = typeof titleDepths[number];
+export type SandboxProps = {
+    path: string;
+    host?: string;
+    method: Method;
+    pathParams?: Parameters;
+    searchParams?: Parameters;
+    headers?: Parameters;
+    body?: string;
+    security?: Security[];
+};
 
 export type OpenapiSpec = {
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

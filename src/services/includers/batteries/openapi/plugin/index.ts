@@ -1,7 +1,6 @@
 import StateBlock from 'markdown-it/lib/rules_block/state_block';
 import Token from 'markdown-it/lib/token';
 import {MarkdownItPluginCb} from '@doc-tools/transform/lib/plugins/typings';
-import {Parameters, Parameter, Security} from '../types';
 import {escape} from 'html-escaper';
 
 function parserOpenapiSandboxBlock(state: StateBlock, start: number, end: number, silent: boolean) {
@@ -66,40 +65,12 @@ function parserOpenapiSandboxBlock(state: StateBlock, start: number, end: number
     return true;
 }
 
-type Data = {
-    path: string;
-    host?: string;
-    method: string;
-    pathParams?: Parameters;
-    queryParams?: Parameters;
-    headers?: Array<Parameter & { placeholder?: string }>;
-    body?: string;
-    security?: Security[];
-};
-
 const openapiSandboxPlugin: MarkdownItPluginCb = (md) => {
     const openapiSandboxBlock = (jsonString: string) => {
         try {
-            const data = JSON.parse(jsonString) as Data;
-            const option = escape(JSON.stringify(data));
+            const props = escape(jsonString);
 
-            return `<div class="yfm-sandbox" data-options="${option}"></div>`;
-            // ok // createColumn([
-            // ok //     createColumn([
-            // ok //         ...sections,
-            //         createLoaderContainer(),
-            //         createResponseErrorContainer(),
-            //         createResponseContainer(),
-            //         createDiv(
-            //             createButton(Text.BUTTON_SUBMIT, {
-            //                 attributes: {
-            //                     [DataAttribute.METHOD]: data.method,
-            //                     [DataAttribute.REQUEST_URL]: (data.host ?? '') + '/' + data.path,
-            //                 },
-            //             }),
-            //         ),
-            //     ]),
-            // ok // ], {className: 'yfm-sandbox'});
+            return `<div class="yfm-sandbox" data-props="${props}"></div>`;
         } catch (error) {
             console.log(error);
             return jsonString;

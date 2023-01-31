@@ -15,7 +15,7 @@ export const Runtime: React.FC = () => {
         return null;
     }
 
-    const options = JSON.parse(unescape(sandbox.dataset.options));
+    const props = JSON.parse(unescape(sandbox.dataset.props));
 
-    return createPortal(<Sandbox options={ options }/>, sandbox);
+    return createPortal(<Sandbox {...props} />, sandbox);
 };
