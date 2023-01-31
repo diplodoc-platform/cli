@@ -32,6 +32,7 @@
     "@doc-tools/components": "^2.4.0",
     "@doc-tools/transform": "^2.14.2",
     "@doc-tools/yfm2xliff": "0.0.5",
+    "@gravity-ui/uikit": "^4.0.4",
     "@octokit/core": "3.5.1",
     "@types/glob": "^8.0.0",
     "@types/json-stringify-safe": "^5.0.0",
