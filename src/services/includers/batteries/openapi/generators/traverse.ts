@@ -41,7 +41,7 @@ function prepareObjectSchemaTable(refs: Refs, schema: JSONSchema6): PrepareObjec
     const merged = merge(schema);
     Object.entries(merged.properties || {}).forEach(([key, v]) => {
         const value = merge(v);
-        const name = tableParameterName(key, schema.required?.includes(key) ?? false);
+        const name = tableParameterName(key, isRequired(key, schema));
         const {type, description, ref} = prepareTableRowData(refs, value, key);
         result.rows.push([name, type, description]);
         if (ref) {
@@ -72,7 +72,11 @@ export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: str
             if (ref) {
                 return {type: `${anchor(ref)}[]`, description, ref};
             }
-            return {type: `${value.items.type}[]`, description};
+            const inner = prepareTableRowData(allRefs, value.items, key);
+            return {
+                ...inner,
+                type: `${inner.type}[]`,
+            };
         }
         throw Error(`unsupported array items for ${key}`);
     }
@@ -104,13 +108,12 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
     return undefined;
 }
 
-// объект-пример JSON-а тела запроса или ответа
-export function prepareSampleObject(schema: JSONSchema6, callstack: any[] = []) {
+// sample key-value JSON body
+export function prepareSampleObject(schema: JSONSchema6, callstack: JSONSchema6[] = []) {
     const result: { [key: string]: any } = {};
     const merged = merge(schema);
-    Object.entries(merged.properties || {}).forEach(([key, v]) => {
-        const value = merge(v);
-        const required = merged.required?.includes(key) ?? false;
+    Object.entries(merged.properties || {}).forEach(([key, value]) => {
+        const required = isRequired(key, merged);
         const possibleValue = prepareSampleElement(key, value, required, callstack);
         if (possibleValue !== undefined) {
             result[key] = possibleValue;
@@ -119,7 +122,8 @@ export function prepareSampleObject(schema: JSONSchema6, callstack: any[] = []) 
     return result;
 }
 
-function prepareSampleElement(key: string, value: JSONSchema6, required: boolean, callstack: any[]): any {
+function prepareSampleElement(key: string, v: JSONSchema6Definition, required: boolean, callstack: JSONSchema6[]): any {
+    const value = merge(v);
     if (value.enum?.length) {
         return value.enum[0];
     }
@@ -138,10 +142,7 @@ function prepareSampleElement(key: string, value: JSONSchema6, required: boolean
             if (!value.items || value.items === true || Array.isArray(value.items)) {
                 throw Error(`unsupported array items for ${key}`);
             }
-            if (value.items.type === 'object') {
-                return [prepareSampleObject(value.items, downCallstack)];
-            }
-            return [value.items.type];
+            return [prepareSampleElement(key, value.items, isRequired(key, value), downCallstack)];
         case 'string':
             switch (value.format) {
                 case 'uuid':
@@ -157,7 +158,11 @@ function prepareSampleElement(key: string, value: JSONSchema6, required: boolean
         case 'boolean':
             return false;
     }
-    throw Error(`unsupported type ${value.type} for ${key}`);
+    if (value.properties) {
+        // if no "type" specified
+        return prepareSampleObject(value, downCallstack);
+    }
+    return undefined;
 }
 
 // unwrapping such samples
@@ -201,4 +206,8 @@ function merge(value: JSONSchema6Definition): JSONSchema6 {
         }
     }
     return {type: 'object', description, properties};
+}
+
+function isRequired(key: string, value: JSONSchema6): boolean {
+    return value.required?.includes(key) ?? false;
 }
