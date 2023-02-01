@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.3.6](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.5...v2.3.6) (2023-02-01)
+
+
+### Bug Fixes
+
+* **cmd/yfm2xliff:** fence block comments parsing ([c8edd69](https://github.com/yandex-cloud/yfm-docs/commit/c8edd6902dfe6746f93f9b4c5cc3d2341c580106))
+* update hightlight.js version ([26cb199](https://github.com/yandex-cloud/yfm-docs/commit/26cb199e8ad5b7f1181c07133e9acacf4a5fc10f))
+
 ## [2.3.5](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.4...v2.3.5) (2023-01-30)
 
 
