@@ -1,4 +1,4 @@
-import {page, block, title, body, table, code, cut} from './common';
+import {page, block, title, body, table, code, cut, tabs} from './common';
 import {
     COOKIES_SECTION_NAME,
     HEADERS_SECTION_NAME,
@@ -36,7 +36,17 @@ function endpoint(allRefs: Refs, data: Endpoint) {
         responses(allRefs, pagePrintedRefs, data.responses),
     ];
 
-    return page(block(endpointPage));
+    return page(tabs({
+        Main: block(endpointPage),
+        Sandbox: sandbox({
+            params: data.parameters,
+            servers: data.servers,
+            path: data.path,
+            security: data.security,
+            requestBody: data.requestBody,
+            method: data.method,
+        }),
+    }));
 }
 
 function sandbox({
@@ -100,14 +110,6 @@ function request(data: Endpoint) {
     return block([
         title(2)(REQUEST_SECTION_NAME),
         requestTable,
-        sandbox({
-            params: data.parameters,
-            servers: data.servers,
-            path: data.path,
-            security: data.security,
-            requestBody: data.requestBody,
-            method: data.method,
-        }),
     ]);
 }
 
