@@ -15,7 +15,13 @@ export const Runtime: React.FC = () => {
         return null;
     }
 
-    const props = JSON.parse(unescape(sandbox.dataset.props));
+    try {
+        const props = JSON.parse(unescape(sandbox.dataset.props));
 
-    return createPortal(<Sandbox {...props} />, sandbox);
+        return createPortal(<Sandbox {...props} />, sandbox);
+    } catch (error) {
+        console.log(error);
+
+        return null;
+    }
 };
