@@ -1,56 +1,32 @@
-import {Method, Parameters, Security} from '../../types';
-import {ErrorState, FormValueState, ResponseState} from './types';
-import React, {Dispatch, SetStateAction} from 'react';
+import type {RefObject} from 'react';
+import type {Parameters, Security} from '../../types';
+import type {Field, FormState} from './types';
 
-export const saveFile = (file: Blob, fileName: string) => {
-    const url = window.URL.createObjectURL(file);
-    const a = document.createElement('a');
-    a.href = url;
-
-    a.download = fileName;
-    a.innerText = 'click';
-    document.body.appendChild(a);
-    a.click();
-
-    return url;
+export const merge = <T, R>(items: T[], iterator: (item: T) => Record<string, R> | undefined) => {
+    return (items).reduce(
+        (acc, item) => Object.assign(acc, iterator(item)),
+        {} as Record<string, R>,
+    );
 };
 
-export const getAttachNameFromResponse = (response: Response): string => {
-    const unknownName = 'unknown file';
-    const disposition = response.headers.get('Content-Disposition');
-    if (disposition) {
-        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-        const matches = filenameRegex.exec(disposition);
-        if (matches !== null && matches[1]) {
-            return matches[1].replace(/['"]/g, '');
-        }
-        return unknownName;
-    }
-    return unknownName;
-};
-
-export const formValueToFetchOptions = (requestUrl: string, formValue: FormValueState) => {
-    Object.entries(formValue.path).forEach(([key, value]) => {
-        requestUrl = requestUrl.replace(`{${key}}`, encodeURIComponent(value));
-    });
+export const prepareRequest = (urlTemplate: string, {search, headers, path, body}: FormState) => {
+    const requestUrl = Object.entries(path).reduce((acc, [key, value]) => {
+        return acc.replace(`{${key}}`, encodeURIComponent(value));
+    }, urlTemplate);
 
     const searchParams = new URLSearchParams();
-    Object.entries(formValue.search).forEach(([key, value]) => {
+    Object.entries(search).forEach(([key, value]) => {
         searchParams.append(key, value);
     });
 
-    const headers: Record<string, string> = {};
-    Object.entries(formValue.headers).forEach(([key, value]) => {
-        headers[key] = value;
-    });
-
-    const fetchUrl = requestUrl + (searchParams.toString() ? '?' + searchParams.toString() : '');
-    const {body} = formValue;
+    const searchString = searchParams.toString();
+    const url = requestUrl + (searchString ? '?' + searchString : '');
 
     return {
-        headers,
-        fetchUrl,
-        body,
+        url,
+        headers: Object.keys(headers).length ? {headers} : undefined,
+        // TODO: match request types (www-form-url-encoded should be handled too)
+        body: body ? {body: JSON.stringify(body)} : {},
     };
 };
 
@@ -73,124 +49,46 @@ export const prepareHeaders = ({headers, security}: {
             example: 'Bearer <token>',
         });
     }
+
     return preparedHeaders;
 };
 
-const validateParameters = (
-    parameters: Parameters | undefined,
-    value: Record<string, string>,
-): Record<string, string> => {
-    if (!parameters) {
-        return {};
-    }
-    return parameters.reduce((acc, item) => {
-        if (item.required && !value[item.name]) {
-            return {...acc, [item.name]: 'Required'};
-        } else {
+export function collectErrors(fields: Record<string, RefObject<Field>>) {
+    const errors = Object.keys(fields).reduce((acc, key) => {
+        const field = fields[key].current;
+
+        if (!field) {
             return acc;
         }
-    }, {});
-};
 
-export const createSubmit = ({
-    host,
-    path,
-    method,
-    setLoading,
-    setResponse,
-    setError,
-    setValidateError,
-    formValue,
-    validate,
-}: {
-    host?: string;
-    path: string;
-    method: Method;
-    setLoading: Dispatch<SetStateAction<boolean>>;
-    setResponse: Dispatch<SetStateAction<null | ResponseState>>;
-    setError: Dispatch<SetStateAction<null | ErrorState>>;
-    setValidateError: Dispatch<SetStateAction<FormValueState>>;
-    formValue: FormValueState;
-    validate: {
-        pathParams?: Parameters;
-        searchParams?: Parameters;
-        headers?: Parameters;
-        body?: string;
-    };
-}) => {
-    return async (e: React.FormEvent) => {
-        e.preventDefault();
-        const errorObj = {
-            headers: validateParameters(validate.headers, formValue.headers),
-            path: validateParameters(validate.pathParams, formValue.path),
-            search: validateParameters(validate.searchParams, formValue.search),
-            body: validate.body && !formValue.body ? 'Required' : undefined,
-        };
+        const error = field.validate();
 
-        if (
-            errorObj.body ||
-            Object.keys(errorObj.headers).length ||
-            Object.keys(errorObj.path).length ||
-            Object.keys(errorObj.search).length
-        ) {
-            setValidateError(errorObj);
-            return;
+        if (error) {
+            acc[key] = error;
         }
 
-        setLoading(true);
-        setResponse(null);
-        setError(null);
+        return acc;
+    }, {} as Record<string, unknown>);
 
-        try {
-            const {
-                headers,
-                fetchUrl,
-                body,
-            } = formValueToFetchOptions((host ?? '') + '/' + path, formValue);
+    if (!Object.keys(errors).length) {
+        return null;
+    }
 
-            const fetchResponse = await fetch(fetchUrl, {
-                headers,
-                ...body ? {body: JSON.stringify(body)} : {},
-                method,
-            });
+    return errors;
+}
 
-            const contentType = fetchResponse.headers.get('Content-Type') || '';
-            const contentDisposition = fetchResponse.headers.get('Content-Disposition') || '';
-            const isAttachment = contentDisposition.includes('attachment');
+export function collectValues<F extends Record<string, RefObject<Field>>>(fields: F): Record<keyof F, unknown> {
+    const values = Object.keys(fields).reduce((acc, key: keyof F) => {
+        const field = fields[key].current;
 
-            if (isAttachment) {
-                const blob = await fetchResponse.blob();
-                const fileName = getAttachNameFromResponse(fetchResponse);
-                const urlFallback = saveFile(blob, fileName);
-
-                setLoading(false);
-                setResponse({
-                    status: fetchResponse.status,
-                    url: fetchUrl,
-                    file: {
-                        url: urlFallback,
-                        name: fileName,
-                    },
-                });
-            } else {
-                let responseString: string;
-                if (contentType.includes('json')) {
-                    responseString = JSON.stringify(await fetchResponse.json(), null, 2);
-                } else {
-                    responseString = await fetchResponse.text();
-                }
-                setLoading(false);
-                setResponse({
-                    status: fetchResponse.status,
-                    url: fetchUrl,
-                    responseString,
-                });
-            }
-        } catch (err) {
-            setLoading(false);
-            setError({
-                message: err.message,
-            });
+        if (!field) {
+            return acc;
         }
-    };
-};
+
+        acc[key] = field.value();
+
+        return acc;
+    }, {} as Record<keyof F, unknown>);
+
+    return values;
+}

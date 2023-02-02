@@ -1,16 +1,29 @@
-import React from 'react';
+import type {ResponseState} from '../types';
+import React, {useState, useEffect} from 'react';
 import {Text, Card} from '@gravity-ui/uikit';
 
 import {Text as TextEnum} from '../../constants';
-import {ResponseState} from '../types';
 import {Column} from './';
 
-export const Response: React.FC<ResponseState> = ({
-    responseString,
-    url,
-    status,
-    file,
-}) => {
+export const Response: React.FC<{
+    response: ResponseState;
+}> = ({response}) => {
+    const {url, status, file, text} = response;
+
+    const [fileUrl, setFileUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (file) {
+            setFileUrl(window.URL.createObjectURL(file.blob));
+        }
+
+        return () => {
+            if (fileUrl) {
+                window.URL.revokeObjectURL(fileUrl);
+            }
+        };
+    }, [file]);
+
     return <Column gap={10}>
         <Text variant="header-1">{TextEnum.RESPONSE_SECTION_TITLE}</Text>
         <div>
@@ -22,7 +35,7 @@ export const Response: React.FC<ResponseState> = ({
             <Text variant="body-2" as="div">{url}</Text>
         </div>
         <div>
-            {responseString === undefined ? null : <Text variant="subheader-2">{TextEnum.RESPONSE_BODY_LABEL}:</Text>}
+            {text !== undefined && <Text variant="subheader-2">{TextEnum.RESPONSE_BODY_LABEL}:</Text>}
             <Card
                 theme="info"
                 type="container"
@@ -33,16 +46,15 @@ export const Response: React.FC<ResponseState> = ({
                     variant="code-2"
                     className="yfm-sandbox-card-text"
                 >
-                    {file ? <Text>
+                    {file && fileUrl && <Text>
                         {TextEnum.RESPONSE_FILE_TEXT}
-                        <a href={file.url} download={file.name}>
+                        <a href={fileUrl} download={file.name}>
                             {TextEnum.RESPONSE_FILE_TEXT_CLICK}
                         </a>
-                    </Text> : null}
-                    {responseString === undefined ? null : <pre className="yfm-sandbox-pre">{responseString}</pre>}
+                    </Text>}
+                    {text !== undefined && <pre className="yfm-sandbox-pre">{text}</pre>}
                 </Text>
             </Card>
         </div>
-
     </Column>;
 };

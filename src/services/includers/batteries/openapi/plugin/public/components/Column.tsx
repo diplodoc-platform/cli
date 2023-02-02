@@ -1,4 +1,6 @@
 import React from 'react';
+
+// TODO: replace with bem-cn-lite
 import cn from 'classnames';
 
 export const Column: React.FC<{

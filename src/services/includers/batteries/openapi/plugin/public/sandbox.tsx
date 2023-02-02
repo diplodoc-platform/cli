@@ -1,96 +1,64 @@
-import React, {useState} from 'react';
-
+import type {FormState} from './types';
+import React, {useState, useRef} from 'react';
 import {Button} from '@gravity-ui/uikit';
-
-import {Column, Params, Body, Response, Error, Loader} from './components';
+import {Column, Params, Body, Result} from './components';
 
 import {SandboxProps} from '../../types';
 import {Text} from '../constants';
-import {ResponseState, ErrorState, FormValueState} from './types';
-import {useFormState} from './hooks';
-import {createSubmit, prepareHeaders} from './utils';
+import {prepareRequest, prepareHeaders, collectValues, collectErrors} from './utils';
 
 import './sandbox.scss';
 
 export const Sandbox: React.FC<SandboxProps> = (props) => {
     const preparedHeaders = prepareHeaders(props);
-    const [formValue, setFormValue] = useFormState({
-        pathParams: props.pathParams,
-        headers: preparedHeaders,
-        body: props.body,
-        searchParams: props.searchParams,
-    });
-    const [validateError, setValidateError] = useState<FormValueState>({
-        path: {},
-        headers: {},
-        search: {},
-        body: undefined,
-    });
-    const [isLoading, setLoading] = useState(false);
-    const [response, setResponse] = useState<ResponseState | null>(null);
-    const [error, setError] = useState<ErrorState | null>(null);
+    const refs = {
+        path: useRef(null),
+        search: useRef(null),
+        headers: useRef(null),
+        body: useRef(null),
+    };
+    const [request, setRequest] = useState<Promise<Response> | null>(null);
 
-    const onSubmit = createSubmit({
-        host: props.host,
-        path: props.path,
-        method: props.method,
-        formValue,
-        setLoading,
-        setError,
-        setResponse,
-        setValidateError,
-        validate: {
-            headers: props.headers,
-            searchParams: props.searchParams,
-            pathParams: props.pathParams,
-            body: props.body,
-        },
-    });
+    const onSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (collectErrors(refs)) {
+            return;
+        }
+
+        const values = collectValues(refs) as FormState;
+        const {url, headers, body} = prepareRequest((props.host ?? '') + '/' + props.path, values);
+
+        setRequest(fetch(url, {
+            method: props.method,
+            ...headers,
+            ...body,
+        }));
+    };
 
     return (
         <form onSubmit={onSubmit}>
             <Column>
                 <Params
+                    ref={refs.path}
                     title={Text.PATH_PARAMS_SECTION_TITLE}
                     params={props.pathParams}
-                    setState={setFormValue}
-                    state={formValue}
-                    setValidateError={setValidateError}
-                    validateError={validateError}
-                    type="path"
                 />
                 <Params
+                    ref={refs.search}
                     title={Text.QUERY_PARAMS_SECTION_TITLE}
                     params={props.searchParams}
-                    setState={setFormValue}
-                    state={formValue}
-                    setValidateError={setValidateError}
-                    validateError={validateError}
-                    type="search"
                 />
                 <Params
+                    ref={refs.headers}
                     title={Text.HEADER_PARAMS_SECTION_TITLE}
                     params={preparedHeaders}
-                    setState={setFormValue}
-                    state={formValue}
-                    setValidateError={setValidateError}
-                    validateError={validateError}
-                    type="headers"
                 />
                 <Body
-                    state={formValue}
-                    setState={setFormValue}
-                    validateError={validateError}
-                    setValidateError={setValidateError}
+                    ref={refs.body}
+                    value={props.body}
                 />
-                {
-                    isLoading
-                        ? <Loader />
-                        : <>
-                            {response ? <Response {...response} /> : null}
-                            {error ? <Error {...error} /> : null}
-                        </>
-                }
+                {request && <Result request={request} />}
                 <div>
                     <Button size="l" view="action" type="submit">
                         {Text.BUTTON_SUBMIT}

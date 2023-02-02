@@ -1,4 +1,10 @@
-export type FormValueState = {
+export interface Field<T = unknown, E = unknown> {
+    validate(): Nullable<E>;
+
+    value(): Nullable<T>;
+}
+
+export type FormState = {
     path: Record<string, string>;
     search: Record<string, string>;
     headers: Record<string, string>;
@@ -6,12 +12,12 @@ export type FormValueState = {
 };
 
 export type ResponseState = {
-    status: number;
     url: string;
-    responseString?: string;
+    status: number;
+    text?: string;
     file?: {
+        blob: Blob;
         name: string;
-        url: string;
     };
 };
 
@@ -19,4 +25,4 @@ export type ErrorState = {
     message: string;
 };
 
-export type ParamType = 'path' | 'search' | 'headers';
+export type Nullable<T> = T | null | undefined;

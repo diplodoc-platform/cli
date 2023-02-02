@@ -1,49 +1,68 @@
-import React, {Dispatch, SetStateAction} from 'react';
+import type {Field, Nullable} from '../types';
+import React from 'react';
 import {TextInput, Text} from '@gravity-ui/uikit';
 
 import {Text as TextEnum} from '../../constants';
 
-import {FormValueState} from '../types';
 import {Column} from './Column';
 
-export const Body: React.FC<{
-    setState: Dispatch<SetStateAction<FormValueState>>;
-    state: FormValueState;
-    setValidateError: Dispatch<SetStateAction<FormValueState>>;
-    validateError: FormValueState;
-}> = ({
-    setState,
-    state,
-    setValidateError,
-    validateError,
-}) => {
-    const value = state.body;
-    if (value === undefined || value === null) {
-        return null;
+type Props = {
+    value: Nullable<string>;
+};
+
+type State = {
+    error: Nullable<string>;
+    value: Nullable<string>;
+};
+
+export class Body extends React.Component<Props, State> implements Field<string, string> {
+    constructor(props: Props) {
+        super(props);
+
+        this.state = {
+            error: null,
+            value: props.value,
+        };
     }
 
-    const onChange = (newValue: string) => {
-        setState((prevState) => ({
-            ...prevState,
-            body: newValue,
-        }));
-        setValidateError((prevState) => ({
-            ...prevState,
-            body: undefined,
-        }));
-    };
+    render() {
+        const {error, value} = this.state;
 
-    return (
-        <Column gap={10}>
-            <Text variant="header-1">{TextEnum.BODY_INPUT_LABEL}</Text>
-            <TextInput
-                error={validateError.body}
-                multiline
-                maxRows={10}
-                name="body"
-                value={value}
-                onUpdate={onChange}
-            />
-        </Column>
-    );
-};
+        if (value === undefined || value === null) {
+            return null;
+        }
+
+        const onChange = (newValue: string) => {
+            this.setState((prevState) => ({
+                ...prevState,
+                value: newValue,
+            }));
+        };
+
+        return (
+            <Column gap={10}>
+                <Text variant="header-1">{TextEnum.BODY_INPUT_LABEL}</Text>
+                <TextInput
+                    error={error || false}
+                    multiline
+                    maxRows={10}
+                    name="body"
+                    value={value}
+                    onUpdate={onChange}
+                />
+            </Column>
+        );
+    }
+
+    validate() {
+        const error = this.state.value ? undefined : 'Required';
+
+        this.setState({error});
+
+        return error;
+    }
+
+    value() {
+        return this.state.value;
+    }
+}
