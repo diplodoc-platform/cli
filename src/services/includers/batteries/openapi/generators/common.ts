@@ -68,14 +68,14 @@ function page(content: string) {
 }
 
 function tabs(tabsObj: Record<string, string>) {
-    return `{% list tabs %}
-${Object.entries(tabsObj).map(([title, value]) =>
-        `
-- ${title}
+    return block([
+        '{% list tabs %}',
+        Object.entries(tabsObj).map(([title, value]) => `- ${title}
 
   ${value.replace(/\n/g, '\n  ')}
-`).join('\n')}
-{% endlist %}`;
+        `).join('\n\n'),
+        '{% endlist %}\n',
+    ]);
 }
 
 export {list, link, title, body, mono, bold, table, code, cut, block, page, tabs};

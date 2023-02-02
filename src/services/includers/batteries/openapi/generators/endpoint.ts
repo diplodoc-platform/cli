@@ -27,26 +27,28 @@ import {concatNewLine} from '../../common';
 function endpoint(allRefs: Refs, data: Endpoint) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
-    const endpointPage = [
+    const endpointPage = block([
         title(1)(data.summary ?? data.id),
-        data.description?.length && body(data.description),
-        request(data),
-        parameters(data.parameters),
-        openapiBody(allRefs, pagePrintedRefs, data.requestBody),
-        responses(allRefs, pagePrintedRefs, data.responses),
-    ];
-
-    return page(tabs({
-        Main: block(endpointPage),
-        Sandbox: sandbox({
-            params: data.parameters,
-            servers: data.servers,
-            path: data.path,
-            security: data.security,
-            requestBody: data.requestBody,
-            method: data.method,
+        tabs({
+            Main: block([
+                data.description?.length && body(data.description),
+                request(data),
+                parameters(data.parameters),
+                openapiBody(allRefs, pagePrintedRefs, data.requestBody),
+                responses(allRefs, pagePrintedRefs, data.responses),
+            ]),
+            Sandbox: sandbox({
+                params: data.parameters,
+                servers: data.servers,
+                path: data.path,
+                security: data.security,
+                requestBody: data.requestBody,
+                method: data.method,
+            }),
         }),
-    }));
+    ]);
+
+    return page(endpointPage);
 }
 
 function sandbox({
@@ -83,7 +85,11 @@ function sandbox({
         host: servers?.[0].url,
     });
 
-    return `{% openapi sandbox %}${props}{% end openapi sandbox %}`;
+    return block([
+        '{% openapi sandbox %}',
+        props,
+        '{% end openapi sandbox %}',
+    ]);
 }
 
 function request(data: Endpoint) {
@@ -160,7 +166,7 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
 
     const result = [
         block([
-            title(3)('Body'),
+            title(4)('Body'),
             cut(code(stringify(parsedSchema, null, 4)), type),
             content,
         ]),
