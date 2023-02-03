@@ -44,7 +44,7 @@ function request(path: string, method: Method, servers: Servers) {
 
     const hrefs = block(servers.map(({url}) => code(url + '/' + path)));
 
-    const requestTableRow = [code(method), hrefs];
+    const requestTableRow = [code(method.toUpperCase()), hrefs];
 
     if (servers.every((server: Server) => server.description)) {
         requestTableCols.push('description');
