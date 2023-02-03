@@ -29,18 +29,24 @@ function mono(text: string) {
     return `##${text}##`;
 }
 
+function bold(text: string) {
+    return `**${text}**`;
+}
+
 function code(text: string) {
     return EOL + ['```', text, '```'].join(EOL) + EOL;
 }
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 function table(data: any[][]) {
+    const [names, ...rest] = data;
+
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const colgen = (col: any) => (Array.isArray(col) ? `${EOL}${table(col)}${EOL}` : escapeTableColContent(` ${col} `));
     /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
     const rowgen = (row: any) => `||${row.map(colgen).join('|')}||`;
 
-    return `#|${block(data.map(rowgen))}|#`;
+    return `#|${block([names.map(bold), ...rest].map(rowgen))}|#`;
 }
 
 function cut(text: string, heading = '') {
@@ -61,6 +67,6 @@ function page(content: string) {
     return `${content}\n${HTML_COMMENTS_OPEN_DIRECTIVE} ${DISABLE_LINTER_DIRECTIVE} ${HTML_COMMENTS_CLOSE_DIRECTIVE}`;
 }
 
-export {list, link, title, body, mono, table, code, cut, block, page};
+export {list, link, title, body, mono, bold, table, code, cut, block, page};
 
-export default {list, link, title, body, mono, table, code, cut, block};
+export default {list, link, title, body, mono, bold, table, code, cut, block};
