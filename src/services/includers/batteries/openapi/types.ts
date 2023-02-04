@@ -113,6 +113,7 @@ export type Responses = Response[];
 export type Response = {
     // response code validation omitted
     code: string;
+    statusText: string;
     description: string;
     schemas?: Schemas;
 };

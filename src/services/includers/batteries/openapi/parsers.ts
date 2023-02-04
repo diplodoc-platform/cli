@@ -1,5 +1,6 @@
 /* eslint-disable no-shadow */
 import slugify from 'slugify';
+import {getStatusText} from 'http-status-codes';
 
 import {TAG_NAMES_FIELD} from './constants';
 
@@ -124,7 +125,13 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
 
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
         const parseResponse = ([code, response]: [string, {[key: string]: any}]) => {
-            const parsed: Response = {code, description: response.description};
+            const parsed: Partial<Response> = {code, description: response.description};
+
+            try {
+                parsed.statusText = getStatusText(code);
+            } catch (err) {
+                parsed.statusText = '';
+            }
 
             if (response.content) {
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -132,7 +139,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
                     .map(([type, schema]) => ({type, schema: schema.schema}));
             }
 
-            return parsed;
+            return parsed as Response;
         };
 
         /* eslint-disable-next-line @typescript-eslint/no-explicit-any */

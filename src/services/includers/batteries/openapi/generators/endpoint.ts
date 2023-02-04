@@ -141,8 +141,14 @@ function responses(refs: Refs, visited: Set<string>, resps?: Responses) {
 }
 
 function response(allRefs: Refs, visited: Set<string>, resp: Response) {
+    let header = resp.code;
+
+    if (resp.statusText.length) {
+        header += ` ${resp.statusText}`;
+    }
+
     return block([
-        title(2)(resp.code),
+        title(2)(header),
         body(resp.description),
         resp.schemas?.length && block(resp.schemas.map((s) => openapiBody(allRefs, visited, s))),
     ]);
