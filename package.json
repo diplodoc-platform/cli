@@ -31,7 +31,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@doc-tools/components": "^2.4.0",
     "@doc-tools/transform": "^2.14.2",
-    "@doc-tools/yfm2xliff": "0.0.5",
+    "@doc-tools/yfm2xliff": "0.0.6",
     "@octokit/core": "3.5.1",
     "@types/glob": "^8.0.0",
     "@types/json-stringify-safe": "^5.0.0",

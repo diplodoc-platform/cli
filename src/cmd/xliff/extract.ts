@@ -21,6 +21,8 @@ const MDExtPattern = `\\.${MD_EXT_NAME}$`;
 const MDExtFlags = 'mui';
 const MDExtRegExp = new RegExp(MDExtPattern, MDExtFlags);
 
+let collisionsTotal = 0;
+
 class ExtractError extends Error {
     path: string;
 
@@ -63,6 +65,13 @@ async function handler(args: Arguments<any>) {
         await Promise.all(xlfs.map(writeFn));
 
         logger.info(input, `finished extracting skeleton and xliff files to: ${output}`);
+
+        if (collisionsTotal) {
+            const percentage = Math.floor(1 / (found.length / collisionsTotal) * 100);
+
+            logger.warn(input, `total number of files with collisions: ${collisionsTotal} out of ${found.length} ${percentage}%`);
+        }
+
     } catch (err) {
         if (err instanceof Error || err instanceof ExtractError) {
             const message = err.message;
@@ -121,7 +130,20 @@ async function extractFn(datum: ReadFnOutput): Promise<ExtractFnOutput> {
     logger.info(datum.mdPath, 'extracting xliff and skeleton');
 
     try {
-        extracted = {extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath};
+        const res = await yfm2xliff.extract(datum);
+
+        const collisions = res.collisions;
+
+        const collisionsCount = Object.keys(collisions).length;
+        if (collisionsCount) {
+            collisionsTotal++;
+
+            logger.warn(
+                datum.mdPath,
+                `extraction had ${collisionsCount} collisions: ${JSON.stringify(collisions, null, 4)}`);
+        }
+
+        extracted = {extracted: res, xlfPath: datum.xlfPath};
     } catch (err) {
         throw new ExtractError(err.message, datum.mdPath);
     }
