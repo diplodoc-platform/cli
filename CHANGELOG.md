@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.3.7](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.6...v2.3.7) (2023-02-05)
+
+
+### Bug Fixes
+
+* **includers/openapi:** enpoint method in capslock ([a6fc2ca](https://github.com/yandex-cloud/yfm-docs/commit/a6fc2ca0cef6fe70d9c700a206778cda9d95f258))
+* **includers/openapi:** inline enums in array ([e30c266](https://github.com/yandex-cloud/yfm-docs/commit/e30c2663b1cf2e855539989fdb36eb57edc4123c))
+* **includers/openapi:** response status text ([3aa0093](https://github.com/yandex-cloud/yfm-docs/commit/3aa0093f2f65a9b2d34b2bedb2da8095d9ed778e))
+* **includers/openapi:** table columns names in bold ([67e5a08](https://github.com/yandex-cloud/yfm-docs/commit/67e5a08e3b33389f41709564007cdfdbec2a75a0))
+
 ## [2.3.6](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.5...v2.3.6) (2023-02-01)
 
 
