@@ -40,7 +40,7 @@ export class Params extends React.Component<{
         this.state = {
             errors: undefined,
             values: merge(props.params || [], (param) => ({
-                [param.name]: param.example,
+                [param.name]: param.example ?? '',
             })),
         };
 
