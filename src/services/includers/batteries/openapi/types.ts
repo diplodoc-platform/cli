@@ -146,3 +146,29 @@ export type Schema = {
 export type Refs = { [typeName: string]: JSONSchema6 };
 
 export type LeadingPageSpecRenderMode = typeof SPEC_RENDER_MODE_DEFAULT | typeof SPEC_RENDER_MODE_HIDDEN;
+
+export enum LeadingPageMode {
+    Section = 'section',
+    Leaf = 'leaf',
+}
+
+export type LeadingPageParams = {
+    name?: string;
+    mode?: LeadingPageMode;
+    spec?: {
+        renderMode: LeadingPageSpecRenderMode;
+    };
+};
+
+export type OpenApiIncluderParams = {
+    input: string;
+    leadingPage?: LeadingPageParams;
+    filter?: {
+        endpoint?: string;
+        tag?: string;
+    };
+    tagFilter?: string;
+    sandbox?: {
+        host?: string;
+    };
+};

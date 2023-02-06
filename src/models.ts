@@ -73,6 +73,14 @@ export interface YfmToc extends Filter {
     singlePage?: boolean;
 }
 
+export interface YfmTocItem extends Filter {
+    name: string;
+    href?: string;
+    items?: YfmTocItem[];
+    include?: YfmTocInclude;
+    id?: string;
+}
+
 export interface YfmTocInclude {
     repo: string;
     path: string;
@@ -105,7 +113,7 @@ export type Includer = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IncluderFunction = (args: IncluderFunctionParams) => Promise<any>;
 
-export type IncluderFunctionParams = {
+export type IncluderFunctionParams<Params extends Record<string, any> = Record<string, any>> = {
     // item that contains include that uses includer
     item: YfmToc;
     // base read directory path
@@ -114,9 +122,11 @@ export type IncluderFunctionParams = {
     writeBasePath: string;
     // toc with includer path
     tocPath: string;
+
+    vars: YfmPreset;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    passedParams: Record<string, any>;
+    passedParams: Params;
     index: number;
 };
 

@@ -295,7 +295,7 @@ async function _replaceIncludes(
         }
 
         try {
-            await applyIncluders(path, item);
+            await applyIncluders(path, item, vars);
         } catch (err) {
             if (err instanceof Error || err instanceof IncludersError) {
                 const message = err.toString();
