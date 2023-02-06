@@ -31,7 +31,7 @@ export const Sandbox: React.FC<SandboxProps> = (props) => {
 
         setRequest(fetch(url, {
             method: props.method,
-            ...headers,
+            headers,
             ...body,
         }));
     };

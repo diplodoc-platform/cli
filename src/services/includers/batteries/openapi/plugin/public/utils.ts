@@ -24,9 +24,9 @@ export const prepareRequest = (urlTemplate: string, {search, headers, path, body
 
     return {
         url,
-        headers: Object.keys(headers).length ? {headers} : undefined,
+        headers: body ? {...headers, 'Content-Type': 'application/json'} : headers,
         // TODO: match request types (www-form-url-encoded should be handled too)
-        body: body ? {body: JSON.stringify(body)} : {},
+        body: body ? {body} : {},
     };
 };
 
