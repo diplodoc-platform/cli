@@ -1,5 +1,7 @@
 import {page, block, title, body, table, code, cut, tabs} from './common';
 import {
+    INFO_TAB_NAME,
+    SANDBOX_TAB_NAME,
     COOKIES_SECTION_NAME,
     HEADERS_SECTION_NAME,
     PATH_PARAMETERS_SECTION_NAME,
@@ -17,35 +19,39 @@ import {
     Schema,
     Refs,
     Server,
-    Servers,
     Security,
 } from '../types';
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
 import {concatNewLine} from '../../common';
 
-function endpoint(allRefs: Refs, data: Endpoint) {
+function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} | undefined) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
-    const endpointPage = block([
-        title(1)(data.summary ?? data.id),
-        tabs({
-            Main: block([
-                data.description?.length && body(data.description),
-                request(data),
-                parameters(data.parameters),
-                openapiBody(allRefs, pagePrintedRefs, data.requestBody),
-                responses(allRefs, pagePrintedRefs, data.responses),
-            ]),
-            Sandbox: sandbox({
+
+    const contentWrapper = (content: string) => {
+        return sandboxPlugin ? tabs({
+            [INFO_TAB_NAME]: content,
+            [SANDBOX_TAB_NAME]: sandbox({
                 params: data.parameters,
-                servers: data.servers,
+                host: sandboxPlugin?.host,
                 path: data.path,
                 security: data.security,
                 requestBody: data.requestBody,
                 method: data.method,
             }),
-        }),
+        }) : content;
+    };
+
+    const endpointPage = block([
+        title(1)(data.summary ?? data.id),
+        contentWrapper(block([
+            data.description?.length && body(data.description),
+            request(data),
+            parameters(data.parameters),
+            openapiBody(allRefs, pagePrintedRefs, data.requestBody),
+            responses(allRefs, pagePrintedRefs, data.responses),
+        ])),
     ]);
 
     return page(endpointPage);
@@ -53,14 +59,14 @@ function endpoint(allRefs: Refs, data: Endpoint) {
 
 function sandbox({
     params,
-    servers,
+    host,
     path,
     security,
     requestBody,
     method,
 }: {
     params?: Parameters;
-    servers: Servers;
+    host?: string;
     path: string;
     security: Security[];
     requestBody?: any;
@@ -82,7 +88,7 @@ function sandbox({
         method,
         security,
         path: path,
-        host: servers?.[0].url,
+        host: host ?? '',
     });
 
     return block([

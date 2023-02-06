@@ -45,7 +45,7 @@ export class Body extends React.Component<Props, State> implements Field<string,
                 <TextInput
                     error={error || false}
                     multiline
-                    maxRows={10}
+                    rows={10}
                     name="body"
                     value={value}
                     onUpdate={onChange}

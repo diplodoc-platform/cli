@@ -31,7 +31,7 @@ class OpenApiIncluderError extends Error {
 }
 
 async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage}, index} = params;
+    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage, sandbox}, index} = params;
 
     const tocDirPath = dirname(tocPath);
 
@@ -70,7 +70,7 @@ async function includerFunction(params: IncluderFunctionParams) {
     try {
         await mkdir(writePath, {recursive: true});
         await generateToc({data, writePath, leadingPageName});
-        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode});
+        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode, sandbox});
     } catch (err) {
         if (err instanceof Error) {
             throw new OpenApiIncluderError(err.toString(), tocPath);
@@ -136,10 +136,13 @@ export type generateContentParams = {
     writePath: string;
     allRefs: Refs;
     leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
+    sandbox?: {
+        host?: string;
+    };
 };
 
 async function generateContent(params: generateContentParams): Promise<void> {
-    const {data, writePath, allRefs, leadingPageSpecRenderMode} = params;
+    const {data, writePath, allRefs, leadingPageSpecRenderMode, sandbox} = params;
 
     const results = [];
 
@@ -163,12 +166,12 @@ async function generateContent(params: generateContentParams): Promise<void> {
         if (!endpoints) { return; }
 
         endpoints.forEach((endpoint) => {
-            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id)));
+            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id), sandbox));
         });
     });
 
     for (const endpoint of spec.endpoints) {
-        results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath)));
+        results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath), sandbox));
     }
 
     for (const {path, content} of results) {
@@ -177,9 +180,9 @@ async function generateContent(params: generateContentParams): Promise<void> {
     }
 }
 
-function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string) {
+function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string, sandbox: {host?: string} | undefined) {
     const path = join(pathPrefix, mdPath(endpoint));
-    const content = generators.endpoint(allRefs, endpoint);
+    const content = generators.endpoint(allRefs, endpoint, sandbox);
 
     return {path, content};
 }
