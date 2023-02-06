@@ -2,7 +2,7 @@ import type {ResponseState} from '../types';
 import React, {useState, useEffect} from 'react';
 import {Text, Card} from '@gravity-ui/uikit';
 
-import {Text as TextEnum} from '../../constants';
+import {Text as TextEnum, yfmSandbox} from '../../constants';
 import {Column} from './';
 
 export const Response: React.FC<{
@@ -41,10 +41,10 @@ export const Response: React.FC<{
                     theme="info"
                     type="container"
                     view="filled"
-                    className="yfm-sandbox-card"
+                    className={yfmSandbox('card')}
                 >
-                    <Text variant="code-2" className="yfm-sandbox-card-text">
-                        <pre className="yfm-sandbox-pre">{text}</pre>
+                    <Text variant="code-2" className={yfmSandbox('card-text')}>
+                        <pre className={yfmSandbox('pre')}>{text}</pre>
                     </Text>
                 </Card>
             </div>

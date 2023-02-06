@@ -8,7 +8,7 @@ export const Runtime: React.FC = () => {
     const [sandbox, setSandbox] = useState<HTMLElement | null>(null);
 
     useEffect(() => {
-        setSandbox(document.querySelector<HTMLElement>('.yfm-sandbox'));
+        setSandbox(document.querySelector<HTMLElement>('.yfm-sandbox-js'));
     });
 
     if (!sandbox || !sandbox.dataset.props) {

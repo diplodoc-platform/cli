@@ -1,7 +1,5 @@
 import React from 'react';
-
-// TODO: replace with bem-cn-lite
-import cn from 'classnames';
+import {yfmSandbox} from '../../constants';
 
 export const Column: React.FC<{
     className?: string;
@@ -12,7 +10,7 @@ export const Column: React.FC<{
     };
 
     return (
-        <div className={cn(className, 'yfm-sandbox-column')} style={style}>
+        <div className={yfmSandbox('column', className)} style={style}>
             {children}
         </div>
     );

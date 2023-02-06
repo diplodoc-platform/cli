@@ -1,7 +1,7 @@
 import React from 'react';
 import {Text, Card} from '@gravity-ui/uikit';
 
-import {Text as TextEnum} from '../../constants';
+import {Text as TextEnum, yfmSandbox} from '../../constants';
 import {ErrorState} from '../types';
 import {Column} from './';
 
@@ -12,11 +12,11 @@ export const Error = ({message}: ErrorState) => {
             theme="danger"
             type="container"
             view="filled"
-            className="yfm-sandbox-card"
+            className={yfmSandbox('card')}
         >
             <Text
                 variant="body-3"
-                className="yfm-sandbox-card-text"
+                className={yfmSandbox('card-text')}
             >
                 {message}
             </Text>

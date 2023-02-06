@@ -4,7 +4,7 @@ import {Button} from '@gravity-ui/uikit';
 import {Column, Params, Body, Result} from './components';
 
 import {SandboxProps} from '../../types';
-import {Text} from '../constants';
+import {Text, yfmSandbox} from '../constants';
 import {prepareRequest, prepareHeaders, collectValues, collectErrors} from './utils';
 
 import './sandbox.scss';
@@ -37,7 +37,7 @@ export const Sandbox: React.FC<SandboxProps> = (props) => {
     };
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className={yfmSandbox()}>
             <Column>
                 <Params
                     ref={refs.path}

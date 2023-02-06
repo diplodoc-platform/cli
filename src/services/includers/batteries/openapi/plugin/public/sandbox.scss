@@ -1,27 +1,29 @@
-.yfm-sandbox-column {
-    display: flex;
-    flex-direction: column;
-}
+.yfm-sandbox {
+    &__column {
+        display: flex;
+        flex-direction: column;
+    }
 
-.yfm-sandbox-card-text {
-    padding: 16px;
-    display: block;
+    &__card-text {
+        padding: 16px;
+        display: block;
 
-    text-align: initial;
-}
+        text-align: initial;
+    }
 
-.yfm-sandbox-card {
-    overflow-x: auto;
-}
+    &__card {
+        overflow-x: auto;
+    }
 
-.yfm-sandbox .yfm-sandbox-pre {
-    margin: 0;
-}
+    &__loader-container {
+        height: 300px;
 
-.yfm-sandbox-loader-container {
-    height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    & &__pre {
+        margin: 0;
+    }
 }

@@ -1,3 +1,5 @@
+import block from 'bem-cn-lite';
+
 export const Text = {
     BUTTON_SUBMIT: 'Send',
 
@@ -16,3 +18,5 @@ export const Text = {
 
     RESPONSE_FILE_LABEL: 'File from response',
 };
+
+export const yfmSandbox = block('yfm-sandbox');

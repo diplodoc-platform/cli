@@ -70,7 +70,7 @@ const openapiSandboxPlugin: MarkdownItPluginCb = (md) => {
         try {
             const props = escape(jsonString);
 
-            return `<div class="yfm-sandbox" data-props="${props}"></div>`;
+            return `<div class="yfm-sandbox-js" data-props="${props}"></div>`;
         } catch (error) {
             console.log(error);
             return jsonString;
