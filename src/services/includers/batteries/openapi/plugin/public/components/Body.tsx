@@ -55,7 +55,7 @@ export class Body extends React.Component<Props, State> implements Field<string,
     }
 
     validate() {
-        const error = this.state.value ? undefined : 'Required';
+        const error = this.isRequired && !this.state.value ? 'Required' : undefined;
 
         this.setState({error});
 
@@ -64,5 +64,9 @@ export class Body extends React.Component<Props, State> implements Field<string,
 
     value() {
         return this.state.value;
+    }
+
+    private get isRequired() {
+        return this.props.value !== undefined && this.props.value !== null;
     }
 }
