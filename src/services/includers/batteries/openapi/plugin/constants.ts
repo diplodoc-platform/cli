@@ -14,6 +14,5 @@ export const Text = {
     RESPONSE_STATUS_LABEL: 'Status',
     RESPONSE_BODY_LABEL: 'Body',
 
-    RESPONSE_FILE_TEXT: 'If the download has not started automatically, ',
-    RESPONSE_FILE_TEXT_CLICK: 'click',
+    RESPONSE_FILE_LABEL: 'File from response',
 };
