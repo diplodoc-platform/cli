@@ -1,5 +1,5 @@
 import {Refs} from '../types';
-import {JSONSchema6, JSONSchema6Definition} from 'json-schema';
+import {JSONSchema6} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
 import {concatNewLine} from '../../common';
@@ -107,10 +107,11 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
     }
     return undefined;
 }
-type OpenApiSchema = JSONSchema6 & {example?: any};
+type OpenJSONSchema = JSONSchema6 & {example?: any};
+type OpenJSONSchemaDefinition = OpenJSONSchema | boolean;
 
 // sample key-value JSON body
-export function prepareSampleObject(schema: OpenApiSchema, callstack: JSONSchema6[] = []) {
+export function prepareSampleObject(schema: OpenJSONSchema, callstack: JSONSchema6[] = []) {
     const result: { [key: string]: any } = {};
     if (schema.example) {
         return schema.example;
@@ -126,7 +127,7 @@ export function prepareSampleObject(schema: OpenApiSchema, callstack: JSONSchema
     return result;
 }
 
-function prepareSampleElement(key: string, v: OpenApiSchema, required: boolean, callstack: JSONSchema6[]): any {
+function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required: boolean, callstack: JSONSchema6[]): any {
     const value = merge(v);
     if (value.example) {
         return value.example;
@@ -149,10 +150,7 @@ function prepareSampleElement(key: string, v: OpenApiSchema, required: boolean, 
             if (!value.items || value.items === true || Array.isArray(value.items)) {
                 throw Error(`unsupported array items for ${key}`);
             }
-            if (value.items.type === 'object') {
-                return [prepareSampleObject(value.items, downCallstack)];
-            }
-            return [value.items.type];
+            return [prepareSampleElement(key, value.items, isRequired(key, value), downCallstack)];
         case 'string':
             switch (value.format) {
                 case 'uuid':
@@ -182,7 +180,7 @@ function prepareSampleElement(key: string, v: OpenApiSchema, required: boolean, 
 //     - $ref: '#/components/schemas/TimeInterval1'
 //   description: asfsdfsdf
 //   type: object
-function merge(value: JSONSchema6Definition): JSONSchema6 {
+function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
     if (typeof value === 'boolean') {
         throw Error('Boolean value isn\'t supported');
     }
