@@ -1,5 +1,7 @@
-import {page, block, title, body, table, code, cut} from './common';
+import {page, block, title, body, table, code, cut, tabs} from './common';
 import {
+    INFO_TAB_NAME,
+    SANDBOX_TAB_NAME,
     COOKIES_SECTION_NAME,
     HEADERS_SECTION_NAME,
     PATH_PARAMETERS_SECTION_NAME,
@@ -15,31 +17,89 @@ import {
     Responses,
     Response,
     Schema,
-    Method,
     Refs,
     Server,
-    Servers,
+    Security,
 } from '../types';
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
 import {concatNewLine} from '../../common';
 
-function endpoint(allRefs: Refs, data: Endpoint) {
+function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} | undefined) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
-    const endpointPage = [
-        title(1)(data.summary ?? data.id),
-        data.description?.length && body(data.description),
-        request(data.path, data.method, data.servers),
-        parameters(data.parameters),
-        openapiBody(allRefs, pagePrintedRefs, data.requestBody),
-        responses(allRefs, pagePrintedRefs, data.responses),
-    ];
 
-    return page(block(endpointPage));
+    const contentWrapper = (content: string) => {
+        return sandboxPlugin ? tabs({
+            [INFO_TAB_NAME]: content,
+            [SANDBOX_TAB_NAME]: sandbox({
+                params: data.parameters,
+                host: sandboxPlugin?.host,
+                path: data.path,
+                security: data.security,
+                requestBody: data.requestBody,
+                method: data.method,
+            }),
+        }) : content;
+    };
+
+    const endpointPage = block([
+        title(1)(data.summary ?? data.id),
+        contentWrapper(block([
+            data.description?.length && body(data.description),
+            request(data),
+            parameters(data.parameters),
+            openapiBody(allRefs, pagePrintedRefs, data.requestBody),
+            responses(allRefs, pagePrintedRefs, data.responses),
+        ])),
+    ]);
+
+    return page(endpointPage);
 }
 
-function request(path: string, method: Method, servers: Servers) {
+function sandbox({
+    params,
+    host,
+    path,
+    security,
+    requestBody,
+    method,
+}: {
+    params?: Parameters;
+    host?: string;
+    path: string;
+    security: Security[];
+    requestBody?: any;
+    method: string;
+}) {
+    const pathParams = params?.filter((param: Parameter) => param.in === 'path');
+    const searchParams = params?.filter((param: Parameter) => param.in === 'query');
+    const headers = params?.filter((param: Parameter) => param.in === 'header');
+    let bodyStr: null | string = null;
+    if (requestBody?.type === 'application/json') {
+        bodyStr = JSON.stringify(prepareSampleObject(requestBody?.schema ?? {}), null, 2);
+    }
+
+    const props = JSON.stringify({
+        pathParams,
+        searchParams,
+        headers,
+        body: bodyStr,
+        method,
+        security,
+        path: path,
+        host: host ?? '',
+    });
+
+    return block([
+        '{% openapi sandbox %}',
+        props,
+        '{% end openapi sandbox %}',
+    ]);
+}
+
+function request(data: Endpoint) {
+    const {path, method, servers} = data;
     const requestTableCols = ['method', 'url'];
 
     const hrefs = block(servers.map(({url}) => code(url + '/' + path)));
@@ -59,7 +119,10 @@ function request(path: string, method: Method, servers: Servers) {
         requestTableRow,
     ]);
 
-    return block([title(2)(REQUEST_SECTION_NAME), requestTable]);
+    return block([
+        title(2)(REQUEST_SECTION_NAME),
+        requestTable,
+    ]);
 }
 
 function parameters(params?: Parameters) {
@@ -109,7 +172,7 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
 
     const result = [
         block([
-            title(3)('Body'),
+            title(4)('Body'),
             cut(code(stringify(parsedSchema, null, 4)), type),
             content,
         ]),

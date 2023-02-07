@@ -1,0 +1,29 @@
+.yfm-sandbox {
+    &__column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &__card-text {
+        padding: 16px;
+        display: block;
+
+        text-align: initial;
+    }
+
+    &__card {
+        overflow-x: auto;
+    }
+
+    &__loader-container {
+        height: 300px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    & &__pre {
+        margin: 0;
+    }
+}

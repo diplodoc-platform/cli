@@ -1,5 +1,5 @@
 import {Refs} from '../types';
-import {JSONSchema6, JSONSchema6Definition} from 'json-schema';
+import {JSONSchema6} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
 import {concatNewLine} from '../../common';
@@ -107,10 +107,15 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
     }
     return undefined;
 }
+type OpenJSONSchema = JSONSchema6 & {example?: any};
+type OpenJSONSchemaDefinition = OpenJSONSchema | boolean;
 
 // sample key-value JSON body
-export function prepareSampleObject(schema: JSONSchema6, callstack: JSONSchema6[] = []) {
+export function prepareSampleObject(schema: OpenJSONSchema, callstack: JSONSchema6[] = []) {
     const result: { [key: string]: any } = {};
+    if (schema.example) {
+        return schema.example;
+    }
     const merged = merge(schema);
     Object.entries(merged.properties || {}).forEach(([key, value]) => {
         const required = isRequired(key, merged);
@@ -122,8 +127,11 @@ export function prepareSampleObject(schema: JSONSchema6, callstack: JSONSchema6[
     return result;
 }
 
-function prepareSampleElement(key: string, v: JSONSchema6Definition, required: boolean, callstack: JSONSchema6[]): any {
+function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required: boolean, callstack: JSONSchema6[]): any {
     const value = merge(v);
+    if (value.example) {
+        return value.example;
+    }
     if (value.enum?.length) {
         return value.enum[0];
     }
@@ -172,7 +180,7 @@ function prepareSampleElement(key: string, v: JSONSchema6Definition, required: b
 //     - $ref: '#/components/schemas/TimeInterval1'
 //   description: asfsdfsdf
 //   type: object
-function merge(value: JSONSchema6Definition): JSONSchema6 {
+function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
     if (typeof value === 'boolean') {
         throw Error('Boolean value isn\'t supported');
     }

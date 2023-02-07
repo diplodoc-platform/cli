@@ -67,6 +67,17 @@ function page(content: string) {
     return `${content}\n${HTML_COMMENTS_OPEN_DIRECTIVE} ${DISABLE_LINTER_DIRECTIVE} ${HTML_COMMENTS_CLOSE_DIRECTIVE}`;
 }
 
-export {list, link, title, body, mono, bold, table, code, cut, block, page};
+function tabs(tabsObj: Record<string, string>) {
+    return block([
+        '{% list tabs %}',
+        Object.entries(tabsObj).map(([title, value]) => `- ${title}
 
-export default {list, link, title, body, mono, bold, table, code, cut, block};
+  ${value.replace(/\n/g, '\n  ')}
+        `).join('\n\n'),
+        '{% endlist %}\n',
+    ]);
+}
+
+export {list, link, title, body, mono, bold, table, code, cut, block, page, tabs};
+
+export default {list, link, title, body, mono, bold, table, code, cut, block, tabs};

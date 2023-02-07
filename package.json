@@ -32,6 +32,7 @@
     "@doc-tools/components": "^2.4.0",
     "@doc-tools/transform": "^2.14.2",
     "@doc-tools/yfm2xliff": "0.0.5",
+    "@gravity-ui/uikit": "^4.0.4",
     "@octokit/core": "3.5.1",
     "@types/glob": "^8.0.0",
     "@types/json-stringify-safe": "^5.0.0",
@@ -44,6 +45,7 @@
     "fast-xml-parser": "^4.0.11",
     "glob": "^8.0.3",
     "highlight.js": "^11.7.0",
+    "html-escaper": "^3.0.3",
     "http-status-codes": "^2.2.0",
     "js-yaml": "4.1.0",
     "json-stringify-safe": "^5.0.1",
@@ -71,6 +73,7 @@
     "@babel/runtime": "7.16.7",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
+    "@types/html-escaper": "^3.0.0",
     "@types/js-yaml": "4.0.5",
     "@types/lodash": "4.14.178",
     "@types/markdown-it": "10.0.3",
@@ -85,7 +88,7 @@
     "@typescript-eslint/parser": "2.34.0",
     "babel-eslint": "10.1.0",
     "babel-loader": "8.2.3",
-    "bem-cn-lite": "3.0.0",
+    "bem-cn-lite": "^3.0.0",
     "css-loader": "3.6.0",
     "eslint": "6.8.0",
     "eslint-plugin-react": "7.28.0",
@@ -101,11 +104,11 @@
     "sass-loader": "8.0.2",
     "style-loader": "1.3.0",
     "ts-jest": "27.1.2",
+    "ts-node": "^10.9.1",
     "typescript": "3.9.10",
     "webpack": "4.46.0",
     "webpack-bundle-analyzer": "^4.6.1",
-    "webpack-cli": "3.3.12",
-    "ts-node": "^10.9.1"
+    "webpack-cli": "3.3.12"
   },
   "husky": {
     "hooks": {

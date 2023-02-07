@@ -6,8 +6,24 @@ export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
 
 export type TitleDepth = typeof titleDepths[number];
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-export type OpenapiSpec = {[key: string]: any};
+export type SandboxProps = {
+    path: string;
+    host?: string;
+    method: Method;
+    pathParams?: Parameters;
+    searchParams?: Parameters;
+    headers?: Parameters;
+    body?: string;
+    security?: Security[];
+};
+
+export type OpenapiSpec = {
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+    [key: string]: any;
+    security?: Array<Record<string, Security>>;
+};
+
+export type Security = {type: string; description: string};
 
 export type OpenapiOperation = {
     summary?: string;
@@ -18,6 +34,7 @@ export type OpenapiOperation = {
     parameters?: Parameters;
     responses?: {};
     requestBody?: any;
+    security?: Array<Record<string, Security>>;
     'x-navtitle': string[];
 };
 
@@ -65,6 +82,7 @@ export type Endpoint = {
     parameters?: Parameters;
     responses?: Responses;
     requestBody?: Schema;
+    security: Security[];
 };
 
 export type Specification = {
