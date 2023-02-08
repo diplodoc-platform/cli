@@ -16,10 +16,11 @@ export function tableParameterName(key: string, required?: boolean) {
 
 export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: string; tableRefs: string[]} {
     if (schema.enum) {
-        const {type, description} = prepareTableRowData(allRefs, schema);
+        // enum description will be in table description
+        const description = prepareComplexDescription('', schema);
         const content = table([
             ['Type', 'Description'],
-            [type, description],
+            [schema.type, description],
         ]);
         return {content, tableRefs: []};
     }
@@ -58,28 +59,28 @@ type PrepareRowResult = {
 };
 
 export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: string): PrepareRowResult {
-    let description = value.description || '';
-    if (value.type === 'object') {
-        const ref = findRef(allRefs, value);
-        if (ref) {
-            return {type: anchor(ref), description, ref};
-        }
-        return {type: 'object', description};
+    const description = value.description || '';
+    const ref = findRef(allRefs, value);
+    if (ref) {
+        return {type: anchor(ref), description, ref};
     }
     if (value.type === 'array') {
-        if (value.items && value.items !== true && !Array.isArray(value.items)) {
-            const ref = findRef(allRefs, value.items);
-            if (ref) {
-                return {type: `${anchor(ref)}[]`, description, ref};
-            }
-            const inner = prepareTableRowData(allRefs, value.items, key);
-            return {
-                ...inner,
-                type: `${inner.type}[]`,
-            };
+        if (!value.items || value.items === true || Array.isArray(value.items)) {
+            throw Error(`unsupported array items for ${key}`);
         }
-        throw Error(`unsupported array items for ${key}`);
+        const inner = prepareTableRowData(allRefs, value.items, key);
+        return {
+            type: `${inner.type}[]`,
+            // if inner.ref present, inner description will be in separate table
+            description: inner.ref ? description : concatNewLine(description, inner.description),
+            ref: inner.ref,
+        };
     }
+    return {type: `${value.type}`, description: prepareComplexDescription(description, value)};
+}
+
+function prepareComplexDescription(baseDescription: string, value: JSONSchema6): string {
+    let description = baseDescription;
     const enumValues = value.enum?.map((s) => `\`${s}\``).join(', ');
     if (enumValues) {
         description = concatNewLine(description, `Enum: ${enumValues}`);
@@ -87,7 +88,7 @@ export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: str
     if (value.default) {
         description = concatNewLine(description, `Default: \`${value.default}\``);
     }
-    return {type: `${value.type}`, description};
+    return description;
 }
 
 // find dereferenced object from schema in all components/schemas

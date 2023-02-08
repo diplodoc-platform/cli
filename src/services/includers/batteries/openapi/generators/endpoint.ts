@@ -48,7 +48,7 @@ function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} 
         contentWrapper(block([
             data.description?.length && body(data.description),
             request(data),
-            parameters(data.parameters),
+            parameters(allRefs, pagePrintedRefs, data.parameters),
             openapiBody(allRefs, pagePrintedRefs, data.requestBody),
             responses(allRefs, pagePrintedRefs, data.responses),
         ])),
@@ -125,7 +125,7 @@ function request(data: Endpoint) {
     ]);
 }
 
-function parameters(params?: Parameters) {
+function parameters(allRefs: Refs, pagePrintedRefs: Set<string>, params?: Parameters) {
     const sections = {
         'path': PATH_PARAMETERS_SECTION_NAME,
         'query': QUERY_PARAMETERS_SECTION_NAME,
@@ -136,20 +136,32 @@ function parameters(params?: Parameters) {
     for (const [inValue, heading] of Object.entries(sections)) {
         const inParams = params?.filter((param: Parameter) => param.in === inValue);
         if (inParams?.length) {
+            const rows: string[][] = [];
+            const tableRefs: string[] = [];
+            for (const param of inParams) {
+                const {cells, ref} = parameterRow(allRefs, param);
+                rows.push(cells);
+                if (ref) {
+                    // there may be enums, which should be printed in separate tables
+                    tableRefs.push(ref);
+                }
+            }
             tables.push(title(3)(heading));
             tables.push(table([
                 ['Name', 'Type', 'Description'],
-                ...inParams.map(parameterRow),
+                ...rows,
             ]));
+            tables.push(...printAllTables(allRefs, pagePrintedRefs, tableRefs));
         }
     }
     return block(tables);
 }
 
-function parameterRow(param: Parameter) {
-    const row = prepareTableRowData({}, param.schema, param.name);
+function parameterRow(allRefs: Refs, param: Parameter): {cells: string[]; ref?: string} {
+    const row = prepareTableRowData(allRefs, param.schema, param.name);
     let description = param.description ?? '';
-    if (row.description.length) {
+    if (!row.ref && row.description.length) {
+        // if row.ref present, row.description will be printed in separate table
         description = concatNewLine(description, row.description);
     }
     if (param.example !== undefined) {
@@ -158,7 +170,10 @@ function parameterRow(param: Parameter) {
     if (param.default !== undefined) {
         description = concatNewLine(description, `Default: \`${param.default}\``);
     }
-    return [tableParameterName(param.name, param.required), row.type, description];
+    return {
+        cells: [tableParameterName(param.name, param.required), row.type, description],
+        ref: row.ref,
+    };
 }
 
 function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) {
@@ -178,6 +193,14 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
         ]),
     ];
 
+    // print all dependent objects to separate tables recursively
+    result.push(...printAllTables(allRefs, pagePrintedRefs, tableRefs));
+
+    return block(result);
+}
+
+function printAllTables(allRefs: Refs, pagePrintedRefs: Set<string>, tableRefs: string[]): string[] {
+    const result = [];
     while (tableRefs.length > 0) {
         const tableRef = tableRefs.shift();
         if (tableRef && !pagePrintedRefs.has(tableRef)) {
@@ -192,8 +215,7 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
             pagePrintedRefs.add(tableRef);
         }
     }
-
-    return block(result);
+    return result;
 }
 
 function responses(refs: Refs, visited: Set<string>, resps?: Responses) {
