@@ -143,7 +143,7 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
             if (response.content) {
                 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
                 parsed.schemas = Object.entries<{[key: string]: any}>(response.content)
-                    .map(([type, schema]) => ({type, schema: schema.schema}));
+                    .map(([type, schema]) => ({type, schema: schema?.schema || {}}));
             }
 
             return parsed as Response;
