@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.7...v2.4.0) (2023-02-08)
+
+
+### Features
+
+* **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
+* **includers/openapi:** sandbox plugin ([455272a](https://github.com/yandex-cloud/yfm-docs/commit/455272ad5d47f3eb2741919f1eae3bfedc27a1df))
+
+
+### Bug Fixes
+
+* **includers/openapi:** some enums are not printed in separate tables ([4e0a89f](https://github.com/yandex-cloud/yfm-docs/commit/4e0a89f6a292e693241577576d0d8ad2880c515b))
+
 ## [2.3.7](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.6...v2.3.7) (2023-02-05)
 
 
