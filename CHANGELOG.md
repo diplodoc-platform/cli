@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.4.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.0...v2.4.1) (2023-02-13)
+
+
+### Bug Fixes
+
+* bump yfm-transform version ([9d10863](https://github.com/yandex-cloud/yfm-docs/commit/9d108636a46ff17290cfaf300683ccd2075c2371))
+* **includers/openapi:** add unwrapping items ([f2222b8](https://github.com/yandex-cloud/yfm-docs/commit/f2222b809c7273a8bd763bb6566dec2b33d19ba4))
+* **openapi:** Cannot read property 'additionalProperties' of undefined ([c0bd6c6](https://github.com/yandex-cloud/yfm-docs/commit/c0bd6c64fd72002059cacdf3f3b2e0c03e052090))
+
 ## [2.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.3.7...v2.4.0) (2023-02-08)
 
 
