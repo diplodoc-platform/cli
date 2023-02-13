@@ -181,6 +181,13 @@ function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required
 //     - $ref: '#/components/schemas/TimeInterval1'
 //   description: asfsdfsdf
 //   type: object
+// OR
+// custom:
+//   items:
+//     allOf:
+//       - $ref: '#/components/schemas/TimeInterval1'
+//   description: asfsdfsdf
+//   type: object
 function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
     if (typeof value === 'boolean') {
         throw Error('Boolean value isn\'t supported');
@@ -192,6 +199,13 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
         }
         result.description = value.description;
         return merge(result);
+    }
+    if (value.items) {
+        const result = value.items;
+        if (Array.isArray(result)) {
+            throw Error('Array in items isn\'t supported');
+        }
+        return {...value, items: merge(result)};
     }
     if (!value.allOf || value.allOf.length === 0) {
         return value;
