@@ -1,7 +1,7 @@
-import type {ResponseState} from '../types';
 import React, {useState, useEffect} from 'react';
-import {Text, Card} from '@gravity-ui/uikit';
+import {Text, Card, ClipboardButton} from '@gravity-ui/uikit';
 
+import type {ResponseState} from '../types';
 import {Text as TextEnum, yfmSandbox} from '../../constants';
 import {Column} from './';
 
@@ -37,16 +37,19 @@ export const Response: React.FC<{
         {
             text !== undefined && <div>
                 <Text variant="subheader-2">{TextEnum.RESPONSE_BODY_LABEL}:</Text>
-                <Card
-                    theme="info"
-                    type="container"
-                    view="filled"
-                    className={yfmSandbox('card')}
-                >
-                    <Text variant="code-2" className={yfmSandbox('card-text')}>
-                        <pre className={yfmSandbox('pre')}>{text}</pre>
-                    </Text>
-                </Card>
+                <div className={yfmSandbox('card-wrapper')}>
+                    <Card
+                        theme="info"
+                        type="container"
+                        view="filled"
+                        className={yfmSandbox('card')}
+                    >
+                        <Text variant="code-2" className={yfmSandbox('card-text')}>
+                            <pre className={yfmSandbox('pre')}>{text}</pre>
+                        </Text>
+                    </Card>
+                    <ClipboardButton size={16} text={text} className={yfmSandbox('clipboard-button')} />
+                </div>
             </div>
         }
         {
