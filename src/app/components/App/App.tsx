@@ -15,6 +15,7 @@ import {getDocSettings, withSavingSetting, updateRootClassName} from '../../util
 import '../../interceptors/leading-page-links';
 
 import {Runtime as OpenapiSandbox} from '../../../services/includers/batteries/openapi/plugin/public';
+import '../../../services/includers/batteries/openapi/generators/style.scss';
 
 import '@doc-tools/components/styles/themes.scss';
 import '@doc-tools/components/styles/default.scss';

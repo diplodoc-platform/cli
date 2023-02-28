@@ -24,6 +24,7 @@ import {
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
 import {concatNewLine} from '../../common';
+import {openapiBlock} from './constants';
 
 function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} | undefined) {
     // try to remember, which tables we are already printed on page
@@ -54,7 +55,7 @@ function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} 
         ])),
     ]);
 
-    return page(endpointPage);
+    return block([`<div class="${openapiBlock()}">`, page(endpointPage), '</div>']);
 }
 
 function sandbox({
