@@ -1,8 +1,9 @@
-import {Refs} from '../types';
+import {JsType, Refs, SupportedEnumType} from '../types';
 import {JSONSchema6} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
 import {concatNewLine} from '../../common';
+import {SUPPORTED_ENUM_TYPES} from '../constants';
 
 type TableRow = [string, string, string];
 
@@ -20,7 +21,7 @@ export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: s
         const description = prepareComplexDescription('', schema);
         const content = table([
             ['Type', 'Description'],
-            [schema.type, description],
+            [inferType(schema), description],
         ]);
         return {content, tableRefs: []};
     }
@@ -64,7 +65,7 @@ export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: str
     if (ref) {
         return {type: anchor(ref), description, ref};
     }
-    if (value.type === 'array') {
+    if (inferType(value) === 'array') {
         if (!value.items || value.items === true || Array.isArray(value.items)) {
             throw Error(`unsupported array items for ${key}`);
         }
@@ -76,7 +77,7 @@ export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: str
             ref: inner.ref,
         };
     }
-    return {type: `${value.type}`, description: prepareComplexDescription(description, value)};
+    return {type: `${inferType(value)}`, description: prepareComplexDescription(description, value)};
 }
 
 function prepareComplexDescription(baseDescription: string, value: JSONSchema6): string {
@@ -144,7 +145,7 @@ function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required
         return undefined;
     }
     const downCallstack = callstack.concat(value);
-    switch (value.type) {
+    switch (inferType(value)) {
         case 'object':
             return prepareSampleObject(value, downCallstack);
         case 'array':
@@ -233,4 +234,22 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
 
 function isRequired(key: string, value: JSONSchema6): boolean {
     return value.required?.includes(key) ?? false;
+}
+
+function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefined> {
+    if (value.type) {
+        return value.type;
+    }
+    if (value.enum) {
+        const enumType = typeof value.enum[0];
+        if (isSupportedEnumType(enumType)) {
+            return enumType;
+        }
+        throw new Error('Unsupported enum type');
+    }
+    throw new Error('Unsupported value type');
+}
+
+function isSupportedEnumType(enumType: JsType): enumType is SupportedEnumType {
+    return SUPPORTED_ENUM_TYPES.some((type) => enumType === type);
 }
