@@ -228,7 +228,7 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
             properties[k] = v;
         }
     }
-    return {type: 'object', description, properties};
+    return {type: 'object', description, properties, allOf: value.allOf};
 }
 
 function isRequired(key: string, value: JSONSchema6): boolean {
