@@ -56,7 +56,7 @@ export const Response: React.FC<{
             file && fileUrl && <div>
                 <Text variant="subheader-2" as="div">{TextEnum.RESPONSE_FILE_LABEL}:</Text>
                 <Text variant="body-2" as="div">
-                    <a href={fileUrl} download={file.name}>
+                    <a href={fileUrl} download={file.name} data-router="off">
                         {file.name}
                     </a>
                 </Text>
