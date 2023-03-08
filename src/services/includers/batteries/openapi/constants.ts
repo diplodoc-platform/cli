@@ -1,3 +1,5 @@
+import {JSONSchema6} from 'json-schema';
+
 const EOL = '\n';
 const TAG_NAMES_FIELD = 'x-navtitle';
 const BLOCK = EOL.repeat(2);
@@ -19,6 +21,9 @@ const SPEC_RENDER_MODE_DEFAULT = 'inline';
 const SPEC_RENDER_MODE_HIDDEN = 'hidden';
 const SPEC_SECTION_NAME = 'Specification';
 const SPEC_SECTION_TYPE = 'Open API';
+
+const PRIMITIVE_JSON6_SCHEMA_TYPES =
+    new Set<JSONSchema6['type']>(['string', 'boolean', 'null', 'number', 'integer']);
 
 export {
     TAG_NAMES_FIELD,
@@ -42,6 +47,7 @@ export {
     SPEC_RENDER_MODE_HIDDEN,
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
+    PRIMITIVE_JSON6_SCHEMA_TYPES,
 };
 
 export default {
@@ -66,4 +72,5 @@ export default {
     SPEC_RENDER_MODE_HIDDEN,
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
+    PRIMITIVE_JSON6_SCHEMA_TYPES,
 };

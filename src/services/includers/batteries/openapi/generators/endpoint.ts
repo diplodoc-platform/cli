@@ -1,4 +1,7 @@
-import {page, block, title, body, table, code, cut, tabs} from './common';
+import {JSONSchema6} from 'json-schema';
+import stringify from 'json-stringify-safe';
+
+import {page, block, title, body, table, code, cut, tabs, bold} from './common';
 import {
     INFO_TAB_NAME,
     SANDBOX_TAB_NAME,
@@ -8,6 +11,7 @@ import {
     QUERY_PARAMETERS_SECTION_NAME,
     REQUEST_SECTION_NAME,
     RESPONSES_SECTION_NAME,
+    PRIMITIVE_JSON6_SCHEMA_TYPES,
 } from '../constants';
 
 import {
@@ -21,7 +25,6 @@ import {
     Server,
     Security,
 } from '../types';
-import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
 import {concatNewLine} from '../../common';
 
@@ -182,12 +185,24 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
     }
 
     const {type = 'schema', schema} = obj;
+    const sectionTitle = title(4)('Body');
+
+    if (isPrimitive(schema.type)) {
+        return block([
+            sectionTitle,
+            type,
+            `${bold('Type:')} ${schema.type}`,
+            Boolean(schema.format) && `${bold('Format:')} ${schema.format}`,
+            Boolean(schema.description) && `${bold('Description:')} ${schema.description}`,
+        ]);
+    }
+
     const {content, tableRefs} = tableFromSchema(allRefs, schema);
     const parsedSchema = prepareSampleObject(schema);
 
     const result = [
         block([
-            title(4)('Body'),
+            sectionTitle,
             cut(code(stringify(parsedSchema, null, 4)), type),
             content,
         ]),
@@ -197,6 +212,10 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
     result.push(...printAllTables(allRefs, pagePrintedRefs, tableRefs));
 
     return block(result);
+}
+
+function isPrimitive(type: JSONSchema6['type']) {
+    return PRIMITIVE_JSON6_SCHEMA_TYPES.has(type);
 }
 
 function printAllTables(allRefs: Refs, pagePrintedRefs: Set<string>, tableRefs: string[]): string[] {
