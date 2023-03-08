@@ -12,7 +12,7 @@ import {JSONSchema6} from 'json-schema';
 
 import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
 
-import {Endpoint, Info, Refs, LeadingPageSpecRenderMode} from './types';
+import {Endpoint, Info, Refs, LeadingPageSpecRenderMode, SandboxPluginParams} from './types';
 
 const name = 'openapi';
 
@@ -31,7 +31,13 @@ class OpenApiIncluderError extends Error {
 }
 
 async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage, sandbox}, index} = params;
+    const {
+        readBasePath,
+        writeBasePath,
+        tocPath,
+        passedParams: {input, leadingPage, sandbox: sandboxPluginParams},
+        index,
+    } = params;
 
     const tocDirPath = dirname(tocPath);
 
@@ -70,7 +76,7 @@ async function includerFunction(params: IncluderFunctionParams) {
     try {
         await mkdir(writePath, {recursive: true});
         await generateToc({data, writePath, leadingPageName});
-        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode, sandbox});
+        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode, sandboxPluginParams});
     } catch (err) {
         if (err instanceof Error) {
             throw new OpenApiIncluderError(err.toString(), tocPath);
@@ -136,13 +142,11 @@ export type generateContentParams = {
     writePath: string;
     allRefs: Refs;
     leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
-    sandbox?: {
-        host?: string;
-    };
+    sandboxPluginParams?: SandboxPluginParams;
 };
 
 async function generateContent(params: generateContentParams): Promise<void> {
-    const {data, writePath, allRefs, leadingPageSpecRenderMode, sandbox} = params;
+    const {data, writePath, allRefs, leadingPageSpecRenderMode, sandboxPluginParams} = params;
 
     const results = [];
 
@@ -166,12 +170,12 @@ async function generateContent(params: generateContentParams): Promise<void> {
         if (!endpoints) { return; }
 
         endpoints.forEach((endpoint) => {
-            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id), sandbox));
+            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id), sandboxPluginParams));
         });
     });
 
     for (const endpoint of spec.endpoints) {
-        results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath), sandbox));
+        results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath), sandboxPluginParams));
     }
 
     for (const {path, content} of results) {
@@ -180,9 +184,14 @@ async function generateContent(params: generateContentParams): Promise<void> {
     }
 }
 
-function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string, sandbox: {host?: string} | undefined) {
+function handleEndpointIncluder(
+    allRefs: Refs,
+    endpoint: Endpoint,
+    pathPrefix: string,
+    sandboxPluginParams?: SandboxPluginParams,
+) {
     const path = join(pathPrefix, mdPath(endpoint));
-    const content = generators.endpoint(allRefs, endpoint, sandbox);
+    const content = generators.endpoint(allRefs, endpoint, sandboxPluginParams);
 
     return {path, content};
 }

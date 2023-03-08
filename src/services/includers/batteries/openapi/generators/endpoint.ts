@@ -20,21 +20,26 @@ import {
     Refs,
     Server,
     Security,
+    SandboxPluginParams,
 } from '../types';
 import stringify from 'json-stringify-safe';
 import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParameterName} from './traverse';
 import {concatNewLine} from '../../common';
 
-function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} | undefined) {
+function endpoint(
+    allRefs: Refs,
+    data: Endpoint,
+    sandboxPluginParams?: SandboxPluginParams,
+) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
 
     const contentWrapper = (content: string) => {
-        return sandboxPlugin ? tabs({
+        return sandboxPluginParams ? tabs({
             [INFO_TAB_NAME]: content,
             [SANDBOX_TAB_NAME]: sandbox({
                 params: data.parameters,
-                host: sandboxPlugin?.host,
+                sandboxPluginParams,
                 path: data.path,
                 security: data.security,
                 requestBody: data.requestBody,
@@ -59,14 +64,14 @@ function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} 
 
 function sandbox({
     params,
-    host,
+    sandboxPluginParams,
     path,
     security,
     requestBody,
     method,
 }: {
     params?: Parameters;
-    host?: string;
+    sandboxPluginParams: SandboxPluginParams;
     path: string;
     security: Security[];
     requestBody?: any;
@@ -88,13 +93,15 @@ function sandbox({
         method,
         security,
         path: path,
-        host: host ?? '',
+        host: sandboxPluginParams.host ?? '',
     });
 
     return block([
+        sandboxPluginParams.header,
         '{% openapi sandbox %}',
         props,
         '{% end openapi sandbox %}',
+        sandboxPluginParams.footer,
     ]);
 }
 

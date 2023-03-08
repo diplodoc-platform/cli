@@ -6,6 +6,12 @@ export const titleDepths = [1, 2, 3, 4, 5, 6] as const;
 
 export type TitleDepth = typeof titleDepths[number];
 
+export type SandboxPluginParams = {
+    host?: string;
+    header?: string;
+    footer?: string;
+};
+
 export type SandboxProps = {
     path: string;
     host?: string;
