@@ -24,6 +24,7 @@ const SPEC_SECTION_TYPE = 'Open API';
 
 const PRIMITIVE_JSON6_SCHEMA_TYPES =
     new Set<JSONSchema6['type']>(['string', 'boolean', 'null', 'number', 'integer']);
+const SUPPORTED_ENUM_TYPES = ['string', 'number'] as const;
 
 export {
     TAG_NAMES_FIELD,
@@ -48,6 +49,7 @@ export {
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
     PRIMITIVE_JSON6_SCHEMA_TYPES,
+    SUPPORTED_ENUM_TYPES,
 };
 
 export default {
@@ -73,4 +75,5 @@ export default {
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
     PRIMITIVE_JSON6_SCHEMA_TYPES,
+    SUPPORTED_ENUM_TYPES,
 };
