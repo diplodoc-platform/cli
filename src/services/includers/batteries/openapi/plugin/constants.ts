@@ -20,3 +20,5 @@ export const Text = {
 };
 
 export const yfmSandbox = block('yfm-sandbox');
+
+export const possibleReasonsFailToFetch = ['CORS', 'Network Failure', 'URL scheme must be "http" or "https" for CORS request.'];

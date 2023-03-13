@@ -11,6 +11,10 @@
         text-align: initial;
     }
 
+    &__card-wrapper {
+        position: relative;
+    }
+
     &__card {
         overflow-x: auto;
     }
@@ -25,5 +29,20 @@
 
     & &__pre {
         margin: 0;
+    }
+
+    & &__possible-reasons {
+        margin-top: 15px;
+    }
+
+    &__clipboard-button {
+        position: absolute;
+        top: 16px;
+        right: 16px;
+        display: none;
+    }
+
+    &__card-wrapper:hover &__clipboard-button {
+        display: block;
     }
 }

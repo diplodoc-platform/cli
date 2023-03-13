@@ -3,6 +3,7 @@ import {JSONSchema6} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
 import {concatNewLine} from '../../common';
+import {openapiBlock} from './constants';
 import {SUPPORTED_ENUM_TYPES} from '../constants';
 
 type TableRow = [string, string, string];
@@ -12,7 +13,7 @@ function anchor(ref: string) {
 }
 
 export function tableParameterName(key: string, required?: boolean) {
-    return required ? `<strong>${key}*</strong>` : key;
+    return required ? `${key}<span class="${openapiBlock('required')}">*</span>` : key;
 }
 
 export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: string; tableRefs: string[]} {
