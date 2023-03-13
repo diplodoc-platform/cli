@@ -20,6 +20,8 @@ const SPEC_RENDER_MODE_HIDDEN = 'hidden';
 const SPEC_SECTION_NAME = 'Specification';
 const SPEC_SECTION_TYPE = 'Open API';
 
+const SUPPORTED_ENUM_TYPES = ['string', 'number'] as const;
+
 export {
     TAG_NAMES_FIELD,
     BLOCK,
@@ -42,6 +44,7 @@ export {
     SPEC_RENDER_MODE_HIDDEN,
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
+    SUPPORTED_ENUM_TYPES,
 };
 
 export default {
@@ -66,4 +69,5 @@ export default {
     SPEC_RENDER_MODE_HIDDEN,
     SPEC_SECTION_NAME,
     SPEC_SECTION_TYPE,
+    SUPPORTED_ENUM_TYPES,
 };
