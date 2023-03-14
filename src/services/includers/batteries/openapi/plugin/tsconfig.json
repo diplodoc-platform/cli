@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "lib": ["DOM", "ES6"],
+    "outDir": ".",
+    "module": "commonjs",
+    "baseUrl": ".",
+    "declaration": true,
+    "isolatedModules": true,
+    "noImplicitAny": true,
+    "target": "ES6",
+    "types": ["node"],
+    "sourceMap": true
+  },
+  "files":["./index.ts"],
+  "exclude": ["../../../../../../node_modules"],
+  "types": ["node"]
+}
