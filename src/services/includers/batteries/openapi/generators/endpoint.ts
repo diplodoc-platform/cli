@@ -29,14 +29,14 @@ import {prepareTableRowData, prepareSampleObject, tableFromSchema, tableParamete
 import {concatNewLine} from '../../common';
 import {openapiBlock} from './constants';
 
-function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string} | undefined) {
+function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string; tabName?: string} | undefined) {
     // try to remember, which tables we are already printed on page
     const pagePrintedRefs = new Set<string>();
 
     const contentWrapper = (content: string) => {
         return sandboxPlugin ? tabs({
             [INFO_TAB_NAME]: content,
-            [SANDBOX_TAB_NAME]: sandbox({
+            [(sandboxPlugin?.tabName ?? SANDBOX_TAB_NAME)]: sandbox({
                 params: data.parameters,
                 host: sandboxPlugin?.host,
                 path: data.path,
