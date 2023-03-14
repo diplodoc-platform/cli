@@ -248,7 +248,7 @@ function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefine
         }
         throw new Error('Unsupported enum type');
     }
-    throw new Error('Unsupported value type');
+    return 'object';
 }
 
 function isSupportedEnumType(enumType: JsType): enumType is SupportedEnumType {
