@@ -1,5 +1,23 @@
 # Changelog
 
+## [2.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.1...v2.5.0) (2023-03-13)
+
+
+### Features
+
+* **includers/openapi:** add ClipboardButton response body ([2607d94](https://github.com/yandex-cloud/yfm-docs/commit/2607d94fd689537675a16f2488ff24a15d791189))
+* **includers/openapi:** add view for primitive body ([#304](https://github.com/yandex-cloud/yfm-docs/issues/304)) ([f7102f0](https://github.com/yandex-cloud/yfm-docs/commit/f7102f0e48d07f01c348695ccada8f8d4498a648))
+
+
+### Bug Fixes
+
+* **includers/openapi:** add allOf property ([647120e](https://github.com/yandex-cloud/yfm-docs/commit/647120e59b5c22612884f3f5e2c4f069b9567ad4))
+* **includers/openapi:** add data-attribute in link ([5933c79](https://github.com/yandex-cloud/yfm-docs/commit/5933c79edbf919bb9f6719f81e5da52c9a8b6053))
+* **includers/openapi:** add default type for enum ([ad4ddae](https://github.com/yandex-cloud/yfm-docs/commit/ad4ddae0bb309a969fa22946da6241bfd90e3662))
+* **includers/openapi:** add possible reasons ([060497a](https://github.com/yandex-cloud/yfm-docs/commit/060497a7244e581be31275333faa2587fc11b1c7))
+* **includers/openapi:** download link ([2820e86](https://github.com/yandex-cloud/yfm-docs/commit/2820e865ed9da0a819d327b051203d05832fdb01))
+* **includers/openapi:** replace strong to red * ([43a1a5b](https://github.com/yandex-cloud/yfm-docs/commit/43a1a5bc785b8f40da2cad6abdff1aac7db4cc19))
+
 ## [2.4.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.0...v2.4.1) (2023-02-13)
 
 
