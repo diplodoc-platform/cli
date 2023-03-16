@@ -2,6 +2,7 @@ import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
 import liquid from '@doc-tools/transform/lib/liquid';
 import {ArgvService} from './index';
+import {replaceSingleToDoubleQuotes} from '../utils';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -148,4 +149,20 @@ export function liquidField(input: string, vars: Record<string, unknown>, path: 
 
 export function isObject(o: unknown): o is object {
     return typeof o === 'object' && o !== null;
+}
+
+export function isEarlier(oldDate?: string, newDate?: string) {
+    if (!newDate) {
+        return false;
+    }
+
+    if (!oldDate) {
+        return true;
+    }
+
+    return new Date(oldDate) > new Date(newDate);
+}
+
+export function parseDataFromJSONString(dataString: string) {
+    return JSON.parse(replaceSingleToDoubleQuotes(dataString));
 }
