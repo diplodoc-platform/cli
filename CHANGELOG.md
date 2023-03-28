@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.6.0...v2.7.0) (2023-03-28)
+
+
+### Features
+
+* **authors:** scrape authors from github ([e5c9ddf](https://github.com/yandex-cloud/yfm-docs/commit/e5c9ddf166103174b4d4fd51a4ed218a86ec15cd))
+
 ## [2.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.5.0...v2.6.0) (2023-03-14)
 
 
