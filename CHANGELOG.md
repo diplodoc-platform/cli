@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.0...v2.7.1) (2023-03-31)
+
+
+### Bug Fixes
+
+* **includers/openapi:** bubble up erroneous values ([bd8f0b4](https://github.com/yandex-cloud/yfm-docs/commit/bd8f0b4cdd61f3e53b00a1d96d9b83862cdabb03))
+
 ## [2.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.6.0...v2.7.0) (2023-03-28)
 
 
