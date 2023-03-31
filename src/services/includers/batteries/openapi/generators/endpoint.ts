@@ -188,28 +188,32 @@ function openapiBody(allRefs: Refs, pagePrintedRefs: Set<string>, obj?: Schema) 
     const {type = 'schema', schema} = obj;
     const sectionTitle = title(4)('Body');
 
+    let result = [
+        sectionTitle,
+    ];
+
     if (isPrimitive(schema.type)) {
-        return block([
-            sectionTitle,
+        result = [
+            ...result,
             type,
             `${bold('Type:')} ${schema.type}`,
-            Boolean(schema.format) && `${bold('Format:')} ${schema.format}`,
-            Boolean(schema.description) && `${bold('Description:')} ${schema.description}`,
-        ]);
+            schema.format && `${bold('Format:')} ${schema.format}`,
+            schema.description && `${bold('Description:')} ${schema.description}`,
+        ];
+
+
+        return block(result);
     }
 
     const {content, tableRefs} = tableFromSchema(allRefs, schema);
     const parsedSchema = prepareSampleObject(schema);
 
-    const result = [
-        block([
-            sectionTitle,
-            cut(code(stringify(parsedSchema, null, 4)), type),
-            content,
-        ]),
+    result = [
+        ...result,
+        cut(code(stringify(parsedSchema, null, 4)), type),
+        content,
     ];
 
-    // print all dependent objects to separate tables recursively
     result.push(...printAllTables(allRefs, pagePrintedRefs, tableRefs));
 
     return block(result);
