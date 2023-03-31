@@ -254,6 +254,15 @@ function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefine
         throw new Error(`Unsupported enum type in value: ${stringify(value)}`);
     }
 
+    if (value.default) {
+        const type = typeof value.default;
+        if (isSupportedEnumType(type)) {
+            return type;
+        }
+    } else if (value === null) {
+        return 'null';
+    }
+
     throw new Error(`Unsupported value: ${stringify(value)}`);
 }
 
