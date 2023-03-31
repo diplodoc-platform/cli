@@ -1,10 +1,13 @@
-import {JsType, Refs, SupportedEnumType} from '../types';
 import {JSONSchema6} from 'json-schema';
 import {table} from './common';
 import slugify from 'slugify';
+import stringify from 'json-stringify-safe';
+
 import {concatNewLine} from '../../common';
 import {openapiBlock} from './constants';
 import {SUPPORTED_ENUM_TYPES} from '../constants';
+
+import {JsType, Refs, SupportedEnumType} from '../types';
 
 type TableRow = [string, string, string];
 
@@ -241,14 +244,17 @@ function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefine
     if (value.type) {
         return value.type;
     }
+
     if (value.enum) {
         const enumType = typeof value.enum[0];
         if (isSupportedEnumType(enumType)) {
             return enumType;
         }
-        throw new Error('Unsupported enum type');
+
+        throw new Error(`Unsupported enum type in value: ${stringify(value)}`);
     }
-    throw new Error('Unsupported value type');
+
+    throw new Error(`Unsupported value: ${stringify(value)}`);
 }
 
 function isSupportedEnumType(enumType: JsType): enumType is SupportedEnumType {
