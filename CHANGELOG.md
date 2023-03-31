@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.6.0...v2.7.0) (2023-03-28)
+
+
+### Features
+
+* **authors:** scrape authors from github ([e5c9ddf](https://github.com/yandex-cloud/yfm-docs/commit/e5c9ddf166103174b4d4fd51a4ed218a86ec15cd))
+
+## [2.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.5.0...v2.6.0) (2023-03-14)
+
+
+### Features
+
+* **includers/openapi:** parameter to set sandbox tab name ([d844e97](https://github.com/yandex-cloud/yfm-docs/commit/d844e97fe062a62e28d95143e8eeec3b4ee9a92f))
+
+
+### Bug Fixes
+
+* **includers/openapi:** add default type "object" ([3972fa0](https://github.com/yandex-cloud/yfm-docs/commit/3972fa056db1b85849f83579ea03336c571b12c9))
+
 ## [2.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.4.1...v2.5.0) (2023-03-13)
 
 

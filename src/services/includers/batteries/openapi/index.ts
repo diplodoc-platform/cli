@@ -137,6 +137,7 @@ export type generateContentParams = {
     allRefs: Refs;
     leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
     sandbox?: {
+        tabName?: string;
         host?: string;
     };
 };
