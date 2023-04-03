@@ -1,4 +1,5 @@
 import {JSONSchema6} from 'json-schema';
+import {LeadingPageMode} from './types';
 
 const EOL = '\n';
 const TAG_NAMES_FIELD = 'x-navtitle';
@@ -21,7 +22,10 @@ const SPEC_RENDER_MODE_DEFAULT = 'inline';
 const SPEC_RENDER_MODE_HIDDEN = 'hidden';
 const SPEC_SECTION_NAME = 'Specification';
 const SPEC_SECTION_TYPE = 'Open API';
+const LEADING_PAGE_NAME_DEFAULT = 'Overview';
 
+const SPEC_RENDER_MODES = new Set<string>([SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN]);
+const LEADING_PAGE_MODES = new Set<string>([LeadingPageMode.Leaf, LeadingPageMode.Section]);
 const PRIMITIVE_JSON6_SCHEMA_TYPES =
     new Set<JSONSchema6['type']>(['string', 'boolean', 'null', 'number', 'integer']);
 const SUPPORTED_ENUM_TYPES = ['string', 'number'] as const;
@@ -50,6 +54,9 @@ export {
     SPEC_SECTION_TYPE,
     PRIMITIVE_JSON6_SCHEMA_TYPES,
     SUPPORTED_ENUM_TYPES,
+    LEADING_PAGE_NAME_DEFAULT,
+    SPEC_RENDER_MODES,
+    LEADING_PAGE_MODES,
 };
 
 export default {
@@ -76,4 +83,7 @@ export default {
     SPEC_SECTION_TYPE,
     PRIMITIVE_JSON6_SCHEMA_TYPES,
     SUPPORTED_ENUM_TYPES,
+    LEADING_PAGE_NAME_DEFAULT,
+    SPEC_RENDER_MODES,
+    LEADING_PAGE_MODES,
 };
