@@ -9,6 +9,16 @@ import {
 
 import {TitleDepth} from '../types';
 
+function meta(content: (string | boolean | undefined)[]) {
+    const entries = content.filter(Boolean);
+
+    if (!entries.length) {
+        return [];
+    }
+
+    return EOL + ['---', ...content.filter(Boolean), '---'].join(EOL) + EOL;
+}
+
 function list(items: string[]) {
     return items.map((item) => `- ${item}`).join(EOL) + EOL;
 }
@@ -78,6 +88,6 @@ function tabs(tabsObj: Record<string, string>) {
     ]);
 }
 
-export {list, link, title, body, mono, bold, table, code, cut, block, page, tabs};
+export {meta, list, link, title, body, mono, bold, table, code, cut, block, page, tabs};
 
-export default {list, link, title, body, mono, bold, table, code, cut, block, tabs};
+export default {meta, list, link, title, body, mono, bold, table, code, cut, block, tabs};

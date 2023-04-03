@@ -83,6 +83,7 @@ export type Endpoint = {
     responses?: Responses;
     requestBody?: Schema;
     security: Security[];
+    noindex?: boolean;
 };
 
 export type Specification = {
@@ -164,13 +165,16 @@ export type LeadingPageParams = {
     };
 };
 
+export type OpenApiFilter = {
+    endpoint?: string;
+    tag?: string;
+};
+
 export type OpenApiIncluderParams = {
     input: string;
     leadingPage?: LeadingPageParams;
-    filter?: {
-        endpoint?: string;
-        tag?: string;
-    };
+    filter?: OpenApiFilter;
+    noindex?: OpenApiFilter;
     sandbox?: {
         tabName?: string;
         host?: string;

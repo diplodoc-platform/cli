@@ -1,7 +1,7 @@
 import {JSONSchema6} from 'json-schema';
 import stringify from 'json-stringify-safe';
 
-import {page, block, title, body, table, code, cut, tabs, bold} from './common';
+import {meta, page, block, title, body, table, code, cut, tabs, bold} from './common';
 import {
     INFO_TAB_NAME,
     SANDBOX_TAB_NAME,
@@ -58,7 +58,14 @@ function endpoint(allRefs: Refs, data: Endpoint, sandboxPlugin: {host?: string; 
         ])),
     ]);
 
-    return block([`<div class="${openapiBlock()}">`, page(endpointPage), '</div>']);
+    return block([
+        meta([
+            data.noindex && 'noIndex: true',
+        ]),
+        `<div class="${openapiBlock()}">`,
+        page(endpointPage),
+        '</div>',
+    ]).trim();
 }
 
 function sandbox({
