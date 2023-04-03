@@ -8,6 +8,7 @@ import {logger} from '../../utils/logger';
 import {generic, sourcedocs, openapi, unarchive} from './batteries';
 
 import type {
+    YfmPreset,
     Includer,
     YfmToc,
     YfmTocInclude,
@@ -58,7 +59,7 @@ function init(custom: Includer[] = []) {
     }
 }
 
-async function applyIncluders(path: string, item: YfmToc) {
+async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
     if (!(item && item.include) || !includeHasIncluders(item.include)) {
         return;
     }
@@ -84,7 +85,7 @@ async function applyIncluders(path: string, item: YfmToc) {
             ...rest,
         };
 
-        await applyIncluder({path, item, includer, passedParams, index});
+        await applyIncluder({path, item, includer, passedParams, index, vars});
     }
 
     // contract to be fullfilled by the includer:
@@ -183,12 +184,13 @@ export type applyIncluderParams = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Record<string, any>;
     index: number;
+    vars: YfmPreset;
 };
 
 async function applyIncluder(args: applyIncluderParams) {
     const {rootInput: readBasePath, input: writeBasePath} = ArgvService.getConfig();
 
-    const {path, item, includer, passedParams, index} = args;
+    const {path, item, includer, passedParams, index, vars} = args;
 
     const params = {
         tocPath: path,
@@ -197,6 +199,7 @@ async function applyIncluder(args: applyIncluderParams) {
         item,
         readBasePath,
         writeBasePath,
+        vars,
     };
 
     return await includer.includerFunction(params);
