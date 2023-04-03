@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.1...v2.7.2) (2023-04-03)
+
+
+### Bug Fixes
+
+* **includers/openapi:** type inferring ([40bb74f](https://github.com/yandex-cloud/yfm-docs/commit/40bb74f679c78fe5e7df5ec85d4d6c7a1b0ec8b0))
+
 ## [2.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.0...v2.7.1) (2023-03-31)
 
 
