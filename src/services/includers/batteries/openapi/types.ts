@@ -150,3 +150,18 @@ export type LeadingPageSpecRenderMode = typeof SPEC_RENDER_MODE_DEFAULT | typeof
 export type JsType = 'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'undefined' | 'object' | 'function';
 
 export type SupportedEnumType = typeof SUPPORTED_ENUM_TYPES[number];
+
+export type LeadingPageParams = {
+    name?: string;
+    spec?: {
+        renderMode: LeadingPageSpecRenderMode;
+    };
+};
+
+export type OpenApiIncluderParams = {
+    input: string;
+    leadingPage?: LeadingPageParams;
+    sandbox?: {
+        host?: string;
+    };
+};

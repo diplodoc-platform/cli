@@ -1,3 +1,4 @@
+import assert from 'assert';
 import {resolve, join, dirname} from 'path';
 import {mkdir, writeFile} from 'fs/promises';
 
@@ -12,12 +13,9 @@ import {JSONSchema6} from 'json-schema';
 
 import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
 
-import {Endpoint, Info, Refs, LeadingPageSpecRenderMode} from './types';
+import {Endpoint, Info, Refs, OpenApiIncluderParams} from './types';
 
 const name = 'openapi';
-
-const specRenderModeErr = `invalid spec display mode, available render modes:\
-${SPEC_RENDER_MODE_DEFAULT}, ${SPEC_RENDER_MODE_HIDDEN}`;
 
 class OpenApiIncluderError extends Error {
     path: string;
@@ -30,21 +28,14 @@ class OpenApiIncluderError extends Error {
     }
 }
 
-async function includerFunction(params: IncluderFunctionParams) {
-    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage, sandbox}, index} = params;
+async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderParams>) {
+    const {readBasePath, writeBasePath, tocPath, passedParams: {input, leadingPage = {}, sandbox}, index} = params;
 
     const tocDirPath = dirname(tocPath);
 
     const contentPath = index === 0
         ? resolve(process.cwd(), writeBasePath, input)
         : resolve(process.cwd(), readBasePath, input);
-
-    const leadingPageName = leadingPage?.name ?? 'Overview';
-
-    const leadingPageSpecRenderMode = leadingPage?.spec?.renderMode ?? SPEC_RENDER_MODE_DEFAULT;
-    if (!isSpecRenderModeValid(leadingPageSpecRenderMode)) {
-        throw new OpenApiIncluderError(specRenderModeErr, tocPath);
-    }
 
     let data;
 
@@ -69,27 +60,36 @@ async function includerFunction(params: IncluderFunctionParams) {
 
     try {
         await mkdir(writePath, {recursive: true});
-        await generateToc({data, writePath, leadingPageName});
-        await generateContent({data, allRefs, writePath, leadingPageSpecRenderMode, sandbox});
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new OpenApiIncluderError(err.toString(), tocPath);
+        await generateToc({data, writePath, leadingPage});
+        await generateContent({data, allRefs, writePath, leadingPage, sandbox});
+    } catch (error) {
+        if (error && !(error instanceof OpenApiIncluderError)) {
+            // eslint-disable-next-line no-ex-assign
+            error = new OpenApiIncluderError(error.toString(), tocPath);
         }
+
+        throw error;
     }
 }
 
-function isSpecRenderModeValid(mode: string) {
-    return mode === SPEC_RENDER_MODE_DEFAULT || mode === SPEC_RENDER_MODE_HIDDEN;
+// TODO: revrite on schema validation
+function assertSpecRenderMode(mode: string) {
+    const options: string[] = [SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN];
+    const isValid = options.includes(mode);
+
+    assert(isValid, `invalid spec display mode ${mode}, available options:${options.join(', ')}`);
 }
 
 export type generateTocParams = {
     data: any;
     writePath: string;
+    leadingPage: OpenApiIncluderParams['leadingPage'];
     leadingPageName: string;
 };
 
 async function generateToc(params: generateTocParams): Promise<any> {
-    const {data, writePath, leadingPageName} = params;
+    const {data, writePath, leadingPage} = params;
+    const leadingPageName = leadingPage?.name ?? 'Overview';
 
     const toc = {
         name,
@@ -135,7 +135,7 @@ export type generateContentParams = {
     data: any;
     writePath: string;
     allRefs: Refs;
-    leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
+    leadingPage: OpenApiIncluderParams['leadingPage'];
     sandbox?: {
         tabName?: string;
         host?: string;
@@ -143,7 +143,10 @@ export type generateContentParams = {
 };
 
 async function generateContent(params: generateContentParams): Promise<void> {
-    const {data, writePath, allRefs, leadingPageSpecRenderMode, sandbox} = params;
+    const {data, writePath, allRefs, leadingPage, sandbox} = params;
+
+    const leadingPageSpecRenderMode = leadingPage?.spec?.renderMode ?? SPEC_RENDER_MODE_DEFAULT;
+    assertSpecRenderMode(leadingPageSpecRenderMode);
 
     const results = [];
 
