@@ -105,7 +105,7 @@ export type Includer = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IncluderFunction = (args: IncluderFunctionParams) => Promise<any>;
 
-export type IncluderFunctionParams = {
+export type IncluderFunctionParams<Params extends Record<string, unknown> = Record<string, unknown>> = {
     // item that contains include that uses includer
     item: YfmToc;
     // base read directory path
@@ -116,7 +116,7 @@ export type IncluderFunctionParams = {
     tocPath: string;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    passedParams: Record<string, any>;
+    passedParams: Params;
     index: number;
 };
 
