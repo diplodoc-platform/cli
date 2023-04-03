@@ -122,6 +122,7 @@ export type IncluderFunctionParams<Params extends Record<string, unknown> = Reco
     writeBasePath: string;
     // toc with includer path
     tocPath: string;
+    vars: YfmPreset;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     passedParams: Params;

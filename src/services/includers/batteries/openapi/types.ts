@@ -167,7 +167,12 @@ export type LeadingPageParams = {
 export type OpenApiIncluderParams = {
     input: string;
     leadingPage?: LeadingPageParams;
+    filter?: {
+        endpoint?: string;
+        tag?: string;
+    };
     sandbox?: {
+        tabName?: string;
         host?: string;
     };
 };
