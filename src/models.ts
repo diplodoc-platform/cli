@@ -73,6 +73,14 @@ export interface YfmToc extends Filter {
     singlePage?: boolean;
 }
 
+export interface YfmTocItem extends Filter {
+    name: string;
+    href?: string;
+    items?: YfmTocItem[];
+    include?: YfmTocInclude;
+    id?: string;
+}
+
 export interface YfmTocInclude {
     repo: string;
     path: string;

@@ -7,13 +7,13 @@ import {dump} from 'js-yaml';
 import parsers from './parsers';
 import generators from './generators';
 
-import {IncluderFunctionParams, YfmToc} from '../../../../models';
+import {IncluderFunctionParams, YfmToc, YfmTocItem} from '../../../../models';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import {JSONSchema6} from 'json-schema';
 
 import {SPEC_RENDER_MODE_DEFAULT, SPEC_RENDER_MODE_HIDDEN} from './constants';
 
-import {Endpoint, Info, Refs, OpenApiIncluderParams} from './types';
+import {Endpoint, Info, Refs, LeadingPageMode, OpenApiIncluderParams} from './types';
 
 const name = 'openapi';
 
@@ -80,6 +80,13 @@ function assertSpecRenderMode(mode: string) {
     assert(isValid, `invalid spec display mode ${mode}, available options:${options.join(', ')}`);
 }
 
+function assertLeadingPageMode(mode: string) {
+    const options: string[] = [LeadingPageMode.Leaf, LeadingPageMode.Section];
+    const isValid = options.includes(mode);
+
+    assert(isValid, `invalid leading page mode ${mode}, available options: ${options.join(', ')}`);
+}
+
 export type generateTocParams = {
     data: any;
     writePath: string;
@@ -90,6 +97,9 @@ export type generateTocParams = {
 async function generateToc(params: generateTocParams): Promise<any> {
     const {data, writePath, leadingPage} = params;
     const leadingPageName = leadingPage?.name ?? 'Overview';
+    const leadingPageMode = leadingPage?.mode ?? LeadingPageMode.Leaf;
+
+    assertLeadingPageMode(leadingPageMode);
 
     const toc = {
         name,
@@ -120,6 +130,8 @@ async function generateToc(params: generateTocParams): Promise<any> {
             section.items.push(handleEndpointRender(endpoint, id));
         });
 
+        addLeadingPage(section, leadingPageMode, leadingPageName, join(id, 'index.md'));
+
         toc.items.push(section);
     });
 
@@ -127,8 +139,22 @@ async function generateToc(params: generateTocParams): Promise<any> {
         toc.items.push(handleEndpointRender(endpoint));
     }
 
+    addLeadingPage(toc, leadingPageMode, leadingPageName, 'index.md');
+
     await mkdir(dirname(writePath), {recursive: true});
     await writeFile(join(writePath, 'toc.yaml'), dump(toc));
+}
+
+// eslint-disable-next-line no-shadow
+function addLeadingPage(section: YfmTocItem, mode: LeadingPageMode, name: string, href: string) {
+    if (mode === LeadingPageMode.Leaf) {
+        (section.items as YfmTocItem[]).unshift({
+            name: name,
+            href: href,
+        });
+    } else {
+        section.href = href;
+    }
 }
 
 export type generateContentParams = {
