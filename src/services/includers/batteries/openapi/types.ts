@@ -151,8 +151,14 @@ export type JsType = 'string' | 'number' | 'bigint' | 'boolean' | 'symbol' | 'un
 
 export type SupportedEnumType = typeof SUPPORTED_ENUM_TYPES[number];
 
+export enum LeadingPageMode {
+    Section = 'section',
+    Leaf = 'leaf',
+}
+
 export type LeadingPageParams = {
     name?: string;
+    mode?: LeadingPageMode;
     spec?: {
         renderMode: LeadingPageSpecRenderMode;
     };
