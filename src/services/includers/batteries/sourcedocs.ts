@@ -15,7 +15,14 @@ const usage = `include:
         name: <leading-page-name>
 `;
 
-async function includerFunction(params: IncluderFunctionParams) {
+type Params = {
+    input: string;
+    leadingPage: {
+        name?: string;
+    };
+};
+
+async function includerFunction(params: IncluderFunctionParams<Params>) {
     logger.warn(params.tocPath, `sourcedocs inlcuder is getting depricated in favor of generic includer\n${usage}`);
 
     await generic.includerFunction(params);

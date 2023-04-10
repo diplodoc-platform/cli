@@ -67,7 +67,12 @@ function pipeline(readPath: string, writeBasePath: string): Promise<void> {
     });
 }
 
-async function includerFunction(params: IncluderFunctionParams) {
+type Params = {
+    input: string;
+    output: string;
+};
+
+async function includerFunction(params: IncluderFunctionParams<Params>) {
     const {readBasePath, writeBasePath, tocPath, passedParams: {input, output}, index} = params;
 
     if (!input?.length || !output?.length) {
