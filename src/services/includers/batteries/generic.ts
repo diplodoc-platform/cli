@@ -23,7 +23,14 @@ const name = 'generic';
 
 const MD_GLOB = '**/*.md';
 
-async function includerFunction(params: IncluderFunctionParams) {
+type Params = {
+    input: string;
+    leadingPage: {
+        name?: string;
+    };
+};
+
+async function includerFunction(params: IncluderFunctionParams<Params>) {
     const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}, index} = params;
 
     if (!input?.length || !item.include?.path) {
