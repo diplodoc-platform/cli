@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.2...v2.8.0) (2023-04-10)
+
+
+### Features
+
+* **openapi:** Add leading page disposition configuration ([a3477b4](https://github.com/yandex-cloud/yfm-docs/commit/a3477b4c8e8741104a6ef869fd08fe836a05dd7b))
+* **openapi:** Add noindex feature ([4b8fb6b](https://github.com/yandex-cloud/yfm-docs/commit/4b8fb6b9bfce82aaeae74bbd2219a4c5b703ecd8))
+* **openapi:** Add toc filtering feature ([4af7a80](https://github.com/yandex-cloud/yfm-docs/commit/4af7a80e26e8d8f61c56e77d57b516965eeaff82))
+
 ## [2.7.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.1...v2.7.2) (2023-04-03)
 
 
