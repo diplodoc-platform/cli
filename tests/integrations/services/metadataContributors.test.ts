@@ -1,4 +1,3 @@
-import os from 'os';
 import {readFileSync} from 'fs';
 import {normalize} from 'path';
 import {metadataBorder} from '../../../src/constants';
@@ -86,8 +85,6 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                 [contributorFirst.email]: contributorFirst,
                 [contributorSecond.email]: contributorSecond,
             };
-            const expectedAuthorString: string = replaceDoubleToSingleQuotes(
-                JSON.stringify(contributorFirst));
             const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
             const expectedContributorsString: string =
                 replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
@@ -102,7 +99,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
             const splitedFiledContent = fileContent.split(metadataBorder);
             splitedFiledContent[1] =
-                `${splitedFiledContent[1]}${os.EOL}author: ${expectedAuthorString}${os.EOL}contributors: ${expectedContributorsString}${сarriage}`;
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
             const expectedFileContent = splitedFiledContent.join(metadataBorder);
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -119,8 +116,6 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             const expectedContributors: Contributors = {
                 [contributorFirst.email]: contributorFirst,
             };
-            const expectedAuthorString: string = replaceDoubleToSingleQuotes(
-                JSON.stringify(contributorFirst));
             const expectedContributorsArray: Contributor[] = Object.values(expectedContributors);
             const expectedContributorsString: string =
                 replaceDoubleToSingleQuotes(JSON.stringify(expectedContributorsArray));
@@ -135,7 +130,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
             const splitedFiledContent = fileContent.split(metadataBorder);
             splitedFiledContent[1] =
-                `${splitedFiledContent[1]}${os.EOL}author: ${expectedAuthorString}${os.EOL}contributors: ${expectedContributorsString}${сarriage}`;
+                `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
             const expectedFileContent = splitedFiledContent.join(metadataBorder);
             expect(updatedFileContent).toEqual(expectedFileContent);
         });
@@ -200,8 +195,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                 `and includes files and ${item.title}`, async () => {
                 const expectedContributorsString: string = replaceDoubleToSingleQuotes(
                     JSON.stringify(item.expectedContributorsArray));
-                const expectedAuthorString: string = replaceDoubleToSingleQuotes(
-                    JSON.stringify(contributorFirst));
+
                 metaDataOptions.vcsConnector.getContributorsByPath = (path: string) => Promise.resolve({
                     contributors: getFileContributors(path),
                     hasIncludes: item.getHasIncludes(path),
@@ -213,7 +207,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
 
                 const splitedFiledContent = fileContent.split(metadataBorder);
                 splitedFiledContent[1] =
-                    `${splitedFiledContent[1]}${os.EOL}author: ${expectedAuthorString}${os.EOL}contributors: ${expectedContributorsString}${сarriage}`;
+                    `${splitedFiledContent[1]}contributors: ${expectedContributorsString}${сarriage}`;
                 const expectedFileContent = splitedFiledContent.join(metadataBorder);
                 expect(updatedFileContent).toEqual(expectedFileContent);
             });

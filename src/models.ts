@@ -171,8 +171,6 @@ export interface Contributor {
     login: string;
     name: string;
     url: string;
-    date?: string;
-    hash?: string;
 }
 
 export interface Contributors {

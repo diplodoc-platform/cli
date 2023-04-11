@@ -95,11 +95,7 @@ async function getContentWithUpdatedDynamicMetadata(
         const [, fileMetadata, , fileMainContent] = matches;
         let updatedDefaultMetadata = '';
 
-        updatedDefaultMetadata = await updateAuthorMetadataString(
-            fileMetadata,
-            options.vcsConnector,
-            newMetadatas,
-        );
+        updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
 
         return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
     }
