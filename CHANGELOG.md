@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.0...v2.8.1) (2023-04-12)
+
+
+### Bug Fixes
+
+* **authors:** Revert "feat(authors): scrape authors from github" ([7c807ce](https://github.com/yandex-cloud/yfm-docs/commit/7c807ce21e8ea98107f2ff6bdc2cc698b2fa986b))
+
 ## [2.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.7.2...v2.8.0) (2023-04-10)
 
 
