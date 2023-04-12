@@ -51,7 +51,6 @@ export interface GithubCommitDTO {
         author: {
             name: string;
             email: string;
-            date: string;
         };
     };
     author: {

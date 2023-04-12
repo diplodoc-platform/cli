@@ -17,7 +17,6 @@ import {
 } from '../constants';
 import {addSlashPrefix, execAsync, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
-import {isEarlier} from '../services/utils';
 
 const contributorsByPath: Map<string, FileContributors> = new Map();
 const contributorsData: Map<string, Contributor | null> = new Map();
@@ -147,7 +146,6 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
         login,
         name: commit.author.name,
         url,
-        date: commit.author.date,
     };
 }
 
@@ -190,36 +188,18 @@ function addContributorForPath(paths: string[], newContributor: Contributors, ha
                 contributors: newContributor,
                 hasIncludes,
             });
-
             return;
         }
 
         const oldContributors = contributorsByPath.get(normalizePath);
-        const newContributorKey = Object.keys(newContributor)?.[0];
 
-        if (newContributorKey) {
-            const contributors = {
+        contributorsByPath.set(normalizePath, {
+            contributors: {
                 ...oldContributors?.contributors,
                 ...newContributor,
-            };
-
-            if (!oldContributors?.contributors?.[newContributorKey]) {
-                contributorsByPath.set(normalizePath, {
-                    contributors,
-                    hasIncludes,
-                });
-            } else if (
-                isEarlier(
-                newContributor[newContributorKey]?.date,
-                oldContributors?.contributors[newContributorKey]?.date,
-                )
-            ) {
-                contributorsByPath.set(normalizePath, {
-                    contributors,
-                    hasIncludes,
-                });
-            }
-        }
+            },
+            hasIncludes,
+        });
     });
 }
 

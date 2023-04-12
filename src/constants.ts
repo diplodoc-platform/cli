@@ -110,7 +110,6 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 // Include example: author: authorLogin
 // Regexp result: authorLogin
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
-export const REGEXP_CONTRIBUTORS = /(?<=contributors:\s).+(?=\r?\n)*?/g;
 
 export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
 export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || (os.cpus().length - 1);

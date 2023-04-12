@@ -117,7 +117,3 @@ export function joinSinglePageResults(singlePageResults: SinglePageResult[], roo
 export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, '\'');
 }
-
-export function replaceSingleToDoubleQuotes(str: string): string {
-    return str.replace(/'/g, '"');
-}

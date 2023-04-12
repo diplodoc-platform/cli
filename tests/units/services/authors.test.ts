@@ -99,10 +99,7 @@ describe('updateAuthorMetadataString', () => {
         test('when "defaultMetadata" is empty', async () => {
             const expectedMetadata = '';
 
-            const authorDetails = await updateAuthorMetadataString(
-                expectedMetadata, 
-                defaultVCSConnector,
-            );
+            const authorDetails = await updateAuthorMetadataString(expectedMetadata, defaultVCSConnector);
 
             expect(authorDetails).toEqual(expectedMetadata);
         });
@@ -114,10 +111,7 @@ describe('updateAuthorMetadataString', () => {
 
             defaultVCSConnector.getUserByLogin = () => Promise.resolve(null);
 
-            const updatedMetadata = await updateAuthorMetadataString(
-                expectedMetadata, 
-                defaultVCSConnector,
-            );
+            const updatedMetadata = await updateAuthorMetadataString(expectedMetadata, defaultVCSConnector);
 
             expect(updatedMetadata).toEqual(expectedMetadata);
         });
@@ -131,10 +125,7 @@ describe('updateAuthorMetadataString', () => {
             const authorDetails = units.replaceDoubleToSingleQuotes(JSON.stringify(author));
             defaultVCSConnector.getUserByLogin = () => Promise.resolve(author);
 
-            const updatedMetadata = await updateAuthorMetadataString(
-                defaultMetadata, 
-                defaultVCSConnector,
-            );
+            const updatedMetadata = await updateAuthorMetadataString(defaultMetadata, defaultVCSConnector);
 
             const matchAuthor = defaultMetadata.match(REGEXP_AUTHOR);
             const expectedMetadata = defaultMetadata.replace(matchAuthor[0], authorDetails);
