@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.1...v2.8.2) (2023-04-14)
+
+
+### Bug Fixes
+
+* update @doc-tools/components & @gravity-ui/uikit ([4c70cc3](https://github.com/yandex-cloud/yfm-docs/commit/4c70cc3560b7132d0df5c5163407808eae497528))
+
 ## [2.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.0...v2.8.1) (2023-04-12)
 
 
