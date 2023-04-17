@@ -54,19 +54,23 @@ function prepareObjectSchemaTable(refs: Refs, schema: JSONSchema6): PrepareObjec
         const value = merge(v, refs);
         const name = tableParameterName(key, isRequired(key, schema));
         const {type, description, ref} = prepareTableRowData(refs, value, key);
+
         result.rows.push([name, type, description]);
+
         if (ref) {
             result.refs.push(ref);
         }
 
-        if (value.oneOf?.length) {
-            for (const element of value.oneOf) {
-                const mergedInner = merge(element);
-                const {ref: innerRef} = prepareTableRowData(refs, mergedInner);
+        if (!value.oneOf?.length) {
+            return;
+        }
 
-                if (innerRef) {
-                    result.refs.push(innerRef);
-                }
+        for (const element of value.oneOf) {
+            const mergedInner = merge(element);
+            const {ref: innerRef} = prepareTableRowData(refs, mergedInner);
+
+            if (innerRef) {
+                result.refs.push(innerRef);
             }
         }
     });
@@ -237,7 +241,22 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
 
         return {...value, items: merge(result)};
     }
-    if (value.oneOf && value.oneOf.length) {
+
+    if (value.oneOf?.length && value.allOf?.length) {
+        throw Error('Object can\'t have both allOf and oneOf');
+    }
+
+    const combiners = value.oneOf || value.allOf || [];
+
+    if (combiners.length === 0) {
+        return value;
+    }
+    if (combiners.length === 1) {
+        // save original object to search it in Refs by ===
+        return merge(combiners[0]);
+    }
+
+    if (value.oneOf?.length) {
         const description = (value.oneOf
             // coz ts 3.9 can't recognize (OpenJSONSchema | false)[].filter(Boolean) as OpenJSONSchema[]
             .filter(Boolean) as OpenJSONSchema[])
@@ -251,16 +270,11 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
         return {...value, description};
 
     }
-    if (!value.allOf || value.allOf.length === 0) {
-        return value;
-    }
-    if (value.allOf.length === 1) {
-        // save original object to search it in Refs by ===
-        return merge(value.allOf[0]);
-    }
+
     let description = '';
-    const properties: { [key: string]: any } = {};
-    for (const element of value.allOf) {
+    const properties: Record<string, any> = {};
+
+    for (const element of value.allOf || []) {
         if (typeof element === 'boolean') {
             throw Error('Boolean in allOf isn\'t supported');
         }
