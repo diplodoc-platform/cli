@@ -238,20 +238,15 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
         return {...value, items: merge(result)};
     }
     if (value.oneOf && value.oneOf.length) {
-        const description = value.oneOf.reduce((acc, curr, idx) => {
-            if (typeof curr === 'boolean') {
-                return acc;
-            }
-
-            const ref = allRefs && findRef(allRefs, curr);
-            const content = ref ? anchor(ref) : curr.description;
-
-            if (!content) {
-                return acc;
-            }
-
-            return concatNewLine(acc, (idx ? 'or ' : '') + content);
-        }, '');
+        const description = (value.oneOf
+            // coz ts 3.9 can't recognize (OpenJSONSchema | false)[].filter(Boolean) as OpenJSONSchema[]
+            .filter(Boolean) as OpenJSONSchema[])
+            .map((item) => {
+                const ref = allRefs && findRef(allRefs, item);
+                return ref ? anchor(ref) : item.description;
+            })
+            .filter(Boolean)
+            .join('\nor ');
 
         return {...value, description};
 
