@@ -1,5 +1,5 @@
 import {JSONSchema6} from 'json-schema';
-import {table} from './common';
+import {table, link} from './common';
 import slugify from 'slugify';
 import stringify from 'json-stringify-safe';
 
@@ -12,14 +12,19 @@ import {JsType, Refs, SupportedEnumType} from '../types';
 type TableRow = [string, string, string];
 
 function anchor(ref: string) {
-    return `<a href='#${slugify(ref).toLowerCase()}'>${ref}</a>`;
+    return link(ref, `#${slugify(ref).toLowerCase()}`);
 }
 
 export function tableParameterName(key: string, required?: boolean) {
     return required ? `${key}<span class="${openapiBlock('required')}">*</span>` : key;
 }
 
-export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): {content: string; tableRefs: string[]} {
+type TableFromSchemaResult = {
+    content: string;
+    tableRefs: string[];
+};
+
+export function tableFromSchema(allRefs: Refs, schema: JSONSchema6): TableFromSchemaResult {
     if (schema.enum) {
         // enum description will be in table description
         const description = prepareComplexDescription('', schema);
@@ -46,12 +51,23 @@ function prepareObjectSchemaTable(refs: Refs, schema: JSONSchema6): PrepareObjec
     const result: PrepareObjectSchemaTableResult = {rows: [], refs: []};
     const merged = merge(schema);
     Object.entries(merged.properties || {}).forEach(([key, v]) => {
-        const value = merge(v);
+        const value = merge(v, refs);
         const name = tableParameterName(key, isRequired(key, schema));
         const {type, description, ref} = prepareTableRowData(refs, value, key);
         result.rows.push([name, type, description]);
         if (ref) {
             result.refs.push(ref);
+        }
+
+        if (value.oneOf?.length) {
+            for (const element of value.oneOf) {
+                const mergedInner = merge(element);
+                const {ref: innerRef} = prepareTableRowData(refs, mergedInner);
+
+                if (innerRef) {
+                    result.refs.push(innerRef);
+                }
+            }
         }
     });
     return result;
@@ -107,6 +123,9 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
         if (v.allOf && v.allOf === value.allOf) {
             return k;
         }
+        if (v.oneOf && v.oneOf === value.oneOf) {
+            return k;
+        }
         if (v.enum && v.enum === value.enum) {
             return k;
         }
@@ -133,7 +152,11 @@ export function prepareSampleObject(schema: OpenJSONSchema, callstack: JSONSchem
     return result;
 }
 
-function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required: boolean, callstack: JSONSchema6[]): any {
+function prepareSampleElement(
+    key: string,
+    v: OpenJSONSchemaDefinition,
+    required: boolean, callstack: JSONSchema6[],
+): any {
     const value = merge(v);
     if (value.example) {
         return value.example;
@@ -193,7 +216,7 @@ function prepareSampleElement(key: string, v: OpenJSONSchemaDefinition, required
 //       - $ref: '#/components/schemas/TimeInterval1'
 //   description: asfsdfsdf
 //   type: object
-function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
+function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema {
     if (typeof value === 'boolean') {
         throw Error('Boolean value isn\'t supported');
     }
@@ -203,6 +226,7 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
             throw Error('Boolean in additionalProperties isn\'t supported');
         }
         result.description = value.description;
+
         return merge(result);
     }
     if (value.items) {
@@ -210,7 +234,27 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
         if (Array.isArray(result)) {
             throw Error('Array in items isn\'t supported');
         }
+
         return {...value, items: merge(result)};
+    }
+    if (value.oneOf && value.oneOf.length) {
+        const description = value.oneOf.reduce((acc, curr, idx) => {
+            if (typeof curr === 'boolean') {
+                return acc;
+            }
+
+            const ref = allRefs && findRef(allRefs, curr);
+            const content = ref ? anchor(ref) : curr.description;
+
+            if (!content) {
+                return acc;
+            }
+
+            return concatNewLine(acc, (idx ? 'or ' : '') + content);
+        }, '');
+
+        return {...value, description};
+
     }
     if (!value.allOf || value.allOf.length === 0) {
         return value;
@@ -233,7 +277,8 @@ function merge(value: OpenJSONSchemaDefinition): OpenJSONSchema {
             properties[k] = v;
         }
     }
-    return {type: 'object', description, properties, allOf: value.allOf};
+
+    return {type: 'object', description, properties, allOf: value.allOf, oneOf: value.oneOf};
 }
 
 function isRequired(key: string, value: JSONSchema6): boolean {
