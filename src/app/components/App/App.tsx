@@ -1,19 +1,20 @@
-import React, {ReactElement, useState, useEffect, useCallback} from 'react';
+import React, {ReactElement, useCallback, useEffect, useState} from 'react';
 
 import {
     DocLeadingPage,
+    DocLeadingPageData,
     DocPage,
     DocPageData,
-    DocLeadingPageData,
     Lang,
     Router,
-    Theme,
     TextSizes,
+    Theme,
 } from '@doc-tools/components';
-import {getDocSettings, withSavingSetting, updateRootClassName} from '../../utils';
+import {getDocSettings, updateRootClassName, withSavingSetting} from '../../utils';
 
 import '../../interceptors/leading-page-links';
 
+import {useMermaid} from '@diplodoc/mermaid-extension/hooks';
 import {Runtime as OpenapiSandbox} from '../../../services/includers/batteries/openapi/plugin/public';
 import '../../../services/includers/batteries/openapi/generators/style.scss';
 
@@ -77,6 +78,13 @@ export function App(props: DocInnerProps): ReactElement {
     useEffect(() => {
         updateRootClassName(theme, isMobileView);
     }, [theme, isMobileView]);
+
+    const renderMermaid = useMermaid();
+    useEffect(() => {
+        renderMermaid({
+            theme: theme === Theme.Dark ? 'dark' : 'neutral',
+        });
+    }, [theme, renderMermaid]);
 
     return (
         // TODO(vladimirfedin): Replace Layout__content class.

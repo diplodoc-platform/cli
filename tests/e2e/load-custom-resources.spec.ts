@@ -13,6 +13,8 @@ const geretateMapTestTemplate = (testTitle, testRootPath, {md2md = true, md2html
             .replace(/\/r\/n|\/r|\/n/gm, '')
             .replace(/\r\n|\r|\n/gm, '')
             .replace(/\/|\\/gm, '')
+            .replace(/\s+/gm, ' ')
+            .trim()
 
         const compareResult = compareDirectories(expectedOutputPath, outputPath, unifyData)
 
