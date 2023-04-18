@@ -1,6 +1,7 @@
 import log from '@doc-tools/transform/lib/log';
 import {extname} from 'path';
 import {Observable, Subject} from 'threads/observable';
+import {expose} from 'threads';
 
 import {ArgvService, PluginService, PresetService, TocService} from '../../services';
 import {TocServiceData} from '../../services/tocs';
@@ -48,11 +49,14 @@ function getProcessedPages() {
     return Observable.from(processedPages);
 }
 
+export type ProcessLinterWorker = {
+    run: typeof run;
+    finish: typeof finish;
+    getProcessedPages: typeof getProcessedPages;
+};
 
-export const processLinterWorker = {
+expose({
     run,
     finish,
     getProcessedPages,
-};
-
-export type ProcessLinterWorker = typeof processLinterWorker;
+});

@@ -3,7 +3,7 @@ import {spawn, Worker, Thread} from 'threads';
 import {extname} from 'path';
 
 import {ArgvService, TocService, PresetService, PluginService} from '../services';
-import {ProcessLinterWorker} from '../workers/processLinter';
+import {ProcessLinterWorker} from '../workers/linter';
 import {logger} from '../utils';
 import {LINTING_FINISHED, WORKERS_COUNT, MIN_CHUNK_SIZE} from '../constants';
 import {lintPage} from '../resolvers';
@@ -76,7 +76,8 @@ export async function initLinterWorkers() {
     const workersCount = navigationPathsChunks.length;
 
     processLinterWorkers = await Promise.all((new Array(workersCount)).fill(null).map(() => {
-        return spawn<ProcessLinterWorker>(new Worker('../workers/processLinter/worker'), {timeout: 60000});
+        // TODO: get linter path from env
+        return spawn<ProcessLinterWorker>(new Worker('./linter'), {timeout: 60000});
     }));
 }
 

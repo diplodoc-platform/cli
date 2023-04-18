@@ -1,41 +1,8 @@
-const webpack = require('webpack');
 const {resolve} = require('path');
-const ThreadsPlugin = require('threads-plugin');
-const dotenv = require('dotenv');
-
-dotenv.config();
-
-const {NODE_ENV} = process.env;
-
-const devExcludeConditions = [
-    (req) => !/^\./.test(req),
-    (req) => !req.includes('threads-plugin'),
-];
-
-const prodExcludeConditions = [
-    (req) => req.includes('@yandex-cloud/nodejs-sdk'),
-];
-
-const excludeConditions = NODE_ENV === 'development'
-    ? devExcludeConditions
-    : prodExcludeConditions;
-
-const filterBy = (predicates) =>
-    (req) => predicates.every((predicate) => predicate(req));
-
-const shouldExcludeDependency = filterBy(excludeConditions);
-
-function processDependencies(context, request, callback) {
-    if (shouldExcludeDependency(request)) {
-        return callback(null, 'commonjs ' + request);
-    }
-
-    return callback();
-}
 
 module.exports = [
     {
-        mode: 'production',
+        mode: 'development',
         target: 'web',
         entry: './src/app/index.tsx',
         output: {
@@ -43,6 +10,9 @@ module.exports = [
             filename: 'app.js',
         },
         resolve: {
+            alias: {
+                react: require.resolve('react'),
+            },
             extensions: ['.tsx', '.ts', '.js', '.scss'],
         },
         module: {
@@ -50,7 +20,10 @@ module.exports = [
                 {
                     test: /\.[tj]sx?$/,
                     use: ['babel-loader'],
-                    exclude: /node_modules/,
+                    include: [
+                        resolve(__dirname, 'src'),
+                        require.resolve('@diplodoc/mermaid-extension'),
+                    ],
                 }, {
                     test: /\.s?css$/,
                     use: [
@@ -89,33 +62,5 @@ module.exports = [
                 },
             ],
         },
-    },
-    {
-        mode: 'production',
-        target: 'node',
-        entry: './src/index.ts',
-        devtool: 'eval-source-map',
-        resolve: {
-            extensions: ['.tsx', '.ts', '.js'],
-        },
-        output: {
-            path: resolve(__dirname, 'build'),
-            filename: 'index.js',
-        },
-        module: {
-            rules: [{
-                test: /\.[tj]sx?$/,
-                use: ['babel-loader'],
-                exclude: /node_modules/,
-            }],
-        },
-        plugins: [
-            new webpack.BannerPlugin({banner: '#!/usr/bin/env node', raw: true}),
-            new webpack.DefinePlugin({
-                VERSION: JSON.stringify(require('./package.json').version),
-            }),
-            new ThreadsPlugin(),
-        ],
-        externals: [processDependencies],
     },
 ];
