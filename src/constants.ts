@@ -16,6 +16,7 @@ const images = require('@doc-tools/transform/lib/plugins/images');
 const monospace = require('@doc-tools/transform/lib/plugins/monospace');
 const table = require('@doc-tools/transform/lib/plugins/table');
 const term = require('@doc-tools/transform/lib/plugins/term');
+const mermaid = require('@diplodoc/mermaid-extension');
 
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
@@ -84,6 +85,7 @@ export const YFM_PLUGINS = [
     table,
     term,
     openapiSandbox,
+    mermaid.transform(),
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';

@@ -23,6 +23,10 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
+const fixRelativePath = (relativeTo: string) => (path: string) => {
+    return join(getAssetsPublicPath(relativeTo), path);
+};
+
 export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveMd2HTMLResult> {
     const {inputPath, fileExtension, outputPath, outputBundlePath, metadata} = options;
 
@@ -43,10 +47,17 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         ? await getUpdatedMetadata(metadata, content, result?.meta)
         : result.meta;
 
-    let fileMeta = fileExtension === '.yaml' ? result.data.meta : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml' ? result.data.meta : updatedMetadata;
 
-    if (allowCustomResources && metadata?.resources) {
-        fileMeta = {...fileMeta, ...metadata?.resources};
+    if (allowCustomResources) {
+        const {script, style} = metadata?.resources || {};
+        fileMeta.style = (fileMeta.style || []).concat(style || [])
+            .map(fixRelativePath(inputPath));
+        fileMeta.script = (fileMeta.script || []).concat(script || [])
+            .map(fixRelativePath(inputPath));
+    } else {
+        fileMeta.style = [];
+        fileMeta.script = [];
     }
 
     const props = {

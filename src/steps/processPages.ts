@@ -26,7 +26,6 @@ import {
     SINGLE_PAGE_DATA_FILENAME,
     Lang, ResourceType,
 } from '../constants';
-import {getAssetsPublicPath, getResolvedResourcePaths} from '../services/metadata';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -39,7 +38,6 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         outputFormat,
         singlePage,
         resolveConditions,
-        allowCustomResources,
     } = ArgvService.getConfig();
 
     const vcsConnector = await getVCSConnector();
@@ -55,13 +53,6 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         logger.proc(pathToFile);
 
         const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
-
-        if (allowCustomResources && metaDataOptions.resources && outputFormat === 'html') {
-            metaDataOptions.resources = getResolvedResourcePaths(
-                metaDataOptions.resources,
-                getAssetsPublicPath(pathToFile),
-            );
-        }
 
         await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage);
     }));

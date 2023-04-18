@@ -6,8 +6,8 @@ import {getAuthorDetails, updateAuthorMetadataString} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
 import {сarriage} from '../utils';
-import {metadataBorder, ResourceType} from '../constants';
-import {dirname, join, relative, resolve} from 'path';
+import {metadataBorder} from '../constants';
+import {dirname, relative, resolve} from 'path';
 import {ArgvService} from './index';
 
 async function getContentWithUpdatedMetadata(
@@ -209,22 +209,9 @@ function getAssetsPublicPath(filePath: string) {
     return relative(dirname(path), resolve(input));
 }
 
-function getResolvedResourcePaths(resources: Resources, assetsPublicPath: string) {
-    const metaResources = {...resources};
-
-    for (const type of Object.keys(metaResources) as Array<keyof typeof ResourceType>) {
-        metaResources[type] = metaResources[type]?.map((el) => {
-            return join(assetsPublicPath, el);
-        });
-    }
-
-    return metaResources;
-}
-
 export {
     getContentWithUpdatedMetadata,
     getContentWithUpdatedStaticMetadata,
     getUpdatedMetadata,
-    getResolvedResourcePaths,
     getAssetsPublicPath,
 };

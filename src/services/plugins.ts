@@ -44,7 +44,7 @@ function getAllPlugins(): Function[] {
 
 function getCustomPlugins(): Function[] {
     try {
-        const customPlugins = requireDynamically('./plugins');
+        const customPlugins = require('./plugins');
         return Array.isArray(customPlugins) ? customPlugins : [];
     } catch (e) {
         return [];
@@ -53,7 +53,7 @@ function getCustomPlugins(): Function[] {
 
 export function getHeadContent(): string {
     try {
-        return requireDynamically('./head-content.js');
+        return require('./head-content.js');
     } catch (e) {
         return '';
     }
@@ -61,7 +61,7 @@ export function getHeadContent(): string {
 
 export function getCustomLintRules(): LintRule[] {
     try {
-        return requireDynamically('./lint-rules');
+        return require('./lint-rules');
     } catch (e) {
         return [];
     }
@@ -69,14 +69,8 @@ export function getCustomLintRules(): LintRule[] {
 
 export function getDefaultLintConfig(): LintConfig | undefined {
     try {
-        return requireDynamically('./default-lint-config');
+        return require('./default-lint-config');
     } catch (e) {
         return undefined;
     }
-}
-
-// https://github.com/webpack/webpack/issues/4175#issuecomment-323023911
-function requireDynamically(path: string) {
-    // eslint-disable-next-line no-eval
-    return eval(`require('${path}');`); // Ensure Webpack does not analyze the require statement
 }
