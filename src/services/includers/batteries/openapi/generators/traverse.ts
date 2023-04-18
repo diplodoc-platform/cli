@@ -260,10 +260,7 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
         const description = (value.oneOf
             // coz ts 3.9 can't recognize (OpenJSONSchema | false)[].filter(Boolean) as OpenJSONSchema[]
             .filter(Boolean) as OpenJSONSchema[])
-            .map((item) => {
-                const ref = allRefs && findRef(allRefs, item);
-                return ref ? anchor(ref) : item.description;
-            })
+            .map((item) => createOneOfDescription(allRefs, item))
             .filter(Boolean)
             .join('\nor ');
 
@@ -288,6 +285,12 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
     }
 
     return {type: 'object', description, properties, allOf: value.allOf, oneOf: value.oneOf};
+}
+
+
+function createOneOfDescription(allRefs: Refs | undefined, item: OpenJSONSchema): string | undefined {
+    const ref = allRefs && findRef(allRefs, item);
+    return ref ? anchor(ref) : item.description;
 }
 
 function isRequired(key: string, value: JSONSchema6): boolean {
