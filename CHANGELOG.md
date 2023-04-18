@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.2...v2.9.0) (2023-04-18)
+
+
+### Features
+
+* add oneof support ([370ab6b](https://github.com/yandex-cloud/yfm-docs/commit/370ab6bdd4568873046dc1cfd47f2e61a68a8910))
+
+
+### Bug Fixes
+
+* pr fix ([5d8c4d4](https://github.com/yandex-cloud/yfm-docs/commit/5d8c4d48191005820a8fc4454d386013c84b2352))
+* refactor description ([656a182](https://github.com/yandex-cloud/yfm-docs/commit/656a182f0aa714e5fe2a34338e7c5dd151606bce))
+* support single oneOf element ([c0c8759](https://github.com/yandex-cloud/yfm-docs/commit/c0c875927a2fcc2f55e3f7c1c2383b9c9a8da6e6))
+
 ## [2.8.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.1...v2.8.2) (2023-04-14)
 
 
