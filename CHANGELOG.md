@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.9.0...v2.10.0) (2023-04-19)
+
+
+### Features
+
+* Add mermaid extension ([67efe6b](https://github.com/yandex-cloud/yfm-docs/commit/67efe6bff513277cb00decb0c36c2a7e66a0e65b))
+* Build builder with esbuild ([3c51c1f](https://github.com/yandex-cloud/yfm-docs/commit/3c51c1f95e720c02dcc35a458774405b1a359534))
+
+
+### Bug Fixes
+
+* **resolvers/md2html:** default meta for yaml ([21b2809](https://github.com/yandex-cloud/yfm-docs/commit/21b28094ddaa1186be46942ff077abae422392a5))
+
 ## [2.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.8.2...v2.9.0) (2023-04-18)
 
 
