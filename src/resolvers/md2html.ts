@@ -47,7 +47,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         ? await getUpdatedMetadata(metadata, content, result?.meta)
         : result.meta;
 
-    const fileMeta = fileExtension === '.yaml' ? result.data.meta : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml' ? (result.data.meta ?? {}) : updatedMetadata;
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};
