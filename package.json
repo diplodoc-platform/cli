@@ -17,9 +17,9 @@
     "src"
   ],
   "scripts": {
-    "build": "npm run build:app && npm run build:bin",
+    "build": "npm run build:app && npm run build:cli",
     "build:app": "webpack",
-    "build:bin": "./esbuild.sh",
+    "build:cli": "node scripts/build.cli.js",
     "start": "node build/index.js",
     "start-ts": "ts-node src/index.ts",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
