@@ -14,7 +14,7 @@ import {JSONSchema6} from 'json-schema';
 
 import {LEADING_PAGE_NAME_DEFAULT, SPEC_RENDER_MODES, SPEC_RENDER_MODE_DEFAULT, LEADING_PAGE_MODES} from './constants';
 
-import {Endpoint, Info, Refs, Specification, Tag, LeadingPageMode, OpenApiIncluderParams} from './types';
+import {Endpoint, Info, Refs, Specification, LeadingPageMode, OpenApiIncluderParams} from './types';
 
 const name = 'openapi';
 
@@ -30,7 +30,7 @@ class OpenApiIncluderError extends Error {
 }
 
 async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderParams>) {
-    const {readBasePath, writeBasePath, tocPath, vars, passedParams: {input, leadingPage = {}, filter = {}, noindex = {}, sandbox}, index} = params;
+    const {readBasePath, writeBasePath, tocPath, vars, passedParams: {input, leadingPage = {}, filter, noindex, sandbox}, index} = params;
 
     const tocDirPath = dirname(tocPath);
 
@@ -154,16 +154,9 @@ export type generateContentParams = {
 async function generateContent(params: generateContentParams): Promise<void> {
     const {data, writePath, allRefs, leadingPage, filter, noindex, vars, sandbox} = params;
     const filterContent = filterUsefullContent(filter, vars);
-    const applyNoindex = matchFilter(noindex, vars, {
-        tag: (tag) => {
-            tag.endpoints.forEach((endpoint) => {
-                endpoint.noindex = true;
-            });
-        },
-        endpoint: (endpoint) => {
-            endpoint.noindex = true;
-        },
-    }, false);
+    const applyNoindex = matchFilter(noindex || {}, vars, (endpoint) => {
+        endpoint.noindex = true;
+    });
 
     const leadingPageSpecRenderMode = leadingPage?.spec?.renderMode ?? SPEC_RENDER_MODE_DEFAULT;
     assertSpecRenderMode(leadingPageSpecRenderMode);
@@ -171,11 +164,13 @@ async function generateContent(params: generateContentParams): Promise<void> {
     const results = [];
 
     const info: Info = parsers.info(data);
-    const spec = filterContent(parsers.paths(data, parsers.tags(data)));
+    let spec = parsers.paths(data, parsers.tags(data));
 
     if (noindex) {
         applyNoindex(spec);
     }
+
+    spec = filterContent(spec);
 
     const main: string = generators.main({data, info, spec, leadingPageSpecRenderMode});
 
@@ -234,20 +229,16 @@ function filterUsefullContent(filter: OpenApiIncluderParams['filter'] | undefine
         const endpointsByTag = new Map();
         const tags = new Map();
 
-        matchFilter(filter, vars, {
-            endpoint: (endpoint, tag?: Tag) => {
-                const collection = endpointsByTag.get(tag || null) || [];
+        matchFilter(filter, vars, (endpoint, tag) => {
+            const tagId = tag?.id ?? null;
+            const collection = endpointsByTag.get(tagId) || [];
 
-                collection.push(endpoint);
+            collection.push(endpoint);
+            endpointsByTag.set(tagId, collection);
 
-                endpointsByTag.set(tag || null, collection);
-            },
-            tag: (tag) => {
-                tags.set(tag.id, {
-                    ...tag,
-                    endpoints: endpointsByTag.get(tag) || [],
-                });
-            },
+            if (tagId !== null) {
+                tags.set(tagId, {...tag, endpoints: collection});
+            }
         })(spec);
 
         return {
