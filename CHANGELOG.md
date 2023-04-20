@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.1...v2.10.2) (2023-04-20)
+
+
+### Bug Fixes
+
+* Fix require of custom plugins ([d6d4af3](https://github.com/yandex-cloud/yfm-docs/commit/d6d4af33c12a2ef81f187c7aebdf9b55c4e26f87))
+
 ## [2.10.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.0...v2.10.1) (2023-04-20)
 
 
