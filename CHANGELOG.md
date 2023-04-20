@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.10.1](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.0...v2.10.1) (2023-04-20)
+
+
+### Bug Fixes
+
+* **infra/build:** add shebang to the bundled cli ([30212b9](https://github.com/yandex-cloud/yfm-docs/commit/30212b9d527f43454d79f4503391756cfa924a63))
+
 ## [2.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.9.0...v2.10.0) (2023-04-19)
 
 
