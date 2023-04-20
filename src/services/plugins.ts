@@ -44,7 +44,7 @@ function getAllPlugins(): Function[] {
 
 function getCustomPlugins(): Function[] {
     try {
-        const customPlugins = require('./plugins');
+        const customPlugins = require(require.resolve('./plugins'));
         return Array.isArray(customPlugins) ? customPlugins : [];
     } catch (e) {
         return [];
@@ -53,7 +53,7 @@ function getCustomPlugins(): Function[] {
 
 export function getHeadContent(): string {
     try {
-        return require('./head-content.js');
+        return require(require.resolve('./head-content.js'));
     } catch (e) {
         return '';
     }
@@ -61,7 +61,7 @@ export function getHeadContent(): string {
 
 export function getCustomLintRules(): LintRule[] {
     try {
-        return require('./lint-rules');
+        return require(require.resolve('./lint-rules'));
     } catch (e) {
         return [];
     }
@@ -69,7 +69,7 @@ export function getCustomLintRules(): LintRule[] {
 
 export function getDefaultLintConfig(): LintConfig | undefined {
     try {
-        return require('./default-lint-config');
+        return require(require.resolve('./default-lint-config'));
     } catch (e) {
         return undefined;
     }
