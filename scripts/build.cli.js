@@ -1,7 +1,7 @@
 const esbuild = require('esbuild');
 const {version} = require('../package.json');
 
-const config = {
+const commonConfig = {
     tsconfig: './tsconfig.json',
     packages: 'external',
     platform: 'node',
@@ -12,12 +12,23 @@ const config = {
     },
 };
 
-const builds = [[['src/index.ts'], 'build/index.js'], [['src/workers/linter/index.ts'], 'build/linter.js']];
+const builds = [
+    [['src/index.ts'], 'build/index.js'],
+    [['src/workers/linter/index.ts'], 'build/linter.js'],
+];
 
 builds.forEach(([entries, target]) => {
-    esbuild.build({
-        ...config,
+    const currentConfig = {
+        ...commonConfig,
         entryPoints: entries,
         outfile: target,
-    });
+    };
+
+    if (target.endsWith('index.js')) {
+        currentConfig.banner = {
+            js: '#!/usr/bin/env node',
+        };
+    }
+
+    esbuild.build(currentConfig);
 });
