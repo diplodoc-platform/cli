@@ -138,6 +138,10 @@ function findRef(allRefs: Refs, value: JSONSchema6): string | undefined {
 }
 type OpenJSONSchema = JSONSchema6 & {example?: any};
 type OpenJSONSchemaDefinition = OpenJSONSchema | boolean;
+type NotNullOpenJSONSchemaType = Exclude<OpenJSONSchema['type'], undefined>;
+type OpenJSONSchemaType = NotNullOpenJSONSchemaType | {
+    oneOf: NotNullOpenJSONSchemaType[];
+};
 
 // sample key-value JSON body
 export function prepareSampleObject(schema: OpenJSONSchema, callstack: JSONSchema6[] = []) {
@@ -269,7 +273,7 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
     }
 
     let description = '';
-    const properties: Record<string, any> = {};
+    const properties: Record<string, OpenJSONSchemaDefinition> = {};
 
     for (const element of value.allOf || []) {
         if (typeof element === 'boolean') {
@@ -297,7 +301,7 @@ function isRequired(key: string, value: JSONSchema6): boolean {
     return value.required?.includes(key) ?? false;
 }
 
-function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefined> {
+function inferType(value: OpenJSONSchema): OpenJSONSchemaType {
     if (value.type) {
         return value.type;
     }
@@ -316,12 +320,28 @@ function inferType(value: OpenJSONSchema): Exclude<JSONSchema6['type'], undefine
         if (isSupportedEnumType(type)) {
             return type;
         }
-    } else if (value === null) {
+    }
+
+    if (value.oneOf?.length) {
+        const nestedTypes = value.oneOf
+        ?.filter(Boolean)
+        .map((el) => (el as JSONSchema6).type as NotNullOpenJSONSchemaType)
+        .filter(Boolean);
+
+        const uniqueTypes = [...new Set(nestedTypes)];
+
+        return {
+            oneOf: uniqueTypes,
+        };
+    }
+
+    if (value === null) {
         return 'null';
     }
 
     throw new Error(`Unsupported value: ${stringify(value)}`);
 }
+
 
 function isSupportedEnumType(enumType: JsType): enumType is SupportedEnumType {
     return SUPPORTED_ENUM_TYPES.some((type) => enumType === type);

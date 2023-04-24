@@ -44,7 +44,7 @@ function info(spec: OpenapiSpec): Info {
         }
     }
 
-    if (contact && (contact.url || contact.email)) {
+    if (contact?.url || contact?.email) {
         parsed.contact = {
             name: contact.name,
             sources: [],
@@ -71,7 +71,9 @@ function tags(spec: OpenapiSpec): Map<string, Tag> {
     }
 
     for (const tag of tags) {
-        if (!tag?.name?.length) { continue; }
+        if (!tag?.name?.length) {
+            continue;
+        }
 
         const id = slugify(tag.name);
 
@@ -110,13 +112,24 @@ function paths(spec: OpenapiSpec, tagsByID: Map<string, Tag>): Specification {
     const endpoints: Endpoints = [];
     const {paths, servers, components = {}, security: globalSecurity = []} = spec;
     const visiter = ({path, method, endpoint}: VisiterParams) => {
-        const {summary, description, tags = [], operationId, parameters, responses, requestBody, security = []} = endpoint;
+        const {
+            summary,
+            description,
+            tags = [],
+            operationId,
+            parameters,
+            responses,
+            requestBody,
+            security = [],
+        } = endpoint;
         const parsedSecurity = [...security, ...globalSecurity].reduce((arr, item) => {
             arr.push(...Object.keys(item).reduce((acc, key) => {
                 // @ts-ignore
                 acc.push(components.securitySchemes[key]);
+
                 return acc;
             }, []));
+
             return arr;
         }, []);
 

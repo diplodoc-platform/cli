@@ -96,7 +96,7 @@ function readFn(input: string, output: string) {
                 sklPath: resolve(outputPath.replace(MDExtRegExp, `.${SKL_EXT_NAME}.${MD_EXT_NAME}`)),
                 xlfPath: resolve(outputPath.replace(MDExtRegExp, `.${XLF_EXT_NAME}`)),
             });
-        } catch (err) {
+        } catch (err: any) {
             throw new ExtractError(err.message, path);
         }
 
@@ -122,7 +122,7 @@ async function extractFn(datum: ReadFnOutput): Promise<ExtractFnOutput> {
 
     try {
         extracted = {extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath};
-    } catch (err) {
+    } catch (err: any) {
         throw new ExtractError(err.message, datum.mdPath);
     }
 
@@ -144,7 +144,7 @@ async function writeFn({
             writeFile(skeletonFilename, skeleton),
             writeFile(xlfPath, xliff),
         ]);
-    } catch (err) {
+    } catch (err: any) {
         throw new ExtractError(err.message, path);
     }
 }

@@ -7,8 +7,7 @@ import {Lang, Stage, IncludeMode, ResourceType} from './constants';
 export type VarsPreset = 'internal'|'external';
 
 export type YfmPreset = Record<string, string>;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type Metadata = Record<string, any>;
+export type Metadata = Record<string, unknown>;
 
 export type ContributorsByPathFunction = (path: string) => Promise<FileContributors>;
 export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;
@@ -81,13 +80,24 @@ export interface YfmTocItem extends Filter {
     id?: string;
 }
 
-export interface YfmTocInclude {
+type BaseYfmTocInclude = {
     repo: string;
     path: string;
     mode?: IncludeMode;
-    includer?: YfmTocIncluder;
-    includers?: YfmTocIncluders;
-}
+};
+
+/**
+ * YfmTocInclude can't has both includer and includers
+ */
+export type YfmTocInclude = BaseYfmTocInclude & (
+    {
+        includer: YfmTocIncluder;
+        includers?: YfmTocIncluders;
+    } | {
+        includers: YfmTocIncluders;
+        includer?: YfmTocIncluder;
+    }
+);
 
 export type YfmTocIncludersNormalized = YfmTocIncluderObject[];
 
@@ -99,33 +109,42 @@ export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] 
 
 export type YfmTocIncluderName = typeof includersNames[number];
 
+export type YfmTocIncluderParams<With extends Object = {}> = {
+    [key: string]: unknown;
+} & With;
+
 export type YfmTocIncluderObject = {
     name: string;
     // arbitrary includer parameters
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} | Record<string, any>;
-
-export type Includer = {
-    name: YfmTocIncluderName;
-    includerFunction: IncluderFunction;
+    [key: string]: unknown;
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type IncluderFunction = (args: IncluderFunctionParams) => Promise<any>;
+export type Includer<Params extends Record<string, unknown> = any, Return = any> = {
+    name: YfmTocIncluderName;
+    includerFunction: IncluderFunction<Params, Return>;
+};
+
+export type IncludersMap = {
+    [key: string]: Includer;
+};
+
+export type IncluderFunction<Params extends Record<string, unknown> = {},
+                             ReturnType = void>
+     = (args: IncluderFunctionParams<Params>) => Promise<ReturnType>;
 
 export type IncluderFunctionParams<Params extends Record<string, unknown> = Record<string, unknown>> = {
-    // item that contains include that uses includer
+    /**  item that contains include that uses includer */
     item: YfmToc;
-    // base read directory path
+    /** base read directory path */
     readBasePath: string;
-    // base write directory path
+    /** base write directory path */
     writeBasePath: string;
-    // toc with includer path
+    /** toc with includer path */
     tocPath: string;
     vars: YfmPreset;
-    // arbitrary includer parameters
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    passedParams: Params;
+    /** arbitrary includer parameters */
+    passedParams: YfmTocIncluderParams<Params>;
     index: number;
 };
 

@@ -27,9 +27,9 @@ export function matchFilter(
     );
 
     return (spec: Specification): void => {
-        const {tags, endpoints} = spec;
+        const {tags, endpoints: noTagEndpoints} = spec;
 
-        for (const endpoint of endpoints) {
+        for (const endpoint of noTagEndpoints) {
             if (matchEndpoint(endpoint)) {
                 endpointAction(endpoint);
             }
@@ -37,7 +37,6 @@ export function matchFilter(
 
         for (const [, tag] of tags) {
             if (matchTag(tag)) {
-                // eslint-disable-next-line no-shadow
                 const {endpoints} = tag;
 
                 for (const endpoint of endpoints) {

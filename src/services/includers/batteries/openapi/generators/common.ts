@@ -80,7 +80,7 @@ function page(content: string) {
 function tabs(tabsObj: Record<string, string>) {
     return block([
         '{% list tabs %}',
-        Object.entries(tabsObj).map(([title, value]) => `- ${title}
+        Object.entries(tabsObj).map(([tabTitle, value]) => `- ${tabTitle}
 
   ${value.replace(/\n/g, '\n  ')}
         `).join('\n\n'),

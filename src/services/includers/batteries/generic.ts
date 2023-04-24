@@ -6,7 +6,7 @@ import {dump} from 'js-yaml';
 
 import {glob} from '../../../utils/glob';
 
-import {IncluderFunctionParams} from '../../../models';
+import {IncluderFunction} from '../../../models';
 
 class GenericIncluderError extends Error {
     path: string;
@@ -30,7 +30,7 @@ type Params = {
     };
 };
 
-async function includerFunction(params: IncluderFunctionParams<Params>) {
+const includerFunction: IncluderFunction<Params> = async (params) => {
     const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}, index} = params;
 
     if (!input?.length || !item.include?.path) {
@@ -71,14 +71,31 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
         const toc = createToc(leadingPageName, item.include.path)(graph, []);
 
         await writeFile(join(writePath, 'toc.yaml'), dump(toc));
-    } catch (err) {
+    } catch (err: any) {
         throw new GenericIncluderError(err.toString(), tocPath);
     }
-}
+};
+
+type TocLeafItem = {
+    name: string;
+    href: string;
+};
+
+type TocGraph = {
+    files: string[];
+    nodes: Record<string, TocGraph>;
+};
+
+type TocRootItem = {
+    name: string;
+    items: (TocLeafItem | TocRootItem)[];
+};
 
 function createGraphFromPaths(paths: string[]) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const graph: Record<string, any> = {};
+    const graph: TocGraph = {
+        files: [],
+        nodes: {},
+    };
 
     for (const path of paths) {
         const chunks = path.split('/').filter(Boolean);
@@ -92,7 +109,7 @@ function createGraphFromPaths(paths: string[]) {
 
         const file = chunks.pop();
 
-        updateWith(graph, chunks, (old) => {
+        updateWith(graph.nodes, chunks, (old) => {
             return old ? {files: [...old.files, file]} : {files: [file]};
         }, Object);
     }
@@ -101,20 +118,19 @@ function createGraphFromPaths(paths: string[]) {
 }
 
 function createToc(leadingPageName: string, tocName: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return function createTocRec(graph: Record<string, any>, cursor: string[]): Record<string, any> {
+    return function createTocRec(graph: TocGraph, cursor: string[]): TocRootItem {
         const handler = (file: string) => ({
             name: parse(file).name === 'index' ? leadingPageName : file,
             href: join(...cursor, file),
         });
 
-        const recurse = (key: string) => createTocRec(graph[key], [...cursor, key]);
+        const recurse = (key: string) => createTocRec(graph.nodes[key], [...cursor, key]);
 
         const current = {
             name: cursor[cursor.length - 1] ?? tocName,
             items: [
                 ...(graph.files ?? []).map(handler),
-                ...Object.keys(graph)
+                ...Object.keys(graph.nodes)
                     .filter((key) => key !== 'files')
                     .map(recurse),
             ],

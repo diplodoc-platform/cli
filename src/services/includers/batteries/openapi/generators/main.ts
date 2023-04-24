@@ -15,14 +15,14 @@ import {
 import {Info, Contact, ContactSource, Tag, Specification, LeadingPageSpecRenderMode} from '../types';
 import {mdPath, sectionName} from '../index';
 
-export type mainParams = {
-    data: any;
+export type MainParams = {
+    data: unknown;
     info: Info;
     spec: Specification;
     leadingPageSpecRenderMode: LeadingPageSpecRenderMode;
 };
 
-function main(params: mainParams) {
+function main(params: MainParams) {
     const {data, info, spec, leadingPageSpecRenderMode} = params;
 
     const license = info.license?.url ? link : body;
@@ -81,7 +81,7 @@ function sections({tags, endpoints}: Specification) {
     return content.length && block(content);
 }
 
-function specification(data: any, renderMode: LeadingPageSpecRenderMode) {
+function specification(data: unknown, renderMode: LeadingPageSpecRenderMode) {
     return renderMode === SPEC_RENDER_MODE_DEFAULT &&
         block([title(2)(SPEC_SECTION_NAME), cut(code(stringify(data, null, 4)), SPEC_SECTION_TYPE)]);
 }

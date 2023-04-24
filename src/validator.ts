@@ -81,7 +81,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         const pathToConfig = argv.config ? String(argv.config) : join(String(argv.input), YFM_CONFIG_FILENAME);
         const content = readFileSync(resolve(pathToConfig), 'utf8');
         Object.assign(argv, load(content) || {});
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse ${YFM_CONFIG_FILENAME}: ${error.message}`);
         }
@@ -93,7 +93,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         const content = readFileSync(resolve(pathToConfig), 'utf8');
 
         lintConfig = load(content) || {};
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse ${LINT_CONFIG_FILENAME}: ${error.message}`);
         }
@@ -113,7 +113,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         const redirects = load(redirectsContent);
 
         validateRedirects(redirects as RedirectsConfig, pathToRedirects);
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse ${REDIRECTS_FILENAME}: ${error.message}`);
         }

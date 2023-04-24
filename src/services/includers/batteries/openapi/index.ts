@@ -8,13 +8,13 @@ import {dump} from 'js-yaml';
 import parsers from './parsers';
 import generators from './generators';
 
-import {IncluderFunctionParams, YfmPreset, YfmToc, YfmTocItem} from '../../../../models';
+import {IncluderFunction, YfmPreset, YfmToc, YfmTocItem} from '../../../../models';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import {JSONSchema6} from 'json-schema';
 
 import {LEADING_PAGE_NAME_DEFAULT, SPEC_RENDER_MODES, SPEC_RENDER_MODE_DEFAULT, LEADING_PAGE_MODES} from './constants';
 
-import {Endpoint, Info, Refs, Specification, Tag, LeadingPageMode, OpenApiIncluderParams} from './types';
+import {Endpoint, Info, Refs, Specification, Tag, LeadingPageMode, OpenApiIncluderParams, OpenapiSpec} from './types';
 
 const name = 'openapi';
 
@@ -29,8 +29,21 @@ class OpenApiIncluderError extends Error {
     }
 }
 
-async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderParams>) {
-    const {readBasePath, writeBasePath, tocPath, vars, passedParams: {input, leadingPage = {}, filter = {}, noindex = {}, sandbox}, index} = params;
+const includerFunction: IncluderFunction<OpenApiIncluderParams> = async (params) => {
+    const {
+        readBasePath,
+        writeBasePath,
+        tocPath,
+        vars,
+        passedParams: {
+            input,
+            leadingPage = {},
+            filter = {},
+            noindex = {},
+            sandbox,
+        },
+        index,
+    } = params;
 
     const tocDirPath = dirname(tocPath);
 
@@ -65,7 +78,7 @@ async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderPa
 
         throw error;
     }
-}
+};
 
 function assertSpecRenderMode(mode: string) {
     const isValid = SPEC_RENDER_MODES.has(mode);
@@ -79,15 +92,15 @@ function assertLeadingPageMode(mode: string) {
     assert(isValid, `invalid leading page mode ${mode}, available options: ${[...LEADING_PAGE_MODES].join(', ')}`);
 }
 
-export type generateTocParams = {
-    data: any;
+export type GenerateTocParams = {
+    data: OpenapiSpec;
     vars: YfmPreset;
     writePath: string;
     leadingPage: OpenApiIncluderParams['leadingPage'];
     filter: OpenApiIncluderParams['filter'];
 };
 
-async function generateToc(params: generateTocParams): Promise<any> {
+async function generateToc(params: GenerateTocParams): Promise<void> {
     const {data, writePath, leadingPage, filter, vars} = params;
     const leadingPageName = leadingPage?.name ?? LEADING_PAGE_NAME_DEFAULT;
     const leadingPageMode = leadingPage?.mode ?? LeadingPageMode.Leaf;
@@ -140,8 +153,8 @@ function addLeadingPage(section: YfmTocItem, mode: LeadingPageMode, name: string
     }
 }
 
-export type generateContentParams = {
-    data: any;
+export type GenerateContentParams = {
+    data: OpenapiSpec;
     vars: YfmPreset;
     writePath: string;
     allRefs: Refs;
@@ -151,7 +164,7 @@ export type generateContentParams = {
     sandbox?: OpenApiIncluderParams['sandbox'];
 };
 
-async function generateContent(params: generateContentParams): Promise<void> {
+async function generateContent(params: GenerateContentParams): Promise<void> {
     const {data, writePath, allRefs, leadingPage, filter, noindex, vars, sandbox} = params;
     const filterContent = filterUsefullContent(filter, vars);
     const applyNoindex = matchFilter(noindex, vars, {
@@ -207,7 +220,12 @@ async function generateContent(params: generateContentParams): Promise<void> {
     }
 }
 
-function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string, sandbox: {host?: string} | undefined) {
+function handleEndpointIncluder(
+    allRefs: Refs,
+    endpoint: Endpoint,
+    pathPrefix: string,
+    sandbox: {host?: string} | undefined,
+) {
     const path = join(pathPrefix, mdPath(endpoint));
     const content = generators.endpoint(allRefs, endpoint, sandbox);
 

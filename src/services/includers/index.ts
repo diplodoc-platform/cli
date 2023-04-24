@@ -16,6 +16,8 @@ import type {
     YfmTocIncluders,
     YfmTocIncluderObject,
     YfmTocIncludersNormalized,
+    YfmTocIncluderParams,
+    IncludersMap,
 } from '../../models';
 
 const includerUsage = `include:
@@ -34,7 +36,6 @@ const includersUsage = `include:
       <includer-parameter>: <value-for-includer-parameter>
 `;
 
-type IncludersMap = Record<string, Includer>;
 
 let includersMap!: IncludersMap;
 
@@ -50,7 +51,9 @@ class IncludersError extends Error {
 }
 
 function init(custom: Includer[] = []) {
-    if (includersMap) { return; }
+    if (includersMap) {
+        return;
+    }
 
     includersMap = {generic, sourcedocs, openapi, unarchive};
 
@@ -60,7 +63,7 @@ function init(custom: Includer[] = []) {
 }
 
 async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
-    if (!(item && item.include) || !includeHasIncluders(item.include)) {
+    if (!item.include || !includeHasIncluders(item.include)) {
         return;
     }
 
@@ -80,8 +83,7 @@ async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
     for (const {name, ...rest} of includers) {
         const includer = getIncluder(name);
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const passedParams: Record<string, any> = {
+        const passedParams: YfmTocIncluderParams = {
             ...rest,
         };
 
@@ -110,24 +112,30 @@ function normalizeIncludeIncluders(path: string, include: YfmTocInclude) {
             return include.includers;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        throw new IncludersError(message!, path);
+        throw new IncludersError(message, path);
     }
 
     logger.warn(path, 'includer field is getting depricated, use includers field\n' + includersUsage);
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const {status, message} = includerValid(include.includer!);
+    const {status, message} = includerValid(include.includer);
 
     if (status) {
         return [include.includer];
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    throw new IncludersError(message!, path);
+    throw new IncludersError(message || 'Empty message', path);
 }
 
-function includersValid(includers: YfmTocIncluders) {
+type IncluderValidation = {
+    status: true;
+    // define message, otherwise ts won't see it and unpack
+    message?: string;
+} | {
+    status: false;
+    message: string;
+};
+
+function includersValid(includers: YfmTocIncluders): IncluderValidation {
     for (const includer of includers) {
         const {status, message} = includerValid(includer);
 
@@ -139,7 +147,14 @@ function includersValid(includers: YfmTocIncluders) {
     return {status: true};
 }
 
-function includerValid(includer: YfmTocIncluder) {
+function includerValid(includer: YfmTocIncluder | undefined): IncluderValidation {
+    if (!includer) {
+        return {
+            status: false,
+            message: 'includer is not defined',
+        };
+    }
+
     if (Array.isArray(includer)) {
         return {status: false, message: `use includers field to provide multiple includers:\n${includersUsage}`};
     }
@@ -177,17 +192,16 @@ function includerExists(includer: YfmTocIncluderObject) {
     return includersMap[includer.name as keyof typeof includersMap];
 }
 
-export type applyIncluderParams = {
+export type ApplyIncluderParams = {
     path: string;
     item: YfmToc;
     includer: Includer;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    passedParams: Record<string, any>;
+    passedParams: YfmTocIncluderParams;
     index: number;
     vars: YfmPreset;
 };
 
-async function applyIncluder(args: applyIncluderParams) {
+async function applyIncluder(args: ApplyIncluderParams) {
     const {rootInput: readBasePath, input: writeBasePath} = ArgvService.getConfig();
 
     const {path, item, includer, passedParams, index, vars} = args;

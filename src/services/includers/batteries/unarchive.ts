@@ -4,7 +4,7 @@ import {extract, Headers} from 'tar-stream';
 
 import type {PassThrough} from 'stream';
 
-import {IncluderFunctionParams} from '../../../models';
+import {IncluderFunction} from '../../../models';
 
 const name = 'unarchive';
 
@@ -36,9 +36,9 @@ function pipeline(readPath: string, writeBasePath: string): Promise<void> {
         mkdirSync(writeBasePath, {recursive: true});
 
         extractor.on('entry', (header: Headers, stream: PassThrough, next: Function) => {
-            const {type, name} = header;
+            const {type, name: headerName} = header;
 
-            const writePath = join(writeBasePath, name);
+            const writePath = join(writeBasePath, headerName);
 
             const writeDirPath = type === 'directory' ? writePath : dirname(writePath);
 
@@ -72,7 +72,11 @@ type Params = {
     output: string;
 };
 
-async function includerFunction(params: IncluderFunctionParams<Params>) {
+type Result = {
+    input: string;
+};
+
+const includerFunction: IncluderFunction<Params, Result> = async (params) => {
     const {readBasePath, writeBasePath, tocPath, passedParams: {input, output}, index} = params;
 
     if (!input?.length || !output?.length) {
@@ -87,12 +91,12 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
     try {
         await pipeline(contentPath, writePath);
-    } catch (err) {
+    } catch (err: any) {
         throw new UnarchiveIncluderError(err.toString(), tocPath);
     }
 
     return {input: output};
-}
+};
 
 export {name, includerFunction};
 

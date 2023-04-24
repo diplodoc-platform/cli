@@ -154,13 +154,17 @@ yargs
     .command(xliff)
     .command(translate)
     .command('$0', 'the default command', () => {}, main)
-    .version(VERSION)
     .help()
-    .parse()
-;
+    .parse();
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-async function main(args: Arguments<any>) {
+
+type Options = {
+    input: string;
+    output: string;
+    config?: string;
+};
+
+async function main(args: Arguments<Options>) {
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
