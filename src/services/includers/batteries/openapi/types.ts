@@ -65,6 +65,7 @@ export type Tag = {
     id: string;
     name: string;
     description?: string;
+    hidden?: boolean;
     endpoints: Endpoints;
 };
 
@@ -84,6 +85,7 @@ export type Endpoint = {
     requestBody?: Schema;
     security: Security[];
     noindex?: boolean;
+    hidden?: boolean;
 };
 
 export type Specification = {
@@ -175,6 +177,7 @@ export type OpenApiIncluderParams = {
     leadingPage?: LeadingPageParams;
     filter?: OpenApiFilter;
     noindex?: OpenApiFilter;
+    hidden?: OpenApiFilter;
     sandbox?: {
         tabName?: string;
         host?: string;

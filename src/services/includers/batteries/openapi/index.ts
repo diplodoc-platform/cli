@@ -14,7 +14,7 @@ import {JSONSchema6} from 'json-schema';
 
 import {LEADING_PAGE_NAME_DEFAULT, SPEC_RENDER_MODES, SPEC_RENDER_MODE_DEFAULT, LEADING_PAGE_MODES} from './constants';
 
-import {Endpoint, Info, Refs, Specification, Tag, LeadingPageMode, OpenApiIncluderParams} from './types';
+import {Endpoint, Info, Refs, Specification, LeadingPageMode, OpenApiIncluderParams, OpenapiSpec} from './types';
 
 const name = 'openapi';
 
@@ -30,7 +30,21 @@ class OpenApiIncluderError extends Error {
 }
 
 async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderParams>) {
-    const {readBasePath, writeBasePath, tocPath, vars, passedParams: {input, leadingPage = {}, filter = {}, noindex = {}, sandbox}, index} = params;
+    const {
+        readBasePath,
+        writeBasePath,
+        tocPath,
+        vars,
+        passedParams: {
+            input,
+            leadingPage = {},
+            filter,
+            noindex,
+            hidden,
+            sandbox,
+        },
+        index,
+    } = params;
 
     const tocDirPath = dirname(tocPath);
 
@@ -56,7 +70,7 @@ async function includerFunction(params: IncluderFunctionParams<OpenApiIncluderPa
 
         await mkdir(writePath, {recursive: true});
         await generateToc({data, writePath, leadingPage, filter, vars});
-        await generateContent({data, writePath, leadingPage, filter, noindex, vars, allRefs, sandbox});
+        await generateContent({data, writePath, leadingPage, filter, noindex, vars, hidden, allRefs, sandbox});
     } catch (error) {
         if (error && !(error instanceof OpenApiIncluderError)) {
             // eslint-disable-next-line no-ex-assign
@@ -79,15 +93,15 @@ function assertLeadingPageMode(mode: string) {
     assert(isValid, `invalid leading page mode ${mode}, available options: ${[...LEADING_PAGE_MODES].join(', ')}`);
 }
 
-export type generateTocParams = {
-    data: any;
+export type GenerateTocParams = {
+    data: OpenapiSpec;
     vars: YfmPreset;
     writePath: string;
     leadingPage: OpenApiIncluderParams['leadingPage'];
     filter: OpenApiIncluderParams['filter'];
 };
 
-async function generateToc(params: generateTocParams): Promise<any> {
+async function generateToc(params: GenerateTocParams): Promise<void> {
     const {data, writePath, leadingPage, filter, vars} = params;
     const leadingPageName = leadingPage?.name ?? LEADING_PAGE_NAME_DEFAULT;
     const leadingPageMode = leadingPage?.mode ?? LeadingPageMode.Leaf;
@@ -140,8 +154,8 @@ function addLeadingPage(section: YfmTocItem, mode: LeadingPageMode, name: string
     }
 }
 
-export type generateContentParams = {
-    data: any;
+export type GenerateContentParams = {
+    data: OpenapiSpec;
     vars: YfmPreset;
     writePath: string;
     allRefs: Refs;
@@ -149,21 +163,30 @@ export type generateContentParams = {
     filter?: OpenApiIncluderParams['filter'];
     noindex?: OpenApiIncluderParams['noindex'];
     sandbox?: OpenApiIncluderParams['sandbox'];
+    hidden?: OpenApiIncluderParams['filter'];
 };
 
-async function generateContent(params: generateContentParams): Promise<void> {
-    const {data, writePath, allRefs, leadingPage, filter, noindex, vars, sandbox} = params;
+async function generateContent(params: GenerateContentParams): Promise<void> {
+    const {
+        data,
+        writePath,
+        allRefs,
+        leadingPage,
+        filter,
+        noindex,
+        hidden,
+        vars,
+        sandbox,
+    } = params;
     const filterContent = filterUsefullContent(filter, vars);
-    const applyNoindex = matchFilter(noindex, vars, {
-        tag: (tag) => {
-            tag.endpoints.forEach((endpoint) => {
-                endpoint.noindex = true;
-            });
-        },
-        endpoint: (endpoint) => {
-            endpoint.noindex = true;
-        },
-    }, false);
+    const applyNoindex = matchFilter(noindex || {}, vars, (endpoint) => {
+        endpoint.noindex = true;
+    });
+
+    const applyHidden = matchFilter(hidden || {}, vars, (endpoint) => {
+        endpoint.hidden = true;
+    });
+
 
     const leadingPageSpecRenderMode = leadingPage?.spec?.renderMode ?? SPEC_RENDER_MODE_DEFAULT;
     assertSpecRenderMode(leadingPageSpecRenderMode);
@@ -171,11 +194,18 @@ async function generateContent(params: generateContentParams): Promise<void> {
     const results = [];
 
     const info: Info = parsers.info(data);
-    const spec = filterContent(parsers.paths(data, parsers.tags(data)));
+    let spec = parsers.paths(data, parsers.tags(data));
 
     if (noindex) {
         applyNoindex(spec);
     }
+
+    if (hidden) {
+        applyHidden(spec);
+    }
+
+    spec = filterContent(spec);
+
 
     const main: string = generators.main({data, info, spec, leadingPageSpecRenderMode});
 
@@ -187,13 +217,13 @@ async function generateContent(params: generateContentParams): Promise<void> {
     spec.tags.forEach((tag, id) => {
         const {endpoints} = tag;
 
+        endpoints.forEach((endpoint) => {
+            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id), sandbox));
+        });
+
         results.push({
             path: join(writePath, id, 'index.md'),
             content: generators.section(tag),
-        });
-
-        endpoints.forEach((endpoint) => {
-            results.push(handleEndpointIncluder(allRefs, endpoint, join(writePath, id), sandbox));
         });
     });
 
@@ -207,7 +237,13 @@ async function generateContent(params: generateContentParams): Promise<void> {
     }
 }
 
-function handleEndpointIncluder(allRefs: Refs, endpoint: Endpoint, pathPrefix: string, sandbox: {host?: string} | undefined) {
+
+function handleEndpointIncluder(
+    allRefs: Refs,
+    endpoint: Endpoint,
+    pathPrefix: string,
+    sandbox: {host?: string} | undefined,
+) {
     const path = join(pathPrefix, mdPath(endpoint));
     const content = generators.endpoint(allRefs, endpoint, sandbox);
 
@@ -222,6 +258,7 @@ function handleEndpointRender(endpoint: Endpoint, pathPrefix?: string): YfmToc {
     return {
         href: path,
         name: sectionName(endpoint),
+        hidden: endpoint.hidden,
     } as YfmToc;
 }
 
@@ -234,20 +271,16 @@ function filterUsefullContent(filter: OpenApiIncluderParams['filter'] | undefine
         const endpointsByTag = new Map();
         const tags = new Map();
 
-        matchFilter(filter, vars, {
-            endpoint: (endpoint, tag?: Tag) => {
-                const collection = endpointsByTag.get(tag || null) || [];
+        matchFilter(filter, vars, (endpoint, tag) => {
+            const tagId = tag?.id ?? null;
+            const collection = endpointsByTag.get(tagId) || [];
 
-                collection.push(endpoint);
+            collection.push(endpoint);
+            endpointsByTag.set(tagId, collection);
 
-                endpointsByTag.set(tag || null, collection);
-            },
-            tag: (tag) => {
-                tags.set(tag.id, {
-                    ...tag,
-                    endpoints: endpointsByTag.get(tag) || [],
-                });
-            },
+            if (tagId !== null) {
+                tags.set(tagId, {...tag, endpoints: collection});
+            }
         })(spec);
 
         return {

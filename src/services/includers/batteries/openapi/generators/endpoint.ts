@@ -80,7 +80,7 @@ function sandbox({
     host?: string;
     path: string;
     security: Security[];
-    requestBody?: any;
+    requestBody?: Schema;
     method: string;
 }) {
     const pathParams = params?.filter((param: Parameter) => param.in === 'path');
