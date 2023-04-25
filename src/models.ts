@@ -71,6 +71,7 @@ export interface YfmToc extends Filter {
     include?: YfmTocInclude;
     id?: string;
     singlePage?: boolean;
+    hidden?: boolean;
 }
 
 export interface YfmTocItem extends Filter {
@@ -100,10 +101,10 @@ export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] 
 export type YfmTocIncluderName = typeof includersNames[number];
 
 export type YfmTocIncluderObject = {
-    name: string;
+    name: YfmTocIncluderName;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-} | Record<string, any>;
+} & Record<string, unknown>;
 
 export type Includer = {
     name: YfmTocIncluderName;

@@ -194,7 +194,7 @@ async function main(args: Arguments<any>) {
             prepareMapFile();
         }
 
-        const outputBundlePath: string = join(outputFolderPath, BUNDLE_FOLDER);
+        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
         const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
         const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
         const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
