@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.2...v2.11.0) (2023-04-25)
+
+
+### Features
+
+* support hidden paths ([d037b1f](https://github.com/yandex-cloud/yfm-docs/commit/d037b1fe003618200116d3d99d71d107f75cb68f))
+
 ## [2.10.2](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.1...v2.10.2) (2023-04-20)
 
 
