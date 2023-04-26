@@ -105,7 +105,7 @@ async function readFn(path: string) {
 
     try {
         file = readFile(resolve(path), {encoding: 'utf-8'});
-    } catch (err) {
+    } catch (err: any) {
         throw new ComposeError(err.message, path);
     }
 
@@ -125,7 +125,7 @@ function composeFn(xlfs: string[], skls: string[]) {
 
         try {
             composed = await composer(xlfs[i], skls[i]) as string;
-        } catch (err) {
+        } catch (err: any) {
             throw new ComposeError(err.message, path);
         }
 
@@ -145,7 +145,7 @@ async function writeFn({composed, path}: ComposeFnOutput) {
         await mkdir(dirname(path), {recursive: true});
 
         return writeFile(file, composed);
-    } catch (err) {
+    } catch (err: any) {
         throw new ComposeError(err.message, file);
     }
 }

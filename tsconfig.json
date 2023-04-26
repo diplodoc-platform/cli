@@ -23,12 +23,14 @@
     "baseUrl": ".",
     "paths": {
       "*": ["./src/app/*"]
-    }
+    },
   },
   "include": ["src"],
   "exclude": ["node_modules"],
   "types": ["node"],
+  "files": ["src/daclarations.d.ts"],
   "ts-node": {
+    "files": true,
     "compilerOptions": {
       "module": "CommonJS"
     }

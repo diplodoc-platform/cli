@@ -91,7 +91,15 @@ export function App(props: DocInnerProps): ReactElement {
         <div className="App Layout__content">
             {data.leading
                 ? <DocLeadingPage {...data} {...pageProps}/>
-                : <DocPage {...data} {...pageProps}/>
+                : <DocPage
+                    singlePage={false}
+                    bookmarkedPage={false}
+                    isLiked={false}
+                    isDisliked={false}
+                    dislikeVariants={[]}
+                    {...data}
+                    {...pageProps}
+                />
             }
             <OpenapiSandbox />
         </div>

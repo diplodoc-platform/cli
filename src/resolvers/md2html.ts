@@ -131,7 +131,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
 
     return transform(content, {
         ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
+        plugins: plugins as MarkdownItPluginCb[],
         vars,
         root,
         path,

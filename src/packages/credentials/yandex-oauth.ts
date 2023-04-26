@@ -28,8 +28,8 @@ async function getYandexOAuthTokenFromHomeDir() {
         if (!token?.length) {
             throw new Error(error);
         }
-    } catch (err) {
-        logger.error(error);
+    } catch (err: any) {
+        logger.error(path, err);
 
         throw err;
     }

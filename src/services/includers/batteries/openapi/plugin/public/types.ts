@@ -1,6 +1,5 @@
 export interface Field<T = unknown, E = unknown> {
     validate(): Nullable<E>;
-
     value(): Nullable<T>;
 }
 

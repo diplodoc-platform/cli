@@ -3,7 +3,6 @@ input
 output
 output-html
 !tests/**/input
-local_tests
 
 # libraries
 npm-debug.log
