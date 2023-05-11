@@ -90,8 +90,6 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
     } catch (err) {
         throw new UnarchiveIncluderError(err.toString(), tocPath);
     }
-
-    return {input: output};
 }
 
 export {name, includerFunction};
