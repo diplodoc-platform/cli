@@ -4,7 +4,6 @@ import {isObject} from 'lodash';
 
 import {ArgvService} from '../index';
 import {IncludeMode} from '../../constants';
-import {logger} from '../../utils/logger';
 import {generic, sourcedocs, openapi, unarchive} from './batteries';
 
 import type {
@@ -14,16 +13,7 @@ import type {
     YfmTocInclude,
     YfmTocIncluder,
     YfmTocIncluders,
-    YfmTocIncluderObject,
-    YfmTocIncludersNormalized,
 } from '../../models';
-
-const includerUsage = `include:
-  path: <path-where-to-include>
-  includer:
-    name: <includer-name>
-    <includer-parameter>: <value-for-includer-parameter>
-`;
 
 const includersUsage = `include:
   path: <path-where-to-include>
@@ -60,7 +50,7 @@ function init(custom: Includer[] = []) {
 }
 
 async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
-    if (!(item && item.include) || !includeHasIncluders(item.include)) {
+    if (!item.include?.includers) {
         return;
     }
 
@@ -71,19 +61,15 @@ async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
     // normalize include mode (includers support link mode only)
     item.include.mode = IncludeMode.LINK;
 
-    const includers = normalizeIncludeIncluders(path, item.include) as YfmTocIncludersNormalized;
-
-    item.include.includers = includers;
+    const {status, message} = includersValid(item.include.includers);
+    if (!status) {
+        throw new IncludersError(message ?? '', path);
+    }
 
     let index = 0;
-
-    for (const {name, ...rest} of includers) {
+    for (const {name, ...rest} of item.include.includers) {
         const includer = getIncluder(name);
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const passedParams: Record<string, any> = {
-            ...rest,
-        };
+        const passedParams = {...rest};
 
         await applyIncluder({path, item, includer, passedParams, index, vars});
     }
@@ -94,37 +80,8 @@ async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
     index++;
 }
 
-function includeHasIncluders(include: YfmTocInclude) {
-    return include.includer || include.includers;
-}
-
 function includeValid(include: YfmTocInclude) {
     return (include.mode === IncludeMode.LINK || !include.mode) && include.path?.length;
-}
-
-function normalizeIncludeIncluders(path: string, include: YfmTocInclude) {
-    if (include.includers) {
-        const {status, message} = includersValid(include.includers);
-
-        if (status) {
-            return include.includers;
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        throw new IncludersError(message!, path);
-    }
-
-    logger.warn(path, 'includer field is getting depricated, use includers field\n' + includersUsage);
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const {status, message} = includerValid(include.includer!);
-
-    if (status) {
-        return [include.includer];
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    throw new IncludersError(message!, path);
 }
 
 function includersValid(includers: YfmTocIncluders) {
@@ -140,19 +97,11 @@ function includersValid(includers: YfmTocIncluders) {
 }
 
 function includerValid(includer: YfmTocIncluder) {
-    if (Array.isArray(includer)) {
-        return {status: false, message: `use includers field to provide multiple includers:\n${includersUsage}`};
-    }
-
-    if (typeof includer === 'string') {
-        return {status: false, message: `use updated includer format:\n${includerUsage}`};
-    }
-
     if (isObject(includer)) {
         if (typeof includer.name !== 'string') {
             return {
                 status: false,
-                message: 'use string to specify includers name',
+                message: 'use string in the includer.name to specify includers name',
             };
         }
 
@@ -165,7 +114,7 @@ function includerValid(includer: YfmTocIncluder) {
 
     return {
         status: false,
-        message: `use appropriate includer/includers format:\n${includerUsage}${includersUsage}`,
+        message: `use appropriate includers format:\n${includersUsage}`,
     };
 }
 
@@ -173,7 +122,7 @@ function getIncluder(includerName: string) {
     return includersMap[includerName];
 }
 
-function includerExists(includer: YfmTocIncluderObject) {
+function includerExists(includer: YfmTocIncluder) {
     return includersMap[includer.name as keyof typeof includersMap];
 }
 

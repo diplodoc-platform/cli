@@ -86,35 +86,30 @@ export interface YfmTocInclude {
     repo: string;
     path: string;
     mode?: IncludeMode;
-    includer?: YfmTocIncluder;
     includers?: YfmTocIncluders;
 }
 
-export type YfmTocIncludersNormalized = YfmTocIncluderObject[];
-
 export type YfmTocIncluders = YfmTocIncluder[];
 
-export type YfmTocIncluder = YfmTocIncluderName | YfmTocIncluderObject;
-
-export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] as const;
-
-export type YfmTocIncluderName = typeof includersNames[number];
-
-export type YfmTocIncluderObject = {
+export type YfmTocIncluder = {
     name: YfmTocIncluderName;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } & Record<string, unknown>;
 
-export type Includer = {
-    name: YfmTocIncluderName;
-    includerFunction: IncluderFunction;
-};
+export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] as const;
+
+export type YfmTocIncluderName = typeof includersNames[number];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type IncluderFunction = (args: IncluderFunctionParams) => Promise<any>;
+export type Includer<FnParams = any> = {
+    name: YfmTocIncluderName;
+    includerFunction: IncluderFunction<FnParams>;
+};
 
-export type IncluderFunctionParams<Params extends Record<string, unknown> = Record<string, unknown>> = {
+export type IncluderFunction<PassedParams> = (args: IncluderFunctionParams<PassedParams>) => Promise<void>;
+
+export type IncluderFunctionParams<PassedParams> = {
     // item that contains include that uses includer
     item: YfmToc;
     // base read directory path
@@ -125,8 +120,7 @@ export type IncluderFunctionParams<Params extends Record<string, unknown> = Reco
     tocPath: string;
     vars: YfmPreset;
     // arbitrary includer parameters
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    passedParams: Params;
+    passedParams: PassedParams;
     index: number;
 };
 
