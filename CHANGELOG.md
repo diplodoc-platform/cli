@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.11.0...v3.0.0) (2023-05-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* migrate to transform v3
+
+### Bug Fixes
+
+* **includers/unarchive:** throw away return value ([f1fa3ad](https://github.com/yandex-cloud/yfm-docs/commit/f1fa3ad3a11df657a30a7b9ec7aa4ae02f21c3a4))
+* migrate to transform v3 ([0003242](https://github.com/yandex-cloud/yfm-docs/commit/0003242946ef0f7d0f21c52657032d8bc2329b1a))
+
 ## [2.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.10.2...v2.11.0) (2023-04-25)
 
 
