@@ -1,4 +1,4 @@
-import {readFileSync} from 'fs';
+import {readFile} from 'fs/promises';
 import {dirname, join} from 'path';
 
 import {replaceDoubleToSingleQuotes} from '../utils';
@@ -53,7 +53,15 @@ async function getContributorsForNestedFiles(fileData: FileData, vcsConnector: V
         let nestedContributors: Contributors = {};
 
         if (!includeContributors.hasIncludes) {
-            const contentIncludeFile: string = readFileSync(relativeIncludeFilePath, 'utf8');
+            let contentIncludeFile: string;
+            try {
+                contentIncludeFile = await readFile(relativeIncludeFilePath, 'utf8');
+            } catch (err) {
+                if (err.code === 'ENOENT') {
+                    continue;
+                }
+                throw err;
+            }
 
             const newFileData: FileData = {
                 ...fileData,
