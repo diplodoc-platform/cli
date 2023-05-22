@@ -56,11 +56,13 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
     const {
         applyPresets,
         resolveConditions,
+        changelogs,
     } = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
+        changelogs,
         withSourceMap: true,
         keepNotVar: true,
     });
