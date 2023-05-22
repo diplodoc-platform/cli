@@ -1,9 +1,10 @@
 import {platform} from 'process';
 
-import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
+import {BUNDLE_FILENAME, CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {ResolveMd2HTMLResult, SinglePageResult, Resources} from '../models';
-import {PluginService} from '../services';
+import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
+import {render} from '@diplodoc/client';
 
 export interface GenerateStaticMarkup extends ResolveMd2HTMLResult {}
 
@@ -24,9 +25,13 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
     });
     const resources = getResources({style, script});
 
+    const {staticContent} = ArgvService.getConfig();
+
+    const html = staticContent ? render(props) : '';
+
     return `
         <!DOCTYPE html>
-        <html>
+        <html lang="${props.lang}">
             <head>
                 <meta charset="utf-8">
                 ${getMetadata(props.data.meta as Record<string, string>)}
@@ -41,11 +46,12 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
                 ${resources}
             </head>
             <body class="yc-root yc-root_theme_light">
-                <div id="root"></div>
+                <div id="root">${html}</div>
                 <script type="application/javascript">
+                   window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${pathToBundle}/app.js"></script>
+                <script type="application/javascript" src="${pathToBundle}/${BUNDLE_FILENAME}"></script>
             </body>
         </html>
     `;
