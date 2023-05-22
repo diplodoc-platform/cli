@@ -154,7 +154,7 @@ yargs
     .command(xliff)
     .command(translate)
     .command('$0', 'the default command', () => {}, main)
-    .version(VERSION)
+    .version(typeof VERSION !== 'undefined' ? VERSION : '')
     .help()
     .parse()
 ;

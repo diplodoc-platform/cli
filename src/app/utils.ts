@@ -33,10 +33,16 @@ export function getDocSettings() {
 }
 
 export function getSetting(name: string) {
+    if (typeof sessionStorage === 'undefined') {
+        return null;
+    }
     return sessionStorage.getItem(name);
 }
 
 export function saveSetting<T>(name: string, value: T) {
+    if (typeof sessionStorage === 'undefined') {
+        return;
+    }
     sessionStorage.setItem(name, String(value));
 }
 

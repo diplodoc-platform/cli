@@ -1,4 +1,7 @@
 import {platform} from 'process';
+import ReactDOM from 'react-dom/server';
+import React from 'react';
+import App, {DocInnerProps} from '../app/components/App/App';
 
 import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {ResolveMd2HTMLResult, SinglePageResult, Resources} from '../models';
@@ -24,9 +27,11 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
     });
     const resources = getResources({style, script});
 
+    const html = ReactDOM.renderToString(React.createElement(App, props as unknown as DocInnerProps));
+
     return `
         <!DOCTYPE html>
-        <html>
+        <html lang="${props.lang}">
             <head>
                 <meta charset="utf-8">
                 ${getMetadata(props.data.meta as Record<string, string>)}
@@ -41,7 +46,7 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
                 ${resources}
             </head>
             <body class="yc-root yc-root_theme_light">
-                <div id="root"></div>
+                <div id="root">${html}</div>
                 <script type="application/javascript">
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>

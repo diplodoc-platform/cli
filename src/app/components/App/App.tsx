@@ -43,7 +43,7 @@ export function App(props: DocInnerProps): ReactElement {
     const {data, router, lang} = props;
 
     const docSettings = getDocSettings();
-    const [isMobileView, setIsMobileView] = useState(document.body.clientWidth <= MOBILE_VIEW_WIDTH_BREAKPOINT);
+    const [isMobileView, setIsMobileView] = useState(typeof document !== 'undefined' && document.body.clientWidth <= MOBILE_VIEW_WIDTH_BREAKPOINT);
     const [wideFormat, setWideFormat] = useState(docSettings.wideFormat);
     const [fullScreen, setFullScreen] = useState(docSettings.fullScreen);
     const [showMiniToc, setShowMiniToc] = useState(docSettings.showMiniToc);

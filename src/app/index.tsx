@@ -6,7 +6,7 @@ import App from './components/App/App';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const props = (window as any).__DATA__ || {};
 
-ReactDOM.render(
+ReactDOM.hydrate(
     <App {...props} />,
     document.getElementById('root'),
 );
