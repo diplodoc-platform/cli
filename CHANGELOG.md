@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.1...v3.1.2) (2023-05-23)
+
+
+### Bug Fixes
+
+* binary packaging ([36316dd](https://github.com/yandex-cloud/yfm-docs/commit/36316dd808026c9c5a9f0a1ff17406db17db0db2))
+
 ## [3.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.0...v3.1.1) (2023-05-23)
 
 
