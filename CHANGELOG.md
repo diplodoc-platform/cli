@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.0...v3.1.1) (2023-05-23)
+
+
+### Bug Fixes
+
+* **contributors:** skip nested file not found exception ([#346](https://github.com/yandex-cloud/yfm-docs/issues/346)) ([9abbdd7](https://github.com/yandex-cloud/yfm-docs/commit/9abbdd70e90a2574e9e699845847da8d85187393))
+* fonts ([302ccf4](https://github.com/yandex-cloud/yfm-docs/commit/302ccf40cf6bdc5048db7724b773b3e68344bd29))
+
 ## [3.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.0.0...v3.1.0) (2023-05-18)
 
 
