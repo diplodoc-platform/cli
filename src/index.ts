@@ -160,7 +160,7 @@ yargs
     })
     .option('changelogs', {
         default: false,
-        describe: 'Extract changelogs',
+        describe: 'Extract changelogs in json files',
         type: 'boolean',
     })
     .check(argvValidator)

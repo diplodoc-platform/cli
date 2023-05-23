@@ -1,5 +1,5 @@
 import {readFileSync, writeFileSync} from 'fs';
-import {dirname, resolve} from 'path';
+import {dirname, resolve, join} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
@@ -22,7 +22,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         vars.__system,
     );
 
-    const {result} = transformMd2Md(content, {
+    const {result, changelogs} = transformMd2Md(content, {
         path: resolvedInputPath,
         destPath: outputPath,
         root: resolve(input),
@@ -34,6 +34,15 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     });
 
     writeFileSync(outputPath, result);
+
+    if (changelogs) {
+        const outputDir = dirname(outputPath);
+        changelogs.forEach((changes) => {
+            const changesPath = join(outputDir, `changes-${new Date(changes.date).getTime()}.json`);
+            writeFileSync(changesPath, JSON.stringify(changes));
+        });
+    }
+
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return undefined;
@@ -62,7 +71,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
-        changelogs,
+        withChangelogs: changelogs,
         withSourceMap: true,
         keepNotVar: true,
     });
@@ -84,11 +93,13 @@ function transformMd2Md(input: string, options: PluginOptions) {
     } = options;
 
     let output = input;
+    let changelogs;
 
     if (!disableLiquid) {
         const liquidResult = liquidMd2Md(input, vars, path);
 
         output = liquidResult.output;
+        changelogs = liquidResult.changelogs;
     }
 
     if (collectOfPlugins) {
@@ -106,6 +117,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
 
     return {
         result: output,
+        changelogs,
         logs: pluginLog.get(),
     };
 }
