@@ -9,6 +9,7 @@ import {logger, getVarsPerFile} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
+import {ChangelogItem} from '@doc-tools/transform/lib/plugins/changelog/types';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata} = options;
@@ -35,7 +36,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
     writeFileSync(outputPath, result);
 
-    if (changelogs) {
+    if (changelogs?.length) {
         const outputDir = dirname(outputPath);
         changelogs.forEach((changes) => {
             const changesPath = join(outputDir, `changes-${new Date(changes.date).getTime()}.json`);
@@ -65,13 +66,11 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
     const {
         applyPresets,
         resolveConditions,
-        changelogs,
     } = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
         substitutions: applyPresets,
-        withChangelogs: changelogs,
         withSourceMap: true,
         keepNotVar: true,
     });
@@ -80,6 +79,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 function transformMd2Md(input: string, options: PluginOptions) {
     const {
         disableLiquid,
+        changelogs: extractChangelogs,
     } = ArgvService.getConfig();
     const {
         vars = {},
@@ -93,13 +93,12 @@ function transformMd2Md(input: string, options: PluginOptions) {
     } = options;
 
     let output = input;
-    let changelogs;
+    const changelogs: ChangelogItem[] = [];
 
     if (!disableLiquid) {
         const liquidResult = liquidMd2Md(input, vars, path);
 
         output = liquidResult.output;
-        changelogs = liquidResult.changelogs;
     }
 
     if (collectOfPlugins) {
@@ -112,6 +111,8 @@ function transformMd2Md(input: string, options: PluginOptions) {
             log: pluginLog,
             copyFile: pluginCopyFile,
             collectOfPlugins,
+            changelogs,
+            extractChangelogs,
         });
     }
 

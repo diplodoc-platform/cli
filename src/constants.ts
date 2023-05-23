@@ -22,6 +22,7 @@ const openapi = require('@diplodoc/openapi-extension');
 
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
+changelog.collect = require('@doc-tools/transform/lib/plugins/changelog/collect');
 
 export const BUILD_FOLDER = 'build';
 export const BUNDLE_FOLDER = '_bundle';
