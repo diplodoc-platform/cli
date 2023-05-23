@@ -1,7 +1,8 @@
 const {resolve} = require('path');
+const {BannerPlugin} = require('webpack');
 
 const webConfig = {
-    mode: 'production',
+    mode: 'development',
     target: 'web',
     entry: './src/app/index.tsx',
     output: {
@@ -65,6 +66,7 @@ const webConfig = {
 
 const ssrConfig = {
     ...webConfig,
+    mode: 'production',
     target: 'node',
     devtool: 'source-map',
     module: {
@@ -100,6 +102,12 @@ module.exports = [
             ...ssrConfig.output,
             filename: 'index.js',
         },
+        plugins: [
+            new BannerPlugin({
+                banner: '#!/usr/bin/env node',
+                raw: true,
+            }),
+        ],
     },
     {
         ...ssrConfig,
