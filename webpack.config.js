@@ -79,7 +79,7 @@ const ssrConfig = {
             }, {
                 test: /\.s?css$/,
                 use: [
-                    {loader: 'style-loader'},
+                    {loader: 'style-loader', options: {injectType: 'lazyStyleTag'}},
                     {loader: 'css-loader'},
                     {loader: 'sass-loader'},
                 ],

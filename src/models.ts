@@ -54,6 +54,7 @@ export interface YfmArgv extends YfmConfig {
     addSystemMeta: boolean;
     addMapFile: boolean;
     allowCustomResources: boolean;
+    staticContent: boolean;
 }
 
 export interface DocPreset {

@@ -148,6 +148,11 @@ yargs
         describe: 'Allow loading custom resources',
         type: 'boolean',
     })
+    .option('static-content', {
+        default: false,
+        describe: 'Include static content in the page',
+        type: 'boolean',
+    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')

@@ -5,7 +5,7 @@ import App, {DocInnerProps} from '../app/components/App/App';
 
 import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {ResolveMd2HTMLResult, SinglePageResult, Resources} from '../models';
-import {PluginService} from '../services';
+import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
 
 export interface GenerateStaticMarkup extends ResolveMd2HTMLResult {}
@@ -27,7 +27,11 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
     });
     const resources = getResources({style, script});
 
-    const html = ReactDOM.renderToString(React.createElement(App, props as unknown as DocInnerProps));
+    const {staticContent} = ArgvService.getConfig();
+
+    const html = staticContent ?
+        ReactDOM.renderToString(React.createElement(App, props as unknown as DocInnerProps)) :
+        '';
 
     return `
         <!DOCTYPE html>
