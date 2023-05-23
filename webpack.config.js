@@ -64,7 +64,7 @@ const webConfig = {
     },
 };
 
-const ssrConfig = {
+const cliConfig = {
     ...webConfig,
     mode: 'production',
     target: 'node',
@@ -96,10 +96,10 @@ const ssrConfig = {
 module.exports = [
     webConfig,
     {
-        ...ssrConfig,
+        ...cliConfig,
         entry: './src/index.ts',
         output: {
-            ...ssrConfig.output,
+            ...cliConfig.output,
             filename: 'index.js',
         },
         plugins: [
@@ -110,10 +110,10 @@ module.exports = [
         ],
     },
     {
-        ...ssrConfig,
+        ...cliConfig,
         entry: './src/workers/linter/index.ts',
         output: {
-            ...ssrConfig.output,
+            ...cliConfig.output,
             filename: 'linter.js',
         },
     },
