@@ -39,7 +39,8 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     if (changelogs?.length) {
         const outputDir = dirname(outputPath);
         changelogs.forEach((changes) => {
-            const changesPath = join(outputDir, `changes-${new Date(changes.date).getTime()}.json`);
+            const timestamp = Math.trunc(new Date(changes.date).getTime() / 1000);
+            const changesPath = join(outputDir, `changes-${timestamp}.json`);
             writeFileSync(changesPath, JSON.stringify(changes));
         });
     }
