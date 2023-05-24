@@ -1,5 +1,28 @@
 # Changelog
 
+## [3.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.1...v3.1.2) (2023-05-23)
+
+
+### Bug Fixes
+
+* binary packaging ([36316dd](https://github.com/yandex-cloud/yfm-docs/commit/36316dd808026c9c5a9f0a1ff17406db17db0db2))
+
+## [3.1.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.0...v3.1.1) (2023-05-23)
+
+
+### Bug Fixes
+
+* **contributors:** skip nested file not found exception ([#346](https://github.com/yandex-cloud/yfm-docs/issues/346)) ([9abbdd7](https://github.com/yandex-cloud/yfm-docs/commit/9abbdd70e90a2574e9e699845847da8d85187393))
+* fonts ([302ccf4](https://github.com/yandex-cloud/yfm-docs/commit/302ccf40cf6bdc5048db7724b773b3e68344bd29))
+
+## [3.1.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.0.0...v3.1.0) (2023-05-18)
+
+
+### Features
+
+* **cmd/xliff:** compose xliff and skeleton into markdown ([f9a4115](https://github.com/yandex-cloud/yfm-docs/commit/f9a4115f36da97f5f07cba8164749417c86a9738))
+* **cmd/xliff:** extract xliff and skeleton ([603d990](https://github.com/yandex-cloud/yfm-docs/commit/603d99075fd1e70c0ae649ea523843d9fa61921b))
+
 ## [3.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v2.11.0...v3.0.0) (2023-05-12)
 
 

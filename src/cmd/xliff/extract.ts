@@ -1,25 +1,22 @@
-import {resolve, join, dirname} from 'path';
 const {promises: {readFile, writeFile, mkdir}} = require('fs');
+import {join, dirname, extname} from 'path';
 
-const yfm2xliff = require('@doc-tools/yfm2xliff/lib/cjs');
+import markdownTranslation, {ExtractParameters} from '@diplodoc/markdown-translation';
+import {Arguments, Argv} from 'yargs';
+import {eachLimit} from 'async';
 
 import {ArgvService} from '../../services';
 import {glob, logger} from '../../utils';
-import {MD_EXT_NAME, SKL_EXT_NAME, XLF_EXT_NAME} from './constants';
-
-import {Arguments} from 'yargs';
 
 const command = 'extract';
 
 const description = 'extract xliff and skeleton from yfm documentation';
 
-const extract = {command, description, handler};
+const extract = {command, description, handler, builder};
 
 const MD_GLOB = '**/*.md';
 
-const MDExtPattern = `\\.${MD_EXT_NAME}$`;
-const MDExtFlags = 'mui';
-const MDExtRegExp = new RegExp(MDExtPattern, MDExtFlags);
+const MAX_CONCURRENCY = 50;
 
 class ExtractError extends Error {
     path: string;
@@ -31,122 +28,208 @@ class ExtractError extends Error {
     }
 }
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+const USAGE = `yfm xliff extract \
+--input <folder-with-markdown> \
+--output <folder-to-store-xlff-and-skeleton> \
+--sll <source-language>-<source-locale> \
+--tll <target-language>-<target-locale>
+
+where <source/target-language> is the language code, as described in ISO 639-1.
+
+where <source/target-locale> is the locale code in alpha-2 format, as described in ISO 3166-1`;
+
+function builder<T>(argv: Argv<T>) {
+    return argv
+        .option('source-language-locale', {
+            alias: 'sll',
+            describe: 'source language and locale',
+            type: 'string',
+        }).option('target-language-locale', {
+            alias: 'tll',
+            describe: 'target language and locale',
+            type: 'string',
+        }).option('input', {
+            alias: 'i',
+            describe: 'input folder with markdown files',
+            type: 'string',
+        }).option('output', {
+            alias: 'o',
+            describe: 'output folder to store xliff and skeleton files',
+            type: 'string',
+        }).demandOption(['source-language-locale', 'target-language-locale', 'input', 'output'], USAGE);
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function handler(args: Arguments<any>) {
     ArgvService.init({
         ...args,
     });
 
-    const {input, output} = args;
+    const {input, output, sourceLanguageLocale, targetLanguageLocale} = args;
 
-    logger.info(input, `extracting skeleton and xliff files from: ${input} to: ${output}`);
+    let source;
+    let target;
 
     try {
-        let cache = {};
-        let found = [];
+        source = parseLanguageLocale(sourceLanguageLocale);
+        target = parseLanguageLocale(targetLanguageLocale);
+    } catch (err) {
+        if (err instanceof Error) {
+            logger.error(input, err.message);
+        }
+    }
 
+    let cache = {};
+    let found: string[] = [];
+
+    try {
         ({state: {found, cache}} = await glob(join(input, MD_GLOB), {
             nosort: true,
             cache,
         }));
-
-        const data = await Promise.all(found.map(readFn(input, output)));
-
-        if (!data?.length) {
-            throw new ExtractError('failed reading skeleton and xliff files', input);
-        }
-
-        logger.info(input, `finished reading markdown from: ${input}`);
-
-        const xlfs = await Promise.all(data.map(extractFn));
-
-        await Promise.all(xlfs.map(writeFn));
-
-        logger.info(input, `finished extracting skeleton and xliff files to: ${output}`);
     } catch (err) {
-        if (err instanceof Error || err instanceof ExtractError) {
-            const message = err.message;
-
-            const file = err instanceof ExtractError ? err.path : '';
-
-            logger.error(file, message);
+        if (err instanceof Error) {
+            logger.error(input, err.message);
         }
     }
-}
 
-export type ReadFnOutput = {
-    md: string;
-    mdPath: string;
-    sklPath: string;
-    xlfPath: string;
-};
-
-function readFn(input: string, output: string) {
-    return async (path: string): Promise<ReadFnOutput> => {
-        let read;
-
-        logger.info(path, 'reading markdown');
-
-        try {
-            const outputPath = path.replace(input, output);
-
-            read = ({
-                md: await readFile(resolve(path), {encoding: 'utf-8'}),
-                mdPath: resolve(path),
-                sklPath: resolve(outputPath.replace(MDExtRegExp, `.${SKL_EXT_NAME}.${MD_EXT_NAME}`)),
-                xlfPath: resolve(outputPath.replace(MDExtRegExp, `.${XLF_EXT_NAME}`)),
-            });
-        } catch (err) {
-            throw new ExtractError(err.message, path);
-        }
-
-        return read;
-    };
-}
-
-export type ExtractFnOutput = {
-    extracted: {
-        skeleton: string;
-        xliff: string;
-        data: {
-            skeletonFilename: string;
-        };
-    };
-    xlfPath: string;
-};
-
-async function extractFn(datum: ReadFnOutput): Promise<ExtractFnOutput> {
-    let extracted;
-
-    logger.info(datum.mdPath, 'extracting xliff and skeleton');
+    const pipelineParameters = {source, target, input, output};
+    const configuredPipeline = pipeline(pipelineParameters);
 
     try {
-        extracted = {extracted: await yfm2xliff.extract(datum), xlfPath: datum.xlfPath};
+        logger.info(input, 'starting xliff and skeleton generation pipeline');
+
+        await eachLimit(found, MAX_CONCURRENCY, configuredPipeline);
+
+        logger.info(input, 'finished xliff and skeleton generation pipeline');
     } catch (err) {
-        throw new ExtractError(err.message, datum.mdPath);
+        if (err instanceof Error || err instanceof ExtractError) {
+            const file = err instanceof ExtractError ? err.path : input;
+
+            logger.error(file, err.message);
+        }
     }
+}
+
+function parseLanguageLocale(languageLocale: string) {
+    const [language, locale] = languageLocale.split('-');
+    if (language?.length && locale?.length) {
+        return {language, locale};
+    }
+
+    throw new Error('invalid language-locale string');
+}
+
+export type PipelineParameters = {
+    input: string;
+    output: string;
+    source: ExtractParameters['source'];
+    target: ExtractParameters['target'];
+};
+
+function pipeline(params: PipelineParameters) {
+    const {input, output, source, target} = params;
+
+    return async (markdownPath: string) => {
+        const markdown = await reader({path: markdownPath});
+        const extension = extname(markdownPath);
+
+        const outputRelativePath = markdownPath
+            .replace(extension, '')
+            .slice(input.length);
+
+        const outputPath = join(output, outputRelativePath);
+        const xlfPath = outputPath + '.xliff';
+        const skeletonPath = outputPath + '.skl.md';
+
+        const extractParameters = {
+            markdownPath,
+            skeletonPath,
+            markdown,
+            source,
+            target,
+        };
+
+        const extracted = await extractor(extractParameters);
+
+        const writerParameters = {
+            ...extracted,
+            xlfPath,
+            skeletonPath,
+        };
+
+        await writer(writerParameters);
+    };
+}
+
+export type ReaderParameters = {
+    path: string;
+};
+
+async function reader(params: ReaderParameters) {
+    const {path} = params;
+
+    let markdown;
+    try {
+        logger.info(path, 'reading markdown file');
+
+        markdown = await readFile(path, {encoding: 'utf-8'});
+
+        logger.info(path, 'finished reading markdown file');
+    } catch (err) {
+        if (err instanceof Error) {
+            throw new ExtractError(err.message, path);
+        }
+    }
+
+    return markdown;
+}
+
+export type ExtractorParameters = {
+    source: ExtractParameters['source'];
+    target: ExtractParameters['target'];
+    skeletonPath: string;
+    markdownPath: string;
+    markdown: string;
+};
+
+async function extractor(params: ExtractorParameters) {
+    let extracted;
+
+    logger.info(params.markdownPath, 'generating skeleton and xliff from markdown');
+
+    try {
+        extracted = markdownTranslation.extract(params);
+    } catch (err) {
+        if (err instanceof Error) {
+            throw new ExtractError(err.message, params.markdownPath);
+        }
+    }
+
+    logger.info(params.markdownPath, 'finished generating skeleton and xliff from markdown');
 
     return extracted;
 }
 
-async function writeFn({
-    extracted: {skeleton, data: {skeletonFilename}, xliff},
-    xlfPath,
-}: ExtractFnOutput): Promise<void> {
-    const path = skeletonFilename + ' | ' + xlfPath;
+export type WriterParameters = {
+    skeletonPath: string;
+    skeleton: string;
+    xlfPath: string;
+    xlf: string;
+};
 
-    logger.info(path, 'writing skeleton and xliff');
+async function writer(params: WriterParameters) {
+    const {xlfPath, skeletonPath, xlf, skeleton} = params;
 
-    try {
-        await mkdir(dirname(xlfPath), {recursive: true});
+    logger.info(params.xlfPath, 'writing xliff file');
+    logger.info(params.skeletonPath, 'writing skeleton file');
 
-        await Promise.all([
-            writeFile(skeletonFilename, skeleton),
-            writeFile(xlfPath, xliff),
-        ]);
-    } catch (err) {
-        throw new ExtractError(err.message, path);
-    }
+    await mkdir(dirname(xlfPath), {recursive: true});
+
+    await Promise.all([writeFile(skeletonPath, skeleton), writeFile(xlfPath, xlf)]);
+
+    logger.info(params.xlfPath, 'finished writing xliff file');
+    logger.info(params.skeletonPath, 'finished writing skeleton file');
 }
 
 export {extract};
