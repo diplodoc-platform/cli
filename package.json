@@ -17,7 +17,9 @@
     "src"
   ],
   "scripts": {
-    "build": "webpack",
+    "build": "npm run build:app && npm run build:cli",
+    "build:app": "webpack",
+    "build:cli": "node scripts/build.cli.js",
     "start": "node build/index.js",
     "start-ts": "ts-node src/index.ts",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
@@ -92,6 +94,7 @@
     "babel-loader": "8.2.3",
     "bem-cn-lite": "^3.0.0",
     "css-loader": "3.6.0",
+    "esbuild": "^0.17.17",
     "eslint": "6.8.0",
     "eslint-plugin-react": "7.28.0",
     "eslint-plugin-react-hooks": "3.0.0",
@@ -108,9 +111,9 @@
     "ts-jest": "27.1.2",
     "ts-node": "^10.9.1",
     "typescript": "3.9.10",
-    "webpack": "5.83.1",
+    "webpack": "4.46.0",
     "webpack-bundle-analyzer": "^4.6.1",
-    "webpack-cli": "5.1.1"
+    "webpack-cli": "3.3.12"
   },
   "husky": {
     "hooks": {

@@ -1,7 +1,6 @@
 import {platform} from 'process';
 import ReactDOM from 'react-dom/server';
 import React from 'react';
-import App, {DocInnerProps} from '../app/components/App/App';
 
 import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {ResolveMd2HTMLResult, SinglePageResult, Resources} from '../models';
@@ -30,7 +29,7 @@ export function generateStaticMarkup(props: GenerateStaticMarkup, pathToBundle: 
     const {staticContent} = ArgvService.getConfig();
 
     const html = staticContent ?
-        ReactDOM.renderToString(React.createElement(App, props as unknown as DocInnerProps)) :
+        ReactDOM.renderToString(React.createElement(require('../app/components/App/App').App, props)) :
         '';
 
     return `
