@@ -101,7 +101,8 @@ export function prepareTableRowData(allRefs: Refs, value: JSONSchema6, key?: str
             ref: inner.ref,
         };
     }
-    return {type: `${inferType(value)}`, description: prepareComplexDescription(description, value)};
+    const format = value.format !== undefined ? `&lt;${value.format}&gt;` : '';
+    return {type: `${inferType(value)}` + format, description: prepareComplexDescription(description, value)};
 }
 
 function prepareComplexDescription(baseDescription: string, value: JSONSchema6): string {
