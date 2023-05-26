@@ -1,6 +1,7 @@
 import {
     Contributors,
     ContributorsByPathFunction,
+    ExternalAuthorByPathFunction,
     NestedContributorsForPathFunction,
     UserByLoginFunction,
 } from '../models';
@@ -26,6 +27,7 @@ export enum GitHubConnectorFields {
 }
 
 export interface VCSConnector {
+    getExternalAuthorByPath: ExternalAuthorByPathFunction;
     addNestedContributorsForPath: NestedContributorsForPathFunction;
     getContributorsByPath: ContributorsByPathFunction;
     getUserByLogin: UserByLoginFunction;
