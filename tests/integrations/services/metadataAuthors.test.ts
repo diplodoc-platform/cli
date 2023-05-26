@@ -26,6 +26,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         addNestedContributorsForPath: () => { },
         getContributorsByPath: () => Promise.resolve(null),
         getUserByLogin: () => Promise.resolve(expectedAuthorData),
+        getExternalAuthorByPath: () => expectedAuthorData,
     };
 
     describe('should return file content with updated author in metadata', () => {

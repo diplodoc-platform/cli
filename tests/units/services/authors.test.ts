@@ -15,6 +15,7 @@ const defaultVCSConnector: VCSConnector = {
     addNestedContributorsForPath: () => { },
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(null),
+    getExternalAuthorByPath: () => null,
 };
 
 describe('getAuthorDetails returns author details', () => {

@@ -58,6 +58,10 @@ yargs
         default: 'html',
         describe: 'Format of output file <html|md>',
     })
+    .option('ignore-author', {
+        default: '',
+        describe: 'Ignore authors if they contain passed string',
+    })
     .option('vars', {
         alias: 'v',
         default: '{}',
