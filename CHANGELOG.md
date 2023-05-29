@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.2...v3.2.0) (2023-05-29)
+
+
+### Features
+
+* **cmd/xliff:** notes plugin support ([b339e90](https://github.com/yandex-cloud/yfm-docs/commit/b339e90c7280e73af165b55bd72dec3b1f551c5c))
+
 ## [3.1.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.1...v3.1.2) (2023-05-23)
 
 
