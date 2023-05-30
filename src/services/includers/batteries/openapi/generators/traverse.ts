@@ -253,7 +253,11 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
     }
     if (combiners.length === 1) {
         // save original object to search it in Refs by ===
-        return merge(combiners[0]);
+        const result = merge(combiners[0]);
+        if (value.description && result.description !== undefined) {
+            result.description = value.description;
+        }
+        return result;
     }
 
     if (value.oneOf?.length) {
@@ -270,7 +274,6 @@ function merge(value: OpenJSONSchemaDefinition, allRefs?: Refs): OpenJSONSchema 
 
     let description = '';
     const properties: Record<string, any> = {};
-
     for (const element of value.allOf || []) {
         if (typeof element === 'boolean') {
             throw Error('Boolean in allOf isn\'t supported');
