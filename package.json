@@ -58,7 +58,7 @@
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "shelljs": "0.8.5",
-    "simple-git": "3.16.0",
+    "simple-git": "3.19.0",
     "slugify": "^1.6.5",
     "tar-stream": "^2.2.0",
     "threads": "1.7.0",
