@@ -10,5 +10,5 @@ updates:
     schedule:
       interval: "daily"
     reviewers:
-      - "diplodoc-platform/contributors"
+      - "yandex-cloud/yfm"
     open-pull-requests-limit: 5
