@@ -79,7 +79,7 @@
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "^3.0.0",
     "@types/js-yaml": "4.0.5",
-    "@types/lodash": "4.14.178",
+    "@types/lodash": "4.14.195",
     "@types/markdown-it": "10.0.3",
     "@types/mime-types": "2.1.1",
     "@types/node": "14.*",
