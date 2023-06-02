@@ -70,7 +70,7 @@
     "@babel/core": "7.22.1",
     "@babel/plugin-proposal-class-properties": "7.16.7",
     "@babel/plugin-syntax-top-level-await": "7.14.5",
-    "@babel/plugin-transform-runtime": "7.16.8",
+    "@babel/plugin-transform-runtime": "7.22.4",
     "@babel/preset-env": "7.16.8",
     "@babel/preset-react": "7.16.7",
     "@babel/preset-typescript": "7.16.7",
