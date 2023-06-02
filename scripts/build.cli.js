@@ -1,10 +1,14 @@
 const esbuild = require('esbuild');
-const {version} = require('../package.json');
+const {version, dependencies} = require('../package.json');
+const {target} = require('../tsconfig.json').compilerOptions;
+const diplodocExtensions = Object.keys(dependencies).filter((name) => name.startsWith('@diplodoc'));
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
     packages: 'external',
     platform: 'node',
+    target: target,
+    format: 'cjs',
     bundle: true,
     sourcemap: true,
     define: {
@@ -17,17 +21,18 @@ const builds = [
     [['src/workers/linter/index.ts'], 'build/linter.js'],
 ];
 
-builds.forEach(([entries, target]) => {
+builds.forEach(([entries, outfile]) => {
     const currentConfig = {
         ...commonConfig,
         entryPoints: entries,
-        outfile: target,
+        outfile,
     };
 
-    if (target.endsWith('index.js')) {
+    if (outfile.endsWith('index.js')) {
         currentConfig.banner = {
             js: '#!/usr/bin/env node',
         };
+        currentConfig.external = diplodocExtensions;
     }
 
     esbuild.build(currentConfig);

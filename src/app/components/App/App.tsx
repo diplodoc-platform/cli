@@ -15,9 +15,10 @@ import {getDocSettings, updateRootClassName, withSavingSetting} from '../../util
 import '../../interceptors/leading-page-links';
 
 import {useMermaid} from '@diplodoc/mermaid-extension/hooks';
-import {Runtime as OpenapiSandbox} from '../../../services/includers/batteries/openapi/plugin/public';
-import '../../../services/includers/batteries/openapi/generators/style.scss';
+import {Runtime as OpenapiSandbox} from '@diplodoc/openapi-extension/runtime';
 
+// webpack@4.0 cannot parse node "exports" field. @todo fix, after migrate to webpack@5.0
+import '@diplodoc/openapi-extension/runtime/index.min.css';
 import '@doc-tools/components/styles/themes.scss';
 import '@doc-tools/components/styles/default.scss';
 import '@doc-tools/components/styles/typography.scss';

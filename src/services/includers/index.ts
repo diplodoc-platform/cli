@@ -4,7 +4,7 @@ import {isObject} from 'lodash';
 
 import {ArgvService} from '../index';
 import {IncludeMode} from '../../constants';
-import {generic, sourcedocs, openapi, unarchive} from './batteries';
+import {generic, sourcedocs, unarchive} from './batteries';
 
 import type {
     YfmPreset,
@@ -42,7 +42,7 @@ class IncludersError extends Error {
 function init(custom: Includer[] = []) {
     if (includersMap) { return; }
 
-    includersMap = {generic, sourcedocs, openapi, unarchive};
+    includersMap = {generic, sourcedocs, unarchive};
 
     for (const includer of custom) {
         includersMap[includer.name] = includer;
