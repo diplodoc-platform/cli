@@ -30,6 +30,7 @@ import {argvValidator} from './validator';
 import {prepareMapFile} from './steps/processMapFile';
 import {copyFiles} from './utils';
 import {Resources} from './models';
+import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 console.time(MAIN_TIMER_ID);
 
@@ -172,7 +173,7 @@ async function main(args: Arguments<any>) {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        Includers.init();
+        Includers.init([OpenapiIncluder as any]);
 
         const {
             output: outputFolderPath,

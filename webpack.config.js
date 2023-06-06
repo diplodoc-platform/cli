@@ -1,4 +1,4 @@
-const {resolve} = require('path');
+const path = require('path');
 
 module.exports = [
     {
@@ -6,7 +6,7 @@ module.exports = [
         target: 'web',
         entry: './src/app/index.tsx',
         output: {
-            path: resolve(__dirname, 'build'),
+            path: path.resolve(__dirname, 'build'),
             filename: 'app.js',
         },
         resolve: {
@@ -19,10 +19,10 @@ module.exports = [
             rules: [
                 {
                     test: /\.[tj]sx?$/,
-                    use: ['babel-loader'],
+                    use: 'babel-loader',
                     include: [
-                        resolve(__dirname, 'src'),
-                        require.resolve('@diplodoc/mermaid-extension'),
+                        path.resolve(__dirname, 'src'),
+                        path.resolve(__dirname, 'node_modules', '@diplodoc'),
                     ],
                 }, {
                     test: /\.s?css$/,

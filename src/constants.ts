@@ -17,11 +17,10 @@ const monospace = require('@doc-tools/transform/lib/plugins/monospace');
 const table = require('@doc-tools/transform/lib/plugins/table');
 const term = require('@doc-tools/transform/lib/plugins/term');
 const mermaid = require('@diplodoc/mermaid-extension');
+const openapi = require('@diplodoc/openapi-extension');
 
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
-
-import openapiSandbox from './services/includers/batteries/openapi/plugin';
 
 export const BUILD_FOLDER = 'build';
 export const BUNDLE_FOLDER = '_bundle';
@@ -84,7 +83,7 @@ export const YFM_PLUGINS = [
     monospace,
     table,
     term,
-    openapiSandbox,
+    openapi.transform(),
     mermaid.transform(),
 ];
 
