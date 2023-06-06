@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.2.0...v3.3.0) (2023-06-06)
+
+
+### Features
+
+* remove openapi ([cac389f](https://github.com/yandex-cloud/yfm-docs/commit/cac389f55300f81376759ece0ca5911ac4874680))
+
 ## [3.2.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.1.2...v3.2.0) (2023-05-29)
 
 
