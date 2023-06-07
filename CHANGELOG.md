@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.3.0...v3.4.0) (2023-06-07)
+
+
+### Features
+
+* **cmd/xliff:** dipldodoc cuts, gfm tables ([00e6ec6](https://github.com/yandex-cloud/yfm-docs/commit/00e6ec6a9c031045f97de4aa33ac755d5322cbfa))
+
 ## [3.3.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.2.0...v3.3.0) (2023-06-06)
 
 
