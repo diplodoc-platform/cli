@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {dirname} from 'path';
 const os = require('os');
 const notes = require('@doc-tools/transform/lib/plugins/notes');
 const anchors = require('@doc-tools/transform/lib/plugins/anchors');
@@ -64,7 +64,7 @@ export enum ResourceType {
     script = 'script',
 }
 
-export const BUILD_FOLDER_PATH = resolve(__dirname, '../node_modules', '@diplodoc/client');
+export const BUILD_FOLDER_PATH = dirname(require.resolve('@diplodoc/client'));
 
 export const YFM_PLUGINS = [
     meta,
