@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.1...v3.6.0) (2023-06-08)
+
+
+### Features
+
+* **authors:** collect authors from github ([3decd33](https://github.com/yandex-cloud/yfm-docs/commit/3decd3337b8223e3171e2687f09ea87b81718834))
+
 ## [3.5.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.0...v3.5.1) (2023-06-08)
 
 
