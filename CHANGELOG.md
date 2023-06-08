@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.4.0...v3.5.0) (2023-06-08)
+
+
+### Features
+
+* Add static markup mode ([b3524c7](https://github.com/yandex-cloud/yfm-docs/commit/b3524c7b811f9dc7a3e1f66c49723cb116ffb0df))
+
 ## [3.4.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.3.0...v3.4.0) (2023-06-07)
 
 
