@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.0...v3.5.1) (2023-06-08)
+
+
+### Bug Fixes
+
+* Resolve diplodoc/client bundle ([9974113](https://github.com/yandex-cloud/yfm-docs/commit/99741136291837107ed6c20ef8e746a91642205c))
+
 ## [3.5.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.4.0...v3.5.0) (2023-06-08)
 
 
