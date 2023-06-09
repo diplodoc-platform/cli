@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.6.0...v3.7.0) (2023-06-09)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/sup syntax support ([58e4d67](https://github.com/yandex-cloud/yfm-docs/commit/58e4d6708656cc988cb326a84973657c2213a923))
+
 ## [3.6.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.5.1...v3.6.0) (2023-06-08)
 
 
