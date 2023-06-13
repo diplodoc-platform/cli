@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.0...v3.7.1) (2023-06-13)
+
+
+### Bug Fixes
+
+* update openapi plugin ([5e88205](https://github.com/yandex-cloud/yfm-docs/commit/5e882054a05fac6fb82d569ad8d3edb5072c63d2))
+
 ## [3.7.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.6.0...v3.7.0) (2023-06-09)
 
 
