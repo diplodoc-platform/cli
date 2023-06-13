@@ -61,7 +61,7 @@
     "threads": "1.7.0",
     "threads-plugin": "1.4.0",
     "walk-sync": "2.2.0",
-    "yargs": "15.4.1"
+    "yargs": "17.7.2"
   },
   "devDependencies": {
     "@types/async": "^3.2.15",
@@ -73,7 +73,7 @@
     "@types/node": "14.*",
     "@types/shelljs": "0.8.12",
     "@types/tar-stream": "^2.2.2",
-    "@types/yargs": "15.0.14",
+    "@types/yargs": "17.0.24",
     "@typescript-eslint/eslint-plugin": "2.34.0",
     "@typescript-eslint/parser": "2.34.0",
     "babel-eslint": "10.1.0",
