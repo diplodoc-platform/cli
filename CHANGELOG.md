@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.1...v3.8.0) (2023-06-14)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/checkbox syntax support ([45a728f](https://github.com/yandex-cloud/yfm-docs/commit/45a728fc04575ca9ddbd1e85d085715c596a4073))
+
 ## [3.7.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.0...v3.7.1) (2023-06-13)
 
 
