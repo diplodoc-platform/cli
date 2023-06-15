@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.0...v3.8.1) (2023-06-15)
+
+
+### Bug Fixes
+
+* update plugin ([f70ff35](https://github.com/yandex-cloud/yfm-docs/commit/f70ff3530d28ebf27498ef5c033d18eb2c213e53))
+
 ## [3.8.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.7.1...v3.8.0) (2023-06-14)
 
 
