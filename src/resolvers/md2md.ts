@@ -1,5 +1,5 @@
-import {readFileSync, writeFileSync} from 'fs';
-import {dirname, resolve, join} from 'path';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {dirname, resolve, join, basename, extname} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
@@ -38,9 +38,26 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
     if (changelogs?.length) {
         const outputDir = dirname(outputPath);
-        changelogs.forEach((changes) => {
-            const timestamp = Math.trunc(new Date(changes.date).getTime() / 1000);
-            const changesPath = join(outputDir, `changes-${timestamp}.json`);
+        changelogs.forEach((changes, index) => {
+            let changesName;
+            const changesDate = changes.date as string | Date | undefined;
+            const changesIdx = changes.index as number | undefined;
+            if (typeof changesIdx === 'number') {
+                changesName = changesIdx;
+            }
+            if (!changesName && changesDate instanceof Date) {
+                changesName = changesDate.getTime();
+            }
+            if (!changesName) {
+                changesName = `name-${basename(outputPath, extname(outputPath))}-${String(index).padStart(3, '0')}`;
+            }
+
+            const changesPath = join(outputDir, `changes-${changesName}.json`);
+
+            if (existsSync(changesPath)) {
+                throw new Error(`Changelog ${changesPath} already exists!`);
+            }
+
             writeFileSync(changesPath, JSON.stringify(changes));
         });
     }
