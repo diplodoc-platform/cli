@@ -44,7 +44,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
             const changesDate = changes.date as string | undefined;
             const changesIdx = changes.index as number | undefined;
             if (typeof changesIdx === 'number') {
-                changesName = changesIdx;
+                changesName = String(changesIdx);
             }
             if (!changesName && changesDate && /^\d{4}/.test(changesDate)) {
                 changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
