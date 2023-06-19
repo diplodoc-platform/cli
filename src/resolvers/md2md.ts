@@ -61,7 +61,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
             writeFileSync(changesPath, JSON.stringify({
                 ...changes,
-                link: mdFilename,
+                source: mdFilename,
             }));
         });
     }
