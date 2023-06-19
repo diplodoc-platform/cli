@@ -37,6 +37,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     writeFileSync(outputPath, result);
 
     if (changelogs?.length) {
+        const mdFilename = basename(outputPath, extname(outputPath));
         const outputDir = dirname(outputPath);
         changelogs.forEach((changes, index) => {
             let changesName;
@@ -49,7 +50,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = Math.trunc(changesDate.getTime() / 1000);
             }
             if (!changesName) {
-                changesName = `name-${basename(outputPath, extname(outputPath))}-${String(index).padStart(3, '0')}`;
+                changesName = `name-${mdFilename}-${String(index).padStart(3, '0')}`;
             }
 
             const changesPath = join(outputDir, `changes-${changesName}.json`);
@@ -58,7 +59,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 throw new Error(`Changelog ${changesPath} already exists!`);
             }
 
-            writeFileSync(changesPath, JSON.stringify(changes));
+            writeFileSync(changesPath, JSON.stringify({
+                ...changes,
+                link: mdFilename,
+            }));
         });
     }
 
