@@ -50,7 +50,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
             }
             if (!changesName) {
-                changesName = `name-${mdFilename}-${String(index).padStart(3, '0')}`;
+                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(3, '0')}`;
             }
 
             const changesPath = join(outputDir, `changes-${changesName}.json`);
