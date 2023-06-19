@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.1...v3.9.0) (2023-06-19)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/anchors syntax support ([ab1ecc1](https://github.com/yandex-cloud/yfm-docs/commit/ab1ecc1e9e54ba240a93cd3a4ed71fe10c1003e6))
+
 ## [3.8.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.0...v3.8.1) (2023-06-15)
 
 
