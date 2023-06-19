@@ -41,13 +41,13 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         const outputDir = dirname(outputPath);
         changelogs.forEach((changes, index) => {
             let changesName;
-            const changesDate = changes.date as string | Date | undefined;
+            const changesDate = changes.date as string | undefined;
             const changesIdx = changes.index as number | undefined;
             if (typeof changesIdx === 'number') {
                 changesName = changesIdx;
             }
-            if (!changesName && changesDate instanceof Date) {
-                changesName = Math.trunc(changesDate.getTime() / 1000);
+            if (!changesName && changesDate && /^\d{4}/.test(changesDate)) {
+                changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
             }
             if (!changesName) {
                 changesName = `name-${mdFilename}-${String(index).padStart(3, '0')}`;
