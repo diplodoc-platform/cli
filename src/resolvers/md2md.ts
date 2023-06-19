@@ -46,7 +46,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = changesIdx;
             }
             if (!changesName && changesDate instanceof Date) {
-                changesName = changesDate.getTime();
+                changesName = Math.trunc(changesDate.getTime() / 1000);
             }
             if (!changesName) {
                 changesName = `name-${basename(outputPath, extname(outputPath))}-${String(index).padStart(3, '0')}`;
