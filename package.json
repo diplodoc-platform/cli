@@ -30,7 +30,7 @@
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
     "@diplodoc/client": "0.0.6",
-    "@diplodoc/markdown-translation": "^0.6.0",
+    "@diplodoc/markdown-translation": "^0.7.0",
     "@diplodoc/mermaid-extension": "0.0.2",
     "@diplodoc/openapi-extension": "^1.2.5",
     "@doc-tools/transform": "^3.0.2",
