@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.9.0...v3.10.0) (2023-06-20)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/monospace support ([aa50f30](https://github.com/yandex-cloud/yfm-docs/commit/aa50f3059311632b204630cd2b37046141d510d2))
+
 ## [3.9.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.8.1...v3.9.0) (2023-06-19)
 
 
