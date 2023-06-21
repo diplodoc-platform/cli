@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.11.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.0...v3.11.1) (2023-06-21)
+
+
+### Bug Fixes
+
+* @doc-tools/transform up to 3.1.2 ([39e5273](https://github.com/yandex-cloud/yfm-docs/commit/39e52732f8ec4df107abc2ef7591cb2069373531))
+* pass conditionsInCode to liquid when building with --output-format md ([e0ecd77](https://github.com/yandex-cloud/yfm-docs/commit/e0ecd7707edbdb4b183c92a7cd28a04ce0abba7d))
+
 ## [3.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.10.0...v3.11.0) (2023-06-21)
 
 
