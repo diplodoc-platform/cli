@@ -158,11 +158,6 @@ yargs
         describe: 'Include static content in the page',
         type: 'boolean',
     })
-    .option('changelogs', {
-        default: false,
-        describe: 'Extract changelogs in json files',
-        type: 'boolean',
-    })
     .check(argvValidator)
     .example('yfm -i ./input -o ./output', '')
     .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool')
