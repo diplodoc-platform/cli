@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.12.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.1...v3.12.0) (2023-06-21)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/file support ([7821b3e](https://github.com/yandex-cloud/yfm-docs/commit/7821b3e565fad713d38b2b592242b28e076e7379))
+
 ## [3.11.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.0...v3.11.1) (2023-06-21)
 
 
