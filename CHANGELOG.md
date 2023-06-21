@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.11.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.10.0...v3.11.0) (2023-06-21)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/imsize support ([85a3dd6](https://github.com/yandex-cloud/yfm-docs/commit/85a3dd6b32e29986a8b72bb82003e4ff9f9a930a))
+
 ## [3.10.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.9.0...v3.10.0) (2023-06-20)
 
 
