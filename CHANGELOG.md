@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.13.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.12.0...v3.13.0) (2023-06-22)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/links ref links {#T} ([8bdbeb5](https://github.com/yandex-cloud/yfm-docs/commit/8bdbeb50968cb228c3ee938f335c0e03ce4b937e))
+
 ## [3.12.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.11.1...v3.12.0) (2023-06-21)
 
 
