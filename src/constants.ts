@@ -24,7 +24,8 @@ images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
 
 export const BUILD_FOLDER = 'build';
 export const BUNDLE_FOLDER = '_bundle';
-export const BUNDLE_FILENAME = 'app.client.js';
+export const BUNDLE_JS_FILENAME = 'app.client.js';
+export const BUNDLE_CSS_FILENAME = 'app.client.css';
 export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';

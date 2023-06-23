@@ -1,3 +1,4 @@
+import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, resolve, join, relative} from 'path';
 import shell from 'shelljs';
 import {copyFileSync, readFileSync, writeFileSync} from 'fs';
@@ -15,7 +16,6 @@ import {
     SinglePageResult,
     PathData,
     YfmToc,
-    ResolveMd2HTMLResult,
     Resources,
     LeadingPage,
 } from '../models';
@@ -117,11 +117,11 @@ async function saveSinglePages(outputBundlePath: string) {
             const preparedToc = transformTocForSinglePage(toc, {
                 root: inputFolderPath,
                 currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
-            });
+            }) as YfmToc;
 
             const pageData = {
                 data: {
-                    leading: false,
+                    leading: false as const,
                     html: singlePageBody,
                     headings: [],
                     meta: resources || {},
@@ -131,7 +131,7 @@ async function saveSinglePages(outputBundlePath: string) {
                     pathname: SINGLE_PAGE_FILENAME,
                 },
                 lang: lang || Lang.RU,
-            } as ResolveMd2HTMLResult;
+            };
 
             const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
             const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
@@ -149,7 +149,7 @@ async function saveSinglePages(outputBundlePath: string) {
     }
 }
 
-function savePageResultForSinglePage(pageProps: ResolveMd2HTMLResult, pathData: PathData): void {
+function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathData): void {
     const {pathToFile, outputTocDir} = pathData;
 
     if (pageProps.data.leading) {
@@ -292,7 +292,7 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
     });
 }
 
-async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<ResolveMd2HTMLResult> {
+async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<DocInnerProps> {
     const {
         outputBundlePath,
         filename,
