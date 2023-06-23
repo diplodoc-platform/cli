@@ -77,14 +77,6 @@ export interface YfmToc extends Filter {
     hidden?: boolean;
 }
 
-export interface YfmTocItem extends Filter {
-    name: string;
-    href?: string;
-    items?: YfmTocItem[];
-    include?: YfmTocInclude;
-    id?: string;
-}
-
 export interface YfmTocInclude {
     repo: string;
     path: string;
@@ -235,22 +227,6 @@ export interface PathData {
     outputTocDir: string;
     inputFolderPath: string;
     outputFolderPath: string;
-}
-
-export interface ResolveMd2HTMLResult {
-    data: {
-        leading: boolean;
-        toc: YfmToc;
-        html: string;
-        title?: string;
-        headings: unknown[];
-        assets?: unknown[];
-        meta?: object;
-    };
-    router: {
-        pathname: string;
-    };
-    lang: Lang;
 }
 
 export type Resources = {
