@@ -31,7 +31,7 @@
     "@apidevtools/swagger-parser": "^10.1.0",
     "@diplodoc/client": "0.0.6",
     "@diplodoc/markdown-translation": "^0.10.0",
-    "@diplodoc/mermaid-extension": "0.0.2",
+    "@diplodoc/mermaid-extension": "0.0.5",
     "@diplodoc/openapi-extension": "^1.2.5",
     "@doc-tools/transform": "^3.1.2",
     "@doc-tools/yfm2xliff": "0.0.5",
