@@ -101,13 +101,16 @@
   "pkg": {
     "scripts": [
       "build/index.js",
-      "build/0.index.worker.js",
+      "build/linter.js",
       "build/plugins/*.js",
       "build/lint-rules/*.js",
       "build/default-lint-config.js",
       "build/head-content.js"
     ],
-    "assets": "build/app.js"
+    "assets": [
+      "node_modules/@diplodoc/client/build/app.client.js",
+      "node_modules/@diplodoc/client/build/app.client.css"
+    ]
   },
   "keywords": [
     "markdown",
