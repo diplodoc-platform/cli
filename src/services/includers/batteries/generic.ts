@@ -1,5 +1,5 @@
 import {readFile, writeFile, mkdir} from 'fs/promises';
-import {parse, join, dirname, relative} from 'path';
+import {parse, join, dirname} from 'path';
 
 import {updateWith} from 'lodash';
 import {dump} from 'js-yaml';
@@ -42,12 +42,15 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
         const tocDirPath = dirname(tocPath);
 
-        const contentPath = index === 0 ? join(writeBasePath, input) : join(readBasePath, input);
+        const contentPath = index === 0
+            ? join(writeBasePath, tocDirPath, input)
+            : join(readBasePath, tocDirPath, input);
 
         let cache = {};
         let found = [];
 
-        ({state: {found, cache}} = await glob(join(contentPath, MD_GLOB), {
+        ({state: {found, cache}} = await glob(MD_GLOB, {
+            cwd: contentPath,
             nosort: true,
             nocase: true,
             cache,
@@ -55,18 +58,16 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
         const writePath = join(writeBasePath, tocDirPath, item.include.path);
 
-        const filePaths = found.map((path) => relative(contentPath, path));
-
         await mkdir(writePath, {recursive: true});
 
-        for (const filePath of filePaths) {
+        for (const filePath of found) {
             const file = await readFile(join(contentPath, filePath));
 
             await mkdir(dirname(join(writePath, filePath)), {recursive: true});
             await writeFile(join(writePath, filePath), file);
         }
 
-        const graph = createGraphFromPaths(filePaths);
+        const graph = createGraphFromPaths(found);
 
         const toc = createToc(leadingPageName, item.include.path)(graph, []);
 
