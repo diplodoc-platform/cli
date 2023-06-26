@@ -43,7 +43,7 @@
     "async": "^3.2.4",
     "aws-sdk": "2.1403.0",
     "bem-cn-lite": "^4.1.0",
-    "chalk": "4.1.2",
+    "chalk": "5.2.0",
     "dotenv": "^16.0.3",
     "fast-xml-parser": "^4.0.11",
     "glob": "^8.0.3",
