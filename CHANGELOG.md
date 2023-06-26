@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.13.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.13.0...v3.13.1) (2023-06-23)
+
+
+### Bug Fixes
+
+* Bump openapi version ([fff14de](https://github.com/yandex-cloud/yfm-docs/commit/fff14de67e45db1cc8b13134e6e801eae0a6e5e7))
+1. Fixed missing refs, types of parameters now renders.
+2. Remove repeated tables.
+
 ## [3.13.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.12.0...v3.13.0) (2023-06-22)
 
 
