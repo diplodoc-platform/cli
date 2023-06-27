@@ -3,6 +3,7 @@ import {LintConfig} from '@doc-tools/transform/lib/yfmlint';
 
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {Lang, Stage, IncludeMode, ResourceType} from './constants';
+import {ChangelogItem} from '@doc-tools/transform/lib/plugins/changelog/types';
 
 export type VarsPreset = 'internal'|'external';
 
@@ -193,6 +194,8 @@ export interface PluginOptions {
     destPath?: string;
     destRoot?: string;
     collectOfPlugins?: (input: string, options: PluginOptions) => string;
+    changelogs?: ChangelogItem[];
+    extractChangelogs?: boolean;
 }
 
 export interface Plugin {

@@ -1,5 +1,5 @@
-import {readFileSync, writeFileSync} from 'fs';
-import {dirname, resolve} from 'path';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {dirname, resolve, join, basename, extname} from 'path';
 import shell from 'shelljs';
 import log from '@doc-tools/transform/lib/log';
 import liquid from '@doc-tools/transform/lib/liquid';
@@ -9,6 +9,7 @@ import {logger, getVarsPerFile} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
+import {ChangelogItem} from '@doc-tools/transform/lib/plugins/changelog/types';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata} = options;
@@ -22,7 +23,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         vars.__system,
     );
 
-    const {result} = transformMd2Md(content, {
+    const {result, changelogs} = transformMd2Md(content, {
         path: resolvedInputPath,
         destPath: outputPath,
         root: resolve(input),
@@ -34,6 +35,37 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     });
 
     writeFileSync(outputPath, result);
+
+    if (changelogs?.length) {
+        const mdFilename = basename(outputPath, extname(outputPath));
+        const outputDir = dirname(outputPath);
+        changelogs.forEach((changes, index) => {
+            let changesName;
+            const changesDate = changes.date as string | undefined;
+            const changesIdx = changes.index as number | undefined;
+            if (typeof changesIdx === 'number') {
+                changesName = String(changesIdx);
+            }
+            if (!changesName && changesDate && /^\d{4}/.test(changesDate)) {
+                changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
+            }
+            if (!changesName) {
+                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(3, '0')}`;
+            }
+
+            const changesPath = join(outputDir, `changes-${changesName}.json`);
+
+            if (existsSync(changesPath)) {
+                throw new Error(`Changelog ${changesPath} already exists!`);
+            }
+
+            writeFileSync(changesPath, JSON.stringify({
+                ...changes,
+                source: mdFilename,
+            }));
+        });
+    }
+
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return undefined;
@@ -84,6 +116,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
     } = options;
 
     let output = input;
+    const changelogs: ChangelogItem[] = [];
 
     if (!disableLiquid) {
         const liquidResult = liquidMd2Md(input, vars, path);
@@ -101,11 +134,14 @@ function transformMd2Md(input: string, options: PluginOptions) {
             log: pluginLog,
             copyFile: pluginCopyFile,
             collectOfPlugins,
+            changelogs,
+            extractChangelogs: true,
         });
     }
 
     return {
         result: output,
+        changelogs,
         logs: pluginLog.get(),
     };
 }
