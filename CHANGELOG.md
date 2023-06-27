@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.14.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.13.1...v3.14.0) (2023-06-27)
+
+
+### Features
+
+* **cmd/xliff:** diplodoc includes, strikethrough ([56613a9](https://github.com/yandex-cloud/yfm-docs/commit/56613a94153b1bc77e3690c3f2dafc968b17af52))
+
+
+### Bug Fixes
+
+* Add missed styles in static render mode ([fd7d094](https://github.com/yandex-cloud/yfm-docs/commit/fd7d094f98fc2ce8f69222be388269d1d1366dae))
+* Fix pkg assets list ([8759847](https://github.com/yandex-cloud/yfm-docs/commit/87598471ba0106fc1497c5401fe129d318ba062e))
+* Resolve generic includer paths relative to toc.yaml ([bc97e6e](https://github.com/yandex-cloud/yfm-docs/commit/bc97e6ee89426a2a1d9f57f9cc87608e9e9fd81d))
+
 ## [3.13.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.13.0...v3.13.1) (2023-06-23)
 
 
