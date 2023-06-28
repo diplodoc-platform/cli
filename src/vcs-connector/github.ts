@@ -1,7 +1,7 @@
 import {Octokit} from '@octokit/core';
 import {join, normalize} from 'path';
 import simpleGit, {SimpleGitOptions} from 'simple-git';
-import {mapLimit} from 'async';
+import pMap from 'p-map';
 
 import github from './client/github';
 import {ArgvService} from '../services';
@@ -194,7 +194,7 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
 }
 
 async function getAuthorByPaths(paths: string[], httpClientByToken: Octokit) {
-    const externalCommits = (await mapLimit(paths, MAX_CONCURRENCY, getAuthorForPath)).filter(Boolean);
+    const externalCommits = (await pMap(paths, getAuthorForPath, {concurrency: MAX_CONCURRENCY})).filter(Boolean);
 
     for (const externalCommit of externalCommits) {
         if (!externalCommit) {
