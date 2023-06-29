@@ -1,7 +1,12 @@
 const esbuild = require('esbuild');
+const shell = require('shelljs');
+
+const client = require('./client');
 const {version, dependencies} = require('../package.json');
-const {target} = require('../tsconfig.json').compilerOptions;
+const {compilerOptions: {target}} = require('../tsconfig.json');
+
 const diplodocExtensions = Object.keys(dependencies).filter((name) => name.startsWith('@diplodoc'));
+
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -21,7 +26,7 @@ const builds = [
     [['src/workers/linter/index.ts'], 'build/linter.js'],
 ];
 
-builds.forEach(([entries, outfile]) => {
+Promise.all(builds.map(([entries, outfile]) => {
     const currentConfig = {
         ...commonConfig,
         entryPoints: entries,
@@ -35,5 +40,13 @@ builds.forEach(([entries, outfile]) => {
         currentConfig.external = diplodocExtensions;
     }
 
-    esbuild.build(currentConfig);
+    return esbuild.build(currentConfig);
+})).then(() => {
+    for (const [type, path] of Object.entries(client.src)) {
+        const dst = client.dst[type];
+
+        shell.cp('-f', path, dst);
+    }
 });
+
+

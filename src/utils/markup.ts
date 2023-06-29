@@ -1,10 +1,11 @@
 import {platform} from 'process';
 
-import {BUNDLE_JS_FILENAME, BUNDLE_CSS_FILENAME, CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
+import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {SinglePageResult, Resources} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
 import {render, DocInnerProps, DocPageData} from '@diplodoc/client';
+import client from '../../scripts/client';
 
 export interface TitleMeta {
     title?: string;
@@ -40,7 +41,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>, pathToBu
                         height: 100vh;
                     }
                 </style>
-                <link type="text/css" rel="stylesheet" href="${pathToBundle}/${BUNDLE_CSS_FILENAME}" />
+                <link type="text/css" rel="stylesheet" href="${client.bundle.css(pathToBundle)}" />
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
@@ -50,7 +51,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>, pathToBu
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${pathToBundle}/${BUNDLE_JS_FILENAME}"></script>
+                <script type="application/javascript" src="${client.bundle.js(pathToBundle)}"></script>
             </body>
         </html>
     `;
