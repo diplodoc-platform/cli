@@ -1,7 +1,7 @@
 import {Octokit} from '@octokit/core';
 import {join, normalize} from 'path';
 import simpleGit, {SimpleGitOptions} from 'simple-git';
-import {mapLimit} from 'async';
+import {asyncify, mapLimit} from 'async';
 
 import github from './client/github';
 import {ArgvService} from '../services';
@@ -28,6 +28,7 @@ import {validateConnectorFields} from './connector-validator';
 
 const MAX_CONCURRENCY = 99;
 
+const authorByGitEmail: Map<string, Contributor | null> = new Map();
 const authorByPath: Map<string, Contributor | null> = new Map();
 const authorAlreadyCheckedForPath: Map<string, boolean> = new Map();
 const contributorsByPath: Map<string, FileContributors> = new Map();
@@ -128,7 +129,7 @@ async function matchContributionsForEachPath(repoLogs: string[], httpClientByTok
         let contributorDataByHash;
 
         if (hasContributorData === undefined) {
-            console.log('Getting data for', email);
+            logger.info('Contributors: Getting data for', email);
 
             contributorDataByHash = await getContributorDataByHashCommit(httpClientByToken, hashCommit);
 
@@ -194,34 +195,48 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
 }
 
 async function getAuthorByPaths(paths: string[], httpClientByToken: Octokit) {
-    const externalCommits = (await mapLimit(paths, MAX_CONCURRENCY, getAuthorForPath)).filter(Boolean);
+    const externalCommits = (await mapLimit(
+        paths,
+        MAX_CONCURRENCY,
+        asyncify(getAuthorForPath) as typeof getAuthorForPath,
+    )).filter(Boolean);
 
     for (const externalCommit of externalCommits) {
         if (!externalCommit) {
             continue;
         }
 
-        const {hashCommit, normalizePath} = externalCommit;
+        const {hashCommit, normalizePath, email} = externalCommit;
 
-        const repoCommit = await github.getRepoCommitByHash(httpClientByToken, hashCommit);
-        if (!repoCommit) {
-            continue;
+        let authorToReturn = authorByGitEmail.get(email) || null;
+
+        if (!authorToReturn) {
+            logger.info('Authors: Getting data for', email);
+
+            const repoCommit = await github.getRepoCommitByHash(httpClientByToken, hashCommit);
+            if (!repoCommit) {
+                continue;
+            }
+
+            const {author, commit} = repoCommit;
+            if (!author) {
+                continue;
+            }
+
+            const {avatar_url: avatar, html_url: url, login} = author;
+            authorToReturn = {
+                avatar,
+                email: commit.author.email,
+                login,
+                name: commit.author.name,
+                url,
+            };
+            authorByGitEmail.set(email, authorToReturn);
         }
 
-        const {author, commit} = repoCommit;
-        if (!author) {
-            continue;
+        if (authorToReturn) {
+            authorByPath.set(normalizePath, authorToReturn);
         }
-
-        const {avatar_url: avatar, html_url: url, login} = author;
-
-        authorByPath.set(normalizePath, {
-            avatar,
-            email: commit.author.email,
-            login,
-            name: commit.author.name,
-            url,
-        });
     }
 }
 
@@ -316,7 +331,7 @@ async function getAuthorForPath(path: string) {
         return null;
     }
 
-    return {hashCommit, normalizePath};
+    return {hashCommit, normalizePath, email};
 }
 
 export default getGitHubVCSConnector;
