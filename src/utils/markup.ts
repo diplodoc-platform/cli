@@ -12,7 +12,7 @@ export interface TitleMeta {
 }
 export type Meta = TitleMeta & Resources;
 
-export function generateStaticMarkup(props: DocInnerProps<DocPageData>): string {
+export function generateStaticMarkup(props: DocInnerProps<DocPageData>, pathToBundle: string): string {
     const {title: metaTitle, style, script} = props.data.meta as Meta || {};
     const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
@@ -41,7 +41,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>): string 
                         height: 100vh;
                     }
                 </style>
-                <link type="text/css" rel="stylesheet" href="${client.bundle.css}" />
+                <link type="text/css" rel="stylesheet" href="${client.bundle.css(pathToBundle)}" />
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
@@ -51,7 +51,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>): string 
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${client.bundle.js}"></script>
+                <script type="application/javascript" src="${client.bundle.js(pathToBundle)}"></script>
             </body>
         </html>
     `;

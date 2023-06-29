@@ -58,7 +58,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     }));
 
     if (singlePage) {
-        await saveSinglePages();
+        await saveSinglePages(outputBundlePath);
     }
 }
 
@@ -97,9 +97,10 @@ function getPathData(
     return pathData;
 }
 
-async function saveSinglePages() {
+async function saveSinglePages(outputBundlePath: string) {
     const {
         input: inputFolderPath,
+        output: outputFolderPath,
         lang,
         resources,
     } = ArgvService.getConfig();
@@ -132,10 +133,13 @@ async function saveSinglePages() {
                 lang: lang || Lang.RU,
             };
 
+            const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
+            const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
+
             // Save the full single page for viewing locally
             const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
             const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
-            const singlePageContent = generateStaticMarkup(pageData);
+            const singlePageContent = generateStaticMarkup(pageData, relativeOutputBundlePath);
 
             writeFileSync(singlePageFn, singlePageContent);
             writeFileSync(singlePageDataFn, JSON.stringify(pageData));
