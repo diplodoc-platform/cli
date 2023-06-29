@@ -108,8 +108,8 @@
       "build/head-content.js"
     ],
     "assets": [
-      "node_modules/@diplodoc/client/build/app.client.js",
-      "node_modules/@diplodoc/client/build/app.client.css"
+      "build/app.client.js",
+      "build/app.client.css"
     ]
   },
   "keywords": [

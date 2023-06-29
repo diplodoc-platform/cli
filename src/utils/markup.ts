@@ -41,7 +41,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>): string 
                         height: 100vh;
                     }
                 </style>
-                <link type="text/css" rel="stylesheet" href="${client.dst.css}" />
+                <link type="text/css" rel="stylesheet" href="${client.bundle.css}" />
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
@@ -51,7 +51,7 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>): string 
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${client.dst.js}"></script>
+                <script type="application/javascript" src="${client.bundle.js}"></script>
             </body>
         </html>
     `;
