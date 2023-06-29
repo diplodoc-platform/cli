@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.16.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.15.0...v3.16.0) (2023-06-29)
+
+
+### Features
+
+* **changelog:** Add extract changelogs ([#348](https://github.com/yandex-cloud/yfm-docs/issues/348)) ([a8d096d](https://github.com/yandex-cloud/yfm-docs/commit/a8d096d6a9ff95dd88eb147df064e13b6494c8c3))
+* new client integration ([c1fb398](https://github.com/yandex-cloud/yfm-docs/commit/c1fb3985c8bf023ebe3c87d9d2df678e53271443))
+
+
+### Bug Fixes
+
+* add bundle path ([5109c6d](https://github.com/yandex-cloud/yfm-docs/commit/5109c6d7553ff5854065f6f3a78cd6478d72e5fe))
+* copy after build finished ([75d6c58](https://github.com/yandex-cloud/yfm-docs/commit/75d6c58a14bff592ac0372439d00bd00fcfaa7bb))
+* restore bundle path ([ffd29ba](https://github.com/yandex-cloud/yfm-docs/commit/ffd29bac3575a0ee873bb9360c1de5e6f59dda96))
+
 ## [3.15.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.14.0...v3.15.0) (2023-06-27)
 
 
