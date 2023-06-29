@@ -1,8 +1,7 @@
 import walkSync from 'walk-sync';
-import {resolve} from 'path';
 import shell from 'shelljs';
 
-import {BUNDLE_JS_FILENAME, BUNDLE_CSS_FILENAME, BUILD_FOLDER_PATH} from '../constants';
+import client from '../../scripts/client';
 import {ArgvService} from '../services';
 import {copyFiles} from '../utils';
 
@@ -28,11 +27,10 @@ export function processAssets(outputBundlePath: string) {
 
     copyFiles(inputFolderPath, outputFolderPath, assetFilePath);
 
-    const src = (file: string) => resolve(BUILD_FOLDER_PATH, file);
-    const dst = (file: string) => resolve(outputBundlePath, file);
-
     /* Copy js bundle to user' output folder */
     shell.mkdir('-p', outputBundlePath);
-    shell.cp(src(BUNDLE_JS_FILENAME), dst(BUNDLE_JS_FILENAME));
-    shell.cp(src(BUNDLE_CSS_FILENAME), dst(BUNDLE_CSS_FILENAME));
+
+    for (const path of Object.values(client.dst)) {
+        shell.cp(path, outputBundlePath);
+    }
 }

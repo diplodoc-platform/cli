@@ -1,7 +1,17 @@
 const esbuild = require('esbuild');
+const shell = require('shelljs');
+
+const client = require('./client');
 const {version, dependencies} = require('../package.json');
-const {target} = require('../tsconfig.json').compilerOptions;
+const {compilerOptions: {target}} = require('../tsconfig.json');
+
 const diplodocExtensions = Object.keys(dependencies).filter((name) => name.startsWith('@diplodoc'));
+
+for (const [type, path] of Object.entries(client.src)) {
+    const dst = client.dst[type];
+
+    shell.cp('-f', path, dst);
+}
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
