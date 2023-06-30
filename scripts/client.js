@@ -1,7 +1,7 @@
 const path = require('path');
 
 const CLIENT_PATH = path.dirname(require.resolve('@diplodoc/client'));
-const BUILD_PATH = 'build';
+const BUILD_PATH = path.resolve(__dirname, '..', 'build');
 const BUNDLE_JS_FILENAME = 'app.client.js';
 const BUNDLE_CSS_FILENAME = 'app.client.css';
 
