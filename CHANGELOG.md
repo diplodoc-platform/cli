@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.16.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.0...v3.16.1) (2023-06-30)
+
+
+### Bug Fixes
+
+* fix missing build dir, cli works from any folder now. ([8eb97c2](https://github.com/yandex-cloud/yfm-docs/commit/8eb97c2e09532a0d35ee7abb1648dbd8a5fedfdb))
+
 ## [3.16.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.15.0...v3.16.0) (2023-06-29)
 
 
