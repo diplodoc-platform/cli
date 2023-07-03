@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.16.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.1...v3.16.2) (2023-07-03)
+
+
+### Bug Fixes
+
+* **cmd/xliff:** parsing xliff target translations ([fe6ef10](https://github.com/yandex-cloud/yfm-docs/commit/fe6ef10cc4051951c1f285cf615ed55dd4cf2253))
+
 ## [3.16.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.0...v3.16.1) (2023-06-30)
 
 
