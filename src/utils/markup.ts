@@ -83,7 +83,7 @@ function getMetadata(metadata: Record<string, string>): string {
     }
 
     // Exclude resources from meta, proceed them separately
-    const metaEntries = Object.keys(metadata).filter((key) => !Object.keys(ResourceType).includes(key));
+    const metaEntries = Object.entries(metadata).filter(([key]) => !Object.keys(ResourceType).includes(key));
 
     return metaEntries
         .map(([name, content]) => {
