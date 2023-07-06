@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.16.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.2...v3.16.3) (2023-07-06)
+
+
+### Bug Fixes
+
+* **meta:** Incorrect meta rendering ([5b32fa0](https://github.com/yandex-cloud/yfm-docs/commit/5b32fa00e025f83dca6f35b0b5076bdeb7696149))
+
 ## [3.16.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.1...v3.16.2) (2023-07-03)
 
 
