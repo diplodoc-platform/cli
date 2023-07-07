@@ -32,7 +32,7 @@
     "@diplodoc/markdown-translation": "^0.13.0",
     "@diplodoc/mermaid-extension": "0.0.5",
     "@diplodoc/openapi-extension": "^1.2.7",
-    "@doc-tools/transform": "^3.2.0",
+    "@doc-tools/transform": "^3.3.0",
     "@doc-tools/yfm2xliff": "0.0.5",
     "@octokit/core": "4.2.4",
     "@types/glob": "^8.0.0",
