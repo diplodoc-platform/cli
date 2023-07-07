@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.17.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.3...v3.17.0) (2023-07-07)
+
+
+### Features
+
+* **cmd/xliff:** @diplodoc/tabs support ([b829110](https://github.com/yandex-cloud/yfm-docs/commit/b829110660babcc8c43e4971b653d6b64c4e4b70))
+
+
+### Bug Fixes
+
+* **authors:** async files processing ([e058239](https://github.com/yandex-cloud/yfm-docs/commit/e0582392a39fd9d5618a749f5340d364d86ea57e))
+
 ## [3.16.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.2...v3.16.3) (2023-07-06)
 
 
