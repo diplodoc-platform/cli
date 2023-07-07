@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.0...v3.17.1) (2023-07-07)
+
+
+### Bug Fixes
+
+* revert chore(deps): bump @doc-tools/transform from 3.2.0 to 3.3.0" ([0bc336c](https://github.com/yandex-cloud/yfm-docs/commit/0bc336cc81618b669ddd32fe87720c7322c98bd4))
+
 ## [3.17.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.16.3...v3.17.0) (2023-07-07)
 
 
