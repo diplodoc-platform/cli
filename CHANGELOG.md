@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.17.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.1...v3.17.2) (2023-07-11)
+
+
+### Bug Fixes
+
+* **openapi:** bump version ([cbe3c98](https://github.com/yandex-cloud/yfm-docs/commit/cbe3c986374b8a616f80629c1f4ee2d0ed882130))
+
 ## [3.17.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.0...v3.17.1) (2023-07-07)
 
 
