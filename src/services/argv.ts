@@ -13,8 +13,11 @@ function init(argv: any) {
     _argv = {
         ...argv,
         ignore: Array.isArray(argv.ignore) ? argv.ignore : [],
-        vars: JSON.parse(argv.vars),
     } as YfmArgv;
+
+    if (argv.vars) {
+        _argv.vars = JSON.parse(argv.vars);
+    }
 
     try {
         const ignorefile = readFileSync(join(_argv.rootInput, '.yfmignore'), 'utf8');
