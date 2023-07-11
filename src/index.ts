@@ -1,4 +1,5 @@
 import yargs, {Arguments} from 'yargs';
+import glob from 'glob';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
 import 'threads/register';
@@ -195,7 +196,7 @@ async function main(args: Arguments<any>) {
             resources,
         } = ArgvService.getConfig();
 
-        preparingTemporaryFolders(args, userOutputFolder, tmpInputFolder, tmpOutputFolder);
+        preparingTemporaryFolders(userOutputFolder);
 
         await processServiceFiles();
         processExcludedFiles();
@@ -263,21 +264,19 @@ async function main(args: Arguments<any>) {
     }
 }
 
-function preparingTemporaryFolders(
-    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-    args: Arguments<any>,
-    userOutputFolder: string,
-    tmpInputFolder: string,
-    tmpOutputFolder: string) {
+function preparingTemporaryFolders(userOutputFolder: string) {
+    const args = ArgvService.getConfig();
 
     shell.mkdir('-p', userOutputFolder);
 
     // Create temporary input/output folders
-    shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-    shell.mkdir(tmpInputFolder, tmpOutputFolder);
+    shell.rm('-rf', args.input, args.output);
+    shell.mkdir(args.input, args.output);
+    shell.chmod('-R', 'u+w', args.input);
 
-    // Copy all user' files to the temporary folder to avoid user' file changing.
-    // Please, change files only in temporary folders.
-    shell.cp('-rL', resolve(args.input, '*'), tmpInputFolder);
-    shell.chmod('-R', 'u+w', tmpInputFolder);
+    copyFiles(args.rootInput, args.input, glob.sync('**', {
+        cwd: args.rootInput,
+        nodir: true,
+        ignore: args.ignore,
+    }));
 }
