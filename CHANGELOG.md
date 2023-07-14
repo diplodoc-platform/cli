@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.18.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.2...v3.18.0) (2023-07-14)
+
+
+### Features
+
+* **cmd/xliff:** multiline tables and video support ([dfd45dd](https://github.com/yandex-cloud/yfm-docs/commit/dfd45dd07e6318393c4d69ef36bb58e066d20a4c))
+* **config:** Add `.yfmignore` file. Ignore node_modules in build ([9d1babc](https://github.com/yandex-cloud/yfm-docs/commit/9d1babcaffa4e06906cecb851f9f4fa697a8c1c9))
+
 ## [3.17.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.1...v3.17.2) (2023-07-11)
 
 
