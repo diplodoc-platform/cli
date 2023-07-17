@@ -2,6 +2,7 @@ import {Octokit} from '@octokit/core';
 import {join, normalize} from 'path';
 import simpleGit, {SimpleGitOptions} from 'simple-git';
 import {asyncify, mapLimit} from 'async';
+import {minimatch} from 'minimatch';
 
 import github from './client/github';
 import {ArgvService} from '../services';
@@ -100,7 +101,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
         const fullRepoLogString = await simpleGit(options).raw(
             'log',
             `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
-            '--pretty=format:%ae, %H',
+            '--pretty=format:%ae, %an, %H',
             '--name-only',
         );
         const repoLogs = fullRepoLogString.split('\n\n');
@@ -115,6 +116,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 }
 
 async function matchContributionsForEachPath(repoLogs: string[], httpClientByToken: Octokit): Promise<void> {
+
     for (const repoLog of repoLogs) {
         if (!repoLog) {
             continue;
@@ -122,7 +124,11 @@ async function matchContributionsForEachPath(repoLogs: string[], httpClientByTok
 
         const dataArray = repoLog.split('\n');
         const userData = dataArray[0];
-        const [email, hashCommit] = userData.split(', ');
+        const [email, name, hashCommit] = userData.split(', ');
+
+        if (shouldAuthorBeIgnored({email, name})) {
+            continue;
+        }
 
         const hasContributorData = contributorsData.get(email);
 
@@ -150,8 +156,6 @@ async function matchContributionsForEachPath(repoLogs: string[], httpClientByTok
 }
 
 async function matchAuthorsForEachPath(repoLogs: string[], httpClientByToken: Octokit) {
-    const {ignoreAuthor} = ArgvService.getConfig();
-
     for (const repoLog of repoLogs) {
         if (!repoLog) {
             continue;
@@ -159,9 +163,9 @@ async function matchAuthorsForEachPath(repoLogs: string[], httpClientByToken: Oc
 
         const dataArray = repoLog.split('\n');
         const [userData, ...paths] = dataArray;
-        const [email] = userData.split(', ');
+        const [email, name] = userData.split(', ');
 
-        if (ignoreAuthor && email.includes(ignoreAuthor)) {
+        if (shouldAuthorBeIgnored({email, name})) {
             continue;
         }
 
@@ -299,7 +303,7 @@ async function getAuthorForPath(path: string) {
         return null;
     }
 
-    const {rootInput, ignoreAuthor} = ArgvService.getConfig();
+    const {rootInput} = ArgvService.getConfig();
     const masterDir = './_yfm-master';
     const options: Partial<SimpleGitOptions> = {
         baseDir: join(rootInput, masterDir),
@@ -315,23 +319,51 @@ async function getAuthorForPath(path: string) {
         'log',
         `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
         '--diff-filter=A',
-        '--pretty=format:%ae;%H',
+        '--pretty=format:%ae;%an;%H',
         '--',
         path,
     );
 
-    const [email, hashCommit] = commitData.split(';');
+    const [email, name, hashCommit] = commitData.split(';');
     if (!(email && hashCommit)) {
         return null;
     }
 
     authorAlreadyCheckedForPath.set(normalizePath, true);
 
-    if (ignoreAuthor && email.includes(ignoreAuthor)) {
+    if (shouldAuthorBeIgnored({email, name})) {
         return null;
     }
 
     return {hashCommit, normalizePath, email};
+}
+
+type ShouldAuthorBeIgnoredArgs = {
+    email?: string;
+    name?: string;
+};
+
+function shouldAuthorBeIgnored({email, name}: ShouldAuthorBeIgnoredArgs) {
+    if (!(email || name)) {
+        return false;
+    }
+
+    const {ignoreAuthorPatterns} = ArgvService.getConfig();
+    if (!ignoreAuthorPatterns) {
+        return false;
+    }
+
+    for (const pattern of ignoreAuthorPatterns) {
+        if (email && minimatch(email, pattern)) {
+            return true;
+        }
+
+        if (name && minimatch(name, pattern)) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 export default getGitHubVCSConnector;
