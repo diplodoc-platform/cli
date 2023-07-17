@@ -53,7 +53,7 @@ export interface YfmArgv extends YfmConfig {
     storageKeyId: string;
     storageSecretKey: string;
     contributors: boolean;
-    ignoreAuthor: string;
+    ignoreAuthorPatterns: string;
     addSystemMeta: boolean;
     addMapFile: boolean;
     allowCustomResources: boolean;

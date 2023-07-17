@@ -103,6 +103,11 @@ function builder<T>(argv: Argv<T>) {
             describe: 'Ignore tocs with stage',
             group: 'Build options:',
         })
+        .option('ignore-author-patterns', {
+            default: [] as string[],
+            describe: 'Ignore authors if they contain passed string',
+            type: 'array',
+        })
         .option('contributors', {
             default: false,
             describe: 'Should attach contributors into files',
