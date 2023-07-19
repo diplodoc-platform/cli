@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.19.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.18.0...v3.19.0) (2023-07-19)
+
+
+### Features
+
+* **cli:** Add publish command ([4181880](https://github.com/yandex-cloud/yfm-docs/commit/4181880b37017e9023a0095ab46bf96e341399c8))
+* ignore contributors if an email includes string from the --ignore-author parameter ([02a8f51](https://github.com/yandex-cloud/yfm-docs/commit/02a8f51dd536244c5af3be186b82337326f2c6e4))
+
+
+### Bug Fixes
+
+* bump openapi version ([bbaea6b](https://github.com/yandex-cloud/yfm-docs/commit/bbaea6b5cfafea3349c3923a32b8c624aff58ec7))
+* bump openapi version ([f1a1df2](https://github.com/yandex-cloud/yfm-docs/commit/f1a1df2e4f0d9dca85de664695b3bc43f3bddf6c))
+
 ## [3.18.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.17.2...v3.18.0) (2023-07-14)
 
 
