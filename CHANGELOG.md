@@ -6,7 +6,7 @@
 ### Features
 
 * **cli:** Add publish command ([4181880](https://github.com/yandex-cloud/yfm-docs/commit/4181880b37017e9023a0095ab46bf96e341399c8))
-* ignore contributors if an email includes string from the --ignore-author parameter ([02a8f51](https://github.com/yandex-cloud/yfm-docs/commit/02a8f51dd536244c5af3be186b82337326f2c6e4))
+* ignore contributors if an email includes a string from the --ignore-author-patterns parameter ([02a8f51](https://github.com/yandex-cloud/yfm-docs/commit/02a8f51dd536244c5af3be186b82337326f2c6e4))
 
 
 ### Bug Fixes

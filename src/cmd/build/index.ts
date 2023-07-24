@@ -57,11 +57,6 @@ function builder<T>(argv: Argv<T>) {
             describe: 'Format of output file <html|md>',
             group: 'Build options:',
         })
-        .option('ignore-author', {
-            default: '',
-            describe: 'Ignore authors if they contain passed string',
-            group: 'Build options:',
-        })
         .option('vars', {
             alias: 'v',
             default: '{}',
@@ -106,6 +101,7 @@ function builder<T>(argv: Argv<T>) {
         .option('ignore-author-patterns', {
             default: [] as string[],
             describe: 'Ignore authors if they contain passed string',
+            group: 'Build options:',
             type: 'array',
         })
         .option('contributors', {
