@@ -292,6 +292,9 @@ function preparingTemporaryFolders(userOutputFolder: string) {
         cwd: args.rootInput,
         nodir: true,
         follow: true,
-        ignore: args.ignore,
+        ignore: [
+            'node_modules/**',
+            '*/node_modules/**',
+        ],
     }));
 }
