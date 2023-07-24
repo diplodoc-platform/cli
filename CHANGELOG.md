@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.20.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.19.0...v3.20.0) (2023-07-24)
+
+
+### Features
+
+* change a log level if request to github failed because commit not found ([3f3af78](https://github.com/yandex-cloud/yfm-docs/commit/3f3af789d9e4e16b2992b2990e35f04890c3f2fc))
+
+
+### Bug Fixes
+
+* do not use ignore option on files copy ([8d1ca53](https://github.com/yandex-cloud/yfm-docs/commit/8d1ca53d8c600ae8c9386f95d6e78058d95d1422))
+* remove unused parameter and update changelog.md ([cd058d4](https://github.com/yandex-cloud/yfm-docs/commit/cd058d41aa31ea572a7feb7b680d2c4f75bf7588))
+
 ## [3.19.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.18.0...v3.19.0) (2023-07-19)
 
 
