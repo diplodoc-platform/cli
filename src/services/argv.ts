@@ -25,11 +25,6 @@ function init(argv: any) {
 
         _argv.ignore = _argv.ignore.concat(ignore);
     } catch {}
-
-    _argv.ignore = _argv.ignore.concat([
-        'node_modules/**',
-        '*/node_modules/**',
-    ]);
 }
 
 function set(argv: YfmArgv) {
