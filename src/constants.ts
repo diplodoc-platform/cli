@@ -8,7 +8,6 @@ const deflist = require('@doc-tools/transform/lib/plugins/deflist');
 const imsize = require('@doc-tools/transform/lib/plugins/imsize');
 const meta = require('@doc-tools/transform/lib/plugins/meta');
 const sup = require('@doc-tools/transform/lib/plugins/sup');
-const tabs = require('@doc-tools/transform/lib/plugins/tabs');
 const video = require('@doc-tools/transform/lib/plugins/video');
 const includes = require('@doc-tools/transform/lib/plugins/includes');
 const links = require('@doc-tools/transform/lib/plugins/links');
@@ -19,6 +18,7 @@ const term = require('@doc-tools/transform/lib/plugins/term');
 const changelog = require('@doc-tools/transform/lib/plugins/changelog');
 const mermaid = require('@diplodoc/mermaid-extension');
 const openapi = require('@diplodoc/openapi-extension');
+const tabs = require('@diplodoc/tabs-extension');
 
 includes.collect = require('@doc-tools/transform/lib/plugins/includes/collect');
 images.collect = require('@doc-tools/transform/lib/plugins/images/collect');
@@ -78,7 +78,6 @@ export const YFM_PLUGINS = [
     images,
     notes,
     anchors,
-    tabs,
     code,
     imsize,
     sup,
@@ -88,6 +87,7 @@ export const YFM_PLUGINS = [
     term,
     openapi.transform(),
     mermaid.transform(),
+    tabs.transform(),
     changelog,
 ];
 
