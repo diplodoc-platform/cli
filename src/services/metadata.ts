@@ -95,7 +95,7 @@ async function getContentWithUpdatedDynamicMetadata(
         const [, fileMetadata, , fileMainContent] = matches;
         let updatedDefaultMetadata = '';
 
-        updatedDefaultMetadata = await updateAuthorMetadataString(fileMetadata, options.vcsConnector);
+        updatedDefaultMetadata = await getAuthorMetadataString(options, fileMetadata);
 
         return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
     }
@@ -140,6 +140,18 @@ async function getContributorsMetadataString(
     }
 
     return undefined;
+}
+
+async function getAuthorMetadataString(options: MetaDataOptions, fileMetadata: string) {
+    const {fileData: {tmpInputFilePath, inputFolderPathLength}} = options;
+
+    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
+
+    return await updateAuthorMetadataString(
+        fileMetadata,
+        options.vcsConnector,
+        relativeFilePath,
+    );
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {

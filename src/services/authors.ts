@@ -1,10 +1,11 @@
-import {replaceDoubleToSingleQuotes} from '../utils';
+import {replaceDoubleToSingleQuotes, сarriage} from '../utils';
 import {REGEXP_AUTHOR} from '../constants';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
 async function updateAuthorMetadataString(
     defaultMetadata = '',
     vcsConnector?: VCSConnector,
+    filePath?: string | null,
 ): Promise<string> {
     if (!vcsConnector) {
         return defaultMetadata;
@@ -18,6 +19,13 @@ async function updateAuthorMetadataString(
 
         if (user) {
             return defaultMetadata.replace(authorLogin, user);
+        }
+    } else if (filePath) {
+        const user = vcsConnector.getExternalAuthorByPath(filePath);
+
+        if (user) {
+            const author = replaceDoubleToSingleQuotes(JSON.stringify(user));
+            return `${defaultMetadata}${сarriage}author: ${author}`;
         }
     }
 
