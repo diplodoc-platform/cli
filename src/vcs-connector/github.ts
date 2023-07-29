@@ -26,7 +26,7 @@ import {
 } from '../constants';
 import {addSlashPrefix, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
-import process from "process";
+import process from 'process';
 
 const MAX_CONCURRENCY = 99;
 
