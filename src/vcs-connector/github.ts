@@ -26,6 +26,7 @@ import {
 } from '../constants';
 import {addSlashPrefix, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
+import process from "process";
 
 const MAX_CONCURRENCY = 99;
 
@@ -107,7 +108,9 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
             '--name-only',
         );
         const repoLogs = fullRepoLogString.split('\n\n');
-        await matchAuthorsForEachPath(repoLogs, httpClientByToken);
+        if (process.env.ENABLE_EXPERIMANTAL_AUTHORS) {
+            await matchAuthorsForEachPath(repoLogs, httpClientByToken);
+        }
         await matchContributionsForEachPath(repoLogs, httpClientByToken);
     } finally {
         await simpleGit(options).raw('worktree', 'remove', masterDir);
