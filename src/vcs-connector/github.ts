@@ -98,7 +98,9 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 
     try {
         await simpleGit(options).raw('worktree', 'add', '-b', tmpMasterBranch, masterDir, 'origin/master');
-        const fullRepoLogString = await simpleGit(options).raw(
+        const fullRepoLogString = await simpleGit({
+            baseDir: join(rootInput, masterDir),
+        }).raw(
             'log',
             `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
             '--pretty=format:%ae, %an, %H',
