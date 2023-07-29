@@ -8,11 +8,6 @@ import {
     GithubUserDTO,
 } from '../connector-models';
 import {validateConnectorFields} from '../connector-validator';
-import {logger} from '../../utils';
-
-interface ResponseError extends Error {
-    status: number;
-}
 
 async function getRepoUser(octokit: Octokit, username: string): Promise<GithubUserDTO | null> {
     try {
@@ -46,14 +41,7 @@ async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: strin
 
         return commit.data;
     } catch (error) {
-        if (
-            (error as ResponseError).status === 422 && /No commit found for SHA/i.test((error as ResponseError).message)
-        ) {
-            logger.info(`Error: ${error}`);
-        }
-
         log.warn(`Getting commit by sha has been failed for GitHub. SHA commit: ${hashCommit}. Error: ${error}`);
-
         return null;
     }
 }
