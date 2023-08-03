@@ -34,7 +34,7 @@
     "@diplodoc/mermaid-extension": "^1.1.1",
     "@diplodoc/openapi-extension": "^1.3.0",
     "@diplodoc/tabs-extension": "^2.0.4",
-    "@doc-tools/transform": "^3.5.0",
+    "@doc-tools/transform": "^3.6.0",
     "@doc-tools/yfm2xliff": "0.0.5",
     "@octokit/core": "4.2.4",
     "@types/glob": "^8.0.0",
