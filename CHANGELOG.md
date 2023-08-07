@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.20.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.0...v3.20.1) (2023-08-07)
+
+
+### Bug Fixes
+
+* **contributors:** Fix contributors, authors is experiment ([#523](https://github.com/yandex-cloud/yfm-docs/issues/523)) ([7f2e395](https://github.com/yandex-cloud/yfm-docs/commit/7f2e39575a188b750ddb46e02cd74d8ddcb55c77))
+
 ## [3.20.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.19.0...v3.20.0) (2023-07-24)
 
 
