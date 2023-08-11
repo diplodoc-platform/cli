@@ -240,3 +240,8 @@ export type YandexCloudTranslateGlossaryPair = {
   sourceText: string;
   translatedText: string;
 };
+
+export type CommitInfo = {
+    email: string;
+    hashCommit: string;
+};

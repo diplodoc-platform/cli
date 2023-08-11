@@ -1,7 +1,13 @@
 import * as units from 'utils/markup';
-import {REGEXP_AUTHOR} from '../../../src/constants';
-import {getAuthorDetails, updateAuthorMetadataString} from 'services/authors';
+import {
+    getAuthorDetails,
+    updateAuthorMetadataStringByAuthorLogin,
+    updateAuthorMetadataStringByFilePath,
+} from 'services/authors';
 import {VCSConnector} from 'vcs-connector/connector-models';
+import {Contributor} from 'models';
+
+const filepath = 'index.md';
 
 const author = {
     avatar: 'https://example.ru/logo.png',
@@ -11,18 +17,23 @@ const author = {
     login: 'alias',
 };
 
+const authorByPath: Map<string, Contributor | null> = new Map();
+
 const defaultVCSConnector: VCSConnector = {
-    addNestedContributorsForPath: () => { },
+    addNestedContributorsForPath: () => {},
     getContributorsByPath: () => Promise.resolve(null),
-    getUserByLogin: () => Promise.resolve(null),
-    getExternalAuthorByPath: () => null,
+    getUserByLogin: () => Promise.resolve(author),
+    getExternalAuthorByPath: (path) => authorByPath.get(path),
 };
 
 describe('getAuthorDetails returns author details', () => {
     let spyReplaceDoubleToSingleQuotes: jest.SpyInstance;
 
     beforeAll(() => {
-        spyReplaceDoubleToSingleQuotes = jest.spyOn(units, 'replaceDoubleToSingleQuotes');
+        spyReplaceDoubleToSingleQuotes = jest.spyOn(
+            units,
+            'replaceDoubleToSingleQuotes'
+        );
     });
 
     beforeEach(() => {
@@ -30,7 +41,6 @@ describe('getAuthorDetails returns author details', () => {
     });
 
     afterEach(() => {
-        defaultVCSConnector.getUserByLogin = () => Promise.resolve(null);
         expect(spyReplaceDoubleToSingleQuotes).toHaveBeenCalled();
         expect(spyReplaceDoubleToSingleQuotes).toHaveBeenCalledTimes(2);
     });
@@ -40,27 +50,40 @@ describe('getAuthorDetails returns author details', () => {
     });
 
     test('when author is object', async () => {
-        const expectedAuthorDetails = units.replaceDoubleToSingleQuotes(JSON.stringify(author));
+        const expectedAuthorDetails = units.replaceDoubleToSingleQuotes(
+            JSON.stringify(author)
+        );
 
-        const authorDetails = await getAuthorDetails(defaultVCSConnector, author);
+        const authorDetails = await getAuthorDetails(
+            defaultVCSConnector,
+            author
+        );
 
         expect(authorDetails).toEqual(expectedAuthorDetails);
     });
 
     test('when author is stringified object', async () => {
         const stringifiedObject = JSON.stringify(author);
-        const expectedAuthorDetails = units.replaceDoubleToSingleQuotes(stringifiedObject);
+        const expectedAuthorDetails =
+            units.replaceDoubleToSingleQuotes(stringifiedObject);
 
-        const authorDetails = await getAuthorDetails(defaultVCSConnector, stringifiedObject);
+        const authorDetails = await getAuthorDetails(
+            defaultVCSConnector,
+            stringifiedObject
+        );
 
         expect(authorDetails).toEqual(expectedAuthorDetails);
     });
 
     test('when author is alias and "getUserByLogin" returns author data by alias', async () => {
-        const expectedAuthorDetails = units.replaceDoubleToSingleQuotes(JSON.stringify(author));
-        defaultVCSConnector.getUserByLogin = () => Promise.resolve(author);
+        const expectedAuthorDetails = units.replaceDoubleToSingleQuotes(
+            JSON.stringify(author)
+        );
 
-        const authorDetails = await getAuthorDetails(defaultVCSConnector, author.login);
+        const authorDetails = await getAuthorDetails(
+            defaultVCSConnector,
+            author.login
+        );
 
         expect(authorDetails).toEqual(expectedAuthorDetails);
     });
@@ -73,65 +96,125 @@ describe('getAuthorDetails does not return author details', () => {
 
     test('when author is alias and "getUserByLogin" does not return author data by alias', async () => {
         const expectedAuthorDetails = null;
-        defaultVCSConnector.getUserByLogin = () => Promise.resolve(null);
-        const spyReplaceDoubleToSingleQuotes = jest.spyOn(units, 'replaceDoubleToSingleQuotes');
+        const vcsConnector = {
+            ...defaultVCSConnector,
+            getUserByLogin: () => Promise.resolve(null),
+        };
+        const spyReplaceDoubleToSingleQuotes = jest.spyOn(
+            units,
+            'replaceDoubleToSingleQuotes'
+        );
 
-        const authorDetails = await getAuthorDetails(defaultVCSConnector, author.login);
+        const authorDetails = await getAuthorDetails(
+            vcsConnector,
+            author.login
+        );
 
         expect(authorDetails).toEqual(expectedAuthorDetails);
         expect(spyReplaceDoubleToSingleQuotes).not.toHaveBeenCalled();
     });
 });
 
-describe('updateAuthorMetadataString', () => {
+describe('update author metadata by authorLogin', () => {
     afterAll(() => {
         jest.clearAllMocks();
     });
 
-    describe('should return default metadata', () => {
-        test('when "vcsConnector" is undefined', async () => {
-            const expectedMetadata = 'Some metadata';
+    test('returns empty strring when "vcsConnector" is undefined', async () => {
+        const expectedMetadata = '';
 
-            const updatedMetadata = await updateAuthorMetadataString(expectedMetadata);
+        const updatedMetadata = await updateAuthorMetadataStringByAuthorLogin(
+            author.login
+        );
 
-            expect(updatedMetadata).toEqual(expectedMetadata);
-        });
-
-        test('when "defaultMetadata" is empty', async () => {
-            const expectedMetadata = '';
-
-            const authorDetails = await updateAuthorMetadataString(expectedMetadata, defaultVCSConnector);
-
-            expect(authorDetails).toEqual(expectedMetadata);
-        });
-
-        test('when "getAuthorDetails" does not return author data', async () => {
-            const expectedMetadata = `---
-            author: alias
-            ---`;
-
-            defaultVCSConnector.getUserByLogin = () => Promise.resolve(null);
-
-            const updatedMetadata = await updateAuthorMetadataString(expectedMetadata, defaultVCSConnector);
-
-            expect(updatedMetadata).toEqual(expectedMetadata);
-        });
+        expect(updatedMetadata).toEqual(expectedMetadata);
     });
 
-    describe('should return updated metadata', () => {
-        test('when "getAuthorDetails" returns author data', async () => {
-            const defaultMetadata = `---
-            author: alias
-            ---`;
-            const authorDetails = units.replaceDoubleToSingleQuotes(JSON.stringify(author));
-            defaultVCSConnector.getUserByLogin = () => Promise.resolve(author);
+    test('returns empty strring when "getUserByLogin" returns null', async () => {
+        const expectedMetadata = '';
+        const vcsConnector = {
+            ...defaultVCSConnector,
+            getUserByLogin: () => Promise.resolve(null),
+        };
 
-            const updatedMetadata = await updateAuthorMetadataString(defaultMetadata, defaultVCSConnector);
+        const authorDetails = await updateAuthorMetadataStringByAuthorLogin(
+            author.login,
+            vcsConnector
+        );
 
-            const matchAuthor = defaultMetadata.match(REGEXP_AUTHOR);
-            const expectedMetadata = defaultMetadata.replace(matchAuthor[0], authorDetails);
+        expect(authorDetails).toEqual(expectedMetadata);
+    });
 
-            expect(updatedMetadata).toEqual(expectedMetadata);
-        });
+    test('returns full author metadata', async () => {
+        const expectedMetadata = units.replaceDoubleToSingleQuotes(
+            JSON.stringify(author)
+        );
+
+        const updatedMetadata = await updateAuthorMetadataStringByAuthorLogin(
+            author.login,
+            defaultVCSConnector
+        );
+
+        expect(updatedMetadata).toEqual(expectedMetadata);
+    });
+});
+
+describe('update author metadata by filePath', () => {
+    beforeAll(() => {
+        authorByPath.set(filepath, author);
+    });
+
+    afterAll(() => {
+        jest.clearAllMocks();
+    });
+
+    test('returns empty strring when "vcsConnector" is undefined', async () => {
+        const expectedMetadata = '';
+
+        const updatedMetadata = await updateAuthorMetadataStringByFilePath(
+            filepath
+        );
+
+        expect(updatedMetadata).toEqual(expectedMetadata);
+    });
+
+    test('returns empty strring when "getExternalAuthorByPath" returns null', async () => {
+        const expectedMetadata = '';
+        const vcsConnector = {
+            ...defaultVCSConnector,
+            getExternalAuthorByPath: () => null,
+        };
+
+        const authorDetails = await updateAuthorMetadataStringByFilePath(
+            filepath,
+            vcsConnector
+        );
+
+        expect(authorDetails).toEqual(expectedMetadata);
+    });
+
+    test('returns empty strring when there is no author for path', async () => {
+        const expectedMetadata = '';
+        const filepathWithoutAuthor = 'utils.md';
+
+        const authorDetails = await updateAuthorMetadataStringByFilePath(
+            filepathWithoutAuthor,
+            defaultVCSConnector
+        );
+
+        expect(authorDetails).toEqual(expectedMetadata);
+    });
+
+    test('returns full author metadata', async () => {
+        const expectedMetadata = units.replaceDoubleToSingleQuotes(
+            JSON.stringify(author)
+        );
+
+        const updatedMetadata = await updateAuthorMetadataStringByFilePath(
+            filepath,
+            defaultVCSConnector
+        );
+
+        expect(updatedMetadata).toEqual(expectedMetadata);
     });
 });
