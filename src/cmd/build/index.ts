@@ -252,7 +252,6 @@ async function handler(args: Arguments<any>) {
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
                 const {
-                    output,
                     ignore = [],
                     storageEndpoint: endpoint,
                     storageBucket: bucket,
@@ -261,12 +260,20 @@ async function handler(args: Arguments<any>) {
                     storageSecretKey: secretAccessKey,
                 } = ArgvService.getConfig();
                 await publishFilesToS3({
-                    output, ignore, endpoint, bucket, prefix, accessKeyId, secretAccessKey,
+                    input: userOutputFolder,
+                    ignore,
+                    endpoint,
+                    bucket,
+                    prefix,
+                    accessKeyId,
+                    secretAccessKey,
                 });
             }
         }
-    } catch (err) {
-        logger.error('', err.message);
+    } catch (error) {
+        if (error instanceof Error) {
+            logger.error('', error.message);
+        }
     } finally {
         processLogs(tmpInputFolder);
 
