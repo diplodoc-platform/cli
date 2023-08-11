@@ -38,6 +38,11 @@ const validators: Record<string, ConnectorValidatorProps> = {
         validateFn: notEmptyStringValidator,
         defaultValue: process.env.YFM_STORAGE_SECRET_KEY,
     },
+    'storageRegion': {
+        errorMessage: 'Region of S3 storage must be provided when publishes.',
+        validateFn: notEmptyStringValidator,
+        defaultValue: 'eu-central-1',
+    },
 };
 
 interface Redirect {

@@ -15,7 +15,7 @@ interface UploadProps {
     prefix: string;
     accessKeyId: string;
     secretAccessKey: string;
-    region?: string;
+    region: string;
 }
 
 export async function upload(props: UploadProps): Promise<void> {
