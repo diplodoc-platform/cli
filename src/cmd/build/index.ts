@@ -271,9 +271,7 @@ async function handler(args: Arguments<any>) {
             }
         }
     } catch (error) {
-        if (error instanceof Error) {
-            logger.error('', error.message);
-        }
+        logger.error('', (error as Error).message);
     } finally {
         processLogs(tmpInputFolder);
 

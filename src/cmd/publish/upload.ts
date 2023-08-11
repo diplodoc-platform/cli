@@ -55,9 +55,7 @@ export async function upload(props: UploadProps): Promise<void> {
                 Body: createReadStream(resolve(input, pathToFile)),
             }));
         } catch (error) {
-            if (error instanceof Error) {
-                logger.error(pathToFile, error.message);
-            }
+            logger.error(pathToFile, (error as Error).message);
         }
     }));
 }
