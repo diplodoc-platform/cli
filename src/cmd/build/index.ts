@@ -270,8 +270,8 @@ async function handler(args: Arguments<any>) {
                 });
             }
         }
-    } catch (error) {
-        logger.error('', (error as Error).message);
+    } catch (err) {
+        logger.error('', err.message);
     } finally {
         processLogs(tmpInputFolder);
 
