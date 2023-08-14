@@ -7,7 +7,18 @@ import mime from 'mime-types';
 import {convertBackSlashToSlash, logger} from '../../utils';
 import {asyncify, mapLimit} from 'async';
 
-export async function upload(props): Promise<void> {
+interface UploadProps {
+    input: string;
+    ignore: string[];
+    endpoint: string;
+    bucket: string;
+    prefix: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    region: string;
+}
+
+export async function upload(props: UploadProps): Promise<void> {
     const {
         input,
         ignore = [],

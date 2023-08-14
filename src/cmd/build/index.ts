@@ -252,16 +252,24 @@ async function handler(args: Arguments<any>) {
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
                 const {
-                    output,
                     ignore = [],
+                    storageRegion,
                     storageEndpoint: endpoint,
                     storageBucket: bucket,
                     storagePrefix: prefix = DEFAULT_PREFIX,
                     storageKeyId: accessKeyId,
                     storageSecretKey: secretAccessKey,
                 } = ArgvService.getConfig();
+
                 await publishFilesToS3({
-                    output, ignore, endpoint, bucket, prefix, accessKeyId, secretAccessKey,
+                    input: userOutputFolder,
+                    region: storageRegion,
+                    ignore,
+                    endpoint,
+                    bucket,
+                    prefix,
+                    accessKeyId,
+                    secretAccessKey,
                 });
             }
         }
