@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.20.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.1...v3.20.2) (2023-08-14)
+
+
+### Bug Fixes
+
+* publishing doesn't work ([#533](https://github.com/yandex-cloud/yfm-docs/issues/533)) ([3cf4bc1](https://github.com/yandex-cloud/yfm-docs/commit/3cf4bc1002f8ff016bf6aea849b5a4df389b6aab))
+* restore old aws-sdk client ([4d4b195](https://github.com/yandex-cloud/yfm-docs/commit/4d4b1955222214db4b84aaba5108a7d7f8aa3634))
+
 ## [3.20.1](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.0...v3.20.1) (2023-08-07)
 
 
