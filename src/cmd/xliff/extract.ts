@@ -3,7 +3,7 @@ import {join, dirname, extname} from 'path';
 
 import markdownTranslation, {ExtractParameters} from '@diplodoc/markdown-translation';
 import {Arguments, Argv} from 'yargs';
-import {eachLimit} from 'async';
+import {eachLimit, asyncify} from 'async';
 
 import {ArgvService} from '../../services';
 import {glob, logger} from '../../utils';
@@ -99,7 +99,7 @@ async function handler(args: Arguments<any>) {
     try {
         logger.info(input, 'starting xliff and skeleton generation pipeline');
 
-        await eachLimit(found, MAX_CONCURRENCY, configuredPipeline);
+        await eachLimit(found, MAX_CONCURRENCY, asyncify(configuredPipeline));
 
         logger.info(input, 'finished xliff and skeleton generation pipeline');
     } catch (err) {
