@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.20.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.2...v3.20.3) (2023-08-15)
+
+
+### Bug Fixes
+
+* **cmd/xliff:** async batching ([5fc6bd2](https://github.com/yandex-cloud/yfm-docs/commit/5fc6bd2b8171170ebd70e44dbf461af951571fcd))
+* **cmd/xliff:** update markdown-translation ([90bbe12](https://github.com/yandex-cloud/yfm-docs/commit/90bbe120adfe1a8a32f9c29dbfcb7cdf40d1ed1f))
+
 ## [3.20.2](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.1...v3.20.2) (2023-08-14)
 
 
