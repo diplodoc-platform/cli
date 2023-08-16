@@ -78,7 +78,7 @@
     "@typescript-eslint/eslint-plugin": "2.34.0",
     "@typescript-eslint/parser": "2.34.0",
     "babel-eslint": "10.1.0",
-    "esbuild": "^0.17.17",
+    "esbuild": "^0.19.2",
     "eslint": "6.8.0",
     "eslint-plugin-security": "1.7.1",
     "husky": "8.0.3",
