@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.21.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.3...v3.21.0) (2023-08-17)
+
+
+### Features
+
+* add meta description into leading pages ([b8c19cd](https://github.com/yandex-cloud/yfm-docs/commit/b8c19cde6d1b80a14a372520ff114b4874f79af8))
+
 ## [3.20.3](https://github.com/yandex-cloud/yfm-docs/compare/v3.20.2...v3.20.3) (2023-08-15)
 
 
