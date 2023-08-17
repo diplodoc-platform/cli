@@ -48,6 +48,15 @@ function filterFile(path: string) {
             parsedIndex.meta.title = liquidField(metaTitle, combinedVars, path);
         }
 
+        if (parsedIndex.meta?.description) {
+            const metaDescription = firstFilterTextItems(
+                parsedIndex.meta.description,
+                combinedVars,
+                {resolveConditions: true},
+            );
+            parsedIndex.meta.description = liquidField(metaDescription, combinedVars, path);
+        }
+
         if (parsedIndex.nav) {
             const navTitle = firstFilterTextItems(
                 parsedIndex.nav.title,
