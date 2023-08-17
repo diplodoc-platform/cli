@@ -126,6 +126,7 @@ export interface LeadingPage {
     description?: TextItems;
     meta?: {
         title?: TextItems;
+        description?: TextItems;
         noIndex?: boolean;
     };
     nav?: {
