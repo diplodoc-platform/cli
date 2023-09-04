@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.24.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.23.0...v3.24.0) (2023-09-04)
+
+
+### Features
+
+* optimize author obtaining ([#534](https://github.com/yandex-cloud/yfm-docs/issues/534)) ([b44ec30](https://github.com/yandex-cloud/yfm-docs/commit/b44ec3089011145b3f168e6c80ffdc6f34a87031))
+
 ## [3.23.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.22.0...v3.23.0) (2023-08-28)
 
 
