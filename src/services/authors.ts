@@ -1,35 +1,40 @@
-import {replaceDoubleToSingleQuotes, сarriage} from '../utils';
-import {REGEXP_AUTHOR} from '../constants';
+import {replaceDoubleToSingleQuotes} from '../utils';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
-async function updateAuthorMetadataString(
-    defaultMetadata = '',
+async function updateAuthorMetadataStringByAuthorLogin(
+    authorLogin: string,
     vcsConnector?: VCSConnector,
-    filePath?: string | null,
 ): Promise<string> {
     if (!vcsConnector) {
-        return defaultMetadata;
+        return '';
     }
 
-    const matchAuthor = defaultMetadata.match(REGEXP_AUTHOR);
+    const user = await getAuthorDetails(vcsConnector, authorLogin);
 
-    if (matchAuthor && matchAuthor?.length > 0) {
-        const authorLogin = matchAuthor[0];
-        const user = await getAuthorDetails(vcsConnector, authorLogin);
-
-        if (user) {
-            return defaultMetadata.replace(authorLogin, user);
-        }
-    } else if (filePath) {
-        const user = vcsConnector.getExternalAuthorByPath(filePath);
-
-        if (user) {
-            const author = replaceDoubleToSingleQuotes(JSON.stringify(user));
-            return `${defaultMetadata}${сarriage}author: ${author}`;
-        }
+    if (user) {
+        return user;
     }
 
-    return defaultMetadata;
+    return '';
+}
+
+
+async function updateAuthorMetadataStringByFilePath(
+    filePath: string,
+    vcsConnector?: VCSConnector,
+): Promise<string> {
+    if (!vcsConnector) {
+        return '';
+    }
+
+    const user = vcsConnector.getExternalAuthorByPath(filePath);
+
+    if (user) {
+        const author = replaceDoubleToSingleQuotes(JSON.stringify(user));
+        return author;
+    }
+
+    return '';
 }
 
 async function getAuthorDetails(vcsConnector: VCSConnector, author: string | object): Promise<string | null> {
@@ -53,6 +58,7 @@ async function getAuthorDetails(vcsConnector: VCSConnector, author: string | obj
 }
 
 export {
-    updateAuthorMetadataString,
+    updateAuthorMetadataStringByAuthorLogin,
+    updateAuthorMetadataStringByFilePath,
     getAuthorDetails,
 };

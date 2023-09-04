@@ -2,11 +2,15 @@ import {dump} from 'js-yaml';
 
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {Metadata, MetaDataOptions, Resources} from '../models';
-import {getAuthorDetails, updateAuthorMetadataString} from './authors';
+import {
+    getAuthorDetails,
+    updateAuthorMetadataStringByAuthorLogin,
+    updateAuthorMetadataStringByFilePath,
+} from './authors';
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
 import {сarriage} from '../utils';
-import {metadataBorder} from '../constants';
+import {metadataBorder, REGEXP_AUTHOR} from '../constants';
 import {dirname, relative, resolve} from 'path';
 import {ArgvService} from './index';
 
@@ -78,26 +82,54 @@ async function getContentWithUpdatedDynamicMetadata(
         return fileContent;
     }
 
+    let fileMetadata: string | undefined, fileMainContent: string | undefined;
     const matches = matchMetadata(fileContent);
+    if (matches && matches.length > 0) {
+        const [, matchedFileMetadata, , matchedFileMainContent] = matches;
+        fileMetadata = matchedFileMetadata;
+        fileMainContent = matchedFileMainContent;
+    }
+
     const newMetadatas: string[] = [];
 
     const {isContributorsEnabled} = options;
 
     if (isContributorsEnabled) {
         const contributorsMetaData = await getContributorsMetadataString(options, fileContent);
-
         if (contributorsMetaData) {
             newMetadatas.push(contributorsMetaData);
         }
+
+        let authorMetadata = '';
+        if (fileMetadata) {
+            const matchAuthor = fileMetadata.match(REGEXP_AUTHOR);
+            if (matchAuthor) {
+                const matchedAuthor = matchAuthor[0];
+                authorMetadata = await updateAuthorMetadataStringByAuthorLogin(matchedAuthor, options.vcsConnector);
+            }
+        }
+
+        if (!authorMetadata) {
+            const {fileData: {tmpInputFilePath, inputFolderPathLength}} = options;
+            const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
+            authorMetadata = await updateAuthorMetadataStringByFilePath(relativeFilePath, options.vcsConnector);
+        }
+
+        if (authorMetadata) {
+            newMetadatas.push(`author: ${authorMetadata}`);
+        }
     }
 
-    if (matches && matches.length > 0) {
-        const [, fileMetadata, , fileMainContent] = matches;
-        let updatedDefaultMetadata = '';
+    if (fileMetadata && fileMainContent) {
+        let updatedFileMetadata = fileMetadata;
+        const matchAuthor = fileMetadata.match(REGEXP_AUTHOR);
 
-        updatedDefaultMetadata = await getAuthorMetadataString(options, fileMetadata);
+        const isNewMetadataIncludesAuthor = newMetadatas.some((item) => /^author: /.test(item));
+        if (matchAuthor && isNewMetadataIncludesAuthor) {
+            updatedFileMetadata = updatedFileMetadata.replace(`author: ${matchAuthor[0]}`, '');
+        }
 
-        return `${getUpdatedMetadataString(newMetadatas, updatedDefaultMetadata)}${fileMainContent}`;
+        return `${getUpdatedMetadataString(newMetadatas, updatedFileMetadata)}${fileMainContent}`;
     }
 
     return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
@@ -140,18 +172,6 @@ async function getContributorsMetadataString(
     }
 
     return undefined;
-}
-
-async function getAuthorMetadataString(options: MetaDataOptions, fileMetadata: string) {
-    const {fileData: {tmpInputFilePath, inputFolderPathLength}} = options;
-
-    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
-
-    return await updateAuthorMetadataString(
-        fileMetadata,
-        options.vcsConnector,
-        relativeFilePath,
-    );
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {

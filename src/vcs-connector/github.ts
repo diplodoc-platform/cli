@@ -1,12 +1,12 @@
 import {Octokit} from '@octokit/core';
 import {join, normalize} from 'path';
 import simpleGit, {SimpleGitOptions} from 'simple-git';
-import {asyncify, mapLimit} from 'async';
 import {minimatch} from 'minimatch';
 
 import github from './client/github';
 import {ArgvService} from '../services';
 import {
+    CommitInfo,
     Contributor,
     Contributors,
     ContributorsByPathFunction,
@@ -28,11 +28,8 @@ import {addSlashPrefix, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 import process from 'process';
 
-const MAX_CONCURRENCY = 99;
-
 const authorByGitEmail: Map<string, Contributor | null> = new Map();
 const authorByPath: Map<string, Contributor | null> = new Map();
-const authorAlreadyCheckedForPath: Map<string, boolean> = new Map();
 const contributorsByPath: Map<string, FileContributors> = new Map();
 const contributorsData: Map<string, Contributor | null> = new Map();
 
@@ -109,7 +106,17 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
         );
         const repoLogs = fullRepoLogString.split('\n\n');
         if (process.env.ENABLE_EXPERIMANTAL_AUTHORS) {
-            await matchAuthorsForEachPath(repoLogs, httpClientByToken);
+            const fullAuthorRepoLogString = await simpleGit({
+                baseDir: join(rootInput, masterDir),
+            }).raw(
+                'log',
+                `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
+                '--diff-filter=A',
+                '--pretty=format:%ae;%an;%H',
+                '--name-only',
+            );
+            const authorRepoLog = fullAuthorRepoLogString.split('\n\n');
+            await matchAuthorsForEachPath(authorRepoLog, httpClientByToken);
         }
         await matchContributionsForEachPath(repoLogs, httpClientByToken);
     } finally {
@@ -160,21 +167,21 @@ async function matchContributionsForEachPath(repoLogs: string[], httpClientByTok
     }
 }
 
-async function matchAuthorsForEachPath(repoLogs: string[], httpClientByToken: Octokit) {
-    for (const repoLog of repoLogs) {
+async function matchAuthorsForEachPath(authorRepoLogs: string[], httpClientByToken: Octokit) {
+    for (const repoLog of authorRepoLogs) {
         if (!repoLog) {
             continue;
         }
 
         const dataArray = repoLog.split('\n');
         const [userData, ...paths] = dataArray;
-        const [email, name] = userData.split(', ');
+        const [email, name, hashCommit] = userData.split(';');
 
         if (shouldAuthorBeIgnored({email, name})) {
             continue;
         }
 
-        await getAuthorByPaths(paths, httpClientByToken);
+        await getAuthorByPaths({email, hashCommit}, paths, httpClientByToken);
     }
 }
 
@@ -203,19 +210,13 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
     };
 }
 
-async function getAuthorByPaths(paths: string[], httpClientByToken: Octokit) {
-    const externalCommits = (await mapLimit(
-        paths,
-        MAX_CONCURRENCY,
-        asyncify(getAuthorForPath) as typeof getAuthorForPath,
-    )).filter(Boolean);
-
-    for (const externalCommit of externalCommits) {
-        if (!externalCommit) {
+async function getAuthorByPaths(commitInfo: CommitInfo, paths: string[], httpClientByToken: Octokit) {
+    for (const path of paths) {
+        if (!path) {
             continue;
         }
-
-        const {hashCommit, normalizePath, email} = externalCommit;
+        const normalizePath = normalize(addSlashPrefix(path));
+        const {email, hashCommit} = commitInfo;
 
         let authorToReturn = authorByGitEmail.get(email) || null;
 
@@ -243,9 +244,7 @@ async function getAuthorByPaths(paths: string[], httpClientByToken: Octokit) {
             authorByGitEmail.set(email, authorToReturn);
         }
 
-        if (authorToReturn) {
-            authorByPath.set(normalizePath, authorToReturn);
-        }
+        authorByPath.set(normalizePath, authorToReturn);
     }
 }
 
@@ -301,46 +300,6 @@ function addContributorForPath(paths: string[], newContributor: Contributors, ha
             hasIncludes,
         });
     });
-}
-
-async function getAuthorForPath(path: string) {
-    if (!path) {
-        return null;
-    }
-
-    const {rootInput} = ArgvService.getConfig();
-    const masterDir = './_yfm-master';
-    const options: Partial<SimpleGitOptions> = {
-        baseDir: join(rootInput, masterDir),
-    };
-
-    const normalizePath = normalize(addSlashPrefix(path));
-
-    if (authorAlreadyCheckedForPath.has(normalizePath)) {
-        return null;
-    }
-
-    const commitData = await simpleGit(options).raw(
-        'log',
-        `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
-        '--diff-filter=A',
-        '--pretty=format:%ae;%an;%H',
-        '--',
-        path,
-    );
-
-    const [email, name, hashCommit] = commitData.split(';');
-    if (!(email && hashCommit)) {
-        return null;
-    }
-
-    authorAlreadyCheckedForPath.set(normalizePath, true);
-
-    if (shouldAuthorBeIgnored({email, name})) {
-        return null;
-    }
-
-    return {hashCommit, normalizePath, email};
 }
 
 type ShouldAuthorBeIgnoredArgs = {

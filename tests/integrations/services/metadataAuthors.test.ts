@@ -1,6 +1,6 @@
 import {readFileSync} from 'fs';
 import {REGEXP_AUTHOR} from '../../../src/constants';
-import {replaceDoubleToSingleQuotes} from '../../../src/utils/markup';
+import {replaceDoubleToSingleQuotes, сarriage} from '../../../src/utils/markup';
 import {MetaDataOptions} from 'models';
 import {getContentWithUpdatedMetadata} from 'services/metadata';
 import {VCSConnector} from 'vcs-connector/connector-models';
@@ -103,6 +103,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             metaDataOptions.vcsConnector = {
                 ...defaultVCSConnector,
                 getUserByLogin: () => Promise.resolve(null),
+                getExternalAuthorByPath: () => null,
             };
             const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
 
@@ -117,18 +118,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
             const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
+            const lastMetadataRow = 'editable: false';
+            const expectedFileContent = fileContent
+                .replace(lastMetadataRow, replaceDoubleToSingleQuotes(`${lastMetadataRow}${сarriage}author: ${replaceDoubleToSingleQuotes(JSON.stringify(expectedAuthorData))}`));
 
-            expect(updatedFileContent).toEqual(fileContent);
-        });
-
-        test('if metadata does not have author', async () => {
-            metaDataOptions.isContributorsEnabled = true;
-            metaDataOptions.vcsConnector = defaultVCSConnector;
-            const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
-
-            const updatedFileContent = await getContentWithUpdatedMetadata(fileContent, metaDataOptions);
-
-            expect(updatedFileContent).toEqual(fileContent);
+            expect(updatedFileContent).toEqual(expectedFileContent);
         });
     });
 });
