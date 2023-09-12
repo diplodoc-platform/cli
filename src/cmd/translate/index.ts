@@ -4,6 +4,7 @@ import {
     asyncify,
 } from 'async';
 
+import {argvValidator} from '../../validator';
 import {dirname, resolve, join} from 'path';
 import {readFile, writeFile, mkdir} from 'fs/promises';
 import {XMLParser} from 'fast-xml-parser';
@@ -62,6 +63,7 @@ function builder<T>(argv: Argv<T>) {
             describe: 'target language code',
             type: 'string',
         })
+        .check(argvValidator)
         .demandOption(
             ['source-language', 'target-language'],
             'command requires to specify source and target languages');
