@@ -23,8 +23,8 @@ import {prepareMapFile} from '../../steps/processMapFile';
 import shell from 'shelljs';
 import {Resources} from '../../models';
 import {copyFiles, logger} from '../../utils';
-import {upload as publishFilesToS3} from '../publish/upload';
 import glob from 'glob';
+import {publishFilesToS3} from '../../steps/publishFilesToS3';
 
 export const build = {
     command: ['build', '$0'],
@@ -250,31 +250,11 @@ async function handler(args: Arguments<any>) {
             shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
 
             if (publish) {
-                const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
-                const {
-                    ignore = [],
-                    storageRegion,
-                    storageEndpoint: endpoint,
-                    storageBucket: bucket,
-                    storagePrefix: prefix = DEFAULT_PREFIX,
-                    storageKeyId: accessKeyId,
-                    storageSecretKey: secretAccessKey,
-                } = ArgvService.getConfig();
-
-                await publishFilesToS3({
-                    input: userOutputFolder,
-                    region: storageRegion,
-                    ignore,
-                    endpoint,
-                    bucket,
-                    prefix,
-                    accessKeyId,
-                    secretAccessKey,
-                });
+                await publishFilesToS3();
             }
         }
     } catch (err) {
-        logger.error('', err.message);
+        logger.error('', (err as Error).message);
     } finally {
         processLogs(tmpInputFolder);
 
