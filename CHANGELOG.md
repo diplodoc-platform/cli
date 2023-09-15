@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.25.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.24.0...v3.25.0) (2023-09-15)
+
+
+### Features
+
+* update transform ([#556](https://github.com/yandex-cloud/yfm-docs/issues/556)) ([7696adf](https://github.com/yandex-cloud/yfm-docs/commit/7696adf879cfb73f68bd9481cd9260fdb4802630))
+
 ## [3.24.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.23.0...v3.24.0) (2023-09-04)
 
 
