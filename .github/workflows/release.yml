@@ -11,5 +11,5 @@ jobs:
       - uses: yandex-cloud/ui-release-action@main
         with:
           github-token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.YC_UI_BOT_NPM_TOKEN }}
+          npm-token: ${{ secrets.ROBOT_DATAUI_NPM_TOKEN }}
           node-version: 14

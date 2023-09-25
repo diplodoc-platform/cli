@@ -1,23 +1,23 @@
-**english** | [русский](https://github.com/yandex-cloud/yfm-docs/blob/master/README.ru.md)
+**english** | [русский](https://github.com/diplodoc-platform/cli/blob/master/README.ru.md)
 - - -
 
-[![NPM version](https://img.shields.io/npm/v/@doc-tools/docs.svg?style=flat)](https://www.npmjs.org/package/@doc-tools/docs)
+[![NPM version](https://img.shields.io/npm/v/@diplodoc/cli.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/cli)
 
 # yfm-docs
 
 Yfm-docs lets you build a full-fledged documentation project: with navigation, internal transitions, and full
-[Yandex Flavored Markdown (YFM)](https://ydocs.tech) support.
+[Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/en/index-yfm) support.
 
 ![Example of displaying a documentation page](docsAssets/overview.jpg)
 
 ## Documentation
 
-[ydocs.tech](https://ydocs.tech/en/tools/docs/)
+[ydocs.tech](https://diplodoc.com/docs/en/tools/docs)
 
 ## Usage
 
 ```bash
-npm i @doc-tools/docs -g
+npm i @diplodoc/cli -g
 ```
 
 ```bash
@@ -53,16 +53,9 @@ connector:
 ### Build from source
 
 ```bash
-cd yfm-docs
+cd cli
 npm ci && npm run build
 ```
-
-### Run TS directly for debug in IDE
-
-```bash
-npm run start-ts
-```
-
 
 ## License
 
