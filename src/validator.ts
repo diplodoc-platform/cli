@@ -3,7 +3,7 @@ import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
 import {load} from 'js-yaml';
 import merge from 'lodash/merge';
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import {REDIRECTS_FILENAME, LINT_CONFIG_FILENAME, YFM_CONFIG_FILENAME} from './constants';
 import {ConnectorValidatorProps} from './vcs-connector/connector-models';
 

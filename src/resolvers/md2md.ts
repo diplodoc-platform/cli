@@ -1,15 +1,15 @@
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {dirname, resolve, join, basename, extname} from 'path';
 import shell from 'shelljs';
-import log from '@doc-tools/transform/lib/log';
-import liquid from '@doc-tools/transform/lib/liquid';
+import log from '@diplodoc/transform/lib/log';
+import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ArgvService, PluginService} from '../services';
 import {logger, getVarsPerFile} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
-import {ChangelogItem} from '@doc-tools/transform/lib/plugins/changelog/types';
+import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata} = options;

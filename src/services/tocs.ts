@@ -3,8 +3,8 @@ import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
 import {load, dump} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
-import liquid from '@doc-tools/transform/lib/liquid';
-import log from '@doc-tools/transform/lib/log';
+import liquid from '@diplodoc/transform/lib/liquid';
+import log from '@diplodoc/transform/lib/log';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';

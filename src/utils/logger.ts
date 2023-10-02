@@ -1,4 +1,4 @@
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import {blue, green, grey, red, yellow} from 'chalk';
 import {ArgvService} from '../services';
 

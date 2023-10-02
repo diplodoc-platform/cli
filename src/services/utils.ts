@@ -1,6 +1,6 @@
-import evalExp from '@doc-tools/transform/lib/liquid/evaluation';
+import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
-import liquid from '@doc-tools/transform/lib/liquid';
+import liquid from '@diplodoc/transform/lib/liquid';
 import {ArgvService} from './index';
 
 export interface FilterFilesOptions {

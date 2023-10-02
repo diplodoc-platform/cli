@@ -2,16 +2,16 @@ import {basename, dirname, join, relative, resolve, sep} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import yaml from 'js-yaml';
 
-import transform, {Output} from '@doc-tools/transform';
-import log from '@doc-tools/transform/lib/log';
-import liquid from '@doc-tools/transform/lib/liquid';
+import transform, {Output} from '@diplodoc/transform';
+import log from '@diplodoc/transform/lib/log';
+import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ResolverOptions, YfmToc, ResolveMd2HTMLResult, LeadingPage} from '../models';
 import {ArgvService, TocService, PluginService} from '../services';
 import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
 import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
-import {MarkdownItPluginCb} from '@doc-tools/transform/lib/plugins/typings';
+import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 
 export interface FileTransformOptions {
     path: string;
