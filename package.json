@@ -3,7 +3,7 @@
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "license": "MIT",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:diplodoc-platform/cli.git"
