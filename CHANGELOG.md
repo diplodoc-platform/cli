@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.0](https://github.com/diplodoc-platform/cli/compare/v4.0.0...v4.1.0) (2023-10-04)
+
+
+### Features
+
+* **cmd/xliff:** improved inline segmentation beta ([539136f](https://github.com/diplodoc-platform/cli/commit/539136f3d7ee0f032424f91f286aa749aab0aca5))
+* migrate to diplodoc ([9b79b32](https://github.com/diplodoc-platform/cli/commit/9b79b32596461c4c39af6dfc1036b004a6c56ef0))
+
 ## [4.0.0](https://github.com/yandex-cloud/yfm-docs/compare/v3.25.0...v4.0.0)(2023-09-27)
 
 
