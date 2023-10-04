@@ -1,7 +1,7 @@
 import {dirname, resolve} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, PresetService} from './index';
 import {LeadingPage} from '../models';

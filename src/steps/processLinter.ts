@@ -1,4 +1,4 @@
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import {spawn, Worker, Thread} from 'threads';
 import {extname} from 'path';
 

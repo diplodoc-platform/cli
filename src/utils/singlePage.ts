@@ -1,7 +1,7 @@
 import HTMLElement from 'node-html-parser/dist/nodes/html';
 import {parse} from 'node-html-parser';
 import {resolve, sep, relative} from 'path';
-import {resolveRelativePath} from '@doc-tools/transform/lib/utilsFS';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 import url from 'url';
 import _ from 'lodash';
 

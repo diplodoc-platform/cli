@@ -1,4 +1,4 @@
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import {extname} from 'path';
 import {Observable, Subject} from 'threads/observable';
 import {expose} from 'threads';

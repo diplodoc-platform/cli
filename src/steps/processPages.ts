@@ -6,7 +6,7 @@ import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import {mapLimit, asyncify} from 'async';
 
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, LeadingService, TocService, PluginService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';

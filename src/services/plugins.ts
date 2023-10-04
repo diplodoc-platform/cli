@@ -1,4 +1,4 @@
-import {LintRule, LintConfig} from '@doc-tools/transform/lib/yfmlint';
+import {LintRule, LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
 import {PluginOptions, Plugin, CollectionOfPluginsFunction} from '../models';
 import {YFM_PLUGINS} from '../constants';

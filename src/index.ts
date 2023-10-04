@@ -1,6 +1,6 @@
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import 'threads/register';
 
 import {MAIN_TIMER_ID} from './constants';

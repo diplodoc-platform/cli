@@ -1,4 +1,4 @@
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './connector-models';
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 

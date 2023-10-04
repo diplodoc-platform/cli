@@ -1,4 +1,4 @@
-import log from '@doc-tools/transform/lib/log';
+import log from '@diplodoc/transform/lib/log';
 import _uniq from 'lodash/uniq';
 
 export function processLogs(inputFolder: string) {
