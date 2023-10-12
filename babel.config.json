@@ -1,8 +1,0 @@
-{
-    "presets": [["@babel/env", { "modules": "cjs", "targets": { "node": true }}], "@babel/react", "@babel/typescript"],
-    "plugins": [
-        "@babel/plugin-proposal-class-properties",
-        "@babel/plugin-transform-runtime",
-        "@babel/plugin-syntax-top-level-await"
-    ]
-}
