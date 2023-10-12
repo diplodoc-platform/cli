@@ -79,7 +79,9 @@ function saveFilteredPresets(path: string, parsedPreset: DocPreset): void {
     writeFileSync(outputPath, outputPreset);
 }
 
-async function preparingTocFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): Promise<void> {
+async function preparingTocFiles(
+    getFilePathsByGlobals: GetFilePathsByGlobalsFunction,
+): Promise<void> {
     try {
         const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
 

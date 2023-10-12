@@ -31,7 +31,14 @@ type Params = {
 };
 
 async function includerFunction(params: IncluderFunctionParams<Params>) {
-    const {readBasePath, writeBasePath, tocPath, item, passedParams: {input, leadingPage}, index} = params;
+    const {
+        readBasePath,
+        writeBasePath,
+        tocPath,
+        item,
+        passedParams: {input, leadingPage},
+        index,
+    } = params;
 
     if (!input?.length || !item.include?.path) {
         throw new GenericIncluderError('provide includer with input parameter', tocPath);
@@ -42,14 +49,17 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
         const tocDirPath = dirname(tocPath);
 
-        const contentPath = index === 0
-            ? join(writeBasePath, tocDirPath, input)
-            : join(readBasePath, tocDirPath, input);
+        const contentPath =
+            index === 0
+                ? join(writeBasePath, tocDirPath, input)
+                : join(readBasePath, tocDirPath, input);
 
         let cache = {};
         let found = [];
 
-        ({state: {found, cache}} = await glob(MD_GLOB, {
+        ({
+            state: {found, cache},
+        } = await glob(MD_GLOB, {
             cwd: contentPath,
             nosort: true,
             nocase: true,
@@ -93,9 +103,14 @@ function createGraphFromPaths(paths: string[]) {
 
         const file = chunks.pop();
 
-        updateWith(graph, chunks, (old) => {
-            return old ? {files: [...old.files, file]} : {files: [file]};
-        }, Object);
+        updateWith(
+            graph,
+            chunks,
+            (old) => {
+                return old ? {files: [...old.files, file]} : {files: [file]};
+            },
+            Object,
+        );
     }
 
     return graph;
@@ -103,7 +118,10 @@ function createGraphFromPaths(paths: string[]) {
 
 function createToc(leadingPageName: string, tocName: string) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return function createTocRec(graph: Record<string, any>, cursor: string[]): Record<string, any> {
+    return function createTocRec(
+        graph: Record<string, any>,
+        cursor: string[],
+    ): Record<string, any> {
         const handler = (file: string) => ({
             name: parse(file).name === 'index' ? leadingPageName : file,
             href: join(...cursor, file),

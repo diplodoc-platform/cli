@@ -8,7 +8,13 @@ import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ResolverOptions, YfmToc, ResolveMd2HTMLResult, LeadingPage} from '../models';
 import {ArgvService, TocService, PluginService} from '../services';
-import {generateStaticMarkup, logger, transformToc, getVarsPerFile, getVarsPerRelativeFile} from '../utils';
+import {
+    generateStaticMarkup,
+    logger,
+    transformToc,
+    getVarsPerFile,
+    getVarsPerRelativeFile,
+} from '../utils';
 import {PROCESSING_FINISHED, Lang} from '../constants';
 import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
@@ -31,9 +37,10 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const {inputPath, fileExtension, outputPath, outputBundlePath, metadata} = options;
 
     const pathToDir: string = dirname(inputPath);
-    const toc: YfmToc|null = TocService.getForPath(inputPath) || null;
+    const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
     const tocBase: string = toc && toc.base ? toc.base : '';
-    const pathToFileDir: string = pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
+    const pathToFileDir: string =
+        pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
     const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
 
     const {input, lang, allowCustomResources} = ArgvService.getConfig();
@@ -43,17 +50,18 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
 
-    const updatedMetadata = metadata && metadata.isContributorsEnabled
-        ? await getUpdatedMetadata(metadata, content, result?.meta)
-        : result.meta;
+    const updatedMetadata =
+        metadata && metadata.isContributorsEnabled
+            ? await getUpdatedMetadata(metadata, content, result?.meta)
+            : result.meta;
 
-    const fileMeta = fileExtension === '.yaml' ? (result.data.meta ?? {}) : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml' ? result.data.meta ?? {} : updatedMetadata;
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || [])
-            .map(fixRelativePath(inputPath));
-        fileMeta.script = (fileMeta.script || []).concat(script || [])
+        fileMeta.style = (fileMeta.style || []).concat(style || []).map(fixRelativePath(inputPath));
+        fileMeta.script = (fileMeta.script || [])
+            .concat(script || [])
             .map(fixRelativePath(inputPath));
     } else {
         fileMeta.style = [];
@@ -98,12 +106,13 @@ function YamlFileTransformer(content: string): Object {
         };
     }
 
-    const links = data?.links?.map(
-        (link) =>
-            link.href ? ({...link, href: link.href.replace(/.md$/gmu, '.html')}) : link,
+    const links = data?.links?.map((link) =>
+        link.href ? {...link, href: link.href.replace(/.md$/gmu, '.html')} : link,
     );
 
-    if (links) { data.links = links; }
+    if (links) {
+        data.links = links;
+    }
 
     return {
         result: {data},
@@ -127,7 +136,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     const vars = getVarsPerFile(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
-
 
     return transform(content, {
         ...options,

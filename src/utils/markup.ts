@@ -12,8 +12,11 @@ export interface TitleMeta {
 }
 export type Meta = TitleMeta & Resources;
 
-export function generateStaticMarkup(props: DocInnerProps<DocPageData>, pathToBundle: string): string {
-    const {title: metaTitle, style, script} = props.data.meta as Meta || {};
+export function generateStaticMarkup(
+    props: DocInnerProps<DocPageData>,
+    pathToBundle: string,
+): string {
+    const {title: metaTitle, style, script} = (props.data.meta as Meta) || {};
     const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
 
@@ -51,7 +54,9 @@ export function generateStaticMarkup(props: DocInnerProps<DocPageData>, pathToBu
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${client.bundle.js(pathToBundle)}"></script>
+                <script type="application/javascript" src="${client.bundle.js(
+                    pathToBundle,
+                )}"></script>
             </body>
         </html>
     `;
@@ -83,7 +88,9 @@ function getMetadata(metadata: Record<string, string>): string {
     }
 
     // Exclude resources from meta, proceed them separately
-    const metaEntries = Object.entries(metadata).filter(([key]) => !Object.keys(ResourceType).includes(key));
+    const metaEntries = Object.entries(metadata).filter(
+        ([key]) => !Object.keys(ResourceType).includes(key),
+    );
 
     return metaEntries
         .map(([name, content]) => {
@@ -96,15 +103,17 @@ function getResources({style, script}: Resources) {
     const resourcesTags: string[] = [];
 
     if (style) {
-        style.forEach((el, id) => resourcesTags.push(
-            `<link rel="stylesheet" type="text/css" href="${el}" ${id === 0 && `id="${CUSTOM_STYLE}"`}>`,
-        ));
+        style.forEach((el, id) =>
+            resourcesTags.push(
+                `<link rel="stylesheet" type="text/css" href="${el}" ${
+                    id === 0 && `id="${CUSTOM_STYLE}"`
+                }>`,
+            ),
+        );
     }
 
     if (script) {
-        script.forEach((el) => resourcesTags.push(
-            `<script src="${el}"></script>`,
-        ));
+        script.forEach((el) => resourcesTags.push(`<script src="${el}"></script>`));
     }
 
     return resourcesTags.join('\n');
@@ -112,14 +121,20 @@ function getResources({style, script}: Resources) {
 
 export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
-export function joinSinglePageResults(singlePageResults: SinglePageResult[], root: string, tocDir: string): string {
+export function joinSinglePageResults(
+    singlePageResults: SinglePageResult[],
+    root: string,
+    tocDir: string,
+): string {
     const delimeter = `${сarriage}${сarriage}<hr class="yfm-page__delimeter">${сarriage}${сarriage}`;
     return singlePageResults
         .filter(({content}) => content)
-        .map(({content, path, title}) => preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}))
+        .map(({content, path, title}) =>
+            preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}),
+        )
         .join(delimeter);
 }
 
 export function replaceDoubleToSingleQuotes(str: string): string {
-    return str.replace(/"/g, '\'');
+    return str.replace(/"/g, "'");
 }

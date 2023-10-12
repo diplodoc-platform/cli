@@ -42,20 +42,26 @@ export async function upload(props: UploadProps): Promise<void> {
         ignore,
     });
 
-    await mapLimit(filesToPublish, 100, asyncify(async (pathToFile: string) => {
-        const mimeType = mime.lookup(pathToFile);
+    await mapLimit(
+        filesToPublish,
+        100,
+        asyncify(async (pathToFile: string) => {
+            const mimeType = mime.lookup(pathToFile);
 
-        logger.upload(pathToFile);
+            logger.upload(pathToFile);
 
-        try {
-            await s3Client.send(new PutObjectCommand({
-                ContentType: mimeType ? mimeType : undefined,
-                Bucket: bucket,
-                Key: convertBackSlashToSlash(join(prefix, pathToFile)),
-                Body: createReadStream(resolve(input, pathToFile)),
-            }));
-        } catch (error) {
-            logger.error(pathToFile, error.message);
-        }
-    }));
+            try {
+                await s3Client.send(
+                    new PutObjectCommand({
+                        ContentType: mimeType ? mimeType : undefined,
+                        Bucket: bucket,
+                        Key: convertBackSlashToSlash(join(prefix, pathToFile)),
+                        Body: createReadStream(resolve(input, pathToFile)),
+                    }),
+                );
+            } catch (error) {
+                logger.error(pathToFile, error.message);
+            }
+        }),
+    );
 }

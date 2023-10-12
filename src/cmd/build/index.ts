@@ -1,6 +1,7 @@
 import {Arguments, Argv} from 'yargs';
 import {
-    BUNDLE_FOLDER, LINT_CONFIG_FILENAME,
+    BUNDLE_FOLDER,
+    LINT_CONFIG_FILENAME,
     REDIRECTS_FILENAME,
     Stage,
     TMP_INPUT_FOLDER,
@@ -15,7 +16,8 @@ import {
     initLinterWorkers,
     processAssets,
     processExcludedFiles,
-    processLinter, processLogs,
+    processLinter,
+    processLogs,
     processPages,
     processServiceFiles,
 } from '../../steps';
@@ -166,7 +168,10 @@ function builder<T>(argv: Argv<T>) {
         })
         .check(argvValidator)
         .example('yfm -i ./input -o ./output', '')
-        .demandOption(['input', 'output'], 'Please provide input and output arguments to work with this tool');
+        .demandOption(
+            ['input', 'output'],
+            'Please provide input and output arguments to work with this tool',
+        );
 }
 
 async function handler(args: Arguments<any>) {
@@ -235,8 +240,12 @@ async function handler(args: Arguments<any>) {
                         const resourcePaths: string[] = [];
 
                         // collect paths of all resources
-                        Object.keys(resources).forEach((type) =>
-                            resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)));
+                        Object.keys(resources).forEach(
+                            (type) =>
+                                resources[type as keyof Resources]?.forEach((path: string) =>
+                                    resourcePaths.push(path),
+                                ),
+                        );
 
                         //copy resources
                         copyFiles(args.input, tmpOutputFolder, resourcePaths);
@@ -247,7 +256,11 @@ async function handler(args: Arguments<any>) {
             }
 
             // Copy all generated files to user' output folder
-            shell.cp('-r', [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')], userOutputFolder);
+            shell.cp(
+                '-r',
+                [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')],
+                userOutputFolder,
+            );
 
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
@@ -292,13 +305,14 @@ function preparingTemporaryFolders(userOutputFolder: string) {
     shell.mkdir(args.input, args.output);
     shell.chmod('-R', 'u+w', args.input);
 
-    copyFiles(args.rootInput, args.input, glob.sync('**', {
-        cwd: args.rootInput,
-        nodir: true,
-        follow: true,
-        ignore: [
-            'node_modules/**',
-            '*/node_modules/**',
-        ],
-    }));
+    copyFiles(
+        args.rootInput,
+        args.input,
+        glob.sync('**', {
+            cwd: args.rootInput,
+            nodir: true,
+            follow: true,
+            ignore: ['node_modules/**', '*/node_modules/**'],
+        }),
+    );
 }

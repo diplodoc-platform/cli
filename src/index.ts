@@ -28,7 +28,7 @@ yargs
     .option('quiet', {
         alias: 'q',
         default: false,
-        describe: 'Run in quiet mode. Don\'t write logs to stdout',
+        describe: "Run in quiet mode. Don't write logs to stdout",
         type: 'boolean',
     })
     .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
@@ -44,7 +44,7 @@ yargs
 
         const {warn, error} = log.get();
 
-        if (strict && warn.length || error.length) {
+        if ((strict && warn.length) || error.length) {
             process.exit(1);
         }
 

@@ -1,4 +1,6 @@
-const {promises: {readFile, writeFile, mkdir}} = require('fs');
+const {
+    promises: {readFile, writeFile, mkdir},
+} = require('fs');
 import {join, dirname, extname} from 'path';
 
 import markdownTranslation, {ExtractParameters} from '@diplodoc/markdown-translation';
@@ -44,19 +46,26 @@ function builder<T>(argv: Argv<T>) {
             alias: 'sll',
             describe: 'source language and locale',
             type: 'string',
-        }).option('target-language-locale', {
+        })
+        .option('target-language-locale', {
             alias: 'tll',
             describe: 'target language and locale',
             type: 'string',
-        }).option('input', {
+        })
+        .option('input', {
             alias: 'i',
             describe: 'input folder with markdown files',
             type: 'string',
-        }).option('output', {
+        })
+        .option('output', {
             alias: 'o',
             describe: 'output folder to store xliff and skeleton files',
             type: 'string',
-        }).demandOption(['source-language-locale', 'target-language-locale', 'input', 'output'], USAGE);
+        })
+        .demandOption(
+            ['source-language-locale', 'target-language-locale', 'input', 'output'],
+            USAGE,
+        );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,7 +92,9 @@ async function handler(args: Arguments<any>) {
     let found: string[] = [];
 
     try {
-        ({state: {found, cache}} = await glob(join(input, MD_GLOB), {
+        ({
+            state: {found, cache},
+        } = await glob(join(input, MD_GLOB), {
             nosort: true,
             cache,
         }));
@@ -134,9 +145,7 @@ function pipeline(params: PipelineParameters) {
         const markdown = await reader({path: markdownPath});
         const extension = extname(markdownPath);
 
-        const outputRelativePath = markdownPath
-            .replace(extension, '')
-            .slice(input.length);
+        const outputRelativePath = markdownPath.replace(extension, '').slice(input.length);
 
         const outputPath = join(output, outputRelativePath);
         const xlfPath = outputPath + '.xliff';

@@ -35,7 +35,12 @@ async function getContentWithUpdatedMetadata(
 }
 
 function getContentWithUpdatedStaticMetadata({
-    fileContent, sourcePath, addSystemMeta, addSourcePath, resources, systemVars,
+    fileContent,
+    sourcePath,
+    addSystemMeta,
+    addSourcePath,
+    resources,
+    systemVars,
 }: {
     fileContent: string;
     sourcePath?: string;
@@ -105,14 +110,22 @@ async function getContentWithUpdatedDynamicMetadata(
             const matchAuthor = fileMetadata.match(REGEXP_AUTHOR);
             if (matchAuthor) {
                 const matchedAuthor = matchAuthor[0];
-                authorMetadata = await updateAuthorMetadataStringByAuthorLogin(matchedAuthor, options.vcsConnector);
+                authorMetadata = await updateAuthorMetadataStringByAuthorLogin(
+                    matchedAuthor,
+                    options.vcsConnector,
+                );
             }
         }
 
         if (!authorMetadata) {
-            const {fileData: {tmpInputFilePath, inputFolderPathLength}} = options;
+            const {
+                fileData: {tmpInputFilePath, inputFolderPathLength},
+            } = options;
             const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
-            authorMetadata = await updateAuthorMetadataStringByFilePath(relativeFilePath, options.vcsConnector);
+            authorMetadata = await updateAuthorMetadataStringByFilePath(
+                relativeFilePath,
+                options.vcsConnector,
+            );
         }
 
         if (authorMetadata) {
@@ -158,7 +171,8 @@ function matchMetadata(fileContent: string) {
 }
 
 async function getContributorsMetadataString(
-    options: MetaDataOptions, fileContent: string,
+    options: MetaDataOptions,
+    fileContent: string,
 ): Promise<string | undefined> {
     const {isContributorsEnabled, vcsConnector, fileData} = options;
 
@@ -180,10 +194,16 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     const defaultMetadataСarriage = preparedDefaultMetadata ? сarriage : '';
     const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}`;
 
-    return `${metadataBorder}${сarriage}${updatedMetadata}${metadataBorder}${defaultMetadata.length ? '' : сarriage}`;
+    return `${metadataBorder}${сarriage}${updatedMetadata}${metadataBorder}${
+        defaultMetadata.length ? '' : сarriage
+    }`;
 }
 
-async function getUpdatedMetadata(options: MetaDataOptions, fileContent: string, meta?: Metadata): Promise<Metadata> {
+async function getUpdatedMetadata(
+    options: MetaDataOptions,
+    fileContent: string,
+    meta?: Metadata,
+): Promise<Metadata> {
     const {vcsConnector} = options;
 
     const newMetadata: Metadata = {
@@ -203,7 +223,10 @@ async function getUpdatedMetadata(options: MetaDataOptions, fileContent: string,
     };
 }
 
-async function getContributorsMetadata(options: MetaDataOptions, fileContent: string): Promise<string> {
+async function getContributorsMetadata(
+    options: MetaDataOptions,
+    fileContent: string,
+): Promise<string> {
     const {isContributorsEnabled, vcsConnector, fileData} = options;
 
     if (isContributorsEnabled && vcsConnector) {
@@ -218,7 +241,10 @@ async function getContributorsMetadata(options: MetaDataOptions, fileContent: st
     return JSON.stringify([]);
 }
 
-async function getAuthorMetadata(meta: Metadata, vcsConnector?: VCSConnector): Promise<string | null> {
+async function getAuthorMetadata(
+    meta: Metadata,
+    vcsConnector?: VCSConnector,
+): Promise<string | null> {
     if (meta.author && vcsConnector) {
         const updatedAuthor = await getAuthorDetails(vcsConnector, meta.author);
 
@@ -231,7 +257,6 @@ async function getAuthorMetadata(meta: Metadata, vcsConnector?: VCSConnector): P
 function getSystemVarsMetadataString(systemVars: object) {
     return `__system: ${JSON.stringify(systemVars)}`;
 }
-
 
 function getAssetsPublicPath(filePath: string) {
     const {input} = ArgvService.getConfig();

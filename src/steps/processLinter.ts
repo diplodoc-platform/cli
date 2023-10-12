@@ -10,7 +10,7 @@ import {lintPage} from '../resolvers';
 import {splitOnChunks} from '../utils/worker';
 
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
-let navigationPathsChunks: (string[])[];
+let navigationPathsChunks: string[][];
 
 export async function processLinter(): Promise<void> {
     const argvConfig = ArgvService.getConfig();
@@ -70,15 +70,16 @@ export async function initLinterWorkers() {
         return;
     }
 
-    navigationPathsChunks = splitOnChunks(navigationPaths, chunkSize)
-        .filter((arr) => arr.length);
+    navigationPathsChunks = splitOnChunks(navigationPaths, chunkSize).filter((arr) => arr.length);
 
     const workersCount = navigationPathsChunks.length;
 
-    processLinterWorkers = await Promise.all((new Array(workersCount)).fill(null).map(() => {
-        // TODO: get linter path from env
-        return spawn<ProcessLinterWorker>(new Worker('./linter'), {timeout: 60000});
-    }));
+    processLinterWorkers = await Promise.all(
+        new Array(workersCount).fill(null).map(() => {
+            // TODO: get linter path from env
+            return spawn<ProcessLinterWorker>(new Worker('./linter'), {timeout: 60000});
+        }),
+    );
 }
 
 function getChunkSize(arr: string[]) {

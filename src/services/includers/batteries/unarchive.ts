@@ -73,15 +73,19 @@ type Params = {
 };
 
 async function includerFunction(params: IncluderFunctionParams<Params>) {
-    const {readBasePath, writeBasePath, tocPath, passedParams: {input, output}, index} = params;
+    const {
+        readBasePath,
+        writeBasePath,
+        tocPath,
+        passedParams: {input, output},
+        index,
+    } = params;
 
     if (!input?.length || !output?.length) {
         throw new UnarchiveIncluderError('provide includer with input parameter', tocPath);
     }
 
-    const contentPath = index === 0
-        ? join(writeBasePath, input)
-        : join(readBasePath, input);
+    const contentPath = index === 0 ? join(writeBasePath, input) : join(readBasePath, input);
 
     const writePath = join(writeBasePath, output);
 

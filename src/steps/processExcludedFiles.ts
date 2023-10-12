@@ -10,38 +10,29 @@ import {convertBackSlashToSlash} from '../utils';
  * @return {void}
  */
 export function processExcludedFiles() {
-    const {
-        input: inputFolderPath,
-        output: outputFolderPath,
-        ignore,
-    } = ArgvService.getConfig();
+    const {input: inputFolderPath, output: outputFolderPath, ignore} = ArgvService.getConfig();
 
     const allContentFiles: string[] = walkSync(inputFolderPath, {
         directories: false,
         includeBasePath: true,
-        globs: [
-            '**/*.md',
-            '**/index.yaml',
-            ...ignore,
-        ],
+        globs: ['**/*.md', '**/index.yaml', ...ignore],
         // Ignores service directories like "_includes", "_templates" and etc.
         ignore: ['**/_*/**/*'],
     });
-    const navigationPaths = TocService.getNavigationPaths()
-        .map((filePath) => convertBackSlashToSlash(resolve(inputFolderPath, filePath)));
+    const navigationPaths = TocService.getNavigationPaths().map((filePath) =>
+        convertBackSlashToSlash(resolve(inputFolderPath, filePath)),
+    );
     const tocSpecifiedFiles = new Set(navigationPaths);
-    const excludedFiles = allContentFiles
-        .filter((filePath) => !tocSpecifiedFiles.has(filePath));
+    const excludedFiles = allContentFiles.filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
     shell.rm('-f', excludedFiles);
 
-    const includedTocPaths = TocService.getIncludedTocPaths()
-        .map((filePath) => {
-            const relativeTocPath = relative(inputFolderPath, filePath);
-            const destTocPath = resolve(outputFolderPath, relativeTocPath);
+    const includedTocPaths = TocService.getIncludedTocPaths().map((filePath) => {
+        const relativeTocPath = relative(inputFolderPath, filePath);
+        const destTocPath = resolve(outputFolderPath, relativeTocPath);
 
-            return convertBackSlashToSlash(destTocPath);
-        });
+        return convertBackSlashToSlash(destTocPath);
+    });
 
     shell.rm('-rf', includedTocPaths);
 }

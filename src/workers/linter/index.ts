@@ -17,11 +17,7 @@ interface ProcessLinterWorkerOptions {
     presetStorage: PresetStorage;
 }
 
-async function run({
-    argvConfig,
-    presetStorage,
-    navigationPaths,
-}: ProcessLinterWorkerOptions) {
+async function run({argvConfig, presetStorage, navigationPaths}: ProcessLinterWorkerOptions) {
     ArgvService.set(argvConfig);
     PresetService.setPresetStorage(presetStorage);
     TocService.setNavigationPaths(navigationPaths);

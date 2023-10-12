@@ -1,5 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const {promises: {readdir}} = require('fs');
+const {
+    promises: {readdir},
+} = require('fs');
 
 async function getDirs(path: string) {
     const isDir = (i: any) => i.isDirectory();
@@ -31,4 +33,14 @@ function concatNewLine(prefix: string, suffix: string) {
     return prefix.trim().length ? `${prefix}<br>${suffix}` : suffix;
 }
 
-export {complement, isMdExtension, isHidden, allPass, compose, prop, getDirs, getFiles, concatNewLine};
+export {
+    complement,
+    isMdExtension,
+    isHidden,
+    allPass,
+    compose,
+    prop,
+    getDirs,
+    getFiles,
+    concatNewLine,
+};

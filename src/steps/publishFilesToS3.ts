@@ -21,7 +21,9 @@ export async function publishFilesToS3(): Promise<void> {
     } = ArgvService.getConfig();
 
     const s3Client = new S3({
-        endpoint, accessKeyId, secretAccessKey,
+        endpoint,
+        accessKeyId,
+        secretAccessKey,
     });
 
     const filesToPublish: string[] = walkSync(resolve(outputFolderPath), {
@@ -30,18 +32,20 @@ export async function publishFilesToS3(): Promise<void> {
         ignore,
     });
 
-    await Promise.all(filesToPublish.map(async (pathToFile) => {
-        const mimeType = mime.lookup(pathToFile);
+    await Promise.all(
+        filesToPublish.map(async (pathToFile) => {
+            const mimeType = mime.lookup(pathToFile);
 
-        const params: S3.Types.PutObjectRequest = {
-            ContentType: mimeType ? mimeType : undefined,
-            Bucket: bucket,
-            Key: convertBackSlashToSlash(join(prefix, pathToFile)),
-            Body: readFileSync(resolve(outputFolderPath, pathToFile)),
-        };
+            const params: S3.Types.PutObjectRequest = {
+                ContentType: mimeType ? mimeType : undefined,
+                Bucket: bucket,
+                Key: convertBackSlashToSlash(join(prefix, pathToFile)),
+                Body: readFileSync(resolve(outputFolderPath, pathToFile)),
+            };
 
-        logger.upload(pathToFile);
+            logger.upload(pathToFile);
 
-        return s3Client.upload(params).promise();
-    }));
+            return s3Client.upload(params).promise();
+        }),
+    );
 }

@@ -41,9 +41,11 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         return undefined;
     }
 
-    let addNestedContributorsForPath: NestedContributorsForPathFunction = () => { };
-    let getContributorsByPath: ContributorsByPathFunction = () => Promise.resolve({} as FileContributors);
-    const getExternalAuthorByPath: ExternalAuthorByPathFunction = (path: string) => authorByPath.get(path) ?? null;
+    let addNestedContributorsForPath: NestedContributorsForPathFunction = () => {};
+    let getContributorsByPath: ContributorsByPathFunction = () =>
+        Promise.resolve({} as FileContributors);
+    const getExternalAuthorByPath: ExternalAuthorByPathFunction = (path: string) =>
+        authorByPath.get(path) ?? null;
 
     if (contributors) {
         await getAllContributorsTocFiles(httpClientByToken);
@@ -95,7 +97,14 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     const tmpMasterBranch = 'yfm-tmp-master';
 
     try {
-        await simpleGit(options).raw('worktree', 'add', '-b', tmpMasterBranch, masterDir, 'origin/master');
+        await simpleGit(options).raw(
+            'worktree',
+            'add',
+            '-b',
+            tmpMasterBranch,
+            masterDir,
+            'origin/master',
+        );
         const fullRepoLogString = await simpleGit({
             baseDir: join(rootInput, masterDir),
         }).raw(
@@ -127,8 +136,10 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
     logger.info('', ALL_CONTRIBUTORS_RECEIVED);
 }
 
-async function matchContributionsForEachPath(repoLogs: string[], httpClientByToken: Octokit): Promise<void> {
-
+async function matchContributionsForEachPath(
+    repoLogs: string[],
+    httpClientByToken: Octokit,
+): Promise<void> {
     for (const repoLog of repoLogs) {
         if (!repoLog) {
             continue;
@@ -149,7 +160,10 @@ async function matchContributionsForEachPath(repoLogs: string[], httpClientByTok
         if (hasContributorData === undefined) {
             logger.info('Contributors: Getting data for', email);
 
-            contributorDataByHash = await getContributorDataByHashCommit(httpClientByToken, hashCommit);
+            contributorDataByHash = await getContributorDataByHashCommit(
+                httpClientByToken,
+                hashCommit,
+            );
 
             if (contributorDataByHash) {
                 const paths = dataArray.splice(1);
@@ -185,7 +199,9 @@ async function matchAuthorsForEachPath(authorRepoLogs: string[], httpClientByTok
     }
 }
 
-async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCommit: string,
+async function getContributorDataByHashCommit(
+    httpClientByToken: Octokit,
+    hashCommit: string,
 ): Promise<Contributor | null> {
     const repoCommit = await github.getRepoCommitByHash(httpClientByToken, hashCommit);
 
@@ -210,7 +226,11 @@ async function getContributorDataByHashCommit(httpClientByToken: Octokit, hashCo
     };
 }
 
-async function getAuthorByPaths(commitInfo: CommitInfo, paths: string[], httpClientByToken: Octokit) {
+async function getAuthorByPaths(
+    commitInfo: CommitInfo,
+    paths: string[],
+    httpClientByToken: Octokit,
+) {
     for (const path of paths) {
         if (!path) {
             continue;
@@ -274,11 +294,18 @@ async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Cont
     };
 }
 
-function addNestedContributorsForPathFunction(path: string, nestedContributors: Contributors): void {
+function addNestedContributorsForPathFunction(
+    path: string,
+    nestedContributors: Contributors,
+): void {
     addContributorForPath([path], nestedContributors, true);
 }
 
-function addContributorForPath(paths: string[], newContributor: Contributors, hasIncludes = false): void {
+function addContributorForPath(
+    paths: string[],
+    newContributor: Contributors,
+    hasIncludes = false,
+): void {
     paths.forEach((path: string) => {
         const normalizePath = normalize(addSlashPrefix(path));
 

@@ -50,7 +50,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
             }
             if (!changesName) {
-                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(3, '0')}`;
+                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(
+                    3,
+                    '0',
+                )}`;
             }
 
             const changesPath = join(outputDir, `changes-${changesName}.json`);
@@ -59,10 +62,13 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 throw new Error(`Changelog ${changesPath} already exists!`);
             }
 
-            writeFileSync(changesPath, JSON.stringify({
-                ...changes,
-                source: mdFilename,
-            }));
+            writeFileSync(
+                changesPath,
+                JSON.stringify({
+                    ...changes,
+                    source: mdFilename,
+                }),
+            );
         });
     }
 
@@ -85,11 +91,7 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
 }
 
 export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {
-        applyPresets,
-        resolveConditions,
-        conditionsInCode,
-    } = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, conditionsInCode} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
@@ -101,9 +103,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {
-        disableLiquid,
-    } = ArgvService.getConfig();
+    const {disableLiquid} = ArgvService.getConfig();
     const {
         vars = {},
         path,

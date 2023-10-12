@@ -5,13 +5,16 @@ import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, PresetService} from './index';
 import {LeadingPage} from '../models';
-import {filterTextItems, filterFiles, firstFilterTextItems, liquidFields, liquidField} from './utils';
+import {
+    filterTextItems,
+    filterFiles,
+    firstFilterTextItems,
+    liquidFields,
+    liquidField,
+} from './utils';
 
 function filterFile(path: string) {
-    const {
-        input: inputFolderPath,
-        vars,
-    } = ArgvService.getConfig();
+    const {input: inputFolderPath, vars} = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
     const filePath = resolve(inputFolderPath, path);
@@ -25,26 +28,20 @@ function filterFile(path: string) {
 
     /* Should remove all links with false expressions */
     try {
-        const title = firstFilterTextItems(
-            parsedIndex.title,
-            combinedVars,
-            {resolveConditions: true},
-        );
+        const title = firstFilterTextItems(parsedIndex.title, combinedVars, {
+            resolveConditions: true,
+        });
         parsedIndex.title = liquidField(title, combinedVars, path);
 
-        const description = filterTextItems(
-            parsedIndex.description,
-            combinedVars,
-            {resolveConditions: true},
-        );
+        const description = filterTextItems(parsedIndex.description, combinedVars, {
+            resolveConditions: true,
+        });
         parsedIndex.description = liquidFields(description, combinedVars, path);
 
         if (parsedIndex.meta?.title) {
-            const metaTitle = firstFilterTextItems(
-                parsedIndex.meta.title,
-                combinedVars,
-                {resolveConditions: true},
-            );
+            const metaTitle = firstFilterTextItems(parsedIndex.meta.title, combinedVars, {
+                resolveConditions: true,
+            });
             parsedIndex.meta.title = liquidField(metaTitle, combinedVars, path);
         }
 
@@ -58,15 +55,15 @@ function filterFile(path: string) {
         }
 
         if (parsedIndex.nav) {
-            const navTitle = firstFilterTextItems(
-                parsedIndex.nav.title,
-                combinedVars,
-                {resolveConditions: true},
-            );
+            const navTitle = firstFilterTextItems(parsedIndex.nav.title, combinedVars, {
+                resolveConditions: true,
+            });
             parsedIndex.nav.title = liquidField(navTitle, combinedVars, path);
         }
 
-        parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars, {resolveConditions: true});
+        parsedIndex.links = filterFiles(parsedIndex.links, 'links', combinedVars, {
+            resolveConditions: true,
+        });
 
         parsedIndex.links.forEach((link) => {
             if (link.title) {

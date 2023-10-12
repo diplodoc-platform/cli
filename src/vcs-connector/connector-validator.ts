@@ -1,5 +1,10 @@
 import log from '@diplodoc/transform/lib/log';
-import {ConnectorValidatorProps, GitHubConnectorFields, SourceType, VCSConnectorConfig} from './connector-models';
+import {
+    ConnectorValidatorProps,
+    GitHubConnectorFields,
+    SourceType,
+    VCSConnectorConfig,
+} from './connector-models';
 import {getMsgСonfigurationMustBeProvided} from '../constants';
 
 const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
@@ -26,8 +31,8 @@ const githubConnectorValidator: Record<string, ConnectorValidatorProps> = {
 };
 
 const connectorValidator: Record<string, ConnectorValidatorProps> = {
-    'type': {
-        warnMessage: '\'type\' must be provided for repo.',
+    type: {
+        warnMessage: "'type' must be provided for repo.",
         validateFn: notEmptyValue,
     },
     [SourceType.GITHUB]: {
@@ -56,8 +61,8 @@ function notEmptyValue(value?: unknown): boolean {
 export function validateConnectorFields(
     sourceType: SourceType,
     fieldNames: GitHubConnectorFields[],
-    repoProperties?: VCSConnectorConfig): Record<string, unknown> {
-
+    repoProperties?: VCSConnectorConfig,
+): Record<string, unknown> {
     const repoValidator = connectorValidator[sourceType];
 
     if (!repoValidator) {
@@ -83,7 +88,8 @@ export function validateConnectorFields(
             continue;
         }
 
-        const propertyValue = propertyValidator.defaultValue || repoProperties[sourceType]?.[property];
+        const propertyValue =
+            propertyValidator.defaultValue || repoProperties[sourceType]?.[property];
 
         if (!propertyValidator.validateFn(propertyValue)) {
             createLog(propertyValidator);

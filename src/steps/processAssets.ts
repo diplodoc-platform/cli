@@ -11,18 +11,12 @@ import {copyFiles} from '../utils';
  * @return {void}
  */
 export function processAssets(outputBundlePath: string) {
-    const {
-        input: inputFolderPath,
-        output: outputFolderPath,
-    } = ArgvService.getConfig();
+    const {input: inputFolderPath, output: outputFolderPath} = ArgvService.getConfig();
 
     const assetFilePath: string[] = walkSync(inputFolderPath, {
         directories: false,
         includeBasePath: false,
-        ignore: [
-            '**/*.yaml',
-            '**/*.md',
-        ],
+        ignore: ['**/*.yaml', '**/*.md'],
     });
 
     copyFiles(inputFolderPath, outputFolderPath, assetFilePath);

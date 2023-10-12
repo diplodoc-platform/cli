@@ -22,7 +22,10 @@ async function getRepoUser(octokit: Octokit, username: string): Promise<GithubUs
     }
 }
 
-async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: string): Promise<GithubCommitDTO | null> {
+async function getRepoCommitByHash(
+    httpClientByToken: Octokit,
+    hashCommit: string,
+): Promise<GithubCommitDTO | null> {
     const {connector} = ArgvService.getConfig();
 
     const neededProperties = [GitHubConnectorFields.OWNER, GitHubConnectorFields.REPO];
@@ -33,15 +36,20 @@ async function getRepoCommitByHash(httpClientByToken: Octokit, hashCommit: strin
     }
 
     try {
-        const commit = await httpClientByToken.request('GET /repos/{owner}/{repo}/commits/{commit_sha}', {
-            owner: validatedFileds[GitHubConnectorFields.OWNER] as string,
-            repo: validatedFileds[GitHubConnectorFields.REPO] as string,
-            commit_sha: hashCommit,
-        });
+        const commit = await httpClientByToken.request(
+            'GET /repos/{owner}/{repo}/commits/{commit_sha}',
+            {
+                owner: validatedFileds[GitHubConnectorFields.OWNER] as string,
+                repo: validatedFileds[GitHubConnectorFields.REPO] as string,
+                commit_sha: hashCommit,
+            },
+        );
 
         return commit.data;
     } catch (error) {
-        log.warn(`Getting commit by sha has been failed for GitHub. SHA commit: ${hashCommit}. Error: ${error}`);
+        log.warn(
+            `Getting commit by sha has been failed for GitHub. SHA commit: ${hashCommit}. Error: ${error}`,
+        );
         return null;
     }
 }

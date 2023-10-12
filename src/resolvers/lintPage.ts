@@ -54,13 +54,7 @@ export function lintPage(options: ResolverLintOptions) {
 }
 
 function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {
-    const {
-        input,
-        lintConfig,
-        disableLiquid,
-        outputFormat,
-        ...options
-    } = ArgvService.getConfig();
+    const {input, lintConfig, disableLiquid, outputFormat, ...options} = ArgvService.getConfig();
     const {path: filePath} = lintOptions;
 
     const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();

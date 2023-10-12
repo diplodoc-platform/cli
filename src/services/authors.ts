@@ -18,7 +18,6 @@ async function updateAuthorMetadataStringByAuthorLogin(
     return '';
 }
 
-
 async function updateAuthorMetadataStringByFilePath(
     filePath: string,
     vcsConnector?: VCSConnector,
@@ -37,7 +36,10 @@ async function updateAuthorMetadataStringByFilePath(
     return '';
 }
 
-async function getAuthorDetails(vcsConnector: VCSConnector, author: string | object): Promise<string | null> {
+async function getAuthorDetails(
+    vcsConnector: VCSConnector,
+    author: string | object,
+): Promise<string | null> {
     if (typeof author === 'object') {
         // Avoiding problems when adding to html markup
         return replaceDoubleToSingleQuotes(JSON.stringify(author));

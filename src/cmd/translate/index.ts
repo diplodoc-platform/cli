@@ -1,8 +1,4 @@
-import {
-    eachLimit,
-    retry,
-    asyncify,
-} from 'async';
+import {eachLimit, retry, asyncify} from 'async';
 
 import {dirname, resolve, join} from 'path';
 import {readFile, writeFile, mkdir} from 'fs/promises';
@@ -25,14 +21,16 @@ import {Argv, Arguments} from 'yargs';
 
 import {YandexCloudTranslateGlossaryPair} from '../../models';
 
-const composer = async (xliff: string, skeleton: string): Promise<string> => new Promise((res, rej) =>
-    yfm2xliff.compose(xliff, skeleton, (err: Error, composed: string) => {
-        if (err) {
-            rej(err);
-        }
+const composer = async (xliff: string, skeleton: string): Promise<string> =>
+    new Promise((res, rej) =>
+        yfm2xliff.compose(xliff, skeleton, (err: Error, composed: string) => {
+            if (err) {
+                rej(err);
+            }
 
-        return res(composed);
-    }));
+            return res(composed);
+        }),
+    );
 
 const command = 'translate';
 
@@ -64,7 +62,8 @@ function builder<T>(argv: Argv<T>) {
         })
         .demandOption(
             ['source-language', 'target-language'],
-            'command requires to specify source and target languages');
+            'command requires to specify source and target languages',
+        );
 }
 
 class TranslatorError extends Error {
@@ -83,7 +82,8 @@ async function handler(args: Arguments<any>) {
         ...args,
     });
 
-    const {input,
+    const {
+        input,
         output,
         yandexCloudTranslateFolderId,
         yandexCloudTranslateGlossaryPairs,
@@ -91,12 +91,17 @@ async function handler(args: Arguments<any>) {
         tl: targetLanguage,
     } = args;
 
-    logger.info(input, `translating documentation from ${sourceLanguage} to ${targetLanguage} language`);
+    logger.info(
+        input,
+        `translating documentation from ${sourceLanguage} to ${targetLanguage} language`,
+    );
 
     try {
         let found = [];
 
-        ({state: {found}} = await glob(join(input, MD_GLOB), {
+        ({
+            state: {found},
+        } = await glob(join(input, MD_GLOB), {
             nosort: true,
         }));
 
@@ -125,7 +130,10 @@ async function handler(args: Arguments<any>) {
         }
     }
 
-    logger.info(output, `translated documentation from ${sourceLanguage} to ${targetLanguage} language`);
+    logger.info(
+        output,
+        `translated documentation from ${sourceLanguage} to ${targetLanguage} language`,
+    );
 }
 
 export type TranslatorParams = {
@@ -182,14 +190,23 @@ function translator(params: TranslatorParams) {
                 format: Format.PLAIN_TEXT,
             });
 
-            const translations = await retry({times: RETRY_LIMIT, interval: (count: number) => {
-                // eslint-disable-next-line no-bitwise
-                return (1 << count) * 1000;
-            }}, asyncify(async () =>
-                await client.translate(machineTranslateParams)
-                    .then((results: {translations: {text: string}[]}) =>
-                        results.translations.map(({text}: {text: string}) => text)),
-            ));
+            const translations = await retry(
+                {
+                    times: RETRY_LIMIT,
+                    interval: (count: number) => {
+                        // eslint-disable-next-line no-bitwise
+                        return (1 << count) * 1000;
+                    },
+                },
+                asyncify(
+                    async () =>
+                        await client
+                            .translate(machineTranslateParams)
+                            .then((results: {translations: {text: string}[]}) =>
+                                results.translations.map(({text}: {text: string}) => text),
+                            ),
+                ),
+            );
 
             const createXLIFFDocumentParams = {
                 sourceLanguage: sourceLanguage + '-' + MTRANS_LOCALE,

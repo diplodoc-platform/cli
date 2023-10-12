@@ -13,20 +13,17 @@ type TocItem = {
 type TocItems = TocItem[];
 
 export function prepareMapFile(): void {
-    const {
-        output: outputFolderPath,
-    } = ArgvService.getConfig();
+    const {output: outputFolderPath} = ArgvService.getConfig();
 
-    const navigationPathsWithoutExtensions =
-        TocService.getNavigationPaths().map((path) => {
-            let preparedPath = convertBackSlashToSlash(path.replace(extname(path), ''));
+    const navigationPathsWithoutExtensions = TocService.getNavigationPaths().map((path) => {
+        let preparedPath = convertBackSlashToSlash(path.replace(extname(path), ''));
 
-            if (preparedPath.endsWith('/index')) {
-                preparedPath = preparedPath.substring(0, preparedPath.length - 5);
-            }
+        if (preparedPath.endsWith('/index')) {
+            preparedPath = preparedPath.substring(0, preparedPath.length - 5);
+        }
 
-            return preparedPath;
-        });
+        return preparedPath;
+    });
     const navigationPaths = {files: [...new Set(navigationPathsWithoutExtensions)]};
     const filesMapBuffer = Buffer.from(JSON.stringify(navigationPaths, null, '\t'), 'utf8');
     const mapFile = join(outputFolderPath, 'files.json');

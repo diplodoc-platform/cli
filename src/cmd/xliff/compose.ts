@@ -1,4 +1,6 @@
-const {promises: {readFile, writeFile, mkdir}} = require('fs');
+const {
+    promises: {readFile, writeFile, mkdir},
+} = require('fs');
 import {join, extname, dirname} from 'path';
 
 import markdownTranslation, {ComposeParameters} from '@diplodoc/markdown-translation';
@@ -28,7 +30,8 @@ class ComposeError extends Error {
     }
 }
 
-const USAGE = 'yfm xliff compose \
+const USAGE =
+    'yfm xliff compose \
 --input <folder-with-xliff-and-skeleton> \
 --ouput <folder-to-store-translated-markdown>';
 
@@ -38,11 +41,13 @@ function builder<T>(argv: Argv<T>) {
             alias: 'i',
             describe: 'input folder with xliff and skeleton files',
             type: 'string',
-        }).option('output', {
+        })
+        .option('output', {
             alias: 'o',
             describe: 'output folder where translated markdown will be stored',
             type: 'string',
-        }).demandOption(['input', 'output'], USAGE);
+        })
+        .demandOption(['input', 'output'], USAGE);
 }
 
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
@@ -58,18 +63,22 @@ async function handler(args: Arguments<any>) {
     let xliffPaths: string[] = [];
 
     try {
-        ({state: {found: skeletonPaths, cache}} = await glob(join(input, SKL_MD_GLOB), {
+        ({
+            state: {found: skeletonPaths, cache},
+        } = await glob(join(input, SKL_MD_GLOB), {
             nosort: false,
             cache,
         }));
 
-        ({state: {found: xliffPaths, cache}} = await glob(join(input, XLF_GLOB), {
+        ({
+            state: {found: xliffPaths, cache},
+        } = await glob(join(input, XLF_GLOB), {
             nosort: false,
             cache,
         }));
 
         if (xliffPaths.length !== skeletonPaths.length) {
-            throw new ComposeError('number of xliff and skeleton files does\'not match', input);
+            throw new ComposeError("number of xliff and skeleton files does'not match", input);
         }
     } catch (err) {
         if (err instanceof Error || err instanceof ComposeError) {

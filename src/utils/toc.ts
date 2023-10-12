@@ -13,9 +13,14 @@ export function transformToc(toc: YfmToc | null, pathToFileDirectory: string): Y
     const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
 
     if (localToc.items) {
-        localToc.items = filterFiles(localToc.items, 'items', {}, {
-            removeHiddenTocItems: true,
-        });
+        localToc.items = filterFiles(
+            localToc.items,
+            'items',
+            {},
+            {
+                removeHiddenTocItems: true,
+            },
+        );
     }
 
     const baseTocPath: string = localToc.base || '';
@@ -52,7 +57,10 @@ export function transformToc(toc: YfmToc | null, pathToFileDirectory: string): Y
     return localToc;
 }
 
-export function transformTocForSinglePage(toc: YfmToc | null, options: {root: string; currentPath: string}) {
+export function transformTocForSinglePage(
+    toc: YfmToc | null,
+    options: {root: string; currentPath: string},
+) {
     const {root, currentPath} = options;
 
     if (!toc) {
@@ -62,9 +70,14 @@ export function transformTocForSinglePage(toc: YfmToc | null, options: {root: st
     const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
 
     if (localToc.items) {
-        localToc.items = filterFiles(localToc.items, 'items', {}, {
-            removeHiddenTocItems: true,
-        });
+        localToc.items = filterFiles(
+            localToc.items,
+            'items',
+            {},
+            {
+                removeHiddenTocItems: true,
+            },
+        );
     }
 
     function processItems(items: YfmToc[]) {

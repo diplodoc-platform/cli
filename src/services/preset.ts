@@ -8,8 +8,8 @@ let presetStorage: PresetStorage = new Map();
 
 function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
     const combinedValues: YfmPreset = {
-        ...parsedPreset.default || {},
-        ...parsedPreset[varsPreset] || {},
+        ...(parsedPreset.default || {}),
+        ...(parsedPreset[varsPreset] || {}),
     };
 
     const key = dirname(normalize(path));

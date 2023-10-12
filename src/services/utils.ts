@@ -93,14 +93,20 @@ export function firstFilterTextItems(
     return filteredItems[0] || '';
 }
 
-function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, string>, options?: FilterFilesOptions) {
+function shouldProcessItem<T extends Filter>(
+    item: T,
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
     const {resolveConditions, removeHiddenTocItems} = options || {};
     let useItem = true;
 
     if (resolveConditions) {
         const {when} = item;
         useItem =
-            when === true || when === undefined || (typeof when === 'string' && evalExp(when, vars));
+            when === true ||
+            when === undefined ||
+            (typeof when === 'string' && evalExp(when, vars));
 
         delete item.when;
     }
@@ -114,7 +120,11 @@ function shouldProcessItem<T extends Filter>(item: T, vars: Record<string, strin
     return useItem;
 }
 
-export function liquidFields(fields: undefined | string | string[], vars: Record<string, unknown>, path: string) {
+export function liquidFields(
+    fields: undefined | string | string[],
+    vars: Record<string, unknown>,
+    path: string,
+) {
     if (typeof fields === 'string') {
         return liquidField(fields, vars, path);
     }

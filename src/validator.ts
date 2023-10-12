@@ -20,25 +20,25 @@ function requiredValueValidator(value: unknown): Boolean {
 }
 
 const validators: Record<string, ConnectorValidatorProps> = {
-    'storageEndpoint': {
+    storageEndpoint: {
         errorMessage: 'Endpoint of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
     },
-    'storageBucket': {
+    storageBucket: {
         errorMessage: 'Bucket name of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
     },
-    'storageKeyId': {
+    storageKeyId: {
         errorMessage: 'Key Id of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
         defaultValue: process.env.YFM_STORAGE_KEY_ID,
     },
-    'storageSecretKey': {
+    storageSecretKey: {
         errorMessage: 'Secret key of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
         defaultValue: process.env.YFM_STORAGE_SECRET_KEY,
     },
-    'storageRegion': {
+    storageRegion: {
         errorMessage: 'Region of S3 storage must be provided when publishes.',
         validateFn: notEmptyStringValidator,
         defaultValue: 'eu-central-1',
@@ -56,26 +56,32 @@ interface RedirectsConfig {
 }
 
 function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: string) {
-    const redirects: Redirect[] = Object.keys(redirectsConfig).reduce((res, redirectSectionName) => {
-        const sectionRedirects = redirectsConfig[redirectSectionName];
-        res.push(...sectionRedirects);
-        return res;
-    }, [] as Redirect[]);
+    const redirects: Redirect[] = Object.keys(redirectsConfig).reduce(
+        (res, redirectSectionName) => {
+            const sectionRedirects = redirectsConfig[redirectSectionName];
+            res.push(...sectionRedirects);
+            return res;
+        },
+        [] as Redirect[],
+    );
 
     const getContext = (from: string, to: string) => ` [Context: \n- from: ${from}\n- to: ${to} ]`;
-    const formatMessage = (message: string, pathname: string, from: string, to: string) => (
-        `${pathname}: ${message} ${getContext(from, to)}`
-    );
+    const formatMessage = (message: string, pathname: string, from: string, to: string) =>
+        `${pathname}: ${message} ${getContext(from, to)}`;
 
     redirects.forEach((redirect) => {
         const {from, to} = redirect;
 
         if (!from || !to) {
-            throw new Error(formatMessage('One of the two parameters is missing', pathToRedirects, from, to));
+            throw new Error(
+                formatMessage('One of the two parameters is missing', pathToRedirects, from, to),
+            );
         }
 
         if (from === to) {
-            throw new Error(formatMessage('Parameters must be different', pathToRedirects, from, to));
+            throw new Error(
+                formatMessage('Parameters must be different', pathToRedirects, from, to),
+            );
         }
     });
 }
@@ -83,7 +89,9 @@ function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: st
 export function argvValidator(argv: Arguments<Object>): Boolean {
     try {
         // Combine passed argv and properties from configuration file.
-        const pathToConfig = argv.config ? String(argv.config) : join(String(argv.input), YFM_CONFIG_FILENAME);
+        const pathToConfig = argv.config
+            ? String(argv.config)
+            : join(String(argv.input), YFM_CONFIG_FILENAME);
         const content = readFileSync(resolve(pathToConfig), 'utf8');
         Object.assign(argv, load(content) || {});
     } catch (error) {

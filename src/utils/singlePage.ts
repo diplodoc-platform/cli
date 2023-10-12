@@ -25,8 +25,9 @@ const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 function getNewNode(options: ModifyNode): HTMLElement | null {
     const {rawTagName, innerHTML, attrEntries} = options;
 
-    const nodeNew = parse(`<html><${rawTagName}></${rawTagName}></html>`)
-        .querySelector(`${rawTagName}`);
+    const nodeNew = parse(`<html><${rawTagName}></${rawTagName}></html>`).querySelector(
+        `${rawTagName}`,
+    );
 
     if (!nodeNew) {
         return null;
@@ -63,7 +64,6 @@ export function tryFixFirstPageHeader(root: HTMLElement) {
     firstPageHeader.rawTagName = 'h1';
 }
 
-
 export function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
     const {root, path, tocDir} = options;
 
@@ -73,7 +73,6 @@ export function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageO
         const resolvedPath = resolve(root, path);
         const linkFullPath = resolveRelativePath(resolvedPath, href);
         const isLinkOutOfToc = !linkFullPath.startsWith(tocDir);
-
 
         let preparedHref = href;
 
@@ -93,7 +92,6 @@ export function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageO
             }
         }
 
-
         node.setAttribute('href', preparedHref);
     });
 }
@@ -112,11 +110,9 @@ export function replaceImages(rootEl: HTMLElement, options: PreprocessSinglePage
         const linkFullPath = resolveRelativePath(resolvedPath, href);
         const preparedHref = relative(tocDir, linkFullPath);
 
-
         node.setAttribute('src', preparedHref);
     });
 }
-
 
 function prepareAnchorAttr(name: string, value: string, pageId: string) {
     switch (name) {
@@ -153,7 +149,9 @@ export function addPagePrefixToAnchors(rootEl: HTMLElement, options: PreprocessS
 
     const mainHeader = rootEl.querySelector('h1');
     if (mainHeader) {
-        const anchor = parse(`<a class="yfm-anchor" aria-hidden="true" href="${pageIdAnchor}" id="${pageId}"></a>`);
+        const anchor = parse(
+            `<a class="yfm-anchor" aria-hidden="true" href="${pageIdAnchor}" id="${pageId}"></a>`,
+        );
         if (!anchor) {
             return;
         }
@@ -214,7 +212,10 @@ export function transformLinkToOriginalArticle(opts: {root: string; currentPath:
     return currentPath.replace(root, '').replace(/\.(md|ya?ml|html)$/i, '');
 }
 
-export function preprocessPageHtmlForSinglePage(content: string, options: PreprocessSinglePageOptions) {
+export function preprocessPageHtmlForSinglePage(
+    content: string,
+    options: PreprocessSinglePageOptions,
+) {
     const root = parse(content);
 
     addMainTitle(root, options);

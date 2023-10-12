@@ -1,3 +1,3 @@
 {
-    "extends": ["@diplodoc/eslint-config"]
+    "extends": ["@diplodoc/eslint-config", "@diplodoc/eslint-config/prettier"]
 }

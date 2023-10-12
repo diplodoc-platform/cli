@@ -10,7 +10,12 @@ import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, LeadingService, TocService, PluginService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {generateStaticMarkup, joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
+import {
+    generateStaticMarkup,
+    joinSinglePageResults,
+    logger,
+    transformTocForSinglePage,
+} from '../utils';
 import {
     MetaDataOptions,
     SinglePageResult,
@@ -21,11 +26,7 @@ import {
 } from '../models';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
-import {
-    SINGLE_PAGE_FILENAME,
-    SINGLE_PAGE_DATA_FILENAME,
-    Lang, ResourceType,
-} from '../constants';
+import {SINGLE_PAGE_FILENAME, SINGLE_PAGE_DATA_FILENAME, Lang, ResourceType} from '../constants';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -47,15 +48,34 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     const navigationPaths = TocService.getNavigationPaths();
     const concurrency = 500;
 
-    await mapLimit(navigationPaths, concurrency, asyncify(async (pathToFile: string) => {
-        const pathData = getPathData(pathToFile, inputFolderPath, outputFolderPath, outputFormat, outputBundlePath);
+    await mapLimit(
+        navigationPaths,
+        concurrency,
+        asyncify(async (pathToFile: string) => {
+            const pathData = getPathData(
+                pathToFile,
+                inputFolderPath,
+                outputFolderPath,
+                outputFormat,
+                outputBundlePath,
+            );
 
-        logger.proc(pathToFile);
+            logger.proc(pathToFile);
 
-        const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
+            const metaDataOptions = getMetaDataOptions(
+                pathData,
+                inputFolderPath.length,
+                vcsConnector,
+            );
 
-        await preparingPagesByOutputFormat(pathData, metaDataOptions, resolveConditions, singlePage);
-    }));
+            await preparingPagesByOutputFormat(
+                pathData,
+                metaDataOptions,
+                resolveConditions,
+                singlePage,
+            );
+        }),
+    );
 
     if (singlePage) {
         await saveSinglePages(outputBundlePath);
@@ -106,44 +126,50 @@ async function saveSinglePages(outputBundlePath: string) {
     } = ArgvService.getConfig();
 
     try {
-        await Promise.all(Object.keys(singlePageResults).map(async (tocDir) => {
-            if (!singlePageResults[tocDir].length) {
-                return;
-            }
+        await Promise.all(
+            Object.keys(singlePageResults).map(async (tocDir) => {
+                if (!singlePageResults[tocDir].length) {
+                    return;
+                }
 
-            const singlePageBody = joinSinglePageResults(singlePageResults[tocDir], inputFolderPath, tocDir);
-            const tocPath = join(relative(inputFolderPath, tocDir), 'toc.yaml');
-            const toc: YfmToc|null = TocService.getForPath(tocPath) || null;
-            const preparedToc = transformTocForSinglePage(toc, {
-                root: inputFolderPath,
-                currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
-            }) as YfmToc;
+                const singlePageBody = joinSinglePageResults(
+                    singlePageResults[tocDir],
+                    inputFolderPath,
+                    tocDir,
+                );
+                const tocPath = join(relative(inputFolderPath, tocDir), 'toc.yaml');
+                const toc: YfmToc | null = TocService.getForPath(tocPath) || null;
+                const preparedToc = transformTocForSinglePage(toc, {
+                    root: inputFolderPath,
+                    currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
+                }) as YfmToc;
 
-            const pageData = {
-                data: {
-                    leading: false as const,
-                    html: singlePageBody,
-                    headings: [],
-                    meta: resources || {},
-                    toc: preparedToc,
-                },
-                router: {
-                    pathname: SINGLE_PAGE_FILENAME,
-                },
-                lang: lang || Lang.RU,
-            };
+                const pageData = {
+                    data: {
+                        leading: false as const,
+                        html: singlePageBody,
+                        headings: [],
+                        meta: resources || {},
+                        toc: preparedToc,
+                    },
+                    router: {
+                        pathname: SINGLE_PAGE_FILENAME,
+                    },
+                    lang: lang || Lang.RU,
+                };
 
-            const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
-            const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
+                const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
+                const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
 
-            // Save the full single page for viewing locally
-            const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
-            const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
-            const singlePageContent = generateStaticMarkup(pageData, relativeOutputBundlePath);
+                // Save the full single page for viewing locally
+                const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
+                const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
+                const singlePageContent = generateStaticMarkup(pageData, relativeOutputBundlePath);
 
-            writeFileSync(singlePageFn, singlePageContent);
-            writeFileSync(singlePageDataFn, JSON.stringify(pageData));
-        }));
+                writeFileSync(singlePageFn, singlePageContent);
+                writeFileSync(singlePageDataFn, JSON.stringify(pageData));
+            }),
+        );
     } catch (error) {
         console.log(error);
     }
@@ -172,7 +198,10 @@ function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathDat
     });
 }
 
-function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, vcsConnector?: VCSConnector,
+function getMetaDataOptions(
+    pathData: PathData,
+    inputFolderPathLength: number,
+    vcsConnector?: VCSConnector,
 ): MetaDataOptions {
     const {contributors, addSystemMeta, resources, allowCustomResources} = ArgvService.getConfig();
 
@@ -187,7 +216,6 @@ function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, v
         addSystemMeta,
     };
 
-
     if (allowCustomResources && resources) {
         const allowedResources = Object.entries(resources).reduce((acc: Resources, [key, val]) => {
             if (Object.keys(ResourceType).includes(key)) {
@@ -198,7 +226,6 @@ function getMetaDataOptions(pathData: PathData, inputFolderPathLength: number, v
 
         metaDataOptions.resources = allowedResources;
     }
-
 
     return metaDataOptions;
 }
@@ -234,8 +261,10 @@ async function preparingPagesByOutputFormat(
             return;
         }
 
-        if (outputFormat === 'md' && isYamlFileExtension ||
-            outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md') {
+        if (
+            (outputFormat === 'md' && isYamlFileExtension) ||
+            (outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md')
+        ) {
             copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
             return;
         }
@@ -275,7 +304,11 @@ function processingYamlFile(path: PathData, metaDataOptions: MetaDataOptions) {
     writeFileSync(resolve(outputFolderPath, pathToFile), dump(parsedContent));
 }
 
-function copyFileWithoutChanges(resolvedPathToFile: string, outputDir: string, filename: string): void {
+function copyFileWithoutChanges(
+    resolvedPathToFile: string,
+    outputDir: string,
+    filename: string,
+): void {
     const from = resolvedPathToFile;
     const to = resolve(outputDir, filename);
 
@@ -292,14 +325,11 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
     });
 }
 
-async function processingFileToHtml(path: PathData, metaDataOptions: MetaDataOptions): Promise<DocInnerProps> {
-    const {
-        outputBundlePath,
-        filename,
-        fileExtension,
-        outputPath,
-        pathToFile,
-    } = path;
+async function processingFileToHtml(
+    path: PathData,
+    metaDataOptions: MetaDataOptions,
+): Promise<DocInnerProps> {
+    const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
 
     return resolveMd2HTML({
         inputPath: pathToFile,

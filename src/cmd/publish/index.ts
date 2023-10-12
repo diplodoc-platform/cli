@@ -73,12 +73,7 @@ async function handler(args: Arguments<any>) {
         ...args,
     });
 
-    const {
-        input,
-        endpoint,
-        bucket,
-        prefix,
-    } = ArgvService.getConfig();
+    const {input, endpoint, bucket, prefix} = ArgvService.getConfig();
 
     logger.info('', `Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`);
 

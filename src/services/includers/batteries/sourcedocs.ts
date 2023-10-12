@@ -23,7 +23,10 @@ type Params = {
 };
 
 async function includerFunction(params: IncluderFunctionParams<Params>) {
-    logger.warn(params.tocPath, `sourcedocs inlcuder is getting depricated in favor of generic includer\n${usage}`);
+    logger.warn(
+        params.tocPath,
+        `sourcedocs inlcuder is getting depricated in favor of generic includer\n${usage}`,
+    );
 
     await generic.includerFunction(params);
 }

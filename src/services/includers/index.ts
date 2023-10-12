@@ -40,7 +40,9 @@ class IncludersError extends Error {
 }
 
 function init(custom: Includer[] = []) {
-    if (includersMap) { return; }
+    if (includersMap) {
+        return;
+    }
 
     includersMap = {generic, sourcedocs, unarchive};
 
@@ -55,7 +57,7 @@ async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {
     }
 
     if (!includeValid(item.include)) {
-        throw new IncludersError('include doesn\'t comply with includers standard', path);
+        throw new IncludersError("include doesn't comply with includers standard", path);
     }
 
     // normalize include mode (includers support link mode only)

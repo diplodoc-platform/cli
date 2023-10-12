@@ -59,7 +59,7 @@ export enum Platforms {
 export enum IncludeMode {
     ROOT_MERGE = 'root_merge',
     MERGE = 'merge',
-    LINK = 'link'
+    LINK = 'link',
 }
 
 export enum ResourceType {
@@ -95,8 +95,8 @@ export const PROCESSING_FINISHED = 'Processing finished:';
 export const LINTING_FINISHED = 'Linting finished:';
 export const GETTING_ALL_CONTRIBUTORS = 'Getting all contributors.';
 export const ALL_CONTRIBUTORS_RECEIVED = 'All contributors received.';
-export const getMsgСonfigurationMustBeProvided =
-    (repo: string) => `Сonfiguration must be provided for ${repo} like env variables or in .yfm file`;
+export const getMsgСonfigurationMustBeProvided = (repo: string) =>
+    `Сonfiguration must be provided for ${repo} like env variables or in .yfm file`;
 
 export const FIRST_COMMIT_FROM_ROBOT_IN_GITHUB = '2dce14271359cd20d7e874956d604de087560cf4';
 
@@ -117,6 +117,6 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
 
 export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
-export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || (os.cpus().length - 1);
+export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1;
 
 export const metadataBorder = '---';

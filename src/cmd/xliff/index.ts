@@ -19,7 +19,10 @@ function builder<T>(argv: Argv<T>) {
     return argv
         .command(extract)
         .command(compose)
-        .demandCommand(1, `provide one of the folowing ${command} commands: ${extract.command}, ${compose.command}`);
+        .demandCommand(
+            1,
+            `provide one of the folowing ${command} commands: ${extract.command}, ${compose.command}`,
+        );
 }
 
 export {xliff};

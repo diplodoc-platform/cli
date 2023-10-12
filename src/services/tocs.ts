@@ -49,11 +49,9 @@ async function add(path: string) {
     };
 
     if (parsedToc.title) {
-        parsedToc.title = firstFilterTextItems(
-            parsedToc.title,
-            combinedVars,
-            {resolveConditions: true},
-        );
+        parsedToc.title = firstFilterTextItems(parsedToc.title, combinedVars, {
+            resolveConditions: true,
+        });
     }
 
     if (typeof parsedToc.title === 'string') {
@@ -92,10 +90,7 @@ async function processTocItems(
     sourcesDir: string,
     vars: Record<string, string>,
 ) {
-    const {
-        resolveConditions,
-        removeHiddenTocItems,
-    } = ArgvService.getConfig();
+    const {resolveConditions, removeHiddenTocItems} = ArgvService.getConfig();
 
     let preparedItems = items;
 
@@ -115,7 +110,7 @@ async function processTocItems(
     return _replaceIncludes(path, preparedItems, tocDir, sourcesDir, vars);
 }
 
-function getForPath(path: string): YfmToc|undefined {
+function getForPath(path: string): YfmToc | undefined {
     return storage.get(path);
 }
 
@@ -131,11 +126,11 @@ function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
     function processItems(items: YfmToc[], pathToDir: string) {
         items.forEach((item) => {
             if (!parsedToc.singlePage && item.items) {
-                const preparedSubItems = item.items.map(((yfmToc: YfmToc, index: number) => {
+                const preparedSubItems = item.items.map((yfmToc: YfmToc, index: number) => {
                     // Generate personal id for each navigation item
                     yfmToc.id = `${yfmToc.name}-${index}-${Math.random()}`;
                     return yfmToc;
-                }));
+                });
                 processItems(preparedSubItems, pathToDir);
             }
 
@@ -308,9 +303,10 @@ async function _replaceIncludes(
 
         if (item.include) {
             const {mode = IncludeMode.ROOT_MERGE} = item.include;
-            const includeTocPath = mode === IncludeMode.ROOT_MERGE
-                ? resolve(sourcesDir, item.include.path)
-                : resolve(tocDir, item.include.path);
+            const includeTocPath =
+                mode === IncludeMode.ROOT_MERGE
+                    ? resolve(sourcesDir, item.include.path)
+                    : resolve(tocDir, item.include.path);
             const includeTocDir = dirname(includeTocPath);
 
             try {
@@ -332,11 +328,21 @@ async function _replaceIncludes(
 
                 /* Resolve nested toc inclusions */
                 const baseTocDir = mode === IncludeMode.LINK ? includeTocDir : tocDir;
-                includedTocItems = await processTocItems(path, includedTocItems, baseTocDir, sourcesDir, vars);
+                includedTocItems = await processTocItems(
+                    path,
+                    includedTocItems,
+                    baseTocDir,
+                    sourcesDir,
+                    vars,
+                );
 
                 /* Make hrefs relative to the main toc */
                 if (mode === IncludeMode.LINK) {
-                    includedTocItems = _replaceIncludesHrefs(includedTocItems, includeTocDir, tocDir);
+                    includedTocItems = _replaceIncludesHrefs(
+                        includedTocItems,
+                        includeTocDir,
+                        tocDir,
+                    );
                 }
 
                 if (item.name) {
@@ -345,9 +351,9 @@ async function _replaceIncludes(
                     includedInlineItems = includedTocItems;
                 }
             } catch (err) {
-                const message = (
-                    `Error while including toc: ${bold(includeTocPath)} to ${bold(join(tocDir, 'toc.yaml'))}`
-                );
+                const message = `Error while including toc: ${bold(includeTocPath)} to ${bold(
+                    join(tocDir, 'toc.yaml'),
+                )}`;
 
                 log.error(message);
 
@@ -374,7 +380,6 @@ function getTocDir(pagePath: string): string {
 
     const tocDir = dirname(pagePath);
     const tocPath = resolve(tocDir, 'toc.yaml');
-
 
     if (!tocDir.includes(inputFolderPath)) {
         throw new Error('Error while finding toc dir');
