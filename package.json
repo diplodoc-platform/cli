@@ -65,6 +65,8 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
+    "@diplodoc/eslint-config": "^1.0.0",
+    "@diplodoc/tsconfig": "^1.0.1",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "^3.0.0",
