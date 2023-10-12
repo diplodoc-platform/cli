@@ -65,9 +65,7 @@
     "yargs": "17.7.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.23.2",
-    "@babel/eslint-parser": "^7.22.15",
-    "@diplodoc/eslint-config": "^1.0.3",
+    "@diplodoc/eslint-config": "^1.0.6",
     "@diplodoc/tsconfig": "^1.0.2",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
@@ -79,11 +77,8 @@
     "@types/shelljs": "0.8.12",
     "@types/tar-stream": "^2.2.2",
     "@types/yargs": "17.0.24",
-    "@typescript-eslint/eslint-plugin": "2.34.0",
-    "@typescript-eslint/parser": "2.34.0",
     "esbuild": "^0.17.17",
-    "eslint": "6.8.0",
-    "eslint-plugin-security": "1.7.1",
+    "eslint": "^7.32.0",
     "husky": "8.0.3",
     "lint-staged": "13.2.2",
     "lodash": "4.17.21",
