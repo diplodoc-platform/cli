@@ -126,7 +126,7 @@ function includerExists(includer: YfmTocIncluder) {
     return includersMap[includer.name as keyof typeof includersMap];
 }
 
-export type applyIncluderParams = {
+export type ApplyIncluderParams = {
     path: string;
     item: YfmToc;
     includer: Includer;
@@ -136,7 +136,7 @@ export type applyIncluderParams = {
     vars: YfmPreset;
 };
 
-async function applyIncluder(args: applyIncluderParams) {
+async function applyIncluder(args: ApplyIncluderParams) {
     const {rootInput: readBasePath, input: writeBasePath} = ArgvService.getConfig();
 
     const {path, item, includer, passedParams, index, vars} = args;
