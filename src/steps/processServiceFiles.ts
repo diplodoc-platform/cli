@@ -8,6 +8,7 @@ import {ArgvService, PresetService, TocService} from '../services';
 import {logger} from '../utils';
 import {DocPreset} from '../models';
 import shell from 'shelljs';
+import {CacheService} from '../services/cache';
 
 type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
 
@@ -44,9 +45,10 @@ function preparingPresetFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFuncti
 
             const pathToPresetFile = resolve(inputFolderPath, path);
             const content = readFileSync(pathToPresetFile, 'utf8');
+            const contentHash = CacheService.getHash(content);
             const parsedPreset = load(content) as DocPreset;
 
-            PresetService.add(parsedPreset, path, varsPreset);
+            PresetService.add(parsedPreset, path, varsPreset, contentHash);
 
             if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
                 // Should save filtered presets.yaml only when --apply-presets=false or --resolve-conditions=false

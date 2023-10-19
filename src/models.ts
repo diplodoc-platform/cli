@@ -4,6 +4,7 @@ import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {Lang, Stage, IncludeMode, ResourceType} from './constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
+import PluginEnvApi from './utils/pluginEnvApi';
 
 export type VarsPreset = 'internal' | 'external';
 
@@ -48,6 +49,8 @@ export interface YfmArgv extends YfmConfig {
     rootInput: string;
     input: string;
     output: string;
+    cache: boolean;
+    cacheDir: string;
     quiet: string;
     publish: boolean;
     storageEndpoint: string;
@@ -203,6 +206,7 @@ export interface PluginOptions {
     collectOfPlugins?: (input: string, options: PluginOptions) => string;
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
+    envApi?: PluginEnvApi;
 }
 
 export interface Plugin {
