@@ -1,40 +1,80 @@
-import {existsSync, readFileSync, writeFileSync} from 'fs';
-import {dirname, resolve, join, basename, extname} from 'path';
+import * as fs from 'fs';
+import {dirname, resolve, join, basename, extname, relative} from 'path';
 import shell from 'shelljs';
-import log from '@diplodoc/transform/lib/log';
+import log, {LogLevels} from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ArgvService, PluginService} from '../services';
-import {logger, getVarsPerFile} from '../utils';
+import {logger, getVarsPerFileWithHash} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
-import {PROCESSING_FINISHED} from '../constants';
+import {CACHE_HIT, PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
+import {cacheServiceBuildMd} from '../services/cache';
+import PluginEnvApi from '../utils/pluginEnvApi';
+import {checkLogWithoutProblems, getLogState} from '../services/utils';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata} = options;
     const {input, output} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
-    const vars = getVarsPerFile(inputPath);
+    const {vars, varsHashList} = getVarsPerFileWithHash(inputPath);
 
-    const content = await getContentWithUpdatedMetadata(
-        readFileSync(resolvedInputPath, 'utf8'),
-        metadata,
-        vars.__system,
-    );
+    const rawContent = fs.readFileSync(resolvedInputPath, 'utf8');
 
-    const {result, changelogs} = transformMd2Md(content, {
-        path: resolvedInputPath,
-        destPath: outputPath,
-        root: resolve(input),
-        destRoot: resolve(output),
-        collectOfPlugins: PluginService.getCollectOfPlugins(),
-        vars,
-        log,
-        copyFile,
-    });
+    const cacheKey = cacheServiceBuildMd.getHashKey({filename: inputPath, content: rawContent, varsHashList});
 
-    writeFileSync(outputPath, result);
+    let result: string;
+    let changelogs: ChangelogItem[];
+
+    const cachedFile = await cacheServiceBuildMd.checkFileAsync(cacheKey);
+    if (cachedFile) {
+        logger.info(inputPath, CACHE_HIT);
+        await cachedFile.extractCacheAsync();
+        const results = cachedFile.getResult<{result: string; changelogs: ChangelogItem[]; logs: Record<LogLevels, string[]>}>();
+        result = results.result;
+        changelogs = results.changelogs;
+    } else {
+        const content = await getContentWithUpdatedMetadata(
+            rawContent,
+            metadata,
+            vars.__system,
+        );
+
+        const cacheFile = cacheServiceBuildMd.createFile(cacheKey);
+        const envApi = PluginEnvApi.create({
+            root: resolve(input),
+            distRoot: resolve(output),
+            cacheFile,
+        });
+        const logState = getLogState(log);
+
+        const transformResult = transformMd2Md(content, {
+            path: resolvedInputPath,
+            destPath: outputPath,
+            root: resolve(input),
+            destRoot: resolve(output),
+            collectOfPlugins: PluginService.getCollectOfPlugins(),
+            vars,
+            log,
+            copyFile,
+            envApi,
+        });
+
+        result = transformResult.result;
+        changelogs = transformResult.changelogs;
+
+        envApi.executeActions();
+
+        const logIsOk = checkLogWithoutProblems(log, logState);
+        if (logIsOk) {
+            cacheFile.setResult(transformResult);
+            // not async cause race condition
+            cacheServiceBuildMd.addFile(cacheFile);
+        }
+    }
+
+    fs.writeFileSync(outputPath, result);
 
     if (changelogs?.length) {
         const mdFilename = basename(outputPath, extname(outputPath));
@@ -50,25 +90,19 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
             }
             if (!changesName) {
-                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(
-                    3,
-                    '0',
-                )}`;
+                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(3, '0')}`;
             }
 
             const changesPath = join(outputDir, `changes-${changesName}.json`);
 
-            if (existsSync(changesPath)) {
+            if (fs.existsSync(changesPath)) {
                 throw new Error(`Changelog ${changesPath} already exists!`);
             }
 
-            writeFileSync(
-                changesPath,
-                JSON.stringify({
-                    ...changes,
-                    source: mdFilename,
-                }),
-            );
+            fs.writeFileSync(changesPath, JSON.stringify({
+                ...changes,
+                source: mdFilename,
+            }));
         });
     }
 
@@ -78,20 +112,35 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
-    shell.mkdir('-p', dirname(targetDestPath));
-
     if (options) {
-        const sourceIncludeContent = readFileSync(targetPath, 'utf8');
+        const {envApi} = options;
+        let sourceIncludeContent: string;
+        if (envApi) {
+            sourceIncludeContent = envApi.readFile(relative(envApi.root, targetPath), 'utf-8') as string;
+        } else {
+            sourceIncludeContent = fs.readFileSync(targetPath, 'utf8');
+        }
+
         const {result} = transformMd2Md(sourceIncludeContent, options);
 
-        writeFileSync(targetDestPath, result);
+        if (envApi) {
+            envApi.writeFileAsync(relative(envApi.distRoot, targetDestPath), result);
+        } else {
+            fs.mkdirSync(dirname(targetDestPath), {recursive: true});
+            fs.writeFileSync(targetDestPath, result);
+        }
     } else {
+        fs.mkdirSync(dirname(targetDestPath), {recursive: true});
         shell.cp(targetPath, targetDestPath);
     }
 }
 
 export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {applyPresets, resolveConditions, conditionsInCode} = ArgvService.getConfig();
+    const {
+        applyPresets,
+        resolveConditions,
+        conditionsInCode,
+    } = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
@@ -103,7 +152,9 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {disableLiquid} = ArgvService.getConfig();
+    const {
+        disableLiquid,
+    } = ArgvService.getConfig();
     const {
         vars = {},
         path,
@@ -113,6 +164,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
         collectOfPlugins,
         log: pluginLog,
         copyFile: pluginCopyFile,
+        envApi,
     } = options;
 
     let output = input;
@@ -136,6 +188,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             collectOfPlugins,
             changelogs,
             extractChangelogs: true,
+            envApi,
         });
     }
 

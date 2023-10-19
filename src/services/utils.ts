@@ -2,6 +2,7 @@ import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
 import liquid from '@diplodoc/transform/lib/liquid';
 import {ArgvService} from './index';
+import {Logger} from '@doc-tools/transform/src/transform/log';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;
@@ -158,4 +159,16 @@ export function liquidField(input: string, vars: Record<string, unknown>, path: 
 
 export function isObject(o: unknown): o is object {
     return typeof o === 'object' && o !== null;
+}
+
+export function getLogState(log: Logger) {
+    const {LogLevels} = log;
+    const problems = log.get();
+    const warnCount = problems[LogLevels.WARN].length;
+    const errCount = problems[LogLevels.ERROR].length;
+    return warnCount + errCount;
+}
+
+export function checkLogWithoutProblems(log: Logger, logState: number) {
+    return getLogState(log) === logState;
 }

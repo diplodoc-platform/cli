@@ -1,6 +1,6 @@
 import {dirname, resolve} from 'path';
 import shell from 'shelljs';
-import {copyFileSync} from 'fs';
+import * as fs from 'fs';
 import {logger} from './logger';
 
 export function copyFiles(
@@ -14,8 +14,20 @@ export function copyFiles(
         const to = resolve(outputFolderPath, pathToAsset);
 
         shell.mkdir('-p', outputDir);
-        copyFileSync(from, to);
+        fs.copyFileSync(from, to);
 
         logger.copy(pathToAsset);
+    }
+}
+
+export async function fileExists(path: string) {
+    try {
+        await fs.promises.stat(path);
+        return true;
+    } catch (err) {
+        if ((err as Error & {code?: string}).code === 'ENOENT') {
+            return false;
+        }
+        throw err;
     }
 }

@@ -9,9 +9,13 @@ import {readFileSync} from 'fs';
 import {bold} from 'chalk';
 
 import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, getVarsPerRelativeFile} from '../utils';
+import {getVarsPerFileWithHash, getVarsPerRelativeFile, logger} from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
+import {cacheServiceLint} from '../services/cache';
+import PluginEnvApi from '../utils/pluginEnvApi';
+import {checkLogWithoutProblems, getLogState} from '../services/utils';
+import {LINT_CACHE_HIT} from '../constants';
 
 interface FileTransformOptions {
     path: string;
@@ -58,10 +62,27 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
     const {path: filePath} = lintOptions;
 
     const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();
-    const vars = getVarsPerFile(filePath);
+    const {vars, varsHashList} = getVarsPerFileWithHash(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
     let preparedContent = content;
+
+    const cacheKey = cacheServiceLint.getHashKey({filename: filePath, content, varsHashList});
+
+    const cachedFile = cacheServiceLint.checkFile(cacheKey);
+    if (cachedFile) {
+        logger.info(filePath, LINT_CACHE_HIT);
+        return;
+    }
+
+    const cacheFile = cacheServiceLint.createFile(cacheKey);
+
+    const envApi = PluginEnvApi.create({
+        root,
+        distRoot: '',
+        cacheFile,
+    });
+    const logState = getLogState(log);
 
     /* Relative path from folder of .md file to root of user' output folder */
     const assetsPublicPath = relative(dirname(path), root);
@@ -72,6 +93,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         const pluginOptions: PluginOptions = {
             ...options,
             vars,
+            varsHashList,
             root,
             path: localPath,
             lintMarkdown, // Should pass the function for linting included files
@@ -79,6 +101,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
             disableLiquid,
             log,
             getVarsPerFile: getVarsPerRelativeFile,
+            envApi,
         };
 
         yfmlint({
@@ -110,4 +133,9 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         path,
         sourceMap,
     });
+
+    const logIsOk = checkLogWithoutProblems(log, logState);
+    if (logIsOk) {
+        cacheServiceLint.addFile(cacheFile);
+    }
 }

@@ -8,6 +8,7 @@ import {TocServiceData} from '../../services/tocs';
 import {PresetStorage} from '../../services/preset';
 import {YfmArgv} from '../../models';
 import {lintPage} from '../../resolvers';
+import {cacheServiceLint} from '../../services/cache';
 
 let processedPages = new Subject();
 
@@ -22,6 +23,8 @@ async function run({argvConfig, presetStorage, navigationPaths}: ProcessLinterWo
     PresetService.setPresetStorage(presetStorage);
     TocService.setNavigationPaths(navigationPaths);
     PluginService.setPlugins();
+
+    cacheServiceLint.init(argvConfig.cache, argvConfig.cacheDir);
 
     TocService.getNavigationPaths().forEach((pathToFile) => {
         lintPage({

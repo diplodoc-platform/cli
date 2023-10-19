@@ -1,4 +1,4 @@
-import {sep} from 'path';
+import {sep, normalize} from 'path';
 import {Platforms} from '../constants';
 
 export function addSlashPrefix(path: string): string {
@@ -21,4 +21,8 @@ export function convertSlashToWindowsBackSlashes(path: string): string {
     }
 
     return path;
+}
+
+export function safeRelativePath(filename: string) {
+    return normalize(`/${filename}`).slice(1);
 }

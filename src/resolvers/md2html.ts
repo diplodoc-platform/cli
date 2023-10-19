@@ -12,12 +12,15 @@ import {
     generateStaticMarkup,
     logger,
     transformToc,
-    getVarsPerFile,
     getVarsPerRelativeFile,
+    getVarsPerFileWithHash,
 } from '../utils';
-import {PROCESSING_FINISHED, Lang} from '../constants';
+import {PROCESSING_FINISHED, Lang, CACHE_HIT} from '../constants';
 import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
+import PluginEnvApi from '../utils/pluginEnvApi';
+import {cacheServiceMdToHtml} from '../services/cache';
+import {checkLogWithoutProblems, getLogState} from '../services/utils';
 
 export interface FileTransformOptions {
     path: string;
@@ -48,7 +51,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+    const {result} = await transformFn(content, {path: inputPath});
 
     const updatedMetadata =
         metadata && metadata.isContributorsEnabled
@@ -128,16 +131,33 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
     });
 }
 
-function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
+async function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Promise<Output> {
     const {input, ...options} = ArgvService.getConfig();
     const {path: filePath} = transformOptions;
 
     const plugins = PluginService.getPlugins();
-    const vars = getVarsPerFile(filePath);
+    const {vars, varsHashList} = getVarsPerFileWithHash(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
 
-    return transform(content, {
+    const cacheKey = cacheServiceMdToHtml.getHashKey({filename: filePath, content, varsHashList});
+
+    const cachedFile = await cacheServiceMdToHtml.checkFileAsync(cacheKey);
+    if (cachedFile) {
+        logger.info(filePath, CACHE_HIT);
+        await cachedFile.extractCacheAsync();
+        return cachedFile.getResult<Output>();
+    }
+
+    const cacheFile = cacheServiceMdToHtml.createFile(cacheKey);
+    const envApi = PluginEnvApi.create({
+        root: resolve(input),
+        distRoot: resolve(options.output),
+        cacheFile,
+    });
+    const logState = getLogState(log);
+
+    const result = transform(content, {
         ...options,
         plugins: plugins as MarkdownItPluginCb<unknown>[],
         vars,
@@ -146,5 +166,16 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         assetsPublicPath: getAssetsPublicPath(filePath),
         getVarsPerFile: getVarsPerRelativeFile,
         extractTitle: true,
+        envApi,
     });
+
+    envApi.executeActions();
+
+    const logIsOk = checkLogWithoutProblems(log, logState);
+    if (logIsOk) {
+        cacheFile.setResult(result);
+        await cacheServiceMdToHtml.addFileAsync(cacheFile);
+    }
+
+    return result;
 }

@@ -27,6 +27,7 @@ import {Resources} from '../../models';
 import {copyFiles, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../publish/upload';
 import glob from 'glob';
+import {cacheServiceBuildMd, cacheServiceLint, cacheServiceMdToHtml} from '../../services/cache';
 
 export const build = {
     command: ['build', '$0'],
@@ -166,6 +167,18 @@ function builder<T>(argv: Argv<T>) {
             type: 'boolean',
             group: 'Build options:',
         })
+        .option('cache-dir', {
+            default: resolve('cache'),
+            describe: 'Path to cache folder',
+            type: 'string',
+            group: 'Build options:',
+        })
+        .option('cache', {
+            default: false,
+            describe: 'Enable cache',
+            type: 'boolean',
+            group: 'Build options:',
+        })
         .check(argvValidator)
         .example('yfm -i ./input -o ./output', '')
         .demandOption(
@@ -178,6 +191,10 @@ async function handler(args: Arguments<any>) {
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
+
+    cacheServiceLint.init(args.cache, args.cacheDir);
+    cacheServiceBuildMd.init(args.cache, args.cacheDir);
+    cacheServiceMdToHtml.init(args.cache, args.cacheDir);
 
     try {
         ArgvService.init({
@@ -287,7 +304,7 @@ async function handler(args: Arguments<any>) {
             }
         }
     } catch (err) {
-        logger.error('', err.message);
+        logger.error('', (err as Error).message);
     } finally {
         processLogs(tmpInputFolder);
 
