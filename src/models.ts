@@ -6,7 +6,7 @@ import {Lang, Stage, IncludeMode, ResourceType} from './constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import PluginEnvApi from './utils/pluginEnvApi';
 
-export type VarsPreset = 'internal'|'external';
+export type VarsPreset = 'internal' | 'external';
 
 export type YfmPreset = Record<string, string>;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -14,7 +14,10 @@ export type Metadata = Record<string, any>;
 
 export type ExternalAuthorByPathFunction = (path: string) => Contributor | null;
 export type ContributorsByPathFunction = (path: string) => Promise<FileContributors>;
-export type NestedContributorsForPathFunction = (path: string, nestedContributors: Contributors) => void;
+export type NestedContributorsForPathFunction = (
+    path: string,
+    nestedContributors: Contributors,
+) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
 export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
 
@@ -99,7 +102,7 @@ export type YfmTocIncluder = {
 
 export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] as const;
 
-export type YfmTocIncluderName = typeof includersNames[number];
+export type YfmTocIncluderName = (typeof includersNames)[number];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Includer<FnParams = any> = {
@@ -107,7 +110,9 @@ export type Includer<FnParams = any> = {
     includerFunction: IncluderFunction<FnParams>;
 };
 
-export type IncluderFunction<PassedParams> = (args: IncluderFunctionParams<PassedParams>) => Promise<void>;
+export type IncluderFunction<PassedParams> = (
+    args: IncluderFunctionParams<PassedParams>,
+) => Promise<void>;
 
 export type IncluderFunctionParams<PassedParams> = {
     // item that contains include that uses includer
@@ -151,7 +156,7 @@ export interface LeadingPageLinks extends Filter {
 }
 
 export interface Filter {
-    when?: boolean|string;
+    when?: boolean | string;
     [key: string]: unknown;
 }
 
@@ -243,8 +248,8 @@ export type Resources = {
 };
 
 export type YandexCloudTranslateGlossaryPair = {
-  sourceText: string;
-  translatedText: string;
+    sourceText: string;
+    translatedText: string;
 };
 
 export type CommitInfo = {

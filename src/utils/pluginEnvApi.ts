@@ -18,7 +18,9 @@ type WriteFileAsyncAction = {type: AsyncActionType.Write; to: string; data: stri
 type AsyncAction = CopyFileAsyncAction | WriteFileAsyncAction;
 
 interface PluginEnvApiProps {
-    root: string; distRoot: string; cacheFile?: CacheFile;
+    root: string;
+    distRoot: string;
+    cacheFile?: CacheFile;
 }
 
 class PluginEnvApi {
@@ -26,9 +28,9 @@ class PluginEnvApi {
         return new PluginEnvApi(props);
     }
 
-    public readonly root: string;
-    public readonly distRoot: string;
-    public readonly cacheFile: CacheFile | undefined;
+    readonly root: string;
+    readonly distRoot: string;
+    readonly cacheFile: CacheFile | undefined;
 
     private readonly asyncActionQueue: AsyncAction[] = [];
 
@@ -143,33 +145,37 @@ class PluginEnvApi {
     async executeActionsAsync() {
         const {asyncActionQueue} = this;
 
-        await mapLimit(asyncActionQueue.splice(0), CUNCURRENCY, asyncify(async (action: AsyncAction) => {
-            switch (action.type) {
-                case AsyncActionType.Copy: {
-                    const {from, to} = action;
-                    const fullFrom = path.join(this.root, from);
-                    const fullTo = path.join(this.distRoot, to);
+        await mapLimit(
+            asyncActionQueue.splice(0),
+            CUNCURRENCY,
+            asyncify(async (action: AsyncAction) => {
+                switch (action.type) {
+                    case AsyncActionType.Copy: {
+                        const {from, to} = action;
+                        const fullFrom = path.join(this.root, from);
+                        const fullTo = path.join(this.distRoot, to);
 
-                    await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
-                    await fs.promises.copyFile(fullFrom, fullTo);
-                    if (this.cacheFile) {
-                        this.cacheFile.addCopyFile({from, to});
+                        await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
+                        await fs.promises.copyFile(fullFrom, fullTo);
+                        if (this.cacheFile) {
+                            this.cacheFile.addCopyFile({from, to});
+                        }
+                        break;
                     }
-                    break;
-                }
-                case AsyncActionType.Write: {
-                    const {to, data} = action;
-                    const fullTo = path.join(this.distRoot, to);
+                    case AsyncActionType.Write: {
+                        const {to, data} = action;
+                        const fullTo = path.join(this.distRoot, to);
 
-                    await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
-                    await fs.promises.writeFile(fullTo, data);
-                    if (this.cacheFile) {
-                        this.cacheFile.addWriteFile(to, data);
+                        await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
+                        await fs.promises.writeFile(fullTo, data);
+                        if (this.cacheFile) {
+                            this.cacheFile.addWriteFile(to, data);
+                        }
+                        break;
                     }
-                    break;
                 }
-            }
-        }));
+            }),
+        );
     }
 }
 

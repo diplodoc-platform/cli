@@ -2,7 +2,7 @@ import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
 import liquid from '@diplodoc/transform/lib/liquid';
 import {ArgvService} from './index';
-import {Logger} from '@doc-tools/transform/src/transform/log';
+import {Logger} from '@diplodoc/transform/src/transform/log';
 
 export interface FilterFilesOptions {
     resolveConditions?: boolean;

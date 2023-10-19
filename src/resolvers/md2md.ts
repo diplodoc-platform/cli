@@ -22,7 +22,11 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
     const rawContent = fs.readFileSync(resolvedInputPath, 'utf8');
 
-    const cacheKey = cacheServiceBuildMd.getHashKey({filename: inputPath, content: rawContent, varsHashList});
+    const cacheKey = cacheServiceBuildMd.getHashKey({
+        filename: inputPath,
+        content: rawContent,
+        varsHashList,
+    });
 
     let result: string;
     let changelogs: ChangelogItem[];
@@ -31,15 +35,15 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     if (cachedFile) {
         logger.info(inputPath, CACHE_HIT);
         await cachedFile.extractCacheAsync();
-        const results = cachedFile.getResult<{result: string; changelogs: ChangelogItem[]; logs: Record<LogLevels, string[]>}>();
+        const results = cachedFile.getResult<{
+            result: string;
+            changelogs: ChangelogItem[];
+            logs: Record<LogLevels, string[]>;
+        }>();
         result = results.result;
         changelogs = results.changelogs;
     } else {
-        const content = await getContentWithUpdatedMetadata(
-            rawContent,
-            metadata,
-            vars.__system,
-        );
+        const content = await getContentWithUpdatedMetadata(rawContent, metadata, vars.__system);
 
         const cacheFile = cacheServiceBuildMd.createFile(cacheKey);
         const envApi = PluginEnvApi.create({
@@ -90,7 +94,10 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 changesName = Math.trunc(new Date(changesDate).getTime() / 1000);
             }
             if (!changesName) {
-                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(3, '0')}`;
+                changesName = `name-${mdFilename}-${String(changelogs.length - index).padStart(
+                    3,
+                    '0',
+                )}`;
             }
 
             const changesPath = join(outputDir, `changes-${changesName}.json`);
@@ -99,10 +106,13 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 throw new Error(`Changelog ${changesPath} already exists!`);
             }
 
-            fs.writeFileSync(changesPath, JSON.stringify({
-                ...changes,
-                source: mdFilename,
-            }));
+            fs.writeFileSync(
+                changesPath,
+                JSON.stringify({
+                    ...changes,
+                    source: mdFilename,
+                }),
+            );
         });
     }
 
@@ -116,7 +126,10 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
         const {envApi} = options;
         let sourceIncludeContent: string;
         if (envApi) {
-            sourceIncludeContent = envApi.readFile(relative(envApi.root, targetPath), 'utf-8') as string;
+            sourceIncludeContent = envApi.readFile(
+                relative(envApi.root, targetPath),
+                'utf-8',
+            ) as string;
         } else {
             sourceIncludeContent = fs.readFileSync(targetPath, 'utf8');
         }
@@ -136,11 +149,7 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
 }
 
 export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {
-        applyPresets,
-        resolveConditions,
-        conditionsInCode,
-    } = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, conditionsInCode} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
@@ -152,9 +161,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {
-        disableLiquid,
-    } = ArgvService.getConfig();
+    const {disableLiquid} = ArgvService.getConfig();
     const {
         vars = {},
         path,

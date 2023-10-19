@@ -36,7 +36,9 @@ class CacheFile {
     }
 
     use() {
-        if (this.disabled) { return undefined; }
+        if (this.disabled) {
+            return undefined;
+        }
         return this;
     }
 
@@ -56,35 +58,51 @@ class CacheFile {
         const {fileDeps, copiedFiles, existsFiles, fileVarsDeps} = this.data;
 
         for (const filename in fileVarsDeps) {
-            if (!Object.hasOwnProperty.call(fileVarsDeps, filename)) { continue; }
+            if (!Object.hasOwnProperty.call(fileVarsDeps, filename)) {
+                continue;
+            }
 
             const reqVarsHashList = fileVarsDeps[filename];
             const {varsHashList} = getVarsPerFileWithHash(filename);
-            if (!isEqual(varsHashList, reqVarsHashList)) { return; }
+            if (!isEqual(varsHashList, reqVarsHashList)) {
+                return;
+            }
         }
 
         for (const to in copiedFiles) {
-            if (!Object.hasOwnProperty.call(copiedFiles, to)) { continue; }
+            if (!Object.hasOwnProperty.call(copiedFiles, to)) {
+                continue;
+            }
 
             const from = copiedFiles[to];
             const filepath = path.join(root, from);
-            if (!fs.existsSync(filepath)) { return; }
+            if (!fs.existsSync(filepath)) {
+                return;
+            }
         }
 
         for (const filename in existsFiles) {
-            if (!Object.hasOwnProperty.call(existsFiles, filename)) { continue; }
+            if (!Object.hasOwnProperty.call(existsFiles, filename)) {
+                continue;
+            }
 
             const reqState = existsFiles[filename];
             const filepath = path.join(root, filename);
-            if (fs.existsSync(filepath) !== reqState) { return; }
+            if (fs.existsSync(filepath) !== reqState) {
+                return;
+            }
         }
 
         for (const filename in fileDeps) {
-            if (!Object.hasOwnProperty.call(fileDeps, filename)) { continue; }
+            if (!Object.hasOwnProperty.call(fileDeps, filename)) {
+                continue;
+            }
 
             const reqContentHash = fileDeps[filename];
             const filepath = path.join(root, filename);
-            if (!fs.existsSync(filepath)) { return; }
+            if (!fs.existsSync(filepath)) {
+                return;
+            }
             const contentHash = CacheService.getFileHash(filepath);
             if (contentHash !== reqContentHash) {
                 return;
@@ -102,42 +120,58 @@ class CacheFile {
         const {fileDeps, copiedFiles, existsFiles, fileVarsDeps} = this.data;
 
         for (const filename in fileVarsDeps) {
-            if (!Object.hasOwnProperty.call(fileVarsDeps, filename)) { continue; }
+            if (!Object.hasOwnProperty.call(fileVarsDeps, filename)) {
+                continue;
+            }
 
             const reqVarsHashList = fileVarsDeps[filename];
             const {varsHashList} = getVarsPerFileWithHash(filename);
-            if (!isEqual(varsHashList, reqVarsHashList)) { return; }
+            if (!isEqual(varsHashList, reqVarsHashList)) {
+                return;
+            }
         }
 
         const tasks: (() => Promise<void>)[] = [];
 
-        Object.entries(copiedFiles).forEach(([, from]) => tasks.push(asyncify(async () => {
-            const filepath = path.join(root, from);
-            const isExists = await fileExists(filepath);
-            if (!isExists) {
-                throw new Error('Aborted');
-            }
-        })));
+        Object.entries(copiedFiles).forEach(([, from]) =>
+            tasks.push(
+                asyncify(async () => {
+                    const filepath = path.join(root, from);
+                    const isExists = await fileExists(filepath);
+                    if (!isExists) {
+                        throw new Error('Aborted');
+                    }
+                }),
+            ),
+        );
 
-        Object.entries(existsFiles).forEach(([filename, reqState]) => tasks.push(asyncify(async () => {
-            const filepath = path.join(root, filename as string);
-            const isExists = await fileExists(filepath);
-            if (isExists !== reqState as boolean) {
-                throw new Error('Aborted');
-            }
-        })));
+        Object.entries(existsFiles).forEach(([filename, reqState]) =>
+            tasks.push(
+                asyncify(async () => {
+                    const filepath = path.join(root, filename as string);
+                    const isExists = await fileExists(filepath);
+                    if (isExists !== (reqState as boolean)) {
+                        throw new Error('Aborted');
+                    }
+                }),
+            ),
+        );
 
-        Object.entries(fileDeps).forEach(([filename, reqContentHash]) => tasks.push(asyncify(async () => {
-            const filepath = path.join(root, filename);
-            const isExists = await fileExists(filepath);
-            if (!isExists) {
-                throw new Error('Aborted');
-            }
-            const contentHash = await CacheService.getFileHashAsync(filepath);
-            if (contentHash !== reqContentHash) {
-                throw new Error('Aborted');
-            }
-        })));
+        Object.entries(fileDeps).forEach(([filename, reqContentHash]) =>
+            tasks.push(
+                asyncify(async () => {
+                    const filepath = path.join(root, filename);
+                    const isExists = await fileExists(filepath);
+                    if (!isExists) {
+                        throw new Error('Aborted');
+                    }
+                    const contentHash = await CacheService.getFileHashAsync(filepath);
+                    if (contentHash !== reqContentHash) {
+                        throw new Error('Aborted');
+                    }
+                }),
+            ),
+        );
 
         try {
             await parallelLimit(tasks, CUNCURRENCY);
@@ -185,10 +219,7 @@ class CacheFile {
     }
 
     async extractCacheAsync() {
-        await Promise.all([
-            this.writeDataAsync(),
-            this.copyFilesAsync(),
-        ]);
+        await Promise.all([this.writeDataAsync(), this.copyFilesAsync()]);
     }
 
     extractCache() {
@@ -216,14 +247,16 @@ class CacheFile {
     async writeAssetsAsync() {
         const {wroteFileData} = this;
 
-        const tasks = Object.entries(wroteFileData).map(([filename, data]) => asyncify(async () => {
-            const fullFilename = this.getAssetFilepath(filename);
-            const place = path.dirname(fullFilename);
-            if (!existsDir.has(place)) {
-                await fs.promises.mkdir(place, {recursive: true});
-            }
-            await fs.promises.writeFile(fullFilename, data);
-        }));
+        const tasks = Object.entries(wroteFileData).map(([filename, data]) =>
+            asyncify(async () => {
+                const fullFilename = this.getAssetFilepath(filename);
+                const place = path.dirname(fullFilename);
+                if (!existsDir.has(place)) {
+                    await fs.promises.mkdir(place, {recursive: true});
+                }
+                await fs.promises.writeFile(fullFilename, data);
+            }),
+        );
 
         await parallelLimit(tasks, CUNCURRENCY);
     }
@@ -249,13 +282,17 @@ class CacheFile {
 
         const {wroteFiles} = this.data;
 
-        await mapLimit(Object.entries(wroteFiles), CUNCURRENCY, asyncify(async ([to, assetName]: string[]) => {
-            const fullFrom = this.getAssetFilepath(assetName);
-            const fullTo = path.join(distRoot, to);
+        await mapLimit(
+            Object.entries(wroteFiles),
+            CUNCURRENCY,
+            asyncify(async ([to, assetName]: string[]) => {
+                const fullFrom = this.getAssetFilepath(assetName);
+                const fullTo = path.join(distRoot, to);
 
-            await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
-            await fs.promises.copyFile(fullFrom, fullTo);
-        }));
+                await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
+                await fs.promises.copyFile(fullFrom, fullTo);
+            }),
+        );
     }
 
     private copyFiles() {
@@ -281,13 +318,17 @@ class CacheFile {
 
         const {copiedFiles} = this.data;
 
-        await mapLimit(Object.entries(copiedFiles), CUNCURRENCY, asyncify(async ([to, from]: string[]) => {
-            const fullFrom = path.join(root, from);
-            const fullTo = path.join(distRoot, to);
+        await mapLimit(
+            Object.entries(copiedFiles),
+            CUNCURRENCY,
+            asyncify(async ([to, from]: string[]) => {
+                const fullFrom = path.join(root, from);
+                const fullTo = path.join(distRoot, to);
 
-            await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
-            await fs.promises.copyFile(fullFrom, fullTo);
-        }));
+                await fs.promises.mkdir(path.dirname(fullTo), {recursive: true});
+                await fs.promises.copyFile(fullFrom, fullTo);
+            }),
+        );
     }
 
     private getAssetFilepath(key: string) {

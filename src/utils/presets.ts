@@ -13,7 +13,10 @@ export function getVarsPerFile(filePath: string): Record<string, string> {
     };
 }
 
-export function getVarsPerFileWithHash(filePath: string): {varsHashList: string[]; vars: Record<string, string>} {
+export function getVarsPerFileWithHash(filePath: string): {
+    varsHashList: string[];
+    vars: Record<string, string>;
+} {
     const {vars: argVars} = ArgvService.getConfig();
 
     const {vars, varsHashList} = PresetService.getWithHash(dirname(filePath));
@@ -33,4 +36,3 @@ export function getVarsPerRelativeFile(filePath: string): Record<string, string>
 
     return getVarsPerFile(relativeFilePath);
 }
-

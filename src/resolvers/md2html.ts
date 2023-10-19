@@ -131,7 +131,10 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
     });
 }
 
-async function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Promise<Output> {
+async function MdFileTransformer(
+    content: string,
+    transformOptions: FileTransformOptions,
+): Promise<Output> {
     const {input, ...options} = ArgvService.getConfig();
     const {path: filePath} = transformOptions;
 

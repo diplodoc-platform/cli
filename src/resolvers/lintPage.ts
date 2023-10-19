@@ -93,7 +93,6 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         const pluginOptions: PluginOptions = {
             ...options,
             vars,
-            varsHashList,
             root,
             path: localPath,
             lintMarkdown, // Should pass the function for linting included files

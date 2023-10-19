@@ -51,17 +51,36 @@ export class CacheService {
         if (!argsHash) {
             const args = ArgvService.getConfig();
             const staticArgs = pick(args, [
-                'varsPreset', 'ignore', 'outputFormat', 'allowHTML', 'vars', 'applyPresets',
-                'resolveConditions', 'conditionsInCode', 'disableLiquid', 'strict', 'ignoreStage', 'singlePage',
-                'removeHiddenTocItems', 'connector', 'lang', 'lintConfig', 'resources', 'addSystemMeta',
-                'contributors', 'ignoreAuthorPatterns', 'allowCustomResources',
+                'varsPreset',
+                'ignore',
+                'outputFormat',
+                'allowHTML',
+                'vars',
+                'applyPresets',
+                'resolveConditions',
+                'conditionsInCode',
+                'disableLiquid',
+                'strict',
+                'ignoreStage',
+                'singlePage',
+                'removeHiddenTocItems',
+                'connector',
+                'lang',
+                'lintConfig',
+                'resources',
+                'addSystemMeta',
+                'contributors',
+                'ignoreAuthorPatterns',
+                'allowCustomResources',
             ]);
             argsHash = CacheService.getHash(JSON.stringify(staticArgs));
         }
         const contentHash = CacheService.getHash(content);
         return {
             key: this.getHash(JSON.stringify({filename, contentHash, varsHashList, argsHash})),
-            filename, contentHash, varsHashList,
+            filename,
+            contentHash,
+            varsHashList,
         };
     }
 
@@ -79,7 +98,9 @@ export class CacheService {
     }
 
     checkFile({key}: HashKey) {
-        if (this.disabled) { return; }
+        if (this.disabled) {
+            return;
+        }
 
         const filepath = this.getCacheFilepath(key);
         if (!fs.existsSync(filepath)) {
@@ -97,7 +118,9 @@ export class CacheService {
     }
 
     async checkFileAsync({key}: HashKey) {
-        if (this.disabled) { return; }
+        if (this.disabled) {
+            return;
+        }
 
         const filepath = this.getCacheFilepath(key);
         const exists = await fileExists(filepath);
@@ -121,7 +144,9 @@ export class CacheService {
     }
 
     addFile(file: CacheFile) {
-        if (this.disabled) { return; }
+        if (this.disabled) {
+            return;
+        }
 
         const filepath = this.getCacheFilepath(file.getKey());
         const place = path.dirname(filepath);
@@ -134,7 +159,9 @@ export class CacheService {
     }
 
     async addFileAsync(file: CacheFile) {
-        if (this.disabled) { return; }
+        if (this.disabled) {
+            return;
+        }
 
         const filepath = this.getCacheFilepath(file.getKey());
         const place = path.dirname(filepath);
