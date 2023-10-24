@@ -11,7 +11,7 @@ import {
     TranslateRequest_Format as Format,
 } from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
 
-const yfm2xliff = require('@doc-tools/yfm2xliff/lib/cjs');
+import markdownTranslation from '@diplodoc/markdown-translation';
 
 import {ArgvService} from '../../services';
 import {getYandexOAuthToken} from '../../packages/credentials';
@@ -20,17 +20,6 @@ import {glob, logger} from '../../utils';
 import {Argv, Arguments} from 'yargs';
 
 import {YandexCloudTranslateGlossaryPair} from '../../models';
-
-const composer = async (xliff: string, skeleton: string): Promise<string> =>
-    new Promise((res, rej) =>
-        yfm2xliff.compose(xliff, skeleton, (err: Error, composed: string) => {
-            if (err) {
-                rej(err);
-            }
-
-            return res(composed);
-        }),
-    );
 
 const command = 'translate';
 
@@ -166,16 +155,21 @@ function translator(params: TranslatorParams) {
 
             const md = await readFile(resolve(mdPath), {encoding: 'utf-8'});
 
-            const extracted = await yfm2xliff.extract({
-                md,
-                mdPath,
-                source: sourceLanguage,
-                target: targetLanguage,
-                sklPath: '',
-                xlfPath: '',
+            const {xlf, skeleton} = markdownTranslation.extract({
+                source: {
+                    language: sourceLanguage,
+                    locale: sourceLanguage.toUpperCase(),
+                },
+                target: {
+                    language: targetLanguage,
+                    locale: targetLanguage.toUpperCase(),
+                },
+                markdown: md,
+                markdownPath: mdPath,
+                skeletonPath: '',
             });
 
-            const texts = parseSourcesFromXLIFF(extracted.xliff);
+            const texts = parseSourcesFromXLIFF(xlf);
 
             const machineTranslateParams = TranslateRequest.fromPartial({
                 texts,
@@ -217,7 +211,10 @@ function translator(params: TranslatorParams) {
 
             const translatedXLIFF = createXLIFFDocument(createXLIFFDocumentParams);
 
-            const composed = await composer(translatedXLIFF, extracted.skeleton);
+            const composed = await markdownTranslation.compose({
+                xlf: translatedXLIFF,
+                skeleton,
+            });
 
             const outputPath = mdPath.replace(input, output);
 
