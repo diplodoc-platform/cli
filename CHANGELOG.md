@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.2.0](https://github.com/diplodoc-platform/cli/compare/v4.1.0...v4.2.0) (2023-10-24)
+
+
+### Features
+
+* add linter, move to diplodoc packages ([a92704a](https://github.com/diplodoc-platform/cli/commit/a92704a18d699084a6722011fdade0e300854765))
+* cleanup packages ([5155a46](https://github.com/diplodoc-platform/cli/commit/5155a461cc62f1d57922caf9fa51cb764a9d1ebc))
+* **cmd/xliff:** experimental-inline-segmentation-beta-2 ([729fc37](https://github.com/diplodoc-platform/cli/commit/729fc37a69a2de76eb4c22a7d16c75cb45ef9b2c))
+* configs ([ecc3c57](https://github.com/diplodoc-platform/cli/commit/ecc3c57367768455bb16ecf3ed77dd37f0a19ec8))
+
+
+### Bug Fixes
+
+* **deps:** deprecate yfm2xliff ([0852d6e](https://github.com/diplodoc-platform/cli/commit/0852d6ea9424d7a84dbe1a9c58376ae9e4a20fd6))
+* install babel core ([b6a785b](https://github.com/diplodoc-platform/cli/commit/b6a785b33edbfd33a24fc08de502d90908dcb01b))
+
 ## [4.1.0](https://github.com/diplodoc-platform/cli/compare/v4.0.0...v4.1.0) (2023-10-04)
 
 
