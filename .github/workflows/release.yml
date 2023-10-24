@@ -12,8 +12,28 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: yandex-cloud/ui-release-action@main
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
         with:
-          github-token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
-          npm-token: ${{ secrets.ROBOT_DATAUI_NPM_TOKEN }}
           node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+      - run: npm i -g 'npm@10.*' --registry=https://registry.npmjs.org
+      - run: npm ci
+        shell: bash
+      - run: npm test
+        shell: bash
+      - uses: codex-team/action-nodejs-package-info@v1
+        id: package
+      - uses: GoogleCloudPlatform/release-please-action@v3
+        id: release
+        with:
+          token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
+          release-type: node
+          package-name: ${{steps.package.outputs.name}}
+          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false}]'
+          bump-minor-pre-major: true
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
+        if: ${{ steps.release.outputs.release_created }}
+        shell: bash
