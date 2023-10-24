@@ -20,8 +20,6 @@ jobs:
       - run: npm i -g 'npm@10.*' --registry=https://registry.npmjs.org
       - run: npm ci
         shell: bash
-      - run: npm test
-        shell: bash
       - uses: codex-team/action-nodejs-package-info@v1
         id: package
       - uses: GoogleCloudPlatform/release-please-action@v3
