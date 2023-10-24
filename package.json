@@ -25,7 +25,8 @@
     "git:head": "git checkout master && git pull"
   },
   "engines": {
-    "node": "18.*"
+    "node": "18.*",
+    "npm:": "10.*"
   },
   "dependencies": {
     "@apidevtools/swagger-parser": "^10.1.0",
