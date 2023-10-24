@@ -10,5 +10,5 @@ updates:
     schedule:
       interval: "daily"
     reviewers:
-      - "yandex-cloud/yfm"
+      - "diplodoc-platform/devops"
     open-pull-requests-limit: 5
