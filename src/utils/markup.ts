@@ -1,10 +1,10 @@
 import {platform} from 'process';
 
 import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
-import {SinglePageResult, Resources} from '../models';
+import {Resources, SinglePageResult} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
-import {render, DocInnerProps, DocPageData} from '@diplodoc/client';
+import {DocInnerProps, DocPageData, render} from '@diplodoc/client';
 import client from '../../scripts/client';
 
 export interface TitleMeta {

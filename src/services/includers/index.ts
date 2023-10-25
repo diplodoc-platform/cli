@@ -7,8 +7,8 @@ import {IncludeMode} from '../../constants';
 import {generic, sourcedocs, unarchive} from './batteries';
 
 import type {
-    YfmPreset,
     Includer,
+    YfmPreset,
     YfmToc,
     YfmTocInclude,
     YfmTocIncluder,

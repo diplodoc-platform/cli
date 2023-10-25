@@ -5,7 +5,7 @@ import 'threads/register';
 
 import {MAIN_TIMER_ID} from './constants';
 
-import {build, xliff, translate, publish} from './cmd';
+import {build, publish, translate, xliff} from './cmd';
 
 console.time(MAIN_TIMER_ID);
 

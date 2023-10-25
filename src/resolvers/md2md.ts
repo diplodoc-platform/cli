@@ -1,11 +1,11 @@
 import {existsSync, readFileSync, writeFileSync} from 'fs';
-import {dirname, resolve, join, basename, extname} from 'path';
+import {basename, dirname, extname, join, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ArgvService, PluginService} from '../services';
-import {logger, getVarsPerFile} from '../utils';
+import {getVarsPerFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {getContentWithUpdatedMetadata} from '../services/metadata';

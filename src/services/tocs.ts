@@ -1,6 +1,6 @@
-import {dirname, extname, join, parse, resolve, relative, normalize, sep} from 'path';
-import {copyFileSync, readFileSync, writeFileSync, existsSync} from 'fs';
-import {load, dump} from 'js-yaml';
+import {dirname, extname, join, normalize, parse, relative, resolve, sep} from 'path';
+import {copyFileSync, existsSync, readFileSync, writeFileSync} from 'fs';
+import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
 import liquid from '@diplodoc/transform/lib/liquid';
@@ -10,10 +10,10 @@ import {bold} from 'chalk';
 import {ArgvService, PresetService} from './index';
 import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc} from '../models';
-import {Stage, IncludeMode} from '../constants';
+import {IncludeMode, Stage} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems, liquidField} from './utils';
-import {applyIncluders, IncludersError} from './includers';
+import {IncludersError, applyIncluders} from './includers';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;

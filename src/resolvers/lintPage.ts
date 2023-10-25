@@ -1,9 +1,9 @@
 import {dirname, relative, resolve} from 'path';
 import log from '@diplodoc/transform/lib/log';
 import {
-    default as yfmlint,
     LintMarkdownFunctionOptions,
     PluginOptions,
+    default as yfmlint,
 } from '@diplodoc/transform/lib/yfmlint';
 import {readFileSync} from 'fs';
 import {bold} from 'chalk';

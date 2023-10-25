@@ -1,4 +1,4 @@
-import {relative, dirname, basename, extname, format, join} from 'path';
+import {basename, dirname, extname, format, join, relative} from 'path';
 
 import {YfmToc} from '../models';
 import {filterFiles} from '../services/utils';

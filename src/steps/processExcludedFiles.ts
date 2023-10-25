@@ -1,4 +1,4 @@
-import {resolve, relative} from 'path';
+import {relative, resolve} from 'path';
 import walkSync from 'walk-sync';
 import shell from 'shelljs';
 

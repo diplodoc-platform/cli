@@ -2,7 +2,7 @@ import {join} from 'path';
 import {ArgvService} from '../../services';
 import {logger} from '../../utils';
 
-import {Argv, Arguments} from 'yargs';
+import {Arguments, Argv} from 'yargs';
 
 import {upload} from './upload';
 
