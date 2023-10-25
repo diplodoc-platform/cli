@@ -6,16 +6,16 @@ import transform, {Output} from '@diplodoc/transform';
 import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
-import {ResolverOptions, YfmToc, ResolveMd2HTMLResult, LeadingPage} from '../models';
-import {ArgvService, TocService, PluginService} from '../services';
+import {LeadingPage, ResolveMd2HTMLResult, ResolverOptions, YfmToc} from '../models';
+import {ArgvService, PluginService, TocService} from '../services';
 import {
     generateStaticMarkup,
-    logger,
-    transformToc,
     getVarsPerFile,
     getVarsPerRelativeFile,
+    logger,
+    transformToc,
 } from '../utils';
-import {PROCESSING_FINISHED, Lang} from '../constants';
+import {Lang, PROCESSING_FINISHED} from '../constants';
 import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 

@@ -1,5 +1,5 @@
-import {readFile, writeFile, mkdir} from 'fs/promises';
-import {parse, join, dirname} from 'path';
+import {mkdir, readFile, writeFile} from 'fs/promises';
+import {dirname, join, parse} from 'path';
 
 import {updateWith} from 'lodash';
 import {dump} from 'js-yaml';

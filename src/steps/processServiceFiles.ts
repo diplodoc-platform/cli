@@ -1,7 +1,7 @@
 import {dirname, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {readFileSync, writeFileSync} from 'fs';
-import {load, dump} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, PresetService, TocService} from '../services';

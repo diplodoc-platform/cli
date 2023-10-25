@@ -1,11 +1,11 @@
 import log from '@diplodoc/transform/lib/log';
-import {spawn, Worker, Thread} from 'threads';
+import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
-import {ArgvService, TocService, PresetService, PluginService} from '../services';
+import {ArgvService, PluginService, PresetService, TocService} from '../services';
 import {ProcessLinterWorker} from '../workers/linter';
 import {logger} from '../utils';
-import {LINTING_FINISHED, WORKERS_COUNT, MIN_CHUNK_SIZE} from '../constants';
+import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
 import {lintPage} from '../resolvers';
 import {splitOnChunks} from '../utils/worker';
 

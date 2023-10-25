@@ -1,14 +1,14 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, resolve, join, relative} from 'path';
+import {basename, dirname, extname, join, relative, resolve} from 'path';
 import shell from 'shelljs';
 import {copyFileSync, readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
-import {mapLimit, asyncify} from 'async';
+import {asyncify, mapLimit} from 'async';
 
 import log from '@diplodoc/transform/lib/log';
 
-import {ArgvService, LeadingService, TocService, PluginService} from '../services';
+import {ArgvService, LeadingService, PluginService, TocService} from '../services';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {
     generateStaticMarkup,
@@ -17,16 +17,16 @@ import {
     transformTocForSinglePage,
 } from '../utils';
 import {
-    MetaDataOptions,
-    SinglePageResult,
-    PathData,
-    YfmToc,
-    Resources,
     LeadingPage,
+    MetaDataOptions,
+    PathData,
+    Resources,
+    SinglePageResult,
+    YfmToc,
 } from '../models';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
-import {SINGLE_PAGE_FILENAME, SINGLE_PAGE_DATA_FILENAME, Lang, ResourceType} from '../constants';
+import {Lang, ResourceType, SINGLE_PAGE_DATA_FILENAME, SINGLE_PAGE_FILENAME} from '../constants';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};

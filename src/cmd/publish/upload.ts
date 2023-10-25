@@ -1,7 +1,7 @@
 import {createReadStream} from 'fs';
 import walkSync from 'walk-sync';
-import {resolve, join} from 'path';
-import {S3Client, PutObjectCommand} from '@aws-sdk/client-s3';
+import {join, resolve} from 'path';
+import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
 import mime from 'mime-types';
 
 import {convertBackSlashToSlash, logger} from '../../utils';

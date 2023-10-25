@@ -1,6 +1,6 @@
 import {readFileSync} from 'fs';
 import walkSync from 'walk-sync';
-import {resolve, join} from 'path';
+import {join, resolve} from 'path';
 import S3 from 'aws-sdk/clients/s3';
 import mime from 'mime-types';
 

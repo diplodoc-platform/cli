@@ -1,11 +1,11 @@
 const {
     promises: {readFile, writeFile, mkdir},
 } = require('fs');
-import {join, dirname, extname} from 'path';
+import {dirname, extname, join} from 'path';
 
 import markdownTranslation, {ExtractParameters} from '@diplodoc/markdown-translation';
 import {Arguments, Argv} from 'yargs';
-import {eachLimit, asyncify} from 'async';
+import {asyncify, eachLimit} from 'async';
 
 import {ArgvService} from '../../services';
 import {glob, logger} from '../../utils';

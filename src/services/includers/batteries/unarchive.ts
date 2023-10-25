@@ -1,6 +1,6 @@
-import {mkdirSync, createReadStream, createWriteStream} from 'fs';
-import {join, dirname} from 'path';
-import {extract, Headers} from 'tar-stream';
+import {createReadStream, createWriteStream, mkdirSync} from 'fs';
+import {dirname, join} from 'path';
+import {Headers, extract} from 'tar-stream';
 
 import type {PassThrough} from 'stream';
 

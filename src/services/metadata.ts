@@ -1,7 +1,7 @@
 import {dump} from 'js-yaml';
 
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {Metadata, MetaDataOptions, Resources} from '../models';
+import {MetaDataOptions, Metadata, Resources} from '../models';
 import {
     getAuthorDetails,
     updateAuthorMetadataStringByAuthorLogin,
@@ -10,7 +10,7 @@ import {
 import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
 import {isObject} from './utils';
 import {сarriage} from '../utils';
-import {metadataBorder, REGEXP_AUTHOR} from '../constants';
+import {REGEXP_AUTHOR, metadataBorder} from '../constants';
 import {dirname, relative, resolve} from 'path';
 import {ArgvService} from './index';
 

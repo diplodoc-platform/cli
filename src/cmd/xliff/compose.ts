@@ -1,7 +1,7 @@
 const {
     promises: {readFile, writeFile, mkdir},
 } = require('fs');
-import {join, extname, dirname} from 'path';
+import {dirname, extname, join} from 'path';
 
 import markdownTranslation, {ComposeParameters} from '@diplodoc/markdown-translation';
 import {Arguments, Argv} from 'yargs';

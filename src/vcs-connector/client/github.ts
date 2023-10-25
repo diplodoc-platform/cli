@@ -2,10 +2,10 @@ import log from '@diplodoc/transform/lib/log';
 import {Octokit} from '@octokit/core';
 import {ArgvService} from '../../services';
 import {
-    GithubCommitDTO,
     GitHubConnectorFields,
-    SourceType,
+    GithubCommitDTO,
     GithubUserDTO,
+    SourceType,
 } from '../connector-models';
 import {validateConnectorFields} from '../connector-validator';
 

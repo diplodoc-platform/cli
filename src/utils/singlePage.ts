@@ -1,6 +1,6 @@
 import HTMLElement from 'node-html-parser/dist/nodes/html';
 import {parse} from 'node-html-parser';
-import {resolve, sep, relative} from 'path';
+import {relative, resolve, sep} from 'path';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 import url from 'url';
 import _ from 'lodash';

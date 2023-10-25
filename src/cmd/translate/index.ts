@@ -1,14 +1,14 @@
-import {eachLimit, retry, asyncify} from 'async';
+import {asyncify, eachLimit, retry} from 'async';
 
-import {dirname, resolve, join} from 'path';
-import {readFile, writeFile, mkdir} from 'fs/promises';
+import {dirname, join, resolve} from 'path';
+import {mkdir, readFile, writeFile} from 'fs/promises';
 import {XMLParser} from 'fast-xml-parser';
 
 import {Session} from '@yandex-cloud/nodejs-sdk/dist/session';
 import {TranslationServiceClient} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/service_clients';
 import {
-    TranslateRequest,
     TranslateRequest_Format as Format,
+    TranslateRequest,
 } from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
 
 import markdownTranslation from '@diplodoc/markdown-translation';
@@ -17,7 +17,7 @@ import {ArgvService} from '../../services';
 import {getYandexOAuthToken} from '../../packages/credentials';
 import {glob, logger} from '../../utils';
 
-import {Argv, Arguments} from 'yargs';
+import {Arguments, Argv} from 'yargs';
 
 import {YandexCloudTranslateGlossaryPair} from '../../models';
 

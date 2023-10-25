@@ -1,6 +1,6 @@
-import {LintRule, LintConfig} from '@diplodoc/transform/lib/yfmlint';
+import {LintConfig, LintRule} from '@diplodoc/transform/lib/yfmlint';
 
-import {PluginOptions, Plugin, CollectionOfPluginsFunction} from '../models';
+import {CollectionOfPluginsFunction, Plugin, PluginOptions} from '../models';
 import {YFM_PLUGINS} from '../constants';
 
 let plugins: Function[] | Plugin[];

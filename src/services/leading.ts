@@ -6,11 +6,11 @@ import log from '@diplodoc/transform/lib/log';
 import {ArgvService, PresetService} from './index';
 import {LeadingPage} from '../models';
 import {
-    filterTextItems,
     filterFiles,
+    filterTextItems,
     firstFilterTextItems,
-    liquidFields,
     liquidField,
+    liquidFields,
 } from './utils';
 
 function filterFile(path: string) {
