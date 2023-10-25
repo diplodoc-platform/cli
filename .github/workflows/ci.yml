@@ -20,8 +20,6 @@ jobs:
         with:
           node-version: '18.x'
           cache: 'npm'
-      - name: npm10:
-        run: npm i -g 'npm@10.*' --registry=https://registry.npmjs.org
       - name: Install Packages
         run: npm ci
       - name: Lint Files
