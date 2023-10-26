@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.2.1](https://github.com/diplodoc-platform/cli/compare/v4.2.0...v4.2.1) (2023-10-26)
+
+
+### Bug Fixes
+
+* linting errors ([ec72aeb](https://github.com/diplodoc-platform/cli/commit/ec72aebf011b9e64f70621fee6b1d6067459d01a))
+
 ## [4.2.0](https://github.com/diplodoc-platform/cli/compare/v4.1.0...v4.2.0) (2023-10-24)
 
 
