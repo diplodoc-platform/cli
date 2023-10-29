@@ -20,6 +20,17 @@ const author = {
 const authorByPath: Map<string, Contributor | null> = new Map();
 
 const defaultVCSConnector: VCSConnector = {
+    init: async () => {},
+    load: () => {},
+    dump: () => {
+        return {
+            authorByGitEmail: {},
+            authorByPath: {},
+            contributorsByPath: {},
+            contributorsData: {},
+            userLoginGithubUserCache: {},
+        }
+    },
     addNestedContributorsForPath: () => {},
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(author),

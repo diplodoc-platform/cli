@@ -1,4 +1,5 @@
 import {
+    Contributor,
     Contributors,
     ContributorsByPathFunction,
     ExternalAuthorByPathFunction,
@@ -26,11 +27,22 @@ export enum GitHubConnectorFields {
     ENDPOINT = 'endpoint',
 }
 
+export type VCSConnectorDump = {
+    authorByGitEmail: Record<string, Contributor | null>;
+    authorByPath: Record<string, Contributor | null>;
+    contributorsByPath: Record<string, FileContributors>;
+    contributorsData: Record<string, Contributor | null>;
+    userLoginGithubUserCache: Record<string, Contributor>;
+};
+
 export interface VCSConnector {
+    init: () => Promise<void>;
     getExternalAuthorByPath: ExternalAuthorByPathFunction;
     addNestedContributorsForPath: NestedContributorsForPathFunction;
     getContributorsByPath: ContributorsByPathFunction;
     getUserByLogin: UserByLoginFunction;
+    dump: () => VCSConnectorDump;
+    load: (dump: VCSConnectorDump) => void;
 }
 
 export interface VCSConnectorConfig {

@@ -5,13 +5,13 @@ import {
     PluginOptions,
     default as yfmlint,
 } from '@diplodoc/transform/lib/yfmlint';
-import {readFileSync} from 'fs';
 import {bold} from 'chalk';
 
 import {ArgvService, PluginService} from '../services';
 import {getVarsPerFile, getVarsPerRelativeFile} from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
+import * as fs from 'fs';
 
 interface FileTransformOptions {
     path: string;
@@ -28,13 +28,13 @@ export interface ResolverLintOptions {
     onFinish?: () => void;
 }
 
-export function lintPage(options: ResolverLintOptions) {
+export async function lintPage(options: ResolverLintOptions) {
     const {inputPath, fileExtension, onFinish} = options;
     const {input} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
 
     try {
-        const content: string = readFileSync(resolvedPath, 'utf8');
+        const content: string = await fs.promises.readFile(resolvedPath, 'utf8');
 
         const lintFn: Function = FileLinter[fileExtension];
         if (!lintFn) {

@@ -13,13 +13,13 @@ import {join, resolve} from 'path';
 import {ArgvService, Includers} from '../../services';
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 import {
-    initLinterWorkers,
     processAssets,
     processExcludedFiles,
     processLinter,
     processLogs,
     processPages,
     processServiceFiles,
+    saveSinglePages,
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
 import shell from 'shelljs';
@@ -27,6 +27,13 @@ import {Resources} from '../../models';
 import {copyFiles, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../publish/upload';
 import glob from 'glob';
+import {createVCSConnector} from '../../vcs-connector';
+import {
+    finishProcessPool,
+    getPoolEnv,
+    initProcessPool,
+    terminateProcessPool,
+} from '../../steps/processPool';
 
 export const build = {
     command: ['build', '$0'],
@@ -197,6 +204,7 @@ async function handler(args: Arguments<any>) {
             addMapFile,
             allowCustomResources,
             resources,
+            singlePage,
         } = ArgvService.getConfig();
 
         preparingTemporaryFolders(userOutputFolder);
@@ -213,19 +221,29 @@ async function handler(args: Arguments<any>) {
         const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
         const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
 
-        if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
+        const vcsConnector = createVCSConnector();
+        if (vcsConnector) {
+            await vcsConnector.init();
         }
 
-        const processes = [
-            !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
-        ].filter(Boolean) as Promise<void>[];
+        await initProcessPool({vcsConnector});
 
-        await Promise.all(processes);
+        try {
+            await Promise.all([
+                !lintDisabled && processLinter(),
+                !buildDisabled && processPages(vcsConnector),
+            ]);
+            await finishProcessPool();
+        } finally {
+            await terminateProcessPool();
+        }
 
         if (!buildDisabled) {
+            if (singlePage) {
+                const {singlePageResults} = getPoolEnv();
+                await saveSinglePages(outputBundlePath, singlePageResults);
+            }
+
             // process additional files
             switch (outputFormat) {
                 case 'html':
@@ -287,7 +305,7 @@ async function handler(args: Arguments<any>) {
             }
         }
     } catch (err) {
-        logger.error('', err.message);
+        logger.error('', (err as Error).message);
     } finally {
         processLogs(tmpInputFolder);
 
@@ -303,7 +321,6 @@ function preparingTemporaryFolders(userOutputFolder: string) {
     // Create temporary input/output folders
     shell.rm('-rf', args.input, args.output);
     shell.mkdir(args.input, args.output);
-    shell.chmod('-R', 'u+w', args.input);
 
     copyFiles(
         args.rootInput,
@@ -315,4 +332,6 @@ function preparingTemporaryFolders(userOutputFolder: string) {
             ignore: ['node_modules/**', '*/node_modules/**'],
         }),
     );
+
+    shell.chmod('-R', 'u+w', args.input);
 }

@@ -116,7 +116,8 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 // Regexp result: authorLogin
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
 
-export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
-export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1;
+export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 10;
+export const THREAD_PART_COUNT = Number(process.env.THREAD_PART_COUNT) || 8;
+export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1 || 1;
 
 export const metadataBorder = '---';

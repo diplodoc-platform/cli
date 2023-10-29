@@ -23,7 +23,7 @@ const commonConfig = {
 
 const builds = [
     [['src/index.ts'], 'build/index.js'],
-    [['src/workers/linter/index.ts'], 'build/linter.js'],
+    [['src/workers/pool/index.ts'], 'build/pool.js'],
 ];
 
 Promise.all(builds.map(([entries, outfile]) => {

@@ -2,7 +2,7 @@ import {ArgvService} from '../services';
 import getGitHubVCSConnector from './github';
 import {SourceType, VCSConnector} from './connector-models';
 
-export async function getVCSConnector(): Promise<VCSConnector | undefined> {
+export function createVCSConnector(): VCSConnector | undefined {
     const {connector} = ArgvService.getConfig();
     const connectorType = process.env.VCS_CONNECTOR_TYPE || (connector && connector.type);
 

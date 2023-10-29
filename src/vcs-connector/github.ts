@@ -5,19 +5,13 @@ import {minimatch} from 'minimatch';
 
 import github from './client/github';
 import {ArgvService} from '../services';
-import {
-    CommitInfo,
-    Contributor,
-    Contributors,
-    ContributorsByPathFunction,
-    ExternalAuthorByPathFunction,
-    NestedContributorsForPathFunction,
-} from '../models';
+import {CommitInfo, Contributor, Contributors} from '../models';
 import {
     FileContributors,
     GitHubConnectorFields,
     SourceType,
     VCSConnector,
+    VCSConnectorDump,
 } from './connector-models';
 import {
     ALL_CONTRIBUTORS_RECEIVED,
@@ -27,39 +21,63 @@ import {
 import {addSlashPrefix, logger} from '../utils';
 import {validateConnectorFields} from './connector-validator';
 import process from 'process';
+import {mapToObject, objFillMap} from '../utils/worker';
 
 const authorByGitEmail: Map<string, Contributor | null> = new Map();
 const authorByPath: Map<string, Contributor | null> = new Map();
 const contributorsByPath: Map<string, FileContributors> = new Map();
 const contributorsData: Map<string, Contributor | null> = new Map();
+const userLoginGithubUserCache = new Map<string, Contributor>();
 
-async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
+function getGitHubVCSConnector(): VCSConnector | undefined {
     const {contributors} = ArgvService.getConfig();
+    if (!contributors) {
+        return undefined;
+    }
 
     const httpClientByToken = getHttpClientByToken();
     if (!httpClientByToken) {
         return undefined;
     }
 
-    let addNestedContributorsForPath: NestedContributorsForPathFunction = () => {};
-    let getContributorsByPath: ContributorsByPathFunction = () =>
-        Promise.resolve({} as FileContributors);
-    const getExternalAuthorByPath: ExternalAuthorByPathFunction = (path: string) =>
-        authorByPath.get(path) ?? null;
-
-    if (contributors) {
-        await getAllContributorsTocFiles(httpClientByToken);
-        addNestedContributorsForPath = (path: string, nestedContributors: Contributors) =>
-            addNestedContributorsForPathFunction(path, nestedContributors);
-        getContributorsByPath = async (path: string) => getFileContributorsByPath(path);
-    }
-
     return {
-        getExternalAuthorByPath,
-        addNestedContributorsForPath,
-        getContributorsByPath,
+        init: async () => await getAllContributorsTocFiles(httpClientByToken),
+        getExternalAuthorByPath: (path: string) => authorByPath.get(path) ?? null,
+        addNestedContributorsForPath: (path: string, nestedContributors: Contributors) => {
+            addContributorForPath([path], nestedContributors, true);
+        },
+        getContributorsByPath: async (path: string) => getFileContributorsByPath(path),
         getUserByLogin: (login: string) => getUserByLogin(httpClientByToken, login),
+        dump: dump,
+        load: load,
     };
+}
+
+function dump() {
+    return {
+        authorByGitEmail: mapToObject(authorByGitEmail),
+        authorByPath: mapToObject(authorByPath),
+        contributorsByPath: mapToObject(contributorsByPath),
+        contributorsData: mapToObject(contributorsData),
+        userLoginGithubUserCache: mapToObject(userLoginGithubUserCache),
+    };
+}
+
+function load(dumpData: VCSConnectorDump) {
+    authorByGitEmail.clear();
+    objFillMap(dumpData.authorByGitEmail, authorByGitEmail);
+
+    authorByPath.clear();
+    objFillMap(dumpData.authorByPath, authorByPath);
+
+    contributorsByPath.clear();
+    objFillMap(dumpData.contributorsByPath, contributorsByPath);
+
+    contributorsData.clear();
+    objFillMap(dumpData.contributorsData, contributorsData);
+
+    userLoginGithubUserCache.clear();
+    objFillMap(dumpData.userLoginGithubUserCache, userLoginGithubUserCache);
 }
 
 function getHttpClientByToken(): Octokit | null {
@@ -277,6 +295,11 @@ async function getFileContributorsByPath(path: string): Promise<FileContributors
 }
 
 async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Contributor | null> {
+    const fromCache = userLoginGithubUserCache.get(userLogin);
+    if (fromCache) {
+        return fromCache;
+    }
+
     const user = await github.getRepoUser(octokit, userLogin);
 
     if (!user) {
@@ -284,21 +307,11 @@ async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Cont
     }
 
     const {avatar_url: avatar, html_url: url, email, login, name} = user;
+    const result = {avatar, url, email, login, name};
 
-    return {
-        avatar,
-        email,
-        login,
-        name,
-        url,
-    };
-}
+    userLoginGithubUserCache.set(userLogin, result);
 
-function addNestedContributorsForPathFunction(
-    path: string,
-    nestedContributors: Contributors,
-): void {
-    addContributorForPath([path], nestedContributors, true);
+    return result;
 }
 
 function addContributorForPath(

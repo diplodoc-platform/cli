@@ -8,3 +8,17 @@ export function splitOnChunks<T>(array: T[], chunkSize = 1000) {
 
     return chunks;
 }
+
+export function mapToObject<V>(map: Map<string, V>) {
+    const obj: Record<string, V> = {};
+    map.forEach((value, key) => {
+        obj[key] = value;
+    });
+    return obj;
+}
+
+export function objFillMap<V>(obj: Record<string, V>, map: Map<string, V>) {
+    Object.entries(obj).forEach(([key, value]) => {
+        map.set(key, value);
+    });
+}
