@@ -1,6 +1,5 @@
 import {dirname, resolve} from 'path';
 import shell from 'shelljs';
-import {copyFileSync} from 'fs';
 import {logger} from './logger';
 
 export function copyFiles(
@@ -8,14 +7,20 @@ export function copyFiles(
     outputFolderPath: string,
     files: string[],
 ): void {
-    for (const pathToAsset of files) {
-        const outputDir: string = resolve(outputFolderPath, dirname(pathToAsset));
+    const dirs = new Set<string>();
+
+    files.forEach((pathToAsset) => {
+        const outputDir = resolve(outputFolderPath, dirname(pathToAsset));
         const from = resolve(inputFolderPath, pathToAsset);
         const to = resolve(outputFolderPath, pathToAsset);
 
-        shell.mkdir('-p', outputDir);
-        copyFileSync(from, to);
+        if (!dirs.has(outputDir)) {
+            dirs.add(outputDir);
+            shell.mkdir('-p', outputDir);
+        }
+
+        shell.cp(from, to);
 
         logger.copy(pathToAsset);
-    }
+    });
 }

@@ -1,9 +1,9 @@
 import {readFileSync} from 'fs';
 import {REGEXP_AUTHOR} from '../../../src/constants';
 import {replaceDoubleToSingleQuotes, сarriage} from '../../../src/utils/markup';
-import {MetaDataOptions} from 'models';
+import {Contributor, MetaDataOptions} from 'models';
 import {getContentWithUpdatedMetadata} from 'services/metadata';
-import {VCSConnector} from 'vcs-connector/connector-models';
+import {FileContributors, VCSConnector} from 'vcs-connector/connector-models';
 
 const authorAliasInMetadataFilePath = 'mocks/fileContent/metadata/authorAliasInMetadata.md';
 const fullAuthorInMetadataFilePath = 'mocks/fileContent/metadata/fullAuthorInMetadata.md';
@@ -23,6 +23,17 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
     };
 
     const defaultVCSConnector: VCSConnector = {
+        init: async () => {},
+        load: () => {},
+        dump: () => {
+            return {
+                authorByGitEmail: {},
+                authorByPath: {},
+                contributorsByPath: {},
+                contributorsData: {},
+                userLoginGithubUserCache: {},
+            }
+        },
         addNestedContributorsForPath: () => { },
         getContributorsByPath: () => Promise.resolve(null),
         getUserByLogin: () => Promise.resolve(expectedAuthorData),

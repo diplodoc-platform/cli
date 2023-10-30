@@ -1,5 +1,5 @@
 import {dirname, extname, join, normalize, parse, relative, resolve, sep} from 'path';
-import {copyFileSync, existsSync, readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
@@ -14,12 +14,15 @@ import {IncludeMode, Stage} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterTextItems, liquidField} from './utils';
 import {IncludersError, applyIncluders} from './includers';
+import {mapToObject, objFillMap} from '../utils/worker';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
     navigationPaths: string[];
     includedTocPaths: Set<string>;
 }
+
+export type TocServiceDataDump = ReturnType<typeof dumpData>;
 
 const storage: TocServiceData['storage'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
@@ -139,7 +142,9 @@ function prepareNavigationPaths(parsedToc: YfmToc, dirPath: string) {
                 storage.set(href, parsedToc);
 
                 const navigationPath = _normalizeHref(href);
-                navigationPaths.push(navigationPath);
+                if (!navigationPaths.includes(navigationPath)) {
+                    navigationPaths.push(navigationPath);
+                }
             }
         });
     }
@@ -205,7 +210,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
 
             writeFileSync(to, updatedFileContent);
         } else {
-            copyFileSync(from, to);
+            shell.cp(from, to);
         }
     });
 }
@@ -396,6 +401,29 @@ function setNavigationPaths(paths: TocServiceData['navigationPaths']) {
     navigationPaths = paths;
 }
 
+function dumpData() {
+    return {
+        storageKeyValue: mapToObject(storage),
+        navigationPaths,
+        includedTocPathsArr: Array.from(includedTocPaths.keys()),
+    };
+}
+
+function loadData({
+    storageKeyValue,
+    includedTocPathsArr,
+    navigationPaths: navigationPathsLocal,
+}: TocServiceDataDump) {
+    navigationPaths.splice(0);
+    navigationPaths.push(...navigationPathsLocal);
+
+    storage.clear();
+    objFillMap(storageKeyValue, storage);
+
+    includedTocPaths.clear();
+    includedTocPathsArr.forEach((v) => includedTocPaths.add(v));
+}
+
 export default {
     add,
     getForPath,
@@ -403,4 +431,6 @@ export default {
     getTocDir,
     getIncludedTocPaths,
     setNavigationPaths,
+    dump: dumpData,
+    load: loadData,
 };
