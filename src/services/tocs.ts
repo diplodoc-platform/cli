@@ -1,5 +1,5 @@
 import {dirname, extname, join, normalize, parse, relative, resolve, sep} from 'path';
-import {copyFileSync, existsSync, readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
@@ -210,7 +210,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
 
             writeFileSync(to, updatedFileContent);
         } else {
-            copyFileSync(from, to);
+            shell.cp(from, to);
         }
     });
 }
