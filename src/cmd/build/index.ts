@@ -303,7 +303,6 @@ function preparingTemporaryFolders(userOutputFolder: string) {
     // Create temporary input/output folders
     shell.rm('-rf', args.input, args.output);
     shell.mkdir(args.input, args.output);
-    shell.chmod('-R', 'u+w', args.input);
 
     copyFiles(
         args.rootInput,
@@ -315,4 +314,6 @@ function preparingTemporaryFolders(userOutputFolder: string) {
             ignore: ['node_modules/**', '*/node_modules/**'],
         }),
     );
+
+    shell.chmod('-R', 'u+w', args.input);
 }

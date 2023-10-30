@@ -1,7 +1,7 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, relative, resolve} from 'path';
 import shell from 'shelljs';
-import {copyFileSync, readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import {asyncify, mapLimit} from 'async';
@@ -312,7 +312,7 @@ function copyFileWithoutChanges(
     const from = resolvedPathToFile;
     const to = resolve(outputDir, filename);
 
-    copyFileSync(from, to);
+    shell.cp(from, to);
 }
 
 async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
