@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.2.2](https://github.com/diplodoc-platform/cli/compare/v4.2.1...v4.2.2) (2023-10-30)
+
+
+### Bug Fixes
+
+* **copyFile:** With network storage shell.cp faster than copyFileSync ([b6a1a6b](https://github.com/diplodoc-platform/cli/commit/b6a1a6babfcf12bd3a38535481873154d2c919fd))
+* **infra:** engines, overrides, bump deps ([961452c](https://github.com/diplodoc-platform/cli/commit/961452cb8977cada6ecbb51c6349e34ce5cfdf87))
+
 ## [4.2.1](https://github.com/diplodoc-platform/cli/compare/v4.2.0...v4.2.1) (2023-10-26)
 
 
