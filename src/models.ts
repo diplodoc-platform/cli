@@ -42,6 +42,7 @@ interface YfmConfig {
     resources?: Resources;
     yandexCloudTranslateFolderId: string;
     yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
+    needToSanitizeHtml: boolean;
 }
 
 export interface YfmArgv extends YfmConfig {

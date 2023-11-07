@@ -166,6 +166,12 @@ function builder<T>(argv: Argv<T>) {
             type: 'boolean',
             group: 'Build options:',
         })
+        .option('need-to-sanitize-html', {
+            default: true,
+            describe: 'Enable sanitize html',
+            type: 'boolean',
+            group: 'Build options:',
+        })
         .check(argvValidator)
         .example('yfm -i ./input -o ./output', '')
         .demandOption(
