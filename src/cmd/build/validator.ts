@@ -1,10 +1,11 @@
-import {Arguments} from 'yargs';
+import type {Build} from './index';
+import type {Arguments} from 'yargs';
 import {join, resolve} from 'path';
-import {readFileSync} from 'fs';
+import {readFile} from 'node:fs/promises';
 import {load} from 'js-yaml';
 import merge from 'lodash/merge';
 import log from '@diplodoc/transform/lib/log';
-import {LINT_CONFIG_FILENAME, REDIRECTS_FILENAME, YFM_CONFIG_FILENAME} from './constants';
+import {LINT_CONFIG_FILENAME, YFM_CONFIG_FILENAME} from '../../constants';
 import {ConnectorValidatorProps} from './vcs-connector/connector-models';
 
 function notEmptyStringValidator(value: unknown): Boolean {
@@ -45,68 +46,32 @@ const validators: Record<string, ConnectorValidatorProps> = {
     },
 };
 
-interface Redirect {
-    from: string;
-    to: string;
-}
-
-interface RedirectsConfig {
-    common: Redirect[];
-    [lang: string]: Redirect[];
-}
-
-function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: string) {
-    const redirects: Redirect[] = Object.keys(redirectsConfig).reduce(
-        (res, redirectSectionName) => {
-            const sectionRedirects = redirectsConfig[redirectSectionName];
-            res.push(...sectionRedirects);
-            return res;
-        },
-        [] as Redirect[],
-    );
-
-    const getContext = (from: string, to: string) => ` [Context: \n- from: ${from}\n- to: ${to} ]`;
-    const formatMessage = (message: string, pathname: string, from: string, to: string) =>
-        `${pathname}: ${message} ${getContext(from, to)}`;
-
-    redirects.forEach((redirect) => {
-        const {from, to} = redirect;
-
-        if (!from || !to) {
-            throw new Error(
-                formatMessage('One of the two parameters is missing', pathToRedirects, from, to),
-            );
-        }
-
-        if (from === to) {
-            throw new Error(
-                formatMessage('Parameters must be different', pathToRedirects, from, to),
-            );
-        }
-    });
-}
-
-export function argvValidator(argv: Arguments<Object>): Boolean {
+async function validateBuildConfigFile(argv: Arguments<Object>) {
     try {
         // Combine passed argv and properties from configuration file.
-        const pathToConfig = argv.config
-            ? String(argv.config)
-            : join(String(argv.input), YFM_CONFIG_FILENAME);
-        const content = readFileSync(resolve(pathToConfig), 'utf8');
+        const pathToConfig = join(String(argv.input), argv.config);
+        const content = await readFile(resolve(pathToConfig), 'utf8');
+
         Object.assign(argv, load(content) || {});
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === 'YAMLException') {
-            log.error(`Error to parse ${YFM_CONFIG_FILENAME}: ${error.message}`);
+            log.error(`Error to parse ${argv.config}: ${error.message}`);
+        } else if (error.name === 'ENOENT' && argv.config === YFM_CONFIG_FILENAME) {
+            return;
+        } else {
+            throw error;
         }
     }
+}
 
+async function validateLintConfigFile(argv: Arguments<Object>) {
     let lintConfig: unknown = {};
     try {
         const pathToConfig = join(String(argv.input), LINT_CONFIG_FILENAME);
-        const content = readFileSync(resolve(pathToConfig), 'utf8');
+        const content = await readFile(resolve(pathToConfig), 'utf8');
 
         lintConfig = load(content) || {};
-    } catch (error) {
+    } catch (error: any) {
         if (error.name === 'YAMLException') {
             log.error(`Error to parse ${LINT_CONFIG_FILENAME}: ${error.message}`);
         }
@@ -119,22 +84,11 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
 
         Object.assign(argv, {lintConfig: preparedLintConfig});
     }
+}
 
-    try {
-        const pathToRedirects = join(String(argv.input), REDIRECTS_FILENAME);
-        const redirectsContent = readFileSync(resolve(pathToRedirects), 'utf8');
-        const redirects = load(redirectsContent);
-
-        validateRedirects(redirects as RedirectsConfig, pathToRedirects);
-    } catch (error) {
-        if (error.name === 'YAMLException') {
-            log.error(`Error to parse ${REDIRECTS_FILENAME}: ${error.message}`);
-        }
-
-        if (error.code !== 'ENOENT') {
-            throw error;
-        }
-    }
+export async function argvValidator(argv: Arguments<Object>): Boolean {
+    await validateBuildConfigFile(argv);
+    await validateLintConfigFile(argv);
 
     if (argv.publish) {
         for (const [field, validator] of Object.entries(validators)) {
@@ -155,4 +109,9 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
     }
 
     return true;
+}
+
+export function validate(build: Build) {
+    build.hooks.Validate.tap('BuildConfigFile', validateBuildConfigFile);
+    build.hooks.Validate.tap('LintConfigFile', validateLintConfigFile);
 }

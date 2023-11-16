@@ -59,7 +59,7 @@ export async function upload(props: UploadProps): Promise<void> {
                         Body: createReadStream(resolve(input, pathToFile)),
                     }),
                 );
-            } catch (error) {
+            } catch (error: any) {
                 logger.error(pathToFile, error.message);
             }
         }),
