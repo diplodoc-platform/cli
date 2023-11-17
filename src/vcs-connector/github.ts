@@ -130,7 +130,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
         await matchContributionsForEachPath(repoLogs, httpClientByToken);
     } finally {
         await simpleGit(options).raw('worktree', 'remove', masterDir);
-        await simpleGit(options).raw('branch', '-d', tmpMasterBranch);
+        await simpleGit(options).raw('branch', '-D', tmpMasterBranch);
     }
 
     logger.info('', ALL_CONTRIBUTORS_RECEIVED);
