@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.3.2](https://github.com/diplodoc-platform/cli/compare/v4.3.1...v4.3.2) (2023-11-17)
+
+
+### Bug Fixes
+
+* **cmd/xliff:** inline segmentation variables, liquid ([a6cc17f](https://github.com/diplodoc-platform/cli/commit/a6cc17f7fc82285f3fd6854159d42ee8bfe4c194))
+
 ## [4.3.1](https://github.com/diplodoc-platform/cli/compare/v4.3.0...v4.3.1) (2023-11-16)
 
 
