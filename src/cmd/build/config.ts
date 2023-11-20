@@ -1,10 +1,10 @@
 import {bold, underline} from 'chalk';
+import {resolve} from 'node:path';
+import {readFile} from 'node:fs/promises';
 import {Command, options as globalOptions} from '../../config';
 import {option, cmd} from '../../config/utils';
-import { join, resolve } from 'path';
-import { readFile } from 'node:fs/promises';
-import { load } from 'js-yaml';
-import { Stage, YFM_CONFIG_FILENAME } from '../../constants';
+import {load} from 'js-yaml';
+import {Stage, YFM_CONFIG_FILENAME} from '../../constants';
 
 const output = (program: {command: Command}) =>
     option({
@@ -137,35 +137,33 @@ export const options = {
     publish,
 };
 
-export async function resolveConfig(root, config) {
-    try {
-        // Combine passed argv and properties from configuration file.
-        const pathToConfig = join(root, config);
-        const content = await readFile(resolve(pathToConfig), 'utf8');
-        const data = load(content);
+export async function resolveConfig(configPath: string) {
+    const defaults = {
+        outputFormat: OutputFormat.html,
+        varsPreset: 'default',
+        vars: {},
+        allowHtml: true,
+        addMapFile: false,
+        removeHiddenTocItems: false,
+        allowCustomResources: false,
+        staticContent: false,
+        ignoreStage: Stage.SKIP,
+        addSystemMeta: false,
+        lintDisabled: false,
+        buildDisabled: false,
+        publish: false,
+    };
 
-        return Object.assign({
-            outputFormat: OutputFormat.html,
-            varsPreset: 'default',
-            vars: {},
-            allowHtml: true,
-            allowHtml: allowHtml !== false && allowHTML !== false,
-            addMapFile: false,
-            removeHiddenTocItems: false,
-            allowCustomResources: false,
-            staticContent: false,
-            ignoreStage: Stage.SKIP,
-            addSystemMeta: false,
-            lintDisabled: false,
-            buildDisabled: false,
-            publish: false,
-        }, data.build || data);
+    try {
+        const content = await readFile(resolve(configPath), 'utf8');
+        const data = load(content) as Record<string, any>;
+
+        return Object.assign(defaults, data.build || data);
     } catch (error: any) {
         if (error.name === 'YAMLException') {
-            throw `Failed to parse ${config}: ${error.message}`
-            // log.error(`Failed to parse ${config}: ${error.message}`);
-        } else if (error.name === 'ENOENT' && config === YFM_CONFIG_FILENAME) {
-            return {};
+            throw `Failed to parse ${configPath}: ${error.message}`;
+        } else if (error.name === 'ENOENT' && configPath === YFM_CONFIG_FILENAME) {
+            return defaults;
         } else {
             throw error;
         }

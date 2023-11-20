@@ -1,20 +1,20 @@
 import type {Program} from '../..';
 import {ok} from 'node:assert';
+import {resolve, join, isAbsolute} from 'node:path';
 import {pick} from 'lodash';
 import {SyncHook, AsyncSeriesHook, HookMap} from 'tapable';
 import {TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
 import {argvValidator} from './validator';
 import {Command} from '../../config';
 import {options, resolveConfig, OutputFormat} from './config';
-import { deprecated, defined } from '../../config/utils';
+import {deprecated, defined} from '../../config/utils';
 
+import {Logger} from '../../logger';
 import {Templating, TemplatingConfig} from './features/templating';
 import {Contributors, ContributorsConfig} from './features/contributors';
 import {SinglePage, SinglePageConfig} from './features/singlepage';
-import {resolve} from 'path';
-import { logger } from '../../utils';
-import { processLogs } from '../../steps';
-import shell from 'shelljs';
+
+const isRelative = (path: string) => /^\.{1,2}\//.test(path);
 
 type BaseConfig = {
     input: string;
@@ -40,7 +40,7 @@ type BaseConfig = {
 
 export type Config = BaseConfig & TemplatingConfig & ContributorsConfig & SinglePageConfig;
 
-class Run {
+export class Run {
     readonly root: string;
 
     readonly input: string;
@@ -49,12 +49,21 @@ class Run {
 
     readonly logger: any;
 
-    constructor(public readonly config: Readonly<Config>) {
+    constructor(
+        public readonly config: Readonly<Config>,
+        // TODO: remove this param
+        public readonly configPath: string
+    ) {
         this.root = config.input;
         deprecated(this, 'rootInput', () => config.input);
 
+        // TODO: use root instead
         this.input = resolve(config.output, TMP_INPUT_FOLDER);
         this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
+
+        this.logger = new Logger(config, [
+            (message) => message.replace(new RegExp(this.input, 'ig'), ''),
+        ]);
     }
 }
 
@@ -111,24 +120,10 @@ export class Build {
 
             this.command.action(this.action);
 
-
             // return argv.command({
-            //     command: ['build', '$0'],
-            //     describe: 'Build documentation in target directory',
-            //     handler: async (args: Arguments<any>) => {
-            //         const {handler} = await import('./handler');
-            //
-            //         await handler(args);
-            //     },
             //     builder: (argv: Argv) => {
             //         return argv
-            //             .options(options)
             //             .check(argvValidator)
-            //             .example('yfm -i ./input -o ./output', '')
-            //             .demandOption(
-            //                 ['input', 'output'],
-            //                 'Please provide input and output arguments to work with this tool',
-            //             );
             //     },
             // });
         });
@@ -136,13 +131,13 @@ export class Build {
         this.hooks.Config.tap('Build', (config, args) => {
             const options = this.options.map((option) => option.attributeName());
 
-            // TODO: load config
-            // TODO: init logger
-
             const allowHtml = defined('allowHtml', args, config);
             const allowHTML = defined('allowHTML', args, config);
 
-            ok(allowHtml !== null && allowHTML !== null, 'Options conflict: both allowHtml and allowHTML are used');
+            ok(
+                allowHtml !== null && allowHTML !== null && allowHtml === allowHTML,
+                'Options conflict: both allowHtml and allowHTML are configured'
+            );
 
             Object.assign(config, pick(args, options));
 
@@ -153,26 +148,18 @@ export class Build {
     action = async (args) => {
         const {handler} = await import('./handler');
 
-        const config = await resolveConfig(args.input, args.config);
+        const configPath = isAbsolute(args.config) || isRelative(args.config)
+            ? resolve(args.config)
+            : join(args.input, args.config);
+        const config = await resolveConfig(configPath);
 
         await this.hooks.Config.promise(config, args);
 
-        const run = new Run(config);
+        const run = new Run(config, configPath);
+        await this.hooks.BeforeRun.for(config.outputFormat).promise(run);
+        await this.hooks.Run.for(config.outputFormat).promise(run);
+        await this.hooks.AfterRun.for(config.outputFormat).promise(run);
 
-        try {
-            await this.hooks.BeforeRun.for(config.outputFormat).promise(run);
-            await this.hooks.Run.for(config.outputFormat).promise(run);
-            await this.hooks.AfterRun.for(config.outputFormat).promise(run);
-        } catch (error: any) {
-            run.logger.error('', error.message);
-        } finally {
-            processLogs(tmpInputFolder);
-
-            shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
-        }
-
-        // console.log('CALL BUILD WITH', args, config);
-
-        // return handler(this.config);
-    }
+        // await handler(run);
+    },
 }
