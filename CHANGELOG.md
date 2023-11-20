@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.0](https://github.com/diplodoc-platform/cli/compare/v4.3.2...v4.4.0) (2023-11-20)
+
+
+### Features
+
+* **cmd/xliff:** newline separated segments ([f437710](https://github.com/diplodoc-platform/cli/commit/f4377103f37ca148081fc599d0a5853a8c56c77f))
+
 ## [4.3.2](https://github.com/diplodoc-platform/cli/compare/v4.3.1...v4.3.2) (2023-11-17)
 
 
