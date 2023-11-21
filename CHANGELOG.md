@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.0](https://github.com/diplodoc-platform/cli/compare/v4.4.0...v4.5.0) (2023-11-21)
+
+
+### Features
+
+* **cmd/xliff:** inline code, inline html ([d631f8d](https://github.com/diplodoc-platform/cli/commit/d631f8d126a2a485cb7700388ea6cfcb70434c8c))
+
 ## [4.4.0](https://github.com/diplodoc-platform/cli/compare/v4.3.2...v4.4.0) (2023-11-20)
 
 
