@@ -22,7 +22,8 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build",
-    "git:head": "git checkout master && git pull"
+    "git:head": "git checkout master && git pull",
+    "postinstall": "patch-package"
   },
   "engines": {
     "node": ">=18.*",
@@ -56,6 +57,7 @@
     "mime-types": "2.1.35",
     "minimatch": "^9.0.3",
     "node-html-parser": "^6.1.5",
+    "patch-package": "^8.0.0",
     "shelljs": "0.8.5",
     "simple-git": "3.19.0",
     "slugify": "^1.6.5",
