@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.5.1](https://github.com/diplodoc-platform/cli/compare/v4.5.0...v4.5.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* **github:** fix UND_ERR_CONNECT_TIMEOUT error ([#606](https://github.com/diplodoc-platform/cli/issues/606)) ([d196861](https://github.com/diplodoc-platform/cli/commit/d1968614cdf9010da3de3ee10d080ea99c20003a))
+
 ## [4.5.0](https://github.com/diplodoc-platform/cli/compare/v4.4.0...v4.5.0) (2023-11-21)
 
 
