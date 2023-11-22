@@ -26,7 +26,13 @@ import {
 } from '../models';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {getVCSConnector} from '../vcs-connector';
-import {Lang, ResourceType, SINGLE_PAGE_DATA_FILENAME, SINGLE_PAGE_FILENAME} from '../constants';
+import {
+    Lang,
+    PAGE_PROCESS_CONCURRENCY,
+    ResourceType,
+    SINGLE_PAGE_DATA_FILENAME,
+    SINGLE_PAGE_FILENAME,
+} from '../constants';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -46,11 +52,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     PluginService.setPlugins();
 
     const navigationPaths = TocService.getNavigationPaths();
-    const concurrency = 500;
 
     await mapLimit(
         navigationPaths,
-        concurrency,
+        PAGE_PROCESS_CONCURRENCY,
         asyncify(async (pathToFile: string) => {
             const pathData = getPathData(
                 pathToFile,

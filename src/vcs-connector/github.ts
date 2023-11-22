@@ -32,6 +32,7 @@ const authorByGitEmail: Map<string, Contributor | null> = new Map();
 const authorByPath: Map<string, Contributor | null> = new Map();
 const contributorsByPath: Map<string, FileContributors> = new Map();
 const contributorsData: Map<string, Contributor | null> = new Map();
+const loginUserMap: Map<string, Contributor | null> = new Map();
 
 async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
     const {contributors} = ArgvService.getConfig();
@@ -277,21 +278,27 @@ async function getFileContributorsByPath(path: string): Promise<FileContributors
 }
 
 async function getUserByLogin(octokit: Octokit, userLogin: string): Promise<Contributor | null> {
-    const user = await github.getRepoUser(octokit, userLogin);
+    let result = loginUserMap.get(userLogin);
+    if (!result) {
+        const user = await github.getRepoUser(octokit, userLogin);
+        if (!user) {
+            return null;
+        }
 
-    if (!user) {
-        return null;
+        const {avatar_url: avatar, html_url: url, email, login, name} = user;
+
+        result = {
+            avatar,
+            email,
+            login,
+            name,
+            url,
+        };
+
+        loginUserMap.set(userLogin, result);
     }
 
-    const {avatar_url: avatar, html_url: url, email, login, name} = user;
-
-    return {
-        avatar,
-        email,
-        login,
-        name,
-        url,
-    };
+    return result;
 }
 
 function addNestedContributorsForPathFunction(
