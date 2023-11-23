@@ -1,4 +1,4 @@
-import {dirname} from 'path';
+import {resolve} from 'path';
 const os = require('os');
 const notes = require('@diplodoc/transform/lib/plugins/notes');
 const anchors = require('@diplodoc/transform/lib/plugins/anchors');
@@ -25,10 +25,8 @@ includes.collect = require('@diplodoc/transform/lib/plugins/includes/collect');
 images.collect = require('@diplodoc/transform/lib/plugins/images/collect');
 changelog.collect = require('@diplodoc/transform/lib/plugins/changelog/collect');
 
-export const BUILD_FOLDER = 'build';
+export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
-export const BUNDLE_JS_FILENAME = 'app.client.js';
-export const BUNDLE_CSS_FILENAME = 'app.client.css';
 export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
@@ -67,8 +65,6 @@ export enum ResourceType {
     style = 'style',
     script = 'script',
 }
-
-export const BUILD_FOLDER_PATH = dirname(require.resolve('@diplodoc/client'));
 
 export const YFM_PLUGINS = [
     meta,

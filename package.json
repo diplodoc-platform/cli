@@ -14,6 +14,7 @@
   "main": "build/index.js",
   "files": [
     "build",
+    "assets",
     "src"
   ],
   "scripts": {
@@ -25,12 +26,11 @@
     "git:head": "git checkout master && git pull"
   },
   "engines": {
-    "node": ">=18.*",
-    "npm:": ">=9.*"
+    "node": ">=18.*"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.369.0",
-    "@diplodoc/client": "^1.2.0",
+    "@diplodoc/client": "^2.0.0",
     "@diplodoc/markdown-translation": "^1.0.4",
     "@diplodoc/mermaid-extension": "^1.2.1",
     "@diplodoc/openapi-extension": "^1.4.10",
@@ -92,20 +92,6 @@
       "git add"
     ]
   },
-  "pkg": {
-    "scripts": [
-      "build/index.js",
-      "build/linter.js",
-      "build/plugins/*.js",
-      "build/lint-rules/*.js",
-      "build/default-lint-config.js",
-      "build/head-content.js"
-    ],
-    "assets": [
-      "build/app.client.js",
-      "build/app.client.css"
-    ]
-  },
   "keywords": [
     "markdown",
     "yandex",
@@ -115,8 +101,5 @@
     "tool",
     "tools",
     "generator"
-  ],
-  "overrides": {
-    "markdown-it": "^13.0.2"
-  }
+  ]
 }

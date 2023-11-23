@@ -1,9 +1,10 @@
 import walkSync from 'walk-sync';
 import shell from 'shelljs';
 
-import client from '../../scripts/client';
 import {ArgvService} from '../services';
 import {copyFiles} from '../utils';
+
+import {ASSETS_FOLDER} from '../constants';
 
 /**
  * Processes assets files (everything except .yaml and .md files)
@@ -23,8 +24,5 @@ export function processAssets(outputBundlePath: string) {
 
     /* Copy js bundle to user' output folder */
     shell.mkdir('-p', outputBundlePath);
-
-    for (const path of Object.values(client.dst)) {
-        shell.cp(path, outputBundlePath);
-    }
+    shell.cp(ASSETS_FOLDER + '/*', outputBundlePath);
 }
