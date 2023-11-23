@@ -1,11 +1,15 @@
+import {join} from 'path';
 import {platform} from 'process';
 
 import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
 import {Resources, SinglePageResult} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
-import {DocInnerProps, DocPageData, render} from '@diplodoc/client';
-import client from '../../scripts/client';
+
+import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
+import manifest from '@diplodoc/client/manifest';
+
+const dst = (bundlePath: string) => (target: string) => join(bundlePath, target);
 
 export interface TitleMeta {
     title?: string;
@@ -44,7 +48,10 @@ export function generateStaticMarkup(
                         height: 100vh;
                     }
                 </style>
-                <link type="text/css" rel="stylesheet" href="${client.bundle.css(pathToBundle)}" />
+                ${manifest.css
+        .map(dst(pathToBundle))
+        .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
+        .join('\n')}
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
@@ -54,9 +61,10 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script type="application/javascript" src="${client.bundle.js(
-                    pathToBundle,
-                )}"></script>
+                ${manifest.js
+        .map(dst(pathToBundle))
+        .map((src: string) => `<script type="application/javascript" src="${src}"></script>`)
+        .join('\n')}
             </body>
         </html>
     `;
@@ -136,5 +144,5 @@ export function joinSinglePageResults(
 }
 
 export function replaceDoubleToSingleQuotes(str: string): string {
-    return str.replace(/"/g, "'");
+    return str.replace(/"/g, '\'');
 }

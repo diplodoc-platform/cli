@@ -1,12 +1,17 @@
+const {resolve, join, dirname} = require('path');
 const esbuild = require('esbuild');
 const shell = require('shelljs');
 
-const client = require('./client');
+const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
+const ASSETS_PATH = resolve(__dirname, '..', 'assets');
+
+const clientManifest = require('@diplodoc/client/manifest');
+const assets = [...clientManifest.js, ...clientManifest.css];
+
 const {version, dependencies} = require('../package.json');
 const {compilerOptions: {target}} = require('../tsconfig.json');
 
 const diplodocExtensions = Object.keys(dependencies).filter((name) => name.startsWith('@diplodoc'));
-
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -42,11 +47,8 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     return esbuild.build(currentConfig);
 })).then(() => {
-    for (const [type, path] of Object.entries(client.src)) {
-        const dst = client.dst[type];
-
-        shell.cp('-f', path, dst);
+    for (const file of assets) {
+        shell.mkdir('-p', ASSETS_PATH);
+        shell.cp('-f', join(CLIENT_PATH, file), join(ASSETS_PATH, file));
     }
 });
-
-
