@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.6.4](https://github.com/diplodoc-platform/cli/compare/v4.6.3...v4.6.4) (2023-12-13)
+
+
+### Bug Fixes
+
+* **cmd/xliff:** update markdown-translation version ([8d19309](https://github.com/diplodoc-platform/cli/commit/8d19309586b3b3805846ff2e3671e4d0cef6dc3f))
+
 ## [4.6.3](https://github.com/diplodoc-platform/cli/compare/v4.6.2...v4.6.3) (2023-11-27)
 
 
