@@ -16,6 +16,7 @@ const images = require('@diplodoc/transform/lib/plugins/images');
 const monospace = require('@diplodoc/transform/lib/plugins/monospace');
 const table = require('@diplodoc/transform/lib/plugins/table');
 const term = require('@diplodoc/transform/lib/plugins/term');
+const blockAnchor = require('@diplodoc/transform/lib/plugins/block-anchor');
 const changelog = require('@diplodoc/transform/lib/plugins/changelog');
 const mermaid = require('@diplodoc/mermaid-extension');
 const openapi = require('@diplodoc/openapi-extension');
@@ -89,6 +90,7 @@ export const YFM_PLUGINS = [
     openapi.transform(),
     mermaid.transform(),
     changelog,
+    blockAnchor,
 ];
 
 export const PROCESSING_FINISHED = 'Processing finished:';
