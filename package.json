@@ -75,7 +75,7 @@
     "@types/shelljs": "0.8.12",
     "@types/tar-stream": "^2.2.2",
     "@types/yargs": "17.0.24",
-    "esbuild": "^0.17.17",
+    "esbuild": "^0.19.9",
     "husky": "8.0.3",
     "lint-staged": "13.2.2",
     "lodash": "4.17.21",
