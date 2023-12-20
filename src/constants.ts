@@ -19,6 +19,7 @@ const term = require('@diplodoc/transform/lib/plugins/term');
 const blockAnchor = require('@diplodoc/transform/lib/plugins/block-anchor');
 const changelog = require('@diplodoc/transform/lib/plugins/changelog');
 const mermaid = require('@diplodoc/mermaid-extension');
+const latex = require('@diplodoc/latex-extension');
 const openapi = require('@diplodoc/openapi-extension');
 
 includes.collect = require('@diplodoc/transform/lib/plugins/includes/collect');
@@ -85,6 +86,7 @@ export const YFM_PLUGINS = [
     term,
     openapi.transform(),
     mermaid.transform(),
+    latex.transform(),
     changelog,
     blockAnchor,
 ];
