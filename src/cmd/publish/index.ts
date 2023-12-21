@@ -67,19 +67,31 @@ function builder<T>(argv: Argv<T>) {
         });
 }
 
+type Args = {
+    input: string;
+    endpoint: string;
+    region: string;
+    bucket: string;
+    prefix: string;
+    ignore: string[];
+    accessKeyId: string;
+    secretAccessKey: string;
+};
+
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-async function handler(args: Arguments<any>) {
+async function handler(args: Arguments<Args>) {
     ArgvService.init({
         ...args,
     });
 
-    const {input, endpoint, bucket, prefix} = ArgvService.getConfig();
+    const config = ArgvService.getConfig() as unknown as Args;
+    const {input, endpoint, bucket, prefix} = config;
 
     logger.info('', `Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`);
 
     try {
-        await upload(ArgvService.getConfig());
-    } catch (error) {
+        await upload(config);
+    } catch (error: any) {
         logger.error('', error.message);
     }
 }

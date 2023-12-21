@@ -1,25 +1,16 @@
 {
   "compilerOptions": {
-    "target": "esnext",
-    "baseUrl": ".",
+    "target": "es2019",
+    "moduleResolution": "NodeNext",
+    "esModuleInterop": true,
     "paths": {
       "*": [
-        "../src/*",
-        "../tests/*"
+        "../src/*"
       ]
     },
     "types": [
       "node",
-      "@types/jest",
       "jest"
-    ],
-    "typeRoots": [
-      "node_modules/@types"
-    ],
-    "esModuleInterop": true
-  },
-  "exclude": [
-    "node_modules",
-    "coverage"
-  ]
+    ]
+  }
 }
