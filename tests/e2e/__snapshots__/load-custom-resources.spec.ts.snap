@@ -1,0 +1,487 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Allow load custom resources md2html single page with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html","single-page.html","single-page.json"]"`;
+
+exports[`Allow load custom resources md2html single page with custom resources 2`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="title"
+          content="Documentation"
+    >
+    <meta name="noIndex"
+          content="true"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation | Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html single page with custom resources 3`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="meta"
+          content="some meta"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"meta":"some meta","style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>"},"router":{"pathname":"page.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html single page with custom resources 4`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="../_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="../_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"../index.html","items":[{"name":"Documentation","href":"../page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"../project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"style":["../_assets/style/test.css"],"script":["../_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html single page with custom resources 5`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"html":"
+      <p>Lorem
+      </p>
+      <hr class=\\"yfm-page__delimeter\\">
+      <p>Lorem
+      </p>","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p><hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"}"`;
+
+exports[`Allow load custom resources md2html with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
+
+exports[`Allow load custom resources md2html with custom resources 2`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="title"
+          content="Documentation"
+    >
+    <meta name="noIndex"
+          content="true"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation | Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html with custom resources 3`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="meta"
+          content="some meta"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"meta":"some meta","style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>"},"router":{"pathname":"page.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2html with custom resources 4`] = `
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.css"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="../_assets/style/test.css"
+          id="custom-style"
+    >
+    <script src="../_assets/script/test1.js">
+    </script>
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"../index.html","items":[{"name":"Documentation","href":"../page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"../project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"style":["../_assets/style/test.css"],"script":["../_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Allow load custom resources md2md with custom resources 1`] = `"[".yfm","_assets/script/test1.js","_assets/style/test.css","index.yaml","page.md","project/config.md","toc.yaml"]"`;
+
+exports[`Allow load custom resources md2md with custom resources 2`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Allow load custom resources md2md with custom resources 3`] = `
+"title: Documentation
+description: ''
+meta:
+  title: Documentation
+  noIndex: true
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+links:
+  - title: Getting started with Documentation
+    description: This guide will show you the basics of working with Documentation
+    href: page.md
+"
+`;
+
+exports[`Allow load custom resources md2md with custom resources 4`] = `
+"---
+meta: some meta
+style:
+  - _assets/style/test.css
+script:
+  - _assets/script/test1.js
+
+---
+
+Lorem"
+`;
+
+exports[`Allow load custom resources md2md with custom resources 5`] = `
+"---
+style:
+  - _assets/style/test.css
+script:
+  - _assets/script/test1.js
+
+---
+Lorem"
+`;
+
+exports[`Allow load custom resources md2md with custom resources 6`] = `
+"title: Documentation
+href: index.yaml
+items:
+  - name: Documentation
+    href: page.md
+  - name: Config
+    href: project/config.md
+base: .
+"
+`;

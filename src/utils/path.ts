@@ -14,11 +14,3 @@ export function convertBackSlashToSlash(path: string): string {
 
     return path;
 }
-
-export function convertSlashToWindowsBackSlashes(path: string): string {
-    if (process.platform === Platforms.WINDOWS) {
-        return path.replace(/\//g, '\\\\');
-    }
-
-    return path;
-}

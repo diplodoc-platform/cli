@@ -12,4 +12,5 @@ module.exports = {
   coverageProvider: 'v8',
   coverageDirectory: '<rootDir>/coverage',
   moduleDirectories: ['node_modules', path.join(__dirname, '../src'), path.join(__dirname, '../tests')],
+  snapshotSerializers: ['jest-serializer-html']
 };

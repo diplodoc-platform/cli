@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Generate map for project with external links in toc 1`] = `
+"{
+	"files": [
+		"ru/folder1/folder2/a1",
+		"ru/folder1/a1",
+		"ru/",
+		"ru/settings",
+		"ru/plugins/",
+		"ru/project/"
+	]
+}"
+`;
+
+exports[`Generate map for project with multiple language 1`] = `
+"{
+	"files": [
+		"en/",
+		"en/settings",
+		"en/plugins/",
+		"en/plugins/import",
+		"en/project/",
+		"en/project/config",
+		"ru/",
+		"ru/settings",
+		"ru/plugins/",
+		"ru/plugins/import",
+		"ru/project/",
+		"ru/project/config"
+	]
+}"
+`;
+
+exports[`Generate map for project with single language and toc include - only md2html 1`] = `
+"{
+	"files": [
+		"ru/folder1/folder2/a1",
+		"ru/folder1/a1",
+		"ru/",
+		"ru/settings",
+		"ru/plugins/",
+		"ru/plugins/import",
+		"ru/project/",
+		"ru/project/config"
+	]
+}"
+`;
+
+exports[`Generate map for project with single language and toc include 1`] = `
+"{
+	"files": [
+		"ru/folder1/folder2/a1",
+		"ru/folder1/a1",
+		"ru/",
+		"ru/settings",
+		"ru/plugins/",
+		"ru/plugins/import",
+		"ru/project/",
+		"ru/project/config"
+	]
+}"
+`;
