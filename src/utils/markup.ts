@@ -137,7 +137,7 @@ export function joinSinglePageResults(
     root: string,
     tocDir: string,
 ): string {
-    const delimeter = `${сarriage}${сarriage}<hr class="yfm-page__delimeter">${сarriage}${сarriage}`;
+    const delimeter = `<hr class="yfm-page__delimeter">`;
     return singlePageResults
         .filter(({content}) => content)
         .map(({content, path, title}) =>

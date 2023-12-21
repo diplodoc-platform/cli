@@ -1,71 +1,37 @@
 import {readFileSync} from 'fs';
 import shell from 'shelljs';
-import {resolve, join, extname} from 'path';
+import {resolve, join} from 'path';
 import walkSync from 'walk-sync';
-import {load} from 'js-yaml';
-import isEqual from 'lodash/isEqual';
-import {convertBackSlashToSlash} from 'utils/path';
 
 const yfmDocsPath = require.resolve('../build');
 
-
-export function getFileContent(filePath: string) {
-    try {
-        return readFileSync(filePath, 'utf8');
-    } catch {
-        return '';
-    }
+export function platformless(text: string) {
+    return text
+        .replace(/\r\n/g, '\n')
+        .replace(/(\\(?![\/"'])){1,2}/g, '/')
+        .replace(/(Config|Documentation)-\d+-\d+.\d+/g, '$1-RANDOM');
 }
 
-export type CompareResult = {
-    expectedContent: string;
-    outputContent: string;
-} | boolean;
+export function getFileContent(filePath: string) {
+    return platformless(readFileSync(filePath, 'utf8'));
+}
 
-export function compareDirectories(expectedOutputPath: string, outputPath: string, preprocessContent?: Function): CompareResult {
-    const filesFromExpectedOutput = walkSync(expectedOutputPath, {
+const uselessFile = (file) => !['_bundle/', '_assets/'].some(part => file.includes(part));
+
+export function compareDirectories(outputPath: string) {
+    const filesFromOutput = walkSync(outputPath, {
         directories: false,
         includeBasePath: false,
     });
-    let compareResult: CompareResult = true;
 
-    filesFromExpectedOutput.forEach((expectedFilePath) => {
-        const fileExtension = extname(expectedFilePath);
-        const outputContentPath = resolve(outputPath, expectedFilePath)
+    expect(JSON.stringify(filesFromOutput)).toMatchSnapshot();
 
-        if(outputContentPath.includes('_bundle')) {
-            return;
-        }
-
-        const expectedContent = getFileContent(resolve(expectedOutputPath, expectedFilePath));
-        const outputContent = getFileContent(outputContentPath);
-
-        const convertedExpectedContent = convertBackSlashToSlash(expectedContent)
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let preparedExpectedContent: any = convertedExpectedContent;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let preparedOutputContent: any = outputContent;
-
-        if (preprocessContent) {
-            preparedExpectedContent = preprocessContent(preparedExpectedContent)
-            preparedOutputContent = preprocessContent(preparedOutputContent)
-        }
-
-        if (fileExtension === '.yaml') {
-            preparedExpectedContent = load(convertedExpectedContent);
-            preparedOutputContent = load(convertBackSlashToSlash(outputContent));
-        }
-
-        if (!isEqual(preparedExpectedContent, preparedOutputContent)) {
-            compareResult = {
-                expectedContent: preparedExpectedContent,
-                outputContent: preparedOutputContent,
-            };
-        }
-    });
-
-    return compareResult;
+    filesFromOutput
+        .filter(uselessFile)
+        .forEach((filePath) => {
+            const content = getFileContent(resolve(outputPath, filePath));
+            expect(content).toMatchSnapshot();
+        });
 }
 
 interface RunYfmDocsArgs {
@@ -92,17 +58,11 @@ export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, m
 export interface TestPaths {
     inputPath: string;
     outputPath: string;
-    expectedOutputPath: string;
 }
 
 export function getTestPaths(testRootPath: string): TestPaths {
-    const inputPath = resolve(join(testRootPath, 'input'));
-    const outputPath = resolve(join(testRootPath, 'output'));
-    const expectedOutputPath = resolve(join(testRootPath, 'expected-output'));
-
     return {
-        inputPath,
-        outputPath,
-        expectedOutputPath,
+        inputPath: resolve(join(testRootPath, 'input')),
+        outputPath: resolve(join(testRootPath, 'output')),
     };
 }

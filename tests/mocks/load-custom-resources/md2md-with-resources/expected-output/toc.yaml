@@ -1,8 +1,0 @@
-title: Documentation
-href: index.yaml
-items:
-  - name: Documentation
-    href: page.md
-  - name: Config
-    href: project/config.md
-base: .

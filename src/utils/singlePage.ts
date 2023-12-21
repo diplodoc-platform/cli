@@ -3,7 +3,7 @@ import {parse} from 'node-html-parser';
 import {relative, resolve, sep} from 'path';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 import url from 'url';
-import _ from 'lodash';
+import escape from 'lodash/escapeRegExp';
 
 import {isExternalHref} from './url';
 
@@ -21,6 +21,11 @@ interface PreprocessSinglePageOptions {
 }
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
+
+function toUrl(path: string) {
+    // replace windows backslashes
+    return path.replace(new RegExp(escape(sep), 'g'), '/');
+}
 
 function getNewNode(options: ModifyNode): HTMLElement | null {
     const {rawTagName, innerHTML, attrEntries} = options;
@@ -92,7 +97,7 @@ export function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageO
             }
         }
 
-        node.setAttribute('href', preparedHref);
+        node.setAttribute('href', toUrl(preparedHref));
     });
 }
 
@@ -110,7 +115,7 @@ export function replaceImages(rootEl: HTMLElement, options: PreprocessSinglePage
         const linkFullPath = resolveRelativePath(resolvedPath, href);
         const preparedHref = relative(tocDir, linkFullPath);
 
-        node.setAttribute('src', preparedHref);
+        node.setAttribute('src', toUrl(preparedHref));
     });
 }
 
@@ -129,7 +134,7 @@ function prepareAnchorAttrs(node: HTMLElement, pageId: string) {
     for (const [name, value] of Object.entries(node.attributes)) {
         const preparedValue = prepareAnchorAttr(name, value, pageId);
 
-        node.setAttribute(name, preparedValue);
+        node.setAttribute(name, toUrl(preparedValue));
     }
 }
 
@@ -197,7 +202,7 @@ export function getSinglePageAnchorId(args: {
     resultAnchor = resultAnchor
         .replace(root, '')
         .replace(/\.(md|ya?ml|html)$/i, '')
-        .replace(new RegExp(_.escapeRegExp(sep), 'gi'), '_');
+        .replace(new RegExp(escape(sep), 'gi'), '_');
 
     if (hash) {
         resultAnchor = resultAnchor + '_' + hash.slice(1);
