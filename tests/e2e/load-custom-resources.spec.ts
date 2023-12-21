@@ -1,11 +1,11 @@
 import {getTestPaths, runYfmDocs, compareDirectories} from '../utils';
 
-const geretateMapTestTemplate = (testTitle, testRootPath, {md2md = true, md2html = true, args = '--allow-custom-resources'}) => {
+const geretateMapTestTemplate = (testTitle: string, testRootPath: string, {md2md = true, md2html = true, args = '--allow-custom-resources'}) => {
     test(testTitle, () => {
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
         runYfmDocs(inputPath, outputPath, {md2md, md2html, args});
 
-        const unifyData = (text) => text
+        const unifyData = (text: string) => text
             // Remove unique id's
             .replace(/"id":"Documentation.+?"|Config.+?"/gm, '')
             // Unify windows & mac data

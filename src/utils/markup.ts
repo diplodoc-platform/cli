@@ -49,9 +49,9 @@ export function generateStaticMarkup(
                     }
                 </style>
                 ${manifest.css
-        .map(dst(pathToBundle))
-        .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
-        .join('\n')}
+                    .map(dst(pathToBundle))
+                    .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
+                    .join('\n')}
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
@@ -62,9 +62,12 @@ export function generateStaticMarkup(
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
                 ${manifest.js
-        .map(dst(pathToBundle))
-        .map((src: string) => `<script type="application/javascript" src="${src}"></script>`)
-        .join('\n')}
+                    .map(dst(pathToBundle))
+                    .map(
+                        (src: string) =>
+                            `<script type="application/javascript" src="${src}"></script>`,
+                    )
+                    .join('\n')}
             </body>
         </html>
     `;
@@ -144,5 +147,5 @@ export function joinSinglePageResults(
 }
 
 export function replaceDoubleToSingleQuotes(str: string): string {
-    return str.replace(/"/g, '\'');
+    return str.replace(/"/g, "'");
 }

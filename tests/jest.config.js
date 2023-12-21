@@ -1,10 +1,8 @@
 const path = require('path');
 
 module.exports = {
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>/tsconfig.json',
-    },
+  transform: {
+    '^.+\\.(j|t)s?$': ['ts-jest', {tsconfig: '<rootDir>/tsconfig.json'}],
   },
   verbose: true,
   preset: 'ts-jest',

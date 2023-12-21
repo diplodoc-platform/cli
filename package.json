@@ -22,6 +22,7 @@
     "start": "node build/index.js",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
+    "typecheck": "tsc --noEmit",
     "prepublishOnly": "npm run lint && npm run build",
     "git:head": "git checkout master && git pull"
   },

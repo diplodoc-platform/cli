@@ -1,6 +1,6 @@
 import {getTestPaths, runYfmDocs, getFileContent} from '../utils';
 
-const geretateMapTestTemplate = (testTitle, testRootPath, md2md = true, md2html = true) => {
+const geretateMapTestTemplate = (testTitle: string, testRootPath: string, md2md = true, md2html = true) => {
     test(testTitle, () => {
         const {inputPath, outputPath, expectedOutputPath} = getTestPaths(testRootPath);
 
@@ -9,7 +9,7 @@ const geretateMapTestTemplate = (testTitle, testRootPath, md2md = true, md2html 
         const outputContent = getFileContent(outputPath + '/files.json');
         const expectedContent = getFileContent(expectedOutputPath + '/files.json');
 
-        const prepareFileJsonToCompare = (file) => JSON.stringify(JSON.parse(file).files.sort())
+        const prepareFileJsonToCompare = (file: string) => JSON.stringify(JSON.parse(file).files.sort())
 
         expect(prepareFileJsonToCompare(outputContent)).toEqual(prepareFileJsonToCompare(expectedContent));
     });
