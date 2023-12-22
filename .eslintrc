@@ -1,3 +1,6 @@
 {
-    "extends": ["@diplodoc/eslint-config"]
+    "extends": ["@diplodoc/eslint-config"],
+    "env": {
+        "node": true
+    }
 }
