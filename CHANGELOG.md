@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.6.5](https://github.com/diplodoc-platform/cli/compare/v4.6.4...v4.6.5) (2023-12-22)
+
+
+### Bug Fixes
+
+* Limit translated chunk size ([00d8852](https://github.com/diplodoc-platform/cli/commit/00d88528487f48663406f58964d3563ddfd4e1fe))
+* Update core deps. Remove unused deps. ([f9cdb38](https://github.com/diplodoc-platform/cli/commit/f9cdb389cc8dbd984b4336b1fd058a8b39dd0bef))
+
 ## [4.6.4](https://github.com/diplodoc-platform/cli/compare/v4.6.3...v4.6.4) (2023-12-13)
 
 
