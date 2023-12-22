@@ -34,7 +34,8 @@ const translate = {
 
 const MD_GLOB = '**/*.md';
 const REQUESTS_LIMIT = 20;
-const RETRY_LIMIT = 8;
+const BYTES_LIMIT = 10000;
+const RETRY_LIMIT = 3;
 const MTRANS_LOCALE = 'MTRANS';
 
 function builder<T>(argv: Argv<T>) {
@@ -148,6 +149,23 @@ function translator(params: TranslatorParams) {
 
     const session = new Session({oauthToken});
     const client = session.client(TranslationServiceClient);
+    const request = (texts: string[]) => () =>
+        client
+            .translate(
+                TranslateRequest.fromPartial({
+                    texts,
+                    folderId,
+                    sourceLanguageCode: sourceLanguage,
+                    targetLanguageCode: targetLanguage,
+                    glossaryConfig: {
+                        glossaryData: {
+                            glossaryPairs: yandexCloudTranslateGlossaryPairs,
+                        },
+                    },
+                    format: Format.PLAIN_TEXT,
+                }),
+            )
+            .then((results) => results.translations.map(({text}) => text));
 
     return async (mdPath: string) => {
         try {
@@ -171,45 +189,57 @@ function translator(params: TranslatorParams) {
 
             const texts = parseSourcesFromXLIFF(xlf);
 
-            const machineTranslateParams = TranslateRequest.fromPartial({
-                texts,
-                folderId,
-                sourceLanguageCode: sourceLanguage,
-                targetLanguageCode: targetLanguage,
-                glossaryConfig: {
-                    glossaryData: {
-                        glossaryPairs: yandexCloudTranslateGlossaryPairs,
-                    },
-                },
-                format: Format.PLAIN_TEXT,
-            });
+            const parts = await Promise.all(
+                texts.reduce(
+                    (
+                        {
+                            promises,
+                            buffer,
+                            bufferSize,
+                        }: {
+                            promises: Promise<string[]>[];
+                            buffer: string[];
+                            bufferSize: number;
+                        },
+                        text,
+                        index,
+                    ) => {
+                        if (text.length >= BYTES_LIMIT) {
+                            logger.warn(
+                                mdPath,
+                                'Skip document part for translation. Part is too big.',
+                            );
+                            promises.push(Promise.resolve([text]));
+                            return {promises, buffer, bufferSize};
+                        }
 
-            const translations = await retry(
-                {
-                    times: RETRY_LIMIT,
-                    interval: (count: number) => {
-                        // eslint-disable-next-line no-bitwise
-                        return (1 << count) * 1000;
+                        if (bufferSize + text.length > BYTES_LIMIT || index === texts.length - 1) {
+                            promises.push(backoff(request(buffer)));
+                            buffer = [];
+                            bufferSize = 0;
+                        }
+
+                        buffer.push(text);
+                        bufferSize += text.length;
+
+                        return {promises, buffer, bufferSize};
                     },
-                },
-                asyncify(
-                    async () =>
-                        await client
-                            .translate(machineTranslateParams)
-                            .then((results: {translations: {text: string}[]}) =>
-                                results.translations.map(({text}: {text: string}) => text),
-                            ),
-                ),
+                    {
+                        promises: [],
+                        buffer: [],
+                        bufferSize: 0,
+                    },
+                ).promises,
             );
 
-            const createXLIFFDocumentParams = {
+            const translations = ([] as string[]).concat(...parts);
+
+            const translatedXLIFF = createXLIFFDocument({
                 sourceLanguage: sourceLanguage + '-' + MTRANS_LOCALE,
                 targetLanguage: targetLanguage + '-' + MTRANS_LOCALE,
                 sources: texts,
-                targets: translations as string[],
-            };
-
-            const translatedXLIFF = createXLIFFDocument(createXLIFFDocumentParams);
+                targets: translations,
+            });
 
             const composed = await markdownTranslation.compose({
                 xlf: translatedXLIFF,
@@ -230,7 +260,20 @@ function translator(params: TranslatorParams) {
     };
 }
 
-function parseSourcesFromXLIFF(xliff: string) {
+function backoff(action: () => Promise<string[]>): Promise<string[]> {
+    return retry(
+        {
+            times: RETRY_LIMIT,
+            interval: (count: number) => {
+                // eslint-disable-next-line no-bitwise
+                return (1 << count) * 1000;
+            },
+        },
+        asyncify(action),
+    );
+}
+
+function parseSourcesFromXLIFF(xliff: string): string[] {
     const parser = new XMLParser();
 
     const inputs = parser.parse(xliff)?.xliff?.file?.body['trans-unit'] ?? [];
