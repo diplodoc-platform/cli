@@ -389,20 +389,18 @@ async function getFilesMTime(repoDir: string, pathMTime: Map<string, number>) {
         for (let i = 0, len = lines.length; i < len; i++) {
             const line = lines[i];
             const [status, from, to] = line.split(/\t/);
-            const normalizeFrom = normalize(addSlashPrefix(from));
             switch (status[0]) {
                 case 'R': {
-                    pathMTime.delete(normalizeFrom);
-                    const normalizeTo = normalize(addSlashPrefix(to));
-                    pathMTime.set(normalizeTo, unixtime);
+                    pathMTime.delete(from);
+                    pathMTime.set(to, unixtime);
                     break;
                 }
                 case 'D': {
-                    pathMTime.delete(normalizeFrom);
+                    pathMTime.delete(from);
                     break;
                 }
                 default: {
-                    pathMTime.set(normalizeFrom, unixtime);
+                    pathMTime.set(from, unixtime);
                 }
             }
         }
