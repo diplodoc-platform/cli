@@ -216,7 +216,7 @@ async function getModifiedTimeMetadataString(options: MetaDataOptions, fileConte
                 return vcsConnector.getModifiedTimeByPath(mappedPath);
             })
             .filter((v) => typeof v === 'number') as number[];
-        
+
         const mtime = mtimeList.length ? Math.max(...mtimeList) : undefined;
         if (mtime) {
             return `updatedAt: ${new Date(mtime * 1000).toISOString()}`;
