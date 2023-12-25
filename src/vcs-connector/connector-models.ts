@@ -2,6 +2,7 @@ import {
     Contributors,
     ContributorsByPathFunction,
     ExternalAuthorByPathFunction,
+    GetModifiedTimeByPathFunction,
     NestedContributorsForPathFunction,
     UserByLoginFunction,
 } from '../models';
@@ -31,6 +32,7 @@ export interface VCSConnector {
     addNestedContributorsForPath: NestedContributorsForPathFunction;
     getContributorsByPath: ContributorsByPathFunction;
     getUserByLogin: UserByLoginFunction;
+    getModifiedTimeByPath: GetModifiedTimeByPathFunction;
 }
 
 export interface VCSConnectorConfig {

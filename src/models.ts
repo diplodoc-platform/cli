@@ -19,6 +19,7 @@ export type NestedContributorsForPathFunction = (
 ) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
 export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
+export type GetModifiedTimeByPathFunction = (filepath: string) => number | undefined;
 
 interface YfmConfig {
     varsPreset: VarsPreset;

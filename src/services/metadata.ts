@@ -105,6 +105,11 @@ async function getContentWithUpdatedDynamicMetadata(
             newMetadatas.push(contributorsMetaData);
         }
 
+        const mtimeMetadata = getModifiedTimeMetadataString(options);
+        if (mtimeMetadata) {
+            newMetadatas.push(mtimeMetadata);
+        }
+
         let authorMetadata = '';
         if (fileMetadata) {
             const matchAuthor = fileMetadata.match(REGEXP_AUTHOR);
@@ -183,6 +188,23 @@ async function getContributorsMetadataString(
         };
 
         return getFileContributorsMetadata(updatedFileData, vcsConnector);
+    }
+
+    return undefined;
+}
+
+function getModifiedTimeMetadataString(options: MetaDataOptions) {
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
+
+    const {tmpInputFilePath, inputFolderPathLength} = fileData;
+
+    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
+
+    if (isContributorsEnabled && vcsConnector) {
+        const mtime = vcsConnector.getModifiedTimeByPath(relativeFilePath);
+        if (mtime) {
+            return `updatedAt: ${new Date(mtime * 1000).toISOString()}`;
+        }
     }
 
     return undefined;
