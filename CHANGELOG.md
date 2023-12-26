@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.7.0](https://github.com/diplodoc-platform/cli/compare/v4.6.5...v4.7.0) (2023-12-26)
+
+
+### Features
+
+* add block anchor plugin to transform ([26b5841](https://github.com/diplodoc-platform/cli/commit/26b584122894574a312ebe4631ac1dfe474285a0))
+
+
+### Bug Fixes
+
+* **cmd/xliff:** bump markdown-translation version ([2564a58](https://github.com/diplodoc-platform/cli/commit/2564a582e4d4bd2bbdc3bbf3fc9c463bc8448fd3))
+
 ## [4.6.5](https://github.com/diplodoc-platform/cli/compare/v4.6.4...v4.6.5) (2023-12-22)
 
 
