@@ -43,6 +43,7 @@ interface YfmConfig {
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
     lang?: Lang;
+    langs?: [];
     lintDisabled: boolean;
     buildDisabled: boolean;
     lintConfig: LintConfig;

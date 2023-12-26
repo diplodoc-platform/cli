@@ -44,7 +44,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
     const vars = getVarsPerFile(inputPath);
 
-    const {input, lang, allowCustomResources} = ArgvService.getConfig();
+    const {input, lang, langs, allowCustomResources} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
@@ -73,6 +73,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         fileMeta.style = [];
         fileMeta.script = [];
     }
+    const tocLang = langs.includes(tocBase) && tocBase;
 
     const props = {
         data: {
@@ -84,7 +85,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         router: {
             pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
         },
-        lang: lang || Lang.RU,
+        lang: lang || tocLang || Lang.RU,
     };
 
     const outputDir = dirname(outputPath);
