@@ -50,6 +50,23 @@ export enum Lang {
     EN = 'en',
 }
 
+export const RTL_LANGS = [
+    'ar',
+    'arc',
+    'ckb',
+    'dv',
+    'fa',
+    'ha',
+    'he',
+    'khw',
+    'ks',
+    'ps',
+    'sd',
+    'ur',
+    'uz_AF',
+    'yi',
+];
+
 export enum Platforms {
     WINDOWS = 'win32',
     MAC = 'darwin',

@@ -1,7 +1,7 @@
 import {join} from 'path';
 import {platform} from 'process';
 
-import {CUSTOM_STYLE, Platforms} from '../constants';
+import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
@@ -42,10 +42,11 @@ export function generateStaticMarkup(
     const {staticContent} = ArgvService.getConfig();
 
     const html = staticContent ? render(props) : '';
+    const isRTL = RTL_LANGS.includes(props.lang);
 
     return `
         <!DOCTYPE html>
-        <html lang="${props.lang}">
+        <html lang="${props.lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
                 ${getMetadata(metadata, restYamlConfigMeta)}
@@ -57,6 +58,7 @@ export function generateStaticMarkup(
                     }
                 </style>
                 ${manifest.css
+                    .filter((file) => isRTL === file.includes('.rtl.css'))
                     .map(dst(pathToBundle))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
