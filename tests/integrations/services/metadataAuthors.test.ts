@@ -11,6 +11,7 @@ const simpleMetadataFilePath = 'mocks/fileContent/metadata/simpleMetadata.md';
 
 jest.mock('services/contributors', () => ({
     getFileContributorsMetadata: () => Promise.resolve(''),
+    getFileIncludes: () => Promise.resolve([]),
 }));
 
 describe('getContentWithUpdatedMetadata (Authors)', () => {

@@ -25,6 +25,7 @@ const contributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(co
 
 jest.mock('services/contributors', () => ({
     getFileContributorsString: () => Promise.resolve(contributorsString),
+    getFileIncludes: () => Promise.resolve([]),
 }));
 
 const authorString: string = replaceDoubleToSingleQuotes(JSON.stringify(contributorSecond));
