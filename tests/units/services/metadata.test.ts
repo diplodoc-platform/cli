@@ -38,6 +38,7 @@ const defaultVCSConnector: VCSConnector = {
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(null),
     getExternalAuthorByPath: () => null,
+    getModifiedTimeByPath: () => undefined,
 };
 
 describe('getUpdatedMetadata', () => {
