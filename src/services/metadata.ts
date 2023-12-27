@@ -204,23 +204,25 @@ async function getModifiedTimeMetadataString(options: MetaDataOptions, fileConte
 
     const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength + 1);
 
-    if (isContributorsEnabled && vcsConnector) {
-        const includedFiles = await getFileIncludes({...fileData, fileContent});
-        includedFiles.push(relativeFilePath);
+    if (!isContributorsEnabled || !vcsConnector) {
+        return undefined;
+    }
 
-        const tocCopyFileMap = TocService.getCopyFileMap();
+    const includedFiles = await getFileIncludes({...fileData, fileContent});
+    includedFiles.push(relativeFilePath);
 
-        const mtimeList = includedFiles
-            .map((path) => {
-                const mappedPath = tocCopyFileMap.get(path) || path;
-                return vcsConnector.getModifiedTimeByPath(mappedPath);
-            })
-            .filter((v) => typeof v === 'number') as number[];
+    const tocCopyFileMap = TocService.getCopyFileMap();
 
-        const mtime = mtimeList.length ? Math.max(...mtimeList) : undefined;
-        if (mtime) {
-            return `updatedAt: ${new Date(mtime * 1000).toISOString()}`;
-        }
+    const mtimeList = includedFiles
+        .map((path) => {
+            const mappedPath = tocCopyFileMap.get(path) || path;
+            return vcsConnector.getModifiedTimeByPath(mappedPath);
+        })
+        .filter((v) => typeof v === 'number') as number[];
+
+    if (mtimeList.length) {
+        const mtime = Math.max(...mtimeList);
+        return `updatedAt: ${new Date(mtime * 1000).toISOString()}`;
     }
 
     return undefined;

@@ -380,14 +380,11 @@ async function getFilesMTime(repoDir: string, pathMTime: Map<string, number>) {
     );
 
     const parts = timeFiles.split(/\n\n/);
-    while (parts.length) {
-        const part = parts.shift();
-        if (!part) return;
+    parts.forEach((part) => {
         const lines = part.trim().split(/\n/);
         const committerDate = lines.shift();
         const unixtime = Number(committerDate);
-        for (let i = 0, len = lines.length; i < len; i++) {
-            const line = lines[i];
+        lines.forEach((line) => {
             const [status, from, to] = line.split(/\t/);
             switch (status[0]) {
                 case 'R': {
@@ -403,8 +400,8 @@ async function getFilesMTime(repoDir: string, pathMTime: Map<string, number>) {
                     pathMTime.set(from, unixtime);
                 }
             }
-        }
-    }
+        });
+    });
     return pathMTime;
 }
 
