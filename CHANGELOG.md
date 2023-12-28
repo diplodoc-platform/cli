@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.8.0](https://github.com/diplodoc-platform/cli/compare/v4.7.0...v4.8.0) (2023-12-28)
+
+
+### Features
+
+* Add Latex extension ([2426f5b](https://github.com/diplodoc-platform/cli/commit/2426f5b8978119ed3d617c33921dd0d83581fd6d))
+* Update client to v2 ([0050e29](https://github.com/diplodoc-platform/cli/commit/0050e298562bd0f82429b8a27635f5b7d8cb6351))
+
+
+### Bug Fixes
+
+* Update transformer ([cb5f4c7](https://github.com/diplodoc-platform/cli/commit/cb5f4c769a447cfef35e0e96111401db36e79892))
+
 ## [4.7.0](https://github.com/diplodoc-platform/cli/compare/v4.6.5...v4.7.0) (2023-12-26)
 
 
