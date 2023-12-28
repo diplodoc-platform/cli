@@ -36,7 +36,7 @@
     "@diplodoc/markdown-translation": "^1.0.4",
     "@diplodoc/mermaid-extension": "^1.2.1",
     "@diplodoc/openapi-extension": "^1.4.10",
-    "@diplodoc/transform": "^4.7.3",
+    "@diplodoc/transform": "^4.8.1",
     "@octokit/core": "4.2.4",
     "@yandex-cloud/nodejs-sdk": "^2.2.2",
     "ajv": "^8.11.0",
