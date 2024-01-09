@@ -24,6 +24,7 @@ export interface TocServiceData {
 const storage: TocServiceData['storage'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
+const tocFileCopyMap = new Map<string, string>();
 
 async function add(path: string) {
     const {
@@ -207,6 +208,10 @@ function _copyTocDir(tocPath: string, destDir: string) {
         } else {
             shell.cp(from, to);
         }
+
+        const relFrom = relative(inputFolderPath, from);
+        const relTo = relative(inputFolderPath, to);
+        tocFileCopyMap.set(relTo, relFrom);
     });
 }
 
@@ -396,6 +401,10 @@ function setNavigationPaths(paths: TocServiceData['navigationPaths']) {
     navigationPaths = paths;
 }
 
+function getCopyFileMap() {
+    return tocFileCopyMap;
+}
+
 export default {
     add,
     getForPath,
@@ -403,4 +412,5 @@ export default {
     getTocDir,
     getIncludedTocPaths,
     setNavigationPaths,
+    getCopyFileMap,
 };

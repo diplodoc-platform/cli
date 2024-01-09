@@ -26,6 +26,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
         getContributorsByPath: () => Promise.resolve(null),
         getUserByLogin: () => Promise.resolve(null),
         getExternalAuthorByPath: () => null,
+        getModifiedTimeByPath: () => undefined,
     };
 
     describe('should return file content with updated contributors in metadata ' +

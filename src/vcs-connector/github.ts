@@ -33,9 +33,10 @@ const authorByPath: Map<string, Contributor | null> = new Map();
 const contributorsByPath: Map<string, FileContributors> = new Map();
 const contributorsData: Map<string, Contributor | null> = new Map();
 const loginUserMap: Map<string, Contributor | null> = new Map();
+const pathMTime = new Map<string, number>();
 
 async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
-    const {contributors} = ArgvService.getConfig();
+    const {contributors, rootInput} = ArgvService.getConfig();
 
     const httpClientByToken = getHttpClientByToken();
     if (!httpClientByToken) {
@@ -49,6 +50,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         authorByPath.get(path) ?? null;
 
     if (contributors) {
+        await getFilesMTime(rootInput, pathMTime);
         await getAllContributorsTocFiles(httpClientByToken);
         addNestedContributorsForPath = (path: string, nestedContributors: Contributors) =>
             addNestedContributorsForPathFunction(path, nestedContributors);
@@ -60,6 +62,7 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
         addNestedContributorsForPath,
         getContributorsByPath,
         getUserByLogin: (login: string) => getUserByLogin(httpClientByToken, login),
+        getModifiedTimeByPath: (filename: string) => pathMTime.get(filename),
     };
 }
 
@@ -362,6 +365,44 @@ function shouldAuthorBeIgnored({email, name}: ShouldAuthorBeIgnoredArgs) {
     }
 
     return false;
+}
+
+async function getFilesMTime(repoDir: string, pathMTime: Map<string, number>) {
+    const timeFiles = await simpleGit({
+        baseDir: repoDir,
+    }).raw(
+        'log',
+        '--reverse',
+        '--before=now',
+        '--diff-filter=ADMR',
+        '--pretty=format:%ct',
+        '--name-status',
+    );
+
+    const parts = timeFiles.split(/\n\n/);
+    parts.forEach((part) => {
+        const lines = part.trim().split(/\n/);
+        const committerDate = lines.shift();
+        const unixtime = Number(committerDate);
+        lines.forEach((line) => {
+            const [status, from, to] = line.split(/\t/);
+            switch (status[0]) {
+                case 'R': {
+                    pathMTime.delete(from);
+                    pathMTime.set(to, unixtime);
+                    break;
+                }
+                case 'D': {
+                    pathMTime.delete(from);
+                    break;
+                }
+                default: {
+                    pathMTime.set(from, unixtime);
+                }
+            }
+        });
+    });
+    return pathMTime;
 }
 
 export default getGitHubVCSConnector;

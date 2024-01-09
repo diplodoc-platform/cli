@@ -20,10 +20,11 @@ const author = {
 const authorByPath: Map<string, Contributor | null> = new Map();
 
 const defaultVCSConnector: VCSConnector = {
-    addNestedContributorsForPath: () => {},
+    addNestedContributorsForPath: () => { },
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(author),
     getExternalAuthorByPath: (path) => authorByPath.get(path),
+    getModifiedTimeByPath: () => undefined,
 };
 
 describe('getAuthorDetails returns author details', () => {

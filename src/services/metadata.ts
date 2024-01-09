@@ -7,12 +7,16 @@ import {
     updateAuthorMetadataStringByAuthorLogin,
     updateAuthorMetadataStringByFilePath,
 } from './authors';
-import {getFileContributorsMetadata, getFileContributorsString} from './contributors';
+import {
+    getFileContributorsMetadata,
+    getFileContributorsString,
+    getFileIncludes,
+} from './contributors';
 import {isObject} from './utils';
 import {сarriage} from '../utils';
 import {REGEXP_AUTHOR, metadataBorder} from '../constants';
 import {dirname, relative, resolve} from 'path';
-import {ArgvService} from './index';
+import {ArgvService, TocService} from './index';
 
 async function getContentWithUpdatedMetadata(
     fileContent: string,
@@ -105,6 +109,11 @@ async function getContentWithUpdatedDynamicMetadata(
             newMetadatas.push(contributorsMetaData);
         }
 
+        const mtimeMetadata = await getModifiedTimeMetadataString(options, fileContent);
+        if (mtimeMetadata) {
+            newMetadatas.push(mtimeMetadata);
+        }
+
         let authorMetadata = '';
         if (fileMetadata) {
             const matchAuthor = fileMetadata.match(REGEXP_AUTHOR);
@@ -183,6 +192,37 @@ async function getContributorsMetadataString(
         };
 
         return getFileContributorsMetadata(updatedFileData, vcsConnector);
+    }
+
+    return undefined;
+}
+
+async function getModifiedTimeMetadataString(options: MetaDataOptions, fileContent: string) {
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
+
+    const {tmpInputFilePath, inputFolderPathLength} = fileData;
+
+    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength + 1);
+
+    if (!isContributorsEnabled || !vcsConnector) {
+        return undefined;
+    }
+
+    const includedFiles = await getFileIncludes({...fileData, fileContent});
+    includedFiles.push(relativeFilePath);
+
+    const tocCopyFileMap = TocService.getCopyFileMap();
+
+    const mtimeList = includedFiles
+        .map((path) => {
+            const mappedPath = tocCopyFileMap.get(path) || path;
+            return vcsConnector.getModifiedTimeByPath(mappedPath);
+        })
+        .filter((v) => typeof v === 'number') as number[];
+
+    if (mtimeList.length) {
+        const mtime = Math.max(...mtimeList);
+        return `updatedAt: ${new Date(mtime * 1000).toISOString()}`;
     }
 
     return undefined;

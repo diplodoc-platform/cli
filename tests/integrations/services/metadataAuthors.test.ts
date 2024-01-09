@@ -11,6 +11,7 @@ const simpleMetadataFilePath = 'mocks/fileContent/metadata/simpleMetadata.md';
 
 jest.mock('services/contributors', () => ({
     getFileContributorsMetadata: () => Promise.resolve(''),
+    getFileIncludes: () => Promise.resolve([]),
 }));
 
 describe('getContentWithUpdatedMetadata (Authors)', () => {
@@ -27,6 +28,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         getContributorsByPath: () => Promise.resolve(null),
         getUserByLogin: () => Promise.resolve(expectedAuthorData),
         getExternalAuthorByPath: () => expectedAuthorData,
+        getModifiedTimeByPath: () => undefined,
     };
 
     describe('should return file content with updated author in metadata', () => {

@@ -25,6 +25,7 @@ const contributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(co
 
 jest.mock('services/contributors', () => ({
     getFileContributorsString: () => Promise.resolve(contributorsString),
+    getFileIncludes: () => Promise.resolve([]),
 }));
 
 const authorString: string = replaceDoubleToSingleQuotes(JSON.stringify(contributorSecond));
@@ -38,6 +39,7 @@ const defaultVCSConnector: VCSConnector = {
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(null),
     getExternalAuthorByPath: () => null,
+    getModifiedTimeByPath: () => undefined,
 };
 
 describe('getUpdatedMetadata', () => {

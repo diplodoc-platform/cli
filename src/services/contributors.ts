@@ -94,7 +94,10 @@ async function getContributorsForNestedFiles(
     return Object.assign({}, ...includesContributors);
 }
 
-function getRelativeIncludeFilePaths(fileData: FileData, includeContents: string[]): Set<string> {
+function getRelativeIncludeFilePaths(
+    fileData: Pick<FileData, 'tmpInputFilePath'>,
+    includeContents: string[],
+): Set<string> {
     const {tmpInputFilePath} = fileData;
     const relativeIncludeFilePaths: Set<string> = new Set();
 
@@ -115,4 +118,45 @@ function getRelativeIncludeFilePaths(fileData: FileData, includeContents: string
     return relativeIncludeFilePaths;
 }
 
-export {getFileContributorsMetadata, getFileContributorsString};
+async function getFileIncludes(
+    fileData: Pick<FileData, 'fileContent' | 'tmpInputFilePath' | 'inputFolderPathLength'>,
+) {
+    const {fileContent, tmpInputFilePath, inputFolderPathLength} = fileData;
+
+    const results = new Set<string>();
+
+    const includeContents = fileContent.match(REGEXP_INCLUDE_CONTENTS);
+    if (!includeContents || includeContents.length === 0) {
+        return [];
+    }
+    const relativeIncludeFilePaths: Set<string> = getRelativeIncludeFilePaths(
+        {tmpInputFilePath},
+        includeContents,
+    );
+    for (const relativeIncludeFilePath of relativeIncludeFilePaths.values()) {
+        const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength + 1);
+        if (results.has(relativeFilePath)) continue;
+        results.add(relativeFilePath);
+
+        let contentIncludeFile: string;
+        try {
+            contentIncludeFile = await readFile(relativeIncludeFilePath, 'utf8');
+        } catch (err) {
+            if (err.code === 'ENOENT') {
+                continue;
+            }
+            throw err;
+        }
+
+        const includedPaths = await getFileIncludes({
+            inputFolderPathLength,
+            fileContent: contentIncludeFile,
+            tmpInputFilePath: relativeIncludeFilePath,
+        });
+        includedPaths.forEach((path) => results.add(path));
+    }
+
+    return Array.from(results.values());
+}
+
+export {getFileContributorsMetadata, getFileContributorsString, getFileIncludes};
