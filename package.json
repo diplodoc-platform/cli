@@ -32,7 +32,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.369.0",
     "@diplodoc/client": "^2.0.0",
-    "@diplodoc/latex-extension": "^1.0.2",
+    "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/markdown-translation": "^1.0.4",
     "@diplodoc/mermaid-extension": "^1.2.1",
     "@diplodoc/openapi-extension": "^1.4.10",
