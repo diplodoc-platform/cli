@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.9.0](https://github.com/diplodoc-platform/cli/compare/v4.8.0...v4.9.0) (2024-01-09)
+
+
+### Features
+
+* Add updatedAt field in metadata ([#628](https://github.com/diplodoc-platform/cli/issues/628)) ([63f6f5e](https://github.com/diplodoc-platform/cli/commit/63f6f5e1300e4a233e1c547860252562b1fe9772))
+
+
+### Bug Fixes
+
+* Update latex extension ([0cd0a5d](https://github.com/diplodoc-platform/cli/commit/0cd0a5dded9b632be0b4a1c097ad0efaf8859d1c))
+
 ## [4.8.0](https://github.com/diplodoc-platform/cli/compare/v4.7.0...v4.8.0) (2023-12-28)
 
 
