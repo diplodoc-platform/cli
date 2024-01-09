@@ -1,6 +1,7 @@
+import type {Run} from './run';
+
 import 'threads/register';
 
-import {Arguments} from 'yargs';
 import {join, resolve} from 'path';
 import {BUNDLE_FOLDER, LINT_CONFIG_FILENAME} from '../../constants';
 import {ArgvService, Includers} from '../../services';
@@ -17,12 +18,12 @@ import {
 import {prepareMapFile} from '../../steps/processMapFile';
 import shell from 'shelljs';
 import {Resources} from '../../models';
-import {Run} from './index';
+import {configPath} from '~/config';
 import {copyFiles} from '../../utils';
 import {upload as publishFilesToS3} from '../publish/upload';
 import glob from 'glob';
 
-export async function handler(run: Run, args: Arguments<any>) {
+export async function handler(run: Run) {
     const userOutputFolder = resolve(run.config.output);
 
     try {
@@ -76,7 +77,7 @@ export async function handler(run: Run, args: Arguments<any>) {
                     processAssets(outputBundlePath);
                     break;
                 case 'md': {
-                    shell.cp(resolve(run.configPath), run.output);
+                    shell.cp(resolve(run.config[configPath]), run.output);
                     shell.cp(resolve(pathToLintConfig), run.output);
 
                     if (resources && allowCustomResources) {
@@ -99,11 +100,7 @@ export async function handler(run: Run, args: Arguments<any>) {
             }
 
             // Copy all generated files to user' output folder
-            shell.cp(
-                '-r',
-                [join(run.output, '*'), join(run.output, '.*')],
-                userOutputFolder,
-            );
+            shell.cp('-r', [join(run.output, '*'), join(run.output, '.*')], userOutputFolder);
 
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';

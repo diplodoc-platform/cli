@@ -1,11 +1,10 @@
 import {ok} from 'node:assert';
 import {resolve} from 'node:path';
-import {readFile} from 'node:fs/promises';
-import {load} from 'js-yaml';
 import shell from 'shelljs';
-import {Build, OutputFormat} from '../../index';
+import {Build} from '../..';
 
-import {REDIRECTS_FILENAME} from '../../../../constants';
+import {REDIRECTS_FILENAME} from '~/constants';
+import {configPath, resolveConfig} from '~/config';
 
 interface Redirect {
     from: string;
@@ -23,7 +22,14 @@ export class Redirects {
 
         program.hooks.BeforeRun.for('md').tap('Redirects', async (run) => {
             try {
-                resolvedPath = await resolveRedirects(run.root);
+                const redirects = await resolveConfig<RedirectsConfig>(resolve(run.root, REDIRECTS_FILENAME), {
+                    fallback: {common: []}
+                });
+
+                if (redirects[configPath]) {
+                    resolvedPath = redirects[configPath];
+                    validateRedirects(redirects, resolvedPath);
+                }
             } catch (error) {
                 run.logger.error(error);
             }
@@ -34,29 +40,6 @@ export class Redirects {
                 shell.cp(resolvedPath, run.output);
             }
         });
-    }
-}
-
-async function resolveRedirects(root: string) {
-    const filepath = resolve(root, REDIRECTS_FILENAME);
-
-    try {
-        const redirectsContent = await readFile(filepath, 'utf8');
-        const redirects = load(redirectsContent);
-
-        validateRedirects(redirects as RedirectsConfig, filepath);
-
-        return filepath;
-    } catch (error: any) {
-        if (error.name === 'YAMLException') {
-            throw `Failed to parse ${REDIRECTS_FILENAME}: ${error.message}`;
-        }
-
-        if (error.code === 'ENOENT') {
-            return null;
-        }
-
-        throw error;
     }
 }
 
@@ -75,7 +58,10 @@ function validateRedirects(redirectsConfig: RedirectsConfig, pathToRedirects: st
         `${pathname}: ${message} ${getContext(from, to)}`;
 
     redirects.forEach(({from, to}) => {
-        ok(from && to, formatMessage('One of the two parameters is missing', pathToRedirects, from, to));
+        ok(
+            from && to,
+            formatMessage('One of the two parameters is missing', pathToRedirects, from, to),
+        );
         ok(from !== to, formatMessage('Parameters must be different', pathToRedirects, from, to));
     });
 }

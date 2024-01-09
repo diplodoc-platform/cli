@@ -1,8 +1,7 @@
-import type {Build} from '../../index';
-import type {Command} from '../../../../config';
-
+import type {Build} from '~/cmd';
+import type {Command} from '~/config';
+import {defined} from '~/config';
 import {options} from './config';
-import {defined} from '../../../../config/utils';
 
 export type ContributorsArgs = {
     contributors?: boolean;
@@ -24,6 +23,8 @@ export class Contributors {
         program.hooks.Config.tap('Contributors', (config, args: ContributorsArgs) => {
             config.contributors = defined('contributors', args, config) || false;
             config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];
+
+            return config;
         });
     }
 }

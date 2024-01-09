@@ -1,31 +1,31 @@
-import {option} from '../../../../config/utils';
 import {bold, cyan, green} from 'chalk';
+import {option} from '~/config';
 
 const disableLiquid = option({
     flags: '--disable-liquid',
     desc: 'Disable template engine.',
-    default: false,
+    defaultInfo: false,
     deprecated: 'Use --no-template instead.',
 });
 
 const applyPresets = option({
     flags: '--apply-presets',
     desc: 'Should apply presets.',
-    default: true,
+    defaultInfo: true,
     deprecated: 'Use --template-vars/--no-template-vars instead.',
 });
 
 const resolveConditions = option({
     flags: '--resolve-conditions',
     desc: 'Should resolve conditions.',
-    default: true,
+    defaultInfo: true,
     deprecated: 'Use --template-conditions/--no-template-conditions instead.',
 });
 
 const conditionsInCode = option({
     flags: '--conditions-in-code',
     desc: 'Meet conditions in code blocks.',
-    default: false,
+    defaultInfo: false,
     deprecated: 'Use --template=all or --template=code instead.',
 });
 
@@ -59,7 +59,7 @@ const templateVars = option({
         Example:
           Some text ${green('{{some-variable}}')} end of text.
     `,
-    default: true,
+    defaultInfo: true,
 });
 
 const templateConditions = option({
@@ -72,7 +72,7 @@ const templateConditions = option({
         Example:
           Some text ${green('{% if var == "any" %}')} extra ${green('{% endif %}')} end of text.
     `,
-    default: true,
+    defaultInfo: true,
 });
 
 export const options = {

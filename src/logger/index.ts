@@ -1,4 +1,5 @@
-import {green, yellow, red} from 'chalk';
+import {green, red, yellow} from 'chalk';
+import {pick} from 'lodash';
 
 export enum LogLevel {
     INFO = 'info',
@@ -39,7 +40,7 @@ export class Logger {
                 colors: true,
                 quiet: false,
             },
-            options,
+            pick(options, ['colors', 'quiet']),
         );
 
         this.reset();
@@ -91,7 +92,12 @@ export class Logger {
         this.write(LogLevel.ERROR, 'ERR', red, msg);
     }
 
-    private write(level: LogLevel, prefix: string, color: (message: string) => string, message: string) {
+    private write(
+        level: LogLevel,
+        prefix: string,
+        color: (message: string) => string,
+        message: string,
+    ) {
         this[level].count++;
 
         if (this.options.colors) {

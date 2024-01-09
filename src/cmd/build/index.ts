@@ -1,91 +1,90 @@
-import type {Program} from '../..';
+import type {IProgram, Program, ProgramArgs} from '~/program';
+import type {Config} from '~/config';
 import {ok} from 'node:assert';
-import {resolve, join, isAbsolute} from 'node:path';
+import {isAbsolute, resolve} from 'node:path';
 import {pick} from 'lodash';
-import {SyncHook, AsyncSeriesHook, HookMap} from 'tapable';
-import {TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
+import {AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap, SyncHook} from 'tapable';
+import {Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {argvValidator} from './validator';
-import {Command} from '../../config';
-import {options, resolveConfig, OutputFormat} from './config';
-import {deprecated, defined} from '../../config/utils';
+import {Command, defined, deprecated, resolveConfig} from '~/config';
+import {OutputFormat, options} from './config';
+import {Run} from './run';
 
-import {Logger} from '../../logger';
 import {Templating, TemplatingConfig} from './features/templating';
+import {Publishing, PublishingConfig} from './features/publishing';
 import {Contributors, ContributorsConfig} from './features/contributors';
 import {SinglePage, SinglePageConfig} from './features/singlepage';
+import {Redirects} from './features/redirects';
 
 const isRelative = (path: string) => /^\.{1,2}\//.test(path);
 
-type BaseConfig = {
+type BuildArgs = {
     input: string;
     output: string;
-    outputFormat: OutputFormat;
+    config: string;
+};
+
+type BaseConfig = {
+    outputFormat: `${OutputFormat}`;
     varsPreset: string;
-    vars: Record<string, string>;
+    vars: Record<string, any>;
     allowHtml: boolean;
     // TODO: string[]
     ignoreStage: string;
     addSystemMeta: boolean;
     addMapFile: boolean;
-    publish: boolean;
     removeHiddenTocItems: boolean;
-    // TODO(major): move to saparated 'lint' command
+    // TODO(major): move to separated 'lint' command
     lintDisabled: boolean;
-    // TODO: wtf? if we don't need to build, wy we call build command?
+    // TODO: wtf? if we don't need to build, why we call build command?
     buildDisabled: boolean;
     allowCustomResources: boolean;
     // TODO(major): use as default behavior
     staticContent: boolean;
 };
 
-export type Config = BaseConfig & TemplatingConfig & ContributorsConfig & SinglePageConfig;
+export type BuildConfig = Config<
+    BuildArgs & BaseConfig & TemplatingConfig & PublishingConfig & ContributorsConfig & SinglePageConfig
+>;
 
-export class Run {
-    readonly root: string;
+type ScopedBuildConfig = {
+    build: BuildConfig;
+};
 
-    readonly input: string;
-
-    readonly output: string;
-
-    readonly logger: any;
-
-    constructor(
-        public readonly config: Readonly<Config>,
-        // TODO: remove this param
-        public readonly configPath: string
-    ) {
-        this.root = config.input;
-        deprecated(this, 'rootInput', () => config.input);
-
-        // TODO: use root instead
-        this.input = resolve(config.output, TMP_INPUT_FOLDER);
-        this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
-
-        this.logger = new Logger(config, [
-            (message) => message.replace(new RegExp(this.input, 'ig'), ''),
-        ]);
-    }
-}
-
-export class Build {
+export class Build implements IProgram {
     readonly templating = new Templating();
+
+    readonly publishing = new Publishing();
 
     readonly contributors = new Contributors();
 
     readonly singlepage = new SinglePage();
 
-    readonly command = new Command('build')
-        .description('Build documentation in target directory');
+    readonly redirects = new Redirects();
+
+    readonly command = new Command('build').description('Build documentation in target directory');
 
     readonly hooks = {
         Command: new SyncHook<Command>(['command'], 'Build.Command'),
-        Config: new AsyncSeriesHook<[Record<string, any>, Record<string, any>]>(['config', 'args'], 'Build.Config'),
-        BeforeRun: new HookMap((format: `${OutputFormat}`) => new AsyncSeriesHook<Run>(['run'], `Build.${format}.BeforeRun`)),
-        Run: new HookMap((format: `${OutputFormat}`) => new AsyncSeriesHook<Run>(['run'], `Build.${format}.Run`)),
-        AfterRun: new HookMap((format: `${OutputFormat}`) => new AsyncSeriesHook<Run>(['run'], `Build.${format}.AfterRun`)),
+        Config: new AsyncSeriesWaterfallHook<[Record<string, any>, Record<string, any>]>(
+            ['config', 'args'],
+            'Build.Config',
+        ),
+        BeforeRun: new HookMap(
+            (format: `${OutputFormat}`) =>
+                new AsyncSeriesHook<Run>(['run'], `Build.${format}.BeforeRun`),
+        ),
+        AfterRun: new HookMap(
+            (format: `${OutputFormat}`) =>
+                new AsyncSeriesHook<Run>(['run'], `Build.${format}.AfterRun`),
+        ),
     };
 
-    options = [
+    readonly config!: BuildConfig;
+
+    private parent: IProgram | undefined;
+
+    private options = [
         options.input(this),
         options.output(this),
         options.outputFormat,
@@ -97,28 +96,28 @@ export class Build {
         options.removeHiddenTocItems,
         options.allowCustomResources,
         options.staticContent,
-        options.ignoreStage,
         options.addSystemMeta,
+        options.ignoreStage,
+        options.config(this, YFM_CONFIG_FILENAME),
         options.lintDisabled,
         options.buildDisabled,
-        options.publish,
     ];
 
-    async apply(program: Program) {
+    async apply(program?: Program) {
         this.templating.apply(this);
+        this.publishing.apply(this);
         this.contributors.apply(this);
         this.singlepage.apply(this);
+        this.redirects.apply(this);
 
-        program.hooks.Command.tap('Build', (command) => {
-            command.addCommand(this.command, {isDefault: true});
+        this.parent = program;
 
+        const setupCommand = () => {
             this.options.forEach((option) => {
                 this.command.addOption(option);
             });
-
+            this.command.action((args: ProgramArgs) => this.action(args));
             this.hooks.Command.call(this.command);
-
-            this.command.action(this.action);
 
             // return argv.command({
             //     builder: (argv: Argv) => {
@@ -126,7 +125,13 @@ export class Build {
             //             .check(argvValidator)
             //     },
             // });
-        });
+        };
+
+        if (this.parent) {
+            this.parent.command.addCommand(this.command, {isDefault: true});
+        }
+
+        setupCommand();
 
         this.hooks.Config.tap('Build', (config, args) => {
             const options = this.options.map((option) => option.attributeName());
@@ -135,31 +140,70 @@ export class Build {
             const allowHTML = defined('allowHTML', args, config);
 
             ok(
-                allowHtml !== null && allowHTML !== null && allowHtml === allowHTML,
-                'Options conflict: both allowHtml and allowHTML are configured'
+                (allowHtml !== null && allowHTML !== null && allowHtml === allowHTML) ||
+                    allowHtml === null ||
+                    allowHTML === null,
+                'Options conflict: both allowHtml and allowHTML are configured',
             );
 
             Object.assign(config, pick(args, options));
 
             deprecated(config, 'allowHTML', () => config.allowHtml);
+
+            return config;
         });
     }
 
-    action = async (args) => {
+    async action(args: ProgramArgs) {
+        // @ts-ignore
+        this['config'] = await this.hookConfig(args);
+
+        const run = new Run(this.config);
+
+        if (this.parent) {
+            run.logger.pipe(this.parent.logger);
+        }
+
+        await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
+        await this.handler(run);
+        await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
+    }
+
+    private async handler(run: Run) {
+        // @ts-ignore
         const {handler} = await import('./handler');
 
-        const configPath = isAbsolute(args.config) || isRelative(args.config)
-            ? resolve(args.config)
-            : join(args.input, args.config);
-        const config = await resolveConfig(configPath);
+        return handler(run);
+    }
 
-        await this.hooks.Config.promise(config, args);
+    private async hookConfig(args: ProgramArgs) {
+        const configPath =
+            isAbsolute(args.config) || isRelative(args.config)
+                ? resolve(args.config)
+                : resolve(args.input, args.config);
 
-        const run = new Run(config, configPath);
-        await this.hooks.BeforeRun.for(config.outputFormat).promise(run);
-        await this.hooks.Run.for(config.outputFormat).promise(run);
-        await this.hooks.AfterRun.for(config.outputFormat).promise(run);
+        const defaults: BaseConfig = {
+            outputFormat: OutputFormat.html,
+            varsPreset: 'default',
+            vars: {},
+            allowHtml: true,
+            addMapFile: false,
+            removeHiddenTocItems: false,
+            allowCustomResources: false,
+            staticContent: false,
+            ignoreStage: Stage.SKIP,
+            addSystemMeta: false,
+            lintDisabled: false,
+            buildDisabled: false,
+        };
 
-        // await handler(run);
-    },
+        const config = await resolveConfig<BaseConfig>(configPath, {
+            filter: (data: ScopedBuildConfig | BuildConfig) =>
+                (data as ScopedBuildConfig).build || data,
+            defaults: defaults,
+            fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
+        });
+
+        return this.hooks.Config.promise(config, args);
+    }
 }

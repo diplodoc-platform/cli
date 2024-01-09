@@ -2,5 +2,16 @@
     "extends": ["@diplodoc/eslint-config"],
     "env": {
         "node": true
-    }
+    },
+    "overrides": [
+        {
+            "files": ["*.spec.ts", "**/__tests__/*.ts"],
+            "env": {
+                "jest": true
+            },
+            "rules": {
+                "@typescript-eslint/no-explicit-any": "off"
+            }
+        }
+    ]
 }

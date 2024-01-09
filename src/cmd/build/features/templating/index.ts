@@ -1,7 +1,7 @@
-import type {Build} from '../../index';
-import type {Command} from '../../../../config';
+import type {Build} from '~/cmd';
+import type {Command} from '~/config';
 
-import {deprecated, defined, valuable} from '../../../../config/utils';
+import {defined, deprecated, valuable} from '~/config';
 import {options} from './config';
 
 const merge = (acc: Record<string, any>, ...sources: Record<string, any>[]) => {
@@ -29,7 +29,7 @@ export type TemplatingArgs = {
 };
 
 export type TemplatingConfig = {
-    templating: {
+    template: {
         enabled: boolean;
         scopes: {
             text: boolean;
@@ -71,7 +71,7 @@ export class Templating {
             const templateVars = defined('templateVars', args);
             const templateConditions = defined('templateConditions', args);
 
-            config.templating = merge(
+            config.template = merge(
                 {
                     enabled: true,
                     scopes: {
@@ -84,43 +84,46 @@ export class Templating {
                         cycles: true,
                     },
                 },
-                config.templating || {},
+                config.template || {},
             );
 
             if (valuable(disableLiquid)) {
-                config.templating.enabled = disableLiquid !== true;
+                config.template.enabled = disableLiquid !== true;
             }
 
             if (valuable(conditionsInCode)) {
-                config.templating.scopes.text = conditionsInCode === true;
+                config.template.scopes.code = conditionsInCode === true;
             }
 
             if (valuable(applyPresets)) {
-                config.templating.features.substitutions = applyPresets;
+                config.template.features.substitutions = applyPresets;
             }
 
             if (valuable(resolveConditions)) {
-                config.templating.features.conditions = resolveConditions;
+                config.template.features.conditions = resolveConditions;
             }
 
             if (valuable(template)) {
-                config.templating.enabled = template !== false;
-                config.templating.scopes.text = ['all', 'text'].includes(template as string);
-                config.templating.scopes.code = ['all', 'code'].includes(template as string);
+                config.template.enabled = template !== false;
+
+                config.template.scopes.text = ['all', 'text'].includes(template as string);
+                config.template.scopes.code = ['all', 'code'].includes(template as string);
             }
 
             if (valuable(templateVars)) {
-                config.templating.features.substitutions = templateVars;
+                config.template.features.substitutions = templateVars;
             }
 
             if (valuable(templateConditions)) {
-                config.templating.features.conditions = templateConditions;
+                config.template.features.conditions = templateConditions;
             }
 
-            deprecated(config, 'disableLiquid', () => !config.templating.enabled);
-            deprecated(config, 'applyPresets', () => config.templating.features.substitutions);
-            deprecated(config, 'resolveConditions', () => config.templating.features.conditions);
-            deprecated(config, 'conditionsInCode', () => config.templating.scopes.code);
+            deprecated(config, 'disableLiquid', () => !config.template.enabled);
+            deprecated(config, 'applyPresets', () => config.template.features.substitutions);
+            deprecated(config, 'resolveConditions', () => config.template.features.conditions);
+            deprecated(config, 'conditionsInCode', () => config.template.scopes.code);
+
+            return config;
         });
     }
 }

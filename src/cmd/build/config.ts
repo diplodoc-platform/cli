@@ -1,10 +1,8 @@
+import type {Command} from '~/config';
 import {bold, underline} from 'chalk';
-import {resolve} from 'node:path';
-import {readFile} from 'node:fs/promises';
-import {Command, options as globalOptions} from '../../config';
-import {option, cmd} from '../../config/utils';
-import {load} from 'js-yaml';
-import {Stage, YFM_CONFIG_FILENAME} from '../../constants';
+import {options as globalOptions} from '~/program';
+import {cmd, option} from '~/config';
+import {Stage} from '~/constants';
 
 const output = (program: {command: Command}) =>
     option({
@@ -19,8 +17,8 @@ export enum OutputFormat {
 }
 
 const outputFormat = option({
-    flags: '-f, --output-format <string>',
-    default: 'html',
+    flags: '-f, --output-format <value>',
+    defaultInfo: 'html',
     choices: ['html', 'md'],
     desc: `
         Format of output files. (html or md)
@@ -36,7 +34,7 @@ const outputFormat = option({
 
 const vars = (program: {command: Command}) =>
     option({
-        flags: '-v, --vars',
+        flags: '-v, --vars <value>',
         desc: `
             Pass list of variables directly to build.
             Variables should be passed in JSON format.
@@ -45,11 +43,11 @@ const vars = (program: {command: Command}) =>
             Example:
               ${cmd(program)} -i ./ -o ./build -v '{"name":"test"}'
         `,
-        parser: JSON.parse,
+        parser: (value) => JSON.parse(value),
     });
 
 const varsPreset = option({
-    flags: '--vars-preset <string>',
+    flags: '--vars-preset <value>',
     desc: `
         Select vars preset of documentation.
         Selected preset will be merged with default section of presets.yaml
@@ -59,14 +57,14 @@ const varsPreset = option({
 const allowHTML = option({
     flags: '--allowHTML',
     desc: 'Allow to use HTML in Markdown files.',
-    default: true,
+    defaultInfo: true,
     deprecated: 'Use --allow-html for consistency.',
 });
 
 const allowHtml = option({
     flags: '--allow-html',
     desc: 'Allow to use HTML in Markdown files.',
-    default: true,
+    defaultInfo: true,
 });
 
 // TODO: options below are not beautified.
@@ -91,7 +89,8 @@ const staticContent = option({
 });
 
 const ignoreStage = option({
-    flags: '--ignore-stage',
+    flags: '--ignore-stage <value>',
+    defaultInfo: Stage.SKIP,
     desc: 'Ignore tocs with stage.',
 });
 
@@ -107,14 +106,8 @@ const lintDisabled = option({
 });
 
 const buildDisabled = option({
-    flags: '--lint-disabled',
+    flags: '--build-disabled',
     desc: 'Disable building.',
-});
-
-const publish = option({
-    flags: '--publish',
-    desc: 'Should upload output files to S3 storage.',
-    deprecated: 'Use separated publish command instead.',
 });
 
 export const options = {
@@ -134,38 +127,4 @@ export const options = {
     addSystemMeta,
     lintDisabled,
     buildDisabled,
-    publish,
 };
-
-export async function resolveConfig(configPath: string) {
-    const defaults = {
-        outputFormat: OutputFormat.html,
-        varsPreset: 'default',
-        vars: {},
-        allowHtml: true,
-        addMapFile: false,
-        removeHiddenTocItems: false,
-        allowCustomResources: false,
-        staticContent: false,
-        ignoreStage: Stage.SKIP,
-        addSystemMeta: false,
-        lintDisabled: false,
-        buildDisabled: false,
-        publish: false,
-    };
-
-    try {
-        const content = await readFile(resolve(configPath), 'utf8');
-        const data = load(content) as Record<string, any>;
-
-        return Object.assign(defaults, data.build || data);
-    } catch (error: any) {
-        if (error.name === 'YAMLException') {
-            throw `Failed to parse ${configPath}: ${error.message}`;
-        } else if (error.name === 'ENOENT' && configPath === YFM_CONFIG_FILENAME) {
-            return defaults;
-        } else {
-            throw error;
-        }
-    }
-}

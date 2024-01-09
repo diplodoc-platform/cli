@@ -1,8 +1,7 @@
-import type {Build} from '../../index';
-import type {Command} from '../../../../config';
-
+import type {Build} from '~/cmd';
+import type {Command} from '~/config';
+import {defined} from '~/config';
 import {options} from './config';
-import { defined } from '../../../../config/utils';
 
 export type SinglePageArgs = {
     singlePage?: boolean;
@@ -20,6 +19,8 @@ export class SinglePage {
 
         program.hooks.Config.tap('SinglePage', (config, args: SinglePageArgs) => {
             config.singlePage = defined('singlePage', args, config) || false;
+
+            return config;
         });
     }
 }

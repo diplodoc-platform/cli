@@ -1,4 +1,4 @@
-import type {Argv, Arguments, Options} from 'yargs';
+import type {Arguments, Argv, Options} from 'yargs';
 import type {Program} from '../..';
 import {SyncWaterfallHook} from 'tapable';
 import {join} from 'path';
@@ -90,6 +90,7 @@ export class Publish {
             //     },
             // });
         });
+    }
 }
 
 type Args = {
