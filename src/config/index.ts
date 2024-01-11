@@ -39,6 +39,7 @@ export function toArray(value: string | string[]): string[] {
 export type OptionInfo = {
     flags: string;
     desc: string;
+    env?: string;
     default?: any;
     defaultInfo?: any;
     required?: boolean;
@@ -115,6 +116,10 @@ export function option(o: OptionInfo) {
 
     if (o.parser) {
         result.argParser(o.parser);
+    }
+
+    if (o.env) {
+        result.env(o.env);
     }
 
     if ('required' in o) {

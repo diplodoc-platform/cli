@@ -99,12 +99,6 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
-// TODO: separate lint command, deprecate this flag
-const lintDisabled = option({
-    flags: '--lint-disabled',
-    desc: 'Disable linting.',
-});
-
 const buildDisabled = option({
     flags: '--build-disabled',
     desc: 'Disable building.',
@@ -125,6 +119,5 @@ export const options = {
     staticContent,
     ignoreStage,
     addSystemMeta,
-    lintDisabled,
     buildDisabled,
 };

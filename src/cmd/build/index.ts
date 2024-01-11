@@ -3,9 +3,8 @@ import type {Config} from '~/config';
 import {ok} from 'node:assert';
 import {isAbsolute, resolve} from 'node:path';
 import {pick} from 'lodash';
-import {AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap, SyncHook} from 'tapable';
+import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap, SyncHook} from 'tapable';
 import {Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {argvValidator} from './validator';
 import {Command, defined, deprecated, resolveConfig} from '~/config';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
@@ -15,6 +14,7 @@ import {Publishing, PublishingConfig} from './features/publishing';
 import {Contributors, ContributorsConfig} from './features/contributors';
 import {SinglePage, SinglePageConfig} from './features/singlepage';
 import {Redirects} from './features/redirects';
+import {Linter} from './features/linter';
 
 const isRelative = (path: string) => /^\.{1,2}\//.test(path);
 
@@ -43,6 +43,8 @@ type BaseConfig = {
     staticContent: boolean;
 };
 
+export type {Run};
+
 export type BuildConfig = Config<
     BuildArgs & BaseConfig & TemplatingConfig & PublishingConfig & ContributorsConfig & SinglePageConfig
 >;
@@ -62,7 +64,10 @@ export class Build implements IProgram {
 
     readonly redirects = new Redirects();
 
-    readonly command = new Command('build').description('Build documentation in target directory');
+    readonly linter = new Linter();
+
+    readonly command = new Command('build')
+        .description('Build documentation in target directory');
 
     readonly hooks = {
         Command: new SyncHook<Command>(['command'], 'Build.Command'),
@@ -73,6 +78,10 @@ export class Build implements IProgram {
         BeforeRun: new HookMap(
             (format: `${OutputFormat}`) =>
                 new AsyncSeriesHook<Run>(['run'], `Build.${format}.BeforeRun`),
+        ),
+        Run: new HookMap(
+            (format: `${OutputFormat}`) =>
+                new AsyncParallelHook<Run>(['run'], `Build.${format}.BeforeRun`),
         ),
         AfterRun: new HookMap(
             (format: `${OutputFormat}`) =>
@@ -99,7 +108,6 @@ export class Build implements IProgram {
         options.addSystemMeta,
         options.ignoreStage,
         options.config(this, YFM_CONFIG_FILENAME),
-        options.lintDisabled,
         options.buildDisabled,
     ];
 
@@ -109,6 +117,7 @@ export class Build implements IProgram {
         this.contributors.apply(this);
         this.singlepage.apply(this);
         this.redirects.apply(this);
+        this.linter.apply(this);
 
         this.parent = program;
 
@@ -118,13 +127,6 @@ export class Build implements IProgram {
             });
             this.command.action((args: ProgramArgs) => this.action(args));
             this.hooks.Command.call(this.command);
-
-            // return argv.command({
-            //     builder: (argv: Argv) => {
-            //         return argv
-            //             .check(argvValidator)
-            //     },
-            // });
         };
 
         if (this.parent) {

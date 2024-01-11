@@ -20,7 +20,6 @@ import shell from 'shelljs';
 import {Resources} from '../../models';
 import {configPath} from '~/config';
 import {copyFiles} from '../../utils';
-import {upload as publishFilesToS3} from '../publish/upload';
 import glob from 'glob';
 
 export async function handler(run: Run) {
@@ -38,7 +37,6 @@ export async function handler(run: Run) {
         const {
             output: outputFolderPath,
             outputFormat,
-            publish,
             lintDisabled,
             buildDisabled,
             addMapFile,
@@ -77,7 +75,7 @@ export async function handler(run: Run) {
                     processAssets(outputBundlePath);
                     break;
                 case 'md': {
-                    shell.cp(resolve(run.config[configPath]), run.output);
+                    shell.cp(resolve(run.config[configPath] as string), run.output);
                     shell.cp(resolve(pathToLintConfig), run.output);
 
                     if (resources && allowCustomResources) {
@@ -101,30 +99,6 @@ export async function handler(run: Run) {
 
             // Copy all generated files to user' output folder
             shell.cp('-r', [join(run.output, '*'), join(run.output, '.*')], userOutputFolder);
-
-            if (publish) {
-                const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
-                const {
-                    ignore = [],
-                    storageRegion,
-                    storageEndpoint: endpoint,
-                    storageBucket: bucket,
-                    storagePrefix: prefix = DEFAULT_PREFIX,
-                    storageKeyId: accessKeyId,
-                    storageSecretKey: secretAccessKey,
-                } = ArgvService.getConfig();
-
-                await publishFilesToS3({
-                    input: userOutputFolder,
-                    region: storageRegion,
-                    ignore,
-                    endpoint,
-                    bucket,
-                    prefix,
-                    accessKeyId,
-                    secretAccessKey,
-                });
-            }
         }
     } catch (error: any) {
         run.logger.error(error.message);

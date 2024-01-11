@@ -20,10 +20,20 @@ const storageBucket = option({
     hidden: true,
 });
 
+const storagePrefix = option({
+    flags: '--storage-prefix <value>',
+    desc: 'Bucket internal scope of S3 storage.',
+    env: 'YFM_STORAGE_PREFIX',
+    // defaultInfo: process.env.YFM_STORAGE_PREFIX,
+    deprecated: 'Use separated publish command instead.',
+    hidden: true,
+});
+
 const storageKeyId = option({
     flags: '--storage-key-id <value>',
     desc: 'Key Id of S3 storage.',
-    defaultInfo: process.env.YFM_STORAGE_KEY_ID,
+    env: 'YFM_STORAGE_KEY_ID',
+    // defaultInfo: process.env.YFM_STORAGE_KEY_ID,
     deprecated: 'Use separated publish command instead.',
     hidden: true,
 });
@@ -31,7 +41,8 @@ const storageKeyId = option({
 const storageSecretKey = option({
     flags: '--storage-secret-key <value>',
     desc: 'Secret key of S3 storage.',
-    defaultInfo: process.env.YFM_STORAGE_SECRET_KEY,
+    env: 'YFM_STORAGE_SECRET_KEY',
+    // defaultInfo: process.env.YFM_STORAGE_SECRET_KEY,
     deprecated: 'Use separated publish command instead.',
     hidden: true,
 });
@@ -48,6 +59,7 @@ export const options = {
     publish,
     storageEndpoint,
     storageBucket,
+    storagePrefix,
     storageKeyId,
     storageSecretKey,
     storageRegion,
