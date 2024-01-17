@@ -1,10 +1,9 @@
 import walkSync from 'walk-sync';
-import shell from 'shelljs';
 
 import {ArgvService} from '../services';
 import {copyFiles} from '../utils';
 
-import {ASSETS_FOLDER} from '../constants';
+import {ASSETS_FOLDER, RTL_LANGS} from '../constants';
 
 /**
  * Processes assets files (everything except .yaml and .md files)
@@ -12,17 +11,27 @@ import {ASSETS_FOLDER} from '../constants';
  * @return {void}
  */
 export function processAssets(outputBundlePath: string) {
-    const {input: inputFolderPath, output: outputFolderPath} = ArgvService.getConfig();
+    const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
 
-    const assetFilePath: string[] = walkSync(inputFolderPath, {
+    const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
         directories: false,
         includeBasePath: false,
         ignore: ['**/*.yaml', '**/*.md'],
     });
 
-    copyFiles(inputFolderPath, outputFolderPath, assetFilePath);
+    copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
 
-    /* Copy js bundle to user' output folder */
-    shell.mkdir('-p', outputBundlePath);
-    shell.cp(ASSETS_FOLDER + '/*', outputBundlePath);
+    const hasRTLlang = hasIntersection(langs, RTL_LANGS);
+    const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
+        directories: false,
+        includeBasePath: false,
+        ignore: !hasRTLlang && ['**/*.rtl.css'],
+    });
+
+    copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+}
+
+function hasIntersection(array1, array2) {
+    const set1 = new Set(array1);
+    return array2.some(element => set1.has(element));
 }
