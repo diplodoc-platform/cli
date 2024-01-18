@@ -3,14 +3,12 @@
   "compilerOptions": {
     "target": "es6",
     "moduleResolution": "NodeNext",
-    "outDir": "build"
+    "outDir": "build",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"],
-  "types": ["node"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  }
+  "types": ["node"]
 }
