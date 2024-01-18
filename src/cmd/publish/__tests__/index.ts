@@ -1,17 +1,17 @@
 import type {Run} from '../run';
 import type {Mock} from 'vitest';
-import type {BuildConfig} from '..';
+import type {PublishConfig} from '..';
 
 import {expect, it, vi} from 'vitest';
-import {Build} from '..';
-import {handler as originalHandler} from '../handler';
+import {Publish} from '..';
+import {upload as originalUpload} from '../upload';
 
-export const handler = originalHandler as Mock;
+export const upload = originalUpload as Mock;
 
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
 
-vi.mock('../handler');
+vi.mock('../upload');
 vi.mock('~/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -23,24 +23,24 @@ vi.mock('~/config', async (importOriginal) => {
     };
 });
 
-export async function runBuild(args: string) {
-    const build = new Build();
+export async function runPublish(args: string) {
+    const publish = new Publish();
 
-    build.apply();
+    publish.apply();
 
-    await build.parse(['node', 'index'].concat(args.split(' ')));
+    await publish.parse(['node', 'index'].concat(args.split(' ')));
 }
 
 type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends Record<any, any> ? DeepPartial<T[P]> : T[P];
 };
 
-export function testConfig(name: string, args: string, result: DeepPartial<BuildConfig>): void;
+export function testConfig(name: string, args: string, result: DeepPartial<PublishConfig>): void;
 export function testConfig(
     name: string,
     args: string,
-    config: DeepPartial<BuildConfig>,
-    result: DeepPartial<BuildConfig>,
+    config: DeepPartial<PublishConfig>,
+    result: DeepPartial<PublishConfig>,
 ): void;
 export function testConfig(name: string, args: string, config: any, result?: any): void {
     it(name, async () => {
@@ -56,12 +56,12 @@ export function testConfig(name: string, args: string, config: any, result?: any
             };
         });
 
-        handler.mockImplementation((run: Run) => {
-            expect(run.config).toMatchObject(result as Partial<BuildConfig>);
+        upload.mockImplementation((run: Run) => {
+            expect(run.config).toMatchObject(result as Partial<PublishConfig>);
         });
 
-        await runBuild('--input ./input --output ./output ' + args);
+        await runPublish('--input ./input --output ./output ' + args);
 
-        expect(handler).toBeCalled();
+        expect(upload).toBeCalled();
     });
 }

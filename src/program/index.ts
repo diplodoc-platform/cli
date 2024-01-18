@@ -1,69 +1,61 @@
-import type {Config} from '~/config';
-import type {ProgramArgs, ProgramConfig} from './types';
-import {isAbsolute, resolve} from 'node:path';
-import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook, SyncWaterfallHook} from 'tapable';
+import type {ICallable, IParent, IProgram} from './types';
+import {resolve} from 'node:path';
+import {omit} from 'lodash';
+import {SyncWaterfallHook} from 'tapable';
 
-import {Command, configRoot, resolveConfig} from '~/config';
-import {MAIN_TIMER_ID, YFM_CONFIG_FILENAME} from '~/constants';
+import {Command, configRoot} from '~/config';
+import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build, Publish, translate, xliff} from '~/cmd';
 
 import {NAME, USAGE, options} from './config';
 import {HandledError, isRelative} from './utils';
+import {BaseProgram} from './base';
 
-export type {ProgramConfig, ProgramArgs};
+export type {IProgram, IParent, ICallable};
+export {options, HandledError, BaseProgram};
 
-export {options};
+export type ExtensionInfo = {
+    path: string;
+    options: Record<string, any>;
+};
 
-/**
- * Program should follow some simple rules:
- * 1. It is a base independent unit which can contain subprograms or do something by itself.
- *    (NOT BOTH)
- * 2. Required 'apply' method serves for: ```
- * - initial data binding
- * - subprograms initialisation
- * - hooks subscription
- * - error handling
- * ```
- * 3. Program can be subprogram. This can be detected by non empty param passed to `apply` method.
- *    But anyway program should be independent unit.
- * 4. Optional 'action' method - is a main place for hooks call.
- *    For compatibility with Commander.Command->action methos result shoul be void.
- * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
- *    (example: hookConfig)
- */
-export interface IProgram extends ICallable {
-    command: Command;
+export type ProgramConfig = {
+    input: string;
+    config: string;
+    extensions: ExtensionInfo[];
+    quiet: boolean;
+    strict: boolean;
+};
 
-    action?: (props: ProgramArgs) => Promise<void> | void;
+export type ProgramArgs = {
+    input: string;
+    config: string;
+    extensions: string[];
+    quiet: boolean;
+    strict: boolean;
+};
 
-    hooks?: Record<string, Hook<any, any> | HookMap<any>>;
-}
+const hooks = () => ({
+    Extension: new SyncWaterfallHook<ICallable>(['extension'], 'Program.Extension'),
+});
 
-export interface ICallable {
-    apply(program?: Program): Promise<void> | void;
-}
+export type ProgramHooks = ReturnType<typeof hooks>;
 
-export class Program implements IProgram {
-    readonly hooks = {
-        Config: new AsyncSeriesWaterfallHook<[Config<ProgramConfig>, Record<string, any>]>(
-            ['config', 'args'],
-            'Program.Config',
-        ),
-        Command: new SyncHook<Command>(['command'], 'Program.Command'),
-        Extension: new SyncWaterfallHook<ICallable>(['extension'], 'Program.Extension'),
-    };
-
-    readonly build = new Build();
-
-    readonly publish = new Publish();
-
-    readonly config!: Readonly<Config<ProgramConfig>>;
-
+export class Program
+    // eslint-disable-next-line new-cap
+    extends BaseProgram<ProgramConfig, ProgramArgs, ProgramHooks>('Program', {
+        config: {
+            defaults: () => ({
+                extensions: [] as ExtensionInfo[],
+            }),
+        },
+        hooks: hooks(),
+    })
+    implements IProgram
+{
     readonly command: Command = new Command(NAME)
-        .addOption(options.config(this, YFM_CONFIG_FILENAME))
-        .addOption(options.extensions(this))
-        .addOption(options.quiet)
-        .addOption(options.strict)
+        .helpOption(false)
+        .allowUnknownOption(true)
         .version(
             typeof VERSION !== 'undefined' ? VERSION : '',
             '--version',
@@ -71,117 +63,74 @@ export class Program implements IProgram {
         )
         .usage(USAGE);
 
-    private props: Command = new Command()
-        .helpOption(false)
-        .allowUnknownOption()
-        .addOption(options.config(this, YFM_CONFIG_FILENAME))
-        .addOption(options.extensions(this))
-        .addOption(options.input(this, './'))
-        .addOption(options.quiet);
+    readonly build = new Build();
 
-    private modules!: ICallable[];
+    readonly publish = new Publish();
 
-    constructor(readonly args: string[]) {}
+    protected options = [
+        options.input('./'),
+        options.config(YFM_CONFIG_FILENAME),
+        options.extensions,
+        options.quiet,
+        options.strict,
+    ];
 
-    async apply() {
-        console.time(MAIN_TIMER_ID);
+    private readonly modules: ICallable[] = [this.build, this.publish];
 
-        const props = this.props.parse(this.args).opts() as ProgramArgs;
-        try {
-            await this.action(props);
-        } catch (error: any) {
-            console.error(error.message || error);
-            process.exit(1);
-        }
-        // const {error, result} = await this.action(props);
+    apply() {
+        this.hooks.Config.tap('Program', (config, args) => {
+            Object.assign(config, omit(args, ['extensions']));
 
-        // if (error) {
-        //     if (!(error instanceof HandledError)) {
-        //         console.error(error);
-        //     }
-        // } else {
-        //     console.log(result);
-        // }
+            // args extension paths should be relative to PWD
+            const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext: string) => {
+                const path = isRelative(ext) ? resolve(ext) : ext;
+                const options = {};
 
-        console.timeEnd(MAIN_TIMER_ID);
-        process.exit(error ? 1 : 0);
+                return {path, options};
+            });
+
+            // config extension paths should be relative to config
+            const configExtensions: ExtensionInfo[] = (config.extensions || []).map(
+                (ext: ExtensionInfo | string) => {
+                    const extPath = typeof ext === 'string' ? ext : ext.path;
+                    const path = isRelative(extPath)
+                        ? resolve(config[configRoot], extPath)
+                        : extPath;
+                    const options = typeof ext === 'string' ? {} : ext.options || {};
+
+                    return {path, options};
+                },
+            );
+
+            config.extensions = [...argsExtensions, ...configExtensions];
+
+            return config;
+        });
     }
 
-    async action(args: ProgramArgs) {
-        // @ts-ignore
-        this['config'] = await this.hookConfig(args);
-        this['modules'] = await this.hookExtensions(args);
+    async action() {
+        this.modules.push(...(await this.hookExtensions()));
 
-        await this.modules.reduce(
-            (promise, module) => promise.then(() => module.apply(this)),
-            Promise.resolve(),
-        );
+        for (const module of this.modules) {
+            module.apply(this);
+        }
 
         this.hooks.Command.call(this.command);
 
-        await this.command.parseAsync(this.args);
-
-        // return {};
-        // return new Promise((resolve) => {
-        //     yargs.parse(this.args, {}, (error, {strict}, result) => {
-        //         if (error) {
-        //             resolve({error});
-        //         } else {
-        //             const {warn, error} = log.get();
-        //
-        //             if (error.length || strict && warn.length) {
-        //                 resolve({error: new HandledError()});
-        //             } else {
-        //                 resolve({result});
-        //             }
-        //         }
-        //     });
-        // });
+        // There command was fully initialized
+        // and on next run this action will not be called.
+        // Instead will be called action of some subprogram.
+        await this.command.helpOption(true).allowUnknownOption(false).parseAsync(this.args);
     }
 
-    private async hookConfig(props: ProgramArgs) {
-        const configPath =
-            isAbsolute(props.config) || isRelative(props.config)
-                ? resolve(props.config)
-                : resolve(props.input, props.config);
-
-        const defaults: ProgramConfig = {
-            extensions: [],
-        };
-
-        const config = await resolveConfig(configPath, {
-            defaults: defaults,
-            fallback: props.config === YFM_CONFIG_FILENAME ? defaults : null,
-        });
-
-        return this.hooks.Config.promise(config, props);
-    }
-
-    private async hookExtensions(props: ProgramArgs) {
-        const build = async (path: string, options: Record<string, any>) => {
+    private async hookExtensions() {
+        const build = async ({path, options}: {path: string; options: Record<string, unknown>}) => {
             const ExtensionModule = await import(path);
             const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
             return this.hooks.Extension.call(new Extension(options));
         };
 
-        const modules: ICallable[] = [this.build, this.publish];
-
-        for (const ext of props.extensions) {
-            const path = isRelative(ext) ? resolve(ext) : ext;
-            const options = {};
-
-            modules.push(await build(path, options));
-        }
-
-        for (const ext of this.config.extensions) {
-            const extPath = typeof ext === 'string' ? ext : ext.path;
-            const path = isRelative(extPath) ? resolve(this.config[configRoot], extPath) : extPath;
-            const options = typeof ext === 'string' ? {} : ext.options || {};
-
-            modules.push(await build(path, options));
-        }
-
-        return modules;
+        return Promise.all(this.config.extensions.map(build));
     }
 }

@@ -1,46 +1,19 @@
-import {createReadStream} from 'fs';
-import walkSync from 'walk-sync';
-import {join, resolve} from 'path';
-import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import mime from 'mime-types';
-
-import {convertBackSlashToSlash, logger} from '../../utils';
+import type {Run} from './run';
 import {asyncify, mapLimit} from 'async';
+import walkSync from 'walk-sync';
+import mime from 'mime-types';
+import {LogLevel} from '~/logger';
 
-interface UploadProps {
-    input: string;
-    ignore: string[];
-    endpoint: string;
-    bucket: string;
-    prefix: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-    region: string;
-}
+export async function upload(run: Run): Promise<void> {
+    const {hidden = []} = run.config;
 
-export async function upload(props: UploadProps): Promise<void> {
-    const {
-        input,
-        ignore = [],
-        endpoint,
-        region,
-        bucket,
-        prefix,
-        accessKeyId,
-        secretAccessKey,
-    } = props;
-
-    const s3Client = new S3Client({
-        endpoint,
-        region,
-        credentials: {accessKeyId, secretAccessKey},
-    });
-
-    const filesToPublish: string[] = walkSync(resolve(input), {
+    const filesToPublish: string[] = walkSync(run.root, {
         directories: false,
         includeBasePath: false,
-        ignore,
+        ignore: hidden,
     });
+
+    const logUpload = run.logger.topic(LogLevel.INFO, 'UPLOAD');
 
     await mapLimit(
         filesToPublish,
@@ -48,19 +21,13 @@ export async function upload(props: UploadProps): Promise<void> {
         asyncify(async (pathToFile: string) => {
             const mimeType = mime.lookup(pathToFile);
 
-            logger.upload(pathToFile);
+            logUpload(pathToFile);
 
             try {
-                await s3Client.send(
-                    new PutObjectCommand({
-                        ContentType: mimeType ? mimeType : undefined,
-                        Bucket: bucket,
-                        Key: convertBackSlashToSlash(join(prefix, pathToFile)),
-                        Body: createReadStream(resolve(input, pathToFile)),
-                    }),
-                );
+                await run.send(pathToFile, mimeType);
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
             } catch (error: any) {
-                logger.error(pathToFile, error.message);
+                run.logger.error(pathToFile, error.message);
             }
         }),
     );

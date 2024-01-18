@@ -22,16 +22,20 @@ export class Redirects {
 
         program.hooks.BeforeRun.for('md').tap('Redirects', async (run) => {
             try {
-                const redirects = await resolveConfig<RedirectsConfig>(resolve(run.root, REDIRECTS_FILENAME), {
-                    fallback: {common: []}
-                });
+                const redirects = await resolveConfig<RedirectsConfig>(
+                    resolve(run.root, REDIRECTS_FILENAME),
+                    {
+                        fallback: {common: []},
+                    },
+                );
 
                 if (redirects[configPath]) {
                     resolvedPath = redirects[configPath];
                     validateRedirects(redirects, resolvedPath);
                 }
-            } catch (error) {
-                run.logger.error(error);
+                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+            } catch (error: any) {
+                run.logger.error(error.message || error);
             }
         });
 

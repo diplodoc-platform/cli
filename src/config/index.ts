@@ -28,32 +28,39 @@ export function trim(string: string | TemplateStringsArray): string {
     return lines.join('\n').trim();
 }
 
-export function toArray(value: string | string[]): string[] {
-    if (!Array.isArray(value)) {
-        value = [value];
+export function toArray(value: string, previous: string | string[]) {
+    if (previous) {
+        if (Array.isArray(previous)) {
+            return previous.concat(value);
+        } else {
+            return [previous, value];
+        }
     }
 
-    return value;
+    return [value];
 }
 
 export type OptionInfo = {
     flags: string;
     desc: string;
     env?: string;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     default?: any;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     defaultInfo?: any;
     required?: boolean;
     choices?: string[];
     hidden?: boolean;
     deprecated?: string;
-    parser?: (value: string, previous: unknown) => unknown;
+    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+    parser?: (value: string, previous: any) => any;
 };
 
-export function cmd(program: {command: Command}) {
-    const cmdName = program.command.name();
+export function cmd(command: Command) {
+    const cmdName = command.name();
 
     let ancestorCmdNames = '';
-    for (let ancestorCmd = program.command.parent; ancestorCmd; ancestorCmd = ancestorCmd.parent) {
+    for (let ancestorCmd = command.parent; ancestorCmd; ancestorCmd = ancestorCmd.parent) {
         ancestorCmdNames = ancestorCmd.name() + ' ' + ancestorCmdNames;
     }
 
@@ -62,7 +69,22 @@ export function cmd(program: {command: Command}) {
 
 const deprecatedArg = (reason: string) => yellow('\nDEPRECATED:\n' + reason);
 
-export const deprecated = (config: Record<string, any>, option: string, value: () => any) => {
+export const scope = (scopeName: string) => (config: Hash) => {
+    return config[scopeName] || config;
+};
+
+export const strictScope = (scopeName: string) => (config: Hash) => {
+    if (scopeName in config) {
+        return config[scopeName];
+    } else {
+        const error = new TypeError(`Scope ${scopeName} doesn't exist in config`);
+        error.name = 'ScopeException';
+        throw error;
+    }
+};
+
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
+export const deprecated = (config: Hash, option: string, value: () => any) => {
     Object.defineProperty(config, option, {
         enumerable: false,
         get: () => {
@@ -74,7 +96,7 @@ export const deprecated = (config: Record<string, any>, option: string, value: (
     });
 };
 
-export const defined = (option: string, ...scopes: Record<string, any>[]) => {
+export const defined = (option: string, ...scopes: Hash[]) => {
     for (const scope of scopes) {
         if (option in scope) {
             return scope[option];
@@ -84,14 +106,15 @@ export const defined = (option: string, ...scopes: Record<string, any>[]) => {
     return null;
 };
 
+// eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export const valuable = (...values: any[]) => values.some((value) => value !== null);
 
-type ExtendedOption = Option & {
+const OptionSource = Symbol('OptionSource');
+
+export type ExtendedOption = Option & {
     defaultInfo?: string;
     [OptionSource]: OptionInfo;
 };
-
-const OptionSource = Symbol('OptionSource');
 
 export function option(o: OptionInfo) {
     if (o.deprecated) {
@@ -144,34 +167,43 @@ type ConfigUtils = {
 
 export type Config<T> = T & ConfigUtils;
 
-export async function resolveConfig<T extends Record<string, any> = {}>(
+export function withConfigUtils<T extends Hash = Hash>(path: string, config: T): Config<T> {
+    return {
+        ...config,
+        [configRoot]: dirname(resolve(path)),
+        [configPath]: resolve(path),
+    };
+}
+
+export async function resolveConfig<T extends Hash = {}>(
     path: string,
     {
         defaults,
         fallback,
         filter = identity,
     }: {
-        filter?: (data: Record<string, unknown>) => T;
+        filter?: (data: Hash) => T;
         defaults?: T;
         fallback?: T | null;
     } = {},
 ): Promise<Config<T>> {
-    const config = {
-        [configRoot]: dirname(resolve(path)),
-    };
-
     try {
         const content = await readFile(resolve(path), 'utf8');
-        const data = load(content) as Record<string, unknown>;
+        const data = load(content) as Hash;
 
-        return Object.assign(config, {[configPath]: resolve(path)}, defaults, filter(data));
+        return withConfigUtils(path, {
+            ...defaults,
+            ...filter(data),
+        });
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         switch (error.name) {
             case 'YAMLException':
-                throw `Failed to parse ${path}: ${error.message}`;
+                throw new Error(`Failed to parse ${path}: ${error.message}`);
+            case 'ScopeException':
             case 'ENOENT':
-                if (fallback !== undefined) {
-                    return Object.assign(config, fallback);
+                if (fallback) {
+                    return withConfigUtils(path, fallback);
                 } else {
                     throw error;
                 }
@@ -212,6 +244,7 @@ export class Help extends BaseHelp {
         return trim(option.description) + '\n\n\n';
     }
 
+    // Ugly method - copypasted from commander source
     wrap(str: string, width: number, indent: number, minColumnWidth = 40): string {
         const columnWidth = width - indent;
         if (columnWidth < minColumnWidth) {
@@ -276,6 +309,10 @@ export class Command extends BaseCommand {
             delete negated.deprecated;
 
             super.addOption(option(negated));
+        }
+
+        if (o.description) {
+            o.description = o.description.replace(/{{PROGRAM}}/g, cmd(this));
         }
 
         return this;

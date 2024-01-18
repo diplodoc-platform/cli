@@ -1,123 +1,75 @@
-import type {Arguments, Argv, Options} from 'yargs';
-import type {Program} from '../..';
-import {SyncWaterfallHook} from 'tapable';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import {join} from 'path';
-import {ArgvService} from '../../services';
-import {logger} from '../../utils';
 
+import {BaseProgram} from '~/program/base';
+import {Command} from '~/config';
+import {options} from './config';
 import {upload} from './upload';
-import {Command} from '../../config';
+import {Run} from './run';
 
-export class Publish {
-    hooks = {
-        Options: new SyncWaterfallHook<Record<string, Options>>(['options'], 'Build.Options'),
-    };
+export {upload, Run};
 
-    apply(program: Program) {
-        program.hooks.Command.tap('Build', (command: Command) => {
-            const options = this.hooks.Options.call({
-                strict: {
-                    default: true,
-                },
-                input: {
-                    alias: 'i',
-                    describe: 'Path to folder with builded files',
-                    type: 'string',
-                    required: true,
-                    group: 'Upload options',
-                },
-                endpoint: {
-                    describe: 'S3 bucket endpoint',
-                    default: 'https://s3.amazonaws.com',
-                    type: 'string',
-                    group: 'Upload options',
-                },
-                region: {
-                    describe: 'S3 bucket region',
-                    default: 'eu-central-1',
-                    type: 'string',
-                    group: 'Upload options',
-                },
-                bucket: {
-                    describe: 'S3 bucket name',
-                    type: 'string',
-                    required: true,
-                    group: 'Upload options',
-                },
-                prefix: {
-                    describe: 'S3 bucket ',
-                    default: '',
-                    type: 'string',
-                    group: 'Upload options',
-                },
-                'access-key-id': {
-                    describe: 'S3 bucket AccessKeyId',
-                    type: 'string',
-                    required: true,
-                    group: 'Upload options',
-                },
-                'secret-access-key': {
-                    describe: 'S3 bucket SecretAccessKey',
-                    type: 'string',
-                    required: true,
-                    group: 'Upload options',
-                },
-            });
-
-            // return argv.command({
-            //     command: ['publish'],
-            //     describe: 'Upload builded documentation to target S3 bucket',
-            //     handler: async (args: Arguments<any>) => {
-            //         ArgvService.init({
-            //             ...args,
-            //         });
-            //
-            //         const {input, endpoint, bucket, prefix} = ArgvService.getConfig();
-            //
-            //         logger.info(
-            //             '',
-            //             `Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`,
-            //         );
-            //
-            //         try {
-            //             await upload(ArgvService.getConfig());
-            //         } catch (error: any) {
-            //             logger.error('', error.message);
-            //         }
-            //     },
-            //     builder: (argv: Argv) => {
-            //         return argv.options(options);
-            //     },
-            // });
-        });
-    }
-}
-
-type Args = {
-    input: string;
+export type PublishArgs = ProgramArgs & {
     endpoint: string;
-    region: string;
     bucket: string;
     prefix: string;
-    ignore: string[];
+    region: string;
     accessKeyId: string;
     secretAccessKey: string;
+    hidden: string[];
 };
 
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-async function handler(args: Arguments<Args>) {
-    ArgvService.init({
-        ...args,
-    });
+export type PublishConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+    endpoint: string;
+    bucket: string;
+    prefix: string;
+    region: string;
+    accessKeyId: string;
+    secretAccessKey: string;
+    hidden: string[];
+};
 
-    const config = ArgvService.getConfig() as unknown as Args;
-    const {input, endpoint, bucket, prefix} = config;
+export class Publish
+    // eslint-disable-next-line new-cap
+    extends BaseProgram<PublishConfig, PublishArgs, {}>('Publish', {
+        config: {
+            defaults: () => ({}),
+            strictScope: 'publish',
+        },
+        hooks: {},
+    })
+    implements IProgram<PublishArgs>
+{
+    readonly command = new Command('publish').description(
+        'Publish built documentation in target aws s3 compatible storage.',
+    );
 
-    logger.info('', `Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`);
+    readonly options = [
+        options.endpoint,
+        options.bucket,
+        options.prefix,
+        options.accessKeyId,
+        options.secreAccessKey,
+        options.region,
+        options.hidden,
+    ];
 
-    try {
-        await upload(config);
-    } catch (error: any) {
-        logger.error('', error.message);
+    async action() {
+        const run = new Run(this.config);
+
+        await this.handler(run);
+    }
+
+    async handler(run: Run) {
+        const {input, endpoint, bucket, prefix} = this.config;
+
+        this.logger.info(`Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`);
+
+        try {
+            await upload(run);
+            // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+        } catch (error: any) {
+            this.logger.error(error.message || error);
+        }
     }
 }

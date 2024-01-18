@@ -15,7 +15,7 @@ export class Run {
 
     readonly output: string;
 
-    readonly logger: any;
+    readonly logger: Logger;
 
     constructor(readonly config: BuildConfig) {
         this.root = config.input;

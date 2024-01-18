@@ -1,19 +1,22 @@
 import type {Build, Run} from '../..';
 import type {Command} from '~/config';
-import {options} from './config';
 import {defined} from '~/config';
-import {upload} from '~/cmd/publish/upload';
-import {MultiHook} from 'tapable';
+import {Run as UploadRun, upload} from '~/cmd/publish';
+import {options} from './config';
+
+export type PublishingArgs = {
+    publish: boolean;
+    storageEndpoint: string;
+    storageRegion: string;
+    storageBucket: string;
+    storagePrefix: string;
+    storageKeyId: string;
+    storageSecretKey: string;
+};
 
 export type PublishingConfig = {
     publish: boolean;
-    endpoint: string;
-    region: string;
-    bucket: string;
-    prefix: string;
-    accessKeyId: string;
-    secretAccessKey: string;
-};
+} & StorageInfo;
 
 type StorageInfo = {
     endpoint: string;
@@ -44,16 +47,17 @@ export class Publishing {
         });
 
         program.hooks.Config.tap('Publishing', (config, args) => {
-            if (config.storageSecretKey || config.storageKeyId) {
-                throw new Error('Storage secret key should not be storen in config.');
+            if (args.storageSecretKey || args.storageKeyId) {
+                throw new Error('Storage secret key should not be stored in config.');
             }
 
-            const publish = defined('publish', args, config) || false;
+            config.publish = defined('publish', args, config) || false;
 
-            if (publish) {
+            if (config.publish) {
                 props = {
                     endpoint: defined('storageEndpoint', args, config) || '',
-                    region: defined('storageRegion', args, config) || options.storageRegion.defaultInfo,
+                    region:
+                        defined('storageRegion', args, config) || options.storageRegion.defaultInfo,
                     bucket: defined('storageBucket', args, config) || '',
                     prefix: defined('storagePrefix', args, config) || '',
                     accessKeyId: defined('storageKeyId', args) || '',
@@ -64,16 +68,16 @@ export class Publishing {
             return config;
         });
 
-        new MultiHook([
-            program.hooks.AfterRun.for('md'),
-            program.hooks.AfterRun.for('html'),
-        ], 'AfterRun').tap('Publishing', async (run: Run) => {
+        program.hooks.AfterAnyRun.tapPromise('Publishing', async (run: Run) => {
             if (props) {
-                await upload({
-                    input: run.output,
-                    ignore: run.config.ignore,
-                    ...props,
-                });
+                await upload(
+                    new UploadRun({
+                        input: run.output,
+                        hidden: run.config.hidden,
+                        quiet: run.config.quiet,
+                        ...props,
+                    }),
+                );
             }
         });
     }

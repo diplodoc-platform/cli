@@ -1,15 +1,13 @@
-import type {Command} from '~/config';
 import {bold, underline} from 'chalk';
 import {options as globalOptions} from '~/program';
-import {cmd, option} from '~/config';
+import {option, toArray} from '~/config';
 import {Stage} from '~/constants';
 
-const output = (program: {command: Command}) =>
-    option({
-        flags: '-o, --output <string>',
-        desc: `Configure path to ${cmd(program)} output directory.`,
-        required: true,
-    });
+const output = option({
+    flags: '-o, --output <string>',
+    desc: `Configure path to {{PROGRAM}} output directory.`,
+    required: true,
+});
 
 export enum OutputFormat {
     md = 'md',
@@ -32,19 +30,18 @@ const outputFormat = option({
     `,
 });
 
-const vars = (program: {command: Command}) =>
-    option({
-        flags: '-v, --vars <value>',
-        desc: `
-            Pass list of variables directly to build.
-            Variables should be passed in JSON format.
-            Passed variables overrides the same in presets.yaml
+const vars = option({
+    flags: '-v, --vars <json>',
+    desc: `
+        Pass list of variables directly to build.
+        Variables should be passed in JSON format.
+        Passed variables overrides the same in presets.yaml
 
-            Example:
-              ${cmd(program)} -i ./ -o ./build -v '{"name":"test"}'
-        `,
-        parser: (value) => JSON.parse(value),
-    });
+        Example:
+          {{PROGRAM}} -i ./ -o ./build -v '{"name":"test"}'
+    `,
+    parser: (value) => JSON.parse(value),
+});
 
 const varsPreset = option({
     flags: '--vars-preset <value>',
@@ -65,6 +62,17 @@ const allowHtml = option({
     flags: '--allow-html',
     desc: 'Allow to use HTML in Markdown files.',
     defaultInfo: true,
+});
+
+const hidden = option({
+    flags: '--hidden <glob>',
+    desc: `
+        Do not process paths matched by glob.
+
+        Example:
+            {{PROGRAM}} -i ./input -o ./output --hidden *.bad.md
+    `,
+    parser: toArray,
 });
 
 // TODO: options below are not beautified.
@@ -117,6 +125,7 @@ export const options = {
     removeHiddenTocItems,
     allowCustomResources,
     staticContent,
+    hidden,
     ignoreStage,
     addSystemMeta,
     buildDisabled,

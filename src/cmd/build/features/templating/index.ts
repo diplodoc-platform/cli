@@ -1,10 +1,10 @@
 import type {Build} from '~/cmd';
 import type {Command} from '~/config';
-
+import get from 'lodash/get';
 import {defined, deprecated, valuable} from '~/config';
 import {options} from './config';
 
-const merge = (acc: Record<string, any>, ...sources: Record<string, any>[]) => {
+const merge = (acc: Hash, ...sources: Hash[]) => {
     for (const source of sources) {
         for (const [key, value] of Object.entries(source)) {
             if (!acc[key] || !value) {
@@ -62,7 +62,7 @@ export class Templating {
                 .addOption(options.conditionsInCode);
         });
 
-        program.hooks.Config.tap('Templating', (config, args: TemplatingArgs) => {
+        program.hooks.Config.tap('Templating', (config, args) => {
             const disableLiquid = defined('disableLiquid', args, config);
             const applyPresets = defined('applyPresets', args, config);
             const resolveConditions = defined('resolveConditions', args, config);
@@ -85,7 +85,7 @@ export class Templating {
                     },
                 },
                 config.template || {},
-            );
+            ) as TemplatingConfig['template'];
 
             if (valuable(disableLiquid)) {
                 config.template.enabled = disableLiquid !== true;
@@ -118,10 +118,14 @@ export class Templating {
                 config.template.features.conditions = templateConditions;
             }
 
-            deprecated(config, 'disableLiquid', () => !config.template.enabled);
-            deprecated(config, 'applyPresets', () => config.template.features.substitutions);
-            deprecated(config, 'resolveConditions', () => config.template.features.conditions);
-            deprecated(config, 'conditionsInCode', () => config.template.scopes.code);
+            deprecated(config, 'disableLiquid', () => !get(config, 'template.enabled'));
+            deprecated(config, 'applyPresets', () =>
+                get(config, 'template.features.substitutions'),
+            );
+            deprecated(config, 'resolveConditions', () =>
+                get(config, 'template.features.conditions'),
+            );
+            deprecated(config, 'conditionsInCode', () => get(config, 'template.scopes.code'));
 
             return config;
         });

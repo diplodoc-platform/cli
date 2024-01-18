@@ -4,7 +4,7 @@ import {defined} from '~/config';
 import {options} from './config';
 
 export type SinglePageArgs = {
-    singlePage?: boolean;
+    singlePage: boolean;
 };
 
 export type SinglePageConfig = {
@@ -17,7 +17,7 @@ export class SinglePage {
             command.addOption(options.singlePage);
         });
 
-        program.hooks.Config.tap('SinglePage', (config, args: SinglePageArgs) => {
+        program.hooks.Config.tap('SinglePage', (config, args) => {
             config.singlePage = defined('singlePage', args, config) || false;
 
             return config;

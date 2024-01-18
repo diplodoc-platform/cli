@@ -1,42 +1,35 @@
-import type {IProgram, Program, ProgramArgs} from '~/program';
+import type {IProgram, Program, ProgramArgs, ProgramConfig} from '~/program';
 import type {Config} from '~/config';
 import {ok} from 'node:assert';
-import {isAbsolute, resolve} from 'node:path';
 import {pick} from 'lodash';
-import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap, SyncHook} from 'tapable';
+import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
+import {BaseProgram} from '~/program/base';
 import {Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, defined, deprecated, resolveConfig} from '~/config';
+import {Command, defined, deprecated} from '~/config';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
 
-import {Templating, TemplatingConfig} from './features/templating';
-import {Publishing, PublishingConfig} from './features/publishing';
-import {Contributors, ContributorsConfig} from './features/contributors';
-import {SinglePage, SinglePageConfig} from './features/singlepage';
+import {Templating, TemplatingArgs, TemplatingConfig} from './features/templating';
+import {Publishing, PublishingArgs, PublishingConfig} from './features/publishing';
+import {Contributors, ContributorsArgs, ContributorsConfig} from './features/contributors';
+import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import {Redirects} from './features/redirects';
-import {Linter} from './features/linter';
+import {Lint, LintArgs, LintConfig} from './features/linter';
 
-const isRelative = (path: string) => /^\.{1,2}\//.test(path);
-
-type BuildArgs = {
-    input: string;
-    output: string;
-    config: string;
-};
+type BaseArgs = {output: string};
 
 type BaseConfig = {
     outputFormat: `${OutputFormat}`;
     varsPreset: string;
-    vars: Record<string, any>;
+    vars: Hash;
     allowHtml: boolean;
-    // TODO: string[]
+    // TODO(minor): string[]
     ignoreStage: string;
+    hidden: string[];
     addSystemMeta: boolean;
     addMapFile: boolean;
     removeHiddenTocItems: boolean;
-    // TODO(major): move to separated 'lint' command
-    lintDisabled: boolean;
-    // TODO: wtf? if we don't need to build, why we call build command?
+    // TODO(major): wtf? if we don't need to build, why we call build command?
     buildDisabled: boolean;
     allowCustomResources: boolean;
     // TODO(major): use as default behavior
@@ -45,15 +38,66 @@ type BaseConfig = {
 
 export type {Run};
 
+const command = 'Build';
+
+const hooks = () => ({
+    BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
+    BeforeRun: new HookMap(
+        (format: `${OutputFormat}`) =>
+            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
+    ),
+    Run: new HookMap(
+        (format: `${OutputFormat}`) =>
+            new AsyncParallelHook<Run>(['run'], `${command}.${format}.BeforeRun`),
+    ),
+    AfterRun: new HookMap(
+        (format: `${OutputFormat}`) =>
+            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
+    ),
+    AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
+});
+
+export type BuildArgs = ProgramArgs &
+    BaseArgs &
+    Partial<TemplatingArgs & ContributorsArgs & PublishingArgs & SinglePageArgs & LintArgs>;
+
 export type BuildConfig = Config<
-    BuildArgs & BaseConfig & TemplatingConfig & PublishingConfig & ContributorsConfig & SinglePageConfig
+    BaseArgs &
+        ProgramConfig &
+        BaseConfig &
+        TemplatingConfig &
+        PublishingConfig &
+        ContributorsConfig &
+        SinglePageConfig &
+        LintConfig
 >;
 
-type ScopedBuildConfig = {
-    build: BuildConfig;
-};
+export type BuildHooks = ReturnType<typeof hooks>;
 
-export class Build implements IProgram {
+export class Build
+    // eslint-disable-next-line new-cap
+    extends BaseProgram<BuildConfig, BuildArgs, BuildHooks>(command, {
+        config: {
+            scope: 'build',
+            defaults: () => ({
+                outputFormat: OutputFormat.html,
+                varsPreset: 'default',
+                vars: {},
+                hidden: [],
+                allowHtml: true,
+                addMapFile: false,
+                removeHiddenTocItems: false,
+                allowCustomResources: false,
+                staticContent: false,
+                ignoreStage: Stage.SKIP,
+                addSystemMeta: false,
+                buildDisabled: false,
+            }),
+        },
+        hooks: hooks(),
+    })
+    implements IProgram<BuildArgs>
+{
     readonly templating = new Templating();
 
     readonly publishing = new Publishing();
@@ -64,41 +108,16 @@ export class Build implements IProgram {
 
     readonly redirects = new Redirects();
 
-    readonly linter = new Linter();
+    readonly linter = new Lint();
 
-    readonly command = new Command('build')
-        .description('Build documentation in target directory');
+    readonly command = new Command('build').description('Build documentation in target directory');
 
-    readonly hooks = {
-        Command: new SyncHook<Command>(['command'], 'Build.Command'),
-        Config: new AsyncSeriesWaterfallHook<[Record<string, any>, Record<string, any>]>(
-            ['config', 'args'],
-            'Build.Config',
-        ),
-        BeforeRun: new HookMap(
-            (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `Build.${format}.BeforeRun`),
-        ),
-        Run: new HookMap(
-            (format: `${OutputFormat}`) =>
-                new AsyncParallelHook<Run>(['run'], `Build.${format}.BeforeRun`),
-        ),
-        AfterRun: new HookMap(
-            (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `Build.${format}.AfterRun`),
-        ),
-    };
-
-    readonly config!: BuildConfig;
-
-    private parent: IProgram | undefined;
-
-    private options = [
-        options.input(this),
-        options.output(this),
+    protected options = [
+        options.input(),
+        options.output,
         options.outputFormat,
         options.varsPreset,
-        options.vars(this),
+        options.vars,
         options.allowHtml,
         options.allowHTML,
         options.addMapFile,
@@ -106,12 +125,13 @@ export class Build implements IProgram {
         options.allowCustomResources,
         options.staticContent,
         options.addSystemMeta,
+        options.hidden,
         options.ignoreStage,
-        options.config(this, YFM_CONFIG_FILENAME),
+        options.config(YFM_CONFIG_FILENAME),
         options.buildDisabled,
     ];
 
-    async apply(program?: Program) {
+    apply(program?: Program) {
         this.templating.apply(this);
         this.publishing.apply(this);
         this.contributors.apply(this);
@@ -119,21 +139,7 @@ export class Build implements IProgram {
         this.redirects.apply(this);
         this.linter.apply(this);
 
-        this.parent = program;
-
-        const setupCommand = () => {
-            this.options.forEach((option) => {
-                this.command.addOption(option);
-            });
-            this.command.action((args: ProgramArgs) => this.action(args));
-            this.hooks.Command.call(this.command);
-        };
-
-        if (this.parent) {
-            this.parent.command.addCommand(this.command, {isDefault: true});
-        }
-
-        setupCommand();
+        super.apply(program);
 
         this.hooks.Config.tap('Build', (config, args) => {
             const options = this.options.map((option) => option.attributeName());
@@ -156,56 +162,25 @@ export class Build implements IProgram {
         });
     }
 
-    async action(args: ProgramArgs) {
-        // @ts-ignore
-        this['config'] = await this.hookConfig(args);
-
+    async action() {
         const run = new Run(this.config);
 
-        if (this.parent) {
-            run.logger.pipe(this.parent.logger);
-        }
+        run.logger.pipe(this.logger);
 
+        await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
         await this.handler(run);
         await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
+        await this.hooks.AfterAnyRun.promise(run);
     }
 
+    /**
+     * Loads handler in async mode to not initialise all deps on startup.
+     */
     private async handler(run: Run) {
         // @ts-ignore
         const {handler} = await import('./handler');
 
         return handler(run);
-    }
-
-    private async hookConfig(args: ProgramArgs) {
-        const configPath =
-            isAbsolute(args.config) || isRelative(args.config)
-                ? resolve(args.config)
-                : resolve(args.input, args.config);
-
-        const defaults: BaseConfig = {
-            outputFormat: OutputFormat.html,
-            varsPreset: 'default',
-            vars: {},
-            allowHtml: true,
-            addMapFile: false,
-            removeHiddenTocItems: false,
-            allowCustomResources: false,
-            staticContent: false,
-            ignoreStage: Stage.SKIP,
-            addSystemMeta: false,
-            lintDisabled: false,
-            buildDisabled: false,
-        };
-
-        const config = await resolveConfig<BaseConfig>(configPath, {
-            filter: (data: ScopedBuildConfig | BuildConfig) =>
-                (data as ScopedBuildConfig).build || data,
-            defaults: defaults,
-            fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
-        });
-
-        return this.hooks.Config.promise(config, args);
     }
 }

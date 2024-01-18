@@ -3,8 +3,8 @@ import type {Run} from './run';
 import 'threads/register';
 
 import {join, resolve} from 'path';
-import {BUNDLE_FOLDER, LINT_CONFIG_FILENAME} from '../../constants';
-import {ArgvService, Includers} from '../../services';
+import {BUNDLE_FOLDER, LINT_CONFIG_FILENAME} from '~/constants';
+import {ArgvService, Includers} from '~/services';
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 import {
     initLinterWorkers,
@@ -14,12 +14,12 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
-} from '../../steps';
-import {prepareMapFile} from '../../steps/processMapFile';
+} from '~/steps';
+import {prepareMapFile} from '~/steps/processMapFile';
 import shell from 'shelljs';
-import {Resources} from '../../models';
+import {Resources} from '~/models';
 import {configPath} from '~/config';
-import {copyFiles} from '../../utils';
+import {copyFiles} from '~/utils';
 import glob from 'glob';
 
 export async function handler(run: Run) {
@@ -32,6 +32,7 @@ export async function handler(run: Run) {
             input: run.input,
             output: run.output,
         });
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
         Includers.init([OpenapiIncluder as any]);
 
         const {
@@ -100,6 +101,7 @@ export async function handler(run: Run) {
             // Copy all generated files to user' output folder
             shell.cp('-r', [join(run.output, '*'), join(run.output, '.*')], userOutputFolder);
         }
+        // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         run.logger.error(error.message);
     } finally {

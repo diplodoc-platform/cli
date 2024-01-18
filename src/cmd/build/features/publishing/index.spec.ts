@@ -1,5 +1,7 @@
-import {describe} from 'vitest';
+import {describe, vi} from 'vitest';
 import {testConfig as test} from '../../__tests__';
+
+vi.mock('~/cmd/publish/upload');
 
 describe('Build publish feature', () => {
     describe('config', () => {

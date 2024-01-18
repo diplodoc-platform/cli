@@ -20,42 +20,87 @@ type LoggerOptions = Readonly<{
     quiet: boolean;
 }>;
 
+type Color = typeof green | typeof red | typeof yellow;
+
+type MessageInfo = {
+    level: LogLevel;
+    message: string;
+};
+
+function writer(
+    logger: Logger,
+    level: LogLevel,
+    prefix: string,
+    color: Color,
+): {
+    (...msgs: string[]): void;
+    count: number;
+} {
+    const writer = function (...msgs: string[]) {
+        logger[Write](level, prefix, color, msgs.join(' '));
+    };
+
+    writer.count = 0;
+
+    return writer;
+}
+
+const Write = Symbol('write');
+
+const colors = {
+    [LogLevel.INFO]: green,
+    [LogLevel.WARN]: yellow,
+    [LogLevel.ERROR]: red,
+};
+
 export class Logger {
-    private options: LoggerOptions;
+    [LogLevel.INFO] = this.topic(LogLevel.INFO, 'INFO');
+
+    [LogLevel.WARN] = this.topic(LogLevel.WARN, 'WARN');
+
+    [LogLevel.ERROR] = this.topic(LogLevel.ERROR, 'ERR');
+
+    private options: LoggerOptions = {
+        colors: true,
+        quiet: false,
+    };
 
     private consumer: LogConsumer | null = null;
 
-    private buffer: LogBuffer = {
-        [LogLevel.INFO]: [],
-        [LogLevel.WARN]: [],
-        [LogLevel.ERROR]: [],
-    };
+    private buffer: MessageInfo[] = [];
 
     constructor(
-        options: Partial<LoggerOptions>,
+        options: {quiet?: boolean} = {},
         private filters: ((level: LogLevel, message: string) => string)[] = [],
     ) {
-        this.options = Object.assign(
-            {
-                colors: true,
-                quiet: false,
-            },
-            pick(options, ['colors', 'quiet']),
-        );
-
+        this.setup(options);
         this.reset();
     }
 
+    setup(options: {quiet?: boolean} = {}) {
+        this.options = Object.assign(this.options, pick(options, ['quiet']));
+
+        return this;
+    }
+
     pipe(consumer: LogConsumer) {
+        if (this.consumer) {
+            throw new Error('This log already piped to another consumer.');
+        }
+
         this.consumer = consumer;
 
-        for (const [level, buffer] of Object.entries(this.buffer) as [LogLevel, string[]][]) {
-            for (const message of buffer) {
-                this.consumer[level](message);
-            }
-
-            buffer.length = 0;
+        for (const {level, message} of this.buffer) {
+            this.consumer[level](message);
         }
+
+        this.buffer.length = 0;
+
+        return this;
+    }
+
+    topic(level: LogLevel, prefix: string) {
+        return writer(this, level, prefix, colors[level]);
     }
 
     add(buffers: LogBuffer) {
@@ -64,50 +109,26 @@ export class Logger {
                 this[level](message);
             }
         }
+
+        return this;
     }
 
     clear() {
-        for (const buffer of Object.values(this.buffer)) {
-            buffer.length = 0;
-        }
+        this.buffer.length = 0;
+
+        return this;
     }
 
     reset() {
         this.clear();
-
-        this[LogLevel.INFO].count = 0;
-        this[LogLevel.WARN].count = 0;
-        this[LogLevel.ERROR].count = 0;
-    }
-
-    [LogLevel.INFO](msg: string) {
-        this.write(LogLevel.INFO, 'INFO', green, msg);
-    }
-
-    [LogLevel.WARN](msg: string) {
-        this.write(LogLevel.WARN, 'WARN', yellow, msg);
-    }
-
-    [LogLevel.ERROR](msg: string) {
-        this.write(LogLevel.ERROR, 'ERR', red, msg);
-    }
-
-    private write(
-        level: LogLevel,
-        prefix: string,
-        color: (message: string) => string,
-        message: string,
-    ) {
-        this[level].count++;
-
-        if (this.options.colors) {
-            prefix = color(prefix);
+        for (const level of Object.values(LogLevel)) {
+            this[level].count = 0;
         }
 
-        if (this.options.quiet) {
-            return;
-        }
+        return this;
+    }
 
+    [Write](level: LogLevel, prefix: string, color: Color, message: string) {
         message = this.filters.reduce((message, filter) => {
             return filter(level, message);
         }, message);
@@ -116,10 +137,20 @@ export class Logger {
             return;
         }
 
+        this[level].count++;
+
+        if (this.options.quiet) {
+            return;
+        }
+
         if (this.consumer) {
-            this.consumer[level](prefix + ' ' + message);
+            this.consumer[level](message);
         } else {
-            this.buffer[level].push(prefix + ' ' + message);
+            if (this.options.colors) {
+                prefix = color(prefix);
+            }
+
+            console[level](prefix + ' ' + message);
         }
     }
 }

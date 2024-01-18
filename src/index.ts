@@ -1,4 +1,4 @@
-import {Program} from './program';
+import {MAIN_TIMER_ID} from '~/constants';
 
 export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from './program';
 export {Program} from './program';
@@ -6,6 +6,29 @@ export {Program} from './program';
 export type {Config, OptionInfo} from './config';
 export {Command, option, deprecated} from './config';
 
-const program = new Program(process.argv);
+import {Program} from './program';
 
-program.apply();
+if (module.require.main === module) {
+    (async () => {
+        console.time(MAIN_TIMER_ID);
+
+        let exitCode = 0;
+        try {
+            const program = new Program();
+            program.apply();
+            await program.parse(process.argv);
+        } catch (error: any) {
+            exitCode = 1;
+
+            const message = error?.message || error;
+
+            if (message) {
+                console.error(error.message || error);
+            }
+        }
+
+        console.timeEnd(MAIN_TIMER_ID);
+
+        process.exit(exitCode);
+    })();
+}

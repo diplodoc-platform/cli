@@ -1,5 +1,5 @@
 import {bold} from 'chalk';
-import {Command, cmd, option, toArray} from '~/config';
+import {option, toArray} from '~/config';
 
 export const NAME = 'yfm';
 
@@ -29,45 +29,44 @@ const strict = option({
     default: false,
 });
 
-const extensions = (program: {command: Command}) =>
-    option({
-        flags: '-e, --extensions <string>',
-        desc: `
-            Include external extension on startup.
+const extensions = option({
+    flags: '-e, --extensions <string>',
+    desc: `
+        Include external extension on startup.
 
-            Relative paths resolving has difference for exec flags and ${CONFIG} config.
-            For exec flags they resolves from execution directory.
-            For config they resolves from config directory.
+        Relative paths resolving has difference for exec flags and ${CONFIG} config.
+        For exec flags they resolves from execution directory.
+        For config they resolves from config directory.
 
-            Example:
-              ${cmd(program)} -e @diplodoc/openapi-extension
-              ${cmd(program)} -e ./local-extension
-        `,
-        parser: toArray,
-    });
+        Example:
+          {{PROGRAM}} -e @diplodoc/openapi-extension
+          {{PROGRAM}} -e ./local-extension
+    `,
+    parser: toArray,
+});
 
-const input = (program: {command: Command}, defaultPath?: string) =>
+const input = (defaultPath?: string) =>
     option({
         flags: '-i, --input <string>',
         desc: `
-            Configure path to ${program.command.name()} input directory.
+            Configure path to {{PROGRAM}} input directory.
         `,
         required: true,
         default: defaultPath,
     });
 
-const config = (program: {command: Command}, defaultConfig: string) =>
+const config = (defaultConfig: string) =>
     option({
         flags: '-c, --config <string>',
         desc: `
-            Configure path to ${program.command.name()} config.
+            Configure path to {{PROGRAM}} config.
 
             Relative paths resolves from execution directory.
             Other paths resolves from --input argument if present or from execution directory.
 
             Example:
-              ${cmd(program)} -c .mydocs
-              ${cmd(program)} -c ./mydocs.yaml
+              {{PROGRAM}} -c .mydocs
+              {{PROGRAM}} -c ./mydocs.yaml
         `,
         default: defaultConfig,
     });

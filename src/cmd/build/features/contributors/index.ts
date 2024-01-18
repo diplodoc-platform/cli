@@ -20,7 +20,7 @@ export class Contributors {
             command.addOption(options.ignoreAuthorPatterns);
         });
 
-        program.hooks.Config.tap('Contributors', (config, args: ContributorsArgs) => {
+        program.hooks.Config.tap('Contributors', (config, args) => {
             config.contributors = defined('contributors', args, config) || false;
             config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];
 

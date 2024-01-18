@@ -98,6 +98,9 @@ describe('Build command', () => {
                     vars: {a: 1},
                 },
             );
+
+            // TODO: should merge args ang config
+            // test('should merge args ang config')
         });
 
         describe('addMapFile', () => {
@@ -226,25 +229,32 @@ describe('Build command', () => {
             );
         });
 
-        describe('lintDisabled', () => {
+        describe('hidden', () => {
             test('should handle default', '', {
-                lintDisabled: false,
+                hidden: [],
             });
 
-            test('should handle arg', '--lint-disabled', {
-                lintDisabled: true,
+            test('should handle arg', '--hidden **/*.md', {
+                hidden: ['**/*.md'],
+            });
+
+            test('should handle args', '--hidden **/*.md --hidden **/*.yaml', {
+                hidden: ['**/*.md', '**/*.yaml'],
             });
 
             test(
                 'should handle config',
                 '',
                 {
-                    lintDisabled: true,
+                    hidden: ['**/*.md'],
                 },
                 {
-                    lintDisabled: true,
+                    hidden: ['**/*.md'],
                 },
             );
+
+            // TODO: should merge args ang config
+            // test('should merge args ang config')
         });
 
         describe('buildDisabled', () => {
@@ -268,22 +278,6 @@ describe('Build command', () => {
             );
         });
 
-        // describe('publish', () => {
-        //     test('should handle default', '', {
-        //         publish: false,
-        //     });
-        //
-        //     test('should handle arg', '--publish', {
-        //         publish: true,
-        //     });
-        //
-        //     test('should handle config', '', {
-        //         publish: true,
-        //     }, {
-        //         publish: true,
-        //     });
-        // });
-
         // test('should handle required props in config', '', {
         //     input: './input',
         //     output: './output',
@@ -292,4 +286,6 @@ describe('Build command', () => {
         //     output: './output',
         // });
     });
+
+    // describe('apply', () => {});
 });
