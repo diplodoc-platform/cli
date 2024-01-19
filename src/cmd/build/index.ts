@@ -277,7 +277,7 @@ async function handler(args: Arguments<any>) {
                 await publishFilesToS3({
                     input: userOutputFolder,
                     region: storageRegion,
-                    ignore,
+                    ignore: [...ignore, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER],
                     endpoint,
                     bucket,
                     prefix,
