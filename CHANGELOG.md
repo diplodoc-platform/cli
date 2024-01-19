@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.10.0](https://github.com/diplodoc-platform/cli/compare/v4.9.0...v4.10.0) (2024-01-19)
+
+
+### Features
+
+* update transform ([84ef5b3](https://github.com/diplodoc-platform/cli/commit/84ef5b3a9301aae2164328484ec09b1f708f4317))
+
+
+### Bug Fixes
+
+* ignore tmp folder in uploading ([#643](https://github.com/diplodoc-platform/cli/issues/643)) ([caca466](https://github.com/diplodoc-platform/cli/commit/caca4667a6bf041045c04d97236bbe942ab97eb2))
+
 ## [4.9.0](https://github.com/diplodoc-platform/cli/compare/v4.8.0...v4.9.0) (2024-01-09)
 
 
