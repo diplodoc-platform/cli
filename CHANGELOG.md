@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.10.1](https://github.com/diplodoc-platform/cli/compare/v4.10.0...v4.10.1) (2024-01-23)
+
+
+### Bug Fixes
+
+* Remove dummy html line breaks cleanup ([0fb3ead](https://github.com/diplodoc-platform/cli/commit/0fb3ead2b50b8eb994a2b53e0794fb8edeb90656)), closes [#641](https://github.com/diplodoc-platform/cli/issues/641)
+
 ## [4.10.0](https://github.com/diplodoc-platform/cli/compare/v4.9.0...v4.10.0) (2024-01-19)
 
 
