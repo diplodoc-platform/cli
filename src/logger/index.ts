@@ -27,6 +27,8 @@ type MessageInfo = {
     message: string;
 };
 
+export type Writer = ReturnType<typeof writer>;
+
 function writer(
     logger: Logger,
     level: LogLevel,

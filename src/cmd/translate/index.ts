@@ -1,318 +1,134 @@
-import {asyncify, eachLimit, retry} from 'async';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {BaseHooks} from '~/program/base';
+import {ok} from 'assert';
+import {pick} from 'lodash';
+import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {BaseProgram} from '~/program/base';
+import {Command} from '~/config';
+import {YFM_CONFIG_FILENAME} from '~/constants';
+import {options} from './config';
 
-import {dirname, join, resolve} from 'path';
-import {mkdir, readFile, writeFile} from 'fs/promises';
-import {XMLParser} from 'fast-xml-parser';
+import {Extension as YandexTranslation} from './providers/yandex';
 
-import {Session} from '@yandex-cloud/nodejs-sdk/dist/session';
-import {TranslationServiceClient} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/service_clients';
-import {
-    TranslateRequest_Format as Format,
-    TranslateRequest,
-} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
-
-import markdownTranslation from '@diplodoc/markdown-translation';
-
-import {ArgvService} from '../../services';
-import {getYandexOAuthToken} from '../../packages/credentials';
-import {glob, logger} from '../../utils';
-
-import {Arguments, Argv} from 'yargs';
-
-import {YandexCloudTranslateGlossaryPair} from '../../models';
-
-const command = 'translate';
-
-const description = 'translate documentation with Yandex.Cloud Translator API';
-
-const translate = {
-    command,
-    description,
-    handler,
-    builder,
+type Parent = IProgram & {
+    translate: Translate;
 };
 
-const MD_GLOB = '**/*.md';
-const REQUESTS_LIMIT = 20;
-const BYTES_LIMIT = 10000;
-const RETRY_LIMIT = 3;
-const MTRANS_LOCALE = 'MTRANS';
+const command = 'Translate';
 
-function builder<T>(argv: Argv<T>) {
-    return argv
-        .option('source-language', {
-            alias: 'sl',
-            describe: 'source language code',
-            type: 'string',
-        })
-        .option('target-language', {
-            alias: 'tl',
-            describe: 'target language code',
-            type: 'string',
-        })
-        .demandOption(
-            ['source-language', 'target-language'],
-            'command requires to specify source and target languages',
-        );
+const hooks = () => ({
+    Provider: new HookMap(
+        (provider: string) =>
+            new AsyncSeriesWaterfallHook<[IProvider | undefined, TranslateConfig]>(
+                ['provider', 'config'],
+                `${command}.Provider.${provider}`,
+            ),
+    ),
+});
+
+export interface IProvider {
+    translate(config: TranslateConfig): Promise<void>;
 }
 
-class TranslatorError extends Error {
-    path: string;
-
-    constructor(message: string, path: string) {
-        super(message);
-
-        this.path = path;
-    }
-}
-
-/* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-async function handler(args: Arguments<any>) {
-    ArgvService.init({
-        ...args,
-    });
-
-    const {
-        input,
-        output,
-        yandexCloudTranslateFolderId,
-        yandexCloudTranslateGlossaryPairs,
-        sl: sourceLanguage,
-        tl: targetLanguage,
-    } = args;
-
-    logger.info(
-        input,
-        `translating documentation from ${sourceLanguage} to ${targetLanguage} language`,
-    );
-
-    try {
-        let found = [];
-
-        ({
-            state: {found},
-        } = await glob(join(input, MD_GLOB), {
-            nosort: true,
-        }));
-
-        const oauthToken = await getYandexOAuthToken();
-
-        const translatorParams = {
-            input,
-            output,
-            sourceLanguage,
-            targetLanguage,
-            yandexCloudTranslateGlossaryPairs,
-            folderId: yandexCloudTranslateFolderId,
-            oauthToken,
-        };
-
-        const translateFn = translator(translatorParams);
-
-        await eachLimit(found, REQUESTS_LIMIT, asyncify(translateFn));
-    } catch (err) {
-        if (err instanceof Error || err instanceof TranslatorError) {
-            const message = err.message;
-
-            const file = err instanceof TranslatorError ? err.path : '';
-
-            logger.error(file, message);
-        }
-    }
-
-    logger.info(
-        output,
-        `translated documentation from ${sourceLanguage} to ${targetLanguage} language`,
-    );
-}
-
-export type TranslatorParams = {
-    oauthToken: string;
-    folderId: string;
-    input: string;
+export type TranslateArgs = ProgramArgs & {
     output: string;
+    provider: string;
     sourceLanguage: string;
     targetLanguage: string;
-    yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
-function translator(params: TranslatorParams) {
-    const {
-        oauthToken,
-        folderId,
-        input,
-        output,
-        sourceLanguage,
-        targetLanguage,
-        yandexCloudTranslateGlossaryPairs,
-    } = params;
+export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+    output: string;
+    provider: string;
+    sourceLanguage: string;
+    targetLanguage: string;
+};
 
-    const session = new Session({oauthToken});
-    const client = session.client(TranslationServiceClient);
-    const request = (texts: string[]) => () =>
-        client
-            .translate(
-                TranslateRequest.fromPartial({
-                    texts,
-                    folderId,
-                    sourceLanguageCode: sourceLanguage,
-                    targetLanguageCode: targetLanguage,
-                    glossaryConfig: {
-                        glossaryData: {
-                            glossaryPairs: yandexCloudTranslateGlossaryPairs,
-                        },
-                    },
-                    format: Format.PLAIN_TEXT,
-                }),
-            )
-            .then((results) => results.translations.map(({text}) => text));
+export type TranslateHooks = ReturnType<typeof hooks>;
 
-    return async (mdPath: string) => {
-        try {
-            logger.info(mdPath, 'translating');
+export class Translate
+    // eslint-disable-next-line new-cap
+    extends BaseProgram<TranslateConfig, TranslateArgs, TranslateHooks>('Translate', {
+        config: {
+            defaults: () => ({}),
+            strictScope: 'translate',
+        },
+        hooks: hooks(),
+    })
+    implements IProgram<TranslateArgs>
+{
+    static getHooks<
+        Config extends TranslateConfig = TranslateConfig,
+        Args extends TranslateArgs = TranslateArgs,
+    >(program: Translate | IProgram | undefined): BaseHooks<Config, Args> & TranslateHooks {
+        if (!program) {
+            throw new Error('Unable to resolve Translate hooks. Program is undefined.');
+        }
 
-            const md = await readFile(resolve(mdPath), {encoding: 'utf-8'});
+        if (program instanceof Translate) {
+            return program.hooks as BaseHooks<Config, Args> & TranslateHooks;
+        }
 
-            const {xlf, skeleton} = markdownTranslation.extract({
-                source: {
-                    language: sourceLanguage,
-                    locale: sourceLanguage.toUpperCase(),
-                },
-                target: {
-                    language: targetLanguage,
-                    locale: targetLanguage.toUpperCase(),
-                },
-                markdown: md,
-                markdownPath: mdPath,
-                skeletonPath: '',
-            });
+        if ((program as Parent).translate instanceof Translate) {
+            return (program as Parent).translate.hooks as BaseHooks<Config, Args> & TranslateHooks;
+        }
 
-            const texts = parseSourcesFromXLIFF(xlf);
+        throw new Error('Unable to resolve Translate hooks. Unexpected program instance.');
+    }
 
-            const parts = await Promise.all(
-                texts.reduce(
-                    (
-                        {
-                            promises,
-                            buffer,
-                            bufferSize,
-                        }: {
-                            promises: Promise<string[]>[];
-                            buffer: string[];
-                            bufferSize: number;
-                        },
-                        text,
-                        index,
-                    ) => {
-                        if (text.length >= BYTES_LIMIT) {
-                            logger.warn(
-                                mdPath,
-                                'Skip document part for translation. Part is too big.',
-                            );
-                            promises.push(Promise.resolve([text]));
-                            return {promises, buffer, bufferSize};
-                        }
+    readonly command = new Command('translate').helpOption(false).allowUnknownOption(true)
+        .description(`
+            Translate documentation from source to target language using configured translation provider.
 
-                        if (bufferSize + text.length > BYTES_LIMIT || index === texts.length - 1) {
-                            promises.push(backoff(request(buffer)));
-                            buffer = [];
-                            bufferSize = 0;
-                        }
+            Select a provider to read more help.
+            {{PROGRAM}} --provider yandex --help
+        `);
 
-                        buffer.push(text);
-                        bufferSize += text.length;
+    readonly options = [
+        options.input('./'),
+        options.output,
+        options.provider,
+        options.sourceLanguage,
+        options.targetLanguage,
+        options.config(YFM_CONFIG_FILENAME),
+    ];
 
-                        return {promises, buffer, bufferSize};
-                    },
-                    {
-                        promises: [],
-                        buffer: [],
-                        bufferSize: 0,
-                    },
-                ).promises,
+    readonly provider: IProvider | undefined;
+
+    apply(program?: IProgram) {
+        new YandexTranslation().apply(program || this);
+
+        super.apply(program);
+
+        this.hooks.Config.tap('Translate', (config, args) => {
+            const options = this.options.map((option) => option.attributeName());
+
+            Object.assign(config, pick(args, options));
+
+            return config;
+        });
+    }
+
+    async action() {
+        if (!this.provider) {
+            // @ts-ignore
+            this['provider'] = await this.hooks.Provider.for(this.config.provider).promise(
+                undefined,
+                this.config,
             );
 
-            const translations = ([] as string[]).concat(...parts);
+            ok(
+                this.provider,
+                `Translation provider with name '${this.config.provider}' is not resolved`,
+            );
 
-            const translatedXLIFF = createXLIFFDocument({
-                sourceLanguage: sourceLanguage + '-' + MTRANS_LOCALE,
-                targetLanguage: targetLanguage + '-' + MTRANS_LOCALE,
-                sources: texts,
-                targets: translations,
-            });
+            await this.hooks.Command.promise(this.command, this.options);
 
-            const composed = await markdownTranslation.compose({
-                xlf: translatedXLIFF,
-                skeleton,
-            });
+            this.command.helpOption(true).allowUnknownOption(false);
 
-            const outputPath = mdPath.replace(input, output);
-
-            await mkdir(dirname(outputPath), {recursive: true});
-            await writeFile(outputPath, composed);
-
-            logger.info(outputPath, 'finished translating');
-        } catch (err) {
-            if (err instanceof Error) {
-                throw new TranslatorError(err.toString(), mdPath);
-            }
+            await this.parse(this.args);
+        } else {
+            await this.provider.translate(this.config);
         }
-    };
+    }
 }
-
-function backoff(action: () => Promise<string[]>): Promise<string[]> {
-    return retry(
-        {
-            times: RETRY_LIMIT,
-            interval: (count: number) => {
-                // eslint-disable-next-line no-bitwise
-                return (1 << count) * 1000;
-            },
-        },
-        asyncify(action),
-    );
-}
-
-function parseSourcesFromXLIFF(xliff: string): string[] {
-    const parser = new XMLParser();
-
-    const inputs = parser.parse(xliff)?.xliff?.file?.body['trans-unit'] ?? [];
-
-    return Array.isArray(inputs)
-        ? inputs.map(({source}: {source: string}) => source)
-        : [inputs.source];
-}
-
-export type CreateXLIFFDocumentParams = {
-    sourceLanguage: string;
-    targetLanguage: string;
-    sources: string[];
-    targets: string[];
-};
-
-function createXLIFFDocument(params: CreateXLIFFDocumentParams) {
-    const {sourceLanguage, targetLanguage, sources, targets} = params;
-
-    const unit = (text: string, i: number): string => `
-<trans-unit id="${i + 1}">
-    <source xml:lang="${sourceLanguage}">${sources[i]}</source>
-    <target xml:lang="${targetLanguage}">${text}</target>
-</trans-unit>`;
-
-    const doc = `
-<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-    <file original="" source-language="${sourceLanguage}" target-language="${targetLanguage}">
-        <header>
-            <skl><external-file href="" /></skl>
-        </header>
-        <body>${targets.map(unit)}</body>
-    </file>
-</xliff>`;
-
-    return doc;
-}
-
-export {translate};
-
-export default {translate};

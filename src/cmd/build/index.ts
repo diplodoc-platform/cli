@@ -41,19 +41,36 @@ export type {Run};
 const command = 'Build';
 
 const hooks = () => ({
+    /**
+     * Async series hook which runs before start of any Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to subscribe on Run hooks.
+     */
     BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
+    /**
+     * Async series hook map which runs before start of target Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to subscribe on target Run hooks.
+     */
     BeforeRun: new HookMap(
         (format: `${OutputFormat}`) =>
             new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
     ),
-    Run: new HookMap(
-        (format: `${OutputFormat}`) =>
-            new AsyncParallelHook<Run>(['run'], `${command}.${format}.BeforeRun`),
-    ),
+    /**
+     * Async parallel hook which runs on start of any Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to do something in parallel with main build process.
+     */
+    Run: new AsyncParallelHook<Run>(['run'], `${command}.Run`),
+    // TODO: decompose handler and describe this hhok
     AfterRun: new HookMap(
         (format: `${OutputFormat}`) =>
             new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
     ),
+    // TODO: decompose handler and describe this hhok
     AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
 });
 
@@ -169,7 +186,7 @@ export class Build
 
         await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
-        await this.handler(run);
+        await Promise.all([this.handler(run), this.hooks.Run.promise(run)]);
         await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
         await this.hooks.AfterAnyRun.promise(run);
     }

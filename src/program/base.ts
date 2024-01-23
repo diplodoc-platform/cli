@@ -14,8 +14,8 @@ import {HandledError} from './utils';
 
 const isRelative = (path: string) => /^\.{1,2}\//.test(path);
 
-type BaseHooks<TConfig, TArgs> = {
-    Command: SyncHook<Command>;
+export type BaseHooks<TConfig, TArgs> = {
+    Command: SyncHook<[Command, ExtendedOption[]]>;
     /**
      * asasdasdasd
      */
@@ -43,13 +43,19 @@ export const BaseProgram = <
         readonly command!: Command;
 
         readonly hooks = {
-            Command: new SyncHook<Command>(['command'], `${name}.Command`),
+            Command: new SyncHook<[Command, ExtendedOption[]]>(
+                ['command', 'options'],
+                `${name}.Command`,
+            ),
             Config: new AsyncSeriesWaterfallHook<[Config<TConfig>, TArgs]>(
                 ['config', 'args'],
                 `${name}.Config`,
             ),
             ...hooks,
-        } as THooks & BaseHooks<TConfig, TArgs>;
+        } as BaseHooks<TConfig, TArgs> & {
+            // for best ide suggestion
+            [prop in keyof THooks]: THooks[prop];
+        };
 
         readonly config!: Config<TConfig>;
 
@@ -86,11 +92,11 @@ export const BaseProgram = <
             if (this.parent) {
                 this.parent.hooks.Command.tap(name, (command) => {
                     command.addCommand(this.command);
-                    this.hooks.Command.call(this.command);
+                    this.hooks.Command.call(this.command, this.options);
                 });
                 this.logger.pipe(this.parent.logger);
             } else {
-                this.hooks.Command.call(this.command);
+                this.hooks.Command.call(this.command, this.options);
             }
         }
 

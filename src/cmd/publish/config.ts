@@ -1,21 +1,20 @@
+import {options as globalOptions} from '~/program/config';
 import {option, toArray} from '~/config';
 
 const endpoint = option({
     flags: '--endpoint <value>',
-    default: 'https://s3.amazonaws.com',
+    defaultInfo: 'https://s3.amazonaws.com',
     desc: 'Endpoint of S3 storage.',
 });
 
 const bucket = option({
     flags: '--bucket <value>',
     desc: 'Bucket name of S3 storage.',
-    required: true,
 });
 
 const prefix = option({
     flags: '--prefix <value>',
     desc: 'Bucket internal scope of S3 storage.',
-    default: '',
 });
 
 const accessKeyId = option({
@@ -24,16 +23,16 @@ const accessKeyId = option({
     required: true,
 });
 
-const secreAccessKey = option({
+const secretAccessKey = option({
     flags: '--secret-access-key <value>',
     desc: 'Secret key of S3 storage.',
     required: true,
 });
 
 const region = option({
-    flags: '--storage-secret-key <value>',
+    flags: '--region <value>',
     desc: 'Region of S3 storage.',
-    default: 'eu-central-1',
+    defaultInfo: 'eu-central-1',
 });
 
 const hidden = option({
@@ -48,11 +47,13 @@ const hidden = option({
 });
 
 export const options = {
+    input: globalOptions.input,
+    config: globalOptions.config,
     endpoint,
     bucket,
     prefix,
     accessKeyId,
-    secreAccessKey,
+    secretAccessKey,
     region,
     hidden,
 };

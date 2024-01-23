@@ -5,7 +5,7 @@ import {SyncWaterfallHook} from 'tapable';
 
 import {Command, configRoot} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {Build, Publish, translate, xliff} from '~/cmd';
+import {Build, Publish, Translate, xliff} from '~/cmd';
 
 import {NAME, USAGE, options} from './config';
 import {HandledError, isRelative} from './utils';
@@ -67,6 +67,8 @@ export class Program
 
     readonly publish = new Publish();
 
+    readonly translate = new Translate();
+
     protected options = [
         options.input('./'),
         options.config(YFM_CONFIG_FILENAME),
@@ -75,7 +77,7 @@ export class Program
         options.strict,
     ];
 
-    private readonly modules: ICallable[] = [this.build, this.publish];
+    private readonly modules: ICallable[] = [this.build, this.publish, this.translate];
 
     apply() {
         this.hooks.Config.tap('Program', (config, args) => {
@@ -115,7 +117,7 @@ export class Program
             module.apply(this);
         }
 
-        this.hooks.Command.call(this.command);
+        this.hooks.Command.call(this.command, this.options);
 
         // There command was fully initialized
         // and on next run this action will not be called.

@@ -1,13 +1,7 @@
 import {bold, underline} from 'chalk';
-import {options as globalOptions} from '~/program';
+import {options as globalOptions} from '~/program/config';
 import {option, toArray} from '~/config';
 import {Stage} from '~/constants';
-
-const output = option({
-    flags: '-o, --output <string>',
-    desc: `Configure path to {{PROGRAM}} output directory.`,
-    required: true,
-});
 
 export enum OutputFormat {
     md = 'md',
@@ -114,7 +108,7 @@ const buildDisabled = option({
 
 export const options = {
     input: globalOptions.input,
-    output,
+    output: globalOptions.output,
     config: globalOptions.config,
     outputFormat,
     varsPreset,

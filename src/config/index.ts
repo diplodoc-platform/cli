@@ -284,12 +284,8 @@ export class Command extends BaseCommand {
 
     _helpCommandDescription = 'Display help for command';
 
-    _exit(code: number, error?: string, message?: string) {
-        if (error) {
-            throw message || error;
-        } else {
-            process.exit(code);
-        }
+    error(error: string): never {
+        throw error;
     }
 
     addOption(o: Option | ExtendedOption): this {

@@ -36,11 +36,18 @@ type DeepPartial<T> = {
 };
 
 export function testConfig(name: string, args: string, result: DeepPartial<PublishConfig>): void;
+export function testConfig(name: string, args: string, result: Error | string,): void;
 export function testConfig(
     name: string,
     args: string,
     config: DeepPartial<PublishConfig>,
     result: DeepPartial<PublishConfig>,
+): void;
+export function testConfig(
+    name: string,
+    args: string,
+    config: DeepPartial<PublishConfig>,
+    result: Error | string,
 ): void;
 export function testConfig(name: string, args: string, config: any, result?: any): void {
     it(name, async () => {
@@ -60,8 +67,18 @@ export function testConfig(name: string, args: string, config: any, result?: any
             expect(run.config).toMatchObject(result as Partial<PublishConfig>);
         });
 
-        await runPublish('--input ./input --output ./output ' + args);
-
-        expect(upload).toBeCalled();
+        try {
+            await runPublish('--input ./input --access-key-id 1 --secret-access-key 1 ' + args);
+            expect(upload).toBeCalled();
+        } catch (error: any) {
+            const message = error.message || error;
+            if (result instanceof Error) {
+                expect(message).toEqual(result.message);
+            } else if (typeof result === 'string') {
+                expect(message).toEqual(result);
+            } else {
+                throw error;
+            }
+        }
     });
 }

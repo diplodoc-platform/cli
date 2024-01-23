@@ -1,19 +1,20 @@
 import type {Run} from './run';
+import {join} from 'path';
 import {asyncify, mapLimit} from 'async';
 import walkSync from 'walk-sync';
 import mime from 'mime-types';
 import {LogLevel} from '~/logger';
 
 export async function upload(run: Run): Promise<void> {
-    const {hidden = []} = run.config;
-
+    const {input, endpoint, bucket, prefix, hidden = []} = run.config;
+    const logUpload = run.logger.topic(LogLevel.INFO, 'UPLOAD');
     const filesToPublish: string[] = walkSync(run.root, {
         directories: false,
         includeBasePath: false,
         ignore: hidden,
     });
 
-    const logUpload = run.logger.topic(LogLevel.INFO, 'UPLOAD');
+    run.logger.info(`Upload artifacts from ${input} to ${join(endpoint, bucket, prefix)}`);
 
     await mapLimit(
         filesToPublish,

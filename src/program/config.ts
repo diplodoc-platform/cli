@@ -55,6 +55,12 @@ const input = (defaultPath?: string) =>
         default: defaultPath,
     });
 
+const output = option({
+    flags: '-o, --output <string>',
+    desc: `Configure path to {{PROGRAM}} output directory.`,
+    required: true,
+});
+
 const config = (defaultConfig: string) =>
     option({
         flags: '-c, --config <string>',
@@ -77,4 +83,5 @@ export const options = {
     extensions,
     config,
     input,
+    output,
 };
