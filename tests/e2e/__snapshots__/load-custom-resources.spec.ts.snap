@@ -105,7 +105,7 @@ exports[`Allow load custom resources md2html single page with custom resources 3
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"meta":"some meta","style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"page.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="_bundle/vendor.js"
@@ -162,7 +162,7 @@ exports[`Allow load custom resources md2html single page with custom resources 4
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"../index.html","items":[{"name":"Documentation","href":"../page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"../project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"style":["../_assets/style/test.css"],"script":["../_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="../_bundle/vendor.js"
@@ -219,10 +219,10 @@ exports[`Allow load custom resources md2html single page with custom resources 5
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"html":"
       <p>Lorem
-      </p>
+      </p>/n
       <hr class=\\"yfm-page__delimeter\\">
       <p>Lorem
-      </p>","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"};
+      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="_bundle/vendor.js"
@@ -240,7 +240,7 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p><hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"}"`;
+exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru"}"`;
 
 exports[`Allow load custom resources md2html with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
 
@@ -347,7 +347,7 @@ exports[`Allow load custom resources md2html with custom resources 3`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"meta":"some meta","style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"page.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="_bundle/vendor.js"
@@ -404,7 +404,7 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"../index.html","items":[{"name":"Documentation","href":"../page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"../project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"style":["../_assets/style/test.css"],"script":["../_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="../_bundle/vendor.js"
