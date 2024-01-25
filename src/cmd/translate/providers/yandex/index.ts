@@ -2,7 +2,7 @@ import type {IProgram} from '~/program';
 import type {TranslateArgs, TranslateConfig} from '~/cmd/translate';
 import {ok} from 'assert';
 import {Translate} from '~/cmd/translate';
-import { defined, resolveConfig } from '~/config';
+import {defined, resolveConfig} from '~/config';
 import {Provider} from './provider';
 import {options} from './config';
 import {getYandexOAuthToken} from './oauth';
@@ -35,7 +35,13 @@ export class Extension {
             ok(providerOption, 'Unable to configure `--provider` option.');
 
             providerOption.defaultInfo = 'yandex';
-            providerOption.choices([...(providerOption.argChoices || []), 'yandex']);
+
+            const choises = providerOption.argChoices || [];
+            if (!choises.includes('yandex')) {
+                choises.push('yandex');
+            }
+
+            providerOption.choices(choises);
         });
 
         hooks.Config.tap(ExtensionName, (config, args) => {
@@ -48,7 +54,8 @@ export class Extension {
             hooks.Command.tap(ExtensionName, (command) => {
                 command
                     .addOption(options.oauthToken)
-                    .addOption(options.folderId);
+                    .addOption(options.folderId)
+                    .addOption(options.glossary);
             });
 
             hooks.Config.tapPromise(ExtensionName, async (config, args) => {
@@ -58,13 +65,13 @@ export class Extension {
                 config.oauthToken = defined('oauthToken', args) || (await getYandexOAuthToken());
 
                 if (config.glossary) {
-                    const glossaryConfig = await resolveConfig(config.glossary, {defaults: {glossaryPairs: []}})
+                    const glossaryConfig = await resolveConfig(config.glossary, {
+                        defaults: {glossaryPairs: []},
+                    });
                     config.glossaryPairs = glossaryConfig.glossaryPairs || [];
                 } else {
                     config.glossaryPairs = [];
                 }
-
-                ok(config.folderId, 'Required prop folderId is not specified');
 
                 return config;
             });

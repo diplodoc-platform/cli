@@ -4,9 +4,9 @@ import {ok} from 'assert';
 import {pick} from 'lodash';
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 import {BaseProgram} from '~/program/base';
-import {Command} from '~/config';
+import {Command, args} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {options} from './config';
+import {DESCRIPTION, NAME, options} from './config';
 
 import {Extension as YandexTranslation} from './providers/yandex';
 
@@ -76,13 +76,10 @@ export class Translate
         throw new Error('Unable to resolve Translate hooks. Unexpected program instance.');
     }
 
-    readonly command = new Command('translate').helpOption(false).allowUnknownOption(true)
-        .description(`
-            Translate documentation from source to target language using configured translation provider.
-
-            Select a provider to read more help.
-            {{PROGRAM}} --provider yandex --help
-        `);
+    readonly command = new Command(NAME)
+        .description(DESCRIPTION)
+        .helpOption(false)
+        .allowUnknownOption(true);
 
     readonly options = [
         options.input('./'),
@@ -126,7 +123,7 @@ export class Translate
 
             this.command.helpOption(true).allowUnknownOption(false);
 
-            await this.parse(this.args);
+            await this.parse(args(this.command));
         } else {
             await this.provider.translate(this.config);
         }

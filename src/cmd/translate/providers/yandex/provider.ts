@@ -89,11 +89,11 @@ export class Provider {
             const {xlf, skeleton} = extract({
                 source: {
                     language: sourceLanguage,
-                    locale: 'GB',
+                    locale: 'US',
                 },
                 target: {
                     language: targetLanguage,
-                    locale: 'GB',
+                    locale: 'US',
                 },
                 markdown: md,
                 markdownPath: mdPath,

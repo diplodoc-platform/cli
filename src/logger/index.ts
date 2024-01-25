@@ -27,7 +27,7 @@ type MessageInfo = {
     message: string;
 };
 
-export type Writer = ReturnType<typeof writer>;
+const Write = Symbol('write');
 
 function writer(
     logger: Logger,
@@ -47,7 +47,7 @@ function writer(
     return writer;
 }
 
-const Write = Symbol('write');
+export type Writer = ReturnType<typeof writer>;
 
 const colors = {
     [LogLevel.INFO]: green,

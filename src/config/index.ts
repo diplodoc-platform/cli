@@ -67,6 +67,17 @@ export function cmd(command: Command) {
     return ancestorCmdNames + cmdName;
 }
 
+export function args(command: Command | null) {
+    let args: string[] | undefined;
+
+    while (command) {
+        args = command.rawArgs || args;
+        command = command.parent;
+    }
+
+    return args || [];
+}
+
 const deprecatedArg = (reason: string) => yellow('\nDEPRECATED:\n' + reason);
 
 export const scope = (scopeName: string) => (config: Hash) => {
@@ -78,7 +89,7 @@ export const strictScope = (scopeName: string) => (config: Hash) => {
         return config[scopeName];
     } else {
         const error = new TypeError(`Scope ${scopeName} doesn't exist in config`);
-        error.name = 'ScopeException';
+        error.code = 'ScopeException';
         throw error;
     }
 };
@@ -197,7 +208,7 @@ export async function resolveConfig<T extends Hash = {}>(
         });
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
-        switch (error.name) {
+        switch (error.code) {
             case 'YAMLException':
                 throw new Error(`Failed to parse ${path}: ${error.message}`);
             case 'ScopeException':
@@ -215,6 +226,43 @@ export async function resolveConfig<T extends Hash = {}>(
 
 export class Help extends BaseHelp {
     showGlobalOptions = true;
+
+    visibleOptions(command: Command) {
+        const options = super.visibleOptions(command);
+        const flags = new Set(['-h, --help', '--version']);
+
+        return options.filter((option) => !flags.has(option.flags));
+    }
+
+    visibleGlobalOptions(command: Command) {
+        const options = this.visibleOptions(command);
+        const helpOption = command.createOption(command._helpLongFlag, command._helpDescription);
+        const globalOptions = super.visibleGlobalOptions(command);
+
+        const flags = options.reduce((acc, option) => {
+            acc.add(option.flags);
+
+            return acc;
+        }, new Set<string>());
+
+        const filtered = globalOptions
+            .filter((option) => !flags.has(option.flags))
+            .sort((_, b) => (b.flags === '--version' ? -1 : 0));
+
+        return filtered.concat(helpOption);
+    }
+
+    commandUsage(command: Command) {
+        const usage = super.commandUsage(command);
+
+        return trim(usage.replace(/{{PROGRAM}}/g, cmd(command)));
+    }
+
+    commandDescription(command: Command) {
+        const desc = super.commandDescription(command);
+
+        return trim(desc.replace(/{{PROGRAM}}/g, cmd(command)));
+    }
 
     optionDescription(option: ExtendedOption) {
         const extraInfo = [];
@@ -280,9 +328,25 @@ export class Help extends BaseHelp {
 }
 
 export class Command extends BaseCommand {
+    parent: Command | null = null;
+
+    _helpLongFlag = '--help';
+
+    _helpShortFlag = '-h';
+
     _helpDescription = 'Display help for command';
 
     _helpCommandDescription = 'Display help for command';
+
+    missingMandatoryOptionValue(option: ExtendedOption) {
+        const rawArgs = args(this);
+        if (rawArgs.includes(this._helpLongFlag) || rawArgs.includes(this._helpShortFlag)) {
+            return;
+        }
+
+        // @ts-ignore
+        super.missingMandatoryOptionValue(option);
+    }
 
     error(error: string): never {
         throw error;

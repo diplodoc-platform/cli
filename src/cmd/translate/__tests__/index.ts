@@ -33,19 +33,19 @@ type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends Record<any, any> ? DeepPartial<T[P]> : T[P];
 };
 
-export function testConfig(defaultArgs: string) {
-    function _testConfig(name: string, args: string, result: DeepPartial<TranslateConfig>): void;
+export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
+    function _testConfig(name: string, args: string, result: DeepPartial<Config>): void;
     function _testConfig(name: string, args: string, result: Error | string): void;
     function _testConfig(
         name: string,
         args: string,
-        config: DeepPartial<TranslateConfig>,
-        result: DeepPartial<TranslateConfig>,
+        config: DeepPartial<Config>,
+        result: DeepPartial<Config>,
     ): void;
     function _testConfig(
         name: string,
         args: string,
-        config: DeepPartial<TranslateConfig>,
+        config: DeepPartial<Config>,
         result: Error | string,
     ): void;
     function _testConfig(name: string, args: string, config: any, result?: any): void {
@@ -64,7 +64,9 @@ export function testConfig(defaultArgs: string) {
 
             try {
                 const instance = await runTranslate(defaultArgs + ' ' + args);
-                expect(instance.provider?.translate).toBeCalledWith(expect.objectContaining(result));
+                expect(instance.provider?.translate).toBeCalledWith(
+                    expect.objectContaining(result),
+                );
             } catch (error: any) {
                 const message = error.message || error;
                 if (result instanceof Error) {

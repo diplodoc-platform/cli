@@ -80,6 +80,8 @@ export class Program
     private readonly modules: ICallable[] = [this.build, this.publish, this.translate];
 
     apply() {
+        super.apply();
+
         this.hooks.Config.tap('Program', (config, args) => {
             Object.assign(config, omit(args, ['extensions']));
 

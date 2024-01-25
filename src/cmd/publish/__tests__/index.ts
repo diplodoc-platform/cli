@@ -36,7 +36,7 @@ type DeepPartial<T> = {
 };
 
 export function testConfig(name: string, args: string, result: DeepPartial<PublishConfig>): void;
-export function testConfig(name: string, args: string, result: Error | string,): void;
+export function testConfig(name: string, args: string, result: Error | string): void;
 export function testConfig(
     name: string,
     args: string,

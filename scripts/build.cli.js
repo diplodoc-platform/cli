@@ -1,5 +1,6 @@
 const {resolve, join, dirname} = require('path');
 const esbuild = require('esbuild');
+const tsPaths = require('./ts-paths');
 const shell = require('shelljs');
 
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
@@ -21,6 +22,9 @@ const commonConfig = {
     format: 'cjs',
     bundle: true,
     sourcemap: true,
+    plugins:[
+        tsPaths()
+    ],
     define: {
         VERSION: JSON.stringify(version),
     },
