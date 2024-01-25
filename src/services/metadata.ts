@@ -1,7 +1,7 @@
-import {dump} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {MetaDataOptions, Metadata, Resources} from '../models';
+import {MetaDataOptions, Metadata, Resources, VarsMetadata} from '../models';
 import {
     getAuthorDetails,
     updateAuthorMetadataStringByAuthorLogin,
@@ -22,6 +22,7 @@ async function getContentWithUpdatedMetadata(
     fileContent: string,
     options?: MetaDataOptions,
     systemVars?: unknown,
+    metadataVars?: VarsMetadata,
 ): Promise<string> {
     let result;
 
@@ -32,7 +33,9 @@ async function getContentWithUpdatedMetadata(
         addSourcePath: options?.addSourcePath,
         resources: options?.resources,
         systemVars,
+        metadataVars,
     });
+
     result = await getContentWithUpdatedDynamicMetadata(result, options);
 
     return result;
@@ -45,6 +48,7 @@ function getContentWithUpdatedStaticMetadata({
     addSourcePath,
     resources,
     systemVars,
+    metadataVars = [],
 }: {
     fileContent: string;
     sourcePath?: string;
@@ -52,10 +56,16 @@ function getContentWithUpdatedStaticMetadata({
     addSourcePath?: boolean;
     resources?: Resources;
     systemVars?: unknown;
+    metadataVars?: VarsMetadata;
 }): string {
     const newMetadatas: string[] = [];
 
-    if ((!addSystemMeta || !systemVars) && !addSourcePath && !resources) {
+    if (
+        (!addSystemMeta || !systemVars) &&
+        !addSourcePath &&
+        !resources &&
+        metadataVars.length === 0
+    ) {
         return fileContent;
     }
 
@@ -77,7 +87,25 @@ function getContentWithUpdatedStaticMetadata({
     if (matches && matches.length > 0) {
         const [, fileMetadata, , fileMainContent] = matches;
 
-        return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+        if (!metadataVars.length) {
+            return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+        }
+
+        const parsed = load(fileMetadata) as Record<string, any>;
+
+        if (!Array.isArray(parsed.metadata)) {
+            parsed.metadata = [parsed.metadata];
+        }
+
+        parsed.metadata = parsed.metadata.concat(metadataVars);
+
+        const patchedMetada = dump(parsed);
+
+        return `${getUpdatedMetadataString(newMetadatas, patchedMetada)}${fileMainContent}`;
+    }
+
+    if (metadataVars.length) {
+        newMetadatas.push(dump({metadata: metadataVars}));
     }
 
     return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
@@ -239,7 +267,7 @@ function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''):
     }`;
 }
 
-async function getUpdatedMetadata(
+async function getVCSMetadata(
     options: MetaDataOptions,
     fileContent: string,
     meta?: Metadata,
@@ -309,6 +337,6 @@ function getAssetsPublicPath(filePath: string) {
 export {
     getContentWithUpdatedMetadata,
     getContentWithUpdatedStaticMetadata,
-    getUpdatedMetadata,
+    getVCSMetadata,
     getAssetsPublicPath,
 };

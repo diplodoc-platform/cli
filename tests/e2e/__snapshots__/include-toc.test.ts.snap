@@ -143,7 +143,7 @@ base: .
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 1`] = `"[".yfm","file1.md","fileA.md","fileB.md","fileC.md","fileX.md","folder/fileA.md","folder/fileB.md","folder/fileC.md","folder/folder/fileC.md","toc.yaml"]"`;
+exports[`Include toc Toc is included inline, not as a new section 1`] = `"[".yfm","file1.md","fileX.md","folder/fileA.md","folder/fileB.md","folder/fileC.md","folder/folder/fileC.md","folder/toc.yaml","toc.yaml"]"`;
 
 exports[`Include toc Toc is included inline, not as a new section 2`] = `
 "applyPresets: true
@@ -156,28 +156,16 @@ exports[`Include toc Toc is included inline, not as a new section 3`] = `
 `;
 
 exports[`Include toc Toc is included inline, not as a new section 4`] = `
-"---
-title: File A
-description: YFM description
-sourcePath: folder/fileA.md
----
-# File A
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
+"# File X
 "
 `;
 
 exports[`Include toc Toc is included inline, not as a new section 5`] = `
 "---
-sourcePath: folder/fileB.md
+title: File A
+description: YFM description
 ---
-# File B
-
-Lorem Ipsum is simply dummy text of the printing and typesetting industry.
+# File A
 
 ---
 
@@ -188,34 +176,6 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 `;
 
 exports[`Include toc Toc is included inline, not as a new section 6`] = `
-"---
-sourcePath: folder/folder/fileC.md
----
-# File C
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section 7`] = `
-"# File X
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section 8`] = `
-"---
-title: File A
-description: YFM description
----
-# File A
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section 9`] = `
 "# File B
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -228,7 +188,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 10`] = `
+exports[`Include toc Toc is included inline, not as a new section 7`] = `
 "---
 sourcePath: folder/folder/fileC.md
 ---
@@ -236,21 +196,27 @@ sourcePath: folder/folder/fileC.md
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 11`] = `
+exports[`Include toc Toc is included inline, not as a new section 8`] = `
 "# File C
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 12`] = `
+exports[`Include toc Toc is included inline, not as a new section 9`] = `
 "items:
-  - name: Name1
-    href: file1.md
   - name: NameA
     href: fileA.md
   - name: NameB
     href: fileB.md
   - name: NameC
     href: fileC.md
+base: folder
+"
+`;
+
+exports[`Include toc Toc is included inline, not as a new section 10`] = `
+"items:
+  - name: Name1
+    href: file1.md
   - name: NameX
     href: fileX.md
 base: .

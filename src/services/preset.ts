@@ -7,10 +7,11 @@ export type PresetStorage = Map<string, YfmPreset>;
 let presetStorage: PresetStorage = new Map();
 
 function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
-    const combinedValues: YfmPreset = {
+    const combinedValues = {
         ...(parsedPreset.default || {}),
         ...(parsedPreset[varsPreset] || {}),
-    };
+        __metadata: parsedPreset.__metadata,
+    } as YfmPreset;
 
     const key = dirname(normalize(path));
     presetStorage.set(key, combinedValues);

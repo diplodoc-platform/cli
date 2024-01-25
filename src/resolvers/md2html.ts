@@ -16,7 +16,7 @@ import {
     transformToc,
 } from '../utils';
 import {Lang, PROCESSING_FINISHED} from '../constants';
-import {getAssetsPublicPath, getUpdatedMetadata} from '../services/metadata';
+import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 
 export interface FileTransformOptions {
@@ -42,6 +42,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
     const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
+    const vars = getVarsPerFile(inputPath);
 
     const {input, lang, allowCustomResources} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
@@ -50,12 +51,17 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
 
-    const updatedMetadata =
-        metadata && metadata.isContributorsEnabled
-            ? await getUpdatedMetadata(metadata, content, result?.meta)
-            : result.meta;
+    const updatedMetadata = metadata?.isContributorsEnabled
+        ? await getVCSMetadata(metadata, content, result?.meta)
+        : result.meta;
 
     const fileMeta = fileExtension === '.yaml' ? result.data.meta ?? {} : updatedMetadata;
+
+    if (Array.isArray(fileMeta?.metadata)) {
+        fileMeta.metadata.push(...(vars.__metadata || []));
+    } else {
+        fileMeta.metadata = vars.__metadata || [];
+    }
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};

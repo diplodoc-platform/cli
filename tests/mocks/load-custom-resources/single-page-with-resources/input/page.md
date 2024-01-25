@@ -1,5 +1,7 @@
 ---
-meta: some meta
+metadata:
+  - name: yfm
+    content: builder
 ---
 
 Lorem
