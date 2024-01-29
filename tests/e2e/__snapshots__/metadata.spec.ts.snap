@@ -67,7 +67,9 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
 <html lang="ru">
   <head>
     <meta charset="utf-8">
-    <meta name="yfm">
+    <meta name="yfm"
+          value="builder in page"
+    >
     <meta name="test-yfm"
           content="inline test"
     >
@@ -101,7 +103,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"page.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="_bundle/vendor.js"
@@ -124,7 +126,9 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 <html lang="ru">
   <head>
     <meta charset="utf-8">
-    <meta name="yfm">
+    <meta name="yfm"
+          value="builder in config"
+    >
     <meta name="test-yfm"
           content="inline test"
     >
@@ -158,7 +162,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"../index.html","items":[{"name":"Documentation","href":"../page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"../project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
+      </p>/n"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
             src="../_bundle/vendor.js"
@@ -194,12 +198,12 @@ links:
 exports[`Allow load custom resources md2md with metadata 3`] = `
 "---
 metadata:
+  - name: yfm
+    content: builder in page
   - name: test-yfm
     content: inline test
   - name: yfm-config
     content: config test
-  - name: yfm
-    content: builder in page
 ---
 
 Lorem"
@@ -208,12 +212,12 @@ Lorem"
 exports[`Allow load custom resources md2md with metadata 4`] = `
 "---
 metadata:
+  - name: yfm
+    value: builder in config
   - name: test-yfm
     content: inline test
   - name: yfm-config
     content: config test
-  - name: yfm
-    value: builder in config
 ---
 
 Lorem"
