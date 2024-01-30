@@ -1,34 +1,42 @@
 import {join} from 'path';
 import {platform} from 'process';
 
-import {CUSTOM_STYLE, Platforms, ResourceType} from '../constants';
-import {Resources, SinglePageResult} from '../models';
+import {CUSTOM_STYLE, Platforms} from '../constants';
+import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
+import {escape} from 'html-escaper';
+
 const dst = (bundlePath: string) => (target: string) => join(bundlePath, target);
+export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export interface TitleMeta {
     title?: string;
 }
-export type Meta = TitleMeta & Resources;
+
+export type Meta = TitleMeta &
+    Resources & {
+        metadata: VarsMetadata;
+    };
 
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
     pathToBundle: string,
 ): string {
-    const {title: metaTitle, style, script} = (props.data.meta as Meta) || {};
+    const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
 
     const title = getTitle({
-        metaTitle,
+        metaTitle: props.data.meta.title,
         tocTitle: tocTitle as string,
         pageTitle,
     });
+
     const resources = getResources({style, script});
 
     const {staticContent} = ArgvService.getConfig();
@@ -40,7 +48,7 @@ export function generateStaticMarkup(
         <html lang="${props.lang}">
             <head>
                 <meta charset="utf-8">
-                ${getMetadata(props.data.meta as Record<string, string>)}
+                ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
                 <style type="text/css">
@@ -93,21 +101,32 @@ function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
     return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
 }
 
-function getMetadata(metadata: Record<string, string>): string {
-    if (!metadata) {
-        return '';
+function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['meta']): string {
+    let result = '';
+
+    const addMetaTagsFromObject = (value: Record<string, string | boolean | TextItems>) => {
+        const args = Object.entries(value).reduce((acc, [name, content]) => {
+            return acc + `${escape(name)}="${escape(content.toString())}" `;
+        }, '');
+
+        if (args.length) {
+            result += `<meta ${args} />` + сarriage;
+        }
+    };
+
+    if (metadata) {
+        metadata.forEach(addMetaTagsFromObject);
     }
 
-    // Exclude resources from meta, proceed them separately
-    const metaEntries = Object.entries(metadata).filter(
-        ([key]) => !Object.keys(ResourceType).includes(key),
-    );
+    if (restMeta) {
+        Object.entries(restMeta)
+            .map(([name, value]) => {
+                return {name, content: value};
+            })
+            .forEach(addMetaTagsFromObject);
+    }
 
-    return metaEntries
-        .map(([name, content]) => {
-            return `<meta name="${name}" content="${content}">`;
-        })
-        .join('\n');
+    return result;
 }
 
 function getResources({style, script}: Resources) {
@@ -129,8 +148,6 @@ function getResources({style, script}: Resources) {
 
     return resourcesTags.join('\n');
 }
-
-export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export function joinSinglePageResults(
     singlePageResults: SinglePageResult[],

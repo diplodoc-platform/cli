@@ -21,6 +21,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         readFileSync(resolvedInputPath, 'utf8'),
         metadata,
         vars.__system,
+        vars.__metadata,
     );
 
     const {result, changelogs} = transformMd2Md(content, {

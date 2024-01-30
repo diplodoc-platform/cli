@@ -1,9 +1,10 @@
 {
   "extends": "@diplodoc/tsconfig",
   "compilerOptions": {
+    "lib": ["ES2019"],
     "target": "es6",
-    "moduleResolution": "NodeNext",
-    "outDir": "build"
+    "outDir": "build",
+    "module": "CommonJS"
   },
   "include": ["src"],
   "exclude": ["node_modules"],

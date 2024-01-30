@@ -1,7 +1,7 @@
 ---
 metadata:
   - name: yfm
-    content: builder
+    value: builder in page
 ---
 
 Lorem

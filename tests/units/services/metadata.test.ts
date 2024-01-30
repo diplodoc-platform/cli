@@ -1,5 +1,5 @@
 import {Contributor, Contributors, Metadata, MetaDataOptions} from 'models';
-import {getUpdatedMetadata} from 'services/metadata';
+import {getVCSMetadata} from 'services/metadata';
 import {replaceDoubleToSingleQuotes} from 'utils/markup';
 import {VCSConnector} from 'vcs-connector/connector-models';
 
@@ -35,7 +35,7 @@ jest.mock('services/authors', () => ({
 }));
 
 const defaultVCSConnector: VCSConnector = {
-    addNestedContributorsForPath: () => { },
+    addNestedContributorsForPath: () => {},
     getContributorsByPath: () => Promise.resolve(null),
     getUserByLogin: () => Promise.resolve(null),
     getExternalAuthorByPath: () => null,
@@ -64,7 +64,7 @@ describe('getUpdatedMetadata', () => {
         };
         metaDataOptions.isContributorsEnabled = false;
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent);
+        const newMetadata = await getVCSMetadata(metaDataOptions, fileContent);
 
         expect(newMetadata).toEqual(expectedMetadata);
     });
@@ -76,77 +76,89 @@ describe('getUpdatedMetadata', () => {
         };
         metaDataOptions.vcsConnector = undefined;
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent);
+        const newMetadata = await getVCSMetadata(metaDataOptions, fileContent);
 
         expect(newMetadata).toEqual(expectedMetadata);
     });
 
-    test('returns new metadata with filled contributors ' +
-        'when metadata options has "isContributorsEnabled" and "vcsConnector"', async () => {
-        const fileContent = '';
-        const expectedMetadata = {
-            contributors: contributorsString,
-        };
+    test(
+        'returns new metadata with filled contributors ' +
+            'when metadata options has "isContributorsEnabled" and "vcsConnector"',
+        async () => {
+            const fileContent = '';
+            const expectedMetadata = {
+                contributors: contributorsString,
+            };
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent);
+            const newMetadata = await getVCSMetadata(metaDataOptions, fileContent);
 
-        expect(newMetadata).toEqual(expectedMetadata);
-    });
+            expect(newMetadata).toEqual(expectedMetadata);
+        },
+    );
 
-    test('returns updated metadata with empty contributors when file has default metadata ' +
-        'and metadata options has "vcsConnector" and do not have "isContributorsEnabled"', async () => {
-        const fileContent = '';
-        const meta: Metadata = {
-            title: 'Some title',
-        };
-        const expectedMetadata = {
-            ...meta,
-            contributors: '[]',
-            author: null,
-        };
-        metaDataOptions.isContributorsEnabled = false;
+    test(
+        'returns updated metadata with empty contributors when file has default metadata ' +
+            'and metadata options has "vcsConnector" and do not have "isContributorsEnabled"',
+        async () => {
+            const fileContent = '';
+            const meta: Metadata = {
+                title: 'Some title',
+            };
+            const expectedMetadata = {
+                ...meta,
+                contributors: '[]',
+                author: null,
+            };
+            metaDataOptions.isContributorsEnabled = false;
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent, meta);
+            const newMetadata = await getVCSMetadata(metaDataOptions, fileContent, meta);
 
-        expect(newMetadata).toEqual(expectedMetadata);
-    });
+            expect(newMetadata).toEqual(expectedMetadata);
+        },
+    );
 
-    test('returns updated metadata with empty contributors when file has metadata with author ' +
-        'and metadata options has "vcsConnector" and do not have "isContributorsEnabled"', async () => {
-        const fileContent = '';
-        const meta: Metadata = {
-            title: 'Some title',
-            author: 'Some author',
-        };
-        const expectedMetadata = {
-            ...meta,
-            contributors: '[]',
-            author: authorString,
-        };
-        metaDataOptions.isContributorsEnabled = false;
+    test(
+        'returns updated metadata with empty contributors when file has metadata with author ' +
+            'and metadata options has "vcsConnector" and do not have "isContributorsEnabled"',
+        async () => {
+            const fileContent = '';
+            const meta: Metadata = {
+                title: 'Some title',
+                author: 'Some author',
+            };
+            const expectedMetadata = {
+                ...meta,
+                contributors: '[]',
+                author: authorString,
+            };
+            metaDataOptions.isContributorsEnabled = false;
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent, meta);
+            const newMetadata = await getVCSMetadata(metaDataOptions, fileContent, meta);
 
-        expect(newMetadata).toEqual(expectedMetadata);
-    });
+            expect(newMetadata).toEqual(expectedMetadata);
+        },
+    );
 
-    test('returns updated metadata with empty contributors when file has metadata with author ' +
-        'and metadata options do not have "isContributorsEnabled" and "vcsConnector"', async () => {
-        const fileContent = '';
-        const meta: Metadata = {
-            title: 'Some title',
-            author: 'Some author',
-        };
-        const expectedMetadata = {
-            ...meta,
-            contributors: '[]',
-            author: null,
-        };
-        metaDataOptions.isContributorsEnabled = false;
-        metaDataOptions.vcsConnector = undefined;
+    test(
+        'returns updated metadata with empty contributors when file has metadata with author ' +
+            'and metadata options do not have "isContributorsEnabled" and "vcsConnector"',
+        async () => {
+            const fileContent = '';
+            const meta: Metadata = {
+                title: 'Some title',
+                author: 'Some author',
+            };
+            const expectedMetadata = {
+                ...meta,
+                contributors: '[]',
+                author: null,
+            };
+            metaDataOptions.isContributorsEnabled = false;
+            metaDataOptions.vcsConnector = undefined;
 
-        const newMetadata = await getUpdatedMetadata(metaDataOptions, fileContent, meta);
+            const newMetadata = await getVCSMetadata(metaDataOptions, fileContent, meta);
 
-        expect(newMetadata).toEqual(expectedMetadata);
-    });
+            expect(newMetadata).toEqual(expectedMetadata);
+        },
+    );
 });

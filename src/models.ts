@@ -7,7 +7,13 @@ import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 
 export type VarsPreset = 'internal' | 'external';
 
-export type YfmPreset = Record<string, string>;
+export type VarsMetadata = {
+    [field: string]: string;
+}[];
+
+export type YfmPreset = Record<string, string> & {
+    __metadata?: VarsMetadata;
+};
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Metadata = Record<string, any>;
 
@@ -66,10 +72,12 @@ export interface YfmArgv extends YfmConfig {
     staticContent: boolean;
 }
 
-export interface DocPreset {
+export type DocPreset = {
     default: YfmPreset;
     [varsPreset: string]: YfmPreset;
-}
+} & {
+    __metadata: Record<string, string>[];
+};
 
 export interface YfmToc extends Filter {
     name: string;
