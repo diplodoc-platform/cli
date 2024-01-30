@@ -35,7 +35,7 @@
     "@diplodoc/latex-extension": "^1.0.3",
     "@diplodoc/markdown-translation": "^1.1.0",
     "@diplodoc/mermaid-extension": "^1.2.1",
-    "@diplodoc/openapi-extension": "^1.4.10",
+    "@diplodoc/openapi-extension": "^1.4.12",
     "@diplodoc/transform": "^4.8.2",
     "@octokit/core": "4.2.4",
     "@yandex-cloud/nodejs-sdk": "^2.2.2",
