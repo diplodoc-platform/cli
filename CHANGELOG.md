@@ -6,7 +6,7 @@
 ### Features
 
 * **cmd:** add need-to-sanitize-html flag ([22957d8](https://github.com/diplodoc-platform/cli/commit/22957d8365f9ee8ab3442a6fdaa05a16d8f071cf))
-
+* **cli:** support custom metadata in presets.yaml / inline ([7be29c1](https://github.com/diplodoc-platform/cli/commit/7be29c11be2a555aa68fc7d290a912a05cbcc4a0))
 
 ### Bug Fixes
 
