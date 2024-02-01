@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.12.1](https://github.com/diplodoc-platform/cli/compare/v4.12.0...v4.12.1) (2024-02-01)
+
+
+### Bug Fixes
+
+* fix plugins runtime in client ([dac2ab7](https://github.com/diplodoc-platform/cli/commit/dac2ab757e03b3fe37ac5f42e3a6f46a6a33d35e))
+
 ## [4.12.0](https://github.com/diplodoc-platform/cli/compare/v4.11.0...v4.12.0) (2024-01-30)
 
 
