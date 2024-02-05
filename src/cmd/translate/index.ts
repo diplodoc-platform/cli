@@ -1,8 +1,9 @@
+import glob from 'glob';
+import {ok} from 'assert';
 import {asyncify, eachLimit, retry} from 'async';
 
-import {dirname, join, resolve} from 'path';
+import {basename, dirname, join, resolve} from 'path';
 import {mkdir, readFile, writeFile} from 'fs/promises';
-import {XMLParser} from 'fast-xml-parser';
 
 import {Session} from '@yandex-cloud/nodejs-sdk/dist/session';
 import {TranslationServiceClient} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/service_clients';
@@ -11,15 +12,17 @@ import {
     TranslateRequest,
 } from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
 
-import markdownTranslation from '@diplodoc/markdown-translation';
+// @ts-ignore
+import {compose, extract} from '@diplodoc/markdown-translation';
 
 import {ArgvService} from '../../services';
 import {getYandexOAuthToken} from '../../packages/credentials';
-import {glob, logger} from '../../utils';
+import {logger} from '../../utils';
 
 import {Arguments, Argv} from 'yargs';
 
-import {YandexCloudTranslateGlossaryPair} from '../../models';
+// import {YandexCloudTranslateGlossaryPair} from '../../models';
+import {argvValidator} from '../../validator';
 
 const command = 'translate';
 
@@ -32,14 +35,16 @@ const translate = {
     builder,
 };
 
-const MD_GLOB = '**/*.md';
 const REQUESTS_LIMIT = 20;
 const BYTES_LIMIT = 10000;
 const RETRY_LIMIT = 3;
-const MTRANS_LOCALE = 'MTRANS';
 
 function builder<T>(argv: Argv<T>) {
     return argv
+        .option('folder-id', {
+            describe: 'folder id',
+            type: 'string',
+        })
         .option('source-language', {
             alias: 'sl',
             describe: 'source language code',
@@ -50,10 +55,11 @@ function builder<T>(argv: Argv<T>) {
             describe: 'target language code',
             type: 'string',
         })
-        .demandOption(
-            ['source-language', 'target-language'],
-            'command requires to specify source and target languages',
-        );
+        .check(argvValidator);
+    // .demandOption(
+    //     ['source-language', 'target-language'],
+    //     'command requires to specify source and target languages',
+    // );
 }
 
 class TranslatorError extends Error {
@@ -66,34 +72,62 @@ class TranslatorError extends Error {
     }
 }
 
+type TranslateConfig = {
+    input: string;
+    output?: string;
+    sourceLanguage: string;
+    targetLanguage: string;
+    folderId?: string;
+    glossary?: string;
+    include?: string[];
+    exclude?: string[];
+};
+
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
 async function handler(args: Arguments<any>) {
     ArgvService.init({
+        ...(args.translate || {}),
         ...args,
     });
 
     const {
-        input,
-        output,
-        yandexCloudTranslateFolderId,
-        yandexCloudTranslateGlossaryPairs,
-        sl: sourceLanguage,
-        tl: targetLanguage,
-    } = args;
+        folderId,
+        // yandexCloudTranslateGlossaryPairs,
+        sourceLanguage,
+        targetLanguage,
+        exclude = [],
+    } = ArgvService.getConfig() as unknown as TranslateConfig;
+
+    let {input, output, include = []} = ArgvService.getConfig() as unknown as TranslateConfig;
 
     logger.info(
         input,
         `translating documentation from ${sourceLanguage} to ${targetLanguage} language`,
     );
 
-    try {
-        let found = [];
+    output = output || input;
 
-        ({
-            state: {found},
-        } = await glob(join(input, MD_GLOB), {
-            nosort: true,
-        }));
+    ok(input, 'Required param input is not configured');
+    ok(sourceLanguage, 'Required param sourceLanguage is not configured');
+    ok(targetLanguage, 'Required param targetLanguage is not configured');
+
+    try {
+        if (input.endsWith('.md')) {
+            include = [basename(input)];
+            input = dirname(input);
+        } else if (!include.length) {
+            include.push('**/*');
+        }
+
+        const files = ([] as string[]).concat(
+            ...include.map((match) =>
+                glob.sync(match, {
+                    cwd: join(input, sourceLanguage),
+                    ignore: exclude,
+                }),
+            ),
+        );
+        const found = [...new Set(files)];
 
         const oauthToken = await getYandexOAuthToken();
 
@@ -102,8 +136,8 @@ async function handler(args: Arguments<any>) {
             output,
             sourceLanguage,
             targetLanguage,
-            yandexCloudTranslateGlossaryPairs,
-            folderId: yandexCloudTranslateFolderId,
+            // yandexCloudTranslateGlossaryPairs,
+            folderId,
             oauthToken,
         };
 
@@ -128,12 +162,12 @@ async function handler(args: Arguments<any>) {
 
 export type TranslatorParams = {
     oauthToken: string;
-    folderId: string;
+    folderId: string | undefined;
     input: string;
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
+    // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
 function translator(params: TranslatorParams) {
@@ -144,53 +178,80 @@ function translator(params: TranslatorParams) {
         output,
         sourceLanguage,
         targetLanguage,
-        yandexCloudTranslateGlossaryPairs,
+        // yandexCloudTranslateGlossaryPairs,
     } = params;
 
+    const tmap = new Map<string, Defer>();
     const session = new Session({oauthToken});
     const client = session.client(TranslationServiceClient);
-    const request = (texts: string[]) => () =>
-        client
+    const request = (texts: string[]) => () => {
+        return client
             .translate(
                 TranslateRequest.fromPartial({
                     texts,
                     folderId,
                     sourceLanguageCode: sourceLanguage,
                     targetLanguageCode: targetLanguage,
-                    glossaryConfig: {
-                        glossaryData: {
-                            glossaryPairs: yandexCloudTranslateGlossaryPairs,
-                        },
-                    },
-                    format: Format.PLAIN_TEXT,
+                    // glossaryConfig: {
+                    //     glossaryData: {
+                    //         glossaryPairs: yandexCloudTranslateGlossaryPairs,
+                    //     },
+                    // },
+                    format: Format.HTML,
                 }),
             )
-            .then((results) => results.translations.map(({text}) => text));
+            .then((results) => {
+                return results.translations.map(({text}, index) => {
+                    const defer = tmap.get(texts[index]);
+                    if (defer) {
+                        defer.resolve([text]);
+                    }
+
+                    return text;
+                });
+            });
+    };
 
     return async (mdPath: string) => {
+        if (!mdPath.endsWith('.md')) {
+            return;
+        }
+
         try {
             logger.info(mdPath, 'translating');
 
-            const md = await readFile(resolve(mdPath), {encoding: 'utf-8'});
+            const inputPath = resolve(input, sourceLanguage, mdPath);
+            const outputPath = resolve(output, targetLanguage, mdPath);
+            const md = await readFile(inputPath, {encoding: 'utf-8'});
 
-            const {xlf, skeleton} = markdownTranslation.extract({
+            await mkdir(dirname(outputPath), {recursive: true});
+
+            if (!md) {
+                await writeFile(outputPath, md);
+                return;
+            }
+
+            const {units, skeleton} = extract({
                 source: {
                     language: sourceLanguage,
-                    locale: sourceLanguage.toUpperCase(),
+                    locale: 'RU',
                 },
                 target: {
                     language: targetLanguage,
-                    locale: targetLanguage.toUpperCase(),
+                    locale: 'US',
                 },
                 markdown: md,
                 markdownPath: mdPath,
                 skeletonPath: '',
             });
 
-            const texts = parseSourcesFromXLIFF(xlf);
+            if (!units.length) {
+                await writeFile(outputPath, md);
+                return;
+            }
 
             const parts = await Promise.all(
-                texts.reduce(
+                (units as string[]).reduce(
                     (
                         {
                             promises,
@@ -213,7 +274,14 @@ function translator(params: TranslatorParams) {
                             return {promises, buffer, bufferSize};
                         }
 
-                        if (bufferSize + text.length > BYTES_LIMIT || index === texts.length - 1) {
+                        const defer = tmap.get(text);
+                        if (defer) {
+                            console.log('SKIPPED', text);
+                            promises.push(defer.promise);
+                            return {promises, buffer, bufferSize};
+                        }
+
+                        if (bufferSize + text.length > BYTES_LIMIT) {
                             promises.push(backoff(request(buffer)));
                             buffer = [];
                             bufferSize = 0;
@@ -221,6 +289,11 @@ function translator(params: TranslatorParams) {
 
                         buffer.push(text);
                         bufferSize += text.length;
+                        tmap.set(text, new Defer());
+
+                        if (index === units.length - 1) {
+                            promises.push(backoff(request(buffer)));
+                        }
 
                         return {promises, buffer, bufferSize};
                     },
@@ -234,21 +307,12 @@ function translator(params: TranslatorParams) {
 
             const translations = ([] as string[]).concat(...parts);
 
-            const translatedXLIFF = createXLIFFDocument({
-                sourceLanguage: sourceLanguage + '-' + MTRANS_LOCALE,
-                targetLanguage: targetLanguage + '-' + MTRANS_LOCALE,
-                sources: texts,
-                targets: translations,
-            });
-
-            const composed = await markdownTranslation.compose({
-                xlf: translatedXLIFF,
+            const composed = await compose({
+                useSource: true,
+                units: translations,
                 skeleton,
             });
 
-            const outputPath = mdPath.replace(input, output);
-
-            await mkdir(dirname(outputPath), {recursive: true});
             await writeFile(outputPath, composed);
 
             logger.info(outputPath, 'finished translating');
@@ -273,44 +337,19 @@ function backoff(action: () => Promise<string[]>): Promise<string[]> {
     );
 }
 
-function parseSourcesFromXLIFF(xliff: string): string[] {
-    const parser = new XMLParser();
+class Defer {
+    resolve!: (text: string[]) => void;
 
-    const inputs = parser.parse(xliff)?.xliff?.file?.body['trans-unit'] ?? [];
+    reject!: (error: any) => void;
 
-    return Array.isArray(inputs)
-        ? inputs.map(({source}: {source: string}) => source)
-        : [inputs.source];
-}
+    promise: Promise<string[]>;
 
-export type CreateXLIFFDocumentParams = {
-    sourceLanguage: string;
-    targetLanguage: string;
-    sources: string[];
-    targets: string[];
-};
-
-function createXLIFFDocument(params: CreateXLIFFDocumentParams) {
-    const {sourceLanguage, targetLanguage, sources, targets} = params;
-
-    const unit = (text: string, i: number): string => `
-<trans-unit id="${i + 1}">
-    <source xml:lang="${sourceLanguage}">${sources[i]}</source>
-    <target xml:lang="${targetLanguage}">${text}</target>
-</trans-unit>`;
-
-    const doc = `
-<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-    <file original="" source-language="${sourceLanguage}" target-language="${targetLanguage}">
-        <header>
-            <skl><external-file href="" /></skl>
-        </header>
-        <body>${targets.map(unit)}</body>
-    </file>
-</xliff>`;
-
-    return doc;
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
 }
 
 export {translate};
