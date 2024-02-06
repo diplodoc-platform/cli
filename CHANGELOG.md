@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.1](https://github.com/diplodoc-platform/cli/compare/v4.13.0...v4.13.1) (2024-02-06)
+
+
+### Bug Fixes
+
+* null filter ([f78e64a](https://github.com/diplodoc-platform/cli/commit/f78e64ac205b1f5269badc21d257bec719036bfb))
+
 ## [4.13.0](https://github.com/diplodoc-platform/cli/compare/v4.12.1...v4.13.0) (2024-02-06)
 
 

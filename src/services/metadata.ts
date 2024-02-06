@@ -97,9 +97,7 @@ function getContentWithUpdatedStaticMetadata({
             parsed.metadata = [parsed.metadata];
         }
 
-        parsed.metadata = parsed.metadata
-            .concat(metadataVars)
-            .filter(Boolean);
+        parsed.metadata = parsed.metadata.concat(metadataVars).filter(Boolean);
 
         const patchedMetada = dump(parsed);
 
