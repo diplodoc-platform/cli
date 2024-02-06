@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.2](https://github.com/diplodoc-platform/cli/compare/v4.13.1...v4.13.2) (2024-02-06)
+
+
+### Bug Fixes
+
+* Fix notes interaction ([cbf354b](https://github.com/diplodoc-platform/cli/commit/cbf354b281b6bf846c0aa3a4206fd8323168f5e5))
+
 ## [4.13.1](https://github.com/diplodoc-platform/cli/compare/v4.13.0...v4.13.1) (2024-02-06)
 
 
