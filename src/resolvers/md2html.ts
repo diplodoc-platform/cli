@@ -58,10 +58,10 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const fileMeta = fileExtension === '.yaml' ? result.data.meta ?? {} : updatedMetadata;
 
     if (!Array.isArray(fileMeta?.metadata)) {
-        fileMeta.metadata = [fileMeta?.metadata].filter(Boolean)   
+        fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
     }
 
-    fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || [])
+    fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};
