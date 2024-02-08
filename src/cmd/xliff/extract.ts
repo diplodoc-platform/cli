@@ -1,14 +1,18 @@
+import {ok} from 'assert';
+import glob from 'glob';
+import {argvValidator} from '../../validator';
+
 const {
     promises: {readFile, writeFile, mkdir},
 } = require('fs');
-import {dirname, extname, join} from 'path';
+import {basename, dirname, join, resolve} from 'path';
 
-import markdownTranslation, {ExtractParameters} from '@diplodoc/markdown-translation';
+// @ts-ignore
+import {ExtractParams, extract as extractMD} from '@diplodoc/markdown-translation';
 import {Arguments, Argv} from 'yargs';
 import {asyncify, eachLimit} from 'async';
 
 import {ArgvService} from '../../services';
-import {glob, logger} from '../../utils';
 
 const command = 'extract';
 
@@ -16,29 +20,7 @@ const description = 'extract xliff and skeleton from yfm documentation';
 
 const extract = {command, description, handler, builder};
 
-const MD_GLOB = '**/*.md';
-
 const MAX_CONCURRENCY = 50;
-
-class ExtractError extends Error {
-    path: string;
-
-    constructor(message: string, path: string) {
-        super(message);
-
-        this.path = path;
-    }
-}
-
-const USAGE = `yfm xliff extract \
---input <folder-with-markdown> \
---output <folder-to-store-xlff-and-skeleton> \
---sll <source-language>-<source-locale> \
---tll <target-language>-<target-locale>
-
-where <source/target-language> is the language code, as described in ISO 639-1.
-
-where <source/target-locale> is the locale code in alpha-2 format, as described in ISO 3166-1`;
 
 function builder<T>(argv: Argv<T>) {
     return argv
@@ -62,183 +44,130 @@ function builder<T>(argv: Argv<T>) {
             describe: 'output folder to store xliff and skeleton files',
             type: 'string',
         })
-        .demandOption(
-            ['source-language-locale', 'target-language-locale', 'input', 'output'],
-            USAGE,
-        );
+        .check(argvValidator);
 }
 
+type HandlerParams = {
+    input: string;
+    output: string;
+    include?: string[];
+    exclude?: string[];
+    sourceLanguage?: string;
+    sourceLocale?: string;
+    sourceLanguageLocale?: string;
+    targetLanguage?: string;
+    targetLocale?: string;
+    targetLanguageLocale?: string;
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-async function handler(args: Arguments<any>) {
+async function handler(args: Arguments<HandlerParams>) {
+    args = Object.assign({}, args.translate || {}, args);
+    delete args.translate;
+
     ArgvService.init({
         ...args,
     });
 
-    const {input, output, sourceLanguageLocale, targetLanguageLocale} = args;
+    const {
+        output,
+        exclude = [],
+        sourceLanguage,
+        sourceLocale,
+        targetLanguage,
+        targetLocale,
+    } = ArgvService.getConfig() as HandlerParams;
 
-    let source;
-    let target;
+    let {
+        input,
+        include = [],
+        sourceLanguageLocale,
+        targetLanguageLocale,
+    } = ArgvService.getConfig() as HandlerParams;
 
-    try {
-        source = parseLanguageLocale(sourceLanguageLocale);
-        target = parseLanguageLocale(targetLanguageLocale);
-    } catch (err) {
-        if (err instanceof Error) {
-            logger.error(input, err.message);
-        }
+    ok(input);
+    ok(output);
+
+    ok(
+        sourceLanguageLocale || (sourceLanguage && sourceLocale),
+        'Source language and locale should be configured',
+    );
+
+    ok(
+        targetLanguageLocale || (targetLanguage && targetLocale),
+        'Source language and locale should be configured',
+    );
+
+    sourceLanguageLocale = sourceLanguageLocale || sourceLanguage + '-' + sourceLocale;
+    targetLanguageLocale = targetLanguageLocale || targetLanguage + '-' + targetLocale;
+
+    const source = parseLanguageLocale(sourceLanguageLocale);
+    const target = parseLanguageLocale(targetLanguageLocale);
+
+    if (input.endsWith('.md')) {
+        include = [basename(input)];
+        input = dirname(input);
+    } else if (!include.length) {
+        include.push('**/*');
     }
 
-    let cache = {};
-    let found: string[] = [];
+    const files = ([] as string[]).concat(
+        ...include.map((match) =>
+            glob.sync(match, {
+                cwd: join(input, source.language),
+                ignore: exclude,
+            }),
+        ),
+    );
+    const found = [...new Set(files)];
+    const configuredPipeline = pipeline({source, target, input, output});
 
-    try {
-        ({
-            state: {found, cache},
-        } = await glob(join(input, MD_GLOB), {
-            nosort: true,
-            cache,
-        }));
-    } catch (err) {
-        if (err instanceof Error) {
-            logger.error(input, err.message);
-        }
-    }
-
-    const pipelineParameters = {source, target, input, output};
-    const configuredPipeline = pipeline(pipelineParameters);
-
-    try {
-        logger.info(input, 'starting xliff and skeleton generation pipeline');
-
-        await eachLimit(found, MAX_CONCURRENCY, asyncify(configuredPipeline));
-
-        logger.info(input, 'finished xliff and skeleton generation pipeline');
-    } catch (err) {
-        if (err instanceof Error || err instanceof ExtractError) {
-            const file = err instanceof ExtractError ? err.path : input;
-
-            logger.error(file, err.message);
-        }
-    }
+    await eachLimit(found, MAX_CONCURRENCY, asyncify(configuredPipeline));
 }
 
 function parseLanguageLocale(languageLocale: string) {
     const [language, locale] = languageLocale.split('-');
-    if (language?.length && locale?.length) {
-        return {language, locale};
+    if (!language?.length || !locale?.length) {
+        throw new Error('invalid language-locale string');
     }
 
-    throw new Error('invalid language-locale string');
+    return {language, locale};
 }
 
 export type PipelineParameters = {
     input: string;
     output: string;
-    source: ExtractParameters['source'];
-    target: ExtractParameters['target'];
+    source: ExtractParams['source'];
+    target: ExtractParams['target'];
 };
 
 function pipeline(params: PipelineParameters) {
     const {input, output, source, target} = params;
+    const inputRoot = resolve(input, source.language);
+    const outputRoot = resolve(output, target.language);
 
-    return async (markdownPath: string) => {
-        const markdown = await reader({path: markdownPath});
-        const extension = extname(markdownPath);
+    return async (path: string) => {
+        if (!path.endsWith('.md')) {
+            return;
+        }
 
-        const outputRelativePath = markdownPath.replace(extension, '').slice(input.length);
+        const inputPath = join(inputRoot, path);
+        const xliffPath = join(outputRoot, path + '.xliff');
+        const skeletonPath = join(outputRoot, path + '.skl');
+        const markdown = await readFile(inputPath, 'utf-8');
 
-        const outputPath = join(output, outputRelativePath);
-        const xlfPath = outputPath + '.xliff';
-        const skeletonPath = outputPath + '.skl.md';
+        await mkdir(dirname(xliffPath), {recursive: true});
 
-        const extractParameters = {
-            markdownPath,
+        const {xliff, skeleton} = await extractMD({
+            markdownPath: path,
             skeletonPath,
             markdown,
             source,
             target,
-        };
+        });
 
-        const extracted = await extractor(extractParameters);
-
-        const writerParameters = {
-            ...extracted,
-            xlfPath,
-            skeletonPath,
-        };
-
-        await writer(writerParameters);
+        await Promise.all([writeFile(skeletonPath, skeleton), writeFile(xliffPath, xliff)]);
     };
-}
-
-export type ReaderParameters = {
-    path: string;
-};
-
-async function reader(params: ReaderParameters) {
-    const {path} = params;
-
-    let markdown;
-    try {
-        logger.info(path, 'reading markdown file');
-
-        markdown = await readFile(path, {encoding: 'utf-8'});
-
-        logger.info(path, 'finished reading markdown file');
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ExtractError(err.message, path);
-        }
-    }
-
-    return markdown;
-}
-
-export type ExtractorParameters = {
-    source: ExtractParameters['source'];
-    target: ExtractParameters['target'];
-    skeletonPath: string;
-    markdownPath: string;
-    markdown: string;
-};
-
-async function extractor(params: ExtractorParameters) {
-    let extracted;
-
-    logger.info(params.markdownPath, 'generating skeleton and xliff from markdown');
-
-    try {
-        extracted = markdownTranslation.extract(params);
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ExtractError(err.message, params.markdownPath);
-        }
-    }
-
-    logger.info(params.markdownPath, 'finished generating skeleton and xliff from markdown');
-
-    return extracted;
-}
-
-export type WriterParameters = {
-    skeletonPath: string;
-    skeleton: string;
-    xlfPath: string;
-    xlf: string;
-};
-
-async function writer(params: WriterParameters) {
-    const {xlfPath, skeletonPath, xlf, skeleton} = params;
-
-    logger.info(params.xlfPath, 'writing xliff file');
-    logger.info(params.skeletonPath, 'writing skeleton file');
-
-    await mkdir(dirname(xlfPath), {recursive: true});
-
-    await Promise.all([writeFile(skeletonPath, skeleton), writeFile(xlfPath, xlf)]);
-
-    logger.info(params.xlfPath, 'finished writing xliff file');
-    logger.info(params.skeletonPath, 'finished writing skeleton file');
 }
 
 export {extract};

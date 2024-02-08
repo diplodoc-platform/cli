@@ -1,14 +1,18 @@
+import {ok} from 'assert';
+import {argvValidator} from '../../validator';
+import glob from 'glob';
+
 const {
     promises: {readFile, writeFile, mkdir},
 } = require('fs');
-import {dirname, extname, join} from 'path';
+import {dirname, join} from 'path';
 
-import markdownTranslation, {ComposeParameters} from '@diplodoc/markdown-translation';
+// @ts-ignore
+import {ComposeParams, compose as composeMD} from '@diplodoc/markdown-translation';
 import {Arguments, Argv} from 'yargs';
 import {eachLimit} from 'async';
 
 import {ArgvService} from '../../services';
-import {glob, logger} from '../../utils';
 
 const command = 'compose';
 
@@ -16,24 +20,7 @@ const description = 'compose xliff and skeleton into documentation';
 
 const compose = {command, description, handler, builder};
 
-const SKL_MD_GLOB = '**/*.skl.md';
-const XLF_GLOB = '**/*.xliff';
 const MAX_CONCURRENCY = 50;
-
-class ComposeError extends Error {
-    path: string;
-
-    constructor(message: string, path: string) {
-        super(message);
-
-        this.path = path;
-    }
-}
-
-const USAGE =
-    'yfm xliff compose \
---input <folder-with-xliff-and-skeleton> \
---ouput <folder-to-store-translated-markdown>';
 
 function builder<T>(argv: Argv<T>) {
     return argv
@@ -47,183 +34,90 @@ function builder<T>(argv: Argv<T>) {
             describe: 'output folder where translated markdown will be stored',
             type: 'string',
         })
-        .demandOption(['input', 'output'], USAGE);
+        .option('target-language', {
+            alias: 'tl',
+            describe: 'target language',
+            type: 'string',
+        })
+        .option('use-source', {
+            describe: 'for debug',
+            type: 'boolean',
+        })
+        .check(argvValidator);
 }
 
+type HandlerParams = {
+    input: string;
+    output: string;
+    targetLanguage: string;
+    exclude?: string[];
+    useSource?: boolean;
+};
+
 /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-async function handler(args: Arguments<any>) {
+async function handler(args: Arguments<HandlerParams>) {
+    args = Object.assign({}, args.translate || {}, args);
+    delete args.translate;
+
     ArgvService.init({
         ...args,
     });
 
-    const {input, output} = args;
+    const {
+        input,
+        output,
+        exclude = [],
+        targetLanguage,
+        useSource = false,
+    } = ArgvService.getConfig() as unknown as HandlerParams;
 
-    let cache = {};
-    let skeletonPaths: string[] = [];
-    let xliffPaths: string[] = [];
+    ok(input);
+    ok(output);
+    ok(targetLanguage);
 
-    try {
-        ({
-            state: {found: skeletonPaths, cache},
-        } = await glob(join(input, SKL_MD_GLOB), {
-            nosort: false,
-            cache,
-        }));
+    const skeletons = glob.sync('**/*.skl', {
+        cwd: join(input, targetLanguage),
+        ignore: exclude,
+    });
+    const xliffs = glob.sync('**/*.xliff', {
+        cwd: join(input, targetLanguage),
+        ignore: exclude,
+    });
 
-        ({
-            state: {found: xliffPaths, cache},
-        } = await glob(join(input, XLF_GLOB), {
-            nosort: false,
-            cache,
-        }));
+    ok(xliffs.length === skeletons.length, 'Inconsistent number of xliff and skeleton files.');
 
-        if (xliffPaths.length !== skeletonPaths.length) {
-            throw new ComposeError("number of xliff and skeleton files does'not match", input);
-        }
-    } catch (err) {
-        if (err instanceof Error || err instanceof ComposeError) {
-            const file = err instanceof ComposeError ? err.path : input;
-
-            logger.error(file, err.message);
-        }
-    }
-
-    const pipelineParameters = {input, output};
+    const pipelineParameters = {input, output, targetLanguage, useSource};
     const configuredPipeline = pipeline(pipelineParameters);
 
-    try {
-        logger.info(input, 'staring translated markdown composition pipeline');
-
-        await eachLimit(xliffPaths, MAX_CONCURRENCY, configuredPipeline);
-
-        logger.info(input, 'finished translated markdown composition pipeline');
-    } catch (err) {
-        if (err instanceof Error || err instanceof ComposeError) {
-            const file = err instanceof ComposeError ? err.path : input;
-
-            logger.error(file, err.message);
-        }
-    }
+    await eachLimit(skeletons, MAX_CONCURRENCY, configuredPipeline);
 }
 
-export type PipelineParameters = {
-    input: string;
-    output: string;
-};
+export type PipelineParameters = ComposeParams;
 
 function pipeline(params: PipelineParameters) {
-    const {input, output} = params;
+    const {input, output, targetLanguage, useSource} = params;
 
-    return async (xliffPath: string) => {
-        const extension = extname(xliffPath);
-        const extensionLessPath = xliffPath.replace(extension, '');
-        const skeletonPath = extensionLessPath + '.skl.md';
+    return async (skeletonPath: string) => {
+        const fileName = skeletonPath.split('.').slice(0, -1).join('.');
+        const xliffPath = fileName + '.xliff';
 
-        const readerParameters = {xliffPath, skeletonPath};
-        const read = await reader(readerParameters);
-
-        const composerParameters = {
-            ...read,
+        const [skeleton, xliff] = await Promise.all<string[]>([
+            readFile(join(input, targetLanguage, skeletonPath), 'utf-8'),
+            readFile(join(input, targetLanguage, xliffPath), 'utf-8'),
+        ]);
+        const markdown = composeMD({
+            skeleton,
+            xliff,
             skeletonPath,
             xliffPath,
-        };
-        const {markdown} = await composer(composerParameters);
+            useSource,
+        });
 
-        const inputRelativePath = extensionLessPath.slice(input.length);
-        const markdownPath = join(output, inputRelativePath) + '.md';
-
-        const writerParameters = {
-            markdown,
-            markdownPath,
-        };
-        await writer(writerParameters);
-    };
-}
-
-export type ReaderParameters = {
-    skeletonPath: string;
-    xliffPath: string;
-};
-
-async function reader(params: ReaderParameters) {
-    const {skeletonPath, xliffPath} = params;
-
-    let skeleton;
-    let xlf;
-
-    try {
-        logger.info(skeletonPath, 'reading skeleton file');
-
-        skeleton = await readFile(skeletonPath, {encoding: 'utf-8'});
-
-        logger.info(skeletonPath, 'finished reading skeleton file');
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ComposeError(err.message, skeletonPath);
-        }
-    }
-
-    try {
-        logger.info(xliffPath, 'reading xliff file');
-
-        xlf = await readFile(xliffPath, {encoding: 'utf-8'});
-
-        logger.info(xliffPath, 'finished reading xliff file');
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ComposeError(err.message, xliffPath);
-        }
-    }
-
-    return {skeleton, xlf};
-}
-
-export type ComposerParameters = {
-    skeletonPath: string;
-    xliffPath: string;
-} & ComposeParameters;
-
-async function composer(params: ComposerParameters) {
-    const {skeletonPath, xliffPath} = params;
-    let markdown;
-
-    try {
-        logger.info(skeletonPath, 'composing markdown from xliff and skeleton');
-        logger.info(xliffPath, 'composing markdown from xliff and skeleton');
-
-        markdown = markdownTranslation.compose(params);
-
-        logger.info(skeletonPath, 'finished composing markdown from xliff and skeleton');
-        logger.info(xliffPath, 'finished composing markdown from xliff and skeleton');
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ComposeError(err.message, `${xliffPath} ${skeletonPath}`);
-        }
-    }
-
-    return {markdown};
-}
-
-export type WriterParameters = {
-    markdown: string;
-    markdownPath: string;
-};
-
-async function writer(params: WriterParameters) {
-    const {markdown, markdownPath} = params;
-
-    try {
-        logger.info(markdownPath, 'writing markdown file');
+        const markdownPath = join(output, targetLanguage, fileName);
 
         await mkdir(dirname(markdownPath), {recursive: true});
         await writeFile(markdownPath, markdown);
-
-        logger.info(markdownPath, 'finished writing markdown file');
-    } catch (err) {
-        if (err instanceof Error) {
-            throw new ComposeError(err.message, markdownPath);
-        }
-    }
+    };
 }
 
 export {compose};
