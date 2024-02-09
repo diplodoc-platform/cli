@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.13.5](https://github.com/diplodoc-platform/cli/compare/v4.13.4...v4.13.5) (2024-02-09)
+
+
+### Bug Fixes
+
+* rewriten xliff api ([cc00fb5](https://github.com/diplodoc-platform/cli/commit/cc00fb5f209c029b4df2fc88cdca4cd50659e538))
+* Update deps (client, translation) ([0d6df6f](https://github.com/diplodoc-platform/cli/commit/0d6df6fb635008e2e6c71d0a2da58107bbc0a2c1))
+
 ## [4.13.4](https://github.com/diplodoc-platform/cli/compare/v4.13.3...v4.13.4) (2024-02-08)
 
 
