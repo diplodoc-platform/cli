@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.6](https://github.com/diplodoc-platform/cli/compare/v4.13.5...v4.13.6) (2024-02-12)
+
+
+### Bug Fixes
+
+* bump latex extension ([bb6be65](https://github.com/diplodoc-platform/cli/commit/bb6be65ed02b96c37803e3d934bd3fb7af92632a))
+
 ## [4.13.5](https://github.com/diplodoc-platform/cli/compare/v4.13.4...v4.13.5) (2024-02-09)
 
 
