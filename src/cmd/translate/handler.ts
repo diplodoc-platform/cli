@@ -2,9 +2,9 @@ import {Arguments} from 'yargs';
 import {ArgvService} from '../../services';
 import {logger} from '../../utils';
 import {ok} from 'assert';
-import {basename, dirname, join, resolve} from 'path';
-import glob from 'glob';
-import {getYandexOAuthToken} from '../../packages/credentials';
+import {dirname, extname, resolve} from 'path';
+import {mkdir} from 'fs/promises';
+import {AuthInfo, getYandexAuth} from './yandex/auth';
 import {asyncify, eachLimit, retry} from 'async';
 import {Session} from '@yandex-cloud/nodejs-sdk/dist/session';
 import {TranslationServiceClient} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/service_clients';
@@ -12,10 +12,18 @@ import {
     TranslateRequest_Format as Format,
     TranslateRequest,
 } from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
-import {mkdir, readFile, writeFile} from 'fs/promises';
 
-// @ts-ignore
-import {compose, extract} from '@diplodoc/markdown-translation';
+import {
+    Defer,
+    TranslateParams,
+    bytes,
+    compose,
+    dumpFile,
+    extract,
+    flat,
+    loadFile,
+    normalizeParams,
+} from './utils';
 
 const REQUESTS_LIMIT = 20;
 const BYTES_LIMIT = 10000;
@@ -31,96 +39,75 @@ class TranslatorError extends Error {
     }
 }
 
-type TranslateConfig = {
-    input: string;
-    output?: string;
-    sourceLanguage: string;
-    targetLanguage: string;
-    folderId?: string;
-    glossary?: string;
-    include?: string[];
-    exclude?: string[];
-};
+class RequestError extends Error {
+    code: string;
+
+    constructor(error: Error) {
+        super(error?.message || String(error));
+        this.code = 'REQUEST_ERROR';
+    }
+}
 
 export async function handler(args: Arguments<any>) {
-    ArgvService.init({
+    const params = normalizeParams({
         ...(args.translate || {}),
         ...args,
     });
 
-    const {
-        folderId,
-        // yandexCloudTranslateGlossaryPairs,
-        sourceLanguage,
-        targetLanguage,
-        exclude = [],
-    } = ArgvService.getConfig() as unknown as TranslateConfig;
+    ArgvService.init(params);
 
-    let {input, output, include = []} = ArgvService.getConfig() as unknown as TranslateConfig;
+    const {input, output, auth, folder, source, targets, files, dryRun} =
+        ArgvService.getConfig() as unknown as TranslateParams;
 
-    logger.info(
-        input,
-        `translating documentation from ${sourceLanguage} to ${targetLanguage} language`,
-    );
-
-    output = output || input;
-
-    ok(input, 'Required param input is not configured');
-    ok(sourceLanguage, 'Required param sourceLanguage is not configured');
-    ok(targetLanguage, 'Required param targetLanguage is not configured');
+    ok(auth, 'Required param auth is not configured');
+    ok(folder, 'Required param folder is not configured');
+    ok(source, `Required param source is not configured`);
+    ok(targets.length, `Required param target is not configured`);
 
     try {
-        if (input.endsWith('.md')) {
-            include = [basename(input)];
-            input = dirname(input);
-        } else if (!include.length) {
-            include.push('**/*');
-        }
+        const authInfo = getYandexAuth(auth);
 
-        const files = ([] as string[]).concat(
-            ...include.map((match) =>
-                glob.sync(match, {
-                    cwd: join(input, sourceLanguage),
-                    ignore: exclude,
+        for (const target of targets) {
+            const translatorParams = {
+                input,
+                output,
+                sourceLanguage: source[0],
+                targetLanguage: target[0],
+                // yandexCloudTranslateGlossaryPairs,
+                folderId: folder,
+                auth: authInfo,
+                dryRun,
+            };
+
+            const cache = new Map<string, Defer>();
+            const request = requester(translatorParams, cache);
+            const split = splitter(request, cache);
+            const translate = translator(translatorParams, split);
+
+            await eachLimit(
+                files,
+                REQUESTS_LIMIT,
+                asyncify(async function (file: string) {
+                    try {
+                        await translate(file);
+                    } catch (error: any) {
+                        logger.error(file, error.message);
+                    }
                 }),
-            ),
-        );
-        const found = [...new Set(files)];
+            );
 
-        const oauthToken = await getYandexOAuthToken();
-
-        const translatorParams = {
-            input,
-            output,
-            sourceLanguage,
-            targetLanguage,
-            // yandexCloudTranslateGlossaryPairs,
-            folderId,
-            oauthToken,
-        };
-
-        const translateFn = translator(translatorParams);
-
-        await eachLimit(found, REQUESTS_LIMIT, asyncify(translateFn));
-    } catch (err) {
-        if (err instanceof Error || err instanceof TranslatorError) {
-            const message = err.message;
-
-            const file = err instanceof TranslatorError ? err.path : '';
-
-            logger.error(file, message);
+            console.log('PROCESSED', `bytes: ${request.stat.bytes} chunks: ${request.stat.chunks}`);
         }
-    }
+    } catch (error: any) {
+        const message = error.message;
 
-    logger.info(
-        output,
-        `translated documentation from ${sourceLanguage} to ${targetLanguage} language`,
-    );
+        const file = error instanceof TranslatorError ? error.path : '';
+
+        logger.error(file, message);
+    }
 }
 
-export type TranslatorParams = {
-    oauthToken: string;
-    folderId: string | undefined;
+type TranslatorParams = {
     input: string;
     output: string;
     sourceLanguage: string;
@@ -128,157 +115,161 @@ export type TranslatorParams = {
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
-function translator(params: TranslatorParams) {
-    const {
-        oauthToken,
-        folderId,
-        input,
-        output,
-        sourceLanguage,
-        targetLanguage,
-        // yandexCloudTranslateGlossaryPairs,
-    } = params;
+type RequesterParams = {
+    auth: AuthInfo;
+    folderId: string | undefined;
+    sourceLanguage: string;
+    targetLanguage: string;
+    dryRun: boolean;
+};
 
-    const tmap = new Map<string, Defer>();
-    const session = new Session({oauthToken});
+type Request = {
+    (texts: string[]): () => Promise<string[]>;
+    stat: {
+        bytes: number;
+        chunks: number;
+    };
+};
+
+type Split = (path: string, texts: string[]) => Promise<string[]>[];
+
+type Cache = Map<string, Defer>;
+
+function requester(params: RequesterParams, cache: Cache) {
+    const {auth, folderId, sourceLanguage, targetLanguage, dryRun} = params;
+    const session = new Session(auth);
     const client = session.client(TranslationServiceClient);
-    const request = (texts: string[]) => () => {
-        return client
-            .translate(
-                TranslateRequest.fromPartial({
-                    texts,
-                    folderId,
-                    sourceLanguageCode: sourceLanguage,
-                    targetLanguageCode: targetLanguage,
-                    // glossaryConfig: {
-                    //     glossaryData: {
-                    //         glossaryPairs: yandexCloudTranslateGlossaryPairs,
-                    //     },
-                    // },
-                    format: Format.HTML,
-                }),
-            )
-            .then((results) => {
-                return results.translations.map(({text}, index) => {
-                    const defer = tmap.get(texts[index]);
-                    if (defer) {
-                        defer.resolve([text]);
-                    }
-
-                    return text;
-                });
-            });
+    const resolve = (text: string, index: number, texts: string[]) => {
+        const defer = cache.get(texts[index]);
+        if (defer) {
+            defer.resolve([text]);
+        }
+        return text;
     };
 
-    return async (mdPath: string) => {
-        if (!mdPath.endsWith('.md')) {
+    const request = function request(texts: string[]) {
+        request.stat.bytes += bytes(texts);
+        request.stat.chunks++;
+
+        return async function () {
+            if (dryRun) {
+                return texts.map(resolve);
+            }
+
+            return client
+                .translate(
+                    TranslateRequest.fromPartial({
+                        texts,
+                        folderId,
+                        sourceLanguageCode: sourceLanguage,
+                        targetLanguageCode: targetLanguage,
+                        // glossaryConfig: {
+                        //     glossaryData: {
+                        //         glossaryPairs: yandexCloudTranslateGlossaryPairs,
+                        //     },
+                        // },
+                        format: Format.HTML,
+                    }),
+                )
+                .then((results) => {
+                    return results.translations.map(({text}, index) => {
+                        return resolve(text, index, texts);
+                    });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    throw new RequestError(error);
+                });
+        };
+    };
+
+    request.stat = {
+        bytes: 0,
+        chunks: 0,
+    };
+
+    return request;
+}
+
+function translator(params: TranslatorParams, split: Split) {
+    const {input, output, sourceLanguage, targetLanguage} = params;
+
+    return async (path: string) => {
+        const ext = extname(path);
+        if (!['.yaml', '.json', '.md'].includes(ext)) {
             return;
         }
 
-        try {
-            logger.info(mdPath, 'translating');
+        const inputPath = resolve(input, path);
+        const outputPath = resolve(output, path);
+        const content = await loadFile(inputPath);
 
-            const inputPath = resolve(input, sourceLanguage, mdPath);
-            const outputPath = resolve(output, targetLanguage, mdPath);
-            const md = await readFile(inputPath, {encoding: 'utf-8'});
+        await mkdir(dirname(outputPath), {recursive: true});
 
-            await mkdir(dirname(outputPath), {recursive: true});
+        if (!content) {
+            await dumpFile(outputPath, content);
+            return;
+        }
 
-            if (!md) {
-                await writeFile(outputPath, md);
-                return;
-            }
+        const {units, skeleton} = extract(content, {
+            source: {
+                language: sourceLanguage,
+                locale: 'RU',
+            },
+            target: {
+                language: targetLanguage,
+                locale: 'US',
+            },
+        });
 
-            const {units, skeleton} = extract({
-                source: {
-                    language: sourceLanguage,
-                    locale: 'RU',
-                },
-                target: {
-                    language: targetLanguage,
-                    locale: 'US',
-                },
-                markdown: md,
-                markdownPath: mdPath,
-                skeletonPath: '',
-            });
+        if (!units.length) {
+            await dumpFile(outputPath, content);
+            return;
+        }
 
-            if (!units.length) {
-                await writeFile(outputPath, md);
-                return;
-            }
+        const parts = flat(await Promise.all(split(path, units)));
+        const composed = compose(skeleton, parts, {useSource: true});
 
-            const parts = await Promise.all(
-                (units as string[]).reduce(
-                    (
-                        {
-                            promises,
-                            buffer,
-                            bufferSize,
-                        }: {
-                            promises: Promise<string[]>[];
-                            buffer: string[];
-                            bufferSize: number;
-                        },
-                        text,
-                        index,
-                    ) => {
-                        if (text.length >= BYTES_LIMIT) {
-                            logger.warn(
-                                mdPath,
-                                'Skip document part for translation. Part is too big.',
-                            );
-                            promises.push(Promise.resolve([text]));
-                            return {promises, buffer, bufferSize};
-                        }
+        await dumpFile(outputPath, composed);
+    };
+}
 
-                        const defer = tmap.get(text);
-                        if (defer) {
-                            console.log('SKIPPED', text);
-                            promises.push(defer.promise);
-                            return {promises, buffer, bufferSize};
-                        }
+function splitter(request: Request, cache: Cache): Split {
+    return function (path: string, texts: string[]) {
+        const promises: Promise<string[]>[] = [];
+        let buffer: string[] = [];
+        let bufferSize = 0;
 
-                        if (bufferSize + text.length > BYTES_LIMIT) {
-                            promises.push(backoff(request(buffer)));
-                            buffer = [];
-                            bufferSize = 0;
-                        }
+        const release = () => {
+            promises.push(backoff(request(buffer)));
+            buffer = [];
+            bufferSize = 0;
+        };
 
-                        buffer.push(text);
-                        bufferSize += text.length;
-                        tmap.set(text, new Defer());
+        for (const text of texts) {
+            const defer = cache.get(text);
 
-                        if (index === units.length - 1) {
-                            promises.push(backoff(request(buffer)));
-                        }
+            if (defer) {
+                promises.push(defer.promise);
+            } else if (text.length >= BYTES_LIMIT) {
+                logger.warn(path, 'Skip document part for translation. Part is too big.');
+                promises.push(Promise.resolve([text]));
+            } else {
+                if (bufferSize + text.length > BYTES_LIMIT) {
+                    release();
+                }
 
-                        return {promises, buffer, bufferSize};
-                    },
-                    {
-                        promises: [],
-                        buffer: [],
-                        bufferSize: 0,
-                    },
-                ).promises,
-            );
-
-            const translations = ([] as string[]).concat(...parts);
-
-            const composed = await compose({
-                useSource: true,
-                units: translations,
-                skeleton,
-            });
-
-            await writeFile(outputPath, composed);
-
-            logger.info(outputPath, 'finished translating');
-        } catch (err) {
-            if (err instanceof Error) {
-                throw new TranslatorError(err.toString(), mdPath);
+                buffer.push(text);
+                bufferSize += text.length;
+                cache.set(text, new Defer());
             }
         }
+
+        if (bufferSize) {
+            promises.push(backoff(request(buffer)));
+        }
+
+        return promises;
     };
 }
 
@@ -286,26 +277,8 @@ function backoff(action: () => Promise<string[]>): Promise<string[]> {
     return retry(
         {
             times: RETRY_LIMIT,
-            interval: (count: number) => {
-                // eslint-disable-next-line no-bitwise
-                return (1 << count) * 1000;
-            },
+            interval: (count: number) => Math.pow(2, count) * 1000,
         },
         asyncify(action),
     );
-}
-
-class Defer {
-    resolve!: (text: string[]) => void;
-
-    reject!: (error: any) => void;
-
-    promise: Promise<string[]>;
-
-    constructor() {
-        this.promise = new Promise((resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
-        });
-    }
 }
