@@ -47,8 +47,6 @@ interface YfmConfig {
     buildDisabled: boolean;
     lintConfig: LintConfig;
     resources?: Resources;
-    yandexCloudTranslateFolderId: string;
-    yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
     needToSanitizeHtml: boolean;
 }
 

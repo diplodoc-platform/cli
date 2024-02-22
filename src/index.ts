@@ -5,14 +5,13 @@ import 'threads/register';
 
 import {MAIN_TIMER_ID} from './constants';
 
-import {build, publish, translate, xliff} from './cmd';
+import {build, publish, translate} from './cmd';
 
 console.time(MAIN_TIMER_ID);
 
 yargs
     .command(build)
     .command(publish)
-    .command(xliff)
     .command(translate)
     .option('config', {
         alias: 'c',
