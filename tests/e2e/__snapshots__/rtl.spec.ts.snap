@@ -1,0 +1,320 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","index.html","page.html"]"`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 2`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 3`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>תיעוד
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","ar/index.html","ar/page.html","en/index.html","en/page.html"]"`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 2`] = `
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.rtl.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.rtl.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar"},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ar"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 3`] = `
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.rtl.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.rtl.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar"},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>توثيق
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"ar"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `
+<!DOCTYPE html>
+<html lang="en"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="title"
+          content="Documentation"
+    >
+    <meta name="noIndex"
+          content="true"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation | Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en"},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"en"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 5`] = `
+<!DOCTYPE html>
+<html lang="en"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta name="yfm"
+          content="builder"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="../_bundle/app.css"
+    >
+  </head>
+  <body class="yc-root yc-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en"},"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"en"};
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/react.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/app.js"
+    >
+    </script>
+  </body>
+</html>
+`;
