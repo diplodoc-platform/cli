@@ -1,17 +1,12 @@
+import axios from 'axios';
 import {Arguments} from 'yargs';
 import {ArgvService} from '../../services';
 import {logger} from '../../utils';
 import {ok} from 'assert';
-import {dirname, extname, resolve} from 'path';
+import {dirname, extname, join, resolve} from 'path';
 import {mkdir} from 'fs/promises';
-import {AuthInfo, getYandexAuth} from './yandex/auth';
+import {getYandexAuth} from './yandex/auth';
 import {asyncify, eachLimit, retry} from 'async';
-import {Session} from '@yandex-cloud/nodejs-sdk/dist/session';
-import {TranslationServiceClient} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/service_clients';
-import {
-    TranslateRequest_Format as Format,
-    TranslateRequest,
-} from '@yandex-cloud/nodejs-sdk/dist/generated/yandex/cloud/ai/translate/v2/translation_service';
 
 import {
     Defer,
@@ -20,7 +15,6 @@ import {
     compose,
     dumpFile,
     extract,
-    flat,
     loadFile,
     normalizeParams,
 } from './utils';
@@ -116,7 +110,7 @@ type TranslatorParams = {
 };
 
 type RequesterParams = {
-    auth: AuthInfo;
+    auth: string;
     folderId: string | undefined;
     sourceLanguage: string;
     targetLanguage: string;
@@ -131,18 +125,22 @@ type Request = {
     };
 };
 
-type Split = (path: string, texts: string[]) => Promise<string[]>[];
+type Split = (path: string, texts: string[]) => Promise<string>[];
 
 type Cache = Map<string, Defer>;
 
+type Translations = {
+    translations: {
+        text: string;
+    }[];
+};
+
 function requester(params: RequesterParams, cache: Cache) {
     const {auth, folderId, sourceLanguage, targetLanguage, dryRun} = params;
-    const session = new Session(auth);
-    const client = session.client(TranslationServiceClient);
     const resolve = (text: string, index: number, texts: string[]) => {
         const defer = cache.get(texts[index]);
         if (defer) {
-            defer.resolve([text]);
+            defer.resolve(text);
         }
         return text;
     };
@@ -156,23 +154,30 @@ function requester(params: RequesterParams, cache: Cache) {
                 return texts.map(resolve);
             }
 
-            return client
-                .translate(
-                    TranslateRequest.fromPartial({
-                        texts,
-                        folderId,
-                        sourceLanguageCode: sourceLanguage,
-                        targetLanguageCode: targetLanguage,
-                        // glossaryConfig: {
-                        //     glossaryData: {
-                        //         glossaryPairs: yandexCloudTranslateGlossaryPairs,
-                        //     },
-                        // },
-                        format: Format.HTML,
-                    }),
-                )
-                .then((results) => {
-                    return results.translations.map(({text}, index) => {
+            return axios({
+                method: 'POST',
+                url: 'https://translate.api.cloud.yandex.net/translate/v2/translate',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: auth,
+                },
+                data: {
+                    folderId,
+                    texts,
+                    sourceLanguageCode: sourceLanguage,
+                    targetLanguageCode: targetLanguage,
+                    format: 'HTML',
+                },
+            })
+                .then(({data, status}) => {
+                    if (status === 200) {
+                        return data;
+                    } else {
+                        throw new Error(data.message);
+                    }
+                })
+                .then((result: Translations) => {
+                    return result.translations.map(({text}, index) => {
                         return resolve(text, index, texts);
                     });
                 })
@@ -193,6 +198,8 @@ function requester(params: RequesterParams, cache: Cache) {
 
 function translator(params: TranslatorParams, split: Split) {
     const {input, output, sourceLanguage, targetLanguage} = params;
+    const inputRoot = resolve(input);
+    const outputRoot = resolve(output);
 
     return async (path: string) => {
         const ext = extname(path);
@@ -200,8 +207,8 @@ function translator(params: TranslatorParams, split: Split) {
             return;
         }
 
-        const inputPath = resolve(input, path);
-        const outputPath = resolve(output, path);
+        const inputPath = join(inputRoot, path);
+        const outputPath = join(outputRoot, path.replace(sourceLanguage, targetLanguage));
         const content = await loadFile(inputPath);
 
         await mkdir(dirname(outputPath), {recursive: true});
@@ -227,7 +234,7 @@ function translator(params: TranslatorParams, split: Split) {
             return;
         }
 
-        const parts = flat(await Promise.all(split(path, units)));
+        const parts = await Promise.all(split(path, units));
         const composed = compose(skeleton, parts, {useSource: true});
 
         await dumpFile(outputPath, composed);
@@ -236,37 +243,39 @@ function translator(params: TranslatorParams, split: Split) {
 
 function splitter(request: Request, cache: Cache): Split {
     return function (path: string, texts: string[]) {
-        const promises: Promise<string[]>[] = [];
+        const promises: Promise<string>[] = [];
         let buffer: string[] = [];
         let bufferSize = 0;
 
         const release = () => {
-            promises.push(backoff(request(buffer)));
+            backoff(request(buffer));
             buffer = [];
             bufferSize = 0;
         };
 
         for (const text of texts) {
-            const defer = cache.get(text);
-
-            if (defer) {
-                promises.push(defer.promise);
-            } else if (text.length >= BYTES_LIMIT) {
+            if (text.length >= BYTES_LIMIT) {
                 logger.warn(path, 'Skip document part for translation. Part is too big.');
-                promises.push(Promise.resolve([text]));
+                promises.push(Promise.resolve(text));
             } else {
-                if (bufferSize + text.length > BYTES_LIMIT) {
-                    release();
+                const defer = cache.get(text) || new Defer();
+                promises.push(defer.promise);
+
+                if (!cache.get(text)) {
+                    if (bufferSize + text.length > BYTES_LIMIT) {
+                        release();
+                    }
+
+                    buffer.push(text);
+                    bufferSize += text.length;
                 }
 
-                buffer.push(text);
-                bufferSize += text.length;
-                cache.set(text, new Defer());
+                cache.set(text, defer);
             }
         }
 
         if (bufferSize) {
-            promises.push(backoff(request(buffer)));
+            release();
         }
 
         return promises;
