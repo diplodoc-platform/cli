@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.7](https://github.com/diplodoc-platform/cli/compare/v4.13.6...v4.13.7) (2024-02-27)
+
+
+### Bug Fixes
+
+* Migrate from markdown-translation to translation ([be844ca](https://github.com/diplodoc-platform/cli/commit/be844ca9f67e1e072db74614a0f36efaf124af02))
+
 ## [4.13.6](https://github.com/diplodoc-platform/cli/compare/v4.13.5...v4.13.6) (2024-02-12)
 
 
