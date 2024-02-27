@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.13.8](https://github.com/diplodoc-platform/cli/compare/v4.13.7...v4.13.8) (2024-02-27)
+
+
+### Bug Fixes
+
+* Fix translation auth ([036cca8](https://github.com/diplodoc-platform/cli/commit/036cca80fd571fc6bfb0ffa06ec590880fc84b13))
+
 ## [4.13.7](https://github.com/diplodoc-platform/cli/compare/v4.13.6...v4.13.7) (2024-02-27)
 
 
