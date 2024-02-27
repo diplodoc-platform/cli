@@ -1,41 +1,30 @@
 import {readFileSync} from 'fs';
 
-type ServiceAccauntInfo = {
-    id: string;
-    service_account_id: string;
-    public_key: string;
-    private_key: string;
+const resolveKey = (data: string) => {
+    switch (true) {
+        case data.startsWith('y0_'):
+            return 'Bearer ' + data;
+        case data.startsWith('t1.'):
+            return 'Bearer ' + data;
+        case data.startsWith('AQVN'):
+            return 'Api-Key ' + data;
+        default:
+            return null;
+    }
 };
 
-export type AuthInfo = ReturnType<typeof getYandexAuth>;
-
 export function getYandexAuth(path: string) {
-    if (path.startsWith('y0_')) {
-        return {
-            oauthToken: path,
-        };
+    let auth = resolveKey(path);
+
+    if (auth !== null) {
+        return auth;
     }
 
-    const data = readFileSync(path, 'utf8');
-    try {
-        const json = JSON.parse(data);
+    auth = resolveKey(readFileSync(path, 'utf8'));
 
-        if (isServeseAccount(json)) {
-            return {
-                serviceAccountJson: {
-                    serviceAccountId: json.service_account_id,
-                    accessKeyId: json.id,
-                    privateKey: json.private_key,
-                },
-            };
-        }
-    } catch {}
+    if (auth === null) {
+        throw new Error('No Auth');
+    }
 
-    return {
-        oauthToken: data,
-    };
-}
-
-function isServeseAccount(json: any): json is ServiceAccauntInfo {
-    return 'private_key' in json;
+    return auth;
 }

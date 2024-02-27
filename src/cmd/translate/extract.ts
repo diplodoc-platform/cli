@@ -29,7 +29,6 @@ function builder<T>(argv: Argv<T>) {
             alias: 'o',
             describe: 'output folder where translated markdown will be stored',
             type: 'string',
-            default: process.cwd(),
         })
         .option('source', {
             alias: ['sll', 'source-language-locale'],

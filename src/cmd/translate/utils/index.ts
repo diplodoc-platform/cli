@@ -141,16 +141,12 @@ export function resolveSchemas(_path: string) {
     return null;
 }
 
-export function flat<T>(parts: T[][]) {
-    return ([] as T[]).concat(...parts);
-}
-
 export class Defer {
-    resolve!: (text: string[]) => void;
+    resolve!: (text: string) => void;
 
     reject!: (error: any) => void;
 
-    promise: Promise<string[]>;
+    promise: Promise<string>;
 
     constructor() {
         this.promise = new Promise((resolve, reject) => {
