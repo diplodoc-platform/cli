@@ -31,10 +31,10 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.369.0",
-    "@diplodoc/client": "^2.0.5",
+    "@diplodoc/client": "^2.1.0",
     "@diplodoc/latex-extension": "^1.1.0",
     "@diplodoc/mermaid-extension": "^1.2.1",
-    "@diplodoc/openapi-extension": "^1.4.13",
+    "@diplodoc/openapi-extension": "^2.0.0",
     "@diplodoc/transform": "^4.8.2",
     "@diplodoc/translation": "^1.0.7",
     "@octokit/core": "4.2.4",

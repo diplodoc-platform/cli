@@ -65,7 +65,7 @@ export function generateStaticMarkup(
                 ${PluginService.getHeadContent()}
                 ${resources}
             </head>
-            <body class="yc-root yc-root_theme_light">
+            <body class="g-root g-root_theme_light">
                 <div id="root">${html}</div>
                 <script type="application/javascript">
                    window.STATIC_CONTENT = ${staticContent}
