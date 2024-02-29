@@ -29,7 +29,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -37,15 +37,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
                    window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
     >
     </script>
   </body>
@@ -79,7 +79,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -89,15 +89,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
       </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
     >
     </script>
   </body>
@@ -133,7 +133,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="../_bundle/app.rtl.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -141,15 +141,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
                    window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar"},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ar"};
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="../_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="../_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
     >
     </script>
   </body>
@@ -183,7 +183,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="../_bundle/app.rtl.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -193,15 +193,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
       </p>/n"},"router":{"pathname":"page.html"},"lang":"ar"};
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="../_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="../_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
     >
     </script>
   </body>
@@ -241,7 +241,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="../_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -249,15 +249,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
                    window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en"},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"en"};
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="../_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="../_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
     >
     </script>
   </body>
@@ -294,7 +294,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="../_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -304,15 +304,15 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
       </p>/n"},"router":{"pathname":"page.html"},"lang":"en"};
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="../_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="../_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
     >
     </script>
   </body>
