@@ -4,7 +4,9 @@ exports[`Allow load custom resources md2html with metadata 1`] = `"["_bundle/app
 
 exports[`Allow load custom resources md2html with metadata 2`] = `
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru"
+      dir="ltr"
+>
   <head>
     <meta charset="utf-8">
     <meta name="test-yfm"
@@ -39,16 +41,12 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
           href="_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru"};
-    </script>
-    <script type="application/javascript"
-            src="_bundle/vendor.js"
-    >
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -58,13 +56,19 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
             src="_bundle/app.js"
     >
     </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
+    >
+    </script>
   </body>
 </html>
 `;
 
 exports[`Allow load custom resources md2html with metadata 3`] = `
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru"
+      dir="ltr"
+>
   <head>
     <meta charset="utf-8">
     <meta name="yfm"
@@ -96,7 +100,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
           href="_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -106,15 +110,15 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
       </p>/n"},"router":{"pathname":"page.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/vendor.js"
     >
     </script>
   </body>
@@ -123,7 +127,9 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
 
 exports[`Allow load custom resources md2html with metadata 4`] = `
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru"
+      dir="ltr"
+>
   <head>
     <meta charset="utf-8">
     <meta name="yfm"
@@ -155,7 +161,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
           href="../_bundle/app.css"
     >
   </head>
-  <body class="yc-root yc-root_theme_light">
+  <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
     <script type="application/javascript">
@@ -165,15 +171,15 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
       </p>/n"},"router":{"pathname":"../project/config.html"},"lang":"ru"};
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
-    >
-    </script>
-    <script type="application/javascript"
             src="../_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
             src="../_bundle/app.js"
+    >
+    </script>
+    <script type="application/javascript"
+            src="../_bundle/vendor.js"
     >
     </script>
   </body>
