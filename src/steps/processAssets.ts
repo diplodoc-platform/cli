@@ -33,5 +33,5 @@ export function processAssets(outputBundlePath: string) {
 
 function hasIntersection(array1, array2) {
     const set1 = new Set(array1);
-    return array2.some(element => set1.has(element));
+    return array2.some((element) => set1.has(element));
 }
