@@ -74,7 +74,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         fileMeta.script = [];
     }
 
-    const tocBaseLang = tocBase?.split('/')[0]
+    const tocBaseLang = tocBase?.split('/')[0];
     const tocLang = langs?.includes(tocBaseLang) && tocBaseLang;
 
     const props = {
