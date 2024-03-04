@@ -32,8 +32,8 @@ export const logger = {
 
         log.warn(`file: ${pathToFile} ${extraMessage}`);
     },
-    error: function (pathToFile: string, extraMessage: string) {
-        const message = `${red('ERROR')} file: ${pathToFile} error: ${extraMessage}`;
+    error: function (pathToFile: string, extraMessage: string, reason?: string) {
+        const message = `${red(reason || 'ERROR')} file: ${pathToFile} error: ${extraMessage}`;
 
         writeLog(message, true);
 
