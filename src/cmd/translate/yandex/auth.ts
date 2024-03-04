@@ -1,6 +1,8 @@
 import {readFileSync} from 'fs';
 
 const resolveKey = (data: string) => {
+    data = data.trim();
+
     switch (true) {
         case data.startsWith('y0_'):
             return 'Bearer ' + data;

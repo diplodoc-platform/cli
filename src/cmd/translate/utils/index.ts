@@ -5,6 +5,7 @@ import glob from 'glob';
 
 export {dumpFile, loadFile} from './fs';
 export {extract, compose} from './translate';
+export {TranslateError, LimitExceed, RequestError, AuthError} from './errors';
 
 type TranslateArgs = {
     input: string;
@@ -141,12 +142,12 @@ export function resolveSchemas(_path: string) {
     return null;
 }
 
-export class Defer {
-    resolve!: (text: string) => void;
+export class Defer<T = string> {
+    resolve!: (text: T) => void;
 
     reject!: (error: any) => void;
 
-    promise: Promise<string>;
+    promise: Promise<T>;
 
     constructor() {
         this.promise = new Promise((resolve, reject) => {

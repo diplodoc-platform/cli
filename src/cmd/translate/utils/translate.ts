@@ -1,23 +1,6 @@
 import type {ComposeOptions, ExtractOptions} from '@diplodoc/translation';
 import {compose as _compose, extract as _extract} from '@diplodoc/translation';
-
-class ExtractError extends Error {
-    code: string;
-
-    constructor(error: Error) {
-        super(error?.message || String(error));
-        this.code = 'EXTRACT_ERROR';
-    }
-}
-
-class ComposeError extends Error {
-    code: string;
-
-    constructor(error: Error) {
-        super(error?.message || String(error));
-        this.code = 'COMPOSE_ERROR';
-    }
-}
+import {ComposeError, ExtractError} from './errors';
 
 type Content = Parameters<typeof _extract>[0];
 
