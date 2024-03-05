@@ -1,5 +1,25 @@
 # Changelog
 
+## [4.14.0](https://github.com/diplodoc-platform/cli/compare/v4.13.8...v4.14.0) (2024-03-05)
+
+
+### Features
+
+* add test for rtl ([27acab1](https://github.com/diplodoc-platform/cli/commit/27acab13b89a1d250c9b5d0608350cc1da5d10ac))
+* Rearrange dev and prod deps for optimal bimary (pkg) build ([015aec7](https://github.com/diplodoc-platform/cli/commit/015aec7fa782e19fd53191e36300a87675d0cb26))
+* **rtl:** filter assets based on rtl langs ([e3e0537](https://github.com/diplodoc-platform/cli/commit/e3e0537603b75775858dc952caf4fee94043f4cc))
+* **rtl:** html tag direction ([f4ee1b0](https://github.com/diplodoc-platform/cli/commit/f4ee1b0f3436b037ad60b4b6d344aa731a69f1ac))
+* update deps % openapi ([cb4e7d3](https://github.com/diplodoc-platform/cli/commit/cb4e7d32db663e2f82276a4ddb9e5c3f108ed35c))
+
+
+### Bug Fixes
+
+* Fix translation error handleng ([48e9528](https://github.com/diplodoc-platform/cli/commit/48e9528f3118c7203e556b970ecbb923b96aacf9))
+* Fix translation limits handling ([193dbe9](https://github.com/diplodoc-platform/cli/commit/193dbe917e4b469c6b88e0d764f709d693594a07))
+* pass correct current lang ([6a7b357](https://github.com/diplodoc-platform/cli/commit/6a7b3577e2dd3cc89668e81b6a23c34fca951513))
+* toc may not have lang ([ba8ecc7](https://github.com/diplodoc-platform/cli/commit/ba8ecc714d2d63dc0816feab9c556f13fc017022))
+* Update client ([008ed60](https://github.com/diplodoc-platform/cli/commit/008ed6089163c8ee9c431e2dea0dc9b4cb602886))
+
 ## [4.13.8](https://github.com/diplodoc-platform/cli/compare/v4.13.7...v4.13.8) (2024-02-27)
 
 
