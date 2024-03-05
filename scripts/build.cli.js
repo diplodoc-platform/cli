@@ -15,12 +15,15 @@ const diplodocExtensions = Object.keys(dependencies).filter((name) => name.start
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
-    packages: 'external',
+    // packages: 'external',
     platform: 'node',
     target: target,
     format: 'cjs',
     bundle: true,
     sourcemap: true,
+    loader: {
+        '.map': 'empty',
+    },
     define: {
         VERSION: JSON.stringify(version),
     },
@@ -42,8 +45,14 @@ Promise.all(builds.map(([entries, outfile]) => {
         currentConfig.banner = {
             js: '#!/usr/bin/env node',
         };
-        currentConfig.external = diplodocExtensions;
     }
+
+    currentConfig.external = [
+        ...diplodocExtensions,
+        'shelljs',
+        'threads',
+        'yargs',
+    ];
 
     return esbuild.build(currentConfig);
 })).then(() => {
