@@ -47,6 +47,7 @@ export class RequestError extends TranslateError {
 const INACTIVE_CLOUD = /^The cloud .*? is inactive/;
 const WRONG_APIKEY = /^Unknown api key/;
 const WRONG_TOKEN = /^The token is invalid/;
+const EXPIRED_TOKEN = /^The token has expired/;
 
 export class AuthError extends TranslateError {
     static is(message: string) {
@@ -61,6 +62,8 @@ export class AuthError extends TranslateError {
                 return 'WRONG_APIKEY';
             case WRONG_TOKEN.test(message):
                 return 'WRONG_TOKEN';
+            case EXPIRED_TOKEN.test(message):
+                return 'EXPIRED_TOKEN';
             default:
                 return null;
         }
@@ -86,12 +89,12 @@ export class LimitExceed extends TranslateError {
 
 export class ExtractError extends TranslateError {
     constructor(error: Error) {
-        super('EXTRACT_ERROR', error?.message || String(error));
+        super(error?.message || String(error), 'EXTRACT_ERROR');
     }
 }
 
 export class ComposeError extends TranslateError {
     constructor(error: Error) {
-        super('COMPOSE_ERROR', error?.message || String(error));
+        super(error?.message || String(error), 'COMPOSE_ERROR');
     }
 }
