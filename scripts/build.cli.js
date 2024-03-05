@@ -11,8 +11,6 @@ const assets = [...clientManifest.js, ...clientManifest.css];
 const {version, dependencies} = require('../package.json');
 const {compilerOptions: {target}} = require('../tsconfig.json');
 
-const diplodocExtensions = Object.keys(dependencies).filter((name) => name.startsWith('@diplodoc'));
-
 const commonConfig = {
     tsconfig: './tsconfig.json',
     // packages: 'external',
@@ -47,12 +45,7 @@ Promise.all(builds.map(([entries, outfile]) => {
         };
     }
 
-    currentConfig.external = [
-        ...diplodocExtensions,
-        'shelljs',
-        'threads',
-        'yargs',
-    ];
+    currentConfig.external = Object.keys(dependencies);
 
     return esbuild.build(currentConfig);
 })).then(() => {
