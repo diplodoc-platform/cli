@@ -54,7 +54,7 @@
     "@types/js-yaml": "4.0.5",
     "@types/json-stringify-safe": "^5.0.3",
     "@types/lodash": "4.14.195",
-    "@types/mime-types": "2.1.1",
+    "@types/mime-types": "2.1.4",
     "@types/node": "14.*",
     "@types/shelljs": "0.8.12",
     "@types/tar-stream": "^2.2.2",
