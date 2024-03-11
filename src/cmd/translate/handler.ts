@@ -263,6 +263,7 @@ function translator(params: TranslatorParams, split: Split) {
         }
 
         const {units, skeleton} = extract(content, {
+            compact: true,
             source: {
                 language: sourceLanguage,
                 locale: 'RU',
