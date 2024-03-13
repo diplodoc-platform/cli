@@ -121,23 +121,20 @@ function pipeline(params: PipelineParameters) {
         const xliffPath = join(outputRoot, outputPath + '.xliff');
         const skeletonPath = join(outputRoot, outputPath + '.skl');
 
-        let schemas;
-        if (['.yaml', '.json'].includes(ext)) {
-            schemas = resolveSchemas(path);
-
-            if (!schemas) {
-                return;
-            }
-        }
-
+        const schemas = await resolveSchemas(path);
         const content = await loadFile(inputPath);
 
         await mkdir(dirname(xliffPath), {recursive: true});
 
-        const {xliff, skeleton} = _extract(content, {
+        const {xliff, skeleton, units} = _extract(content, {
             source,
             target,
+            schemas,
         });
+
+        if (!units.length) {
+            return;
+        }
 
         await Promise.all([dumpFile(skeletonPath, skeleton), dumpFile(xliffPath, xliff)]);
     };
