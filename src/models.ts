@@ -69,6 +69,7 @@ export interface YfmArgv extends YfmConfig {
     addMapFile: boolean;
     allowCustomResources: boolean;
     staticContent: boolean;
+    langs: string[];
 }
 
 export type DocPreset = {
