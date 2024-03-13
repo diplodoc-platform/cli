@@ -1,0 +1,56 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/leading/draft-01/schema#'
+title: Leading page file schema
+type: object
+properties:
+  title:
+    $ref: '#/definitions/TextItems'
+
+  description:
+    $ref: '#/definitions/TextItems'
+
+  meta:
+    type: object
+    properties:
+      title:
+        $ref: '#/definitions/TextItems'
+      description:
+        $ref: '#/definitions/TextItems'
+      noIndex:
+        type: boolean
+    additionalProperties: false
+
+  nav:
+    type: object
+    properties:
+      title:
+        $ref: '#/definitions/TextItems'
+    additionalProperties: false
+
+  links:
+    type: array
+    items:
+      type: object
+      properties:
+        title:
+          type: string
+          translate: md
+        description:
+          type: string
+          translate: md
+        href:
+          type: string
+          format: url
+      additionalProperties: false
+
+additionalProperties: false
+
+definitions:
+  TextItems:
+    oneOf:
+      - type: string
+      - type: array
+        items:
+          type: string
+          translate: md
+

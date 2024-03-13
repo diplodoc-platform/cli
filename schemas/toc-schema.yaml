@@ -1,0 +1,302 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/toc/draft-01/schema#'
+title: Table of content file schema
+type: object
+properties:
+  title:
+    type: string
+    translate: md
+  href:
+    type: string
+    format: url
+  stage:
+    type: string
+  base:
+    type: string
+  singlePage:
+    type: boolean
+  when:
+    type:
+      - string
+      - boolean
+  navigation:
+    $ref: '#/definitions/Navigation'
+  items:
+    $ref: '#/definitions/TocItems'
+
+definitions:
+  TocItems:
+    type: array
+    items:
+      $ref: '#/definitions/TocItem'
+
+  TocItem:
+    type: object
+    properties:
+      name:
+        type: string
+        translate: md
+      expanded:
+        type: boolean
+      hidden:
+        type:
+          - boolean
+          - string
+      items:
+        $ref: '#/definitions/TocItems'
+    oneOf:
+      - $ref: '#/definitions/TocItemWithLink'
+      - $ref: '#/definitions/TocItemWithInclude'
+
+  TocItemWithLink:
+    required: ['name']
+    properties:
+      name:
+        type: string
+        translate: md
+      href:
+        type: string
+
+  TocItemWithInclude:
+    required: ['include']
+    properties:
+      name:
+        type: string
+        translate: md
+      include:
+        $ref: '#/definitions/Include'
+
+  Include:
+    type: object
+    properties:
+      mode:
+        type: string
+        enum: ['link', 'merge', 'root_merge']
+      path:
+        type: string
+      includers:
+        type: array
+        items:
+          $ref: '#/definitions/Includer'
+    additionalProperties: false
+
+  Includer:
+    type: object
+    required: ['name']
+    properties:
+      name:
+        type: string
+    additionalProperties: true
+
+  OpenApiIncluder:
+    type: object
+    required: ['input']
+    properties:
+      input:
+        type: string
+      filter:
+        $ref: '#/definitions/OpenApiIncluderFilter'
+      noindex:
+        $ref: '#/definitions/OpenApiIncluderFilter'
+      hidden:
+        $ref: '#/definitions/OpenApiIncluderFilter'
+      sandbox:
+        type: object
+        properties:
+          tabName:
+            type: string
+            translate: text
+          host:
+            type: string
+            format: url
+      leadingPage:
+        type: object
+        properties:
+          name:
+            type: string
+          mode:
+            type: string
+            enum: ['section', 'leaf']
+          spec:
+            type: object
+            properties:
+              renderMode:
+                type: string
+                enum: ['inline', 'hidden']
+
+  OpenApiIncluderFilter:
+    type: object
+    properties:
+      endpoint:
+        type: string
+      tag:
+        type: string
+
+  Navigation:
+    type: object
+    properties:
+      logo:
+        $ref: '#/definitions/NavigationLogo'
+      header:
+        $ref: '#/definitions/NavigationHeader'
+
+  NavigationLogo:
+    type: object
+    properties:
+      text:
+        type: string
+      url:
+        type: string
+        format: url
+      urlTitle:
+        type: string
+      icon:
+        type: string
+        format: url
+      dark:
+        $ref: '#/definitions/NavigationLogo'
+      light:
+        $ref: '#/definitions/NavigationLogo'
+
+  NavigationHeader:
+    type: object
+    properties:
+      leftItems:
+        $ref: '#/definitions/NavigationItems'
+      rightItems:
+        $ref: '#/definitions/NavigationItems'
+      iconSize:
+        type: number
+
+  NavigationItems:
+    type: array
+    items:
+      $ref: '#/definitions/NavigationItem'
+
+  NavigationItem:
+    type: object
+    required: ['type']
+    properties:
+      type:
+        type: string
+    allOf:
+      - $ref: '#/definitions/NavigationBaseItem'
+      - oneOf:
+        - $ref: '#/definitions/NavigationLinkItem'
+        - $ref: '#/definitions/NavigationButtonItem'
+        - $ref: '#/definitions/NavigationDropdownItem'
+        - $ref: '#/definitions/NavigationControlsItem'
+
+  NavigationBaseItem:
+    type: object
+    properties:
+      text:
+        type: string
+        translate: md
+      url:
+        type: string
+        format: url
+      icon:
+        type: string
+        format: url
+      iconSize:
+        type: number
+
+  NavigationLinkItem:
+    type: object
+    properties:
+      type:
+        type: string
+        pattern: '^link$'
+      target:
+        $ref: '#/definitions/NavigationLinkTarget'
+      arrow:
+        type: boolean
+    required: ['type', 'text']
+
+  NavigationButtonItem:
+    properties:
+      type:
+        type: string
+        pattern: '^button$'
+      urlTitle:
+        type: string
+        translate: md
+      primary:
+        type: boolean
+      size:
+        type: string
+      theme:
+        type: string
+      img:
+        oneOf:
+          - type: string
+          - type: object
+            required: ['data']
+            properties:
+              data:
+                type: string
+              position:
+                type: string
+                enum: ['left', 'right']
+              alt:
+                type: string
+                translate: md
+      analyticsEvents:
+        oneOf:
+          - $ref: '#/definitions/NavigationAnalyticsEvent'
+          - type: array
+            items:
+              $ref: '#/definitions/NavigationAnalyticsEvent'
+      target:
+        $ref: '#/definitions/NavigationLinkTarget'
+      width:
+        type: string
+        enum: ['auto', 'max']
+    required: ['type', 'text', 'url']
+
+  NavigationDropdownItem:
+    type: object
+    properties:
+      type:
+        type: string
+        pattern: '^dropdown$'
+      items:
+        type: array
+        items:
+          $ref: '#/definitions/NavigationLinkItem'
+    required: ['type', 'items']
+
+  NavigationControlsItem:
+    type: object
+    properties:
+      type:
+        type: string
+        pattern: '^controls$'
+    required: ['type']
+
+  NavigationLinkTarget:
+    type: string
+    enum: ['_self', '_blank', '_parent', '_top']
+
+  NavigationAnalyticsEvent:
+    type: object
+    required: ['name']
+    properties:
+      name:
+        type: string
+      type:
+        type: string
+      counters:
+        type: object
+        properties:
+          include:
+            type: array
+            items:
+              type: string
+          exclude:
+            type: array
+            items:
+              type: string
+      context:
+        type: string
