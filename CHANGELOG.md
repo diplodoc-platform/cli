@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.16.0](https://github.com/diplodoc-platform/cli/compare/v4.15.1...v4.16.0) (2024-03-21)
+
+
+### Features
+
+* **translation:** Add schemas for toc/leading/presets ([6a25caf](https://github.com/diplodoc-platform/cli/commit/6a25cafc0774cdae464dbcf21143bcb81dc8e9ec))
+
 ## [4.15.1](https://github.com/diplodoc-platform/cli/compare/v4.15.0...v4.15.1) (2024-03-11)
 
 
