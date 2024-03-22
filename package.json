@@ -15,6 +15,7 @@
   "files": [
     "build",
     "assets",
+    "schemas",
     "src"
   ],
   "scripts": {
