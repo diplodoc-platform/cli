@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.16.1](https://github.com/diplodoc-platform/cli/compare/v4.16.0...v4.16.1) (2024-03-22)
+
+
+### Bug Fixes
+
+* Add missed json schemas to npm package ([3db3863](https://github.com/diplodoc-platform/cli/commit/3db38632a3ffcf4d43854374487203088b729da5))
+
 ## [4.16.0](https://github.com/diplodoc-platform/cli/compare/v4.15.1...v4.16.0) (2024-03-21)
 
 
