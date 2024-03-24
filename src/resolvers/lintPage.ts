@@ -6,21 +6,23 @@ import {
     PluginOptions,
     default as yfmlint,
 } from '@diplodoc/transform/lib/yfmlint';
+import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+import {getLogLevel} from '@diplodoc/transform/lib/yfmlint/utils';
+import {LINK_KEYS} from '@diplodoc/client/ssr';
+
 import {readFileSync} from 'fs';
 import {bold} from 'chalk';
 
 import {ArgvService, PluginService} from '../services';
 import {
     checkPathExists,
-    collectAllObjectValues,
+    findAllValuesByKeys,
     getLinksWithExtension,
     getVarsPerFile,
-    getVarsPerRelativeFile
+    getVarsPerRelativeFile,
 } from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
-import {isLocalUrl} from "@diplodoc/transform/lib/utils";
-import {getLogLevel} from "@diplodoc/transform/lib/yfmlint/utils";
 
 interface FileTransformOptions {
     path: string;
@@ -66,18 +68,24 @@ export function lintPage(options: ResolverLintOptions) {
 function YamlFileLinter(content: string, lintOptions: FileTransformOptions): void {
     const {input, lintConfig} = ArgvService.getConfig();
     const {path: filePath} = lintOptions;
-    const  currentFilePath: string = resolve(input, filePath);
+    const currentFilePath: string = resolve(input, filePath);
 
     const logLevel = getLogLevel({
         logLevelsConfig: lintConfig['log-levels'],
         ruleNames: ['YAML001'],
         defaultLevel: log.LogLevels.ERROR,
-    })
+    });
 
-    const values = collectAllObjectValues(load(content));
-    const localLinks = values.filter(link => getLinksWithExtension(link) && isLocalUrl(link));
+    const contentLinks = findAllValuesByKeys(load(content), LINK_KEYS);
+    const localLinks = contentLinks.filter(
+        (link) => getLinksWithExtension(link) && isLocalUrl(link),
+    );
 
-    return localLinks.forEach(link => checkPathExists(link, currentFilePath) || log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`))
+    return localLinks.forEach(
+        (link) =>
+            checkPathExists(link, currentFilePath) ||
+            log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
+    );
 }
 
 function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {
