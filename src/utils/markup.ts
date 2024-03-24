@@ -179,11 +179,11 @@ export function findAllValuesByKeys(obj, keysToFind) {
         ) {
             return [value];
         }
-        // Continue to search within the object if the current value is an object or array
+
         if (isObject(value)) {
             return findAllValuesByKeys(value, keysToFind);
         }
-        // Skip values that do not match the target key
+
         return [];
     });
 }
@@ -191,19 +191,16 @@ export function findAllValuesByKeys(obj, keysToFind) {
 export function collectAllObjectValues(obj) {
     const valuesArray = [];
 
-    // Recursive function to handle nested objects and arrays
     function extractValues(value) {
         if (isObject(value)) {
-            forEach(value, extractValues); // Recurse into nested objects/arrays
+            forEach(value, extractValues);
         } else {
-            valuesArray.push(value); // Add value to array
+            valuesArray.push(value);
         }
     }
 
-    // Initial call to extract values
     extractValues(obj);
 
-    // Flatten the array in case some values were arrays themselves
     return flattenDeep(valuesArray);
 }
 
