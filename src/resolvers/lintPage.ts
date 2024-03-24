@@ -1,4 +1,5 @@
 import {dirname, relative, resolve} from 'path';
+import {load} from 'js-yaml';
 import log from '@diplodoc/transform/lib/log';
 import {
     LintMarkdownFunctionOptions,
@@ -9,9 +10,17 @@ import {readFileSync} from 'fs';
 import {bold} from 'chalk';
 
 import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, getVarsPerRelativeFile} from '../utils';
+import {
+    checkPathExists,
+    collectAllObjectValues,
+    getLinksWithExtension,
+    getVarsPerFile,
+    getVarsPerRelativeFile
+} from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
+import {isLocalUrl} from "@diplodoc/transform/lib/utils";
+import {getLogLevel} from "@diplodoc/transform/lib/yfmlint/utils";
 
 interface FileTransformOptions {
     path: string;
@@ -20,6 +29,7 @@ interface FileTransformOptions {
 
 const FileLinter: Record<string, Function> = {
     '.md': MdFileLinter,
+    '.yaml': YamlFileLinter,
 };
 
 export interface ResolverLintOptions {
@@ -51,6 +61,23 @@ export function lintPage(options: ResolverLintOptions) {
     if (onFinish) {
         onFinish();
     }
+}
+
+function YamlFileLinter(content: string, lintOptions: FileTransformOptions): void {
+    const {input, lintConfig} = ArgvService.getConfig();
+    const {path: filePath} = lintOptions;
+    const  currentFilePath: string = resolve(input, filePath);
+
+    const logLevel = getLogLevel({
+        logLevelsConfig: lintConfig['log-levels'],
+        ruleNames: ['YAML001'],
+        defaultLevel: log.LogLevels.ERROR,
+    })
+
+    const values = collectAllObjectValues(load(content));
+    const localLinks = values.filter(link => getLinksWithExtension(link) && isLocalUrl(link));
+
+    return localLinks.forEach(link => checkPathExists(link, currentFilePath) || log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`))
 }
 
 function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {

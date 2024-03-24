@@ -1,5 +1,6 @@
 import {join} from 'path';
 import {platform} from 'process';
+import {flattenDeep, forEach, isObject} from "lodash";
 
 import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
@@ -8,6 +9,7 @@ import {preprocessPageHtmlForSinglePage} from './singlePage';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
+import {isFileExists, resolveRelativePath} from "@diplodoc/transform/lib/utilsFS";
 
 import {escape} from 'html-escaper';
 
@@ -168,3 +170,35 @@ export function joinSinglePageResults(
 export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, "'");
 }
+
+export function collectAllObjectValues(obj) {
+    const valuesArray = [];
+
+    // Recursive function to handle nested objects and arrays
+    function extractValues(value) {
+        if (isObject(value)) {
+            forEach(value, extractValues); // Recurse into nested objects/arrays
+        } else {
+            valuesArray.push(value); // Add value to array
+        }
+    }
+
+    // Initial call to extract values
+    extractValues(obj);
+
+    // Flatten the array in case some values were arrays themselves
+    return flattenDeep(valuesArray);
+}
+
+export function getLinksWithExtension(link){
+    const oneLineWithExtension = new RegExp(/^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm);
+
+    return oneLineWithExtension.test(link)
+}
+
+export function checkPathExists(path, parentFilePath){
+    const includePath = resolveRelativePath(parentFilePath, path);
+
+    return isFileExists(includePath)
+}
+
