@@ -1,14 +1,14 @@
 import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve, sep} from 'path';
-import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
-import {isString} from 'lodash';
 
 import type {DocInnerProps} from '@diplodoc/client';
+import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import yaml from 'js-yaml';
+import {isString} from 'lodash';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '../models';
@@ -38,20 +38,32 @@ const fixRelativePath = (relativeTo: string) => (path: string) => {
     return join(getAssetsPublicPath(relativeTo), path);
 };
 
-const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
-    const {input, allowCustomResources} = ArgvService.getConfig();
+const getFileMeta = async ({
+    fileExtension,
+    metadata,
+    inputPath,
+}: ResolverOptions) => {
+    const { input, allowCustomResources, lang, langs } = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
+    
+    const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
+    const tocBase: string = toc && toc.base ? toc.base : '';
+
+    const tocBaseLang = tocBase?.split('/')[0] as Lang;
+    const tocLang = langs?.includes(tocBaseLang) && tocBaseLang;
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
-
+    const { result } = transformFn(content, { path: inputPath, lang: lang || tocLang || Lang.RU });
+    
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
         ? await getVCSMetadata(metadata, content, result?.meta)
         : result?.meta;
-    const fileMeta = fileExtension === '.yaml' ? result?.data?.meta ?? {} : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml'
+        ? (result?.data?.meta ?? {})
+        : updatedMetadata;
 
     if (!Array.isArray(fileMeta?.metadata)) {
         fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
@@ -60,21 +72,21 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
     fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
 
     if (allowCustomResources) {
-        const {script, style} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || []).map(fixRelativePath(inputPath));
-        fileMeta.script = (fileMeta.script || [])
-            .concat(script || [])
+        const { script, style } = metadata?.resources ?? {};
+        fileMeta.style = (fileMeta.style ?? []).concat(style || []).map(fixRelativePath(inputPath));
+        fileMeta.script = (fileMeta.script ?? [])
+            .concat(script ?? [])
             .map(fixRelativePath(inputPath));
     } else {
         fileMeta.style = [];
         fileMeta.script = [];
     }
 
-    return {...result, meta: fileMeta};
-};
+    return { ...result, meta: fileMeta };
+}
 
 const getFileProps = async (options: ResolverOptions) => {
-    const {inputPath, outputPath} = options;
+    const { inputPath, outputPath } = options;
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
@@ -105,7 +117,7 @@ const getFileProps = async (options: ResolverOptions) => {
     };
 
     return props;
-};
+}
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
     const {outputPath, inputPath, deep, deepBase} = options;
