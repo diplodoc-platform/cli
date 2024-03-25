@@ -13,7 +13,6 @@ const {compilerOptions: {target}} = require('../tsconfig.json');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
-    // packages: 'external',
     platform: 'node',
     target: target,
     format: 'cjs',
@@ -45,7 +44,10 @@ Promise.all(builds.map(([entries, outfile]) => {
         };
     }
 
-    currentConfig.external = Object.keys(dependencies);
+    currentConfig.external = [
+        ...Object.keys(dependencies),
+        '@diplodoc/cli',
+    ];
 
     return esbuild.build(currentConfig);
 })).then(() => {
