@@ -37,8 +37,10 @@ definitions:
     properties:
       title:
         type: string
+        translate: md
       description:
         type: string
+        translate: md
       theme:
         type: string
         enum: ['normal', 'info', 'danger', 'warning', 'success', 'utility', 'unknown', 'clear']
