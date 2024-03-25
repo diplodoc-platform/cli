@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.17.0](https://github.com/diplodoc-platform/cli/compare/v4.16.1...v4.17.0) (2024-03-25)
+
+
+### Features
+
+* toc label syntax ([45e118f](https://github.com/diplodoc-platform/cli/commit/45e118f28079913887710423da4195b21bcd47c5))
+
+
+### Bug Fixes
+
+* add in toc schema ([62582cf](https://github.com/diplodoc-platform/cli/commit/62582cfd5491633a363eb4a1d0e79a18e9d5053b))
+* add translate fields ([7b0b48d](https://github.com/diplodoc-platform/cli/commit/7b0b48dc6859ad7a6cbcaa247e8c5ce7a6dd0835))
+* Fix translation schema resolution ([35d2b9c](https://github.com/diplodoc-platform/cli/commit/35d2b9cb2f62be926948971a4affbb5ca983c47a))
+* Fix translation schemas resolution ([c9c5436](https://github.com/diplodoc-platform/cli/commit/c9c54366412ed89f6c373dda6d0c3cbc807f16d1))
+
 ## [4.16.1](https://github.com/diplodoc-platform/cli/compare/v4.16.0...v4.16.1) (2024-03-22)
 
 
