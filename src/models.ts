@@ -1,9 +1,9 @@
 import {Logger} from '@diplodoc/transform/lib/log';
+import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
-import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
-import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
+import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 
 export type VarsPreset = 'internal' | 'external';
 
@@ -43,7 +43,7 @@ interface YfmConfig {
     removeHiddenTocItems: boolean;
     connector?: VCSConnectorConfig;
     lang?: Lang;
-    langs?: [];
+    langs?: Lang[];
     lintDisabled: boolean;
     buildDisabled: boolean;
     lintConfig: LintConfig;
