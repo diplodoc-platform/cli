@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.17.1](https://github.com/diplodoc-platform/cli/compare/v4.17.0...v4.17.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* **translation:** Fix schemas resolution ([6228d3b](https://github.com/diplodoc-platform/cli/commit/6228d3b27e5d652924a5921b37c700f02af419e7))
+
 ## [4.17.0](https://github.com/diplodoc-platform/cli/compare/v4.16.1...v4.17.0) (2024-03-25)
 
 
