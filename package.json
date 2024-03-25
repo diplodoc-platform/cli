@@ -18,6 +18,9 @@
     "schemas",
     "src"
   ],
+  "imports": {
+    "#package": "./package.json"
+  },
   "scripts": {
     "build": "node scripts/build.cli.js",
     "start": "node build/index.js",

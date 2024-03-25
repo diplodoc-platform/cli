@@ -264,6 +264,10 @@ function translator(params: TranslatorParams, split: Split) {
         }
 
         const schemas = await resolveSchemas(path);
+        if (['.yaml', '.json'].includes(ext) && !schemas.length) {
+            return;
+        }
+
         const {units, skeleton} = extract(content, {
             compact: true,
             source: {

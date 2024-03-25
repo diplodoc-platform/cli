@@ -122,6 +122,10 @@ function pipeline(params: PipelineParameters) {
         const skeletonPath = join(outputRoot, outputPath + '.skl');
 
         const schemas = await resolveSchemas(path);
+        if (['.yaml', '.json'].includes(ext) && !schemas.length) {
+            return;
+        }
+
         const content = await loadFile(inputPath);
 
         await mkdir(dirname(xliffPath), {recursive: true});

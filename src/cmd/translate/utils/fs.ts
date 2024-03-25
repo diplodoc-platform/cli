@@ -3,7 +3,7 @@ import {dirname, join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
 
-const ROOT = dirname(require.resolve('@diplodoc/cli/package.json'));
+const ROOT = dirname(require.resolve('#package'));
 
 function last<T>(array: T[]): T | undefined {
     return array[array.length - 1];
@@ -77,16 +77,20 @@ export async function dumpFile(path: string, content: string | JSONValue) {
  */
 export async function resolveSchemas(path: string) {
     if (path.endsWith('toc.yaml')) {
-        return [await loadFile(join(ROOT, 'toc-schema.yaml'), false)];
+        return [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'), false)];
     }
 
     if (path.endsWith('index.yaml')) {
-        return [await loadFile(join(ROOT, 'leading-schema.yaml'), false)];
+        return [await loadFile(join(ROOT, 'schemas/leading-schema.yaml'), false)];
     }
 
     if (path.endsWith('presets.yaml')) {
-        return [await loadFile(join(ROOT, 'presets-schema.yaml'), false)];
+        return [await loadFile(join(ROOT, 'schemas/presets-schema.yaml'), false)];
     }
 
-    return [await loadFile('schemas/toc-schema.yaml', false)];
+    if (path.endsWith('redirects.yaml')) {
+        return [];
+    }
+
+    return [await loadFile(ROOT, 'schemas/toc-schema.yaml', false)];
 }
