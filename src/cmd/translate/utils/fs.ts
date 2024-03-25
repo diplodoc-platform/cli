@@ -92,5 +92,5 @@ export async function resolveSchemas(path: string) {
         return [];
     }
 
-    return [await loadFile(ROOT, 'schemas/toc-schema.yaml', false)];
+    return [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'), false)];
 }
