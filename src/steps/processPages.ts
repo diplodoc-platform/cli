@@ -1,21 +1,19 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, relative, resolve} from 'path';
-import shell from 'shelljs';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
+import log from '@diplodoc/transform/lib/log';
+import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
-import {asyncify, mapLimit} from 'async';
+import shell from 'shelljs';
 
-import log from '@diplodoc/transform/lib/log';
-
-import {ArgvService, LeadingService, PluginService, TocService} from '../services';
-import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {
-    generateStaticMarkup,
-    joinSinglePageResults,
-    logger,
-    transformTocForSinglePage,
-} from '../utils';
+    Lang,
+    PAGE_PROCESS_CONCURRENCY,
+    ResourceType,
+    SINGLE_PAGE_DATA_FILENAME,
+    SINGLE_PAGE_FILENAME,
+} from '../constants';
 import {
     LeadingPage,
     MetaDataOptions,
@@ -24,16 +22,16 @@ import {
     SinglePageResult,
     YfmToc,
 } from '../models';
-import {VCSConnector} from '../vcs-connector/connector-models';
-import {getVCSConnector} from '../vcs-connector';
+import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
+import {ArgvService, LeadingService, PluginService, TocService} from '../services';
 import {
-    Lang,
-    PAGE_PROCESS_CONCURRENCY,
-    ResourceType,
-    SINGLE_PAGE_DATA_FILENAME,
-    SINGLE_PAGE_FILENAME,
-} from '../constants';
-import {generateStaticRedirect} from '../utils/redirect';
+    generateStaticMarkup,
+    joinSinglePageResults,
+    logger,
+    transformTocForSinglePage,
+} from '../utils';
+import {getVCSConnector} from '../vcs-connector';
+import {VCSConnector} from '../vcs-connector/connector-models';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -134,7 +132,8 @@ async function saveSinglePages(outputBundlePath: string) {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
-        lang,
+        lang: configLang,
+        langs: configLangs,
         resources,
     } = ArgvService.getConfig();
 
@@ -157,6 +156,9 @@ async function saveSinglePages(outputBundlePath: string) {
                     currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
                 }) as YfmToc;
 
+                const lang = configLang ?? Lang.RU;
+                const langs = configLangs?.length ? configLangs : [lang];
+
                 const pageData = {
                     data: {
                         leading: false as const,
@@ -168,7 +170,8 @@ async function saveSinglePages(outputBundlePath: string) {
                     router: {
                         pathname: SINGLE_PAGE_FILENAME,
                     },
-                    lang: lang || Lang.RU,
+                    lang,
+                    langs,
                 };
 
                 const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
