@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.18.0](https://github.com/diplodoc-platform/cli/compare/v4.17.1...v4.18.0) (2024-03-26)
+
+
+### Features
+
+* lint YAML files ([#699](https://github.com/diplodoc-platform/cli/issues/699)) ([5b28f97](https://github.com/diplodoc-platform/cli/commit/5b28f97abb2ac40d2fe7cb9e9acc8ec0a6d105c2))
+
 ## [4.17.1](https://github.com/diplodoc-platform/cli/compare/v4.17.0...v4.17.1) (2024-03-25)
 
 
