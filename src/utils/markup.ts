@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {platform} from 'process';
-import {flatMapDeep, flattenDeep, forEach, isArray, isObject, isString} from 'lodash';
+import {flatMapDeep, isArray, isObject, isString} from 'lodash';
 
 import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
@@ -186,22 +186,6 @@ export function findAllValuesByKeys(obj, keysToFind) {
 
         return [];
     });
-}
-
-export function collectAllObjectValues(obj) {
-    const valuesArray = [];
-
-    function extractValues(value) {
-        if (isObject(value)) {
-            forEach(value, extractValues);
-        } else {
-            valuesArray.push(value);
-        }
-    }
-
-    extractValues(obj);
-
-    return flattenDeep(valuesArray);
 }
 
 export function getLinksWithExtension(link) {
