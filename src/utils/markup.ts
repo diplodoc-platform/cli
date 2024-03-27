@@ -174,7 +174,7 @@ export function replaceDoubleToSingleQuotes(str: string): string {
 export function findAllValuesByKeys(obj, keysToFind) {
     return flatMapDeep(obj, (value, key) => {
         if (
-            keysToFind.includes(key) &&
+            keysToFind?.includes(key) &&
             (isString(value) || (isArray(value) && value.every(isString)))
         ) {
             return [value];
