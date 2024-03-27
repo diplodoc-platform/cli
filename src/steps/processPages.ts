@@ -361,6 +361,8 @@ async function processingFileToHtml(
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
 
+    const deep = pathToFile.split('/').length - 2; // exclude lang and count slashes
+
     return resolveMd2HTML({
         inputPath: pathToFile,
         outputBundlePath,
@@ -368,5 +370,6 @@ async function processingFileToHtml(
         outputPath,
         filename,
         metadata: metaDataOptions,
+        deep,
     });
 }
