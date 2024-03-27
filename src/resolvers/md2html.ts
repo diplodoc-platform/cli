@@ -103,7 +103,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
-            toc: transformToc(toc, pathToDir) || {},
+            toc: transformToc(toc) || {},
             ...meta,
         },
         router: {
@@ -117,13 +117,13 @@ const getFileProps = async (options: ResolverOptions) => {
 }
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
-    const { outputPath, outputBundlePath, inputPath } = options;
+    const { outputPath, outputBundlePath, inputPath, deep } = options;
     const props = await getFileProps(options);
 
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
 
-    const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
+    const outputFileContent = generateStaticMarkup(props, relativePathToBundle, deep);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 

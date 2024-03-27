@@ -28,6 +28,7 @@ export type Meta = TitleMeta &
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
     pathToBundle: string,
+    deep: number = 0,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const {title: tocTitle} = props.data.toc;
@@ -45,12 +46,14 @@ export function generateStaticMarkup(
 
     const html = staticContent ? render(props) : '';
     const isRTL = RTL_LANGS.includes(props.lang);
+    const deepPath = deep ? Array(deep).fill('../').join('') : './';
 
     return `
         <!DOCTYPE html>
         <html lang="${props.lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
+                <base href="${deepPath}" target="_blank" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
@@ -60,7 +63,7 @@ export function generateStaticMarkup(
                     }
                 </style>
                 ${manifest.css
-                    .filter((file) => isRTL === file.includes('.rtl.css'))
+                    .filter((file: string) => isRTL === file.includes('.rtl.css'))
                     .map(dst(pathToBundle))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
