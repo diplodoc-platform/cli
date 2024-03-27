@@ -1,4 +1,15 @@
+import glob from 'glob';
+import walkSync from 'walk-sync';
+import {load} from 'js-yaml';
+import {readFileSync} from 'fs';
 import {Arguments, Argv} from 'yargs';
+import {join, resolve} from 'path';
+import shell from 'shelljs';
+
+import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
+
 import {
     BUNDLE_FOLDER,
     LINT_CONFIG_FILENAME,
@@ -9,9 +20,7 @@ import {
     YFM_CONFIG_FILENAME,
 } from '../../constants';
 import {argvValidator} from '../../validator';
-import {join, resolve} from 'path';
 import {ArgvService, Includers} from '../../services';
-import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 import {
     initLinterWorkers,
     processAssets,
@@ -22,11 +31,9 @@ import {
     processServiceFiles,
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
-import shell from 'shelljs';
 import {Resources} from '../../models';
-import {copyFiles, logger} from '../../utils';
+import {checkPathExists, copyFiles, findAllValuesByKeys, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../publish/upload';
-import glob from 'glob';
 
 export const build = {
     command: ['build', '$0'],
@@ -246,16 +253,43 @@ async function handler(args: Arguments<any>) {
                         const resourcePaths: string[] = [];
 
                         // collect paths of all resources
-                        Object.keys(resources).forEach(
-                            (type) =>
-                                resources[type as keyof Resources]?.forEach((path: string) =>
-                                    resourcePaths.push(path),
-                                ),
+                        Object.keys(resources).forEach((type) =>
+                            resources[type as keyof Resources]?.forEach((path: string) =>
+                                resourcePaths.push(path),
+                            ),
                         );
 
                         //copy resources
                         copyFiles(args.input, tmpOutputFolder, resourcePaths);
                     }
+
+                    const yamlFiles: string[] = walkSync(args.input, {
+                        globs: ['**/*.yaml'],
+                        directories: false,
+                        includeBasePath: true,
+                        ignore: ['**/toc.yaml', resolve(pathToRedirects)],
+                    });
+
+                    yamlFiles.forEach((yamlFile) => {
+                        const content = load(readFileSync(yamlFile, 'utf8'));
+
+                        if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
+                            return;
+                        }
+                        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
+                        const localMediaLinks = contentLinks.filter(
+                            (link) =>
+                                new RegExp(/^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm).test(
+                                    link,
+                                ) && isLocalUrl(link),
+                        );
+
+                        copyFiles(
+                            args.input,
+                            tmpOutputFolder,
+                            localMediaLinks.filter((link) => checkPathExists(link, yamlFile)),
+                        );
+                    });
 
                     break;
                 }
