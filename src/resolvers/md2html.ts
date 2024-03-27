@@ -84,7 +84,6 @@ const getFileProps = async (options: ResolverOptions) => {
     const tocBase: string = toc?.base ?? '';
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
-    const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
 
     const {
         lang: configLang,
@@ -95,7 +94,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const tocBaseLang = tocBase?.split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
-    const lang = configLang || tocLang || Lang.RU;
+    const lang = tocLang || configLang || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
 
     const props = {
@@ -105,7 +104,7 @@ const getFileProps = async (options: ResolverOptions) => {
             ...meta,
         },
         router: {
-            pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
+            pathname: join(pathToFileDir, basename(outputPath)),
         },
         lang,
         langs,
