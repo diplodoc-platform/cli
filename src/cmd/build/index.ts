@@ -6,7 +6,7 @@ import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
 
-import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
@@ -34,6 +34,7 @@ import {prepareMapFile} from '../../steps/processMapFile';
 import {Resources} from '../../models';
 import {checkPathExists, copyFiles, findAllValuesByKeys, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../publish/upload';
+import {LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG} from "@diplodoc/client/build/constants";
 
 export const build = {
     command: ['build', '$0'],
@@ -277,7 +278,8 @@ async function handler(args: Arguments<any>) {
                         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
                             return;
                         }
-                        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
+
+                        const contentLinks = findAllValuesByKeys(content, LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG);
                         const localMediaLinks = contentLinks.filter(
                             (link) =>
                                 new RegExp(/^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm).test(
