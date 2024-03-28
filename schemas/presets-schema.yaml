@@ -1,0 +1,31 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/presets/draft-01/schema#'
+title: Presets file schema
+type: object
+properties:
+  default:
+    $ref: '#/definitions/preset'
+patternProperties:
+  '^[a-zA-Z0-9\.\-_]+$':
+    $ref: '#/definitions/preset'
+
+definitions:
+  preset:
+    type: object
+    properties:
+      i18n:
+        type: object
+        patternProperties:
+          '^[a-zA-Z0-9\.\-_]+$':
+            $ref: '#/definitions/property'
+    additionalProperties: true
+
+  property:
+    oneOf:
+      - type: string
+        translate: md
+      - type: number
+      - type: object
+        patternProperties:
+          '^[a-zA-Z0-9\.\-_]+$':
+            $ref: '#/definitions/property'

@@ -12,7 +12,7 @@ import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc} from '../models';
 import {IncludeMode, Stage} from '../constants';
 import {isExternalHref, logger} from '../utils';
-import {filterFiles, firstFilterTextItems, liquidField} from './utils';
+import {filterFiles, firstFilterItem, firstFilterTextItems, liquidField} from './utils';
 import {IncludersError, applyIncluders} from './includers';
 
 export interface TocServiceData {
@@ -57,6 +57,12 @@ async function add(path: string) {
 
     if (typeof parsedToc.title === 'string') {
         parsedToc.title = liquidField(parsedToc.title, combinedVars, path);
+    }
+
+    if (parsedToc.label) {
+        parsedToc.label = firstFilterItem(parsedToc.label, combinedVars, {
+            resolveConditions: true,
+        });
     }
 
     parsedToc.items = await processTocItems(

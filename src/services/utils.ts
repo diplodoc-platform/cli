@@ -93,6 +93,26 @@ export function firstFilterTextItems(
     return filteredItems[0] || '';
 }
 
+export function firstFilterItem<T extends Filter>(
+    itemOrItems: T | T[],
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
+    const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
+
+    const filteredItems = items.reduce<T[]>((result: T[], item) => {
+        const useItem = shouldProcessItem(item, vars, options);
+
+        if (useItem) {
+            result.push(item);
+        }
+
+        return result;
+    }, []);
+
+    return filteredItems[0];
+}
+
 function shouldProcessItem<T extends Filter>(
     item: T,
     vars: Record<string, string>,

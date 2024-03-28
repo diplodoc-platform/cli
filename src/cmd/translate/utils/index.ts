@@ -3,7 +3,7 @@ import {basename, dirname, extname, resolve} from 'path';
 import {readFileSync} from 'node:fs';
 import glob from 'glob';
 
-export {dumpFile, loadFile} from './fs';
+export {dumpFile, loadFile, resolveSchemas} from './fs';
 export {extract, compose} from './translate';
 export {TranslateError, LimitExceed, RequestError, AuthError} from './errors';
 
@@ -136,10 +136,6 @@ function normalizeInput(params: TranslateArgs, language: string, exts: string[])
     }
 
     return {input, files};
-}
-
-export function resolveSchemas(_path: string) {
-    return null;
 }
 
 export class Defer<T = string> {

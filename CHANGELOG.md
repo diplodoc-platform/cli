@@ -1,5 +1,53 @@
 # Changelog
 
+## [4.18.0](https://github.com/diplodoc-platform/cli/compare/v4.17.1...v4.18.0) (2024-03-26)
+
+
+### Features
+
+* lint YAML files ([#699](https://github.com/diplodoc-platform/cli/issues/699)) ([5b28f97](https://github.com/diplodoc-platform/cli/commit/5b28f97abb2ac40d2fe7cb9e9acc8ec0a6d105c2))
+
+## [4.17.1](https://github.com/diplodoc-platform/cli/compare/v4.17.0...v4.17.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* **translation:** Fix schemas resolution ([6228d3b](https://github.com/diplodoc-platform/cli/commit/6228d3b27e5d652924a5921b37c700f02af419e7))
+
+## [4.17.0](https://github.com/diplodoc-platform/cli/compare/v4.16.1...v4.17.0) (2024-03-25)
+
+
+### Features
+
+* toc label syntax ([45e118f](https://github.com/diplodoc-platform/cli/commit/45e118f28079913887710423da4195b21bcd47c5))
+
+
+### Bug Fixes
+
+* Add translate fields ([7b0b48d](https://github.com/diplodoc-platform/cli/commit/7b0b48dc6859ad7a6cbcaa247e8c5ce7a6dd0835))
+* Fix translation schemas resolution ([c9c5436](https://github.com/diplodoc-platform/cli/commit/c9c54366412ed89f6c373dda6d0c3cbc807f16d1))
+
+## [4.16.1](https://github.com/diplodoc-platform/cli/compare/v4.16.0...v4.16.1) (2024-03-22)
+
+
+### Bug Fixes
+
+* Add missed json schemas to npm package ([3db3863](https://github.com/diplodoc-platform/cli/commit/3db38632a3ffcf4d43854374487203088b729da5))
+
+## [4.16.0](https://github.com/diplodoc-platform/cli/compare/v4.15.1...v4.16.0) (2024-03-21)
+
+
+### Features
+
+* **translation:** Add schemas for toc/leading/presets ([6a25caf](https://github.com/diplodoc-platform/cli/commit/6a25cafc0774cdae464dbcf21143bcb81dc8e9ec))
+
+## [4.15.1](https://github.com/diplodoc-platform/cli/compare/v4.15.0...v4.15.1) (2024-03-11)
+
+
+### Bug Fixes
+
+* Update translation dep ([c41878d](https://github.com/diplodoc-platform/cli/commit/c41878d125681f3634a46098010b727394bec227))
+
 ## [4.15.0](https://github.com/diplodoc-platform/cli/compare/v4.14.0...v4.15.0) (2024-03-06)
 
 

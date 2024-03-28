@@ -22,6 +22,7 @@ import {
     extract,
     loadFile,
     normalizeParams,
+    resolveSchemas,
 } from './utils';
 
 const REQUESTS_LIMIT = 20;
@@ -262,6 +263,11 @@ function translator(params: TranslatorParams, split: Split) {
             return;
         }
 
+        const schemas = await resolveSchemas(path);
+        if (['.yaml', '.json'].includes(ext) && !schemas.length) {
+            return;
+        }
+
         const {units, skeleton} = extract(content, {
             compact: true,
             source: {
@@ -272,6 +278,7 @@ function translator(params: TranslatorParams, split: Split) {
                 language: targetLanguage,
                 locale: 'US',
             },
+            schemas,
         });
 
         if (!units.length) {
@@ -280,7 +287,7 @@ function translator(params: TranslatorParams, split: Split) {
         }
 
         const parts = await split(path, units);
-        const composed = compose(skeleton, parts, {useSource: true});
+        const composed = compose(skeleton, parts, {useSource: true, schemas});
 
         await dumpFile(outputPath, composed);
     };

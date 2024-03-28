@@ -2,6 +2,7 @@ import {filterTextItems, filterFiles, firstFilterTextItems, liquidField} from "s
 import {Lang} from "../../../src/constants";
 import {ArgvService} from "../../../src/services";
 import {YfmArgv} from "models";
+import {findAllValuesByKeys} from "utils";
 
 const combinedVars = {
     lang: Lang.EN,
@@ -238,5 +239,39 @@ describe('liquidField', () => {
         const result = liquidField(`{% if type == 'a' %}{{a}}{% else %}{{b}}{% endif %}`, vars, '');
 
         expect(result).toBe(`{% if type == 'a' %}{{a}}{% else %}{{b}}{% endif %}`);
+    });
+});
+
+describe('findAllValuesByKeys', () => {
+    beforeEach(() => {
+        jest.resetAllMocks();
+    });
+
+    test('should return an empty array if no values match the keys', () => {
+        const obj = {a: 1, b: 2};
+        const keysToFind = ['c', 'd'];
+        const result = findAllValuesByKeys(obj, keysToFind);
+        expect(result).toEqual([]);
+    });
+
+    test('should return an array of string values that match the keys', () => {
+        const obj = {a: 'foo', b: 'bar', c: 'baz'};
+        const keysToFind = ['a', 'b'];
+        const result = findAllValuesByKeys(obj, keysToFind);
+        expect(result).toEqual(['foo', 'bar']);
+    });
+
+    test('should return an array of string values from nested objects that match the keys', () => {
+        const obj = {a: {b: 'foo'}, c: [{d: 'bar'}, {e: 'baz'}]};
+        const keysToFind = ['b', 'd', 'e'];
+        const result = findAllValuesByKeys(obj, keysToFind);
+        expect(result).toEqual(['foo', 'bar', 'baz']);
+    });
+
+    test('should return an array of string values from arrays that match the keys', () => {
+        const obj = {a: ['foo', 'bar'], b: [1, 2]};
+        const keysToFind = ['a'];
+        const result = findAllValuesByKeys(obj, keysToFind);
+        expect(result).toEqual(['foo', 'bar']);
     });
 });

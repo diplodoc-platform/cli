@@ -100,13 +100,9 @@ function pipeline(input: string, output: string, {useSource}: ComposeOptions) {
             loadFile<string>(join(input, file.xliff)),
         ]);
 
-        let schemas;
-        if (['.yaml', '.json'].includes(file.ext)) {
-            schemas = resolveSchemas(file.path);
-
-            if (!schemas) {
-                return;
-            }
+        const schemas = await resolveSchemas(file.path);
+        if (['.yaml', '.json'].includes(file.ext) && !schemas.length) {
+            return;
         }
 
         const result = _compose(skeleton, xliff, {useSource, schemas});

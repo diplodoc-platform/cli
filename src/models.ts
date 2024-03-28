@@ -78,6 +78,12 @@ export type DocPreset = {
     __metadata: Record<string, string>[];
 };
 
+export interface YfmTocLabel extends Filter {
+    title: string;
+    description?: string;
+    theme?: string;
+}
+
 export interface YfmToc extends Filter {
     name: string;
     href: string;
@@ -89,6 +95,7 @@ export interface YfmToc extends Filter {
     id?: string;
     singlePage?: boolean;
     hidden?: boolean;
+    label?: YfmTocLabel[] | YfmTocLabel;
 }
 
 export interface YfmTocInclude {
