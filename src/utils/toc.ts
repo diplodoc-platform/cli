@@ -1,11 +1,11 @@
-import {basename, dirname, extname, format, join, relative} from 'path';
+import {basename, dirname, extname, join} from 'path';
 
 import {YfmToc} from '../models';
 import {filterFiles} from '../services/utils';
 import {isExternalHref} from './url';
 import {getSinglePageAnchorId} from './singlePage';
 
-export function transformToc(toc: YfmToc | null, pathToFileDirectory: string): YfmToc | null {
+export function transformToc(toc: YfmToc | null): YfmToc | null {
     if (!toc) {
         return null;
     }
@@ -23,7 +23,6 @@ export function transformToc(toc: YfmToc | null, pathToFileDirectory: string): Y
         );
     }
 
-    const baseTocPath: string = localToc.base || '';
     const navigationItemQueue = [localToc];
 
     while (navigationItemQueue.length) {
@@ -40,17 +39,10 @@ export function transformToc(toc: YfmToc | null, pathToFileDirectory: string): Y
         }
 
         if (href && !isExternalHref(href)) {
-            /* Path to directory with toc.yaml */
-            const pathToIndexDirectory: string = relative(pathToFileDirectory, baseTocPath);
-
             const fileExtension: string = extname(href);
             const filename: string = basename(href, fileExtension);
-            const transformedFilename: string = format({
-                name: filename,
-                ext: '.html',
-            });
 
-            navigationItem.href = join(pathToIndexDirectory, dirname(href), transformedFilename);
+            navigationItem.href = join(dirname(href), filename);
         }
     }
 

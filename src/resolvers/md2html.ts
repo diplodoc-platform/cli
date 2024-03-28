@@ -1,13 +1,17 @@
-import {basename, dirname, join, relative, resolve, sep} from 'path';
 import {readFileSync, writeFileSync} from 'fs';
+import {basename, dirname, join, relative, resolve, sep} from 'path';
+
+import type {DocInnerProps} from '@diplodoc/client';
+import transform, {Output} from '@diplodoc/transform';
+import liquid from '@diplodoc/transform/lib/liquid';
+import log from '@diplodoc/transform/lib/log';
+import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import yaml from 'js-yaml';
 
-import transform, {Output} from '@diplodoc/transform';
-import log from '@diplodoc/transform/lib/log';
-import liquid from '@diplodoc/transform/lib/liquid';
-
-import {LeadingPage, ResolveMd2HTMLResult, ResolverOptions, YfmToc} from '../models';
+import {Lang, PROCESSING_FINISHED} from '../constants';
+import {LeadingPage, ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PluginService, TocService} from '../services';
+import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
 import {
     generateStaticMarkup,
     getVarsPerFile,
@@ -15,9 +19,6 @@ import {
     logger,
     transformToc,
 } from '../utils';
-import {Lang, PROCESSING_FINISHED} from '../constants';
-import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
-import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 
 export interface FileTransformOptions {
     path: string;
@@ -33,29 +34,20 @@ const fixRelativePath = (relativeTo: string) => (path: string) => {
     return join(getAssetsPublicPath(relativeTo), path);
 };
 
-export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveMd2HTMLResult> {
-    const {inputPath, fileExtension, outputPath, outputBundlePath, metadata} = options;
+const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
+    const {input, allowCustomResources} = ArgvService.getConfig();
 
-    const pathToDir: string = dirname(inputPath);
-    const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
-    const tocBase: string = toc && toc.base ? toc.base : '';
-    const pathToFileDir: string =
-        pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
-    const relativePathToIndex = relative(pathToDir, `${tocBase}${sep}`);
-    const vars = getVarsPerFile(inputPath);
-
-    const {input, lang, langs, allowCustomResources} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
     const {result} = transformFn(content, {path: inputPath});
 
+    const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
         ? await getVCSMetadata(metadata, content, result?.meta)
-        : result.meta;
-
-    const fileMeta = fileExtension === '.yaml' ? result.data.meta ?? {} : updatedMetadata;
+        : result?.meta;
+    const fileMeta = fileExtension === '.yaml' ? result?.data?.meta ?? {} : updatedMetadata;
 
     if (!Array.isArray(fileMeta?.metadata)) {
         fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
@@ -64,36 +56,61 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
 
     if (allowCustomResources) {
-        const {script, style} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || []).map(fixRelativePath(inputPath));
-        fileMeta.script = (fileMeta.script || [])
-            .concat(script || [])
+        const {script, style} = metadata?.resources ?? {};
+        fileMeta.style = (fileMeta.style ?? []).concat(style || []).map(fixRelativePath(inputPath));
+        fileMeta.script = (fileMeta.script ?? [])
+            .concat(script ?? [])
             .map(fixRelativePath(inputPath));
     } else {
         fileMeta.style = [];
         fileMeta.script = [];
     }
 
+    return {...result, meta: fileMeta};
+};
+
+const getFileProps = async (options: ResolverOptions) => {
+    const {inputPath, outputPath} = options;
+
+    const pathToDir: string = dirname(inputPath);
+    const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
+    const tocBase: string = toc?.base ?? '';
+    const pathToFileDir: string =
+        pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
+
+    const {lang: configLang, langs: configLangs} = ArgvService.getConfig();
+    const meta = await getFileMeta(options);
+
     const tocBaseLang = tocBase?.split('/')[0];
-    const tocLang = langs?.includes(tocBaseLang) && tocBaseLang;
+    const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
+
+    const lang = tocLang || configLang || Lang.RU;
+    const langs = configLangs?.length ? configLangs : [lang];
 
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
-            toc: transformToc(toc, pathToDir) || {},
-            ...result,
-            meta: fileMeta,
+            toc: transformToc(toc) || {},
+            ...meta,
         },
         router: {
-            pathname: join(relativePathToIndex, pathToFileDir, basename(outputPath)),
+            pathname: join(pathToFileDir, basename(outputPath)),
         },
-        lang: lang || tocLang || Lang.RU,
+        lang,
+        langs,
     };
+
+    return props;
+};
+
+export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
+    const {outputPath, outputBundlePath, inputPath, deep} = options;
+    const props = await getFileProps(options);
 
     const outputDir = dirname(outputPath);
     const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
 
-    const outputFileContent = generateStaticMarkup(props, relativePathToBundle);
+    const outputFileContent = generateStaticMarkup(props, relativePathToBundle, deep);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
