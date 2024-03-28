@@ -46,7 +46,7 @@ export function generateStaticMarkup(
 
     const html = staticContent ? render(props) : '';
     const isRTL = RTL_LANGS.includes(props.lang);
-    const deepPath = deep ? Array(deep).fill('../').join('') : './';
+    const deepPath = deep > 0 ? Array(deep).fill('../').join('') : './';
 
     return `
         <!DOCTYPE html>
