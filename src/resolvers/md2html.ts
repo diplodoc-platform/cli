@@ -61,9 +61,7 @@ const getFileMeta = async ({
     const updatedMetadata = metadata?.isContributorsEnabled
         ? await getVCSMetadata(metadata, content, result?.meta)
         : result?.meta;
-    const fileMeta = fileExtension === '.yaml'
-        ? (result?.data?.meta ?? {})
-        : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml' ? result?.data?.meta ?? {} : updatedMetadata;
 
     if (!Array.isArray(fileMeta?.metadata)) {
         fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
@@ -72,7 +70,7 @@ const getFileMeta = async ({
     fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
 
     if (allowCustomResources) {
-        const { script, style } = metadata?.resources ?? {};
+        const {script, style} = metadata?.resources ?? {};
         fileMeta.style = (fileMeta.style ?? []).concat(style || []).map(fixRelativePath(inputPath));
         fileMeta.script = (fileMeta.script ?? [])
             .concat(script ?? [])
@@ -82,11 +80,11 @@ const getFileMeta = async ({
         fileMeta.script = [];
     }
 
-    return { ...result, meta: fileMeta };
-}
+    return {...result, meta: fileMeta};
+};
 
 const getFileProps = async (options: ResolverOptions) => {
-    const { inputPath, outputPath } = options;
+    const {inputPath, outputPath} = options;
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
@@ -117,7 +115,7 @@ const getFileProps = async (options: ResolverOptions) => {
     };
 
     return props;
-}
+};
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
     const {outputPath, inputPath, deep, deepBase} = options;
