@@ -28,7 +28,7 @@ export type Meta = TitleMeta &
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
     pathToBundle: string,
-    deep: number = 0,
+    deep = 0,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const {title: tocTitle} = props.data.toc;
