@@ -360,8 +360,10 @@ async function processingFileToHtml(
     metaDataOptions: MetaDataOptions,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
+    const toc: YfmToc | null = TocService.getForPath(pathToFile) || null;
 
-    const deep = pathToFile.split('/').length - 2; // exclude lang and count slashes
+    const basePath = toc?.base?.split('/')?.filter((str) => str !== '.') || [];
+    const deep = pathToFile.split('/').length - 1 - basePath.length;
 
     return resolveMd2HTML({
         inputPath: pathToFile,
