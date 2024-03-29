@@ -1,7 +1,7 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, relative, resolve} from 'path';
 import shell from 'shelljs';
-import {readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import {asyncify, mapLimit} from 'async';
@@ -193,9 +193,11 @@ function saveRedirectPage(pathData: {outputBundlePath: string; outputDir: string
 
     const relativeOutputBundlePath = relative(outputFolderPath, outputBundlePath);
     const redirectPagePath = join(outputDir, 'index.html');
-    const content = generateStaticRedirect(lang || Lang.RU, relativeOutputBundlePath);
 
-    writeFileSync(redirectPagePath, content);
+    if (!existsSync(redirectPagePath)) {
+        const content = generateStaticRedirect(lang || Lang.RU, relativeOutputBundlePath);
+        writeFileSync(redirectPagePath, content);
+    }
 }
 
 function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathData): void {
