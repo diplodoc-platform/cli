@@ -4,10 +4,7 @@ import {PluginService} from '../services';
 import {join} from 'path';
 import manifest from '@diplodoc/client/manifest';
 
-export function generateStaticRedirect(
-    lang: Lang,
-    pathToBundle: string,
-): string {
+export function generateStaticRedirect(lang: Lang, pathToBundle: string): string {
     const isRTL = RTL_LANGS.includes(lang);
 
     return `

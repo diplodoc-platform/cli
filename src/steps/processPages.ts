@@ -33,7 +33,7 @@ import {
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
 } from '../constants';
-import { generateStaticRedirect } from '../utils/redirect';
+import {generateStaticRedirect} from '../utils/redirect';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -186,19 +186,13 @@ async function saveSinglePages(outputBundlePath: string) {
     }
 }
 
-function saveRedirectPage(pathData: {
-    outputBundlePath: string;
-    outputDir: string;
-}): void {
-    const {
-        output: outputFolderPath,
-        lang,
-    } = ArgvService.getConfig();
+function saveRedirectPage(pathData: {outputBundlePath: string; outputDir: string}): void {
+    const {output: outputFolderPath, lang} = ArgvService.getConfig();
 
     const {outputBundlePath, outputDir} = pathData;
 
     const relativeOutputBundlePath = relative(outputFolderPath, outputBundlePath);
-    const redirectPagePath = join(outputDir, "index.html");
+    const redirectPagePath = join(outputDir, 'index.html');
     const content = generateStaticRedirect(lang || Lang.RU, relativeOutputBundlePath);
 
     writeFileSync(redirectPagePath, content);
