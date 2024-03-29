@@ -1,16 +1,44 @@
 import walkSync from 'walk-sync';
+import {load} from 'js-yaml';
+import {readFileSync} from 'fs';
+import shell from 'shelljs';
+import {join, resolve} from 'path';
 
 import {ArgvService} from '../services';
-import {copyFiles} from '../utils';
+import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
 
-import {ASSETS_FOLDER, RTL_LANGS} from '../constants';
+import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+
+import {
+    ASSETS_FOLDER,
+    LINT_CONFIG_FILENAME,
+    REDIRECTS_FILENAME,
+    RTL_LANGS,
+    YFM_CONFIG_FILENAME,
+} from '../constants';
+import {Resources} from '../models';
 
 /**
- * Processes assets files (everything except .yaml and .md files)
+ * Processes assets files (everything except .md files)
+ * @param {Array} args
  * @param {string} outputBundlePath
+ * @param {string} outputFormat
+ * @param {string} tmpOutputFolder
  * @return {void}
  */
-export function processAssets(outputBundlePath: string) {
+export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}) {
+    switch (outputFormat) {
+        case 'html':
+            processAssetsHtmlRun({outputBundlePath});
+            break;
+        case 'md':
+            processAssetsMdRun({args, tmpOutputFolder});
+            break;
+    }
+}
+
+function processAssetsHtmlRun({outputBundlePath}) {
     const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
 
     const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
@@ -29,6 +57,61 @@ export function processAssets(outputBundlePath: string) {
     });
 
     copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+}
+
+function processAssetsMdRun({args, tmpOutputFolder}) {
+    const {allowCustomResources, resources} = ArgvService.getConfig();
+
+    const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
+    const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
+    const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
+
+    shell.cp(resolve(pathToConfig), tmpOutputFolder);
+    shell.cp(resolve(pathToRedirects), tmpOutputFolder);
+    shell.cp(resolve(pathToLintConfig), tmpOutputFolder);
+
+    if (resources && allowCustomResources) {
+        const resourcePaths: string[] = [];
+
+        // collect paths of all resources
+        Object.keys(resources).forEach(
+            (type) =>
+                resources[type as keyof Resources]?.forEach((path: string) =>
+                    resourcePaths.push(path),
+                ),
+        );
+
+        //copy resources
+        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+    }
+
+    const yamlFiles: string[] = walkSync(args.input, {
+        globs: ['**/*.yaml'],
+        directories: false,
+        includeBasePath: true,
+        ignore: ['**/toc.yaml', resolve(pathToRedirects)],
+    });
+
+    yamlFiles.forEach((yamlFile) => {
+        const content = load(readFileSync(yamlFile, 'utf8'));
+
+        if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
+            return;
+        }
+
+        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
+        const localMediaLinks = contentLinks.filter(
+            (link) =>
+                new RegExp(/^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm).test(link) &&
+                isLocalUrl(link),
+        );
+
+        copyFiles(
+            args.input,
+            tmpOutputFolder,
+            localMediaLinks.filter((link) => checkPathExists(link, yamlFile)),
+        );
+    });
 }
 
 function hasIntersection(array1, array2) {
