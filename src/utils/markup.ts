@@ -2,7 +2,7 @@ import {join} from 'path';
 import {platform} from 'process';
 import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
 
-import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
+import {BUNDLE_FOLDER, CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
@@ -13,7 +13,6 @@ import {isFileExists, resolveRelativePath} from '@diplodoc/transform/lib/utilsFS
 
 import {escape} from 'html-escaper';
 
-const dst = (bundlePath: string) => (target: string) => join(bundlePath, target);
 export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export interface TitleMeta {
@@ -27,7 +26,7 @@ export type Meta = TitleMeta &
 
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
-    pathToBundle: string,
+    deepBase: number,
     deep = 0,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
@@ -46,6 +45,7 @@ export function generateStaticMarkup(
 
     const html = staticContent ? render(props) : '';
     const isRTL = RTL_LANGS.includes(props.lang);
+    const deepBasePath = deepBase > 0 ? Array(deepBase).fill('../').join('') : './';
     const deepPath = deep > 0 ? Array(deep).fill('../').join('') : './';
 
     return `
@@ -64,7 +64,7 @@ export function generateStaticMarkup(
                 </style>
                 ${manifest.css
                     .filter((file: string) => isRTL === file.includes('.rtl.css'))
-                    .map(dst(pathToBundle))
+                    .map((url: string) => join(deepBasePath, BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
                 ${PluginService.getHeadContent()}
@@ -77,7 +77,7 @@ export function generateStaticMarkup(
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
                 ${manifest.js
-                    .map(dst(pathToBundle))
+                    .map((url: string) => join(deepBasePath, BUNDLE_FOLDER, url))
                     .map(
                         (src: string) =>
                             `<script type="application/javascript" src="${src}"></script>`,
