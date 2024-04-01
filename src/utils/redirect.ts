@@ -1,10 +1,10 @@
-import {Lang, RTL_LANGS} from '../constants';
+import {BUNDLE_FOLDER, Lang, RTL_LANGS} from '../constants';
 import {PluginService} from '../services';
 
 import {join} from 'path';
 import manifest from '@diplodoc/client/manifest';
 
-export function generateStaticRedirect(lang: Lang, pathToBundle: string): string {
+export function generateStaticRedirect(lang: Lang): string {
     const isRTL = RTL_LANGS.includes(lang);
 
     return `
@@ -12,7 +12,7 @@ export function generateStaticRedirect(lang: Lang, pathToBundle: string): string
         <html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
-                <meta http-equiv="refresh" content="0; url=./${lang}">
+                <meta http-equiv="refresh" content="0; url=./${lang}/index.html">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Redirect</title>
                 <style type="text/css">
@@ -22,16 +22,16 @@ export function generateStaticRedirect(lang: Lang, pathToBundle: string): string
                 </style>
                 ${manifest.css
                     .filter((file: string) => isRTL === file.includes('.rtl.css'))
-                    .map((target: string) => join(pathToBundle, target))
+                    .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
                 ${PluginService.getHeadContent()}
                 <script type="text/javascript">
-                    window.location.href = "./${lang}";
+                    window.location.replace("./${lang}/index.html");
                 </script>
             </head>
             <body class="g-root g-root_theme_light">
-                If you are not redirected automatically, follow this <a href='./${lang}'>link to example</a>.
+                If you are not redirected automatically, follow this <a href="./${lang}/index.html">link to example</a>.
             </body>
         </html>
     `;

@@ -1,5 +1,5 @@
 import {readFileSync, writeFileSync} from 'fs';
-import {basename, dirname, join, relative, resolve, sep} from 'path';
+import {basename, dirname, join, resolve, sep} from 'path';
 
 import type {DocInnerProps} from '@diplodoc/client';
 import transform, {Output} from '@diplodoc/transform';
@@ -104,13 +104,10 @@ const getFileProps = async (options: ResolverOptions) => {
 };
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
-    const {outputPath, outputBundlePath, inputPath, deep} = options;
+    const {outputPath, inputPath, deep, deepBase} = options;
     const props = await getFileProps(options);
 
-    const outputDir = dirname(outputPath);
-    const relativePathToBundle: string = relative(resolve(outputDir), resolve(outputBundlePath));
-
-    const outputFileContent = generateStaticMarkup(props, relativePathToBundle, deep);
+    const outputFileContent = generateStaticMarkup(props, deepBase, deep);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
