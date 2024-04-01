@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.19.0](https://github.com/diplodoc-platform/cli/compare/v4.18.0...v4.19.0) (2024-04-01)
+
+
+### Features
+
+* add redirect url for non-lang mode ([8c40c77](https://github.com/diplodoc-platform/cli/commit/8c40c777626bf361bfbf5fa1332180ada64827ec))
+* add redirect url for non-lang mode & update tests ([ee9b968](https://github.com/diplodoc-platform/cli/commit/ee9b968ba61fa61137f773c15884c277770947c5))
+* add static redirect page ([f0a9a8d](https://github.com/diplodoc-platform/cli/commit/f0a9a8dd224dbece649a2fa11fbbbd24f5f885b2))
+* copy yaml assets ([#707](https://github.com/diplodoc-platform/cli/issues/707)) ([0d3293c](https://github.com/diplodoc-platform/cli/commit/0d3293c5d3936fb7fdeb065a3becb6292542df73))
+* update @diplodoc/client@2.4.0 ([#713](https://github.com/diplodoc-platform/cli/issues/713)) ([b69e50b](https://github.com/diplodoc-platform/cli/commit/b69e50b709c4e8fbf951c6783bb4273ee25b98e7))
+
+
+### Bug Fixes
+
+* lint ([286fb30](https://github.com/diplodoc-platform/cli/commit/286fb30ff1580fc541517398e7bf4076a71448c7))
+
 ## [4.18.0](https://github.com/diplodoc-platform/cli/compare/v4.17.1...v4.18.0) (2024-03-26)
 
 
