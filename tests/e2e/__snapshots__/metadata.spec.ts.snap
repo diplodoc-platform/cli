@@ -49,7 +49,7 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index","items":[{"name":"Documentation","href":"page","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config","id":"Config-RANDOM"}],"base":"."},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -111,7 +111,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index","items":[{"name":"Documentation","href":"page","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n"},"router":{"pathname":"page.html"},"lang":"ru","langs":["ru"]};
     </script>
@@ -175,7 +175,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index","items":[{"name":"Documentation","href":"page","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":"."},"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n"},"router":{"pathname":"project/config.html"},"lang":"ru","langs":["ru"]};
     </script>
