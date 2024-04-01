@@ -2,7 +2,7 @@ import {join} from 'path';
 import {platform} from 'process';
 import {flatMapDeep, isArray, isObject, isString} from 'lodash';
 
-import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
+import {CUSTOM_STYLE, METADATA_TAG_NAME, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
@@ -25,24 +25,12 @@ export type Meta = TitleMeta &
         metadata: VarsMetadata;
     };
 
-function generateTags(tag: string, data: VarsMetadata[]) {
-    return (
-        data?.map((meta: VarsMetadata) => {
-            const values = Object.entries(meta).map(
-                ([key, value]: [string, unknown]) =>
-                    `${key.replace(/[\s"]/g, '"')}="${String(value).replace(/"/g, '"')}"`,
-            );
-            return `<${tag} ${values.join(' ')}>`;
-        }) || []
-    );
-}
-
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
     pathToBundle: string,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
-    const {title: tocTitle, head: tocHead} = props.data.toc;
+    const {title: tocTitle} = props.data.toc;
     const {title: pageTitle} = props.data;
 
     const title = getTitle({
@@ -58,9 +46,6 @@ export function generateStaticMarkup(
     const html = staticContent ? render(props) : '';
     const isRTL = RTL_LANGS.includes(props.lang);
 
-    const headMeta = generateTags('meta', tocHead?.meta);
-    const headLink = generateTags('link', tocHead?.link);
-
     return `
         <!DOCTYPE html>
         <html lang="${props.lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
@@ -68,8 +53,6 @@ export function generateStaticMarkup(
                 <meta charset="utf-8">
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                ${headMeta.join('\n')}
-                ${headLink.join('\n')}
                 <title>${title}</title>
                 <style type="text/css">
                     body {
@@ -126,12 +109,19 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
     let result = '';
 
     const addMetaTagsFromObject = (value: Record<string, string | boolean | TextItems>) => {
+        const tagName = value[METADATA_TAG_NAME] || 'meta';
+
         const args = Object.entries(value).reduce((acc, [name, content]) => {
-            return acc + `${escape(name)}="${escape(content.toString())}" `;
+            return (
+                acc +
+                (name === METADATA_TAG_NAME
+                    ? ''
+                    : `${escape(name)}="${escape(content.toString())}" `)
+            );
         }, '');
 
         if (args.length) {
-            result += `<meta ${args} />` + сarriage;
+            result += `<${tagName} ${args} />` + сarriage;
         }
     };
 
