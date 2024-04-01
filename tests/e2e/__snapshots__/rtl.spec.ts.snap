@@ -345,7 +345,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <meta http-equiv="refresh"
-          content="0; url=./ru"
+          content="0; url=./ru/index.html"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -367,12 +367,12 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
           href="_bundle/app.css"
     >
     <script type="text/javascript">
-      window.location.href = "./ru";
+      window.location.replace("./ru/index.html");
     </script>
   </head>
   <body class="g-root g-root_theme_light">
     If you are not redirected automatically, follow this
-    <a href="./ru">
+    <a href="./ru/index.html">
       link to example
     </a>
     .
