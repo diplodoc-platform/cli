@@ -233,6 +233,7 @@ export interface ResolveMd2MdOptions {
 
 export interface ResolverOptions {
     deep: number;
+    deepBase: number;
     inputPath: string;
     filename: string;
     fileExtension: string;

@@ -83,14 +83,11 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     );
 
     if (singlePage) {
-        await saveSinglePages(outputBundlePath);
+        await saveSinglePages();
     }
 
     if (outputFormat === 'html') {
-        saveRedirectPage({
-            outputBundlePath,
-            outputDir: outputFolderPath,
-        });
+        saveRedirectPage(outputFolderPath);
     }
 }
 
@@ -129,10 +126,9 @@ function getPathData(
     return pathData;
 }
 
-async function saveSinglePages(outputBundlePath: string) {
+async function saveSinglePages() {
     const {
         input: inputFolderPath,
-        output: outputFolderPath,
         lang: configLang,
         langs: configLangs,
         resources,
@@ -174,14 +170,14 @@ async function saveSinglePages(outputBundlePath: string) {
                     lang,
                     langs,
                 };
-
-                const outputTocDir = resolve(outputFolderPath, relative(inputFolderPath, tocDir));
-                const relativeOutputBundlePath = relative(outputTocDir, outputBundlePath);
+            
+                const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
+                const deepBase = basePath.length;
 
                 // Save the full single page for viewing locally
                 const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
-                const singlePageContent = generateStaticMarkup(pageData, relativeOutputBundlePath);
+                const singlePageContent = generateStaticMarkup(pageData, deepBase);
 
                 writeFileSync(singlePageFn, singlePageContent);
                 writeFileSync(singlePageDataFn, JSON.stringify(pageData));
@@ -192,16 +188,13 @@ async function saveSinglePages(outputBundlePath: string) {
     }
 }
 
-function saveRedirectPage(pathData: {outputBundlePath: string; outputDir: string}): void {
-    const {output: outputFolderPath, lang} = ArgvService.getConfig();
+function saveRedirectPage(outputDir: string): void {
+    const {lang} = ArgvService.getConfig();
 
-    const {outputBundlePath, outputDir} = pathData;
-
-    const relativeOutputBundlePath = relative(outputFolderPath, outputBundlePath);
     const redirectPagePath = join(outputDir, 'index.html');
 
     if (!existsSync(redirectPagePath)) {
-        const content = generateStaticRedirect(lang || Lang.RU, relativeOutputBundlePath);
+        const content = generateStaticRedirect(lang || Lang.RU);
         writeFileSync(redirectPagePath, content);
     }
 }
@@ -364,7 +357,8 @@ async function processingFileToHtml(
     const toc: YfmToc | null = TocService.getForPath(pathToFile) || null;
 
     const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
-    const deep = pathToFile.split(sep).length - 1 - basePath.length;
+    const deepBase = basePath.length;
+    const deep = pathToFile.split(sep).length - 1 - deepBase;
 
     return resolveMd2HTML({
         inputPath: pathToFile,
@@ -374,5 +368,6 @@ async function processingFileToHtml(
         filename,
         metadata: metaDataOptions,
         deep,
+        deepBase,
     });
 }
