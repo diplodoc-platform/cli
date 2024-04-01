@@ -170,7 +170,7 @@ async function saveSinglePages() {
                     lang,
                     langs,
                 };
-            
+
                 const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
                 const deepBase = basePath.length;
 
