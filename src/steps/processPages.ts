@@ -1,7 +1,7 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, relative, resolve} from 'path';
 import shell from 'shelljs';
-import {readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import {asyncify, mapLimit} from 'async';
@@ -33,6 +33,7 @@ import {
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
 } from '../constants';
+import {generateStaticRedirect} from '../utils/redirect';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -84,6 +85,13 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     if (singlePage) {
         await saveSinglePages(outputBundlePath);
+    }
+
+    if (outputFormat === 'html') {
+        saveRedirectPage({
+            outputBundlePath,
+            outputDir: outputFolderPath,
+        });
     }
 }
 
@@ -177,6 +185,20 @@ async function saveSinglePages(outputBundlePath: string) {
         );
     } catch (error) {
         console.log(error);
+    }
+}
+
+function saveRedirectPage(pathData: {outputBundlePath: string; outputDir: string}): void {
+    const {output: outputFolderPath, lang} = ArgvService.getConfig();
+
+    const {outputBundlePath, outputDir} = pathData;
+
+    const relativeOutputBundlePath = relative(outputFolderPath, outputBundlePath);
+    const redirectPagePath = join(outputDir, 'index.html');
+
+    if (!existsSync(redirectPagePath)) {
+        const content = generateStaticRedirect(lang || Lang.RU, relativeOutputBundlePath);
+        writeFileSync(redirectPagePath, content);
     }
 }
 

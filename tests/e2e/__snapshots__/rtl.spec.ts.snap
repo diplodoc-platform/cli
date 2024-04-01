@@ -104,7 +104,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","ar/index.html","ar/page.html","en/index.html","en/page.html"]"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","ar/index.html","ar/page.html","en/index.html","en/page.html","index.html"]"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 2`] = `
 <!DOCTYPE html>
@@ -315,6 +315,49 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             src="../_bundle/vendor.js"
     >
     </script>
+  </body>
+</html>
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 6`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="refresh"
+          content="0; url=./ru"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Redirect
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/vendor.css"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app.css"
+    >
+    <script type="text/javascript">
+      window.location.href = "./ru";
+    </script>
+  </head>
+  <body class="g-root g-root_theme_light">
+    If you are not redirected automatically, follow this
+    <a href="./ru">
+      link to example
+    </a>
+    .
   </body>
 </html>
 `;
