@@ -1,5 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, join, relative, resolve} from 'path';
+import {basename, dirname, extname, join, relative, resolve, sep} from 'path';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
@@ -362,10 +362,9 @@ async function processingFileToHtml(
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
     const toc: YfmToc | null = TocService.getForPath(pathToFile) || null;
-    console.log("toc?.base", toc?.base);
 
-    const basePath = toc?.base?.split('/')?.filter((str) => str !== '.') || [];
-    const deep = pathToFile.split('/').length - 1 - basePath.length;
+    const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
+    const deep = pathToFile.split(sep).length - 1 - basePath.length;
 
     return resolveMd2HTML({
         inputPath: pathToFile,
