@@ -138,7 +138,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
+    <base href="../"
           target="_blank"
     >
     <meta name="yfm"
