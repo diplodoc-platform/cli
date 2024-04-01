@@ -32,6 +32,7 @@ import {
 } from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
+import {generateStaticRedirect} from '../utils/redirect';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};

@@ -140,7 +140,7 @@ exports[`Allow load custom resources md2html single page with custom resources 4
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
+    <base href="../"
           target="_blank"
     >
     <meta name="viewport"
@@ -402,7 +402,7 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
+    <base href="../"
           target="_blank"
     >
     <meta name="viewport"
