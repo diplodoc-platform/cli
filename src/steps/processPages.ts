@@ -362,6 +362,7 @@ async function processingFileToHtml(
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
     const toc: YfmToc | null = TocService.getForPath(pathToFile) || null;
+    console.log("toc?.base", toc?.base);
 
     const basePath = toc?.base?.split('/')?.filter((str) => str !== '.') || [];
     const deep = pathToFile.split('/').length - 1 - basePath.length;
