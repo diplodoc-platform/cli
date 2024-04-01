@@ -85,7 +85,9 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     if (singlePage) {
         await saveSinglePages(outputBundlePath);
-    } else {
+    }
+
+    if (outputFormat === 'html') {
         saveRedirectPage({
             outputBundlePath,
             outputDir: outputFolderPath,
