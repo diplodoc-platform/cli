@@ -163,11 +163,11 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/vendor.css"
+          href="_bundle/vendor.css"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/app.css"
+          href="_bundle/app.css"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -180,15 +180,15 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
       </p>/n"},"router":{"pathname":"project/config.html"},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
-            src="../_bundle/react.js"
+            src="_bundle/react.js"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/app.js"
+            src="_bundle/app.js"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/vendor.js"
+            src="_bundle/vendor.js"
     >
     </script>
   </body>
