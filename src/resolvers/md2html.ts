@@ -30,6 +30,10 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
+const fixRelativePath = (relativeTo: string) => (path: string) => {
+    return join(getAssetsPublicPath(relativeTo), path);
+};
+
 const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
@@ -53,9 +57,10 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || []);
+        fileMeta.style = (fileMeta.style || []).concat(style || []).map(fixRelativePath(inputPath));
         fileMeta.script = (fileMeta.script || [])
-            .concat(script || []);
+            .concat(script || [])
+            .map(fixRelativePath(inputPath));
     } else {
         fileMeta.style = [];
         fileMeta.script = [];
