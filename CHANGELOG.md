@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.19.3](https://github.com/diplodoc-platform/cli/compare/v4.19.2...v4.19.3) (2024-04-02)
+
+
+### Bug Fixes
+
+* copy assets by root path ([#719](https://github.com/diplodoc-platform/cli/issues/719)) ([7104343](https://github.com/diplodoc-platform/cli/commit/710434395bb60dcd6d2b8fab563a1d2d859b68c2))
+
 ## [4.19.2](https://github.com/diplodoc-platform/cli/compare/v4.19.1...v4.19.2) (2024-04-02)
 
 
