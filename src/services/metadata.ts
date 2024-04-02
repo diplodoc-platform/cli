@@ -1,7 +1,7 @@
 import {dump, load} from 'js-yaml';
 
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {MetaDataOptions, Metadata, Resources, VarsMetadata} from '../models';
+import {MetaDataOptions, Metadata, Resources, VarsMetadata, YfmToc} from '../models';
 import {
     getAuthorDetails,
     updateAuthorMetadataStringByAuthorLogin,
@@ -15,8 +15,8 @@ import {
 import {isObject} from './utils';
 import {сarriage} from '../utils';
 import {REGEXP_AUTHOR, metadataBorder} from '../constants';
-import {dirname, relative, resolve} from 'path';
-import {ArgvService, TocService} from './index';
+import {sep} from 'path';
+import {TocService} from './index';
 
 async function getContentWithUpdatedMetadata(
     fileContent: string,
@@ -327,11 +327,14 @@ function getSystemVarsMetadataString(systemVars: object) {
 }
 
 function getAssetsPublicPath(filePath: string) {
-    const {input} = ArgvService.getConfig();
-    const path: string = resolve(input, filePath);
+    const toc: YfmToc | null = TocService.getForPath(filePath) || null;
+
+    const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
+    const deepBase = basePath.length;
+    const deepBasePath = deepBase > 0 ? Array(deepBase).fill('../').join('') : './';
 
     /* Relative path from folder of .md file to root of user' output folder */
-    return relative(dirname(path), resolve(input));
+    return deepBasePath;
 }
 
 export {
