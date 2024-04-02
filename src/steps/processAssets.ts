@@ -4,7 +4,7 @@ import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {join, resolve} from 'path';
 
-import {ArgvService} from '../services';
+import {ArgvService, TocService} from '../services';
 import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
 
 import {LINK_KEYS} from '@diplodoc/client/ssr';
@@ -60,7 +60,7 @@ function processAssetsHtmlRun({outputBundlePath}) {
 }
 
 function processAssetsMdRun({args, tmpOutputFolder}) {
-    const {allowCustomResources, resources} = ArgvService.getConfig();
+    const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
     const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
@@ -82,14 +82,16 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         copyFiles(args.input, tmpOutputFolder, resourcePaths);
     }
 
-    const yamlFiles: string[] = walkSync(args.input, {
-        globs: ['**/*.yaml'],
-        directories: false,
-        includeBasePath: true,
-        ignore: ['**/toc.yaml', resolve(pathToRedirects)],
-    });
+    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
+        if (file.endsWith('.yaml')) {
+            const resolvedPathToFile = resolve(inputFolderPath, file);
 
-    yamlFiles.forEach((yamlFile) => {
+            acc.push(resolvedPathToFile);
+        }
+        return acc;
+    }, []);
+
+    tocYamlFiles.forEach((yamlFile) => {
         const content = load(readFileSync(yamlFile, 'utf8'));
 
         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
