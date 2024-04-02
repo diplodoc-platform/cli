@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.19.1](https://github.com/diplodoc-platform/cli/compare/v4.19.0...v4.19.1) (2024-04-02)
+
+
+### Bug Fixes
+
+* Try to fix binary build ([abe6f60](https://github.com/diplodoc-platform/cli/commit/abe6f607f57a6520a06a70794b7c330903b69a12))
+
 ## [4.19.0](https://github.com/diplodoc-platform/cli/compare/v4.18.0...v4.19.0) (2024-04-01)
 
 
