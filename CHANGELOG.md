@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.19.2](https://github.com/diplodoc-platform/cli/compare/v4.19.1...v4.19.2) (2024-04-02)
+
+
+### Bug Fixes
+
+* process only yaml files in toc ([#717](https://github.com/diplodoc-platform/cli/issues/717)) ([0869419](https://github.com/diplodoc-platform/cli/commit/08694197a60256f9b81087ace6f3e0a3d5f5d989))
+
 ## [4.19.1](https://github.com/diplodoc-platform/cli/compare/v4.19.0...v4.19.1) (2024-04-02)
 
 
