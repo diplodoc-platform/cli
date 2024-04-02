@@ -2,7 +2,7 @@ import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import {readFileSync} from 'fs';
 import shell from 'shelljs';
-import {join, resolve} from 'path';
+import {join, resolve, sep} from 'path';
 
 import {ArgvService, TocService} from '../services';
 import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
@@ -18,6 +18,7 @@ import {
     YFM_CONFIG_FILENAME,
 } from '../constants';
 import {Resources} from '../models';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
 /**
  * Processes assets files (everything except .md files)
@@ -99,17 +100,25 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         }
 
         const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
-        const localMediaLinks = contentLinks.filter(
-            (link) =>
-                new RegExp(/^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm).test(link) &&
-                isLocalUrl(link),
+        const localMediaLinks = contentLinks.reduce(
+            (acc, link) => {
+                const linkHasMediaExt = new RegExp(
+                    /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
+                ).test(link);
+
+                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
+                    const linkAbsolutePath = resolveRelativePath(yamlFile, link);
+                    const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+
+                    acc.push(linkRootPath);
+                }
+                return acc;
+            },
+
+            [],
         );
 
-        copyFiles(
-            args.input,
-            tmpOutputFolder,
-            localMediaLinks.filter((link) => checkPathExists(link, yamlFile)),
-        );
+        copyFiles(args.input, tmpOutputFolder, localMediaLinks);
     });
 }
 
