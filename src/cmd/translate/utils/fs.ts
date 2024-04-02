@@ -3,7 +3,7 @@ import {dirname, join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
 
-const ROOT = dirname(require.resolve('#package'));
+const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 
 function last<T>(array: T[]): T | undefined {
     return array[array.length - 1];

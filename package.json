@@ -18,8 +18,8 @@
     "schemas",
     "src"
   ],
-  "imports": {
-    "#package": "./package.json"
+  "exports": {
+    "./package": "./package.json"
   },
   "scripts": {
     "build": "node scripts/build.cli.js",

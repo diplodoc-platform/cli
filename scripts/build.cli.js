@@ -46,7 +46,7 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     currentConfig.external = [
         ...Object.keys(dependencies),
-        '#package',
+        'package',
     ];
 
     return esbuild.build(currentConfig);
