@@ -2,7 +2,7 @@ import {glob} from '../utils/glob';
 import {join} from 'node:path';
 import {ArgvService} from '../services';
 import {readFile, unlink, writeFile} from 'node:fs/promises';
-import { Lang } from '../constants';
+import {Lang} from '../constants';
 
 type Language = string;
 type MergedChangelogs =
@@ -51,8 +51,8 @@ export async function processChangelogs() {
 
     changes.forEach(([path, value]) => {
         if (!langs) {
-            path = `${Lang.EN}/${path}`
-          }
+            path = `${Lang.EN}/${path}`;
+        }
 
         const [lang, ...rest] = path.split('/');
         const [, hash] = rest.pop().split(/[-.]/);
