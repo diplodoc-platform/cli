@@ -21,14 +21,23 @@ import {Resources} from '../models';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
 /**
- * Processes assets files (everything except .md files)
  * @param {Array} args
  * @param {string} outputBundlePath
  * @param {string} outputFormat
  * @param {string} tmpOutputFolder
  * @return {void}
  */
-export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}) {
+
+type Props = {
+    args: string[];
+    outputBundlePath: string;
+    outputFormat: string;
+    tmpOutputFolder: string;
+};
+/*
+ * Processes assets files (everything except .md files)
+ */
+export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
     switch (outputFormat) {
         case 'html':
             processAssetsHtmlRun({outputBundlePath});

@@ -171,8 +171,8 @@ export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, "'");
 }
 
-export function findAllValuesByKeys(obj, keysToFind) {
-    return flatMapDeep(obj, (value, key) => {
+export function findAllValuesByKeys(obj, keysToFind: string[]) {
+    return flatMapDeep(obj, (value: string | string[], key: string) => {
         if (
             keysToFind?.includes(key) &&
             (isString(value) || (isArray(value) && value.every(isString)))
@@ -188,7 +188,7 @@ export function findAllValuesByKeys(obj, keysToFind) {
     });
 }
 
-export function getLinksWithExtension(link) {
+export function getLinksWithExtension(link: string) {
     const oneLineWithExtension = new RegExp(
         /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
     );
@@ -196,7 +196,7 @@ export function getLinksWithExtension(link) {
     return oneLineWithExtension.test(link);
 }
 
-export function checkPathExists(path, parentFilePath) {
+export function checkPathExists(path: string, parentFilePath: string) {
     const includePath = resolveRelativePath(parentFilePath, path);
 
     return isFileExists(includePath);
