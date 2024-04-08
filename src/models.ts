@@ -49,6 +49,12 @@ interface YfmConfig {
     lintConfig: LintConfig;
     resources?: Resources;
     needToSanitizeHtml: boolean;
+    /**
+     * false -> not extract changelogs after build md2md
+     * true -> extract changelogs
+     * <URL> -> extract and push to s3
+     */
+    changelogs?: string | boolean;
 }
 
 export interface YfmArgv extends YfmConfig {
