@@ -13,7 +13,7 @@ import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata} = options;
-    const {input, output} = ArgvService.getConfig();
+    const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
     const vars = getVarsPerFile(inputPath);
 
@@ -37,7 +37,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
     writeFileSync(outputPath, result);
 
-    if (changelogs?.length) {
+    if (changelogsSetting && changelogs?.length) {
         const mdFilename = basename(outputPath, extname(outputPath));
         const outputDir = dirname(outputPath);
         changelogs.forEach((changes, index) => {
@@ -104,7 +104,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {disableLiquid} = ArgvService.getConfig();
+    const {disableLiquid, changelogs: changelogsSetting} = ArgvService.getConfig();
     const {
         vars = {},
         path,
@@ -136,7 +136,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             copyFile: pluginCopyFile,
             collectOfPlugins,
             changelogs,
-            extractChangelogs: true,
+            extractChangelogs: Boolean(changelogsSetting),
         });
     }
 
