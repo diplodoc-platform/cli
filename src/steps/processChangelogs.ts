@@ -2,6 +2,7 @@ import {glob} from '../utils/glob';
 import {join} from 'node:path';
 import {ArgvService} from '../services';
 import {readFile, unlink, writeFile} from 'node:fs/promises';
+import { Lang } from '../constants';
 
 type Language = string;
 type MergedChangelogs =
@@ -19,17 +20,6 @@ type MergedChangelogs =
             "/plugins": {
                 "213312": <changelog>
             }
-        }
-    }
-
-    or if single language
-
-    {
-        "/": {
-            "12314": <changelog>
-        },
-        "/plugins": {
-            "213312": <changelog>
         }
     }
 */
@@ -60,22 +50,9 @@ export async function processChangelogs() {
     );
 
     changes.forEach(([path, value]) => {
-        if (!langs?.length) {
-            const parts = path.split('/');
-            const [, hash] = parts.pop().split(/[-.]/);
-
-            const fullPath = '/' + parts.join('/');
-
-            if (!merged[fullPath]) {
-                merged[fullPath] = {};
-            }
-
-            Object.assign(merged[fullPath], {
-                [hash]: value,
-            });
-
-            return;
-        }
+        if (!langs) {
+            path = `${Lang.EN}/${path}`
+          }
 
         const [lang, ...rest] = path.split('/');
         const [, hash] = rest.pop().split(/[-.]/);
