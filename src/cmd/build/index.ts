@@ -11,6 +11,7 @@ import {ArgvService, Includers} from '../../services';
 import {
     initLinterWorkers,
     processAssets,
+    processChangelogs,
     processExcludedFiles,
     processLinter,
     processLogs,
@@ -228,6 +229,8 @@ async function handler(args: Arguments<any>) {
                 tmpOutputFolder,
                 userOutputFolder,
             });
+
+            await processChangelogs();
 
             // Copy all generated files to user' output folder
             shell.cp(
