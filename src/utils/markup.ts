@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {platform} from 'process';
-import {cloneDeepWith, every, flatMapDeep, isArray, isObject, isString} from 'lodash';
+import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
 
 import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
@@ -195,10 +195,7 @@ export function modifyValuesByKeys(
 ) {
     function customizer(value, key) {
         // Apply the modification function if the key matches and it's a string or an array of strings
-        if (
-            keysToFind?.includes(key) &&
-            (isString(value) || (isArray(value) && every(value, isString)))
-        ) {
+        if (keysToFind?.includes(key) && isString(value)) {
             return modifyFn(value);
         }
     }
