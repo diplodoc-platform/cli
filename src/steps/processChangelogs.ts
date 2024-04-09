@@ -5,11 +5,9 @@ import {readFile, unlink, writeFile} from 'node:fs/promises';
 import {Lang} from '../constants';
 
 type Language = string;
-type MergedChangelogs =
-    | {
-          [language: Language]: Record<string, Record<string, unknown>>;
-      }
-    | Record<string, Record<string, unknown>>;
+type MergedChangelogs = {
+    [language: Language]: Record<string, Record<string, unknown>>;
+};
 
 /*
     {
@@ -55,7 +53,7 @@ export async function processChangelogs() {
         }
 
         const [lang, ...rest] = path.split('/');
-        const [, hash] = rest.pop().split(/[-.]/);
+        const [, hash] = rest.pop()!.split(/[-.]/);
 
         const fullPath = '/' + rest.join('/');
 
