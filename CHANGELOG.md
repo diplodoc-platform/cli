@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.20.0](https://github.com/diplodoc-platform/cli/compare/v4.19.3...v4.20.0) (2024-04-09)
+
+
+### Features
+
+* add changelogs ([38733c8](https://github.com/diplodoc-platform/cli/commit/38733c87365693c5324aaec02527fccae29e9b06))
+* bump transform version ([1c2b8f5](https://github.com/diplodoc-platform/cli/commit/1c2b8f51014802bd2d9224bfe4d32b7e23b35adb))
+
 ## [4.19.3](https://github.com/diplodoc-platform/cli/compare/v4.19.2...v4.19.3) (2024-04-02)
 
 
