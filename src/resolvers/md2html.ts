@@ -21,6 +21,7 @@ import {Lang, PROCESSING_FINISHED} from '../constants';
 import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {isString} from 'lodash';
 
 export interface FileTransformOptions {
     path: string;
@@ -120,7 +121,7 @@ function YamlFileTransformer(content: string): Object {
 
     if (Object.prototype.hasOwnProperty.call(data, 'blocks')) {
         data = modifyValuesByKeys(data, LINK_KEYS, (link) => {
-            if (getLinksWithContentExtersion(link)) {
+            if (isString(link) && getLinksWithContentExtersion(link)) {
                 return link.replace(/.(md|yaml)$/gmu, '.html');
             }
         });

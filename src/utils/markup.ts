@@ -191,7 +191,7 @@ export function findAllValuesByKeys(obj, keysToFind: string[]) {
 export function modifyValuesByKeys(
     originalObj,
     keysToFind: string[],
-    modifyFn: () => string | string[],
+    modifyFn: (value: string) => string,
 ) {
     function customizer(value, key) {
         // Apply the modification function if the key matches and it's a string or an array of strings
@@ -199,7 +199,7 @@ export function modifyValuesByKeys(
             keysToFind?.includes(key) &&
             (isString(value) || (isArray(value) && every(value, isString)))
         ) {
-            return isArray(value) ? value.map(modifyFn) : modifyFn(value);
+            return modifyFn(value);
         }
     }
 
