@@ -1,6 +1,6 @@
 import {join} from 'path';
 import {platform} from 'process';
-import {flatMapDeep, isArray, isObject, isString} from 'lodash';
+import {cloneDeepWith, every, flatMapDeep, isArray, isObject, isString} from 'lodash';
 
 import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
@@ -186,6 +186,29 @@ export function findAllValuesByKeys(obj, keysToFind: string[]) {
 
         return [];
     });
+}
+
+export function modifyValuesByKeys(
+    originalObj,
+    keysToFind: string[],
+    modifyFn: () => string | string[],
+) {
+    function customizer(value, key) {
+        // Apply the modification function if the key matches and it's a string or an array of strings
+        if (
+            keysToFind?.includes(key) &&
+            (isString(value) || (isArray(value) && every(value, isString)))
+        ) {
+            return isArray(value) ? value.map(modifyFn) : modifyFn(value);
+        }
+    }
+
+    // Clone the object deeply with a customizer function that modifies matching keys
+    return cloneDeepWith(originalObj, customizer);
+}
+
+export function getLinksWithContentExtersion(link: string) {
+    return new RegExp(/^\S.*\.(md|ya?ml|html)$/gm).test(link);
 }
 
 export function getLinksWithExtension(link: string) {

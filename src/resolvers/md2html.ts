@@ -10,14 +10,17 @@ import {LeadingPage, ResolveMd2HTMLResult, ResolverOptions, YfmToc} from '../mod
 import {ArgvService, PluginService, TocService} from '../services';
 import {
     generateStaticMarkup,
+    getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
     logger,
+    modifyValuesByKeys,
     transformToc,
 } from '../utils';
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
+import {LINK_KEYS} from '@diplodoc/client/ssr';
 
 export interface FileTransformOptions {
     path: string;
@@ -115,12 +118,20 @@ function YamlFileTransformer(content: string): Object {
         };
     }
 
-    const links = data?.links?.map((link) =>
-        link.href ? {...link, href: link.href.replace(/.md$/gmu, '.html')} : link,
-    );
+    if (Object.prototype.hasOwnProperty.call(data, 'blocks')) {
+        data = modifyValuesByKeys(data, LINK_KEYS, (link) => {
+            if (getLinksWithContentExtersion(link)) {
+                return link.replace(/.(md|yaml)$/gmu, '.html');
+            }
+        });
+    } else {
+        const links = data?.links?.map((link) =>
+            link.href ? {...link, href: link.href.replace(/.md$/gmu, '.html')} : link,
+        );
 
-    if (links) {
-        data.links = links;
+        if (links) {
+            data.links = links;
+        }
     }
 
     return {
