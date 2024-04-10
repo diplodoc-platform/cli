@@ -194,7 +194,6 @@ export function modifyValuesByKeys(
     modifyFn: (value: string) => string,
 ) {
     function customizer(value, key) {
-        // Apply the modification function if the key matches and it's a string or an array of strings
         if (keysToFind?.includes(key) && isString(value)) {
             return modifyFn(value);
         }
