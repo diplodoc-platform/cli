@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.21.0](https://github.com/diplodoc-platform/cli/compare/v4.20.0...v4.21.0) (2024-04-10)
+
+
+### Features
+
+* generate html links for PC pages in md2html ([#734](https://github.com/diplodoc-platform/cli/issues/734)) ([91b2a37](https://github.com/diplodoc-platform/cli/commit/91b2a374bca216947b6dd28a96dd4d33f4452c00))
+* update @diplodoc/client@2.5.0 ([#737](https://github.com/diplodoc-platform/cli/issues/737)) ([55a4c7c](https://github.com/diplodoc-platform/cli/commit/55a4c7ce8d950400eff037f01c2c7d1841a8c38b))
+
 ## [4.20.0](https://github.com/diplodoc-platform/cli/compare/v4.19.3...v4.20.0) (2024-04-09)
 
 
