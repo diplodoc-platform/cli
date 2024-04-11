@@ -1,15 +1,4 @@
-export class TranslateError extends Error {
-    code: string;
-
-    fatal: boolean;
-
-    constructor(message: string, code: string, fatal = false) {
-        super(message);
-
-        this.code = code;
-        this.fatal = fatal;
-    }
-}
+import {TranslateError} from '../../../utils';
 
 export class RequestError extends TranslateError {
     static canRetry(error: any) {
@@ -84,17 +73,5 @@ export class LimitExceed extends TranslateError {
     constructor(message: string) {
         const [, desc] = LIMIT_EXCEED_RX.exec(message) || [];
         super(desc, 'TRANSLATE_LIMIT_EXCEED', true);
-    }
-}
-
-export class ExtractError extends TranslateError {
-    constructor(error: Error) {
-        super(error?.message || String(error), 'EXTRACT_ERROR');
-    }
-}
-
-export class ComposeError extends TranslateError {
-    constructor(error: Error) {
-        super(error?.message || String(error), 'COMPOSE_ERROR');
     }
 }

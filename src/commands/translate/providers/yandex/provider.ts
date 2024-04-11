@@ -1,33 +1,89 @@
-import axios, {AxiosError, AxiosResponse} from 'axios';
-import {green, red} from 'chalk';
-import {Arguments} from 'yargs';
-import {ArgvService} from '../../services';
-import {logger} from '../../utils';
-import {ok} from 'assert';
-import {dirname, extname, join, resolve} from 'path';
-import {mkdir} from 'fs/promises';
-import {getYandexAuth} from './yandex/auth';
+import type {TranslateConfig} from '~/commands/translate';
+import type {YandexTranslationConfig} from '.';
+import {mkdir} from 'node:fs/promises';
+import {dirname, extname, join, resolve} from 'node:path';
+import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
+import axios, {AxiosError, AxiosResponse} from 'axios';
+import {LogLevel, Logger} from '~/logger';
+import {TranslateError, compose, dumpFile, extract, loadFile, resolveSchemas} from '../../utils';
+import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
-import {
-    AuthError,
-    Defer,
-    LimitExceed,
-    RequestError,
-    TranslateError,
-    TranslateParams,
-    bytes,
-    compose,
-    dumpFile,
-    extract,
-    loadFile,
-    normalizeParams,
-    resolveSchemas,
-} from './utils';
-
-const REQUESTS_LIMIT = 20;
+const REQUESTS_LIMIT = 15;
 const BYTES_LIMIT = 10000;
 const RETRY_LIMIT = 3;
+
+class TranslateLogger extends Logger {
+    stat = this.topic(LogLevel.INFO, 'PROCESSED');
+    translate = this.topic(LogLevel.INFO, 'TRANSLATE', gray);
+    translated = this.topic(LogLevel.INFO, 'TRANSLATED');
+}
+
+export class Provider {
+    readonly logger: TranslateLogger;
+
+    constructor(config: TranslateConfig) {
+        this.logger = new TranslateLogger(config);
+    }
+
+    async translate(files: string[], config: TranslateConfig & YandexTranslationConfig) {
+        const {input, output, auth, folder, source, target: targets, dryRun} = config;
+
+        try {
+            for (const target of targets) {
+                const translatorParams = {
+                    input,
+                    output,
+                    auth,
+                    sourceLanguage: source.language,
+                    targetLanguage: target.language,
+                    // yandexCloudTranslateGlossaryPairs,
+                    folderId: folder,
+                    dryRun,
+                };
+
+                const cache = new Map<string, Defer>();
+                const request = requester(translatorParams, cache);
+                const split = splitter(request, cache, this.logger);
+                const translate = translator(translatorParams, split);
+
+                await eachLimit(
+                    files,
+                    REQUESTS_LIMIT,
+                    asyncify(async (file: string) => {
+                        try {
+                            this.logger.translate(file);
+                            await translate(file);
+                            if (!dryRun) {
+                                this.logger.translated(file);
+                            }
+                        } catch (error: any) {
+                            if (error instanceof TranslateError) {
+                                this.logger.error(file, `${error.message}`, error.code);
+
+                                if (error.fatal) {
+                                    process.exit(1);
+                                }
+                            } else {
+                                this.logger.error(file, error.message);
+                            }
+                        }
+                    }),
+                );
+
+                this.logger.stat(`bytes: ${request.stat.bytes} chunks: ${request.stat.chunks}`);
+            }
+        } catch (error: any) {
+            if (error instanceof TranslateError) {
+                this.logger.topic(LogLevel.ERROR, error.code)(error.message);
+            } else {
+                this.logger.error(error);
+            }
+
+            process.exit(1);
+        }
+    }
+}
 
 type TranslatorParams = {
     input: string;
@@ -62,78 +118,6 @@ type Translations = {
         text: string;
     }[];
 };
-
-export async function handler(args: Arguments<any>) {
-    const params = normalizeParams({
-        ...(args.translate || {}),
-        ...args,
-    });
-
-    ArgvService.init(params);
-
-    const {input, output, auth, folder, source, targets, files, dryRun} =
-        ArgvService.getConfig() as unknown as TranslateParams;
-
-    ok(auth, 'Required param auth is not configured');
-    ok(folder, 'Required param folder is not configured');
-    ok(source, `Required param source is not configured`);
-    ok(targets.length, `Required param target is not configured`);
-
-    try {
-        const authInfo = getYandexAuth(auth);
-
-        for (const target of targets) {
-            const translatorParams = {
-                input,
-                output,
-                sourceLanguage: source[0],
-                targetLanguage: target[0],
-                // yandexCloudTranslateGlossaryPairs,
-                folderId: folder,
-                auth: authInfo,
-                dryRun,
-            };
-
-            const cache = new Map<string, Defer>();
-            const request = requester(translatorParams, cache);
-            const split = splitter(request, cache);
-            const translate = translator(translatorParams, split);
-
-            await eachLimit(
-                files,
-                REQUESTS_LIMIT,
-                asyncify(async function (file: string) {
-                    try {
-                        await translate(file);
-                    } catch (error: any) {
-                        if (error instanceof TranslateError) {
-                            logger.error(file, `${error.message}`, error.code);
-
-                            if (error.fatal) {
-                                process.exit(1);
-                            }
-                        } else {
-                            logger.error(file, error.message);
-                        }
-                    }
-                }),
-            );
-
-            console.log(
-                green('PROCESSED'),
-                `bytes: ${request.stat.bytes} chunks: ${request.stat.chunks}`,
-            );
-        }
-    } catch (error: any) {
-        if (error instanceof TranslateError) {
-            console.error(red(error.code), error.message);
-        } else {
-            console.error(error);
-        }
-
-        process.exit(1);
-    }
-}
 
 function scheduler(limit: number, interval: number) {
     const scheduled: Defer<void>[] = [];
@@ -188,6 +172,7 @@ function requester(params: RequesterParams, cache: Cache) {
         return async function () {
             if (dryRun) {
                 texts.forEach(resolve);
+                return;
             }
 
             try {
@@ -216,15 +201,21 @@ function requester(params: RequesterParams, cache: Cache) {
             } catch (error: any) {
                 if (error instanceof AxiosError) {
                     const {response} = error;
-                    const {status, statusText, data} = response as AxiosResponse;
 
-                    switch (true) {
-                        case LimitExceed.is(data.message):
-                            throw new LimitExceed(data.message);
-                        case AuthError.is(data.message):
-                            throw new AuthError(data.message);
-                        default:
-                            throw new RequestError(status, statusText, data);
+                    if (response) {
+                        const {status, statusText, data} = response as AxiosResponse;
+
+                        switch (true) {
+                            case LimitExceed.is(data.message):
+                                throw new LimitExceed(data.message);
+                            case AuthError.is(data.message):
+                                throw new AuthError(data.message);
+                            default:
+                                throw new RequestError(status, statusText, data);
+                        }
+                    } else {
+                        console.error(error.code);
+                        console.error(error.cause);
                     }
                 }
 
@@ -293,7 +284,7 @@ function translator(params: TranslatorParams, split: Split) {
     };
 }
 
-function splitter(request: Request, cache: Cache): Split {
+function splitter(request: Request, cache: Cache, logger: Logger): Split {
     return async function (path: string, texts: string[]) {
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
