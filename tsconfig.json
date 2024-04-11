@@ -4,14 +4,12 @@
     "lib": ["ES2019"],
     "target": "es6",
     "outDir": "build",
-    "module": "CommonJS"
+    "module": "CommonJS",
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"],
-  "types": ["node"],
-  "ts-node": {
-    "compilerOptions": {
-      "module": "CommonJS"
-    }
-  }
+  "types": ["node"]
 }

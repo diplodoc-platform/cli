@@ -84,8 +84,11 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         const resourcePaths: string[] = [];
 
         // collect paths of all resources
-        Object.keys(resources).forEach((type) =>
-            resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)),
+        Object.keys(resources).forEach(
+            (type) =>
+                resources[type as keyof Resources]?.forEach((path: string) =>
+                    resourcePaths.push(path),
+                ),
         );
 
         //copy resources

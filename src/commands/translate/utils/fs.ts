@@ -1,7 +1,7 @@
-import {JSONValue, resolveRefs} from '@diplodoc/translation';
 import {dirname, join} from 'node:path';
 import {readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
+import {JSONValue, resolveRefs} from '@diplodoc/translation';
 
 const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 

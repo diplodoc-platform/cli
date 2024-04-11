@@ -1,5 +1,6 @@
 const {resolve, join, dirname} = require('path');
 const esbuild = require('esbuild');
+const tsPaths = require('./ts-paths');
 const shell = require('shelljs');
 
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
@@ -21,6 +22,9 @@ const commonConfig = {
     loader: {
         '.map': 'empty',
     },
+    plugins:[
+        tsPaths()
+    ],
     define: {
         VERSION: JSON.stringify(version),
     },
@@ -46,7 +50,7 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     currentConfig.external = [
         ...Object.keys(dependencies),
-        'package',
+        '@diplodoc/cli/package',
     ];
 
     return esbuild.build(currentConfig);

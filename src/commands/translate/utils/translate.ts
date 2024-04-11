@@ -6,9 +6,9 @@ type Content = Parameters<typeof _extract>[0];
 
 export function extract(content: Content, options: ExtractOptions) {
     try {
-        const {units, skeleton} = _extract(content, options);
+        const {xliff, units, skeleton} = _extract(content, options);
 
-        return {units, skeleton};
+        return {xliff, units, skeleton};
     } catch (error: any) {
         throw new ExtractError(error);
     }

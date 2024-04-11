@@ -1,53 +1,34 @@
-import yargs from 'yargs';
-import {hideBin} from 'yargs/helpers';
-import log from '@diplodoc/transform/lib/log';
-import 'threads/register';
+import {MAIN_TIMER_ID} from '~/constants';
 
-import {MAIN_TIMER_ID} from './constants';
+export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from './program';
+export {Program} from './program';
 
-import {build, publish, translate} from './cmd';
+export type {Config, OptionInfo} from './config';
+export {Command, option, deprecated} from './config';
 
-console.time(MAIN_TIMER_ID);
+import {Program} from './program';
 
-yargs
-    .command(build)
-    .command(publish)
-    .command(translate)
-    .option('config', {
-        alias: 'c',
-        describe: 'YFM configuration file',
-        type: 'string',
-    })
-    .option('strict', {
-        alias: 's',
-        default: false,
-        describe: 'Run in strict mode',
-        type: 'boolean',
-    })
-    .option('quiet', {
-        alias: 'q',
-        default: false,
-        describe: "Run in quiet mode. Don't write logs to stdout",
-        type: 'boolean',
-    })
-    .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
-    .version(typeof VERSION !== 'undefined' ? VERSION : '')
-    .help()
-    .parse(hideBin(process.argv), {}, (err, {strict}, output) => {
+if (module.require.main === module) {
+    (async () => {
+        console.time(MAIN_TIMER_ID);
+
+        let exitCode = 0;
+        try {
+            const program = new Program();
+            await program.init(process.argv);
+            await program.parse(process.argv);
+        } catch (error: any) {
+            exitCode = 1;
+
+            const message = error?.message || error;
+
+            if (message) {
+                console.error(error.stack || error.message || error);
+            }
+        }
+
         console.timeEnd(MAIN_TIMER_ID);
 
-        if (err) {
-            console.error(err);
-            process.exit(1);
-        }
-
-        const {warn, error} = log.get();
-
-        if ((strict && warn.length) || error.length) {
-            process.exit(1);
-        }
-
-        console.log(output);
-
-        process.exit(0);
-    });
+        process.exit(exitCode);
+    })();
+}

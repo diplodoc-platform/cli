@@ -20,7 +20,7 @@ import {
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
 import {copyFiles, logger} from '../../utils';
-import {upload as publishFilesToS3} from '../publish/upload';
+import {upload as publishFilesToS3} from '../../commands/publish/upload';
 
 export const build = {
     command: ['build', '$0'],

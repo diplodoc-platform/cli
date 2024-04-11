@@ -16,6 +16,10 @@ const resolveKey = (data: string) => {
 };
 
 export function getYandexAuth(path: string) {
+    if (path === null) {
+        throw new Error('No Auth');
+    }
+
     let auth = resolveKey(path);
 
     if (auth !== null) {
