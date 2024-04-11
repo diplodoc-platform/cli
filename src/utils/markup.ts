@@ -2,7 +2,7 @@ import {join} from 'path';
 import {platform} from 'process';
 import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
 
-import {CUSTOM_STYLE, Platforms, RTL_LANGS} from '../constants';
+import {CUSTOM_STYLE, METADATA_TAG_NAME, Platforms, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {preprocessPageHtmlForSinglePage} from './singlePage';
@@ -109,12 +109,19 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
     let result = '';
 
     const addMetaTagsFromObject = (value: Record<string, string | boolean | TextItems>) => {
+        const tagName = value[METADATA_TAG_NAME] || 'meta';
+
         const args = Object.entries(value).reduce((acc, [name, content]) => {
-            return acc + `${escape(name)}="${escape(content.toString())}" `;
+            return (
+                acc +
+                (name === METADATA_TAG_NAME
+                    ? ''
+                    : `${escape(name)}="${escape(content.toString())}" `)
+            );
         }, '');
 
         if (args.length) {
-            result += `<meta ${args} />` + сarriage;
+            result += `<${tagName} ${args} />` + сarriage;
         }
     };
 

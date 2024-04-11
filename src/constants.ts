@@ -37,6 +37,7 @@ export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
+export const METADATA_TAG_NAME = 'tagName';
 
 export enum Stage {
     NEW = 'new',
