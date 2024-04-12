@@ -20,7 +20,7 @@ import {
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
-import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
 export interface FileTransformOptions {
@@ -49,11 +49,13 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     const vars = getVarsPerFile(inputPath);
 
     const {input, lang, langs, allowCustomResources} = ArgvService.getConfig();
+    const tocBaseLang = tocBase?.split('/')[0];
+    const tocLang = langs?.includes(tocBaseLang) && tocBaseLang;
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+    const {result} = transformFn(content, {path: inputPath, lang: lang || tocLang || Lang.RU});
 
     const updatedMetadata = metadata?.isContributorsEnabled
         ? await getVCSMetadata(metadata, content, result?.meta)
@@ -78,9 +80,6 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
         fileMeta.script = [];
     }
 
-    const tocBaseLang = tocBase?.split('/')[0];
-    const tocLang = langs?.includes(tocBaseLang) && tocBaseLang;
-
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
@@ -104,7 +103,7 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<ResolveM
     return props;
 }
 
-function YamlFileTransformer(content: string): Object {
+function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
     let data: LeadingPage | null = null;
 
     try {
@@ -124,6 +123,14 @@ function YamlFileTransformer(content: string): Object {
             if (isString(link) && getLinksWithContentExtersion(link)) {
                 return link.replace(/.(md|yaml)$/gmu, '.html');
             }
+        });
+
+        const {path, lang} = transformOptions;
+        const transformFn: Function = FileTransformer['.md'];
+
+        data = preprocess(data, {lang}, (lang, content) => {
+            const {result} = transformFn(content, {path});
+            return result?.html;
         });
     } else {
         const links = data?.links?.map((link) =>
