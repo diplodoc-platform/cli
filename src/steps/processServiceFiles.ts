@@ -6,6 +6,7 @@ import log from '@diplodoc/transform/lib/log';
 
 import {ArgvService, PresetService, TocService} from '../services';
 import {logger} from '../utils';
+import {filterByLang} from '../utils/filterByLang';
 import {DocPreset} from '../models';
 import shell from 'shelljs';
 
@@ -83,7 +84,7 @@ async function preparingTocFiles(
     getFilePathsByGlobals: GetFilePathsByGlobalsFunction,
 ): Promise<void> {
     try {
-        const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
+        const tocFilePaths = filterByLang(getFilePathsByGlobals(['**/toc.yaml']));
 
         for (const path of tocFilePaths) {
             logger.proc(path);
