@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.22.0](https://github.com/diplodoc-platform/cli/compare/v4.21.0...v4.22.0) (2024-04-15)
+
+
+### Features
+
+* Rewrite publish and translate commands on extension api ([7a2e3fc](https://github.com/diplodoc-platform/cli/commit/7a2e3fc7bea20ade2d43b887b8b42fe79cd70974))
+* transform yfm in pc ([#740](https://github.com/diplodoc-platform/cli/issues/740)) ([7fc7a01](https://github.com/diplodoc-platform/cli/commit/7fc7a010f9f2758a6492f884dbe85c53e98d9b43))
+
 ## [4.21.0](https://github.com/diplodoc-platform/cli/compare/v4.20.0...v4.21.0) (2024-04-10)
 
 
