@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.22.1](https://github.com/diplodoc-platform/cli/compare/v4.22.0...v4.22.1) (2024-04-22)
+
+
+### Bug Fixes
+
+* node 18.14 don't support module.require.main ([#744](https://github.com/diplodoc-platform/cli/issues/744)) ([85ba262](https://github.com/diplodoc-platform/cli/commit/85ba262897a7d79aa0efa4e160597fb6adb276eb))
+
 ## [4.22.0](https://github.com/diplodoc-platform/cli/compare/v4.21.0...v4.22.0) (2024-04-15)
 
 
