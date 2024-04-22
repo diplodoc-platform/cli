@@ -8,7 +8,7 @@ export {Command, option, deprecated} from './config';
 
 import {Program} from './program';
 
-if (module.require.main === module) {
+if (require.main === module) {
     (async () => {
         console.time(MAIN_TIMER_ID);
 
