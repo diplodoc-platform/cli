@@ -9,9 +9,7 @@ exports[`Allow load custom resources md2html single page with custom resources 2
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="title"
           content="Documentation"
     >
@@ -75,9 +73,7 @@ exports[`Allow load custom resources md2html single page with custom resources 3
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="yfm"
           content="builder"
     >
@@ -140,9 +136,7 @@ exports[`Allow load custom resources md2html single page with custom resources 4
 >
   <head>
     <meta charset="utf-8">
-    <base href="../"
-          target="_blank"
-    >
+    <base href="../">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -202,9 +196,7 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -271,9 +263,7 @@ exports[`Allow load custom resources md2html with custom resources 2`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="title"
           content="Documentation"
     >
@@ -337,9 +327,7 @@ exports[`Allow load custom resources md2html with custom resources 3`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="yfm"
           content="builder"
     >
@@ -402,9 +390,7 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="../"
-          target="_blank"
-    >
+    <base href="../">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >

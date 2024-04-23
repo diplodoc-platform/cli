@@ -9,9 +9,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -62,9 +60,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -119,9 +115,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -172,9 +166,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -227,9 +219,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="title"
           content="Documentation"
     >
@@ -286,9 +276,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="yfm"
           content="builder"
     >

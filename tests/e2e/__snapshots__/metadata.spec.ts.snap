@@ -9,9 +9,7 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="test-yfm"
           content="inline test"
     >
@@ -74,9 +72,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="./"
-          target="_blank"
-    >
+    <base href="./">
     <meta name="yfm"
           value="builder in page"
     >
@@ -138,9 +134,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 >
   <head>
     <meta charset="utf-8">
-    <base href="../"
-          target="_blank"
-    >
+    <base href="../">
     <meta name="yfm"
           value="builder in config"
     >
