@@ -6,17 +6,10 @@
 ### Features
 
 * add lang base url for non-lang mode ([2612594](https://github.com/diplodoc-platform/cli/commit/26125947b82debe10262349d945298954ac447a6))
-* add lang base url for non-lang mode ([7304f8d](https://github.com/diplodoc-platform/cli/commit/7304f8dd9c23e7b836d5ca07ac15da320fde1b5f))
 * add language control selector for static build ([77d9b34](https://github.com/diplodoc-platform/cli/commit/77d9b34c5c6abc03926f8661ac82575f9973a009))
-* add language control selector for static build ([269af89](https://github.com/diplodoc-platform/cli/commit/269af89b010295e342caaf603d0f9d6fc4d1ac9e))
 * add static local serve mode for langs ([9f9e117](https://github.com/diplodoc-platform/cli/commit/9f9e1175283f619af725aacbf1b4dee189494592))
-* add static local serve mode for langs ([de5b541](https://github.com/diplodoc-platform/cli/commit/de5b5418ae68134fd4ae5c98314889a757fdc0a0))
-* add static local serve mode for langs ([b54e7d4](https://github.com/diplodoc-platform/cli/commit/b54e7d48e4507de8fb16ce61d1efcdd0acaf28e8))
 * implement base path ([dd0cdf2](https://github.com/diplodoc-platform/cli/commit/dd0cdf27cd1dcb66b629882bb8098c28560be6d1))
-* revert .html extention in links ([03e6c0f](https://github.com/diplodoc-platform/cli/commit/03e6c0f95895d6674bf13c7cc1267e7db1876911))
 * use base uri path ([3e19c4a](https://github.com/diplodoc-platform/cli/commit/3e19c4a7af685788b3c411eaf1903d29d9b95bc0))
-* use base uri path ([c270da0](https://github.com/diplodoc-platform/cli/commit/c270da0cb0599d9db0ad8c3f45c415ba651ef898))
-* use base uri path ([b606d8d](https://github.com/diplodoc-platform/cli/commit/b606d8d7804708d005d121b8b4a0f1589d289892))
 
 
 ### Bug Fixes
