@@ -53,7 +53,7 @@ export function generateStaticMarkup(
         <html lang="${props.lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
-                <base href="${deepPath}" target="_blank" />
+                <base href="${deepPath}" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
