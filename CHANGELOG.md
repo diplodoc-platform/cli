@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.23.1](https://github.com/diplodoc-platform/cli/compare/v4.23.0...v4.23.1) (2024-04-23)
+
+
+### Bug Fixes
+
+* Update client ([0d74025](https://github.com/diplodoc-platform/cli/commit/0d74025b18bb735aba1afdd87832855d1539b825))
+
 ## [4.23.0](https://github.com/diplodoc-platform/cli/compare/v4.22.1...v4.23.0) (2024-04-23)
 
 
