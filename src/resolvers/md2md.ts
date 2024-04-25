@@ -1,4 +1,4 @@
-import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, extname, join, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@diplodoc/transform/lib/log';
@@ -57,11 +57,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
                 )}`;
             }
 
-            const changesPath = join(outputDir, `changes-${changesName}.json`);
-
-            if (existsSync(changesPath)) {
-                throw new Error(`Changelog ${changesPath} already exists!`);
-            }
+            const changesPath = join(outputDir, `__changes-${changesName}.json`);
 
             writeFileSync(
                 changesPath,

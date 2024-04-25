@@ -17,11 +17,13 @@ import {IncludersError, applyIncluders} from './includers';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
+    tocs: Map<string, YfmToc>;
     navigationPaths: string[];
     includedTocPaths: Set<string>;
 }
 
 const storage: TocServiceData['storage'] = new Map();
+const tocs: TocServiceData['tocs'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 const tocFileCopyMap = new Map<string, string>();
@@ -75,6 +77,9 @@ async function add(path: string) {
 
     /* Store parsed toc for .md output format */
     storage.set(path, parsedToc);
+
+    /* save toc in distinct set, storage includes .md files too */
+    tocs.set(path, parsedToc);
 
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
@@ -411,6 +416,10 @@ function getCopyFileMap() {
     return tocFileCopyMap;
 }
 
+function getAllTocs() {
+    return [...tocs.keys()];
+}
+
 export default {
     add,
     getForPath,
@@ -419,4 +428,5 @@ export default {
     getIncludedTocPaths,
     setNavigationPaths,
     getCopyFileMap,
+    getAllTocs,
 };
