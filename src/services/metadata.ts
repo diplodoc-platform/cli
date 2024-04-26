@@ -337,9 +337,16 @@ function getAssetsPublicPath(filePath: string) {
     return deepBasePath;
 }
 
+function getAssetsRootPath(filePath: string) {
+    const toc: YfmToc | null = TocService.getForPath(filePath) || null;
+
+    return toc?.base;
+}
+
 export {
     getContentWithUpdatedMetadata,
     getContentWithUpdatedStaticMetadata,
     getVCSMetadata,
     getAssetsPublicPath,
+    getAssetsRootPath,
 };

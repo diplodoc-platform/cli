@@ -13,7 +13,7 @@ import yaml from 'js-yaml';
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PluginService, TocService} from '../services';
-import {getAssetsPublicPath, getVCSMetadata} from '../services/metadata';
+import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
 import {
     generateStaticMarkup,
     getLinksWithContentExtersion,
@@ -187,6 +187,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         root,
         path,
         assetsPublicPath: getAssetsPublicPath(filePath),
+        rootPublicPath: getAssetsRootPath(filePath),
         getVarsPerFile: getVarsPerRelativeFile,
         extractTitle: true,
     });
