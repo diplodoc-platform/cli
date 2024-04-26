@@ -189,12 +189,16 @@ async function saveSinglePages() {
 }
 
 function saveRedirectPage(outputDir: string): void {
-    const {lang} = ArgvService.getConfig();
+    const {lang, langs} = ArgvService.getConfig();
+
+    const redirectLang = lang || langs?.[0] || Lang.RU;
+    const redirectLangRelativePath = `./${redirectLang}/index.html`;
 
     const redirectPagePath = join(outputDir, 'index.html');
+    const redirectLangPath = join(outputDir, redirectLangRelativePath);
 
-    if (!existsSync(redirectPagePath)) {
-        const content = generateStaticRedirect(lang || Lang.RU);
+    if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
+        const content = generateStaticRedirect(redirectLang, redirectLangRelativePath);
         writeFileSync(redirectPagePath, content);
     }
 }

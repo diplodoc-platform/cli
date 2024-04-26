@@ -4,7 +4,7 @@ import {PluginService} from '../services';
 import {join} from 'path';
 import manifest from '@diplodoc/client/manifest';
 
-export function generateStaticRedirect(lang: Lang): string {
+export function generateStaticRedirect(lang: Lang, link: string): string {
     const isRTL = RTL_LANGS.includes(lang);
 
     return `
@@ -12,7 +12,7 @@ export function generateStaticRedirect(lang: Lang): string {
         <html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
-                <meta http-equiv="refresh" content="0; url=./${lang}/index.html">
+                <meta http-equiv="refresh" content="0; url=${link}">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>Redirect</title>
                 <style type="text/css">
@@ -27,11 +27,11 @@ export function generateStaticRedirect(lang: Lang): string {
                     .join('\n')}
                 ${PluginService.getHeadContent()}
                 <script type="text/javascript">
-                    window.location.replace("./${lang}/index.html");
+                    window.location.replace("${link}");
                 </script>
             </head>
             <body class="g-root g-root_theme_light">
-                If you are not redirected automatically, follow this <a href="./${lang}/index.html">link to example</a>.
+                If you are not redirected automatically, follow this <a href="${link}">link to example</a>.
             </body>
         </html>
     `;
