@@ -88,7 +88,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const tocBaseLang = tocBase?.split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
-    const lang = tocLang || configLang || Lang.RU;
+    const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
 
     const props = {

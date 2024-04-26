@@ -4,8 +4,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 2`] = `
 <!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
+<html lang="he"
+      dir="rtl"
 >
   <head>
     <meta charset="utf-8">
@@ -23,11 +23,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/vendor.rtl.css"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app.rtl.css"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -35,7 +35,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ru","langs":["he"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"he","langs":["he"]};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -55,8 +55,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 3`] = `
 <!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
+<html lang="he"
+      dir="rtl"
 >
   <head>
     <meta charset="utf-8">
@@ -74,11 +74,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/vendor.rtl.css"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app.rtl.css"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -88,7 +88,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>תיעוד
-      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru","langs":["he"]};
+      </p>/n"},"router":{"pathname":"page.html"},"lang":"he","langs":["he"]};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -327,13 +327,13 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 6`] = `
 <!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
+<html lang="ar"
+      dir="rtl"
 >
   <head>
     <meta charset="utf-8">
     <meta http-equiv="refresh"
-          content="0; url=./ru/index.html"
+          content="0; url=./ar/index.html"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -348,19 +348,19 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/vendor.rtl.css"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app.rtl.css"
     >
     <script type="text/javascript">
-      window.location.replace("./ru/index.html");
+      window.location.replace("./ar/index.html");
     </script>
   </head>
   <body class="g-root g-root_theme_light">
     If you are not redirected automatically, follow this
-    <a href="./ru/index.html">
+    <a href="./ar/index.html">
       link to example
     </a>
     .
