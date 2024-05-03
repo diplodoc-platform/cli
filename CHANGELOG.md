@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.24.0](https://github.com/diplodoc-platform/cli/compare/v4.23.1...v4.24.0) (2024-05-03)
+
+
+### Features
+
+* add language default from langs & redirect path check to exist ([bc5d971](https://github.com/diplodoc-platform/cli/commit/bc5d9711b71c65aaf0233cc5f61b1a76b6ed5af8))
+* add relative path resolution for links ([9939666](https://github.com/diplodoc-platform/cli/commit/993966612fc2ab1cfaf423270987d48cd1dbc53d))
+* group changelogs by tocs ([de4d9bc](https://github.com/diplodoc-platform/cli/commit/de4d9bca920cf949111a94bca8e03146971eed81))
+* update package.lok file ([c648c72](https://github.com/diplodoc-platform/cli/commit/c648c727d687160d49f51ce49709480226af0667))
+* update transform version ([ef9e5d3](https://github.com/diplodoc-platform/cli/commit/ef9e5d38b6a3b9c31bf1405bd6e4985f957c0b6b))
+
 ## [4.23.1](https://github.com/diplodoc-platform/cli/compare/v4.23.0...v4.23.1) (2024-04-23)
 
 
