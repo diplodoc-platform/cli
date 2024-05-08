@@ -8,6 +8,7 @@ import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import yaml from 'js-yaml';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
@@ -189,6 +190,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         assetsPublicPath: getAssetsPublicPath(filePath),
         rootPublicPath: getAssetsRootPath(filePath),
         getVarsPerFile: getVarsPerRelativeFile,
+        getPublicPath,
         extractTitle: true,
     });
 }
