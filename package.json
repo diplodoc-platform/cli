@@ -51,7 +51,7 @@
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/transform": "^4.15.0",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@octokit/core": "4.2.4",
+    "@octokit/core": "6.1.2",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
     "@types/glob": "^8.1.0",
