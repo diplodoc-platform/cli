@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.25.0](https://github.com/diplodoc-platform/cli/compare/v4.24.1...v4.25.0) (2024-05-08)
+
+
+### Features
+
+* add default public path ([1a252da](https://github.com/diplodoc-platform/cli/commit/1a252da0c672fe7d58cddefb91f735b6208e24a5))
+
 ## [4.24.1](https://github.com/diplodoc-platform/cli/compare/v4.24.0...v4.24.1) (2024-05-07)
 
 
