@@ -133,6 +133,8 @@ export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
 // Regexp result: authorLogin
 export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
 
+export const REGEXP_EXT_HTML = /(\.html)$/gi;
+
 export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
 export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1;
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 500;

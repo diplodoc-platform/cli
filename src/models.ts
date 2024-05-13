@@ -44,6 +44,7 @@ interface YfmConfig {
     connector?: VCSConnectorConfig;
     lang?: Lang;
     langs?: Lang[];
+    disableHtmlExt: boolean;
     lintDisabled: boolean;
     buildDisabled: boolean;
     lintConfig: LintConfig;

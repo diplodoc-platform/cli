@@ -5,7 +5,7 @@ import {filterFiles} from '../services/utils';
 import {isExternalHref} from './url';
 import {getSinglePageAnchorId} from './singlePage';
 
-export function transformToc(toc: YfmToc | null): YfmToc | null {
+export function transformToc(toc: YfmToc | null, disableHtmlExt: boolean): YfmToc | null {
     if (!toc) {
         return null;
     }
@@ -41,10 +41,12 @@ export function transformToc(toc: YfmToc | null): YfmToc | null {
         if (href && !isExternalHref(href)) {
             const fileExtension: string = extname(href);
             const filename: string = basename(href, fileExtension);
-            const transformedFilename: string = format({
-                name: filename,
-                ext: '.html',
-            });
+            const transformedFilename: string = disableHtmlExt
+                ? filename
+                : format({
+                      name: filename,
+                      ext: '.html',
+                  });
 
             navigationItem.href = join(dirname(href), transformedFilename);
         }

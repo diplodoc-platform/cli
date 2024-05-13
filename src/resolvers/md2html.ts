@@ -83,7 +83,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
 
-    const {lang: configLang, langs: configLangs} = ArgvService.getConfig();
+    const {lang: configLang, langs: configLangs, disableHtmlExt} = ArgvService.getConfig();
     const meta = await getFileMeta(options);
 
     const tocBaseLang = tocBase?.split('/')[0];
@@ -95,7 +95,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
-            toc: transformToc(toc) || {},
+            toc: transformToc(toc, disableHtmlExt) || {},
             ...meta,
         },
         router: {
@@ -120,6 +120,9 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
 }
 
 function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
+    const {disableHtmlExt} = ArgvService.getConfig();
+    const ext = disableHtmlExt ? '' : '.html';
+
     let data: LeadingPage | null = null;
 
     try {
@@ -137,7 +140,7 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
     if (Object.prototype.hasOwnProperty.call(data, 'blocks')) {
         data = modifyValuesByKeys(data, LINK_KEYS, (link) => {
             if (isString(link) && getLinksWithContentExtersion(link)) {
-                return link.replace(/.(md|yaml)$/gmu, '.html');
+                return link.replace(/.(md|yaml)$/gmu, ext);
             }
         });
 
@@ -150,7 +153,7 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         });
     } else {
         const links = data?.links?.map((link) =>
-            link.href ? {...link, href: link.href.replace(/.md$/gmu, '.html')} : link,
+            link.href ? {...link, href: link.href.replace(/.md$/gmu, ext)} : link,
         );
 
         if (links) {
@@ -192,5 +195,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
         extractTitle: true,
+        toLinkExtention: options.disableHtmlExt ? '' : null,
     });
 }

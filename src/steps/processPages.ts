@@ -10,6 +10,7 @@ import shell from 'shelljs';
 import {
     Lang,
     PAGE_PROCESS_CONCURRENCY,
+    REGEXP_EXT_HTML,
     ResourceType,
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
@@ -189,15 +190,18 @@ async function saveSinglePages() {
 }
 
 function saveRedirectPage(outputDir: string): void {
-    const {lang, langs} = ArgvService.getConfig();
+    const {lang, langs, disableHtmlExt} = ArgvService.getConfig();
 
     const redirectLang = lang || langs?.[0] || Lang.RU;
-    const redirectLangRelativePath = `./${redirectLang}/index.html`;
+    let redirectLangRelativePath = `./${redirectLang}/index.html`;
 
     const redirectPagePath = join(outputDir, 'index.html');
     const redirectLangPath = join(outputDir, redirectLangRelativePath);
 
     if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
+        if (disableHtmlExt) {
+            redirectLangRelativePath = redirectLangRelativePath.replace(REGEXP_EXT_HTML, '');
+        }
         const content = generateStaticRedirect(redirectLang, redirectLangRelativePath);
         writeFileSync(redirectPagePath, content);
     }
