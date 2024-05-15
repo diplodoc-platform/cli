@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.25.1](https://github.com/diplodoc-platform/cli/compare/v4.25.0...v4.25.1) (2024-05-15)
+
+
+### Bug Fixes
+
+* correct root files for generic includer graph ([a8c8d79](https://github.com/diplodoc-platform/cli/commit/a8c8d7965e862ee5715c7e3428255169e4b24f5a))
+
 ## [4.25.0](https://github.com/diplodoc-platform/cli/compare/v4.24.1...v4.25.0) (2024-05-08)
 
 
