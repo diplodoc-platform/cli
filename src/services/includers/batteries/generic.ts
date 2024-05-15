@@ -95,7 +95,7 @@ function createGraphFromPaths(paths: string[]) {
         const chunks = path.split('/').filter(Boolean);
         if (chunks.length < 2) {
             if (chunks.length === 1) {
-                graph.files = chunks;
+                graph.files = graph.files ? graph.files.concat(chunks[0]) : chunks;
             }
 
             continue;
