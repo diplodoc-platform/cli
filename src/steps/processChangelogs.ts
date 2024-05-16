@@ -1,97 +1,41 @@
 import {glob} from '../utils/glob';
-import {join} from 'node:path';
-import {ArgvService, TocService} from '../services';
-import {readFile, unlink, writeFile} from 'node:fs/promises';
-import {Lang} from '../constants';
+import {dirname, join, normalize, resolve} from 'node:path';
+import {ArgvService} from '../services';
+import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
+import {groupBy} from 'lodash';
+import {isExternalHref} from '../utils';
 
-type MergedChangelogs = {
-    [pathToProjectToc: string]: {
-        [language: string]: {
-            [pathToFile: string]: unknown;
-        };
+export const CHANGELOG_LIMIT = 50;
+export const LANG_SERVICE_RE =
+    /(?<lang>[^/]+)\/(?<service>[^/]+)\/changelogs\/__changes-(?<name>[^.]+)\.json$/;
+
+type FileItem = {
+    lang: string;
+    service: string;
+    name: string;
+    filepath: string;
+    index?: number;
+};
+
+type ChangelogItem = {
+    date: string;
+    title: string;
+    storyId?: string;
+    image?: {
+        src: string;
+        alt?: string;
+        ratio?: number;
     };
-};
-
-type ParsedPath = {
-    language: string;
-    path: string;
-    level: number;
-};
-
-const hasSingleLanguage = () => {
-    const {langs} = ArgvService.getConfig();
-    return typeof langs === 'undefined' || langs.length === 1;
-};
-
-const project = (path: string): ParsedPath => {
-    const parts = path.split('/').slice(0, -1);
-    const language = hasSingleLanguage() ? Lang.EN : parts.shift()!;
-    const level = parts.length;
-
-    return {
-        path: '/' + parts.join('/'),
-        language,
-        level,
-    };
-};
-
-const file = (path: string): ParsedPath => {
-    const parts = path.split('/');
-    const language = hasSingleLanguage() ? Lang.EN : parts.shift()!;
-
-    return {
-        path: '/' + parts.join('/'),
-        language,
-        level: -1,
-    };
-};
-
-type Project = {
-    path: string;
-    languages: string[];
-    level: number;
-};
-
-/*
-    This function collects all the project's subprojects and sorts them by depth level. 
-    This is done to make it easier to find which toc.yaml file is responsible 
-    for the necessary changes file: the earlier the project is in the list, the deeper it is. 
-    The first project whose path to toc.yaml shares a common prefix with the path to changes 
-    will be considered responsible for it.
-
-*/
-const uniqueProjects = (tocs: string[]): [string, Project][] => {
-    const projects = tocs.map(project);
-    const composed = projects.reduce(
-        (acc, curr) => {
-            if (acc[curr.path]) {
-                acc[curr.path].languages.push(curr.language);
-
-                return acc;
-            }
-
-            acc[curr.path] = {
-                languages: [curr.language],
-                path: curr.path,
-                level: curr.level,
-            };
-
-            return acc;
-        },
-        {} as Record<string, Project>,
-    );
-
-    const entries = Object.entries(composed).sort((a, b) => {
-        return b[1].level - a[1].level;
-    });
-
-    return entries;
+    description: string;
+    [x: string]: unknown;
 };
 
 export async function processChangelogs() {
-    const {output: outputFolderPath} = ArgvService.getConfig();
-    const tocs = TocService.getAllTocs();
-    const projects = uniqueProjects(tocs);
+    const {output: outputFolderPath, changelogs} = ArgvService.getConfig();
+
+    if (!changelogs) {
+        return;
+    }
 
     const result = await glob('**/**/__changes-*.json', {
         cwd: outputFolderPath,
@@ -103,48 +47,103 @@ export async function processChangelogs() {
         return;
     }
 
-    const merged: MergedChangelogs = {};
+    const changeFileItems: FileItem[] = [];
 
-    const changes = await Promise.all(
-        files.map((path) => {
-            const filePath = join(outputFolderPath, path);
-
-            return readFile(filePath).then(
-                (buffer) => [path, JSON.parse(buffer.toString())] as [string, unknown],
-            );
-        }),
-    );
-
-    changes.forEach(([path, value]) => {
-        const {language, path: pathToFile} = file(path);
-
-        const project = projects.find(([pathToProject, project]) => {
-            return pathToFile.startsWith(pathToProject) && project.languages.includes(language);
-        });
-
-        if (!project) {
+    files.forEach((relPath) => {
+        const filepath = join(outputFolderPath, relPath);
+        const m = relPath.match(LANG_SERVICE_RE);
+        if (!m) {
             return;
         }
 
-        const [projectPath] = project;
+        const {lang, service, name} = m.groups as {lang: string; service: string; name: string};
+        let index;
+        if (/^\d+$/.test(name)) {
+            index = Number(name);
+        }
 
-        merged[projectPath] ??= {};
-        merged[projectPath][language] ??= {};
-
-        Object.assign(merged[projectPath][language], {
-            [path]: value,
-        });
+        changeFileItems.push({lang, service, filepath, name, index});
     });
 
-    await Promise.all(
-        files.map((path) => {
-            const filePath = join(outputFolderPath, path);
+    const usedFileItems: FileItem[][] = [];
 
-            return unlink(filePath);
+    const langServiceFileItems = groupBy(
+        changeFileItems,
+        ({lang, service}) => `${lang}_${service}`,
+    );
+
+    Object.values(langServiceFileItems).forEach((fileItems) => {
+        const hasIdx = fileItems.every(({index}) => index !== undefined);
+        fileItems
+            .sort(({name: a, index: ai}, {name: b, index: bi}) => {
+                if (hasIdx && ai !== undefined && bi !== undefined) {
+                    return bi - ai;
+                }
+                return b.localeCompare(a);
+            })
+            .splice(CHANGELOG_LIMIT);
+
+        usedFileItems.push(fileItems);
+    });
+
+    const processed = await Promise.all(
+        usedFileItems.map(async (items) => {
+            const {lang, service} = items[0];
+
+            const basePath = join(outputFolderPath, lang, service);
+
+            const changelogs: ChangelogItem[] = await Promise.all(
+                items.map(async ({filepath}) => readFile(filepath, 'utf8').then(JSON.parse)),
+            );
+
+            changelogs.forEach((changelog) => {
+                const {source: sourceName} = changelog as {source?: string};
+                if (sourceName) {
+                    // eslint-disable-next-line no-param-reassign
+                    changelog.link = `/${service}/changelogs/${
+                        sourceName === 'index' ? '' : sourceName
+                    }`;
+                }
+            });
+
+            const imgSet = new Set();
+
+            await Promise.all(
+                changelogs.map(async ({image}, idx) => {
+                    if (!image) {
+                        return undefined;
+                    }
+
+                    const {filepath} = items[idx];
+                    const {src} = image;
+
+                    if (isExternalHref(src)) {
+                        return undefined;
+                    }
+
+                    const imgPath = resolve(dirname(filepath), src);
+                    const normSrc = normalize(`/${src}`);
+                    const newImagePath = join(basePath, '_changelogs', normSrc);
+
+                    if (!imgSet.has(newImagePath)) {
+                        imgSet.add(newImagePath);
+
+                        await mkdir(dirname(newImagePath), {recursive: true});
+                        await copyFile(imgPath, newImagePath);
+                    }
+
+                    image.src = join(lang, service, '_changelogs', normSrc);
+
+                    return image;
+                }),
+            );
+
+            return [service, changelogs];
         }),
     );
 
-    const changelogPath = join(outputFolderPath, 'changelog.json');
-
-    await writeFile(changelogPath, JSON.stringify(merged, null, 4));
+    await writeFile(
+        join(outputFolderPath, 'changelogs.minified.json'),
+        JSON.stringify(Object.fromEntries(processed), null, 4),
+    );
 }
