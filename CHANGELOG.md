@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.26.0](https://github.com/diplodoc-platform/cli/compare/v4.25.1...v4.26.0) (2024-05-17)
+
+
+### Features
+
+* new logic, changes stay ([176ba71](https://github.com/diplodoc-platform/cli/commit/176ba71a5346099bd0e2d387e66f43a7d432f839))
+
+
+### Bug Fixes
+
+* add support for sub toc files ([bfc23e3](https://github.com/diplodoc-platform/cli/commit/bfc23e3d58b3550201fd5686e0f0c22d3f66f538))
+
 ## [4.25.1](https://github.com/diplodoc-platform/cli/compare/v4.25.0...v4.25.1) (2024-05-15)
 
 
