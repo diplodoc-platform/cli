@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.27.0](https://github.com/diplodoc-platform/cli/compare/v4.26.0...v4.27.0) (2024-05-17)
+
+
+### Features
+
+* **openapi:** bump version to 2.2.0 ([0fe088b](https://github.com/diplodoc-platform/cli/commit/0fe088bd54d9d6d3c7fcf691a55fd6ea566894f3))
+
 ## [4.26.0](https://github.com/diplodoc-platform/cli/compare/v4.25.1...v4.26.0) (2024-05-17)
 
 
