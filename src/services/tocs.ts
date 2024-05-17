@@ -28,6 +28,26 @@ let navigationPaths: TocServiceData['navigationPaths'] = [];
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 const tocFileCopyMap = new Map<string, string>();
 
+async function init(tocFilePaths: string[]) {
+    for (const path of tocFilePaths) {
+        logger.proc(path);
+
+        await add(path);
+    }
+
+    for (const path of tocFilePaths) {
+        logger.proc(path);
+
+        await addRoot(path);
+    }
+
+    for (const path of tocFilePaths) {
+        logger.proc(path);
+
+        await addNavigation(path);
+    }
+}
+
 async function add(path: string) {
     const {
         input: inputFolderPath,
@@ -83,6 +103,7 @@ async function add(path: string) {
 
     /* Store path to toc file to handle relative paths in navigation */
     parsedToc.base = pathToDir;
+    parsedToc.deepBase = pathToDir?.split(sep)?.filter((str) => str !== '.')?.length || 0;
 
     if (outputFormat === 'md') {
         /* Should copy resolved and filtered toc to output folder */
@@ -91,7 +112,37 @@ async function add(path: string) {
         shell.mkdir('-p', dirname(outputPath));
         writeFileSync(outputPath, outputToc);
     }
+}
 
+// To collect root toc.yaml we need to move from root into deep
+async function addRoot(path: string) {
+    const dirPath = dirname(path).split(sep);
+
+    const currentToc = getForPath(path);
+
+    if (!currentToc) {
+        return;
+    }
+
+    for (let index = 1; index < dirPath.length; index++) {
+        const dir = dirPath.slice(0, index);
+        const rootToc = getForPath(join(dir.join(sep), 'toc.yaml'));
+        if (rootToc) {
+            currentToc.root = rootToc;
+            return;
+        }
+    }
+}
+
+// To collect root toc.yaml we need to move from root into deep
+async function addNavigation(path: string) {
+    const parsedToc = getForPath(path);
+
+    if (!parsedToc) {
+        return;
+    }
+
+    const pathToDir = dirname(path);
     prepareNavigationPaths(parsedToc, pathToDir);
 }
 
@@ -124,6 +175,21 @@ async function processTocItems(
 
 function getForPath(path: string): YfmToc | undefined {
     return storage.get(path);
+}
+
+function getDeepForPath(path: string): {
+    deepBase: number;
+    deep: number;
+} {
+    const toc: YfmToc | null = getForPath(path) || null;
+
+    const deepBase = toc?.root?.deepBase || toc?.deepBase || 0;
+    const deep = path.split(sep).length - 1 - deepBase;
+
+    return {
+        deepBase,
+        deep,
+    };
 }
 
 function getNavigationPaths(): string[] {
@@ -421,8 +487,11 @@ function getAllTocs() {
 }
 
 export default {
+    init,
     add,
+    process,
     getForPath,
+    getDeepForPath,
     getNavigationPaths,
     getTocDir,
     getIncludedTocPaths,

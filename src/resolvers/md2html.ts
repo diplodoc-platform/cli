@@ -8,7 +8,7 @@ import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
 import yaml from 'js-yaml';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
@@ -79,7 +79,7 @@ const getFileProps = async (options: ResolverOptions) => {
 
     const pathToDir: string = dirname(inputPath);
     const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
-    const tocBase: string = toc?.base ?? '';
+    const tocBase: string = toc?.root?.base || toc?.base || '';
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
 
@@ -92,6 +92,8 @@ const getFileProps = async (options: ResolverOptions) => {
     const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
 
+    const pathname = join(pathToFileDir, basename(outputPath));
+
     const props = {
         data: {
             leading: inputPath.endsWith('.yaml'),
@@ -99,7 +101,7 @@ const getFileProps = async (options: ResolverOptions) => {
             ...meta,
         },
         router: {
-            pathname: join(pathToFileDir, basename(outputPath)),
+            pathname,
         },
         lang,
         langs,
@@ -117,6 +119,35 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
+}
+
+function getHref(path: string, href: string) {
+    if (!href.includes('//')) {
+        const {input} = ArgvService.getConfig();
+        const root = resolve(input);
+        const assetRootPath = getAssetsRootPath(path) || '';
+
+        let filePath = resolve(input, dirname(path), href);
+
+        if (href.startsWith('/')) {
+            filePath = resolve(input, assetRootPath, href.replace(/^\/+/gi, ''));
+        }
+
+        href = getPublicPath(
+            {
+                root,
+                rootPublicPath: assetRootPath,
+            },
+            filePath,
+        );
+
+        if (isFileExists(filePath) || isFileExists(filePath + '.md')) {
+            href = href.replace(/\.md$/gi, '.html');
+        } else if (!/.+\.\w+$/gi.test(href)) {
+            href = href + '/';
+        }
+    }
+    return href;
 }
 
 function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
@@ -149,9 +180,16 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
             return result?.html;
         });
     } else {
-        const links = data?.links?.map((link) =>
-            link.href ? {...link, href: link.href.replace(/.md$/gmu, '.html')} : link,
-        );
+        const links = data?.links?.map((link) => {
+            if (link.href) {
+                const href = getHref(transformOptions.path, link.href);
+                return {
+                    ...link,
+                    href,
+                };
+            }
+            return link;
+        });
 
         if (links) {
             data.links = links;

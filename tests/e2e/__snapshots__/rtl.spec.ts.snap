@@ -35,7 +35,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"he","langs":["he"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"he","langs":["he"]};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -86,7 +86,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"."},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>תיעוד
       </p>/n"},"router":{"pathname":"page.html"},"lang":"he","langs":["he"]};
     </script>
@@ -141,7 +141,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar"},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ar","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar","deepBase":1},"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"ar","langs":["ar","en"]};
     </script>
     <script type="application/javascript"
             src="../_bundle/react.js"
@@ -192,7 +192,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar"},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar","deepBase":1},"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>توثيق
       </p>/n"},"router":{"pathname":"page.html"},"lang":"ar","langs":["ar","en"]};
     </script>
@@ -251,7 +251,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en"},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"en","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en","deepBase":1},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]}},"router":{"pathname":"index.html"},"lang":"en","langs":["ar","en"]};
     </script>
     <script type="application/javascript"
             src="../_bundle/react.js"
@@ -305,7 +305,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en"},"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en","deepBase":1},"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n"},"router":{"pathname":"page.html"},"lang":"en","langs":["ar","en"]};
     </script>
