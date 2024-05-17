@@ -84,12 +84,7 @@ async function preparingTocFiles(
 ): Promise<void> {
     try {
         const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
-
-        for (const path of tocFilePaths) {
-            logger.proc(path);
-
-            await TocService.add(path);
-        }
+        await TocService.init(tocFilePaths);
     } catch (error) {
         log.error(`Preparing toc.yaml files failed. Error: ${error}`);
         throw error;

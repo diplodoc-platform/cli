@@ -15,7 +15,6 @@ import {
 import {isObject} from './utils';
 import {сarriage} from '../utils';
 import {REGEXP_AUTHOR, metadataBorder} from '../constants';
-import {sep} from 'path';
 import {TocService} from './index';
 
 async function getContentWithUpdatedMetadata(
@@ -329,8 +328,7 @@ function getSystemVarsMetadataString(systemVars: object) {
 function getAssetsPublicPath(filePath: string) {
     const toc: YfmToc | null = TocService.getForPath(filePath) || null;
 
-    const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
-    const deepBase = basePath.length;
+    const deepBase = toc?.root?.deepBase || toc?.deepBase || 0;
     const deepBasePath = deepBase > 0 ? Array(deepBase).fill('../').join('') : './';
 
     /* Relative path from folder of .md file to root of user' output folder */
@@ -340,7 +338,7 @@ function getAssetsPublicPath(filePath: string) {
 function getAssetsRootPath(filePath: string) {
     const toc: YfmToc | null = TocService.getForPath(filePath) || null;
 
-    return toc?.base;
+    return toc?.root?.base || toc?.base;
 }
 
 export {

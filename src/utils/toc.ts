@@ -1,4 +1,4 @@
-import {basename, dirname, extname, format, join} from 'path';
+import {basename, dirname, extname, format, join, relative} from 'path';
 
 import {YfmToc} from '../models';
 import {filterFiles} from '../services/utils';
@@ -39,14 +39,19 @@ export function transformToc(toc: YfmToc | null): YfmToc | null {
         }
 
         if (href && !isExternalHref(href)) {
-            const fileExtension: string = extname(href);
-            const filename: string = basename(href, fileExtension);
+            const relativeHref = join(
+                relative(toc.root?.base || toc.base || '', toc.base || ''),
+                href,
+            );
+
+            const fileExtension: string = extname(relativeHref);
+            const filename: string = basename(relativeHref, fileExtension);
             const transformedFilename: string = format({
                 name: filename,
                 ext: '.html',
             });
 
-            navigationItem.href = join(dirname(href), transformedFilename);
+            navigationItem.href = join(dirname(relativeHref), transformedFilename);
         }
     }
 

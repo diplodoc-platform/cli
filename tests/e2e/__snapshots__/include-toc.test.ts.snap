@@ -25,6 +25,7 @@ items:
   - name: Article1
     href: article1.md
 base: product1
+deepBase: 1
 "
 `;
 
@@ -107,6 +108,7 @@ items:
       - name: Article1
         href: overlay3/article1.md
 base: product2
+deepBase: 1
 "
 `;
 
@@ -140,6 +142,7 @@ exports[`Include toc Toc is included in link mode 5`] = `
           - name: A1
             href: folder1/folder2/a1.md
 base: .
+deepBase: 0
 "
 `;
 
@@ -254,6 +257,7 @@ exports[`Include toc Toc is included inline, not as a new section 12`] = `
   - name: NameX
     href: fileX.md
 base: .
+deepBase: 0
 "
 `;
 
@@ -284,5 +288,6 @@ items:
   - name: A1
     href: a1.md
 base: .
+deepBase: 0
 "
 `;

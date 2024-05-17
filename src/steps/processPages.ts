@@ -1,5 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, join, relative, resolve, sep} from 'path';
+import {basename, dirname, extname, join, relative, resolve} from 'path';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
@@ -171,13 +171,13 @@ async function saveSinglePages() {
                     langs,
                 };
 
-                const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
-                const deepBase = basePath.length;
-
                 // Save the full single page for viewing locally
                 const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
-                const singlePageContent = generateStaticMarkup(pageData, deepBase);
+                const singlePageContent = generateStaticMarkup(
+                    pageData,
+                    toc?.root?.deepBase || toc?.deepBase || 0,
+                );
 
                 writeFileSync(singlePageFn, singlePageContent);
                 writeFileSync(singlePageDataFn, JSON.stringify(pageData));
@@ -358,11 +358,7 @@ async function processingFileToHtml(
     metaDataOptions: MetaDataOptions,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
-    const toc: YfmToc | null = TocService.getForPath(pathToFile) || null;
-
-    const basePath = toc?.base?.split(sep)?.filter((str) => str !== '.') || [];
-    const deepBase = basePath.length;
-    const deep = pathToFile.split(sep).length - 1 - deepBase;
+    const {deepBase, deep} = TocService.getDeepForPath(pathToFile);
 
     return resolveMd2HTML({
         inputPath: pathToFile,
