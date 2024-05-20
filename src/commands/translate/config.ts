@@ -82,6 +82,19 @@ const exclude = option({
     parser: toArray,
 });
 
+const vars = option({
+    flags: '-v, --vars <json>',
+    desc: `
+        Pass list of variables directly to translation.
+        Variables should be passed in JSON format.
+        Translation command ignores any presets.yaml.
+
+        Example:
+          {{PROGRAM}} -i ./ -o ./build -v '{"name":"test"}'
+    `,
+    parser: (value) => JSON.parse(value),
+});
+
 const dryRun = option({
     flags: '--dry-run',
     desc: 'Do not execute target translation provider, but only calculate required quota.',
@@ -105,6 +118,7 @@ export const options = {
     files,
     include,
     exclude,
+    vars,
     dryRun,
     useSource,
 };

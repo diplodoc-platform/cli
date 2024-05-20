@@ -8,6 +8,7 @@ import axios, {AxiosError, AxiosResponse} from 'axios';
 import {LogLevel, Logger} from '~/logger';
 import {TranslateError, compose, dumpFile, extract, loadFile, resolveSchemas} from '../../utils';
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
+import liquid from '@diplodoc/transform/lib/liquid';
 
 const REQUESTS_LIMIT = 15;
 const BYTES_LIMIT = 10000;
@@ -27,7 +28,7 @@ export class Provider {
     }
 
     async translate(files: string[], config: TranslateConfig & YandexTranslationConfig) {
-        const {input, output, auth, folder, source, target: targets, dryRun} = config;
+        const {input, output, auth, folder, source, target: targets, vars, dryRun} = config;
 
         try {
             for (const target of targets) {
@@ -39,6 +40,7 @@ export class Provider {
                     targetLanguage: target.language,
                     // yandexCloudTranslateGlossaryPairs,
                     folderId: folder,
+                    vars,
                     dryRun,
                 };
 
@@ -90,6 +92,7 @@ type TranslatorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
+    vars: Record<string, any>;
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
@@ -233,7 +236,7 @@ function requester(params: RequesterParams, cache: Cache) {
 }
 
 function translator(params: TranslatorParams, split: Split) {
-    const {input, output, sourceLanguage, targetLanguage} = params;
+    const {input, output, sourceLanguage, targetLanguage, vars} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -245,7 +248,15 @@ function translator(params: TranslatorParams, split: Split) {
 
         const inputPath = join(inputRoot, path);
         const outputPath = join(outputRoot, path.replace(sourceLanguage, targetLanguage));
-        const content = await loadFile(inputPath);
+
+        let content = await loadFile(inputPath);
+        if (Object.keys(vars).length && typeof content === 'string') {
+            content = liquid(content, vars, inputPath, {
+                conditions: 'strict',
+                substitutions: false,
+                cycles: false,
+            });
+        }
 
         await mkdir(dirname(outputPath), {recursive: true});
 

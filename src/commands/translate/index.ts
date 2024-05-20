@@ -13,7 +13,7 @@ import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 
-import {resolveFiles, resolveSource, resolveTargets} from './utils';
+import {resolveFiles, resolveSource, resolveTargets, resolveVars} from './utils';
 
 type Parent = IProgram & {
     translate: Translate;
@@ -42,6 +42,7 @@ export type TranslateArgs = ProgramArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
+    vars?: Record<string, any>;
 };
 
 export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
@@ -52,6 +53,7 @@ export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> 
     include: string[];
     exclude: string[];
     files: string[];
+    vars: Record<string, any>;
     dryRun: boolean;
 };
 
@@ -101,6 +103,7 @@ export class Translate
         options.files,
         options.include,
         options.exclude,
+        options.vars,
         options.dryRun,
         options.config(YFM_CONFIG_FILENAME),
     ];
@@ -141,6 +144,7 @@ export class Translate
                 source.language,
                 ['.md', '.yaml'],
             );
+            const vars = resolveVars(config, args);
 
             return Object.assign(config, {
                 input,
@@ -152,6 +156,7 @@ export class Translate
                 files,
                 include,
                 exclude,
+                vars,
                 provider: defined('provider', args, config),
                 dryRun: defined('dryRun', args, config) || false,
             });
