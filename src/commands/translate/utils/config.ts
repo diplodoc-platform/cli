@@ -2,6 +2,7 @@ import {ok} from 'node:assert';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 import glob from 'glob';
+import {merge} from 'lodash';
 import {filter} from 'minimatch';
 import {defined} from '~/config';
 
@@ -144,4 +145,11 @@ export function resolveFiles(
     ok(pathsInScope(result, input), 'Insecure access to paths out of project scope!');
 
     return result;
+}
+
+export function resolveVars(
+    config: {vars?: Record<string, any>},
+    args: {vars?: Record<string, any>},
+) {
+    return merge(config.vars || {}, args.vars);
 }

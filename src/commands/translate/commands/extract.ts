@@ -7,6 +7,7 @@ import {mkdir} from 'node:fs/promises';
 import {pick} from 'lodash';
 import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
+import liquid from '@diplodoc/transform/lib/liquid';
 import {BaseProgram} from '~/program/base';
 import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
@@ -21,6 +22,7 @@ import {
     resolveSchemas,
     resolveSource,
     resolveTargets,
+    resolveVars,
 } from '../utils';
 
 const MAX_CONCURRENCY = 50;
@@ -31,6 +33,7 @@ export type ExtractArgs = ProgramArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
+    vars?: Record<string, any>;
 };
 
 export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
@@ -40,6 +43,7 @@ export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & 
     include: string[];
     exclude: string[];
     files: string[];
+    vars: Record<string, any>;
 };
 
 class ExtractLogger extends Logger {
@@ -68,6 +72,7 @@ export class Extract
         options.files,
         options.include,
         options.exclude,
+        options.vars,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -96,6 +101,7 @@ export class Extract
                 source.language,
                 ['.md', '.yaml'],
             );
+            const vars = resolveVars(config, args);
 
             return Object.assign(config, {
                 input,
@@ -107,12 +113,13 @@ export class Extract
                 files,
                 include,
                 exclude,
+                vars,
             });
         });
     }
 
     async action() {
-        const {input, output, files, source, target: targets} = this.config;
+        const {input, output, files, source, target: targets, vars} = this.config;
 
         this.logger.setup(this.config);
 
@@ -125,6 +132,7 @@ export class Extract
                 target,
                 input,
                 output,
+                vars,
             });
 
             await eachLimit(
@@ -157,10 +165,11 @@ export type PipelineParameters = {
     output: string;
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
+    vars: Record<string, any>;
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target} = params;
+    const {input, output, source, target, vars} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -180,7 +189,14 @@ function pipeline(params: PipelineParameters) {
             return;
         }
 
-        const content = await loadFile(inputPath);
+        let content = await loadFile(inputPath);
+        if (Object.keys(vars).length && typeof content === 'string') {
+            content = liquid(content, vars, inputPath, {
+                conditions: 'strict',
+                substitutions: false,
+                cycles: false,
+            });
+        }
 
         await mkdir(dirname(xliffPath), {recursive: true});
 
