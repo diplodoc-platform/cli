@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.0](https://github.com/diplodoc-platform/cli/compare/v4.27.0...v4.28.0) (2024-05-20)
+
+
+### Features
+
+* **transform:** bump to version v4.17.0 ([4453e50](https://github.com/diplodoc-platform/cli/commit/4453e5011e4d87a931d1f5ff0f7b0c7bae431d3d))
+
 ## [4.27.0](https://github.com/diplodoc-platform/cli/compare/v4.26.0...v4.27.0) (2024-05-17)
 
 
