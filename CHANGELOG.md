@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.28.2](https://github.com/diplodoc-platform/cli/compare/v4.28.1...v4.28.2) (2024-05-29)
+
+
+### Bug Fixes
+
+* Update transform version ([89f034f](https://github.com/diplodoc-platform/cli/commit/89f034fc9e1dd4f6a89168971f392400b62a0787))
+
 ## [4.28.1](https://github.com/diplodoc-platform/cli/compare/v4.28.0...v4.28.1) (2024-05-28)
 
 
