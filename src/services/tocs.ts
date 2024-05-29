@@ -46,6 +46,12 @@ async function init(tocFilePaths: string[]) {
 
         await addNavigation(path);
     }
+
+    for (const path of tocFilePaths) {
+        logger.proc(path);
+
+        await prepareNavigationSection(path);
+    }
 }
 
 async function add(path: string) {
@@ -144,6 +150,26 @@ async function addNavigation(path: string) {
 
     const pathToDir = dirname(path);
     prepareNavigationPaths(parsedToc, pathToDir);
+}
+
+async function prepareNavigationSection(path: string) {
+    const {vars} = ArgvService.getConfig();
+
+    const parsedToc = getForPath(path);
+
+    if (!parsedToc) {
+        return;
+    }
+
+    const pathToDir = dirname(path);
+    const combinedVars = {
+        ...PresetService.get(pathToDir),
+        ...vars,
+    };
+
+    if (combinedVars.__navigation) {
+        parsedToc.navigation = combinedVars.__navigation;
+    }
 }
 
 async function processTocItems(
