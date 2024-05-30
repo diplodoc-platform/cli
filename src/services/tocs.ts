@@ -81,6 +81,10 @@ async function add(path: string) {
         parsedToc.title = liquidField(parsedToc.title, combinedVars, path);
     }
 
+    if (typeof parsedToc.navigation === 'string') {
+        parsedToc.navigation = liquidField(parsedToc.navigation, combinedVars, path);
+    }
+
     if (parsedToc.label) {
         parsedToc.label = firstFilterItem(parsedToc.label, combinedVars, {
             resolveConditions: true,
