@@ -116,18 +116,14 @@ export interface YfmTocInclude {
 export type YfmTocIncluders = YfmTocIncluder[];
 
 export type YfmTocIncluder = {
-    name: YfmTocIncluderName;
+    name: string;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } & Record<string, unknown>;
 
-export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] as const;
-
-export type YfmTocIncluderName = (typeof includersNames)[number];
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Includer<FnParams = any> = {
-    name: YfmTocIncluderName;
+    name: string;
     includerFunction: IncluderFunction<FnParams>;
 };
 

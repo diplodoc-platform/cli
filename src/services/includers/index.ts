@@ -5,6 +5,7 @@ import {isObject} from 'lodash';
 import {ArgvService} from '../index';
 import {IncludeMode} from '../../constants';
 import {generic, sourcedocs, unarchive} from './batteries';
+import openapi from '@diplodoc/openapi-extension/includer';
 
 import type {
     Includer,
@@ -39,16 +40,12 @@ class IncludersError extends Error {
     }
 }
 
-function init(custom: Includer[] = []) {
+function init() {
     if (includersMap) {
         return;
     }
 
-    includersMap = {generic, sourcedocs, unarchive};
-
-    for (const includer of custom) {
-        includersMap[includer.name] = includer;
-    }
+    includersMap = {generic, sourcedocs, unarchive, openapi};
 }
 
 async function applyIncluders(path: string, item: YfmToc, vars: YfmPreset) {

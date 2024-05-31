@@ -8,11 +8,12 @@ import {logger} from '../utils';
 import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
 import {lintPage} from '../resolvers';
 import {splitOnChunks} from '../utils/worker';
+import {Run} from '~/commands/build';
 
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
 let navigationPathsChunks: string[][];
 
-export async function processLinter(): Promise<void> {
+export async function processLinter(run: Run): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
     const navigationPaths = TocService.getNavigationPaths();
@@ -62,7 +63,7 @@ export async function processLinter(): Promise<void> {
     );
 }
 
-export async function initLinterWorkers() {
+export async function initLinterWorkers(run: Run) {
     const navigationPaths = TocService.getNavigationPaths();
     const chunkSize = getChunkSize(navigationPaths);
 

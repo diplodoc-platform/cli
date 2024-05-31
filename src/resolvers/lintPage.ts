@@ -95,7 +95,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
     const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
     const root = resolve(input);
-    const path: string = resolve(input, filePath);
+    const path = resolve(input, filePath);
     let preparedContent = content;
 
     /* Relative path from folder of .md file to root of user' output folder */

@@ -23,7 +23,7 @@ import {
     YfmToc,
 } from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, TocService} from '../services';
+import {LeadingService, PluginService, TocService} from '../services';
 import {
     generateStaticMarkup,
     joinSinglePageResults,
@@ -33,20 +33,14 @@ import {
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {generateStaticRedirect} from '../utils/redirect';
+import {Run} from '~/commands/build';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string): Promise<void> {
-    const {
-        input: inputFolderPath,
-        output: outputFolderPath,
-        outputFormat,
-        singlePage,
-        resolveConditions,
-    } = ArgvService.getConfig();
-
+export async function processPages(run: Run): Promise<void> {
+    const {outputFormat, singlePage} = run.config;
     const vcsConnector = await getVCSConnector();
 
     PluginService.setPlugins();
@@ -59,35 +53,34 @@ export async function processPages(outputBundlePath: string): Promise<void> {
         asyncify(async (pathToFile: string) => {
             const pathData = getPathData(
                 pathToFile,
-                inputFolderPath,
-                outputFolderPath,
+                run.input,
+                run.output,
                 outputFormat,
-                outputBundlePath,
+                run.bundlePath,
             );
 
             logger.proc(pathToFile);
 
             const metaDataOptions = getMetaDataOptions(
+                run,
                 pathData,
-                inputFolderPath.length,
                 vcsConnector,
             );
 
             await preparingPagesByOutputFormat(
+                run,
                 pathData,
-                metaDataOptions,
-                resolveConditions,
-                singlePage,
+                metaDataOptions
             );
         }),
     );
 
     if (singlePage) {
-        await saveSinglePages();
+        await saveSinglePages(run);
     }
 
     if (outputFormat === 'html') {
-        saveRedirectPage(outputFolderPath);
+        saveRedirectPage(run);
     }
 }
 
@@ -126,13 +119,8 @@ function getPathData(
     return pathData;
 }
 
-async function saveSinglePages() {
-    const {
-        input: inputFolderPath,
-        lang: configLang,
-        langs: configLangs,
-        resources,
-    } = ArgvService.getConfig();
+async function saveSinglePages(run: Run) {
+    const {lang, langs, resources} = run.config;
 
     try {
         await Promise.all(
@@ -143,18 +131,15 @@ async function saveSinglePages() {
 
                 const singlePageBody = joinSinglePageResults(
                     singlePageResults[tocDir],
-                    inputFolderPath,
+                    run.input,
                     tocDir,
                 );
-                const tocPath = join(relative(inputFolderPath, tocDir), 'toc.yaml');
+                const tocPath = join(relative(run.input, tocDir), 'toc.yaml');
                 const toc: YfmToc | null = TocService.getForPath(tocPath) || null;
                 const preparedToc = transformTocForSinglePage(toc, {
-                    root: inputFolderPath,
+                    root: run.input,
                     currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
                 }) as YfmToc;
-
-                const lang = configLang ?? Lang.RU;
-                const langs = configLangs?.length ? configLangs : [lang];
 
                 const pageData = {
                     data: {
@@ -188,14 +173,12 @@ async function saveSinglePages() {
     }
 }
 
-function saveRedirectPage(outputDir: string): void {
-    const {lang, langs} = ArgvService.getConfig();
-
+function saveRedirectPage(run: Run): void {
+    const {lang, langs} = run.config;
     const redirectLang = lang || langs?.[0] || Lang.RU;
     const redirectLangRelativePath = `./${redirectLang}/index.html`;
-
-    const redirectPagePath = join(outputDir, 'index.html');
-    const redirectLangPath = join(outputDir, redirectLangRelativePath);
+    const redirectPagePath = join(run.output, 'index.html');
+    const redirectLangPath = join(run.output, redirectLangRelativePath);
 
     if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
         const content = generateStaticRedirect(redirectLang, redirectLangRelativePath);
@@ -227,11 +210,12 @@ function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathDat
 }
 
 function getMetaDataOptions(
+    run: Run,
     pathData: PathData,
-    inputFolderPathLength: number,
     vcsConnector?: VCSConnector,
 ): MetaDataOptions {
-    const {contributors, addSystemMeta, resources, allowCustomResources} = ArgvService.getConfig();
+    const inputFolderPathLength = run.input.length;
+    const {contributors, addSystemMeta, resources, allowCustomResources} = run.config;
 
     const metaDataOptions: MetaDataOptions = {
         vcsConnector,
@@ -247,7 +231,7 @@ function getMetaDataOptions(
     if (allowCustomResources && resources) {
         const allowedResources = Object.entries(resources).reduce((acc: Resources, [key, val]) => {
             if (Object.keys(ResourceType).includes(key)) {
-                acc[key as keyof typeof ResourceType] = val;
+                acc[key as keyof ResourceType] = val;
             }
             return acc;
         }, {});
@@ -259,10 +243,9 @@ function getMetaDataOptions(
 }
 
 async function preparingPagesByOutputFormat(
+    run: Run,
     path: PathData,
     metaDataOptions: MetaDataOptions,
-    resolveConditions: boolean,
-    singlePage: boolean,
 ): Promise<void> {
     const {
         filename,
@@ -273,14 +256,14 @@ async function preparingPagesByOutputFormat(
         outputFormat,
         pathToFile,
     } = path;
-    const {allowCustomResources} = ArgvService.getConfig();
+    const {allowCustomResources, singlePage, template} = run.config;
 
     try {
         shell.mkdir('-p', outputDir);
 
         const isYamlFileExtension = fileExtension === '.yaml';
 
-        if (resolveConditions && fileBaseName === 'index' && isYamlFileExtension) {
+        if (template.features.conditions && fileBaseName === 'index' && isYamlFileExtension) {
             LeadingService.filterFile(pathToFile);
         }
 

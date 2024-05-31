@@ -1,9 +1,10 @@
+import type {DocInnerProps} from '@diplodoc/client';
+import type {Run} from '~/commands/build';
 import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve, sep} from 'path';
 import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
-import type {DocInnerProps} from '@diplodoc/client';
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
@@ -46,7 +47,7 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+    const {result} = transformFn(inputPath, content, run);
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -201,34 +202,33 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
     };
 }
 
-export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
-    const {conditionsInCode} = ArgvService.getConfig();
+export function liquidMd2Html(path: string, content: string) {
+    const vars = getVarsPerFile(path);
 
-    return liquid(input, vars, path, {
-        conditionsInCode,
+    return liquid(content, vars, path, {
+        conditionsInCode: run.config.template.scopes.code,
         withSourceMap: true,
     });
 }
 
-function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
-    const {input, ...options} = ArgvService.getConfig();
-    const {path: filePath} = transformOptions;
-
+function MdFileTransformer(path: string, content: string, run: Run): Output {
     const plugins = PluginService.getPlugins();
-    const vars = getVarsPerFile(filePath);
-    const root = resolve(input);
-    const path: string = resolve(input, filePath);
+    const vars = getVarsPerFile(path);
 
     return transform(content, {
-        ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
         vars,
-        root,
-        path,
-        assetsPublicPath: getAssetsPublicPath(filePath),
-        rootPublicPath: getAssetsRootPath(filePath),
-        getVarsPerFile: getVarsPerRelativeFile,
+        path: resolve(run.input, path),
+        rootPublicPath: getAssetsRootPath(path),
         getPublicPath,
         extractTitle: true,
+        allowHTML: run.config.allowHtml,
+        conditionsInCode: run.config.template.scopes.code,
+        disableLiquid: !run.config.template.enabled,
+        needToSanitizeHtml: run.config.sanitizeHtml,
+        plugins: plugins as MarkdownItPluginCb<unknown>[],
+        root: run.input,
+        extractChangelogs: run.config.changelogs.enabled,
+        assetsPublicPath: getAssetsPublicPath(path),
+        getVarsPerFile: getVarsPerRelativeFile,
     });
 }
