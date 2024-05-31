@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.29.0](https://github.com/diplodoc-platform/cli/compare/v4.28.2...v4.29.0) (2024-05-31)
+
+
+### Features
+
+* Add content filtering ([ce2d387](https://github.com/diplodoc-platform/cli/commit/ce2d38748db09e9996d06d2148357a91f4e304ab))
+
 ## [4.28.2](https://github.com/diplodoc-platform/cli/compare/v4.28.1...v4.28.2) (2024-05-29)
 
 
