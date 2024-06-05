@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.30.0](https://github.com/diplodoc-platform/cli/compare/v4.29.0...v4.30.0) (2024-06-05)
+
+
+### Features
+
+* liquid navigation field in toc.yaml ([75ab883](https://github.com/diplodoc-platform/cli/commit/75ab8838dab07cf3d008f1a9d2a300dd1258e76b))
+
 ## [4.29.0](https://github.com/diplodoc-platform/cli/compare/v4.28.2...v4.29.0) (2024-05-31)
 
 
