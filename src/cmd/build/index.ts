@@ -179,6 +179,10 @@ async function handler(args: Arguments<any>) {
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
 
+    if (typeof VERSION !== 'undefined') {
+        console.log(`Using v${VERSION} version`);
+    }
+
     try {
         ArgvService.init({
             ...args,
