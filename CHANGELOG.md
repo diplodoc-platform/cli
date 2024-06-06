@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.31.0](https://github.com/diplodoc-platform/cli/compare/v4.30.0...v4.31.0) (2024-06-06)
+
+
+### Features
+
+* add version log ([3fefc16](https://github.com/diplodoc-platform/cli/commit/3fefc16c9bb275ed2819a2edd2f59d7313aa6007))
+
 ## [4.30.0](https://github.com/diplodoc-platform/cli/compare/v4.29.0...v4.30.0) (2024-06-05)
 
 
