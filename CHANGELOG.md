@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.32.1](https://github.com/diplodoc-platform/cli/compare/v4.32.0...v4.32.1) (2024-06-17)
+
+
+### Bug Fixes
+
+* **table:** update transform version to fix includes inside tables ([24ef64b](https://github.com/diplodoc-platform/cli/commit/24ef64be57b41f167d6de5baaaf812a09d34c2c0))
+
 ## [4.32.0](https://github.com/diplodoc-platform/cli/compare/v4.31.0...v4.32.0) (2024-06-14)
 
 
