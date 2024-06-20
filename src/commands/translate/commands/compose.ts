@@ -146,10 +146,6 @@ function pipeline(input: string, output: string, {useSource}: ComposeOptions) {
         await Promise.all([skeleton.load(), xliff.load()]);
 
         const schemas = await resolveSchemas(file.path);
-        if (['.yaml'].includes(file.ext) && !schemas.length) {
-            return;
-        }
-
         const content = new FileLoader(join(output, file.path));
 
         content.set(compose(skeleton.data, xliff.data, {useSource, schemas}));

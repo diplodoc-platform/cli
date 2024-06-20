@@ -2,7 +2,7 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 import {ok} from 'node:assert';
-import {extname, join, resolve} from 'node:path';
+import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
@@ -12,7 +12,9 @@ import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {
+    EmptyTokensError,
     FileLoader,
+    SkipTranslation,
     TranslateError,
     extract,
     resolveFiles,
@@ -139,6 +141,11 @@ export class Extract
                         this.logger.extracted(file);
                     } catch (error: any) {
                         if (error instanceof TranslateError) {
+                            if (error instanceof SkipTranslation) {
+                                this.logger.skipped([[error.reason, file]]);
+                                return;
+                            }
+
                             this.logger.error(file, `${error.message}`, error.code);
 
                             if (error.fatal) {
@@ -168,7 +175,6 @@ function pipeline(params: PipelineParameters) {
     const outputRoot = resolve(output);
 
     return async (path: string) => {
-        const ext = extname(path);
         const inputPath = join(inputRoot, path);
         const content = new FileLoader(inputPath);
         const output = (path: string) =>
@@ -178,11 +184,6 @@ function pipeline(params: PipelineParameters) {
                     .replace(inputRoot, '')
                     .replace('/' + source.language + '/', '/' + target.language + '/'),
             );
-
-        const schemas = await resolveSchemas(path);
-        if (['.yaml'].includes(ext) && !schemas.length) {
-            return;
-        }
 
         await content.load();
 
@@ -196,6 +197,7 @@ function pipeline(params: PipelineParameters) {
             );
         }
 
+        const schemas = await resolveSchemas(path);
         const {xliff, skeleton, units} = extract(content.data, {
             source,
             target,
@@ -203,7 +205,7 @@ function pipeline(params: PipelineParameters) {
         });
 
         if (!units.length) {
-            return;
+            throw new EmptyTokensError();
         }
 
         const xlf = new FileLoader(inputPath).set(xliff);
