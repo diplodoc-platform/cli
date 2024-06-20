@@ -32,6 +32,7 @@ const hooks = () => ({
 });
 
 export interface IProvider {
+    skip(files: [string, string][], config: TranslateConfig): Promise<void>;
     translate(files: string[], config: TranslateConfig): Promise<void>;
 }
 
@@ -53,6 +54,7 @@ export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> 
     include: string[];
     exclude: string[];
     files: string[];
+    skipped: [string, string][];
     vars: Record<string, any>;
     dryRun: boolean;
 };
@@ -136,7 +138,7 @@ export class Translate
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
-            const files = resolveFiles(
+            const [files, skipped] = resolveFiles(
                 input,
                 defined('files', args, config),
                 include,
@@ -154,6 +156,7 @@ export class Translate
                 source,
                 target,
                 files,
+                skipped,
                 include,
                 exclude,
                 vars,
@@ -165,6 +168,8 @@ export class Translate
 
     async action() {
         if (this.provider) {
+            await this.provider.skip(this.config.skipped, this.config);
+
             return this.provider.translate(this.config.files, this.config);
         }
 

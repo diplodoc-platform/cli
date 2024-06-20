@@ -86,7 +86,7 @@ function resolveList(path: string, scope: string) {
 }
 
 function pathsInScope(paths: string[], scope: string) {
-    ok(isAbsolute(scope), 'Scope should be absolute path');
+    ok(isAbsolute(scope), `Scope should be absolute path. (${scope})`);
 
     return paths.every((path) => resolve(scope, path).startsWith(scope));
 }
@@ -99,7 +99,10 @@ export function resolveFiles(
     lang: string | null,
     exts: string[],
 ) {
-    let result: string[];
+    let result: string[] = [];
+    let skipped: [string, string][] = [];
+
+    const extmatch = '**/*@(' + exts.map((ext) => '*' + ext).join('|') + ')';
 
     if (files) {
         if (typeof files === 'string') {
@@ -108,43 +111,42 @@ export function resolveFiles(
 
         result = files.reduce((acc, path) => {
             if (path.endsWith('.list')) {
-                return acc.concat(resolveList(path, input));
+                return acc.concat(resolveList(path, input).filter(filter(extmatch)));
             }
 
             return acc.concat(path);
         }, [] as string[]);
     } else {
-        result = glob.sync(`**/*@(${exts.join('|')})`, {
+        result = glob.sync(extmatch, {
             cwd: input,
             ignore: exclude,
             nodir: true,
         });
 
+        [result, skipped] = skip(result, skipped, exclude, 'exclude');
+
         // try to filter by target lang
         // but if result is empty we think that this is already land dir
         if (result.length && lang) {
-            const langfiles = result.filter(filter(lang + '/**/*'));
+            const [langfiles, rest] = skip(result, [], lang + '/**/*', 'lang', true);
+
             if (langfiles.length) {
                 result = langfiles;
+                skipped.push(...rest);
             }
         }
 
         if (include.length) {
-            let matched: string[] = [];
-            for (const pattern of include) {
-                matched = matched.concat(result.filter(filter(pattern)));
-            }
-
-            result = matched;
+            [result, skipped] = skip(result, skipped, include, 'include', true);
         }
     }
 
     result = [...new Set(result)];
 
     // For security purpose.
-    ok(pathsInScope(result, input), 'Insecure access to paths out of project scope!');
+    ok(pathsInScope(result, input), `Insecure access to paths out of project scope (${result})!`);
 
-    return result;
+    return [result, skipped];
 }
 
 export function resolveVars(
@@ -152,4 +154,29 @@ export function resolveVars(
     args: {vars?: Record<string, any>},
 ) {
     return merge(config.vars || {}, args.vars);
+}
+
+function skip(
+    array: string[],
+    skipped: [string, string][],
+    pattern: string | string[],
+    reason: string,
+    negate = false,
+) {
+    const mode = (value: boolean) => (negate ? !value : value);
+    const patterns = ([] as string[]).concat(pattern).map((pattern) => filter(pattern));
+    const match = (value: string) => patterns.some((match) => mode(match(value)));
+
+    return array.reduce(
+        ([left, right], value) => {
+            if (match(value)) {
+                right.push([reason, value]);
+            } else {
+                left.push(value);
+            }
+
+            return [left, right] as [string[], [string, string][]];
+        },
+        [[], skipped] as [string[], [string, string][]],
+    );
 }
