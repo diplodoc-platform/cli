@@ -7,16 +7,12 @@ import {LogLevel, Logger} from '~/logger';
 import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 import liquid from '@diplodoc/transform/lib/liquid';
+import {TranslateLogger} from '../../logger';
 
 const REQUESTS_LIMIT = 15;
 const BYTES_LIMIT = 10000;
 const RETRY_LIMIT = 3;
 
-class TranslateLogger extends Logger {
-    stat = this.topic(LogLevel.INFO, 'PROCESSED');
-    translate = this.topic(LogLevel.INFO, 'TRANSLATE', gray);
-    translated = this.topic(LogLevel.INFO, 'TRANSLATED');
-}
 const onFatalError = () => {
     process.exit(1);
 };
@@ -26,6 +22,10 @@ export class Provider {
 
     constructor(config: TranslateConfig) {
         this.logger = new TranslateLogger(config);
+    }
+
+    async skip(skipped: [string, string][]) {
+        this.logger.skipped(skipped);
     }
 
     async translate(files: string[], config: TranslateConfig & YandexTranslationConfig) {
@@ -246,7 +246,7 @@ function processor(params: TranslatorParams, translate: Translate) {
 
     return async function (path: string) {
         const ext = extname(path);
-        if (!['.yaml', '.json', '.md'].includes(ext)) {
+        if (!['.yaml', '.md'].includes(ext)) {
             return;
         }
 

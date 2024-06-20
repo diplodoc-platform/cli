@@ -4,14 +4,13 @@ import type {Locale} from '../utils';
 import {ok} from 'node:assert';
 import {extname, join, resolve} from 'node:path';
 import {pick} from 'lodash';
-import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
 import {BaseProgram} from '~/program/base';
 import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {LogLevel, Logger} from '~/logger';
 import {options} from '../config';
+import {TranslateLogger} from '../logger';
 import {
     FileLoader,
     TranslateError,
@@ -41,14 +40,9 @@ export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & 
     include: string[];
     exclude: string[];
     files: string[];
+    skipped: [string, string][];
     vars: Record<string, any>;
 };
-
-class ExtractLogger extends Logger {
-    readonly extract = this.topic(LogLevel.INFO, 'EXTRACT', gray);
-
-    readonly extracted = this.topic(LogLevel.INFO, 'EXTRACTED');
-}
 
 export class Extract
     // eslint-disable-next-line new-cap
@@ -74,7 +68,7 @@ export class Extract
         options.config(YFM_CONFIG_FILENAME),
     ];
 
-    readonly logger = new ExtractLogger();
+    readonly logger = new TranslateLogger();
 
     apply(program?: IProgram) {
         super.apply(program);
@@ -86,12 +80,11 @@ export class Extract
                 'quiet',
                 'strict',
             ]) as ExtractArgs;
-
             const source = resolveSource(config, args);
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
-            const files = resolveFiles(
+            const [files, skipped] = resolveFiles(
                 input,
                 defined('files', args, config),
                 include,
@@ -109,6 +102,7 @@ export class Extract
                 source,
                 target,
                 files,
+                skipped,
                 include,
                 exclude,
                 vars,
@@ -117,7 +111,7 @@ export class Extract
     }
 
     async action() {
-        const {input, output, files, source, target: targets, vars} = this.config;
+        const {input, output, files, skipped, source, target: targets, vars} = this.config;
 
         this.logger.setup(this.config);
 
@@ -132,6 +126,8 @@ export class Extract
                 output,
                 vars,
             });
+
+            this.logger.skipped(skipped);
 
             await eachLimit(
                 files,
@@ -173,10 +169,6 @@ function pipeline(params: PipelineParameters) {
 
     return async (path: string) => {
         const ext = extname(path);
-        if (!['.yaml', '.md'].includes(ext)) {
-            return;
-        }
-
         const inputPath = join(inputRoot, path);
         const content = new FileLoader(inputPath);
         const output = (path: string) =>

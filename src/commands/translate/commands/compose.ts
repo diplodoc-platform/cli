@@ -2,13 +2,12 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {ComposeOptions} from '@diplodoc/translation';
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
-import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
 import {BaseProgram} from '~/program/base';
 import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {LogLevel, Logger} from '~/logger';
 import {options} from '../config';
+import {TranslateLogger} from '../logger';
 import {FileLoader, TranslateError, compose, resolveFiles, resolveSchemas} from '../utils';
 
 const MAX_CONCURRENCY = 50;
@@ -25,14 +24,9 @@ export type ComposeConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & 
     include: string[];
     exclude: string[];
     files: string[];
+    skipped: [string, string][];
     useSource: boolean;
 };
-
-class ComposeLogger extends Logger {
-    readonly compose = this.topic(LogLevel.INFO, 'COMPOSE', gray);
-
-    readonly composed = this.topic(LogLevel.INFO, 'COMPOSED');
-}
 
 export class Compose
     // eslint-disable-next-line new-cap
@@ -55,7 +49,7 @@ export class Compose
         options.useSource,
     ];
 
-    readonly logger = new ComposeLogger();
+    readonly logger = new TranslateLogger();
 
     apply(program?: IProgram) {
         super.apply(program);
@@ -69,13 +63,22 @@ export class Compose
             ]) as ComposeArgs;
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
+            const [files, skipped] = resolveFiles(
+                input,
+                defined('files', args, config),
+                include,
+                exclude,
+                null,
+                ['.skl', '.xliff'],
+            );
 
             return Object.assign(config, {
                 input,
                 output,
                 quiet,
                 strict,
-                files: defined('files', args, config) || null,
+                files,
+                skipped,
                 include,
                 exclude,
                 useSource: defined('useSource', args, config) || false,
@@ -84,23 +87,14 @@ export class Compose
     }
 
     async action() {
-        const {input, output, include, exclude, useSource} = this.config;
+        const {input, output, files, skipped, useSource} = this.config;
 
         this.logger.setup(this.config);
 
         const configuredPipeline = pipeline(input, output, {useSource});
-
-        const files = resolveFiles(input, this.config.files, include, exclude, null, [
-            '.skl',
-            '.xliff',
-        ]);
         const pairs = files.reduce(
             (acc, file) => {
                 const ext = extname(file);
-                if (!['.skl', '.xliff'].includes(ext)) {
-                    return acc;
-                }
-
                 const path = file.slice(0, -ext.length);
 
                 acc[path] = acc[path] || {path, ext};
@@ -110,6 +104,8 @@ export class Compose
             },
             {} as Record<string, FileInfo>,
         );
+
+        this.logger.skipped(skipped);
 
         await eachLimit(
             pairs,
