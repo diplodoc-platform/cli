@@ -12,8 +12,14 @@ export class TranslateLogger extends Logger {
 
     readonly _skipped = this.topic(LogLevel.INFO, 'SKIPPED', gray);
     skipped(skipped: [string, string][]) {
+        const length =
+            skipped.reduce((max, [reason]) => {
+                return Math.max(max, reason.length);
+            }, 0) + 2;
+        const arrange = (string: string) => string + ' '.repeat(length - string.length);
+
         for (const [reason, file] of skipped) {
-            this._skipped('[' + reason + ' filter]', file);
+            this._skipped(arrange('[' + reason + ']'), file);
         }
     }
 }

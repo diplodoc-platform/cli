@@ -119,16 +119,17 @@ export function resolveFiles(
     } else {
         result = glob.sync(extmatch, {
             cwd: input,
-            ignore: exclude,
             nodir: true,
         });
 
-        [result, skipped] = skip(result, skipped, exclude, 'exclude');
+        if (exclude.length) {
+            [result, skipped] = skip(result, skipped, exclude, 'exclude');
+        }
 
         // try to filter by target lang
         // but if result is empty we think that this is already land dir
         if (result.length && lang) {
-            const [langfiles, rest] = skip(result, [], lang + '/**/*', 'lang', true);
+            const [langfiles, rest] = skip(result, [], lang + '/**/*', 'language', true);
 
             if (langfiles.length) {
                 result = langfiles;
