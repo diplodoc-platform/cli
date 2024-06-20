@@ -1,12 +1,10 @@
 import type {TranslateConfig} from '~/commands/translate';
 import type {YandexTranslationConfig} from '.';
-import {mkdir} from 'node:fs/promises';
-import {dirname, extname, join, resolve} from 'node:path';
-import {gray} from 'chalk';
+import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import axios, {AxiosError, AxiosResponse} from 'axios';
 import {LogLevel, Logger} from '~/logger';
-import {TranslateError, compose, dumpFile, extract, loadFile, resolveSchemas} from '../../utils';
+import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 import liquid from '@diplodoc/transform/lib/liquid';
 
@@ -19,6 +17,9 @@ class TranslateLogger extends Logger {
     translate = this.topic(LogLevel.INFO, 'TRANSLATE', gray);
     translated = this.topic(LogLevel.INFO, 'TRANSLATED');
 }
+const onFatalError = () => {
+    process.exit(1);
+};
 
 export class Provider {
     readonly logger: TranslateLogger;
@@ -46,8 +47,8 @@ export class Provider {
 
                 const cache = new Map<string, Defer>();
                 const request = requester(translatorParams, cache);
-                const split = splitter(request, cache, this.logger);
-                const translate = translator(translatorParams, split);
+                const translate = translator(request, cache, this.logger);
+                const process = processor(translatorParams, translate);
 
                 await eachLimit(
                     files,
@@ -55,16 +56,17 @@ export class Provider {
                     asyncify(async (file: string) => {
                         try {
                             this.logger.translate(file);
-                            await translate(file);
+                            await process(file);
                             if (!dryRun) {
                                 this.logger.translated(file);
                             }
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                         } catch (error: any) {
                             if (error instanceof TranslateError) {
                                 this.logger.error(file, `${error.message}`, error.code);
 
                                 if (error.fatal) {
-                                    process.exit(1);
+                                    onFatalError();
                                 }
                             } else {
                                 this.logger.error(file, error.message);
@@ -75,6 +77,7 @@ export class Provider {
 
                 this.logger.stat(`bytes: ${request.stat.bytes} chunks: ${request.stat.chunks}`);
             }
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (error instanceof TranslateError) {
                 this.logger.topic(LogLevel.ERROR, error.code)(error.message);
@@ -112,7 +115,7 @@ type Request = {
     };
 };
 
-type Split = (path: string, texts: string[]) => Promise<string[]>;
+type Translate = (path: string, texts: string[]) => Promise<string[]>;
 
 type Cache = Map<string, Defer>;
 
@@ -201,6 +204,7 @@ function requester(params: RequesterParams, cache: Cache) {
                 );
 
                 return data.translations.map(({text}) => text).forEach(resolve);
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } catch (error: any) {
                 if (error instanceof AxiosError) {
                     const {response} = error;
@@ -235,42 +239,51 @@ function requester(params: RequesterParams, cache: Cache) {
     return request;
 }
 
-function translator(params: TranslatorParams, split: Split) {
+function processor(params: TranslatorParams, translate: Translate) {
     const {input, output, sourceLanguage, targetLanguage, vars} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async (path: string) => {
+    return async function (path: string) {
         const ext = extname(path);
         if (!['.yaml', '.json', '.md'].includes(ext)) {
             return;
         }
 
         const inputPath = join(inputRoot, path);
-        const outputPath = join(outputRoot, path.replace(sourceLanguage, targetLanguage));
+        const output = (path: string) =>
+            join(
+                outputRoot,
+                path
+                    .replace(inputRoot, '')
+                    .replace('/' + sourceLanguage + '/', '/' + targetLanguage + '/'),
+            );
 
-        let content = await loadFile(inputPath);
-        if (Object.keys(vars).length && typeof content === 'string') {
-            content = liquid(content, vars, inputPath, {
-                conditions: 'strict',
-                substitutions: false,
-                cycles: false,
-            });
+        const content = new FileLoader(inputPath);
+
+        await content.load();
+
+        if (Object.keys(vars).length && content.isString) {
+            content.set(
+                liquid(content.data as string, vars, inputPath, {
+                    conditions: 'strict',
+                    substitutions: false,
+                    cycles: false,
+                }),
+            );
         }
 
-        await mkdir(dirname(outputPath), {recursive: true});
-
-        if (!content) {
-            await dumpFile(outputPath, content);
+        if (!content.data) {
+            await content.dump(output);
             return;
         }
 
         const schemas = await resolveSchemas(path);
-        if (['.yaml', '.json'].includes(ext) && !schemas.length) {
+        if (['.yaml'].includes(ext) && !schemas.length) {
             return;
         }
 
-        const {units, skeleton} = extract(content, {
+        const {units, skeleton} = extract(content.data, {
             compact: true,
             source: {
                 language: sourceLanguage,
@@ -284,18 +297,19 @@ function translator(params: TranslatorParams, split: Split) {
         });
 
         if (!units.length) {
-            await dumpFile(outputPath, content);
+            await content.dump(output);
             return;
         }
 
-        const parts = await split(path, units);
-        const composed = compose(skeleton, parts, {useSource: true, schemas});
+        const parts = await translate(path, units);
 
-        await dumpFile(outputPath, composed);
+        content.set(compose(skeleton, parts, {useSource: true, schemas}));
+
+        await content.dump(output);
     };
 }
 
-function splitter(request: Request, cache: Cache, logger: Logger): Split {
+function translator(request: Request, cache: Cache, logger: Logger): Translate {
     return async function (path: string, texts: string[]) {
         const promises: Promise<string>[] = [];
         const requests: Promise<void>[] = [];
@@ -351,6 +365,7 @@ async function backoff(action: () => Promise<void>): Promise<void> {
     while (++retry < RETRY_LIMIT) {
         try {
             await action();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             if (RequestError.canRetry(error)) {
                 await wait(Math.pow(2, retry) * 1000);

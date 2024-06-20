@@ -2,8 +2,7 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 import {ok} from 'node:assert';
-import {dirname, extname, join, resolve} from 'node:path';
-import {mkdir} from 'node:fs/promises';
+import {extname, join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
@@ -14,10 +13,9 @@ import {YFM_CONFIG_FILENAME} from '~/constants';
 import {LogLevel, Logger} from '~/logger';
 import {options} from '../config';
 import {
+    FileLoader,
     TranslateError,
-    dumpFile,
     extract,
-    loadFile,
     resolveFiles,
     resolveSchemas,
     resolveSource,
@@ -180,27 +178,33 @@ function pipeline(params: PipelineParameters) {
         }
 
         const inputPath = join(inputRoot, path);
-        const outputPath = path.replace(source.language, target.language);
-        const xliffPath = join(outputRoot, outputPath + '.xliff');
-        const skeletonPath = join(outputRoot, outputPath + '.skl');
+        const content = new FileLoader(inputPath);
+        const output = (path: string) =>
+            join(
+                outputRoot,
+                path
+                    .replace(inputRoot, '')
+                    .replace('/' + source.language + '/', '/' + target.language + '/'),
+            );
 
         const schemas = await resolveSchemas(path);
         if (['.yaml'].includes(ext) && !schemas.length) {
             return;
         }
 
-        let content = await loadFile(inputPath);
-        if (Object.keys(vars).length && typeof content === 'string') {
-            content = liquid(content, vars, inputPath, {
-                conditions: 'strict',
-                substitutions: false,
-                cycles: false,
-            });
+        await content.load();
+
+        if (Object.keys(vars).length && content.isString) {
+            content.set(
+                liquid(content.data as string, vars, inputPath, {
+                    conditions: 'strict',
+                    substitutions: false,
+                    cycles: false,
+                }),
+            );
         }
 
-        await mkdir(dirname(xliffPath), {recursive: true});
-
-        const {xliff, skeleton, units} = extract(content, {
+        const {xliff, skeleton, units} = extract(content.data, {
             source,
             target,
             schemas,
@@ -210,6 +214,12 @@ function pipeline(params: PipelineParameters) {
             return;
         }
 
-        await Promise.all([dumpFile(skeletonPath, skeleton), dumpFile(xliffPath, xliff)]);
+        const xlf = new FileLoader(inputPath).set(xliff);
+        const skl = new FileLoader(inputPath).set(skeleton);
+
+        await Promise.all([
+            xlf.dump((path) => output(path) + '.xliff'),
+            skl.dump((path) => output(path) + '.skl'),
+        ]);
     };
 }
