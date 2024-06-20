@@ -1,7 +1,6 @@
 import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {ComposeOptions} from '@diplodoc/translation';
-import {dirname, extname, join} from 'node:path';
-import {mkdir} from 'node:fs/promises';
+import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {gray} from 'chalk';
 import {asyncify, eachLimit} from 'async';
@@ -10,7 +9,7 @@ import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {LogLevel, Logger} from '~/logger';
 import {options} from '../config';
-import {TranslateError, compose, dumpFile, loadFile, resolveFiles, resolveSchemas} from '../utils';
+import {FileLoader, TranslateError, compose, resolveFiles, resolveSchemas} from '../utils';
 
 const MAX_CONCURRENCY = 50;
 
@@ -145,20 +144,20 @@ type FileInfo = {
 
 function pipeline(input: string, output: string, {useSource}: ComposeOptions) {
     return async (file: FileInfo) => {
-        const [skeleton, xliff] = await Promise.all([
-            loadFile(join(input, file.skl)),
-            loadFile<string>(join(input, file.xliff)),
-        ]);
+        const skeleton = new FileLoader(join(input, file.skl));
+        const xliff = new FileLoader<string>(join(input, file.xliff));
+
+        await Promise.all([skeleton.load(), xliff.load()]);
 
         const schemas = await resolveSchemas(file.path);
-        if (['.yaml', '.json'].includes(file.ext) && !schemas.length) {
+        if (['.yaml'].includes(file.ext) && !schemas.length) {
             return;
         }
 
-        const result = compose(skeleton, xliff, {useSource, schemas});
-        const filePath = join(output, file.path);
+        const content = new FileLoader(join(output, file.path));
 
-        await mkdir(dirname(filePath), {recursive: true});
-        await dumpFile(filePath, result);
+        content.set(compose(skeleton.data, xliff.data, {useSource, schemas}));
+
+        await content.dump();
     };
 }
