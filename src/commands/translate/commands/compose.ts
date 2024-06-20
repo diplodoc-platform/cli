@@ -74,7 +74,7 @@ export class Compose
 
             return Object.assign(config, {
                 input,
-                output,
+                output: output || input,
                 quiet,
                 strict,
                 files,
