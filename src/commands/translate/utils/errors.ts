@@ -22,3 +22,19 @@ export class ComposeError extends TranslateError {
         super(error?.message || String(error), 'COMPOSE_ERROR');
     }
 }
+
+export class SkipTranslation extends TranslateError {
+    reason: string;
+
+    constructor(code: string, reason: string) {
+        super('Skip file translation.', code);
+
+        this.reason = reason;
+    }
+}
+
+export class EmptyTokensError extends SkipTranslation {
+    constructor() {
+        super('EMPTY_TOKENS', 'notokens');
+    }
+}

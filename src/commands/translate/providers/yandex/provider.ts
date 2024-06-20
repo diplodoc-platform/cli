@@ -279,10 +279,6 @@ function processor(params: TranslatorParams, translate: Translate) {
         }
 
         const schemas = await resolveSchemas(path);
-        if (['.yaml'].includes(ext) && !schemas.length) {
-            return;
-        }
-
         const {units, skeleton} = extract(content.data, {
             compact: true,
             source: {
