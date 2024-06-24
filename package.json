@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@diplodoc/client": "^2.6.2",
-    "@diplodoc/translation": "^1.3.1",
+    "@diplodoc/translation": "^1.3.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
     "threads": "1.7.0",
