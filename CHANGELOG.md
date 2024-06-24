@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.32.2](https://github.com/diplodoc-platform/cli/compare/v4.32.1...v4.32.2) (2024-06-24)
+
+
+### Bug Fixes
+
+* Add defaul output for translation compose command ([bdec089](https://github.com/diplodoc-platform/cli/commit/bdec0898f36d6d17ce30996fce7da01e9e91be11))
+* Improve translation logging ([34f6bb7](https://github.com/diplodoc-platform/cli/commit/34f6bb7f308af169cef06e65de37e3405a2ca120))
+* Log empty files on translation ([35cea29](https://github.com/diplodoc-platform/cli/commit/35cea29160b5af4f9c445b2cbf0db41d2288910f))
+* Update translation dep ([b20ae0d](https://github.com/diplodoc-platform/cli/commit/b20ae0dcc39863e6e4194308709a2a93865820c2))
+* Update translation dep ([5544251](https://github.com/diplodoc-platform/cli/commit/5544251c66b43c3f8880e7ecd34c0cf306f6c931))
+
 ## [4.32.1](https://github.com/diplodoc-platform/cli/compare/v4.32.0...v4.32.1) (2024-06-17)
 
 
