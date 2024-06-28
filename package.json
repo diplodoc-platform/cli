@@ -58,7 +58,7 @@
     "@types/html-escaper": "^3.0.0",
     "@types/js-yaml": "4.0.9",
     "@types/json-stringify-safe": "^5.0.3",
-    "@types/lodash": "4.14.195",
+    "@types/lodash": "4.17.6",
     "@types/mime-types": "2.1.4",
     "@types/node": "^18.19.4",
     "@types/shelljs": "0.8.15",
