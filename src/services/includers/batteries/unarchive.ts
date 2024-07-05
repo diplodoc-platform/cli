@@ -92,7 +92,9 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
     try {
         await pipeline(contentPath, writePath);
     } catch (err) {
-        throw new UnarchiveIncluderError(err.toString(), tocPath);
+        const message = err instanceof Error ? err.message : String(err);
+
+        throw new UnarchiveIncluderError(message, tocPath);
     }
 }
 

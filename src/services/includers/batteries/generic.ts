@@ -83,7 +83,9 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
         await writeFile(join(writePath, 'toc.yaml'), dump(toc));
     } catch (err) {
-        throw new GenericIncluderError(err.toString(), tocPath);
+        const message = err instanceof Error ? err.message : String(err);
+
+        throw new GenericIncluderError(message, tocPath);
     }
 }
 

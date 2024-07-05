@@ -42,13 +42,13 @@ export class Program
             }),
         },
     })
-    implements IProgram
+    implements IProgram<ProgramArgs>
 {
     readonly command: Command = new Command(NAME)
         .helpOption(true)
         .allowUnknownOption(false)
         .version(
-            typeof VERSION !== 'undefined' ? VERSION : '',
+            typeof VERSION === 'undefined' ? '' : VERSION,
             '--version',
             'Output the version number',
         )
@@ -75,7 +75,7 @@ export class Program
         .helpOption(false)
         .allowUnknownOption(true);
 
-    private readonly modules: ICallable[] = [this.build, this.publish, this.translate];
+    private readonly modules: ICallable<ProgramArgs>[] = [this.build, this.publish, this.translate];
 
     async init(argv: string[]) {
         const args = this.parser.parse(argv).opts() as ProgramArgs;

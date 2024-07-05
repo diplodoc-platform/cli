@@ -174,7 +174,7 @@ export function replaceDoubleToSingleQuotes(str: string): string {
     return str.replace(/"/g, "'");
 }
 
-export function findAllValuesByKeys(obj, keysToFind: string[]) {
+export function findAllValuesByKeys(obj: object, keysToFind: string[]): string[] {
     return flatMapDeep(obj, (value: string | string[], key: string) => {
         if (
             keysToFind?.includes(key) &&
@@ -192,14 +192,16 @@ export function findAllValuesByKeys(obj, keysToFind: string[]) {
 }
 
 export function modifyValuesByKeys(
-    originalObj,
+    originalObj: object,
     keysToFind: string[],
     modifyFn: (value: string) => string,
 ) {
-    function customizer(value, key) {
-        if (keysToFind?.includes(key) && isString(value)) {
+    function customizer(value: unknown, key: number | string | undefined) {
+        if (typeof key === 'string' && keysToFind?.includes(key) && isString(value)) {
             return modifyFn(value);
         }
+
+        return undefined;
     }
 
     // Clone the object deeply with a customizer function that modifies matching keys

@@ -1,6 +1,6 @@
 import {dirname, relative, resolve} from 'path';
 import {load} from 'js-yaml';
-import log from '@diplodoc/transform/lib/log';
+import log, {LogLevels} from '@diplodoc/transform/lib/log';
 import {
     LintMarkdownFunctionOptions,
     PluginOptions,
@@ -76,15 +76,17 @@ function YamlFileLinter(content: string, lintOptions: FileTransformOptions): voi
         defaultLevel: log.LogLevels.ERROR,
     });
 
-    const contentLinks = findAllValuesByKeys(load(content), LINK_KEYS);
+    const contentLinks = findAllValuesByKeys(load(content) as object, LINK_KEYS);
     const localLinks = contentLinks.filter(
         (link) => getLinksWithExtension(link) && isLocalUrl(link),
     );
 
+    const loggerForLogLevel = logLevel === LogLevels.DISABLED ? () => undefined : log[logLevel];
+
     return localLinks.forEach(
         (link) =>
             checkPathExists(link, currentFilePath) ||
-            log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
+            loggerForLogLevel(`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
     );
 }
 

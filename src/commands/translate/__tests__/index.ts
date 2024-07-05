@@ -63,7 +63,7 @@ export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
             });
 
             if (result instanceof Error || typeof result === 'string') {
-                const message = result.message || result;
+                const message = result instanceof Error ? result.message : result;
                 await expect(async () => runTranslate(defaultArgs + ' ' + args)).rejects.toThrow(
                     message,
                 );

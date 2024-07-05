@@ -17,7 +17,7 @@ import {
     RTL_LANGS,
     YFM_CONFIG_FILENAME,
 } from '../constants';
-import {Resources} from '../models';
+import {Resources, YfmArgv} from '../models';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
 /**
@@ -29,7 +29,7 @@ import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
  */
 
 type Props = {
-    args: string[];
+    args: YfmArgv;
     outputBundlePath: string;
     outputFormat: string;
     tmpOutputFolder: string;
@@ -48,7 +48,7 @@ export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFo
     }
 }
 
-function processAssetsHtmlRun({outputBundlePath}) {
+function processAssetsHtmlRun({outputBundlePath}: Pick<Props, 'outputBundlePath'>) {
     const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
 
     const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
@@ -59,19 +59,21 @@ function processAssetsHtmlRun({outputBundlePath}) {
 
     copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
 
-    const hasRTLlang = hasIntersection(langs, RTL_LANGS);
+    const hasRTLlang = hasIntersection(langs ?? [], RTL_LANGS);
     const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
         directories: false,
         includeBasePath: false,
-        ignore: !hasRTLlang && ['**/*.rtl.css'],
+        ignore: hasRTLlang ? undefined : ['**/*.rtl.css'],
     });
 
     copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
 }
 
-function processAssetsMdRun({args, tmpOutputFolder}) {
+function processAssetsMdRun({args, tmpOutputFolder}: Pick<Props, 'args' | 'tmpOutputFolder'>) {
     const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
+    // FIXME: The way we merge parameters from two Argv sources breaks type safety here
+    // @ts-expect-error
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
     const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
     const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
@@ -95,14 +97,9 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         copyFiles(args.input, tmpOutputFolder, resourcePaths);
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
-        if (file.endsWith('.yaml')) {
-            const resolvedPathToFile = resolve(inputFolderPath, file);
-
-            acc.push(resolvedPathToFile);
-        }
-        return acc;
-    }, []);
+    const tocYamlFiles = TocService.getNavigationPaths()
+        .filter((file) => file.endsWith('.yaml'))
+        .map((file) => resolve(inputFolderPath, file));
 
     tocYamlFiles.forEach((yamlFile) => {
         const content = load(readFileSync(yamlFile, 'utf8'));
@@ -111,30 +108,27 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
             return;
         }
 
-        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
-        const localMediaLinks = contentLinks.reduce(
-            (acc, link) => {
+        // FIXME: Better type cast than `object` would be appreciated
+        const contentLinks = findAllValuesByKeys(content as object, LINK_KEYS);
+        const localMediaLinks = contentLinks
+            .filter((link) => {
                 const linkHasMediaExt = new RegExp(
                     /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
                 ).test(link);
 
-                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
-                    const linkAbsolutePath = resolveRelativePath(yamlFile, link);
-                    const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+                return linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile);
+            })
+            .map((link) => {
+                const linkAbsolutePath = resolveRelativePath(yamlFile, link);
 
-                    acc.push(linkRootPath);
-                }
-                return acc;
-            },
-
-            [],
-        );
+                return linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+            });
 
         copyFiles(args.input, tmpOutputFolder, localMediaLinks);
     });
 }
 
-function hasIntersection(array1, array2) {
+function hasIntersection(array1: unknown[], array2: unknown[]) {
     const set1 = new Set(array1);
     return array2.some((element) => set1.has(element));
 }
