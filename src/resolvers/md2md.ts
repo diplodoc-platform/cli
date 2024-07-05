@@ -12,16 +12,17 @@ import {getContentWithUpdatedMetadata} from '../services/metadata';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, metadata} = options;
+    const {inputPath, outputPath, metadata: metadataOptions} = options;
     const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
-    const vars = getVarsPerFile(inputPath);
+
+    const varsPreset = getVarsPerFile(inputPath);
 
     const content = await getContentWithUpdatedMetadata(
         readFileSync(resolvedInputPath, 'utf8'),
-        metadata,
-        vars.__system,
-        vars.__metadata,
+        metadataOptions,
+        varsPreset.__system as unknown,
+        varsPreset.__metadata,
     );
 
     const {result, changelogs} = transformMd2Md(content, {
@@ -30,7 +31,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         root: resolve(input),
         destRoot: resolve(output),
         collectOfPlugins: PluginService.getCollectOfPlugins(),
-        vars,
+        vars: varsPreset,
         log,
         copyFile,
     });
