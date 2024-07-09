@@ -3,7 +3,9 @@ import {gray} from 'chalk';
 
 export class TranslateLogger extends Logger {
     readonly extract = this.topic(LogLevel.INFO, 'EXTRACT', gray);
+    readonly extractError = this.topic(LogLevel.ERROR, 'EXTRACT_ERROR');
     readonly compose = this.topic(LogLevel.INFO, 'COMPOSE', gray);
+    readonly composeError = this.topic(LogLevel.ERROR, 'COMPOSE_ERROR');
     readonly translate = this.topic(LogLevel.INFO, 'TRANSLATE', gray);
     readonly extracted = this.topic(LogLevel.INFO, 'EXTRACTED');
     readonly composed = this.topic(LogLevel.INFO, 'COMPOSED');

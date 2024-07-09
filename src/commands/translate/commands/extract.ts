@@ -146,7 +146,7 @@ export class Extract
                                 return;
                             }
 
-                            this.logger.error(file, `${error.message}`, error.code);
+                            this.logger.extractError(file, `${error.message}`);
 
                             if (error.fatal) {
                                 process.exit(1);
