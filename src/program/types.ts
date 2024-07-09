@@ -5,8 +5,8 @@ import type {Logger} from '~/logger';
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 type Hooks = Record<string, Hook<any, any> | HookMap<any>>;
 
-export interface ICallable {
-    apply(program?: IProgram): void;
+export interface ICallable<Args extends Hash = Hash> {
+    apply(program?: IProgram<Args>): void;
 }
 
 /**

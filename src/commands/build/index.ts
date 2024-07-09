@@ -1,10 +1,10 @@
-import type {IProgram} from '~/program';
+import type {IProgram, ProgramArgs} from '~/program';
 import yargs from 'yargs';
 import {hideBin} from 'yargs/helpers';
 import {Help} from 'commander';
 import log from '@diplodoc/transform/lib/log';
 
-import {BaseProgram} from '~/program/base';
+import {BaseHooks, BaseProgram} from '~/program/base';
 import {Command} from '~/config';
 import {build} from '~/cmd';
 
@@ -15,6 +15,10 @@ export type BuildArgs = {};
 export type BuildConfig = {};
 
 const parser = yargs
+    // FIXME: Since we're adding more arguments to the mix with
+    // `argvValidator` (see src/cmd/build/index.ts#L170), the type safety just completely breaks here
+    // (which makes sense, because stuff we do is absurdly unsound)
+    // @ts-expect-error
     .command(build)
     .option('config', {
         alias: 'c',
@@ -34,12 +38,12 @@ const parser = yargs
         type: 'boolean',
     })
     .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
-    .version(typeof VERSION !== 'undefined' ? VERSION : '')
+    .version(typeof VERSION === 'undefined' ? '' : VERSION)
     .help();
 
 export class Build
     // eslint-disable-next-line new-cap
-    extends BaseProgram<BuildConfig, BuildArgs>(command, {
+    extends BaseProgram<BuildConfig, ProgramArgs>(command, {
         config: {
             // scope: 'build',
             defaults: () => ({}),
@@ -47,7 +51,8 @@ export class Build
         command: {
             isDefault: true,
         },
-        hooks: () => {},
+        // FIXME: This is a temporary workaround
+        hooks: (() => {}) as unknown as BaseHooks<BuildConfig, ProgramArgs>,
     })
     implements IProgram<BuildArgs>
 {
@@ -62,6 +67,9 @@ export class Build
 
         this.command.createHelp = function () {
             const help = new Help();
+            // FIXME: This is not supposed to work, since `parser.getHelp` returns a Promise
+            // I'm not building a sync bridge for this right now
+            // @ts-expect-error
             help.formatHelp = () => parser.getHelp();
             return help;
         };

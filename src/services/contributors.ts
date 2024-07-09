@@ -71,7 +71,7 @@ async function getContributorsForNestedFiles(
             try {
                 contentIncludeFile = await readFile(relativeIncludeFilePath, 'utf8');
             } catch (err) {
-                if (err.code === 'ENOENT') {
+                if (err instanceof Error && err.code === 'ENOENT') {
                     continue;
                 }
                 throw err;
@@ -135,14 +135,18 @@ async function getFileIncludes(
     );
     for (const relativeIncludeFilePath of relativeIncludeFilePaths.values()) {
         const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength + 1);
-        if (results.has(relativeFilePath)) continue;
+
+        if (results.has(relativeFilePath)) {
+            continue;
+        }
+
         results.add(relativeFilePath);
 
         let contentIncludeFile: string;
         try {
             contentIncludeFile = await readFile(relativeIncludeFilePath, 'utf8');
         } catch (err) {
-            if (err.code === 'ENOENT') {
+            if (err instanceof Error && err.code === 'ENOENT') {
                 continue;
             }
             throw err;

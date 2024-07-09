@@ -4,7 +4,8 @@
     "lib": ["ES2019"],
     "target": "es6",
     "outDir": "build",
-    "module": "CommonJS",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "paths": {
       "~/*": ["./src/*"]
     }

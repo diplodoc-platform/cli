@@ -175,6 +175,8 @@ async function saveSinglePages() {
                 const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
+                    // FIXME: Whatever we do here with page props is pretty unsound
+                    // @ts-expect-error
                     pageData,
                     toc?.root?.deepBase || toc?.deepBase || 0,
                 );

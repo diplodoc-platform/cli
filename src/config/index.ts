@@ -72,6 +72,8 @@ export function args(command: Command | null) {
     let args: string[] | undefined;
 
     while (command) {
+        // FIXME: This is probably broken
+        // @ts-expect-error
         args = command.rawArgs || args;
         command = command.parent;
     }

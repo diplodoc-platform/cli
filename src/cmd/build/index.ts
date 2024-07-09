@@ -21,6 +21,8 @@ import {
 import {prepareMapFile} from '../../steps/processMapFile';
 import {copyFiles, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../../commands/publish/upload';
+import {YfmArgv} from '../../models';
+import {Run} from '../../commands/publish';
 
 export const build = {
     command: ['build', '$0'],
@@ -174,7 +176,7 @@ function builder<T>(argv: Argv<T>) {
         );
 }
 
-async function handler(args: Arguments<any>) {
+async function handler(args: Arguments<YfmArgv>) {
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
@@ -231,7 +233,6 @@ async function handler(args: Arguments<any>) {
                 outputFormat,
                 outputBundlePath,
                 tmpOutputFolder,
-                userOutputFolder,
             });
 
             await processChangelogs();
@@ -255,20 +256,25 @@ async function handler(args: Arguments<any>) {
                     storageSecretKey: secretAccessKey,
                 } = ArgvService.getConfig();
 
-                await publishFilesToS3({
-                    input: userOutputFolder,
-                    region: storageRegion,
-                    ignore: [...ignore, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER],
-                    endpoint,
-                    bucket,
-                    prefix,
-                    accessKeyId,
-                    secretAccessKey,
-                });
+                await publishFilesToS3(
+                    new Run({
+                        input: userOutputFolder,
+                        region: storageRegion,
+                        hidden: [...ignore, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER],
+                        endpoint,
+                        bucket,
+                        prefix,
+                        accessKeyId,
+                        secretAccessKey,
+                        quiet: false,
+                    }),
+                );
             }
         }
     } catch (err) {
-        logger.error('', err.message);
+        const message = err instanceof Error ? err.message : String(err);
+
+        logger.error('', message);
     } finally {
         processLogs(tmpInputFolder);
 

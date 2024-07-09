@@ -1,7 +1,7 @@
 import {Arguments} from 'yargs';
 import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
-import {load} from 'js-yaml';
+import {YAMLException, load} from 'js-yaml';
 import merge from 'lodash/merge';
 import log from '@diplodoc/transform/lib/log';
 import {LINT_CONFIG_FILENAME, REDIRECTS_FILENAME, YFM_CONFIG_FILENAME} from './constants';
@@ -95,7 +95,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
         const content = readFileSync(resolve(pathToConfig), 'utf8');
         Object.assign(argv, load(content) || {});
     } catch (error) {
-        if (error.name === 'YAMLException') {
+        if (error instanceof YAMLException) {
             log.error(`Error to parse ${YFM_CONFIG_FILENAME}: ${error.message}`);
         }
     }
@@ -107,7 +107,7 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
 
         lintConfig = load(content) || {};
     } catch (error) {
-        if (error.name === 'YAMLException') {
+        if (error instanceof YAMLException) {
             log.error(`Error to parse ${LINT_CONFIG_FILENAME}: ${error.message}`);
         }
     } finally {
@@ -127,11 +127,11 @@ export function argvValidator(argv: Arguments<Object>): Boolean {
 
         validateRedirects(redirects as RedirectsConfig, pathToRedirects);
     } catch (error) {
-        if (error.name === 'YAMLException') {
+        if (error instanceof YAMLException) {
             log.error(`Error to parse ${REDIRECTS_FILENAME}: ${error.message}`);
         }
 
-        if (error.code !== 'ENOENT') {
+        if (error instanceof Error && error.code !== 'ENOENT') {
             throw error;
         }
     }

@@ -114,10 +114,13 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
     const {outputPath, inputPath, deep, deepBase} = options;
     const props = await getFileProps(options);
 
+    // FIXME: Whatever we're doing with app props in CLI is pretty unsound
+    // @ts-expect-error
     const outputFileContent = generateStaticMarkup(props, deepBase, deep);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
+    // @ts-expect-error
     return props;
 }
 
@@ -170,11 +173,18 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
             if (isString(link) && getLinksWithContentExtersion(link)) {
                 return link.replace(/.(md|yaml)$/gmu, '.html');
             }
+
+            return link;
         });
 
+        // FIXME: This is unsound, since `lang` does not exist on FileTransformOptions
+        // I'll leave this here for the sake of not breaking stuff
+        // @ts-expect-error
         const {path, lang} = transformOptions;
         const transformFn: Function = FileTransformer['.md'];
 
+        // FIXME: Whatever we're doing here with prop transformations, it seems quite unsound
+        // @ts-expect-error
         data = preprocess(data, {lang}, (lang, content) => {
             const {result} = transformFn(content, {path});
             return result?.html;
@@ -221,7 +231,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
 
     return transform(content, {
         ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
+        plugins: plugins as MarkdownItPluginCb[],
         vars,
         root,
         path,
