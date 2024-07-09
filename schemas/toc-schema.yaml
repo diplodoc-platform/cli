@@ -63,6 +63,8 @@ definitions:
         translate: md
       expanded:
         type: boolean
+      labeled:
+        type: boolean
       hidden:
         type:
           - boolean
