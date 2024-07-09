@@ -117,7 +117,7 @@ export class Compose
                     this.logger.composed(file.path);
                 } catch (error: any) {
                     if (error instanceof TranslateError) {
-                        this.logger.error(file.path, `${error.message}`, error.code);
+                        this.logger.composeError(file.path, `${error.message}`);
 
                         if (error.fatal) {
                             process.exit(1);

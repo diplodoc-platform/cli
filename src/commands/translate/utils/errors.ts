@@ -1,3 +1,5 @@
+import {CriticalProcessingError} from '@diplodoc/translation';
+
 export class TranslateError extends Error {
     code: string;
 
@@ -13,7 +15,12 @@ export class TranslateError extends Error {
 
 export class ExtractError extends TranslateError {
     constructor(error: Error) {
-        super(error?.message || String(error), 'EXTRACT_ERROR');
+        const message =
+            error instanceof CriticalProcessingError
+                ? error.message + '\n' + error.info
+                : error?.message || String(error);
+
+        super(message, 'EXTRACT_ERROR');
     }
 }
 
