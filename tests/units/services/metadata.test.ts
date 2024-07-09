@@ -21,10 +21,9 @@ const contributors: Contributors = {
     [contributorFirst.email]: contributorFirst,
 };
 const contributorsArray: Contributor[] = Object.values(contributors);
-const contributorsString: string = replaceDoubleToSingleQuotes(JSON.stringify(contributorsArray));
 
 jest.mock('services/contributors', () => ({
-    getFileContributorsString: () => Promise.resolve(contributorsString),
+    getFileContributors: () => Promise.resolve(contributorsArray),
     getFileIncludes: () => Promise.resolve([]),
 }));
 
@@ -47,10 +46,19 @@ describe('getUpdatedMetadata', () => {
 
     beforeEach(() => {
         metaDataOptions = {
-            fileData: {
-                tmpInputFilePath: '',
-                inputFolderPathLength: 0,
-                fileContent: '',
+            pathData: {
+                pathToFile: '',
+                resolvedPathToFile: '',
+                filename: '',
+                fileBaseName: '',
+                fileExtension: '',
+                outputDir: '',
+                outputPath: '',
+                outputFormat: '',
+                outputBundlePath: '',
+                outputTocDir: '',
+                inputFolderPath: '',
+                outputFolderPath: '',
             },
             isContributorsEnabled: true,
             vcsConnector: defaultVCSConnector,
@@ -60,7 +68,7 @@ describe('getUpdatedMetadata', () => {
     test('returns new metadata with empty contributors when "isContributorsEnabled" is false', async () => {
         const fileContent = '';
         const expectedMetadata = {
-            contributors: '[]',
+            contributors: [],
         };
         metaDataOptions.isContributorsEnabled = false;
 
@@ -72,7 +80,7 @@ describe('getUpdatedMetadata', () => {
     test('returns new metadata with empty contributors when "vcsConnector" is undefined', async () => {
         const fileContent = '';
         const expectedMetadata = {
-            contributors: '[]',
+            contributors: [],
         };
         metaDataOptions.vcsConnector = undefined;
 
@@ -87,7 +95,7 @@ describe('getUpdatedMetadata', () => {
         async () => {
             const fileContent = '';
             const expectedMetadata = {
-                contributors: contributorsString,
+                contributors: contributorsArray,
             };
 
             const newMetadata = await getVCSMetadata(metaDataOptions, fileContent);
@@ -106,7 +114,7 @@ describe('getUpdatedMetadata', () => {
             };
             const expectedMetadata = {
                 ...meta,
-                contributors: '[]',
+                contributors: [],
                 author: null,
             };
             metaDataOptions.isContributorsEnabled = false;
@@ -128,7 +136,7 @@ describe('getUpdatedMetadata', () => {
             };
             const expectedMetadata = {
                 ...meta,
-                contributors: '[]',
+                contributors: [],
                 author: authorString,
             };
             metaDataOptions.isContributorsEnabled = false;
@@ -150,7 +158,7 @@ describe('getUpdatedMetadata', () => {
             };
             const expectedMetadata = {
                 ...meta,
-                contributors: '[]',
+                contributors: [],
                 author: null,
             };
             metaDataOptions.isContributorsEnabled = false;
