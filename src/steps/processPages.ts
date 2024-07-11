@@ -67,7 +67,11 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
             logger.proc(pathToFile);
 
-            const metaDataOptions = getMetaDataOptions(pathData, vcsConnector);
+            const metaDataOptions = getMetaDataOptions(
+                pathData,
+                inputFolderPath.length,
+                vcsConnector,
+            );
 
             await preparingPagesByOutputFormat(
                 pathData,
@@ -222,16 +226,22 @@ function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathDat
     });
 }
 
-function getMetaDataOptions(pathData: PathData, vcsConnector?: VCSConnector): MetaDataOptions {
-    const {contributors, addSystemMeta, resources, allowCustomResources, vcs} =
-        ArgvService.getConfig();
+function getMetaDataOptions(
+    pathData: PathData,
+    inputFolderPathLength: number,
+    vcsConnector?: VCSConnector,
+): MetaDataOptions {
+    const {contributors, addSystemMeta, resources, allowCustomResources} = ArgvService.getConfig();
 
     const metaDataOptions: MetaDataOptions = {
-        pathData,
         vcsConnector,
+        fileData: {
+            tmpInputFilePath: pathData.resolvedPathToFile,
+            inputFolderPathLength,
+            fileContent: '',
+        },
         isContributorsEnabled: Boolean(contributors && vcsConnector),
         addSystemMeta,
-        shouldAlwaysAddVCSPath: typeof vcs?.remoteBase === 'string' && vcs.remoteBase.length > 0,
     };
 
     if (allowCustomResources && resources) {

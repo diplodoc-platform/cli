@@ -1,92 +1,43 @@
 import {dump, load} from 'js-yaml';
+
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {MetaDataOptions, Metadata, PathData, Resources, VarsMetadata, YfmToc} from '../models';
+import {MetaDataOptions, Metadata, Resources, VarsMetadata, YfmToc} from '../models';
 import {
     getAuthorDetails,
     updateAuthorMetadataStringByAuthorLogin,
     updateAuthorMetadataStringByFilePath,
 } from './authors';
 import {
-    ContributorsServiceFileData,
     getFileContributorsMetadata,
     getFileContributorsString,
     getFileIncludes,
 } from './contributors';
 import {isObject} from './utils';
-import {carriageReturn} from '../utils';
+import {сarriage} from '../utils';
 import {REGEXP_AUTHOR, metadataBorder} from '../constants';
 import {TocService} from './index';
 
-function resolveAdditionalMetadata({
-    pathData,
-    shouldAlwaysAddVCSPath,
-}: MetaDataOptions): Record<string, unknown> {
-    return {
-        vcsPath: shouldAlwaysAddVCSPath ? pathData.pathToFile : undefined,
-    };
-}
-
 async function getContentWithUpdatedMetadata(
     fileContent: string,
-    options: MetaDataOptions,
+    options?: MetaDataOptions,
     systemVars?: unknown,
     metadataVars?: VarsMetadata,
 ): Promise<string> {
-    const {pathData, addSystemMeta, addSourcePath, resources} = options ?? {};
+    let result;
 
-    const withUpdatedStaticMeta = getContentWithUpdatedStaticMetadata({
+    result = getContentWithUpdatedStaticMetadata({
         fileContent,
-        sourcePath: pathData?.pathToFile,
-        addSystemMeta,
-        addSourcePath,
-        resources,
+        sourcePath: options?.fileData?.sourcePath,
+        addSystemMeta: options?.addSystemMeta,
+        addSourcePath: options?.addSourcePath,
+        resources: options?.resources,
         systemVars,
         metadataVars,
-        additionalMetadata: resolveAdditionalMetadata(options),
     });
 
-    return await getContentWithUpdatedDynamicMetadata(withUpdatedStaticMeta, options);
-}
+    result = await getContentWithUpdatedDynamicMetadata(result, options);
 
-type FileMetadata = {
-    [key: string]: unknown;
-    metadata?: Record<string, unknown>[];
-};
-
-type ParseExistingMetadataReturn = {
-    metadata: FileMetadata;
-    metadataStrippedContent: string;
-};
-
-function parseExistingMetadata(fileContent: string): ParseExistingMetadataReturn {
-    const matches = matchMetadata(fileContent);
-
-    if (matches && matches.length > 0) {
-        const [, metadata, , metadataStrippedContent] = matches;
-
-        return {
-            metadata: load(metadata) as FileMetadata,
-            metadataStrippedContent,
-        };
-    }
-
-    return {
-        metadata: {},
-        metadataStrippedContent: fileContent,
-    };
-}
-
-function serializeMetadata(objectMetadata: FileMetadata) {
-    const dumped = dump(objectMetadata).trimEnd();
-
-    // This empty object check is a bit naive
-    // The other option would be to check if all own fields are `undefined`,
-    // since we exploit passing in `undefined` to remove a field quite a bit
-    if (dumped === '{}') {
-        return '';
-    }
-
-    return `${metadataBorder}${carriageReturn}${dumped}${carriageReturn}${metadataBorder}${carriageReturn}`;
+    return result;
 }
 
 function getContentWithUpdatedStaticMetadata({
@@ -96,7 +47,6 @@ function getContentWithUpdatedStaticMetadata({
     addSourcePath,
     resources,
     systemVars,
-    additionalMetadata,
     metadataVars = [],
 }: {
     fileContent: string;
@@ -105,36 +55,59 @@ function getContentWithUpdatedStaticMetadata({
     addSourcePath?: boolean;
     resources?: Resources;
     systemVars?: unknown;
-    additionalMetadata?: Record<string, unknown>;
     metadataVars?: VarsMetadata;
 }): string {
-    const {metadata, metadataStrippedContent} = parseExistingMetadata(fileContent);
+    const newMetadatas: string[] = [];
 
-    const mergedInnerMetadata: FileMetadata['metadata'] = [
-        ...(metadata.metadata ?? []),
-        ...metadataVars,
-    ];
+    if (
+        (!addSystemMeta || !systemVars) &&
+        !addSourcePath &&
+        !resources &&
+        metadataVars.length === 0
+    ) {
+        return fileContent;
+    }
 
-    // Technically, we could use the trick of creating a property, but setting it to `undefined`
-    // That way js-yaml wouldn't include it in the serialized YAML
-    // However, that way, this would overwrite (delete) existing properties, e.g.: sourcePath
-    // Because of this, we spread objects to create properties if necessary
-    const systemVarsMetadataToSpread =
-        addSystemMeta && isObject(systemVars) ? {__system: JSON.stringify(systemVars)} : undefined;
-    const sourcePathMetadataToSpread = addSourcePath && sourcePath ? {sourcePath} : undefined;
-    const innerMetadataToSpread =
-        mergedInnerMetadata.length > 0 ? {metadata: mergedInnerMetadata} : undefined;
+    const matches = matchMetadata(fileContent);
 
-    const mergedMetadata: FileMetadata = {
-        ...metadata,
-        ...resources,
-        ...additionalMetadata,
-        ...systemVarsMetadataToSpread,
-        ...sourcePathMetadataToSpread,
-        ...innerMetadataToSpread,
-    };
+    if (addSystemMeta && systemVars && isObject(systemVars)) {
+        newMetadatas.push(getSystemVarsMetadataString(systemVars));
+    }
 
-    return `${serializeMetadata(mergedMetadata)}${metadataStrippedContent}`;
+    if (resources) {
+        newMetadatas.push(dump(resources));
+    }
+
+    if (addSourcePath && sourcePath) {
+        const sourcePathMetadataString = `sourcePath: ${sourcePath}`;
+        newMetadatas.push(sourcePathMetadataString);
+    }
+
+    if (matches && matches.length > 0) {
+        const [, fileMetadata, , fileMainContent] = matches;
+
+        if (!metadataVars.length) {
+            return `${getUpdatedMetadataString(newMetadatas, fileMetadata)}${fileMainContent}`;
+        }
+
+        const parsed = load(fileMetadata) as Record<string, any>;
+
+        if (!Array.isArray(parsed.metadata)) {
+            parsed.metadata = [parsed.metadata];
+        }
+
+        parsed.metadata = parsed.metadata.concat(metadataVars).filter(Boolean);
+
+        const patchedMetada = dump(parsed);
+
+        return `${getUpdatedMetadataString(newMetadatas, patchedMetada)}${fileMainContent}`;
+    }
+
+    if (metadataVars.length) {
+        newMetadatas.push(dump({metadata: metadataVars}));
+    }
+
+    return `${getUpdatedMetadataString(newMetadatas)}${fileContent}`;
 }
 
 async function getContentWithUpdatedDynamicMetadata(
@@ -181,7 +154,10 @@ async function getContentWithUpdatedDynamicMetadata(
         }
 
         if (!authorMetadata) {
-            const {pathToFile: relativeFilePath} = options.pathData;
+            const {
+                fileData: {tmpInputFilePath, inputFolderPathLength},
+            } = options;
+            const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength);
             authorMetadata = await updateAuthorMetadataStringByFilePath(
                 relativeFilePath,
                 options.vcsConnector,
@@ -223,52 +199,43 @@ function matchMetadata(fileContent: string) {
     // Search by format:
     // ---
     // main content 123
-    const regexpFileContent = '-{3}\\r?\\n((.*[\r?\n]*)*)';
+    const regexpFileContent = '-{3}((.*[\r?\n]*)*)';
 
     const regexpParseFileContent = new RegExp(`${regexpMetadata}${regexpFileContent}`, 'gm');
 
     return regexpParseFileContent.exec(fileContent);
 }
 
-function getFileDataForContributorsService(
-    pathData: PathData,
-    fileContent: string,
-): ContributorsServiceFileData {
-    return {
-        fileContent,
-        resolvedFilePath: pathData.resolvedPathToFile,
-        inputFolderPathLength: pathData.inputFolderPath.length,
-    };
-}
-
 async function getContributorsMetadataString(
     options: MetaDataOptions,
     fileContent: string,
 ): Promise<string | undefined> {
-    const {isContributorsEnabled, vcsConnector, pathData} = options;
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
 
     if (isContributorsEnabled && vcsConnector) {
-        return getFileContributorsMetadata(
-            getFileDataForContributorsService(pathData, fileContent),
-            vcsConnector,
-        );
+        const updatedFileData = {
+            ...fileData,
+            fileContent,
+        };
+
+        return getFileContributorsMetadata(updatedFileData, vcsConnector);
     }
 
     return undefined;
 }
 
 async function getModifiedTimeMetadataString(options: MetaDataOptions, fileContent: string) {
-    const {isContributorsEnabled, vcsConnector, pathData} = options;
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
 
-    const {pathToFile: relativeFilePath} = pathData;
+    const {tmpInputFilePath, inputFolderPathLength} = fileData;
+
+    const relativeFilePath = tmpInputFilePath.substring(inputFolderPathLength + 1);
 
     if (!isContributorsEnabled || !vcsConnector) {
         return undefined;
     }
 
-    const includedFiles = await getFileIncludes(
-        getFileDataForContributorsService(pathData, fileContent),
-    );
+    const includedFiles = await getFileIncludes({...fileData, fileContent});
     includedFiles.push(relativeFilePath);
 
     const tocCopyFileMap = TocService.getCopyFileMap();
@@ -289,14 +256,13 @@ async function getModifiedTimeMetadataString(options: MetaDataOptions, fileConte
 }
 
 function getUpdatedMetadataString(newMetadatas: string[], defaultMetadata = ''): string {
-    const newMetadata =
-        newMetadatas.join(carriageReturn) + (newMetadatas.length ? carriageReturn : '');
+    const newMetadata = newMetadatas.join(сarriage) + (newMetadatas.length ? сarriage : '');
     const preparedDefaultMetadata = defaultMetadata.trimRight();
-    const defaultMetadataСarriage = preparedDefaultMetadata ? carriageReturn : '';
+    const defaultMetadataСarriage = preparedDefaultMetadata ? сarriage : '';
     const updatedMetadata = `${preparedDefaultMetadata}${defaultMetadataСarriage}${newMetadata}`;
 
-    return `${metadataBorder}${carriageReturn}${updatedMetadata}${metadataBorder}${
-        defaultMetadata.length ? '' : carriageReturn
+    return `${metadataBorder}${сarriage}${updatedMetadata}${metadataBorder}${
+        defaultMetadata.length ? '' : сarriage
     }`;
 }
 
@@ -328,13 +294,15 @@ async function getContributorsMetadata(
     options: MetaDataOptions,
     fileContent: string,
 ): Promise<string> {
-    const {isContributorsEnabled, vcsConnector, pathData} = options;
+    const {isContributorsEnabled, vcsConnector, fileData} = options;
 
     if (isContributorsEnabled && vcsConnector) {
-        return getFileContributorsString(
-            getFileDataForContributorsService(pathData, fileContent),
-            vcsConnector,
-        );
+        const updatedFileData = {
+            ...fileData,
+            fileContent,
+        };
+
+        return getFileContributorsString(updatedFileData, vcsConnector);
     }
 
     return JSON.stringify([]);
@@ -351,6 +319,10 @@ async function getAuthorMetadata(
     }
 
     return null;
+}
+
+function getSystemVarsMetadataString(systemVars: object) {
+    return `__system: ${JSON.stringify(systemVars)}`;
 }
 
 function getAssetsPublicPath(filePath: string) {

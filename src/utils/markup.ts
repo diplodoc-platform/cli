@@ -13,7 +13,7 @@ import {isFileExists, resolveRelativePath} from '@diplodoc/transform/lib/utilsFS
 
 import {escape} from 'html-escaper';
 
-export const carriageReturn = platform === Platforms.WINDOWS ? '\r\n' : '\n';
+export const сarriage = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export interface TitleMeta {
     title?: string;
@@ -117,7 +117,7 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
         }, '');
 
         if (args.length) {
-            result += `<meta ${args} />` + carriageReturn;
+            result += `<meta ${args} />` + сarriage;
         }
     };
 
