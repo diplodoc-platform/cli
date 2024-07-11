@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.33.0](https://github.com/diplodoc-platform/cli/compare/v4.32.3...v4.33.0) (2024-07-11)
+
+
+### Features
+
+* add label ([b0f9c29](https://github.com/diplodoc-platform/cli/commit/b0f9c291d1a6782cc0dbe05a56612ea1786c5bdc))
+* implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests) ([ad1b879](https://github.com/diplodoc-platform/cli/commit/ad1b8798f67c803d67545152ba06f1981f1a5215))
+* resolve `vcsPath` correctly when `sourcePath` was supplied beforehand, refactor metadata generation procedures ([568f43b](https://github.com/diplodoc-platform/cli/commit/568f43b10ac3c744ba4b0cdadf4f5041f1fb1dff))
+
+
+### Bug Fixes
+
+* **deps:** Update openapi ([8e1f74e](https://github.com/diplodoc-platform/cli/commit/8e1f74ef056428b60f137aee7358e524dc7fafff))
+
 ## [4.32.3](https://github.com/diplodoc-platform/cli/compare/v4.32.2...v4.32.3) (2024-07-09)
 
 
