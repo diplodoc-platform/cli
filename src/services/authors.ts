@@ -1,12 +1,12 @@
-import {Contributor} from '../models';
+import {replaceDoubleToSingleQuotes} from '../utils';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
-async function updateAuthorMetadataStringByAuthorData(
-    authorLogin: string | object,
+async function updateAuthorMetadataStringByAuthorLogin(
+    authorLogin: string,
     vcsConnector?: VCSConnector,
-): Promise<Contributor | null> {
+): Promise<string> {
     if (!vcsConnector) {
-        return null;
+        return '';
     }
 
     const user = await getAuthorDetails(vcsConnector, authorLogin);
@@ -15,41 +15,44 @@ async function updateAuthorMetadataStringByAuthorData(
         return user;
     }
 
-    return null;
+    return '';
 }
 
 async function updateAuthorMetadataStringByFilePath(
     filePath: string,
     vcsConnector?: VCSConnector,
-): Promise<Contributor | null> {
+): Promise<string> {
     if (!vcsConnector) {
-        return null;
+        return '';
     }
 
     const user = vcsConnector.getExternalAuthorByPath(filePath);
 
     if (user) {
-        return user;
+        const author = replaceDoubleToSingleQuotes(JSON.stringify(user));
+        return author;
     }
 
-    return null;
+    return '';
 }
 
 async function getAuthorDetails(
     vcsConnector: VCSConnector,
     author: string | object,
-): Promise<Contributor | null> {
+): Promise<string | null> {
     if (typeof author === 'object') {
-        return author as Contributor;
+        // Avoiding problems when adding to html markup
+        return replaceDoubleToSingleQuotes(JSON.stringify(author));
     }
 
     try {
-        return JSON.parse(author);
+        JSON.parse(author);
+        return replaceDoubleToSingleQuotes(author);
     } catch {
         const user = await vcsConnector.getUserByLogin(author);
 
         if (user) {
-            return user;
+            return replaceDoubleToSingleQuotes(JSON.stringify(user));
         }
 
         return null;
@@ -57,7 +60,7 @@ async function getAuthorDetails(
 }
 
 export {
-    updateAuthorMetadataStringByAuthorData as updateAuthorMetadataStringByAuthorLogin,
+    updateAuthorMetadataStringByAuthorLogin,
     updateAuthorMetadataStringByFilePath,
     getAuthorDetails,
 };

@@ -1,5 +1,7 @@
 import {readFile} from 'fs/promises';
 import {dirname, join} from 'path';
+
+import {replaceDoubleToSingleQuotes} from '../utils';
 import {REGEXP_INCLUDE_CONTENTS, REGEXP_INCLUDE_FILE_PATH} from '../constants';
 import {Contributor, Contributors} from '../models';
 import {FileContributors, VCSConnector} from '../vcs-connector/connector-models';
@@ -10,10 +12,19 @@ export interface ContributorsServiceFileData {
     fileContent: string;
 }
 
-export async function getFileContributors(
+async function getFileContributorsMetadata(
     fileData: ContributorsServiceFileData,
     vcsConnector: VCSConnector,
-): Promise<Contributor[]> {
+): Promise<string> {
+    const contributors = await getFileContributorsString(fileData, vcsConnector);
+
+    return `contributors: ${contributors}`;
+}
+
+async function getFileContributorsString(
+    fileData: ContributorsServiceFileData,
+    vcsConnector: VCSConnector,
+): Promise<string> {
     const {resolvedFilePath, inputFolderPathLength} = fileData;
 
     const relativeFilePath = resolvedFilePath.substring(inputFolderPathLength);
@@ -35,7 +46,7 @@ export async function getFileContributors(
         fileContributorsWithContributorsIncludedFiles,
     ).map(([, contributor]) => contributor);
 
-    return contributorsArray;
+    return replaceDoubleToSingleQuotes(JSON.stringify(contributorsArray));
 }
 
 async function getContributorsForNestedFiles(
@@ -112,7 +123,7 @@ function getRelativeIncludeFilePaths(
     return relativeIncludeFilePaths;
 }
 
-export async function getFileIncludes(fileData: ContributorsServiceFileData) {
+async function getFileIncludes(fileData: ContributorsServiceFileData) {
     const {fileContent, inputFolderPathLength} = fileData;
 
     const results = new Set<string>();
@@ -150,3 +161,5 @@ export async function getFileIncludes(fileData: ContributorsServiceFileData) {
 
     return Array.from(results.values());
 }
+
+export {getFileContributorsMetadata, getFileContributorsString, getFileIncludes};

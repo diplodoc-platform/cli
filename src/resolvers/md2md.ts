@@ -8,24 +8,22 @@ import {ArgvService, PluginService} from '../services';
 import {getVarsPerFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
+import {getContentWithUpdatedMetadata} from '../services/metadata';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
-import {enrichWithFrontMatter} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata: metadataOptions} = options;
     const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
 
-    const vars = getVarsPerFile(inputPath);
+    const varsPreset = getVarsPerFile(inputPath);
 
-    const content = await enrichWithFrontMatter({
-        fileContent: readFileSync(resolvedInputPath, 'utf8'),
+    const content = await getContentWithUpdatedMetadata(
+        readFileSync(resolvedInputPath, 'utf8'),
         metadataOptions,
-        resolvedFrontMatterVars: {
-            systemVars: vars.__system as unknown,
-            metadataVars: vars.__metadata,
-        },
-    });
+        varsPreset.__system as unknown,
+        varsPreset.__metadata,
+    );
 
     const {result, changelogs} = transformMd2Md(content, {
         path: resolvedInputPath,
@@ -33,7 +31,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         root: resolve(input),
         destRoot: resolve(output),
         collectOfPlugins: PluginService.getCollectOfPlugins(),
-        vars: vars,
+        vars: varsPreset,
         log,
         copyFile,
     });

@@ -2,11 +2,15 @@
   "compilerOptions": {
     "target": "es2019",
     "moduleResolution": "NodeNext",
-    "module": "NodeNext",
     "esModuleInterop": true,
     "paths": {
-      "*": ["../src/*"]
+      "*": [
+        "../src/*"
+      ]
     },
-    "types": ["node", "jest"]
+    "types": [
+      "node",
+      "jest"
+    ]
   }
 }

@@ -8,12 +8,12 @@ import log from '@diplodoc/transform/lib/log';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
+import {getContentWithUpdatedStaticMetadata} from './metadata';
 import {YfmToc} from '../models';
 import {IncludeMode, Stage} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterItem, firstFilterTextItems, liquidField} from './utils';
 import {IncludersError, applyIncluders} from './includers';
-import {addSourcePath} from './metadata';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;
@@ -279,7 +279,11 @@ function _copyTocDir(tocPath: string, destDir: string) {
         if (isMdFile) {
             const fileContent = readFileSync(from, 'utf8');
             const sourcePath = relative(inputFolderPath, from);
-            const updatedFileContent = addSourcePath(fileContent, sourcePath);
+            const updatedFileContent = getContentWithUpdatedStaticMetadata({
+                fileContent,
+                sourcePath,
+                addSourcePath: true,
+            });
 
             writeFileSync(to, updatedFileContent);
         } else {
