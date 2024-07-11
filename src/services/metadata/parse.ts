@@ -41,7 +41,7 @@ const matchMetadata = (fileContent: string) => {
  * @returns String with `{}` escaped, ready to be parsed with `js-yaml`
  */
 const escapeLiquidSubstitutionSyntax = (content: string): string =>
-    content.replace(/{{/g, '\\{\\{').replace(/}}/g, '\\}\\}');
+    content.replace(/{{/g, '(({{').replace(/}}/g, '}}))');
 
 /**
  * Inverse of a workaround defined above.
@@ -50,7 +50,7 @@ const escapeLiquidSubstitutionSyntax = (content: string): string =>
  * @returns Unescaped string
  */
 const unescapeLiquidSubstitutionSyntax = (escapedContent: string): string =>
-    escapedContent.replace(/\\{\\{/g, '{{').replace(/\\}\\}/g, '}}');
+    escapedContent.replace(/\(\({{/g, '{{').replace(/}}\)\)/g, '}}');
 
 export const parseExistingMetadata = (fileContent: string): ParseExistingMetadataReturn => {
     const matches = matchMetadata(fileContent);
