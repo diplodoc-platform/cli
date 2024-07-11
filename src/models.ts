@@ -230,7 +230,6 @@ export interface MetaDataOptions {
     isContributorsEnabled?: boolean;
     vcsConnector?: VCSConnector;
     addSystemMeta?: boolean;
-    addSourcePath?: boolean;
     resources?: Resources;
     shouldAlwaysAddVCSPath?: boolean;
 }
