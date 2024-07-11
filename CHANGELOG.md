@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.33.1](https://github.com/diplodoc-platform/cli/compare/v4.33.0...v4.33.1) (2024-07-11)
+
+
+### Bug Fixes
+
+* Revert "feat: implement an option to always provide `vcsPath` in metadata for md-&gt;md transformations (sans tests)" ([a3455a5](https://github.com/diplodoc-platform/cli/commit/a3455a53b4aefb7c06676078a572fbdc4e2db701))
+
 ## [4.33.0](https://github.com/diplodoc-platform/cli/compare/v4.32.3...v4.33.0) (2024-07-11)
 
 
