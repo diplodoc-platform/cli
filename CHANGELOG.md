@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.34.0](https://github.com/diplodoc-platform/cli/compare/v4.33.1...v4.34.0) (2024-07-12)
+
+
+### Features
+
+* Use different escaping strategy for Liquid-style substitutions in YAML format front matter ([#804](https://github.com/diplodoc-platform/cli/issues/804)) ([1115459](https://github.com/diplodoc-platform/cli/commit/1115459b5a31522f222d71ec46a77bb182cda94d))
+
 ## [4.33.1](https://github.com/diplodoc-platform/cli/compare/v4.33.0...v4.33.1) (2024-07-11)
 
 
