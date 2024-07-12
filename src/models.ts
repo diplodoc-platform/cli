@@ -27,6 +27,31 @@ export type UserByLoginFunction = (login: string) => Promise<Contributor | null>
 export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
 export type GetModifiedTimeByPathFunction = (filepath: string) => number | undefined;
 
+/**
+ * VCS integration configuration object.
+ * Future VCS futures should be configured with this one, not with
+ * `VCSConnectorConfig`.
+ */
+interface VCSConfiguration {
+    /**
+     * Externally accessible base URI for a resource where a particular documentation
+     * source is hosted.
+     *
+     * This configuration parameter is used to directly control the Edit button behaviour
+     * in the Diplodoc documentation viewer(s).
+     *
+     * For example, if the following applies:
+     * - Repo with doc source is hosted on GitHub (say, https://github.com/foo-org/bar),
+     * - Within that particular repo, the directory that is being passed as an `--input`
+     *   parameter to the CLI is located at `docs/`,
+     * - Whenever the Edit button is pressed, you wish to direct your readers to the
+     *   respective document's source on `main` branch
+     *
+     * you should pass `https://github.com/foo-org/bar/tree/main/docs` as a value for this parameter.
+     */
+    remoteBase: string;
+}
+
 interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
@@ -41,6 +66,7 @@ interface YfmConfig {
     ignoreStage: string;
     singlePage: boolean;
     removeHiddenTocItems: boolean;
+    vcs?: VCSConfiguration;
     connector?: VCSConnectorConfig;
     lang?: Lang;
     langs?: Lang[];
@@ -199,20 +225,13 @@ export interface Contributors {
     [email: string]: Contributor;
 }
 
-export interface FileData {
-    tmpInputFilePath: string;
-    inputFolderPathLength: number;
-    fileContent: string;
-    sourcePath?: string;
-}
-
 export interface MetaDataOptions {
-    fileData: FileData;
+    pathData: PathData;
     isContributorsEnabled?: boolean;
     vcsConnector?: VCSConnector;
     addSystemMeta?: boolean;
-    addSourcePath?: boolean;
     resources?: Resources;
+    shouldAlwaysAddVCSPath?: boolean;
 }
 
 export interface PluginOptions {
@@ -236,7 +255,7 @@ export interface Plugin {
 export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
-    metadata?: MetaDataOptions;
+    metadata: MetaDataOptions;
 }
 
 export interface ResolverOptions {
