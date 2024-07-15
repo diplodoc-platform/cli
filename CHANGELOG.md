@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.34.1](https://github.com/diplodoc-platform/cli/compare/v4.34.0...v4.34.1) (2024-07-15)
+
+
+### Bug Fixes
+
+* **deps:** Update translation dep ([ecaeabc](https://github.com/diplodoc-platform/cli/commit/ecaeabc31a48b16d38c3cd958feb2b5887f2222a))
+
 ## [4.34.0](https://github.com/diplodoc-platform/cli/compare/v4.33.1...v4.34.0) (2024-07-12)
 
 
