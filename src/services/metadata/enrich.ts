@@ -42,9 +42,11 @@ export const enrichWithFrontMatter = async ({
         metadataVars,
         systemVars: addSystemMeta ? systemVars : undefined,
         additionalMetadata: {
-            vcsPath: shouldAlwaysAddVCSPath
-                ? resolveVCSPath(metadata, pathData.pathToFile)
-                : undefined,
+            vcsPath:
+                metadata.vcsPath ??
+                (shouldAlwaysAddVCSPath
+                    ? resolveVCSPath(metadata, pathData.pathToFile)
+                    : undefined),
             ...vcsFrontMatter,
         },
     });
