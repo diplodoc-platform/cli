@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.34.2](https://github.com/diplodoc-platform/cli/compare/v4.34.1...v4.34.2) (2024-07-15)
+
+
+### Bug Fixes
+
+* preserve existing `vcsPath` when enriching a file with front matter ([58de41e](https://github.com/diplodoc-platform/cli/commit/58de41efb04834d06daec3fa517ab2f241608b87))
+
 ## [4.34.1](https://github.com/diplodoc-platform/cli/compare/v4.34.0...v4.34.1) (2024-07-15)
 
 
