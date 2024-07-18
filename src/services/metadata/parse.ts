@@ -1,5 +1,6 @@
-import {dump, load} from 'js-yaml';
+import {YAMLException, dump, load} from 'js-yaml';
 import {metadataBorder} from '../../constants';
+import {logger} from '../../utils';
 
 export type FileMetadata = {
     [key: string]: unknown;
@@ -33,6 +34,31 @@ const matchMetadata = (fileContent: string) => {
     return regexpParseFileContent.exec(fileContent);
 };
 
+const duplicateKeysCompatibleLoad = (yaml: string, filePath: string | undefined) => {
+    try {
+        return load(yaml);
+    } catch (e) {
+        if (e instanceof YAMLException) {
+            const duplicateKeysDeprecationWarning = `
+                Encountered a YAML parsing exception when processing file metadata: ${e.reason}.
+                It's highly possible the input file contains duplicate mapping keys.
+                Will retry processing with necessary compatibility flags.
+                Please note that this behaviour is DEPRECATED and WILL be removed in a future version
+                without further notice, so the build WILL fail when supplied with YAML-incompatible meta.
+            `
+                .replace(/^\s+/gm, '')
+                .replace(/\n/g, ' ')
+                .trim();
+
+            logger.warn(filePath ?? '', duplicateKeysDeprecationWarning);
+
+            return load(yaml, {json: true});
+        }
+
+        throw e;
+    }
+};
+
 /**
  * Temporary workaround to enable parsing YAML metadata from potentially
  * Liquid-aware source files
@@ -52,14 +78,20 @@ const escapeLiquidSubstitutionSyntax = (content: string): string =>
 const unescapeLiquidSubstitutionSyntax = (escapedContent: string): string =>
     escapedContent.replace(/\(\({{/g, '{{').replace(/}}\)\)/g, '}}');
 
-export const parseExistingMetadata = (fileContent: string): ParseExistingMetadataReturn => {
+export const parseExistingMetadata = (
+    fileContent: string,
+    filePath?: string,
+): ParseExistingMetadataReturn => {
     const matches = matchMetadata(fileContent);
 
     if (matches && matches.length > 0) {
         const [, metadata, , metadataStrippedContent] = matches;
 
         return {
-            metadata: load(escapeLiquidSubstitutionSyntax(metadata)) as FileMetadata,
+            metadata: duplicateKeysCompatibleLoad(
+                escapeLiquidSubstitutionSyntax(metadata),
+                filePath,
+            ) as FileMetadata,
             metadataStrippedContent,
         };
     }
