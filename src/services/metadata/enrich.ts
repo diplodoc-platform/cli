@@ -30,7 +30,11 @@ export const enrichWithFrontMatter = async ({
 }: EnrichWithFrontMatterOptions) => {
     const {systemVars, metadataVars} = resolvedFrontMatterVars;
     const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
-    const {metadata, metadataStrippedContent} = parseExistingMetadata(fileContent);
+
+    const {metadata, metadataStrippedContent} = parseExistingMetadata(
+        fileContent,
+        pathData.pathToFile,
+    );
 
     const vcsFrontMatter = metadataOptions.isContributorsEnabled
         ? await resolveVCSFrontMatter(metadata, metadataOptions, fileContent)
