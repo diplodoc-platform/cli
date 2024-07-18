@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.34.3](https://github.com/diplodoc-platform/cli/compare/v4.34.2...v4.34.3) (2024-07-18)
+
+
+### Bug Fixes
+
+* retry parsing existing metadata with duplicate key compatibility ([d1eff78](https://github.com/diplodoc-platform/cli/commit/d1eff78c0210765933b76ee1cf173966bcdc658a))
+
 ## [4.34.2](https://github.com/diplodoc-platform/cli/compare/v4.34.1...v4.34.2) (2024-07-15)
 
 
