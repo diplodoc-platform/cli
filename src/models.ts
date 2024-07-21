@@ -1,6 +1,7 @@
 import {Logger} from '@diplodoc/transform/lib/log';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
+import type {DocAnalytics} from '@diplodoc/client';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
@@ -81,6 +82,7 @@ interface YfmConfig {
      * <URL> -> extract and push to s3
      */
     changelogs?: string | boolean;
+    analytics?: DocAnalytics;
 }
 
 export interface YfmArgv extends YfmConfig {
