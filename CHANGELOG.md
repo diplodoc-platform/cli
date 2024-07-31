@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.35.0](https://github.com/diplodoc-platform/cli/compare/v4.34.3...v4.35.0) (2024-07-31)
+
+
+### Features
+
+* add analytics config ([#812](https://github.com/diplodoc-platform/cli/issues/812)) ([17d874e](https://github.com/diplodoc-platform/cli/commit/17d874e7be519e289e3d7b791fd6cac4afe1105a))
+
 ## [4.34.3](https://github.com/diplodoc-platform/cli/compare/v4.34.2...v4.34.3) (2024-07-18)
 
 
