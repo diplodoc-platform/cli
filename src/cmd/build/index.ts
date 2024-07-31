@@ -19,7 +19,7 @@ import {
     processServiceFiles,
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
-import {copyFiles, logger} from '../../utils';
+import {copyFiles, getMetaFile, logger, makeMetaFile} from '../../utils';
 import {upload as publishFilesToS3} from '../../commands/publish/upload';
 
 export const build = {
@@ -201,10 +201,10 @@ async function handler(args: Arguments<any>) {
             addMapFile,
         } = ArgvService.getConfig();
 
-        preparingTemporaryFolders(userOutputFolder);
+        await preparingTemporaryFolders(userOutputFolder);
 
         await processServiceFiles();
-        processExcludedFiles();
+        await processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
@@ -226,7 +226,7 @@ async function handler(args: Arguments<any>) {
 
         if (!buildDisabled) {
             // process additional files
-            processAssets({
+            await processAssets({
                 args,
                 outputFormat,
                 outputBundlePath,
@@ -276,7 +276,7 @@ async function handler(args: Arguments<any>) {
     }
 }
 
-function preparingTemporaryFolders(userOutputFolder: string) {
+async function preparingTemporaryFolders(userOutputFolder: string) {
     const args = ArgvService.getConfig();
 
     shell.mkdir('-p', userOutputFolder);
@@ -285,15 +285,28 @@ function preparingTemporaryFolders(userOutputFolder: string) {
     shell.rm('-rf', args.input, args.output);
     shell.mkdir(args.input, args.output);
 
-    copyFiles(
+    const files = glob.sync('**', {
+        cwd: args.rootInput,
+        nodir: true,
+        follow: true,
+        ignore: ['node_modules/**', '*/node_modules/**'],
+    });
+
+    const meta = await getMetaFile(
+        userOutputFolder,
+    );
+
+    await copyFiles(
         args.rootInput,
         args.input,
-        glob.sync('**', {
-            cwd: args.rootInput,
-            nodir: true,
-            follow: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        }),
+        files,
+        meta,
+    );
+
+    await makeMetaFile(
+        userOutputFolder,
+        args.rootInput,
+        files,
     );
 
     shell.chmod('-R', 'u+w', args.input);

@@ -5,7 +5,7 @@ import shell from 'shelljs';
 import {join, resolve, sep} from 'path';
 
 import {ArgvService, TocService} from '../services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
+import {checkPathExists, copyFiles, findAllValuesByKeys, getMetaFile} from '../utils';
 
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
@@ -33,23 +33,28 @@ type Props = {
     outputBundlePath: string;
     outputFormat: string;
     tmpOutputFolder: string;
+    userOutputFolder: string;
 };
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
+export async function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder, userOutputFolder}: Props) {
     switch (outputFormat) {
         case 'html':
-            processAssetsHtmlRun({outputBundlePath});
+            await processAssetsHtmlRun({outputBundlePath, userOutputFolder});
             break;
         case 'md':
-            processAssetsMdRun({args, tmpOutputFolder});
+            await processAssetsMdRun({args, tmpOutputFolder, userOutputFolder});
             break;
     }
 }
 
-function processAssetsHtmlRun({outputBundlePath}) {
+async function processAssetsHtmlRun({outputBundlePath, userOutputFolder}) {
     const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
+
+    const meta = await getMetaFile(
+        userOutputFolder,
+    );
 
     const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
         directories: false,
@@ -57,7 +62,7 @@ function processAssetsHtmlRun({outputBundlePath}) {
         ignore: ['**/*.yaml', '**/*.md'],
     });
 
-    copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
+    await copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath, meta);
 
     const hasRTLlang = hasIntersection(langs, RTL_LANGS);
     const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
@@ -66,10 +71,14 @@ function processAssetsHtmlRun({outputBundlePath}) {
         ignore: !hasRTLlang && ['**/*.rtl.css'],
     });
 
-    copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+    await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, meta);
 }
 
-function processAssetsMdRun({args, tmpOutputFolder}) {
+async function processAssetsMdRun({args, tmpOutputFolder, userOutputFolder}) {
+    const meta = await getMetaFile(
+        userOutputFolder,
+    );
+
     const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
@@ -92,7 +101,7 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         );
 
         //copy resources
-        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+        await copyFiles(args.input, tmpOutputFolder, resourcePaths);
     }
 
     const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
@@ -104,7 +113,7 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         return acc;
     }, []);
 
-    tocYamlFiles.forEach((yamlFile) => {
+    for (const yamlFile of tocYamlFiles) {
         const content = load(readFileSync(yamlFile, 'utf8'));
 
         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
@@ -130,8 +139,8 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
             [],
         );
 
-        copyFiles(args.input, tmpOutputFolder, localMediaLinks);
-    });
+        await copyFiles(args.input, tmpOutputFolder, localMediaLinks, meta);
+    }
 }
 
 function hasIntersection(array1, array2) {
