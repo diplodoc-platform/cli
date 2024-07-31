@@ -1,14 +1,15 @@
 import type {Run} from './run';
 import {join} from 'path';
 import {asyncify, mapLimit} from 'async';
-import walkSync from 'walk-sync';
 import mime from 'mime-types';
 import {LogLevel} from '~/logger';
+import {walk} from '~/utils';
 
 export async function upload(run: Run): Promise<void> {
     const {input, endpoint, bucket, prefix, hidden = []} = run.config;
     const logUpload = run.logger.topic(LogLevel.INFO, 'UPLOAD');
-    const filesToPublish: string[] = walkSync(run.root, {
+    const filesToPublish: string[] = walk({
+        folder: run.root,
         directories: false,
         includeBasePath: false,
         ignore: hidden,

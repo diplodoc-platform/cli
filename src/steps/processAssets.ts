@@ -1,14 +1,10 @@
-import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
-import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {join, resolve, sep} from 'path';
 
-import {ArgvService, TocService} from '../services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
-
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
 import {
     ASSETS_FOLDER,
@@ -16,9 +12,12 @@ import {
     REDIRECTS_FILENAME,
     RTL_LANGS,
     YFM_CONFIG_FILENAME,
-} from '../constants';
-import {Resources} from '../models';
-import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+} from '~/constants';
+import {ArgvService, TocService} from '~/services';
+import {checkPathExists, copyFiles, findAllValuesByKeys, walk} from '~/utils';
+import {Resources, YfmArgv} from '~/models';
+import {RevisionContext} from '~/context/context';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
 /**
  * @param {Array} args
@@ -29,47 +28,53 @@ import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
  */
 
 type Props = {
-    args: string[];
+    args: YfmArgv;
     outputBundlePath: string;
     outputFormat: string;
     tmpOutputFolder: string;
+    userOutputFolder: string;
+    context: RevisionContext;
+    fs: FsContext;
 };
+
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
-    switch (outputFormat) {
+export async function processAssets(props: Props) {
+    switch (props.outputFormat) {
         case 'html':
-            processAssetsHtmlRun({outputBundlePath});
+            await processAssetsHtmlRun(props);
             break;
         case 'md':
-            processAssetsMdRun({args, tmpOutputFolder});
+            await processAssetsMdRun(props);
             break;
     }
 }
 
-function processAssetsHtmlRun({outputBundlePath}) {
+async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
     const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
 
-    const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
+    const documentationAssetFilePath: string[] = walk({
+        folder: inputFolderPath,
         directories: false,
         includeBasePath: false,
         ignore: ['**/*.yaml', '**/*.md'],
     });
 
-    copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
+    await copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath, context.meta);
 
     const hasRTLlang = hasIntersection(langs, RTL_LANGS);
-    const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
+    const bundleAssetFilePath: string[] = walk({
+        folder: ASSETS_FOLDER,
         directories: false,
         includeBasePath: false,
-        ignore: !hasRTLlang && ['**/*.rtl.css'],
+        ignore: hasRTLlang ? undefined : ['**/*.rtl.css'],
     });
 
-    copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+    await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
 }
 
-function processAssetsMdRun({args, tmpOutputFolder}) {
+async function processAssetsMdRun({args, tmpOutputFolder, context, fs}: Props) {
     const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
@@ -88,11 +93,11 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
             resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)),
         );
 
-        //copy resources
-        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+        // copy resources
+        await copyFiles(args.input, tmpOutputFolder, resourcePaths, context.meta);
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
+    const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
         if (file.endsWith('.yaml')) {
             const resolvedPathToFile = resolve(inputFolderPath, file);
 
@@ -101,37 +106,33 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         return acc;
     }, []);
 
-    tocYamlFiles.forEach((yamlFile) => {
-        const content = load(readFileSync(yamlFile, 'utf8'));
+    for (const yamlFile of tocYamlFiles) {
+        const content = load(fs.read(yamlFile));
 
         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
             return;
         }
 
         const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
-        const localMediaLinks = contentLinks.reduce(
-            (acc, link) => {
-                const linkHasMediaExt = new RegExp(
-                    /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
-                ).test(link);
+        const localMediaLinks = contentLinks.reduce((acc, link) => {
+            const linkHasMediaExt = new RegExp(
+                /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
+            ).test(link);
 
-                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
-                    const linkAbsolutePath = resolveRelativePath(yamlFile, link);
-                    const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+            if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(fs, link, yamlFile)) {
+                const linkAbsolutePath = resolveRelativePath(yamlFile, link);
+                const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
 
-                    acc.push(linkRootPath);
-                }
-                return acc;
-            },
+                acc.push(linkRootPath);
+            }
+            return acc;
+        }, []);
 
-            [],
-        );
-
-        copyFiles(args.input, tmpOutputFolder, localMediaLinks);
-    });
+        await copyFiles(args.input, tmpOutputFolder, localMediaLinks, context.meta);
+    }
 }
 
-function hasIntersection(array1, array2) {
+function hasIntersection(array1: string[] | undefined | null, array2: string[] | undefined | null) {
     const set1 = new Set(array1);
-    return array2.some((element) => set1.has(element));
+    return array2?.some((element) => set1.has(element));
 }
