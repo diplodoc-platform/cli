@@ -83,7 +83,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
 
-    const {lang: configLang, langs: configLangs} = ArgvService.getConfig();
+    const {lang: configLang, langs: configLangs, analytics} = ArgvService.getConfig();
     const meta = await getFileMeta(options);
 
     const tocBaseLang = tocBase?.split('/')[0];
@@ -105,6 +105,7 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         lang,
         langs,
+        analytics,
     };
 
     return props;
