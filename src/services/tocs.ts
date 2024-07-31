@@ -1,16 +1,15 @@
 import {dirname, extname, join, normalize, parse, relative, resolve, sep} from 'path';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
-import walkSync from 'walk-sync';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 import {bold} from 'chalk';
 
 import {ArgvService, PresetService} from './index';
 import {YfmToc} from '../models';
 import {IncludeMode, Stage} from '../constants';
-import {isExternalHref, logger} from '../utils';
+import {isExternalHref, logger, walk} from '../utils';
 import {filterFiles, firstFilterItem, firstFilterTextItems, liquidField} from './utils';
 import {IncludersError, applyIncluders} from './includers';
 import {addSourcePath} from './metadata';
@@ -22,13 +21,16 @@ export interface TocServiceData {
     includedTocPaths: Set<string>;
 }
 
+let fsContext: FsContext;
 const storage: TocServiceData['storage'] = new Map();
 const tocs: TocServiceData['tocs'] = new Map();
 let navigationPaths: TocServiceData['navigationPaths'] = [];
 const includedTocPaths: TocServiceData['includedTocPaths'] = new Set();
 const tocFileCopyMap = new Map<string, string>();
 
-async function init(tocFilePaths: string[]) {
+async function init(fs: FsContext, tocFilePaths: string[]) {
+    fsContext = fs;
+
     for (const path of tocFilePaths) {
         logger.proc(path);
 
@@ -58,7 +60,7 @@ async function add(path: string) {
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
-    const content = readFileSync(resolve(inputFolderPath, path), 'utf8');
+    const content = fsContext.read(resolve(inputFolderPath, path));
     const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
@@ -114,7 +116,7 @@ async function add(path: string) {
         const outputPath = resolve(outputFolderPath, path);
         const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
-        writeFileSync(outputPath, outputToc);
+        fsContext.write(outputPath, outputToc);
     }
 }
 
@@ -262,7 +264,8 @@ function _copyTocDir(tocPath: string, destDir: string) {
     const {input: inputFolderPath} = ArgvService.getConfig();
 
     const {dir: tocDir} = parse(tocPath);
-    const files: string[] = walkSync(tocDir, {
+    const files: string[] = walk({
+        folder: tocDir,
         globs: ['**/*.*'],
         ignore: ['**/toc.yaml'],
         directories: false,
@@ -277,11 +280,11 @@ function _copyTocDir(tocPath: string, destDir: string) {
         shell.mkdir('-p', parse(to).dir);
 
         if (isMdFile) {
-            const fileContent = readFileSync(from, 'utf8');
+            const fileContent = fsContext.read(from);
             const sourcePath = relative(inputFolderPath, from);
             const updatedFileContent = addSourcePath(fileContent, sourcePath);
 
-            writeFileSync(to, updatedFileContent);
+            fsContext.write(to, updatedFileContent);
         } else {
             shell.cp(from, to);
         }
@@ -392,7 +395,7 @@ async function _replaceIncludes(
             const includeTocDir = dirname(includeTocPath);
 
             try {
-                const includeToc = load(readFileSync(includeTocPath, 'utf8')) as YfmToc;
+                const includeToc = load(fsContext.read(includeTocPath)) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {
@@ -457,21 +460,23 @@ async function _replaceIncludes(
     return result;
 }
 
-function getTocDir(pagePath: string): string {
+function getTocDir(pagePath: string, pageBasePath?: string): string {
+    pageBasePath = pageBasePath ?? pagePath;
+
     const {input: inputFolderPath} = ArgvService.getConfig();
 
     const tocDir = dirname(pagePath);
     const tocPath = resolve(tocDir, 'toc.yaml');
 
     if (!tocDir.includes(inputFolderPath)) {
-        throw new Error('Error while finding toc dir');
+        throw new Error(`Error while finding toc dir for "${pageBasePath}"`);
     }
 
-    if (existsSync(tocPath)) {
+    if (fsContext.exist(tocPath)) {
         return tocDir;
     }
 
-    return getTocDir(tocDir);
+    return getTocDir(tocDir, pageBasePath);
 }
 
 function setNavigationPaths(paths: TocServiceData['navigationPaths']) {

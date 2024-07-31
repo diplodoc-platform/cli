@@ -6,6 +6,8 @@ import {ArgvService, PluginService} from '../services';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
 import {escape} from 'html-escaper';
 
@@ -148,4 +150,72 @@ function getResources({style, script}: Resources) {
     }
 
     return resourcesTags.join('\n');
+}
+
+export function joinSinglePageResults(
+    singlePageResults: SinglePageResult[],
+    root: string,
+    tocDir: string,
+): string {
+    const delimeter = `<hr class="yfm-page__delimeter">`;
+    return singlePageResults
+        .filter(({content}) => content)
+        .map(({content, path, title}) =>
+            preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}),
+        )
+        .join(delimeter);
+}
+
+export function replaceDoubleToSingleQuotes(str: string): string {
+    return str.replace(/"/g, "'");
+}
+
+export function findAllValuesByKeys(obj, keysToFind: string[]) {
+    return flatMapDeep(obj, (value: string | string[], key: string) => {
+        if (
+            keysToFind?.includes(key) &&
+            (isString(value) || (isArray(value) && value.every(isString)))
+        ) {
+            return [value];
+        }
+
+        if (isObject(value)) {
+            return findAllValuesByKeys(value, keysToFind);
+        }
+
+        return [];
+    });
+}
+
+export function modifyValuesByKeys(
+    originalObj,
+    keysToFind: string[],
+    modifyFn: (value: string) => string,
+) {
+    function customizer(value, key) {
+        if (keysToFind?.includes(key) && isString(value)) {
+            return modifyFn(value);
+        }
+    }
+
+    // Clone the object deeply with a customizer function that modifies matching keys
+    return cloneDeepWith(originalObj, customizer);
+}
+
+export function getLinksWithContentExtersion(link: string) {
+    return new RegExp(/^\S.*\.(md|ya?ml|html)$/gm).test(link);
+}
+
+export function getLinksWithExtension(link: string) {
+    const oneLineWithExtension = new RegExp(
+        /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
+    );
+
+    return oneLineWithExtension.test(link);
+}
+
+export function checkPathExists(fs: FsContext, path: string, parentFilePath: string) {
+    const includePath = resolveRelativePath(parentFilePath, path);
+
+    return fs.exist(includePath);
 }

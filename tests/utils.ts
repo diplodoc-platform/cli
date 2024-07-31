@@ -1,7 +1,7 @@
 import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {resolve, join} from 'path';
-import walkSync from 'walk-sync';
+import {walk} from '../src/utils';
 
 const yfmDocsPath = require.resolve('../build');
 const assets = require('@diplodoc/client/manifest');
@@ -36,7 +36,8 @@ export function getFileContent(filePath: string) {
 const uselessFile = (file) => !['_bundle/', '_assets/'].some(part => file.includes(part));
 
 export function compareDirectories(outputPath: string) {
-    const filesFromOutput = walkSync(outputPath, {
+    const filesFromOutput = walk({
+        folder: outputPath,
         directories: false,
         includeBasePath: false,
     });
