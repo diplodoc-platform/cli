@@ -88,8 +88,10 @@ interface YfmConfig {
 export interface YfmArgv extends YfmConfig {
     rootInput: string;
     input: string;
+    config: string;
     output: string;
     quiet: string;
+    cache: boolean;
     publish: boolean;
     storageEndpoint: string;
     storageBucket: string;
