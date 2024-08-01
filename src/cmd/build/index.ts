@@ -1,13 +1,12 @@
-import glob from 'glob';
 import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
-import {argvValidator} from '../../validator';
-import {ArgvService, Includers} from '../../services';
+import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
+import {argvValidator} from '~/validator';
+import {ArgvService, Includers} from '~/services';
 import {
     initLinterWorkers,
     processAssets,
@@ -17,10 +16,11 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
-} from '../../steps';
-import {prepareMapFile} from '../../steps/processMapFile';
-import {copyFiles, getMetaFile, logger, makeMetaFile} from '../../utils';
-import {upload as publishFilesToS3} from '../../commands/publish/upload';
+} from '~/steps';
+import {prepareMapFile} from '~/steps/processMapFile';
+import {copyFiles, logger} from '~/utils';
+import {upload as publishFilesToS3} from '~/commands/publish/upload';
+import { RevisionContext, getRevisionContext, setRevisionContext } from '~/context';
 
 export const build = {
     command: ['build', '$0'],
@@ -41,6 +41,12 @@ function builder<T>(argv: Argv<T>) {
             alias: 'o',
             describe: 'Path to output folder',
             type: 'string',
+            group: 'Build options:',
+        })
+        .option('cache', {
+            default: false,
+            describe: 'Use cache from revision meta file',
+            type: 'boolean',
             group: 'Build options:',
         })
         .option('varsPreset', {
@@ -201,8 +207,9 @@ async function handler(args: Arguments<any>) {
             addMapFile,
         } = ArgvService.getConfig();
 
-        await preparingTemporaryFolders(userOutputFolder);
+        const context = await getRevisionContext(outputFolderPath);
 
+        await preparingTemporaryFolders(context);
         await processServiceFiles();
         await processExcludedFiles();
 
@@ -232,6 +239,7 @@ async function handler(args: Arguments<any>) {
                 outputBundlePath,
                 tmpOutputFolder,
                 userOutputFolder,
+                context,
             });
 
             await processChangelogs();
@@ -267,6 +275,8 @@ async function handler(args: Arguments<any>) {
                 });
             }
         }
+
+        await setRevisionContext(context);
     } catch (err) {
         logger.error('', err.message);
     } finally {
@@ -276,37 +286,20 @@ async function handler(args: Arguments<any>) {
     }
 }
 
-async function preparingTemporaryFolders(userOutputFolder: string) {
+async function preparingTemporaryFolders(revisionContext: RevisionContext) {
     const args = ArgvService.getConfig();
 
-    shell.mkdir('-p', userOutputFolder);
+    shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
     shell.rm('-rf', args.input, args.output);
     shell.mkdir(args.input, args.output);
 
-    const files = glob.sync('**', {
-        cwd: args.rootInput,
-        nodir: true,
-        follow: true,
-        ignore: ['node_modules/**', '*/node_modules/**'],
-    });
-
-    const meta = await getMetaFile(
-        userOutputFolder,
-    );
-
     await copyFiles(
         args.rootInput,
         args.input,
-        files,
-        meta,
-    );
-
-    await makeMetaFile(
-        userOutputFolder,
-        args.rootInput,
-        files,
+        revisionContext.files,
+        revisionContext.meta,
     );
 
     shell.chmod('-R', 'u+w', args.input);

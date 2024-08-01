@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export class Queue {
     stack = new Set();
     queue: unknown[][] = [];
@@ -11,7 +12,12 @@ export class Queue {
     whenEmpty?: () => void;
     whenError?: (e: Error, ...args: unknown[]) => void;
 
-    constructor(processTask: (...args: any[]) => Promise<void>, paralleledTasks: number, whenError?: (error: Error, ...args: any[]) => void, whenEmpty?: () => void) {
+    constructor(
+        processTask: (...args: any[]) => Promise<void>,
+        paralleledTasks: number,
+        whenError?: (error: Error, ...args: any[]) => void,
+        whenEmpty?: () => void,
+    ) {
       this.processTask = processTask;
       this.paralleledTasks = paralleledTasks;
       this.whenEmpty = whenEmpty;
