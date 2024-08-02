@@ -4,9 +4,6 @@ import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {join, resolve, sep} from 'path';
 
-import {ArgvService, TocService} from '../services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
-
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 
@@ -16,8 +13,10 @@ import {
     REDIRECTS_FILENAME,
     RTL_LANGS,
     YFM_CONFIG_FILENAME,
-} from '../constants';
-import {Resources, YfmArgv} from '../models';
+} from '~/constants';
+import {ArgvService, TocService} from '~/services';
+import {checkPathExists, copyFiles, findAllValuesByKeys} from '~/utils';
+import {Resources, YfmArgv} from '~/models';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 import { RevisionContext } from '~/context';
 

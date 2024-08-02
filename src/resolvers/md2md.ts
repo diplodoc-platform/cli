@@ -33,6 +33,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         vars,
         log,
         copyFile,
+        context: options.context,
     });
 
     writeFileSync(outputPath, result);
@@ -133,6 +134,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             collectOfPlugins,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
+            context: options.context,
         });
     }
 

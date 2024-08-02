@@ -4,6 +4,7 @@ import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
+import { RevisionContext } from './context';
 
 export type VarsPreset = 'internal' | 'external';
 
@@ -229,6 +230,7 @@ export interface PluginOptions {
     collectOfPlugins?: (input: string, options: PluginOptions) => string;
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
+    context: RevisionContext;
 }
 
 export interface Plugin {
@@ -239,6 +241,7 @@ export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
     metadata?: MetaDataOptions;
+    context: RevisionContext;
 }
 
 export interface ResolverOptions {
@@ -250,6 +253,7 @@ export interface ResolverOptions {
     outputPath: string;
     outputBundlePath: string;
     metadata?: MetaDataOptions;
+    context: RevisionContext;
 }
 
 export interface PathData {

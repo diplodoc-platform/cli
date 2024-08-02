@@ -33,12 +33,13 @@ import {
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 import {generateStaticRedirect} from '../utils/redirect';
+import { RevisionContext } from '~/context';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string): Promise<void> {
+export async function processPages(outputBundlePath: string, context: RevisionContext): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -78,6 +79,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
                 metaDataOptions,
                 resolveConditions,
                 singlePage,
+                context,
             );
         }),
     );
@@ -263,6 +265,7 @@ async function preparingPagesByOutputFormat(
     metaDataOptions: MetaDataOptions,
     resolveConditions: boolean,
     singlePage: boolean,
+    context: RevisionContext,
 ): Promise<void> {
     const {
         filename,
@@ -299,10 +302,10 @@ async function preparingPagesByOutputFormat(
 
         switch (outputFormat) {
             case 'md':
-                await processingFileToMd(path, metaDataOptions);
+                await processingFileToMd(path, metaDataOptions, context);
                 return;
             case 'html': {
-                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
+                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions, context);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path);
@@ -343,19 +346,21 @@ function copyFileWithoutChanges(
     shell.cp(from, to);
 }
 
-async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
+async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions, context: RevisionContext): Promise<void> {
     const {outputPath, pathToFile} = path;
 
     await resolveMd2Md({
         inputPath: pathToFile,
         outputPath,
         metadata: metaDataOptions,
+        context,
     });
 }
 
 async function processingFileToHtml(
     path: PathData,
     metaDataOptions: MetaDataOptions,
+    context: RevisionContext,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
     const {deepBase, deep} = TocService.getDeepForPath(pathToFile);
@@ -369,5 +374,6 @@ async function processingFileToHtml(
         metadata: metaDataOptions,
         deep,
         deepBase,
+        context,
     });
 }

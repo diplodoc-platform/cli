@@ -226,7 +226,7 @@ async function handler(args: Arguments<any>) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(outputBundlePath, context),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);
