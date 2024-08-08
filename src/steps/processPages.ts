@@ -1,6 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, relative, resolve} from 'path';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
@@ -13,7 +12,7 @@ import {
     ResourceType,
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
-} from '../constants';
+} from '~/constants';
 import {
     LeadingPage,
     MetaDataOptions,
@@ -21,25 +20,31 @@ import {
     Resources,
     SinglePageResult,
     YfmToc,
-} from '../models';
-import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, TocService} from '../services';
+} from '~/models';
+import {resolveMd2HTML, resolveMd2Md} from '~/resolvers';
+import {ArgvService, LeadingService, PluginService, TocService} from '~/services';
 import {
     generateStaticMarkup,
     joinSinglePageResults,
     logger,
     transformTocForSinglePage,
-} from '../utils';
-import {getVCSConnector} from '../vcs-connector';
-import {VCSConnector} from '../vcs-connector/connector-models';
-import {generateStaticRedirect} from '../utils/redirect';
-import { RevisionContext } from '~/context';
+} from '~/utils';
+import {getVCSConnector} from '~/vcs-connector';
+import {VCSConnector} from '~/vcs-connector/connector-models';
+import {generateStaticRedirect} from '~/utils/redirect';
+import { RevisionContext } from '~/context/context';
+import { DependencyContext, FsContext } from '@diplodoc/transform/lib/typings';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string, context: RevisionContext): Promise<void> {
+export async function processPages(
+    fs: FsContext,
+    deps: DependencyContext,
+    outputBundlePath: string,
+    context: RevisionContext,
+): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -58,6 +63,10 @@ export async function processPages(outputBundlePath: string, context: RevisionCo
         navigationPaths,
         PAGE_PROCESS_CONCURRENCY,
         asyncify(async (pathToFile: string) => {
+            if (!context.meta?.files?.[pathToFile]?.changed) {
+                return;
+            }
+            
             const pathData = getPathData(
                 pathToFile,
                 inputFolderPath,
@@ -75,6 +84,8 @@ export async function processPages(outputBundlePath: string, context: RevisionCo
             );
 
             await preparingPagesByOutputFormat(
+                fs,
+                deps,
                 pathData,
                 metaDataOptions,
                 resolveConditions,
@@ -85,11 +96,74 @@ export async function processPages(outputBundlePath: string, context: RevisionCo
     );
 
     if (singlePage) {
-        await saveSinglePages();
+        await saveSinglePages(fs);
     }
 
     if (outputFormat === 'html') {
-        saveRedirectPage(outputFolderPath);
+        saveRedirectPage(fs, outputFolderPath);
+    }
+}
+
+export const getProcessPageFn = async (
+    fs: FsContext,
+    deps: DependencyContext,
+    outputBundlePath: string,
+    context: RevisionContext,
+) => {
+    const {
+        input: inputFolderPath,
+        output: outputFolderPath,
+        outputFormat,
+        singlePage,
+        resolveConditions,
+    } = ArgvService.getConfig();
+
+    const vcsConnector = await getVCSConnector();
+
+    PluginService.setPlugins();
+
+    return async (pathToFile: string) => {
+        const pathData = getPathData(
+            pathToFile,
+            inputFolderPath,
+            outputFolderPath,
+            outputFormat,
+            outputBundlePath,
+        );
+
+        logger.proc(pathToFile);
+
+        const metaDataOptions = getMetaDataOptions(
+            pathData,
+            inputFolderPath.length,
+            vcsConnector,
+        );
+
+        await preparingPagesByOutputFormat(
+            fs,
+            deps,
+            pathData,
+            metaDataOptions,
+            resolveConditions,
+            singlePage,
+            context,
+        );
+    };
+}
+
+export const finishProcessPages = async (fs: FsContext) => {
+    const {
+        output: outputFolderPath,
+        outputFormat,
+        singlePage,
+    } = ArgvService.getConfig();
+
+    if (singlePage) {
+        await saveSinglePages(fs);
+    }
+
+    if (outputFormat === 'html') {
+        saveRedirectPage(fs, outputFolderPath);
     }
 }
 
@@ -128,7 +202,7 @@ function getPathData(
     return pathData;
 }
 
-async function saveSinglePages() {
+async function saveSinglePages(fs: FsContext) {
     const {
         input: inputFolderPath,
         lang: configLang,
@@ -181,8 +255,8 @@ async function saveSinglePages() {
                     toc?.root?.deepBase || toc?.deepBase || 0,
                 );
 
-                writeFileSync(singlePageFn, singlePageContent);
-                writeFileSync(singlePageDataFn, JSON.stringify(pageData));
+                fs.write(singlePageFn, singlePageContent);
+                fs.write(singlePageDataFn, JSON.stringify(pageData));
             }),
         );
     } catch (error) {
@@ -190,7 +264,7 @@ async function saveSinglePages() {
     }
 }
 
-function saveRedirectPage(outputDir: string): void {
+function saveRedirectPage(fs: FsContext, outputDir: string): void {
     const {lang, langs} = ArgvService.getConfig();
 
     const redirectLang = lang || langs?.[0] || Lang.RU;
@@ -199,9 +273,9 @@ function saveRedirectPage(outputDir: string): void {
     const redirectPagePath = join(outputDir, 'index.html');
     const redirectLangPath = join(outputDir, redirectLangRelativePath);
 
-    if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
+    if (!fs.exist(redirectPagePath) && fs.exist(redirectLangPath)) {
         const content = generateStaticRedirect(redirectLang, redirectLangRelativePath);
-        writeFileSync(redirectPagePath, content);
+        fs.write(redirectPagePath, content);
     }
 }
 
@@ -261,6 +335,8 @@ function getMetaDataOptions(
 }
 
 async function preparingPagesByOutputFormat(
+    fs: FsContext,
+    deps: DependencyContext,
     path: PathData,
     metaDataOptions: MetaDataOptions,
     resolveConditions: boolean,
@@ -288,7 +364,7 @@ async function preparingPagesByOutputFormat(
         }
 
         if (outputFormat === 'md' && isYamlFileExtension && allowCustomResources) {
-            processingYamlFile(path, metaDataOptions);
+            processingYamlFile(fs, path, metaDataOptions);
             return;
         }
 
@@ -302,10 +378,10 @@ async function preparingPagesByOutputFormat(
 
         switch (outputFormat) {
             case 'md':
-                await processingFileToMd(path, metaDataOptions, context);
+                await processingFileToMd(path, metaDataOptions, context, fs, deps);
                 return;
             case 'html': {
-                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions, context);
+                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions, context, fs, deps);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path);
@@ -320,19 +396,19 @@ async function preparingPagesByOutputFormat(
         log.error(message);
     }
 }
-//@ts-ignore
-function processingYamlFile(path: PathData, metaDataOptions: MetaDataOptions) {
+
+function processingYamlFile(fs: FsContext, path: PathData, metaDataOptions: MetaDataOptions) {
     const {pathToFile, outputFolderPath, inputFolderPath} = path;
 
     const filePath = resolve(inputFolderPath, pathToFile);
-    const content = readFileSync(filePath, 'utf8');
+    const content = fs.read(filePath);
     const parsedContent = load(content) as LeadingPage;
 
     if (metaDataOptions.resources) {
         parsedContent.meta = {...parsedContent.meta, ...metaDataOptions.resources};
     }
 
-    writeFileSync(resolve(outputFolderPath, pathToFile), dump(parsedContent));
+    fs.write(resolve(outputFolderPath, pathToFile), dump(parsedContent));
 }
 
 function copyFileWithoutChanges(
@@ -346,7 +422,12 @@ function copyFileWithoutChanges(
     shell.cp(from, to);
 }
 
-async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions, context: RevisionContext): Promise<void> {
+async function processingFileToMd(path: PathData,
+    metaDataOptions: MetaDataOptions,
+    context: RevisionContext,
+    fs: FsContext,
+    deps: DependencyContext,
+): Promise<void> {
     const {outputPath, pathToFile} = path;
 
     await resolveMd2Md({
@@ -354,6 +435,8 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
         outputPath,
         metadata: metaDataOptions,
         context,
+        fs,
+        deps,
     });
 }
 
@@ -361,6 +444,8 @@ async function processingFileToHtml(
     path: PathData,
     metaDataOptions: MetaDataOptions,
     context: RevisionContext,
+    fs: FsContext,
+    deps: DependencyContext,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
     const {deepBase, deep} = TocService.getDeepForPath(pathToFile);
@@ -375,5 +460,7 @@ async function processingFileToHtml(
         deep,
         deepBase,
         context,
+        fs,
+        deps,
     });
 }

@@ -23,6 +23,7 @@ import {
 } from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
+import {RevisionContext} from '~/context/context';
 
 interface FileTransformOptions {
     path: string;
@@ -38,6 +39,7 @@ export interface ResolverLintOptions {
     inputPath: string;
     fileExtension: string;
     onFinish?: () => void;
+    context: RevisionContext;
 }
 
 export function lintPage(options: ResolverLintOptions) {

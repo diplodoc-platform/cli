@@ -1,19 +1,10 @@
 import {resolve} from 'path';
-import {readFile, stat, writeFile} from 'node:fs/promises';
+import {readFile, stat, unlink, writeFile} from 'node:fs/promises';
 import {logger} from './logger';
 import {Queue} from './queue';
+import { RevisionMeta } from '@diplodoc/transform/lib/typings';
 
 const FILE_META_NAME = '.revision.meta.json';
-
-export interface RevisionMeta {
-    files: {
-        [key: string]: {
-            mod_date: number;
-            files: string[];
-            vars: string[];
-        };
-    };
-}
 
 export async function makeMetaFile(
     userOutputFolder: string,
@@ -23,28 +14,37 @@ export async function makeMetaFile(
 ) { 
     const meta: RevisionMeta['files'] = {};
 
-    const queue = new Queue(async (pathToAsset: string) => {
-        const from = resolve(outputFolderPath, pathToAsset);
-
-        try {
-            const data = await stat(from);
-        
-            meta[pathToAsset] = {
-                mod_date: Number(data.mtime),
-                files: currentMeta?.files?.[pathToAsset]?.files || [],
-                vars: currentMeta?.files?.[pathToAsset]?.vars || [],
-            };
-        } catch (error) {
-            // ignore
-        }
-
-    }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
-
-    files.forEach(queue.add);
-
-    await queue.loop();
+    if (files.length) {
+        const queue = new Queue(async (pathToAsset: string) => {
+            const from = resolve(outputFolderPath, pathToAsset);
+    
+            try {
+                const data = await stat(from);
+            
+                meta[pathToAsset] = {
+                    mod_date: Number(data.mtime),
+                    files: currentMeta?.files?.[pathToAsset]?.files || [],
+                    vars: currentMeta?.files?.[pathToAsset]?.vars || [],
+                    changed: currentMeta?.files?.[pathToAsset]?.changed || false,
+                };
+            } catch (error) {
+                // ignore
+            }
+    
+        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
+    
+        files.forEach(queue.add);
+    
+        await queue.loop();
+    }
 
     const outputFile = resolve(userOutputFolder, FILE_META_NAME);
+
+    try {
+        await unlink(outputFile);
+    } catch (error) {
+        // ignore
+    }
 
     await writeFile(outputFile, JSON.stringify({
         files: meta,
@@ -59,4 +59,49 @@ export async function getMetaFile(userOutputFolder: string): Promise<RevisionMet
     } catch (_) {
         return null;
     }
+}
+
+export async function getFileChangedMeta(
+    inputFolderPath: string,
+    meta: RevisionMeta['files'] | undefined | null,
+) {
+    const files = Object.keys(meta ?? {});
+
+    if (files.length) {
+        const queue = new Queue(async (pathToAsset: string) => {
+            if (meta?.[pathToAsset]) {
+                const from = resolve(inputFolderPath, pathToAsset);
+                meta[pathToAsset].changed = await isFileModified(pathToAsset, from, meta);
+            }
+        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
+    
+        files.forEach(queue.add);
+    
+        await queue.loop();
+    }
+}
+
+export async function isFileModified(pathToAsset: string, from: string, meta?: RevisionMeta['files'] | null) {
+    if (!meta) {
+        return true;
+    }
+
+    if (!meta[pathToAsset]) {
+        return true;
+    }
+    
+    try {
+        const data = await stat(from);
+    
+        const folderLMM = Number(data.mtime);
+        
+        const res = Math.abs(folderLMM - meta[pathToAsset].mod_date) < 1000;
+        if (res) {
+            return false;
+        }
+    } catch (_) {
+        return true;
+    }
+
+    return true;
 }

@@ -1,9 +1,10 @@
 import {dirname, resolve} from 'path';
-import {copyFile, stat} from 'node:fs/promises';
+import {copyFile} from 'node:fs/promises';
 import shell from 'shelljs';
+import walkSync from 'walk-sync';
+import {RevisionMeta} from '@diplodoc/transform/lib/typings';
 import {logger} from './logger';
 import {Queue} from './queue';
-import { RevisionMeta } from './meta';
 
 export async function copyFiles(
     inputFolderPath: string,
@@ -11,50 +12,56 @@ export async function copyFiles(
     files: string[],
     meta?: RevisionMeta | null,
 ) { 
+    if (files.length === 0) {
+        return;
+    }
+
     const dirs = new Set<string>();
 
     const queue = new Queue(async (pathToAsset: string) => {
-        const outputDir = resolve(outputFolderPath, dirname(pathToAsset));
         const from = resolve(inputFolderPath, pathToAsset);
         const to = resolve(outputFolderPath, pathToAsset);
-
-        if (!dirs.has(outputDir)) {
-            dirs.add(outputDir);
-            shell.mkdir('-p', outputDir);
-        }
+        const isChanged = meta?.files?.[pathToAsset]?.changed !== false;
         
-        if (await isFileModified(pathToAsset, from, meta)) {
+        if (isChanged) {
+            const outputDir = resolve(outputFolderPath, dirname(pathToAsset));
+
+            if (!dirs.has(outputDir)) {
+                dirs.add(outputDir);
+                shell.mkdir('-p', outputDir);
+            }
+            
             await copyFile(from, to);
             logger.copy(pathToAsset);
         }
     }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
 
     files.forEach(queue.add);
-
     await queue.loop();
 }
 
-async function isFileModified(pathToAsset: string, from: string, meta?: RevisionMeta | null) {
-    if (!meta) {
-        return true;
-    }
+export function walk({
+    folder,
+    folders,
+    globs,
+    ignore,
+    directories,
+    includeBasePath,
+}: {
+    folder?: string;
+    folders?: string[];
+    globs?: string[];
+    ignore?: string[];
+    directories?: boolean;
+    includeBasePath?: boolean;
+}) {
+    const dirs = [folder, ...(folders || [])].filter(Boolean) as string[];
+    const files = dirs.map<string[]>(folder => walkSync(folder as string, {
+        directories: directories,
+        includeBasePath: includeBasePath,
+        globs: globs || [],
+        ignore: ignore || [],
+    }));
 
-    if (!meta.files[pathToAsset]) {
-        return true;
-    }
-    
-    try {
-        const data = await stat(from);
-    
-        const folderLMM = Number(data.mtime);
-        
-        const res = Math.abs(folderLMM - meta.files[pathToAsset].mod_date) < 1000;
-        if (res) {
-            return false;
-        }
-    } catch (_) {
-        return true;
-    }
-
-    return true;
+    return [...new Set(files.flat())];
 }

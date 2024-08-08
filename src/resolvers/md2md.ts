@@ -1,24 +1,37 @@
-import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, extname, join, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
-import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, logger} from '../utils';
-import {PluginOptions, ResolveMd2MdOptions} from '../models';
-import {PROCESSING_FINISHED} from '../constants';
-import {getContentWithUpdatedMetadata} from '../services/metadata';
+import {ArgvService, PluginService} from '~/services';
+import {getVarsPerFile, logger} from '~/utils';
+import {PluginOptions, ResolveMd2MdOptions} from '~/models';
+import {PROCESSING_FINISHED} from '~/constants';
+import {getContentWithUpdatedMetadata} from '~/services/metadata';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
+import {FsContext} from '@diplodoc/transform/lib/typings';
+
+const copyFile = (fs: FsContext) => (targetPath: string, targetDestPath: string, options?: PluginOptions) => {
+    shell.mkdir('-p', dirname(targetDestPath));
+
+    if (options) {
+        const sourceIncludeContent = fs.read(targetPath);
+        const {result} = transformMd2Md(sourceIncludeContent, options);
+
+        fs.write(targetDestPath, result);
+    } else {
+        shell.cp(targetPath, targetDestPath);
+    }
+}
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, metadata} = options;
+    const {inputPath, outputPath, metadata, fs} = options;
     const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
     const vars = getVarsPerFile(inputPath);
 
     const content = await getContentWithUpdatedMetadata(
-        readFileSync(resolvedInputPath, 'utf8'),
+        fs.read(resolvedInputPath),
         metadata,
         vars.__system,
         vars.__metadata,
@@ -32,11 +45,13 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         collectOfPlugins: PluginService.getCollectOfPlugins(),
         vars,
         log,
-        copyFile,
+        copyFile: copyFile(fs),
         context: options.context,
+        fs: options.fs,
+        deps: options.deps,
     });
 
-    writeFileSync(outputPath, result);
+    fs.write(outputPath, result);
 
     if (changelogsSetting && changelogs?.length) {
         const mdFilename = basename(outputPath, extname(outputPath));
@@ -60,7 +75,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 
             const changesPath = join(outputDir, `__changes-${changesName}.json`);
 
-            writeFileSync(
+            fs.write(
                 changesPath,
                 JSON.stringify({
                     ...changes,
@@ -73,19 +88,6 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return undefined;
-}
-
-function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
-    shell.mkdir('-p', dirname(targetDestPath));
-
-    if (options) {
-        const sourceIncludeContent = readFileSync(targetPath, 'utf8');
-        const {result} = transformMd2Md(sourceIncludeContent, options);
-
-        writeFileSync(targetDestPath, result);
-    } else {
-        shell.cp(targetPath, targetDestPath);
-    }
 }
 
 export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
@@ -135,6 +137,8 @@ function transformMd2Md(input: string, options: PluginOptions) {
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
             context: options.context,
+            fs: options.fs,
+            deps: options.deps,
         });
     }
 

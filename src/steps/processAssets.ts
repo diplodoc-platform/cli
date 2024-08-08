@@ -1,4 +1,3 @@
-import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import {readFileSync} from 'fs';
 import shell from 'shelljs';
@@ -6,6 +5,7 @@ import {join, resolve, sep} from 'path';
 
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
 import {
     ASSETS_FOLDER,
@@ -15,10 +15,9 @@ import {
     YFM_CONFIG_FILENAME,
 } from '~/constants';
 import {ArgvService, TocService} from '~/services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '~/utils';
+import {checkPathExists, copyFiles, findAllValuesByKeys, walk} from '~/utils';
 import {Resources, YfmArgv} from '~/models';
-import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
-import { RevisionContext } from '~/context';
+import {RevisionContext} from '~/context/context';
 
 /**
  * @param {Array} args
@@ -54,7 +53,8 @@ export async function processAssets(props: Props) {
 async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
     const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
 
-    const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
+    const documentationAssetFilePath: string[] = walk({
+        folder: inputFolderPath,
         directories: false,
         includeBasePath: false,
         ignore: ['**/*.yaml', '**/*.md'],
@@ -63,10 +63,11 @@ async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
     await copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath, context.meta);
 
     const hasRTLlang = hasIntersection(langs, RTL_LANGS);
-    const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
+    const bundleAssetFilePath: string[] = walk({
+        folder: ASSETS_FOLDER,
         directories: false,
         includeBasePath: false,
-        ignore: !hasRTLlang && ['**/*.rtl.css'],
+        ignore: hasRTLlang ? [] : ['**/*.rtl.css'],
     });
 
     await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
@@ -98,7 +99,7 @@ async function processAssetsMdRun({args, tmpOutputFolder, context}: Props) {
         await copyFiles(args.input, tmpOutputFolder, resourcePaths, context.meta);
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
+    const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
         if (file.endsWith('.yaml')) {
             const resolvedPathToFile = resolve(inputFolderPath, file);
 
@@ -129,7 +130,6 @@ async function processAssetsMdRun({args, tmpOutputFolder, context}: Props) {
                 }
                 return acc;
             },
-
             [],
         );
 

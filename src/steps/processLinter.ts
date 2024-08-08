@@ -2,23 +2,24 @@ import log from '@diplodoc/transform/lib/log';
 import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
-import {ArgvService, PluginService, PresetService, TocService} from '../services';
-import {ProcessLinterWorker} from '../workers/linter';
-import {logger} from '../utils';
-import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
-import {lintPage} from '../resolvers';
-import {splitOnChunks} from '../utils/worker';
+import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '~/constants';
+import {ArgvService, PluginService, PresetService, TocService} from '~/services';
+import {ProcessLinterWorker} from '~/workers/linter';
+import {logger} from '~/utils';
+import {lintPage} from '~/resolvers';
+import {splitOnChunks} from '~/utils/worker';
+import {RevisionContext} from '~/context/context';
 
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
 let navigationPathsChunks: string[][];
 
-export async function processLinter(): Promise<void> {
+export async function processLinter(context: RevisionContext): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
     const navigationPaths = TocService.getNavigationPaths();
 
     if (!processLinterWorkers) {
-        lintPagesFallback(navigationPaths);
+        lintPagesFallback(navigationPaths, context);
 
         return;
     }
@@ -41,6 +42,7 @@ export async function processLinter(): Promise<void> {
                 argvConfig,
                 presetStorage,
                 navigationPaths: navigationPathsChunk,
+                context,
             });
         }),
     );
@@ -86,16 +88,20 @@ function getChunkSize(arr: string[]) {
     return Math.ceil(arr.length / WORKERS_COUNT);
 }
 
-function lintPagesFallback(navigationPaths: string[]) {
+function lintPagesFallback(navigationPaths: string[], context: RevisionContext) {
     PluginService.setPlugins();
 
     navigationPaths.forEach((pathToFile) => {
+        if (!context.meta?.files?.[pathToFile]?.changed) {
+            return;
+        }
         lintPage({
             inputPath: pathToFile,
             fileExtension: extname(pathToFile),
             onFinish: () => {
                 logger.info(pathToFile, LINTING_FINISHED);
             },
+            context,
         });
     });
 }

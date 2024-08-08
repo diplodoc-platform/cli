@@ -1,20 +1,19 @@
-import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve, sep} from 'path';
-import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
+import yaml from 'js-yaml';
 
 import type {DocInnerProps} from '@diplodoc/client';
+import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
-import yaml from 'js-yaml';
 
-import {Lang, PROCESSING_FINISHED} from '../constants';
-import {LeadingPage, ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PluginService, TocService} from '../services';
-import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
+import {Lang, PROCESSING_FINISHED} from '~/constants';
+import {LeadingPage, ResolverOptions, YfmToc} from '~/models';
+import {ArgvService, PluginService, TocService} from '~/services';
+import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '~/services/metadata';
 import {
     generateStaticMarkup,
     getLinksWithContentExtersion,
@@ -24,12 +23,16 @@ import {
     modifyValuesByKeys,
     transformToc,
 } from '../utils';
-import { RevisionContext } from '~/context';
+import { RevisionContext } from '~/context/context';
+import { DependencyContext, FsContext } from '@diplodoc/transform/lib/typings';
 
 export interface FileTransformOptions {
+    lang: string;
     path: string;
     root?: string;
+    fs: FsContext;
     context: RevisionContext;
+    deps: DependencyContext;
 }
 
 const FileTransformer: Record<string, Function> = {
@@ -41,14 +44,15 @@ const fixRelativePath = (relativeTo: string) => (path: string) => {
     return join(getAssetsPublicPath(relativeTo), path);
 };
 
-const getFileMeta = async ({fileExtension, metadata, inputPath, context}: ResolverOptions) => {
+const getFileMeta = async ({fileExtension, metadata, inputPath, context, fs, deps}: ResolverOptions) => {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedPath, 'utf8');
+    const content: string = fs.read(resolvedPath);
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath, context});
+    
+    const {result} = transformFn(content, {path: inputPath, context, fs, deps});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -113,11 +117,11 @@ const getFileProps = async (options: ResolverOptions) => {
 };
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
-    const {outputPath, inputPath, deep, deepBase} = options;
+    const {outputPath, inputPath, deep, deepBase, fs} = options;
     const props = await getFileProps(options);
 
     const outputFileContent = generateStaticMarkup(props, deepBase, deep);
-    writeFileSync(outputPath, outputFileContent);
+    fs.write(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
@@ -214,7 +218,7 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
     const {input, ...options} = ArgvService.getConfig();
-    const {path: filePath, context} = transformOptions;
+    const {path: filePath, context, fs, deps} = transformOptions;
 
     const plugins = PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
@@ -233,5 +237,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         getPublicPath,
         extractTitle: true,
         context,
+        fs,
+        deps,
     });
 }

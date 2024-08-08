@@ -6,8 +6,10 @@ import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
 import {argvValidator} from '~/validator';
-import {ArgvService, Includers} from '~/services';
+import {ArgvService, Includers, TocService} from '~/services';
 import {
+    finishProcessPages,
+    getProcessPageFn,
     initLinterWorkers,
     processAssets,
     processChangelogs,
@@ -20,7 +22,10 @@ import {
 import {prepareMapFile} from '~/steps/processMapFile';
 import {copyFiles, logger} from '~/utils';
 import {upload as publishFilesToS3} from '~/commands/publish/upload';
-import { RevisionContext, getRevisionContext, setRevisionContext } from '~/context';
+import { RevisionContext, getRevisionContext, setRevisionContext } from '~/context/context';
+import { FsContextCli } from '~/context/fs';
+import { DependencyContextCli } from '~/context/dependency';
+import { FileQueueProcessor } from '~/context/processor';
 
 export const build = {
     command: ['build', '$0'],
@@ -207,29 +212,37 @@ async function handler(args: Arguments<any>) {
             addMapFile,
         } = ArgvService.getConfig();
 
-        const context = await getRevisionContext(outputFolderPath);
+        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
+
+        const context = await getRevisionContext(userOutputFolder, tmpInputFolder, tmpOutputFolder);
+        const fs = new FsContextCli(context);
+        const deps = new DependencyContextCli(context);
+        const processor = new FileQueueProcessor(context);
 
         await preparingTemporaryFolders(context);
-        await processServiceFiles();
+        await processServiceFiles(context, fs);
         await processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
         }
 
-        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
+        const navigationPaths = TocService.getNavigationPaths();
 
-        if (!lintDisabled) {
+        if (!lintDisabled && false) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
             await initLinterWorkers();
+            await processLinter(context);
         }
 
-        const processes = [
-            !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath, context),
-        ].filter(Boolean) as Promise<void>[];
-
-        await Promise.all(processes);
+        if (!buildDisabled) {
+            processor.processQueue(
+                await getProcessPageFn(fs, deps, outputBundlePath, context),
+                navigationPaths,
+            );
+    
+            await finishProcessPages(fs);
+        }
 
         if (!buildDisabled) {
             // process additional files
@@ -275,9 +288,11 @@ async function handler(args: Arguments<any>) {
                 });
             }
         }
-
+        
         await setRevisionContext(context);
     } catch (err) {
+        console.error(err);
+        
         logger.error('', err.message);
     } finally {
         processLogs(tmpInputFolder);
