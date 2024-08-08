@@ -8,39 +8,15 @@ const FILE_META_NAME = '.revision.meta.json';
 
 export async function makeMetaFile(
     userOutputFolder: string,
-    outputFolderPath: string,
     files: string[],
-    currentMeta: RevisionMeta | undefined | null,
+    meta: RevisionMeta,
 ) { 
-    const meta: RevisionMeta['files'] = {};
-    
-    for (const file of Object.keys(currentMeta?.files ?? {})) {
-        if (!files.includes(file)) {
-            delete currentMeta?.files[file];
-        }
-    }
-
-    if (files.length) {
-        const queue = new Queue(async (pathToAsset: string) => {
-            const from = resolve(outputFolderPath, pathToAsset);
-    
-            try {
-                const data = await stat(from);
-            
-                meta[pathToAsset] = {
-                    mod_date: Number(data.mtime),
-                    files: currentMeta?.files?.[pathToAsset]?.files || [],
-                    changed: currentMeta?.files?.[pathToAsset]?.changed || false,
-                };
-            } catch (error) {
-                // ignore
+    if (meta.files) {
+        for (const file of Object.keys(meta.files)) {
+            if (!files.includes(file)) {
+                delete meta.files[file];
             }
-    
-        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
-    
-        files.forEach(queue.add);
-    
-        await queue.loop();
+        }
     }
 
     const outputFile = resolve(userOutputFolder, FILE_META_NAME);
@@ -51,9 +27,7 @@ export async function makeMetaFile(
         // ignore
     }
 
-    await writeFile(outputFile, JSON.stringify({
-        files: meta,
-    }, null, 4), { encoding: 'utf8' });
+    await writeFile(outputFile, JSON.stringify(meta, null, 4), { encoding: 'utf8' });
 }
 
 export async function getMetaFile(userOutputFolder: string): Promise<RevisionMeta | null> {
@@ -66,18 +40,26 @@ export async function getMetaFile(userOutputFolder: string): Promise<RevisionMet
     }
 }
 
-export async function getFileChangedMeta(
+export async function updateMetaFile(
     cached: boolean,
-    inputFolderPath: string,
-    meta: RevisionMeta['files'] | undefined | null,
-) {
-    const files = Object.keys(meta ?? {});
-
+    outputFolderPath: string,
+    metaFiles: RevisionMeta['files'],
+    files: string[],
+) { 
     if (files.length) {
         const queue = new Queue(async (pathToAsset: string) => {
-            if (meta?.[pathToAsset]) {
-                const from = resolve(inputFolderPath, pathToAsset);
-                meta[pathToAsset].changed = cached || await isFileModified(pathToAsset, from, meta);
+            const from = resolve(outputFolderPath, pathToAsset);
+    
+            try {
+                const changed = !cached || !metaFiles[pathToAsset];
+                const modDate = Number((await stat(from)).mtime);
+                metaFiles[pathToAsset] = {
+                    mod_date: changed ? modDate : (metaFiles[pathToAsset]?.mod_date ?? modDate),
+                    dependencies: metaFiles[pathToAsset]?.dependencies || {},
+                    changed,
+                };
+            } catch (error) {
+                // ignore
             }
         }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
     
@@ -87,27 +69,41 @@ export async function getFileChangedMeta(
     }
 }
 
-export async function isFileModified(pathToAsset: string, from: string, meta?: RevisionMeta['files'] | null) {
-    if (!meta) {
-        return true;
-    }
+export async function updateChangedMetaFile(
+    cached: boolean,
+    inputFolderPath: string,
+    metaFiles: RevisionMeta['files'],
+) {
+    const files = Object.keys(metaFiles);
 
-    if (!meta[pathToAsset]) {
-        return true;
-    }
+    if (files.length) {
+        const queue = new Queue(async (pathToAsset: string) => {
+            if (metaFiles[pathToAsset] && !metaFiles[pathToAsset].changed) {
+                const from = resolve(inputFolderPath, pathToAsset);
+                const modDateNullable = await getFileModifiedDate(from);
+                const modDate = modDateNullable ?? metaFiles[pathToAsset].mod_date;
+
+                metaFiles[pathToAsset].changed = !cached || !modDateNullable || isFileModified(modDate, metaFiles[pathToAsset].mod_date);
+                metaFiles[pathToAsset].mod_date = modDate;
+            }
+        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
     
+        files.forEach(queue.add);
+    
+        await queue.loop();
+    }
+}
+
+async function getFileModifiedDate(from: string) {
     try {
         const data = await stat(from);
-    
         const folderLMM = Number(data.mtime);
-        
-        const res = Math.abs(folderLMM - meta[pathToAsset].mod_date) < 1000;
-        if (res) {
-            return false;
-        }
+        return folderLMM;
     } catch (_) {
-        return true;
+        return null;
     }
+}
 
-    return true;
+function isFileModified(newModDate: number, oldModDate: number) {
+    return Math.abs(newModDate - oldModDate) > 1000;
 }

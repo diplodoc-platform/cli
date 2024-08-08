@@ -103,8 +103,8 @@ export async function processPages(
 export const getProcessPageFn = async (
     fs: FsContext,
     deps: DependencyContext,
-    outputBundlePath: string,
     context: RevisionContext,
+    outputBundlePath: string,
 ) => {
     const {
         input: inputFolderPath,
@@ -406,11 +406,11 @@ function addTocPresetsDeps(path: PathData, fs: FsContext, deps: DependencyContex
         const presetsPath = resolve(...dirs, 'presets.yaml');
         
         if (fs.exist(tocPath)) {
-            deps.markDep?.(pathToFile, tocPath);
+            deps.markDep?.(pathToFile, tocPath, 'toc');
         }
 
         if (fs.exist(presetsPath)) {
-            deps.markDep?.(pathToFile, presetsPath);
+            deps.markDep?.(pathToFile, presetsPath, 'presets');
         }
     }    
 }

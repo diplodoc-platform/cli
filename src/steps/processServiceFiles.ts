@@ -12,7 +12,7 @@ import { RevisionContext } from '~/context/context';
 type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
 
 export async function processServiceFiles(context: RevisionContext, fs: FsContext): Promise<void> {
-    const {input: inputFolderPath, ignore = []} = ArgvService.getConfig();
+    const {input: inputFolderPath, ignore} = ArgvService.getConfig();
 
     const getFilePathsByGlobals = (globs: string[]): string[] => {
         return walk({
@@ -24,11 +24,11 @@ export async function processServiceFiles(context: RevisionContext, fs: FsContex
         });
     };
 
-    preparingPresetFiles(fs, getFilePathsByGlobals);
+    await preparingPresetFiles(fs, getFilePathsByGlobals);
     await preparingTocFiles(fs, getFilePathsByGlobals);
 }
 
-function preparingPresetFiles(fs: FsContext, getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {
+async function preparingPresetFiles(fs: FsContext, getFilePathsByGlobals: GetFilePathsByGlobalsFunction) {
     const {
         input: inputFolderPath,
         varsPreset = '',

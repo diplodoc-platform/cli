@@ -58,12 +58,14 @@ export function walk({
     }
     
     const dirs = [...(folder || [])].filter(Boolean) as string[];
-    const files = dirs.map<string[]>(folder => walkSync(folder as string, {
-        directories: directories,
-        includeBasePath: includeBasePath,
-        globs: globs || [],
-        ignore: ignore || [],
-    }));
+    const files = dirs.map<string[]>(
+        folder => walkSync(folder as string, {
+            directories,
+            includeBasePath,
+            globs,
+            ignore,
+        }),
+    );
 
     return [...new Set(files.flat())];
 }

@@ -1,5 +1,4 @@
 import {load} from 'js-yaml';
-import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {join, resolve, sep} from 'path';
 
@@ -69,7 +68,7 @@ async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
         folder: ASSETS_FOLDER,
         directories: false,
         includeBasePath: false,
-        ignore: hasRTLlang ? [] : ['**/*.rtl.css'],
+        ignore: hasRTLlang ? undefined : ['**/*.rtl.css'],
     });
 
     await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
@@ -111,7 +110,7 @@ async function processAssetsMdRun({args, tmpOutputFolder, context, fs}: Props) {
     }, []);
 
     for (const yamlFile of tocYamlFiles) {
-        const content = load(readFileSync(yamlFile, 'utf8'));
+        const content = load(fs.read(yamlFile));
 
         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
             return;

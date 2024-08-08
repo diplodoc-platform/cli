@@ -22,7 +22,7 @@ import {
 import {prepareMapFile} from '~/steps/processMapFile';
 import {copyFiles, logger} from '~/utils';
 import {upload as publishFilesToS3} from '~/commands/publish/upload';
-import { RevisionContext, getRevisionContext, setRevisionContext } from '~/context/context';
+import { RevisionContext, makeRevisionContext, setRevisionContext } from '~/context/context';
 import { FsContextCli } from '~/context/fs';
 import { DependencyContextCli } from '~/context/dependency';
 import { FileQueueProcessor } from '~/context/processor';
@@ -222,7 +222,8 @@ async function handler(args: Arguments<any>) {
 
         const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
-        const context = await getRevisionContext(userOutputFolder, tmpInputFolder, tmpOutputFolder);
+        const context = await makeRevisionContext(userOutputFolder, tmpInputFolder, tmpOutputFolder, outputBundlePath);
+        
         const fs = new FsContextCli(context);
         const deps = new DependencyContextCli(context);
         const pageProcessor = new FileQueueProcessor(context, deps);
@@ -246,7 +247,7 @@ async function handler(args: Arguments<any>) {
         }
 
         if (!buildDisabled) {
-            const processPageFn = await getProcessPageFn(fs, deps, outputBundlePath, context);
+            const processPageFn = await getProcessPageFn(fs, deps, context, outputBundlePath);
 
             await pageProcessor.processQueue(
                 processPageFn,

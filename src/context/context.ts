@@ -1,16 +1,22 @@
-import { RevisionContext as RevisionContextTransfrom } from '@diplodoc/transform/lib/typings';
+import {RevisionContext as RevisionContextTransfrom, RevisionMeta} from '@diplodoc/transform/lib/typings';
 import glob from 'glob';
-import { ArgvService } from '~/services';
-import { getFileChangedMeta, getMetaFile, makeMetaFile } from '~/utils/meta';
+import {ArgvService } from '~/services';
+import {getMetaFile, makeMetaFile, updateChangedMetaFile, updateMetaFile} from '~/utils/meta';
 
 export interface RevisionContext extends RevisionContextTransfrom {
     userInputFolder: string;
     userOutputFolder: string;
     tmpInputFolder: string;
     tmpOutputFolder: string;
+    outputBundlePath: string;
 }
 
-export async function getRevisionContext(userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string): Promise<RevisionContext> {
+export async function makeRevisionContext(
+    userOutputFolder: string,
+    tmpInputFolder: string,
+    tmpOutputFolder: string,
+    outputBundlePath: string,
+): Promise<RevisionContext> {
     const args = ArgvService.getConfig();
 
     const files = glob.sync('**', {
@@ -20,14 +26,23 @@ export async function getRevisionContext(userOutputFolder: string, tmpInputFolde
         ignore: ['node_modules/**', '*/node_modules/**'],
     });
 
-    const meta = await getMetaFile(
-        userOutputFolder,
+    const meta = normalizeMeta(
+        await getMetaFile(
+            userOutputFolder,
+        ),
     );
 
-    await getFileChangedMeta(
+    await updateMetaFile(
         args.cached,
         args.rootInput,
-        meta?.files,
+        meta.files,
+        files,
+    );
+
+    await updateChangedMetaFile(
+        args.cached,
+        args.rootInput,
+        meta.files,
     );
 
     return {
@@ -35,17 +50,23 @@ export async function getRevisionContext(userOutputFolder: string, tmpInputFolde
         userOutputFolder,
         tmpInputFolder,
         tmpOutputFolder,
+        outputBundlePath,
         files,
-        meta: args.cached ? meta : null,
+        meta,
     }
 }
 
-export async function setRevisionContext(context: RevisionContext): Promise<void> {
-    const args = ArgvService.getConfig();
+function normalizeMeta(meta?: RevisionMeta | undefined | null) {
+    const metaSafe: RevisionMeta = meta ?? {
+        files: {},
+    };
+    metaSafe.files = metaSafe.files ?? {};
+    return metaSafe;
+}
 
+export async function setRevisionContext(context: RevisionContext): Promise<void> {
     await makeMetaFile(
         context.userOutputFolder,
-        args.rootInput,
         context.files,
         context.meta,
     );

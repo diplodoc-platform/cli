@@ -25,22 +25,28 @@ export class DependencyContextCli implements DependencyContext {
         return path;
     }
 
-    markDep(path: string, dependencyPath: string): void {
+    markDep(path: string, dependencyPath: string, type?: string): void {
+        type = type ?? 'include';
+
         const assetPath = this.getAssetPath(path);
         const depAssetPath = this.getAssetPath(dependencyPath);
 
-        if (assetPath && depAssetPath && this.context?.meta?.files[assetPath]) {
-            const array = [...this.context.meta.files[assetPath].files, depAssetPath];
-            this.context.meta.files[assetPath].files = [...new Set(array)];
+        if (assetPath && depAssetPath && this.context?.meta?.files?.[assetPath]) {
+            const dependencies = this.context.meta.files[assetPath].dependencies[type] ?? [];
+            const array = [...dependencies, depAssetPath];
+            this.context.meta.files[assetPath].dependencies[type] = [...new Set(array)];
         }
     }
 
-    unmarkDep(path: string, dependencyPath: string): void {
+    unmarkDep(path: string, dependencyPath: string, type?: string): void {
+        type = type ?? 'include';
+
         const assetPath = this.getAssetPath(path);
         const depAssetPath = this.getAssetPath(dependencyPath);
 
-        if (assetPath && depAssetPath && this.context?.meta?.files[assetPath]) {
-            this.context.meta.files[assetPath].files = this.context.meta.files[assetPath].files
+        if (assetPath && depAssetPath && this.context?.meta?.files?.[assetPath]) {
+            const dependencies = this.context.meta.files[assetPath].dependencies[type] ?? [];
+            this.context.meta.files[assetPath].dependencies[type] = dependencies
                 .filter(file => file !== depAssetPath);
         }
     }
@@ -48,8 +54,8 @@ export class DependencyContextCli implements DependencyContext {
     resetDeps(path: string): void {
         const assetPath = this.getAssetPath(path);
 
-        if (assetPath && this.context?.meta?.files[assetPath]) {
-            this.context.meta.files[assetPath].files = [];
+        if (assetPath && this.context?.meta?.files?.[assetPath]) {
+            this.context.meta.files[assetPath].dependencies = {};
         }
     }
 }

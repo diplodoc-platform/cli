@@ -1,4 +1,5 @@
-import { DependencyContext } from '@diplodoc/transform/lib/typings';
+import {sep} from 'path';
+import {DependencyContext} from '@diplodoc/transform/lib/typings';
 import {RevisionContext} from './context';
 
 type FileQueueProcessorFn = (path: string) => (Promise<void> | void);
@@ -17,10 +18,18 @@ export class FileQueueProcessor {
 
     getFilesToProcess(navigationPaths: string[] = []) {
         const files = Object.keys(this.context.meta?.files || {})
-            .filter(path => this.context.meta?.files[path].changed !== false);
+            .filter(path => {
+                if (this.context.meta?.files?.[path].changed !== false) {
+                    const names = path.split(sep);
+                    if (names.find(name => name.startsWith('_'))) {
+                        return true;
+                    }
+                }
+                return false;
+            });
     
         for (const path of navigationPaths) {
-            if (this.context.meta?.files[path]?.changed !== false) {
+            if (this.context.meta?.files?.[path]?.changed !== false) {
                 files.push(path);
             }
         }
@@ -30,11 +39,16 @@ export class FileQueueProcessor {
 
     addDepsToQueue(path: string) {
         const dependencies = Object.keys(this.context.meta?.files || {})
-            .filter(file => this.context.meta?.files[file].files.includes(path));
+            .filter(file => {
+                const dependencies = this.context.meta?.files?.[file]?.dependencies;
+                return dependencies?.['include']?.includes(path)
+                    || dependencies?.['toc']?.includes(path)
+                    || dependencies?.['presets']?.includes(path);
+            });
         
         for (const file of dependencies) {
             if (!this.processed.has(file)) {
-                if (this.context.meta?.files[file]) {
+                if (this.context.meta?.files?.[file]) {
                     this.context.meta.files[file].changed = true;
                 }
                 this.whiteQueue.push(file);
@@ -47,7 +61,7 @@ export class FileQueueProcessor {
         
         let file = this.whiteQueue.shift();
 
-        while (file) {
+        while (file !== undefined && file !== null) {
             if (!this.processed.has(file)) {
                 this.processed.add(file);
                 this.deps.resetDeps?.(file);
