@@ -13,6 +13,12 @@ export async function makeMetaFile(
     currentMeta: RevisionMeta | undefined | null,
 ) { 
     const meta: RevisionMeta['files'] = {};
+    
+    for (const file of Object.keys(currentMeta?.files ?? {})) {
+        if (!files.includes(file)) {
+            delete currentMeta?.files[file];
+        }
+    }
 
     if (files.length) {
         const queue = new Queue(async (pathToAsset: string) => {
@@ -61,6 +67,7 @@ export async function getMetaFile(userOutputFolder: string): Promise<RevisionMet
 }
 
 export async function getFileChangedMeta(
+    cached: boolean,
     inputFolderPath: string,
     meta: RevisionMeta['files'] | undefined | null,
 ) {
@@ -70,7 +77,7 @@ export async function getFileChangedMeta(
         const queue = new Queue(async (pathToAsset: string) => {
             if (meta?.[pathToAsset]) {
                 const from = resolve(inputFolderPath, pathToAsset);
-                meta[pathToAsset].changed = await isFileModified(pathToAsset, from, meta);
+                meta[pathToAsset].changed = cached || await isFileModified(pathToAsset, from, meta);
             }
         }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
     

@@ -25,6 +25,7 @@ export async function getRevisionContext(userOutputFolder: string, tmpInputFolde
     );
 
     await getFileChangedMeta(
+        args.cached,
         args.rootInput,
         meta?.files,
     );
