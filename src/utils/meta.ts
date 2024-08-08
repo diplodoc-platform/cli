@@ -24,7 +24,6 @@ export async function makeMetaFile(
                 meta[pathToAsset] = {
                     mod_date: Number(data.mtime),
                     files: currentMeta?.files?.[pathToAsset]?.files || [],
-                    vars: currentMeta?.files?.[pathToAsset]?.vars || [],
                     changed: currentMeta?.files?.[pathToAsset]?.changed || false,
                 };
             } catch (error) {

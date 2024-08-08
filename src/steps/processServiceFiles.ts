@@ -16,8 +16,7 @@ export async function processServiceFiles(context: RevisionContext, fs: FsContex
 
     const getFilePathsByGlobals = (globs: string[]): string[] => {
         return walk({
-            folder: inputFolderPath,
-            folders: [context.userInputFolder],
+            folder: [inputFolderPath, context.userInputFolder],
             directories: false,
             includeBasePath: false,
             globs,

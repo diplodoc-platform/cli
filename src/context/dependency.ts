@@ -15,7 +15,14 @@ export class DependencyContextCli implements DependencyContext {
             const assetPath = path.replace(resolve(this.context.tmpInputFolder) + '/', '');
             return assetPath;
         }
-        return null;
+
+        const isFromInputFolder = path.startsWith(resolve(this.context.userInputFolder) + '/');
+        if (isFromInputFolder) {
+            const assetPath = path.replace(resolve(this.context.userInputFolder) + '/', '');
+            return assetPath;
+        }
+
+        return path;
     }
 
     markDep(path: string, dependencyPath: string): void {
@@ -38,21 +45,11 @@ export class DependencyContextCli implements DependencyContext {
         }
     }
 
-    markVars(path: string, ...names: string[]): void {
+    resetDeps(path: string): void {
         const assetPath = this.getAssetPath(path);
 
         if (assetPath && this.context?.meta?.files[assetPath]) {
-            const array = [...this.context.meta.files[assetPath].vars, ...names];
-            this.context.meta.files[assetPath].vars = [...new Set(array)];
-        }
-    }
-
-    unmarkVars(path: string, ...names: string[]): void {
-        const assetPath = this.getAssetPath(path);
-
-        if (assetPath && this.context?.meta?.files[assetPath]) {
-            this.context.meta.files[assetPath].vars = this.context.meta.files[assetPath].vars
-                .filter(name => !names.includes(name));
+            this.context.meta.files[assetPath].files = [];
         }
     }
 }

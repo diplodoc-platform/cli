@@ -18,6 +18,7 @@ import {ArgvService, TocService} from '~/services';
 import {checkPathExists, copyFiles, findAllValuesByKeys, walk} from '~/utils';
 import {Resources, YfmArgv} from '~/models';
 import {RevisionContext} from '~/context/context';
+import { FsContext } from '@diplodoc/transform/lib/typings';
 
 /**
  * @param {Array} args
@@ -34,6 +35,7 @@ type Props = {
     tmpOutputFolder: string;
     userOutputFolder: string;
     context: RevisionContext;
+    fs: FsContext;
 };
 
 /*
@@ -73,7 +75,7 @@ async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
     await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
 }
 
-async function processAssetsMdRun({args, tmpOutputFolder, context}: Props) {
+async function processAssetsMdRun({args, tmpOutputFolder, context, fs}: Props) {
     const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
@@ -122,7 +124,7 @@ async function processAssetsMdRun({args, tmpOutputFolder, context}: Props) {
                     /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
                 ).test(link);
 
-                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
+                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(fs, link, yamlFile)) {
                     const linkAbsolutePath = resolveRelativePath(yamlFile, link);
                     const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
 

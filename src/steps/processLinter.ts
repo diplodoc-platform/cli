@@ -3,7 +3,7 @@ import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
 import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '~/constants';
-import {ArgvService, PluginService, PresetService, TocService} from '~/services';
+import {ArgvService, PluginService, PresetService} from '~/services';
 import {ProcessLinterWorker} from '~/workers/linter';
 import {logger} from '~/utils';
 import {lintPage} from '~/resolvers';
@@ -11,15 +11,19 @@ import {splitOnChunks} from '~/utils/worker';
 import {RevisionContext} from '~/context/context';
 
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
-let navigationPathsChunks: string[][];
+let filesToProcessChunks: string[][];
 
-export async function processLinter(context: RevisionContext): Promise<void> {
+export async function processLinter(context: RevisionContext, filesToProcess: string[]): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
-    const navigationPaths = TocService.getNavigationPaths();
-
     if (!processLinterWorkers) {
-        lintPagesFallback(navigationPaths, context);
+        lintPagesFallback(filesToProcess, context);
+
+        const {error} = log.get();
+
+        if (error.length > 0) {
+            throw Error('Linting the project has failed');
+        }
 
         return;
     }
@@ -36,7 +40,7 @@ export async function processLinter(context: RevisionContext): Promise<void> {
     /* Run processing the linter */
     await Promise.all(
         processLinterWorkers.map((worker, i) => {
-            const navigationPathsChunk = navigationPathsChunks[i];
+            const navigationPathsChunk = filesToProcessChunks[i];
 
             return worker.run({
                 argvConfig,
@@ -47,10 +51,16 @@ export async function processLinter(context: RevisionContext): Promise<void> {
         }),
     );
 
+    let isSuccess = true;
+
     /* Unsubscribe from workers */
     await Promise.all(
         processLinterWorkers.map((worker) => {
             return worker.finish().then((logs) => {
+                if (logs.error?.length > 0) {
+                    isSuccess = false;
+                }
+
                 log.add(logs);
             });
         }),
@@ -62,19 +72,22 @@ export async function processLinter(context: RevisionContext): Promise<void> {
             return Thread.terminate(worker);
         }),
     );
+
+    if (!isSuccess) {
+        throw Error('Linting the project has failed');
+    }
 }
 
-export async function initLinterWorkers() {
-    const navigationPaths = TocService.getNavigationPaths();
-    const chunkSize = getChunkSize(navigationPaths);
+export async function initLinterWorkers(filesToProcess: string[]) {
+    const chunkSize = getChunkSize(filesToProcess);
 
     if (process.env.DISABLE_PARALLEL_BUILD || chunkSize < MIN_CHUNK_SIZE || WORKERS_COUNT <= 0) {
         return;
     }
 
-    navigationPathsChunks = splitOnChunks(navigationPaths, chunkSize).filter((arr) => arr.length);
+    filesToProcessChunks = splitOnChunks(filesToProcess, chunkSize).filter((arr) => arr.length);
 
-    const workersCount = navigationPathsChunks.length;
+    const workersCount = filesToProcessChunks.length;
 
     processLinterWorkers = await Promise.all(
         new Array(workersCount).fill(null).map(() => {
@@ -88,13 +101,10 @@ function getChunkSize(arr: string[]) {
     return Math.ceil(arr.length / WORKERS_COUNT);
 }
 
-function lintPagesFallback(navigationPaths: string[], context: RevisionContext) {
+function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
     PluginService.setPlugins();
 
-    navigationPaths.forEach((pathToFile) => {
-        if (!context.meta?.files?.[pathToFile]?.changed) {
-            return;
-        }
+    filesToProcess.forEach((pathToFile) => {
         lintPage({
             inputPath: pathToFile,
             fileExtension: extname(pathToFile),

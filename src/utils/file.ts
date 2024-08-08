@@ -42,20 +42,22 @@ export async function copyFiles(
 
 export function walk({
     folder,
-    folders,
     globs,
     ignore,
     directories,
     includeBasePath,
 }: {
-    folder?: string;
-    folders?: string[];
+    folder?: string | string[];
     globs?: string[];
     ignore?: string[];
     directories?: boolean;
     includeBasePath?: boolean;
 }) {
-    const dirs = [folder, ...(folders || [])].filter(Boolean) as string[];
+    if (!Array.isArray(folder) && folder) {
+        folder = [folder];
+    }
+    
+    const dirs = [...(folder || [])].filter(Boolean) as string[];
     const files = dirs.map<string[]>(folder => walkSync(folder as string, {
         directories: directories,
         includeBasePath: includeBasePath,

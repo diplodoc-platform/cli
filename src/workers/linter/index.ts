@@ -8,7 +8,7 @@ import {TocServiceData} from '~/services/tocs';
 import {PresetStorage} from '~/services/preset';
 import {YfmArgv} from '~/models';
 import {lintPage} from '~/resolvers';
-import { RevisionContext } from '~/context/context';
+import {RevisionContext} from '~/context/context';
 
 let processedPages = new Subject();
 

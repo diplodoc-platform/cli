@@ -21,14 +21,17 @@ export class FsContextCli implements FsContext {
     }
 
     getPaths(path: string) {
+        const arr = [path];
+
         const isFromTmpInputFolder = path.startsWith(resolve(this.context.tmpInputFolder) + '/');
         if (isFromTmpInputFolder) {
             const assetPath = path.replace(resolve(this.context.tmpInputFolder) + '/', '');
             const originPath = resolve(this.context.userInputFolder, assetPath);
-            
-            return [path, originPath];
+
+            arr.unshift(originPath);
         }
-        return [path];
+
+        return arr;
     }
 
     exist(path: string): boolean {

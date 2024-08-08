@@ -1,5 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, join, relative, resolve} from 'path';
+import {basename, dirname, extname, join, relative, resolve, sep} from 'path';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
@@ -63,10 +63,6 @@ export async function processPages(
         navigationPaths,
         PAGE_PROCESS_CONCURRENCY,
         asyncify(async (pathToFile: string) => {
-            if (!context.meta?.files?.[pathToFile]?.changed) {
-                return;
-            }
-            
             const pathData = getPathData(
                 pathToFile,
                 inputFolderPath,
@@ -376,6 +372,8 @@ async function preparingPagesByOutputFormat(
             return;
         }
 
+        addTocPresetsDeps(path, fs, deps);
+
         switch (outputFormat) {
             case 'md':
                 await processingFileToMd(path, metaDataOptions, context, fs, deps);
@@ -395,6 +393,26 @@ async function preparingPagesByOutputFormat(
         console.log(message, e);
         log.error(message);
     }
+}
+
+function addTocPresetsDeps(path: PathData, fs: FsContext, deps: DependencyContext) {
+    const {pathToFile} = path;
+
+    const names = pathToFile.split(sep).filter(file => !file.includes('.'));
+    
+    for (let index = names.length; index >= 1; index--) {
+        const dirs = names.slice(0, index);
+        const tocPath = resolve(...dirs, 'toc.yaml');
+        const presetsPath = resolve(...dirs, 'presets.yaml');
+        
+        if (fs.exist(tocPath)) {
+            deps.markDep?.(pathToFile, tocPath);
+        }
+
+        if (fs.exist(presetsPath)) {
+            deps.markDep?.(pathToFile, presetsPath);
+        }
+    }    
 }
 
 function processingYamlFile(fs: FsContext, path: PathData, metaDataOptions: MetaDataOptions) {

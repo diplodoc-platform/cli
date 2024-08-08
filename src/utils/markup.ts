@@ -9,7 +9,8 @@ import {preprocessPageHtmlForSinglePage} from './singlePage';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
-import {isFileExists, resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
 import {escape} from 'html-escaper';
 
@@ -218,8 +219,8 @@ export function getLinksWithExtension(link: string) {
     return oneLineWithExtension.test(link);
 }
 
-export function checkPathExists(path: string, parentFilePath: string) {
+export function checkPathExists(fs: FsContext, path: string, parentFilePath: string) {
     const includePath = resolveRelativePath(parentFilePath, path);
 
-    return isFileExists(includePath);
+    return fs.exist(includePath);
 }

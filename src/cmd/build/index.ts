@@ -42,6 +42,12 @@ function builder<T>(argv: Argv<T>) {
             type: 'string',
             group: 'Build options:',
         })
+        .option('debug', {
+            alias: 'd',
+            describe: 'Debug mode for development',
+            type: 'string',
+            group: 'Build options:',
+        })
         .option('output', {
             alias: 'o',
             describe: 'Path to output folder',
@@ -186,6 +192,8 @@ function builder<T>(argv: Argv<T>) {
 }
 
 async function handler(args: Arguments<any>) {
+    let hasError = false;
+
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
@@ -217,7 +225,7 @@ async function handler(args: Arguments<any>) {
         const context = await getRevisionContext(userOutputFolder, tmpInputFolder, tmpOutputFolder);
         const fs = new FsContextCli(context);
         const deps = new DependencyContextCli(context);
-        const processor = new FileQueueProcessor(context);
+        const processor = new FileQueueProcessor(context, deps);
 
         await preparingTemporaryFolders(context);
         await processServiceFiles(context, fs);
@@ -229,18 +237,22 @@ async function handler(args: Arguments<any>) {
 
         const navigationPaths = TocService.getNavigationPaths();
 
-        if (!lintDisabled && false) {
+        const filesToProcess = processor.getFilesToProcess(navigationPaths);
+
+        if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
-            await processLinter(context);
+            await initLinterWorkers(filesToProcess);
+            await processLinter(context, filesToProcess);
         }
 
         if (!buildDisabled) {
-            processor.processQueue(
-                await getProcessPageFn(fs, deps, outputBundlePath, context),
-                navigationPaths,
+            const process = await getProcessPageFn(fs, deps, outputBundlePath, context);
+
+            await processor.processQueue(
+                process,
+                filesToProcess,
             );
-    
+
             await finishProcessPages(fs);
         }
 
@@ -253,6 +265,7 @@ async function handler(args: Arguments<any>) {
                 tmpOutputFolder,
                 userOutputFolder,
                 context,
+                fs,
             });
 
             await processChangelogs();
@@ -291,13 +304,21 @@ async function handler(args: Arguments<any>) {
         
         await setRevisionContext(context);
     } catch (err) {
-        console.error(err);
+        if (args.debug) {
+            console.error(err);
+        }
         
         logger.error('', err.message);
+
+        hasError = true;
     } finally {
         processLogs(tmpInputFolder);
 
         shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
+    }
+
+    if (hasError) {
+        process.exit(1);
     }
 }
 
