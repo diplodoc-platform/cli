@@ -21,7 +21,7 @@ export class FileQueueProcessor {
     
         for (const path of navigationPaths) {
             if (this.context.meta?.files[path]?.changed !== false) {
-                this.whiteQueue.push(path);
+                files.push(path);
             }
         }
 

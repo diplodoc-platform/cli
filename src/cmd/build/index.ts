@@ -225,7 +225,7 @@ async function handler(args: Arguments<any>) {
         const context = await getRevisionContext(userOutputFolder, tmpInputFolder, tmpOutputFolder);
         const fs = new FsContextCli(context);
         const deps = new DependencyContextCli(context);
-        const processor = new FileQueueProcessor(context, deps);
+        const pageProcessor = new FileQueueProcessor(context, deps);
 
         await preparingTemporaryFolders(context);
         await processServiceFiles(context, fs);
@@ -237,7 +237,7 @@ async function handler(args: Arguments<any>) {
 
         const navigationPaths = TocService.getNavigationPaths();
 
-        const filesToProcess = processor.getFilesToProcess(navigationPaths);
+        const filesToProcess = pageProcessor.getFilesToProcess(navigationPaths);
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -246,10 +246,10 @@ async function handler(args: Arguments<any>) {
         }
 
         if (!buildDisabled) {
-            const process = await getProcessPageFn(fs, deps, outputBundlePath, context);
+            const processPageFn = await getProcessPageFn(fs, deps, outputBundlePath, context);
 
-            await processor.processQueue(
-                process,
+            await pageProcessor.processQueue(
+                processPageFn,
                 filesToProcess,
             );
 
