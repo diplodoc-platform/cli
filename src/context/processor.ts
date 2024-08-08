@@ -26,10 +26,10 @@ export class FileQueueProcessor {
     
     async processQueue(fn: FileQueueProcessorFn, navigationPaths: string[] = []) {
         this.whiteQueue = Object.keys(this.context.meta.files)
-            .filter(path => this.context.meta.files[path].changed);
+            .filter(path => this.context.meta.files[path].changed !== false);
         
         for (const path of navigationPaths) {
-            if (this.context.meta.files[path]?.changed) {
+            if (this.context.meta.files[path]?.changed !== false) {
                 this.whiteQueue.push(path);
             }
         }

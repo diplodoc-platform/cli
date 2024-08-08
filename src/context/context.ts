@@ -1,4 +1,4 @@
-import { RevisionContext as RevisionContextTransfrom, RevisionMeta } from '@diplodoc/transform/lib/typings';
+import { RevisionContext as RevisionContextTransfrom } from '@diplodoc/transform/lib/typings';
 import glob from 'glob';
 import { ArgvService } from '~/services';
 import { getFileChangedMeta, getMetaFile, makeMetaFile } from '~/utils/meta';
@@ -8,18 +8,6 @@ export interface RevisionContext extends RevisionContextTransfrom {
     userOutputFolder: string;
     tmpInputFolder: string;
     tmpOutputFolder: string;
-    meta: RevisionMeta & {
-        files: {
-            [key: string]: {
-                // mod_date: number;
-                // files: string[];
-                // vars: string[];
-                // changed: boolean;
-                dirty: boolean;
-                regenerated: boolean;
-            };
-        };
-    };
 }
 
 export async function getRevisionContext(userOutputFolder: string, tmpInputFolder: string, tmpOutputFolder: string): Promise<RevisionContext> {
@@ -47,7 +35,7 @@ export async function getRevisionContext(userOutputFolder: string, tmpInputFolde
         tmpInputFolder,
         tmpOutputFolder,
         files,
-        meta: args.cache ? meta : null,
+        meta: args.cached ? meta : null,
     }
 }
 

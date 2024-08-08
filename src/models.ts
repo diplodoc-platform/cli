@@ -33,6 +33,7 @@ interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
+    cached: boolean;
     allowHTML: boolean;
     vars: Record<string, string>;
     applyPresets: boolean;
@@ -65,7 +66,6 @@ export interface YfmArgv extends YfmConfig {
     config: string;
     output: string;
     quiet: string;
-    cache: boolean;
     publish: boolean;
     storageEndpoint: string;
     storageBucket: string;

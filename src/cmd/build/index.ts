@@ -48,7 +48,7 @@ function builder<T>(argv: Argv<T>) {
             type: 'string',
             group: 'Build options:',
         })
-        .option('cache', {
+        .option('cached', {
             default: false,
             describe: 'Use cache from revision meta file',
             type: 'boolean',
