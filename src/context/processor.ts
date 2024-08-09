@@ -18,18 +18,11 @@ export class FileQueueProcessor {
 
     getFilesToProcess(navigationPaths: string[] = []) {
         const files = Object.keys(this.context.meta?.files || {})
-            .filter(path => {
-                if (this.context.meta?.files?.[path].changed !== false) {
-                    const names = path.split(sep);
-                    if (names.find(name => name.startsWith('_'))) {
-                        return true;
-                    }
-                }
-                return false;
-            });
+            .filter(path => this.isChanged(path))
+            .filter(path => !this.isProcessable(path) || this.isInclude(path));
     
         for (const path of navigationPaths) {
-            if (this.context.meta?.files?.[path]?.changed !== false) {
+            if (this.isChanged(path)) {
                 files.push(path);
             }
         }
@@ -55,6 +48,22 @@ export class FileQueueProcessor {
             }
         }
     }
+
+    isChanged(path: string) {
+        return this.context.meta?.files?.[path]?.changed !== false;
+    }
+    
+    isInclude(path: string) {
+        const names = path.split(sep);
+        if (names.findIndex(name => name.startsWith('_')) >= 0) {
+            return true;
+        }
+        return false;
+    }
+
+    isProcessable(pattern: string) {
+        return pattern.endsWith('.yaml') || pattern.endsWith('.md');
+    }
     
     async processQueue(fn: FileQueueProcessorFn, files: string[] = []) {
         this.whiteQueue = files;
@@ -65,7 +74,9 @@ export class FileQueueProcessor {
             if (!this.processed.has(file)) {
                 this.processed.add(file);
                 this.deps.resetDeps?.(file);
-                await fn(file);
+                if (this.isProcessable(file)) {
+                    await fn(file);
+                }
                 this.addDepsToQueue(file);
             }
             file = this.whiteQueue.shift();

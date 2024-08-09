@@ -464,21 +464,23 @@ async function _replaceIncludes(
     return result;
 }
 
-function getTocDir(pagePath: string): string {
+function getTocDir(pagePath: string, pageBasePath?: string): string {
+    pageBasePath = pageBasePath ?? pagePath;
+
     const {input: inputFolderPath} = ArgvService.getConfig();
 
     const tocDir = dirname(pagePath);
     const tocPath = resolve(tocDir, 'toc.yaml');
 
     if (!tocDir.includes(inputFolderPath)) {
-        throw new Error('Error while finding toc dir');
+        throw new Error(`Error while finding toc dir for "${pageBasePath}"`);
     }
 
     if (fsContext.exist(tocPath)) {
         return tocDir;
     }
 
-    return getTocDir(tocDir);
+    return getTocDir(tocDir, pageBasePath);
 }
 
 function setNavigationPaths(paths: TocServiceData['navigationPaths']) {
