@@ -9,12 +9,11 @@ import {argvValidator} from '~/validator';
 import {ArgvService, Includers, TocService} from '~/services';
 import {
     finishProcessPages,
+    getLintFn,
     getProcessPageFn,
-    initLinterWorkers,
     processAssets,
     processChangelogs,
     processExcludedFiles,
-    processLinter,
     processLogs,
     processServiceFiles,
 } from '~/steps';
@@ -226,6 +225,7 @@ async function handler(args: Arguments<any>) {
         const fs = new FsContextCli(context);
         const deps = new DependencyContextCli(context);
         const pageProcessor = new FileQueueProcessor(context, deps);
+        const pageLintProcessor = new FileQueueProcessor(context, deps);
 
         await preparingTemporaryFolders(context);
         await processServiceFiles(context, fs);
@@ -237,15 +237,20 @@ async function handler(args: Arguments<any>) {
 
         const navigationPaths = TocService.getNavigationPaths();
 
-        const filesToProcess = pageProcessor.getFilesToProcess(navigationPaths);
-
         if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers(filesToProcess);
-            await processLinter(context, filesToProcess);
+            const filesToProcess = pageLintProcessor.getFilesToProcess(navigationPaths);
+
+            const processLintPageFn = await getLintFn(context);
+
+            await pageLintProcessor.processQueue(
+                processLintPageFn,
+                filesToProcess,
+            );
         }
 
         if (!buildDisabled) {
+            const filesToProcess = pageProcessor.getFilesToProcess(navigationPaths);
+
             const processPageFn = await getProcessPageFn(fs, deps, context, outputBundlePath);
 
             await pageProcessor.processQueue(

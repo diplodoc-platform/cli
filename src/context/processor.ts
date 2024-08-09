@@ -4,7 +4,7 @@ import {logger} from '~/utils/logger';
 import {Queue} from '~/utils/queue';
 import {RevisionContext} from './context';
 
-const PAGES_ACTIVE_QUEUE_LENGTH = 50;
+const PAGES_ACTIVE_QUEUE_LENGTH = 200;
 
 type FileQueueProcessorFn = (path: string) => (Promise<void> | void);
 

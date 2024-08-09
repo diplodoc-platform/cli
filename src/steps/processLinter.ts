@@ -115,3 +115,18 @@ function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
         });
     });
 }
+
+export async function getLintFn(context: RevisionContext) {
+    PluginService.setPlugins();
+
+    return async (pathToFile: string) => {
+        lintPage({
+            inputPath: pathToFile,
+            fileExtension: extname(pathToFile),
+            onFinish: () => {
+                logger.info(pathToFile, LINTING_FINISHED);
+            },
+            context,
+        });
+    };
+}
