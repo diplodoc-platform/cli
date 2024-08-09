@@ -16,16 +16,15 @@ import {
     processExcludedFiles,
     processLinter,
     processLogs,
-    processPages,
     processServiceFiles,
 } from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 import {copyFiles, logger} from '~/utils';
 import {upload as publishFilesToS3} from '~/commands/publish/upload';
-import { RevisionContext, makeRevisionContext, setRevisionContext } from '~/context/context';
-import { FsContextCli } from '~/context/fs';
-import { DependencyContextCli } from '~/context/dependency';
-import { FileQueueProcessor } from '~/context/processor';
+import {RevisionContext, makeRevisionContext, setRevisionContext} from '~/context/context';
+import {FsContextCli} from '~/context/fs';
+import {DependencyContextCli} from '~/context/dependency';
+import {FileQueueProcessor} from '~/context/processor';
 
 export const build = {
     command: ['build', '$0'],

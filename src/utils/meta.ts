@@ -2,9 +2,10 @@ import {resolve} from 'path';
 import {readFile, stat, unlink, writeFile} from 'node:fs/promises';
 import {logger} from './logger';
 import {Queue} from './queue';
-import { RevisionMeta } from '@diplodoc/transform/lib/typings';
+import {RevisionMeta} from '@diplodoc/transform/lib/typings';
 
 const FILE_META_NAME = '.revision.meta.json';
+const META_ACTIVE_QUEUE_LENGTH = 50;
 
 export async function makeMetaFile(
     userOutputFolder: string,
@@ -47,21 +48,25 @@ export async function updateMetaFile(
     files: string[],
 ) { 
     if (files.length) {
-        const queue = new Queue(async (pathToAsset: string) => {
-            const from = resolve(outputFolderPath, pathToAsset);
-    
-            try {
-                const changed = !cached || !metaFiles[pathToAsset];
-                const modDate = Number((await stat(from)).mtime);
-                metaFiles[pathToAsset] = {
-                    mod_date: changed ? modDate : (metaFiles[pathToAsset]?.mod_date ?? modDate),
-                    dependencies: metaFiles[pathToAsset]?.dependencies || {},
-                    changed,
-                };
-            } catch (error) {
-                // ignore
-            }
-        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
+        const queue = new Queue(
+            async (pathToAsset: string) => {
+                const from = resolve(outputFolderPath, pathToAsset);
+        
+                try {
+                    const changed = !cached || !metaFiles[pathToAsset];
+                    const modDate = Number((await stat(from)).mtime);
+                    metaFiles[pathToAsset] = {
+                        mod_date: changed ? modDate : (metaFiles[pathToAsset]?.mod_date ?? modDate),
+                        dependencies: metaFiles[pathToAsset]?.dependencies || {},
+                        changed,
+                    };
+                } catch (error) {
+                    // ignore
+                }
+            },
+            META_ACTIVE_QUEUE_LENGTH,
+            (error, pathToAsset) => logger.error(pathToAsset, error.message),
+        );
     
         files.forEach(queue.add);
     
@@ -77,17 +82,23 @@ export async function updateChangedMetaFile(
     const files = Object.keys(metaFiles);
 
     if (files.length) {
-        const queue = new Queue(async (pathToAsset: string) => {
-            if (metaFiles[pathToAsset] && !metaFiles[pathToAsset].changed) {
-                const from = resolve(inputFolderPath, pathToAsset);
-                const modDateNullable = await getFileModifiedDate(from);
-                const modDate = modDateNullable ?? metaFiles[pathToAsset].mod_date;
+        const queue = new Queue(
+            async (pathToAsset: string) => {
+                if (metaFiles[pathToAsset] && !metaFiles[pathToAsset].changed) {
+                    const from = resolve(inputFolderPath, pathToAsset);
+                    const modDateNullable = await getFileModifiedDate(from);
+                    const modDate = modDateNullable ?? metaFiles[pathToAsset].mod_date;
 
-                metaFiles[pathToAsset].changed = !cached || !modDateNullable || isFileModified(modDate, metaFiles[pathToAsset].mod_date);
-                metaFiles[pathToAsset].mod_date = modDate;
-            }
-        }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
-    
+                    metaFiles[pathToAsset].changed = !cached
+                        || !modDateNullable
+                        || isFileModified(modDate, metaFiles[pathToAsset].mod_date);
+                    metaFiles[pathToAsset].mod_date = modDate;
+                }
+            },
+            META_ACTIVE_QUEUE_LENGTH,
+            (error, pathToAsset) => logger.error(pathToAsset, error.message),
+        );
+        
         files.forEach(queue.add);
     
         await queue.loop();

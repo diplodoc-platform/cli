@@ -1,6 +1,10 @@
 import {sep} from 'path';
 import {DependencyContext} from '@diplodoc/transform/lib/typings';
+import {logger} from '~/utils/logger';
+import {Queue} from '~/utils/queue';
 import {RevisionContext} from './context';
+
+const PAGES_ACTIVE_QUEUE_LENGTH = 50;
 
 type FileQueueProcessorFn = (path: string) => (Promise<void> | void);
 
@@ -9,7 +13,6 @@ export class FileQueueProcessor {
     private deps: DependencyContext;
 
     private processed = new Set<string>();
-    private whiteQueue: string[] = [];
 
     constructor(context: RevisionContext, deps: DependencyContext) {
         this.context = context;
@@ -30,7 +33,7 @@ export class FileQueueProcessor {
         return files;
     }
 
-    addDepsToQueue(path: string) {
+    addDepsToQueue(path: string, add: (path: string) => void) {
         const dependencies = Object.keys(this.context.meta?.files || {})
             .filter(file => {
                 const dependencies = this.context.meta?.files?.[file]?.dependencies;
@@ -44,7 +47,7 @@ export class FileQueueProcessor {
                 if (this.context.meta?.files?.[file]) {
                     this.context.meta.files[file].changed = true;
                 }
-                this.whiteQueue.push(file);
+                add(file);
             }
         }
     }
@@ -66,20 +69,24 @@ export class FileQueueProcessor {
     }
     
     async processQueue(fn: FileQueueProcessorFn, files: string[] = []) {
-        this.whiteQueue = files;
-        
-        let file = this.whiteQueue.shift();
-
-        while (file !== undefined && file !== null) {
-            if (!this.processed.has(file)) {
-                this.processed.add(file);
-                this.deps.resetDeps?.(file);
-                if (this.isProcessable(file)) {
-                    await fn(file);
-                }
-                this.addDepsToQueue(file);
-            }
-            file = this.whiteQueue.shift();
+        if (files.length > 0) {
+            const queue = new Queue(
+                    async (file: string) => {
+                    if (!this.processed.has(file)) {
+                        this.processed.add(file);
+                        this.deps.resetDeps?.(file);
+                        if (this.isProcessable(file)) {
+                            await fn(file);
+                        }
+                        this.addDepsToQueue(file, queue.add);
+                    }
+                },
+                PAGES_ACTIVE_QUEUE_LENGTH,
+                (error, file) => logger.error(file, error.message),
+            );
+    
+            files.forEach(queue.add);
+            await queue.loop();
         }
     }
 }

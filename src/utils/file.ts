@@ -6,6 +6,8 @@ import {RevisionMeta} from '@diplodoc/transform/lib/typings';
 import {logger} from './logger';
 import {Queue} from './queue';
 
+const COPY_FILES_ACTIVE_QUEUE_LENGTH = 50;
+
 export async function copyFiles(
     inputFolderPath: string,
     outputFolderPath: string,
@@ -18,23 +20,27 @@ export async function copyFiles(
 
     const dirs = new Set<string>();
 
-    const queue = new Queue(async (pathToAsset: string) => {
-        const from = resolve(inputFolderPath, pathToAsset);
-        const to = resolve(outputFolderPath, pathToAsset);
-        const isChanged = meta?.files?.[pathToAsset]?.changed !== false;
-        
-        if (isChanged) {
-            const outputDir = resolve(outputFolderPath, dirname(pathToAsset));
-
-            if (!dirs.has(outputDir)) {
-                dirs.add(outputDir);
-                shell.mkdir('-p', outputDir);
-            }
+    const queue = new Queue(
+        async (pathToAsset: string) => {
+            const from = resolve(inputFolderPath, pathToAsset);
+            const to = resolve(outputFolderPath, pathToAsset);
+            const isChanged = meta?.files?.[pathToAsset]?.changed !== false;
             
-            await copyFile(from, to);
-            logger.copy(pathToAsset);
-        }
-    }, 50, (error, pathToAsset) => logger.error(pathToAsset, error.message));
+            if (isChanged) {
+                const outputDir = resolve(outputFolderPath, dirname(pathToAsset));
+
+                if (!dirs.has(outputDir)) {
+                    dirs.add(outputDir);
+                    shell.mkdir('-p', outputDir);
+                }
+                
+                await copyFile(from, to);
+                logger.copy(pathToAsset);
+            }
+        },
+        COPY_FILES_ACTIVE_QUEUE_LENGTH,
+        (error, pathToAsset) => logger.error(pathToAsset, error.message),
+    );
 
     files.forEach(queue.add);
     await queue.loop();
