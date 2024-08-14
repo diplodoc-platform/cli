@@ -52,7 +52,7 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
     const updatedMetadata = metadata?.isContributorsEnabled
         ? await getVCSMetadata(metadata, content, result?.meta)
         : result?.meta;
-    const fileMeta = fileExtension === '.yaml' ? result?.data?.meta ?? {} : updatedMetadata;
+    const fileMeta = fileExtension === '.yaml' ? (result?.data?.meta ?? {}) : updatedMetadata;
 
     if (!Array.isArray(fileMeta?.metadata)) {
         fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
