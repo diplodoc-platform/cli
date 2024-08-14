@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.35.1](https://github.com/diplodoc-platform/cli/compare/v4.35.0...v4.35.1) (2024-08-14)
+
+
+### Bug Fixes
+
+* Update translation ([3e289cc](https://github.com/diplodoc-platform/cli/commit/3e289cc578991f9df866980cfd99192dee10549b))
+
 ## [4.35.0](https://github.com/diplodoc-platform/cli/compare/v4.34.3...v4.35.0) (2024-07-31)
 
 
