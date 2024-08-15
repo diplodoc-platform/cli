@@ -2,6 +2,7 @@ import {Logger} from '@diplodoc/transform/lib/log';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 import type {DocAnalytics} from '@diplodoc/client';
+import {CacheContext} from '@diplodoc/transform/lib/typings';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
@@ -248,6 +249,7 @@ export interface PluginOptions {
     collectOfPlugins?: (input: string, options: PluginOptions) => string;
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
+    cache?: CacheContext;
 }
 
 export interface Plugin {
@@ -258,6 +260,7 @@ export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
     metadata: MetaDataOptions;
+    cache?: CacheContext;
 }
 
 export interface ResolverOptions {
@@ -269,6 +272,7 @@ export interface ResolverOptions {
     outputPath: string;
     outputBundlePath: string;
     metadata?: MetaDataOptions;
+    cache?: CacheContext;
 }
 
 export interface PathData {

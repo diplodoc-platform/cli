@@ -12,7 +12,7 @@ import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {enrichWithFrontMatter} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, metadata: metadataOptions} = options;
+    const {inputPath, outputPath, metadata: metadataOptions, cache} = options;
     const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
 
@@ -36,6 +36,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         vars: vars,
         log,
         copyFile,
+        cache,
     });
 
     writeFileSync(outputPath, result);
@@ -113,6 +114,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
         collectOfPlugins,
         log: pluginLog,
         copyFile: pluginCopyFile,
+        cache,
     } = options;
 
     let output = input;
@@ -136,6 +138,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             collectOfPlugins,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
+            cache,
         });
     }
 

@@ -21,6 +21,7 @@ import {
 import {prepareMapFile} from '../../steps/processMapFile';
 import {copyFiles, logger} from '../../utils';
 import {upload as publishFilesToS3} from '../../commands/publish/upload';
+import {CacheContextCli} from '~/context/cache';
 
 export const build = {
     command: ['build', '$0'],
@@ -212,6 +213,8 @@ async function handler(args: Arguments<any>) {
 
         const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
+        const cache = new CacheContextCli();
+
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
             await initLinterWorkers();
@@ -219,7 +222,7 @@ async function handler(args: Arguments<any>) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(outputBundlePath, cache),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);
