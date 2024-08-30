@@ -207,12 +207,12 @@ links:
 exports[`Allow load custom resources md2md with metadata 3`] = `
 "---
 metadata:
-  - name: yfm
-    content: builder in page
-  - name: test-yfm
-    content: inline test
-  - name: yfm-config
-    content: config test
+  - name: 'yfm'
+    content: 'builder in page'
+  - name: 'test-yfm'
+    content: 'inline test'
+  - name: 'yfm-config'
+    content: 'config test'
 ---
 
 Lorem"
@@ -221,12 +221,12 @@ Lorem"
 exports[`Allow load custom resources md2md with metadata 4`] = `
 "---
 metadata:
-  - name: yfm
-    value: builder in config
-  - name: test-yfm
-    content: inline test
-  - name: yfm-config
-    content: config test
+  - name: 'yfm'
+    value: 'builder in config'
+  - name: 'test-yfm'
+    content: 'inline test'
+  - name: 'yfm-config'
+    content: 'config test'
 ---
 
 Lorem"
