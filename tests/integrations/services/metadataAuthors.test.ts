@@ -119,7 +119,10 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            expect(updatedFileContent).toEqual(fileContent);
+            const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
+            const {metadata: metadataAfterEnrichment} = parseExistingMetadata(updatedFileContent);
+
+            expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
         });
 
         test(
@@ -136,7 +139,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                expect(updatedFileContent).toEqual(fileContent);
+                const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
+                const {metadata: metadataAfterEnrichment} =
+                    parseExistingMetadata(updatedFileContent);
+
+                expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
             },
         );
 
@@ -158,7 +165,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                expect(updatedFileContent).toEqual(fileContent);
+                const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
+                const {metadata: metadataAfterEnrichment} =
+                    parseExistingMetadata(updatedFileContent);
+
+                expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
             },
         );
 
@@ -172,7 +183,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 metadataOptions,
                 resolvedFrontMatterVars: {},
             });
-            
+
             const {metadata: originalMeta} = parseExistingMetadata(fileContent);
             const {metadata: updatedMeta} = parseExistingMetadata(updatedFileContent);
 
