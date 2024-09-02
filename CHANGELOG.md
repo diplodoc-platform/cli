@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.35.3](https://github.com/diplodoc-platform/cli/compare/v4.35.2...v4.35.3) (2024-09-02)
+
+
+### Bug Fixes
+
+* add metadata compatibility with empty string substitutions ([5d9de26](https://github.com/diplodoc-platform/cli/commit/5d9de26f0b15b0ce1f1e8535ea935d521a648217))
+* tests ([6a14ebe](https://github.com/diplodoc-platform/cli/commit/6a14ebec1727afbaf915b5b9c18c7e39a060a2d0))
+
 ## [4.35.2](https://github.com/diplodoc-platform/cli/compare/v4.35.1...v4.35.2) (2024-09-02)
 
 
