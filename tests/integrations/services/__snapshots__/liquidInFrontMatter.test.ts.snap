@@ -45,3 +45,13 @@ prop7: '{{this}} one is a multiline {{property}}.'
 Blah.
 "
 `;
+
+exports[`Front matter (metadata) transformations emit valid metadata when a variable is substituted with an ampty string 1`] = `
+"---
+prop1: ''
+prop2: ''
+prop3: ''
+prop4: ''
+---
+"
+`;
