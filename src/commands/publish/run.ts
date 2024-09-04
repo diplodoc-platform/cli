@@ -31,7 +31,7 @@ export class Run {
         });
 
         this.logger = new Logger(config, [
-            (message) => message.replace(new RegExp(this.root, 'ig'), ''),
+            (level, message) => message.replace(new RegExp(this.root, 'ig'), ''),
         ]);
     }
 
