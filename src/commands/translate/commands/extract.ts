@@ -23,6 +23,7 @@ import {
     resolveTargets,
     resolveVars,
 } from '../utils';
+import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 const MAX_CONCURRENCY = 50;
 
@@ -33,6 +34,7 @@ export type ExtractArgs = ProgramArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Record<string, any>;
+    useExperimentalParser?: boolean;
 };
 
 export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
@@ -44,6 +46,7 @@ export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & 
     files: string[];
     skipped: [string, string][];
     vars: Record<string, any>;
+    useExperimentalParser?: boolean;
 };
 
 export class Extract
@@ -68,6 +71,7 @@ export class Extract
         options.exclude,
         options.vars,
         options.config(YFM_CONFIG_FILENAME),
+        options.useExperimentalParser,
     ];
 
     readonly logger = new TranslateLogger();
@@ -108,12 +112,22 @@ export class Extract
                 include,
                 exclude,
                 vars,
+                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
             });
         });
     }
 
     async action() {
-        const {input, output, files, skipped, source, target: targets, vars} = this.config;
+        const {
+            input,
+            output,
+            files,
+            skipped,
+            source,
+            target: targets,
+            vars,
+            useExperimentalParser,
+        } = this.config;
 
         this.logger.setup(this.config);
 
@@ -127,6 +141,7 @@ export class Extract
                 input,
                 output,
                 vars,
+                useExperimentalParser,
             });
 
             this.logger.skipped(skipped);
@@ -167,10 +182,11 @@ export type PipelineParameters = {
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
     vars: Record<string, any>;
+    useExperimentalParser?: boolean;
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars} = params;
+    const {input, output, source, target, vars, useExperimentalParser} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -199,16 +215,25 @@ function pipeline(params: PipelineParameters) {
 
         const schemas = await resolveSchemas(path);
         const {xliff, skeleton, units} = extract(content.data, {
+            originalFile: path,
             source,
             target,
             schemas,
+            useExperimentalParser,
         });
 
-        if (!units.length) {
+        let xliffResult = xliff;
+        if (useExperimentalParser && units === undefined) {
+            const expXliff = xliff as unknown as Xliff;
+            xliffResult = expXliff.toString();
+            if (!expXliff.transUnits.length) {
+                throw new EmptyTokensError();
+            }
+        } else if (!units.length) {
             throw new EmptyTokensError();
         }
 
-        const xlf = new FileLoader(inputPath).set(xliff);
+        const xlf = new FileLoader(inputPath).set(xliffResult);
         const skl = new FileLoader(inputPath).set(skeleton);
 
         await Promise.all([
