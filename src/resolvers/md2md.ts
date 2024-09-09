@@ -13,7 +13,7 @@ import {enrichWithFrontMatter} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata: metadataOptions} = options;
-    const {input, output, changelogs: changelogsSetting} = ArgvService.getConfig();
+    const {input, output, changelogs: changelogsSetting, included} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
 
     const vars = getVarsPerFile(inputPath);
@@ -36,6 +36,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
         vars: vars,
         log,
         copyFile,
+        included,
     });
 
     writeFileSync(outputPath, result);
@@ -83,7 +84,6 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
     if (options) {
         const sourceIncludeContent = readFileSync(targetPath, 'utf8');
         const {result} = transformMd2Md(sourceIncludeContent, options);
-
         writeFileSync(targetDestPath, result);
     } else {
         shell.cp(targetPath, targetDestPath);
@@ -113,6 +113,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
         collectOfPlugins,
         log: pluginLog,
         copyFile: pluginCopyFile,
+        included,
     } = options;
 
     let output = input;
@@ -136,6 +137,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
             collectOfPlugins,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
+            included,
         });
     }
 
