@@ -84,6 +84,7 @@ interface YfmConfig {
      */
     changelogs?: string | boolean;
     analytics?: DocAnalytics;
+    useLegacyConditions: boolean;
 }
 
 export interface YfmArgv extends YfmConfig {

@@ -104,7 +104,7 @@ export const parseExistingMetadata = (
 
 export const serializeMetadata = (objectMetadata: FileMetadata) => {
     const dumped = unescapeLiquidSubstitutionSyntax(
-        dump(objectMetadata, {forceQuotes: true}).trimEnd(),
+        dump(objectMetadata).trimEnd(),
     );
 
     // This empty object check is a bit naive
