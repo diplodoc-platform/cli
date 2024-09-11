@@ -10,6 +10,7 @@ import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
 import yaml from 'js-yaml';
+import {CacheContext} from '@diplodoc/transform/lib/typings';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '../models';
@@ -28,6 +29,7 @@ import {
 export interface FileTransformOptions {
     path: string;
     root?: string;
+    cache?: CacheContext;
 }
 
 const FileTransformer: Record<string, Function> = {
@@ -39,14 +41,14 @@ const fixRelativePath = (relativeTo: string) => (path: string) => {
     return join(getAssetsPublicPath(relativeTo), path);
 };
 
-const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
+const getFileMeta = async ({fileExtension, metadata, inputPath, cache}: ResolverOptions) => {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+    const {result} = transformFn(content, {path: inputPath, cache});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -213,7 +215,7 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
     const {input, ...options} = ArgvService.getConfig();
-    const {path: filePath} = transformOptions;
+    const {path: filePath, cache} = transformOptions;
 
     const plugins = PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
@@ -231,5 +233,6 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
         extractTitle: true,
+        cache,
     });
 }
