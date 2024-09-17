@@ -66,6 +66,7 @@ interface YfmConfig {
     strict: boolean;
     ignoreStage: string;
     singlePage: boolean;
+    included: boolean;
     removeHiddenTocItems: boolean;
     vcs?: VCSConfiguration;
     connector?: VCSConnectorConfig;
@@ -248,6 +249,7 @@ export interface PluginOptions {
     collectOfPlugins?: (input: string, options: PluginOptions) => string;
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
+    included?: boolean;
 }
 
 export interface Plugin {
