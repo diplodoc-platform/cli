@@ -11,10 +11,10 @@ exports[`Front matter (metadata) transformations do not break when a property ke
 
 exports[`Front matter (metadata) transformations do not break when a property key contains Liquid-style variable substitutions 2`] = `
 "---
-prop-{{key-name}}: This one has a substitution in a key name.
-{{key-name}}-prop: This one's key starts with a substitution.
-{{key-name}}: This one's key only consists of a substitution.
-{{ key-name }}: This one's key employs a different whitespace style in a substitution.
+prop-{{key-name}}: 'This one has a substitution in a key name.'
+{{key-name}}-prop: 'This one''s key starts with a substitution.'
+{{key-name}}: 'This one''s key only consists of a substitution.'
+{{ key-name }}: 'This one''s key employs a different whitespace style in a substitution.'
 ---
 Blah.
 "
@@ -34,15 +34,13 @@ exports[`Front matter (metadata) transformations do not break when a property va
 
 exports[`Front matter (metadata) transformations do not break when a property value contains Liquid-style variable substitutions 2`] = `
 "---
-prop1: This is a metadata property with a {{substitution}} in it.
-prop2: This one contains {{multiple}} {{substitutions}}.
-prop3: This one has {{substitutions}} of {{ different }} {{  styles}}.
-prop4: >-
-  This one has a {{substitution}} as well, but the string literal is
-  single-quoted.
-prop5: This one has no quotes at {{all}}.
-prop6: {{this}} starts with a substitution.
-prop7: {{this}} one is a multiline {{property}}.
+prop1: 'This is a metadata property with a {{substitution}} in it.'
+prop2: 'This one contains {{multiple}} {{substitutions}}.'
+prop3: 'This one has {{substitutions}} of {{ different }} {{  styles}}.'
+prop4: 'This one has a {{substitution}} as well, but the string literal is single-quoted.'
+prop5: 'This one has no quotes at {{all}}.'
+prop6: '{{this}} starts with a substitution.'
+prop7: '{{this}} one is a multiline {{property}}.'
 ---
 Blah.
 "
@@ -50,10 +48,10 @@ Blah.
 
 exports[`Front matter (metadata) transformations emit valid metadata when a variable is substituted with an ampty string 1`] = `
 "---
-prop1: 
-prop2: 
-prop3: 
-prop4: 
+prop1: ''
+prop2: ''
+prop3: ''
+prop4: ''
 ---
 "
 `;
