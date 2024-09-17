@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.36.1](https://github.com/diplodoc-platform/cli/compare/v4.36.0...v4.36.1) (2024-09-17)
+
+
+### Bug Fixes
+
+* bump openapi-extension ([#830](https://github.com/diplodoc-platform/cli/issues/830)) ([aac7b54](https://github.com/diplodoc-platform/cli/commit/aac7b54a752eea34c3f0aa697b752d52bce8afac))
+
 ## [4.36.0](https://github.com/diplodoc-platform/cli/compare/v4.35.3...v4.36.0) (2024-09-17)
 
 
