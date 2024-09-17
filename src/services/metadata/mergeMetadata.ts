@@ -24,9 +24,7 @@ export const mergeMetadata = ({
     // That way js-yaml wouldn't include it in the serialized YAML
     // However, that way, this would overwrite (delete) existing properties, e.g.: sourcePath
     // Because of this, we spread objects to create properties if necessary
-    const systemVarsMetadataToSpread = isObject(systemVars)
-        ? {__system: JSON.stringify(systemVars)}
-        : undefined;
+    const systemVarsMetadataToSpread = isObject(systemVars) ? {__system: systemVars} : undefined;
     const innerMetadataToSpread =
         mergedInnerMetadata.length > 0 ? {metadata: mergedInnerMetadata} : undefined;
 
