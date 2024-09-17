@@ -1,4 +1,5 @@
 import {resolve} from 'path';
+import {platform} from 'process';
 const os = require('os');
 const notes = require('@diplodoc/transform/lib/plugins/notes');
 const anchors = require('@diplodoc/transform/lib/plugins/anchors');
@@ -107,6 +108,8 @@ export const YFM_PLUGINS = [
     changelog,
     blockAnchor,
 ];
+
+export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export const PROCESSING_FINISHED = 'Processing finished:';
 export const LINTING_FINISHED = 'Linting finished:';

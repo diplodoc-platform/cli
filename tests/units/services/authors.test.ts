@@ -1,4 +1,4 @@
-import * as units from 'utils/markup';
+import * as units from '../../utils';
 import {
     getAuthorDetails,
     updateAuthorMetadataStringByAuthorLogin,

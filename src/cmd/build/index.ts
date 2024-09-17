@@ -7,7 +7,7 @@ import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
 import {argvValidator} from '../../validator';
-import {ArgvService, Includers} from '../../services';
+import {ArgvService, Includers, SearchService} from '../../services';
 import {
     initLinterWorkers,
     processAssets,
@@ -166,6 +166,7 @@ function builder<T>(argv: Argv<T>) {
             type: 'boolean',
             group: 'Build options:',
         })
+        .option('search', {})
         .check(argvValidator)
         .example('yfm -i ./input -o ./output', '')
         .demandOption(
@@ -190,6 +191,7 @@ async function handler(args: Arguments<any>) {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
+        SearchService.init(args.output);
         Includers.init([OpenapiIncluder as any]);
 
         const {
@@ -235,6 +237,8 @@ async function handler(args: Arguments<any>) {
             });
 
             await processChangelogs();
+
+            await SearchService.release();
 
             // Copy all generated files to user' output folder
             shell.cp(

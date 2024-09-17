@@ -1,6 +1,6 @@
 import {Contributor, Contributors, Metadata, MetaDataOptions} from 'models';
 import {getVCSMetadata} from 'services/metadata';
-import {replaceDoubleToSingleQuotes} from 'utils/markup';
+import {replaceDoubleToSingleQuotes} from '../../utils';
 import {VCSConnector} from 'vcs-connector/connector-models';
 
 const contributorFirst: Contributor = {
