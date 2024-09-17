@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.36.0](https://github.com/diplodoc-platform/cli/compare/v4.35.3...v4.36.0) (2024-09-17)
+
+
+### Features
+
+* add included option ([#828](https://github.com/diplodoc-platform/cli/issues/828)) ([c00ee30](https://github.com/diplodoc-platform/cli/commit/c00ee30a56248bb00518dc7ecd8e99edd6dcfe58))
+* bump transform version ([ca73c1c](https://github.com/diplodoc-platform/cli/commit/ca73c1c325267a6ff12fe0948789a71928e7f5d3))
+
+
+### Bug Fixes
+
+* upload logs ([9ad49e8](https://github.com/diplodoc-platform/cli/commit/9ad49e878b02cb742dccd8129ee19294d9e35253))
+
 ## [4.35.3](https://github.com/diplodoc-platform/cli/compare/v4.35.2...v4.35.3) (2024-09-02)
 
 
