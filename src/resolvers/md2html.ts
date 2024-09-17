@@ -16,7 +16,6 @@ import {LeadingPage, ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PluginService, TocService} from '../services';
 import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
 import {
-    generateStaticMarkup,
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
@@ -24,6 +23,7 @@ import {
     modifyValuesByKeys,
     transformToc,
 } from '../utils';
+import {generateStaticMarkup} from '../pages';
 
 export interface FileTransformOptions {
     path: string;

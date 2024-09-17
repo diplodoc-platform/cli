@@ -1,3 +1,5 @@
+import type {SinglePageResult} from '~/models';
+
 import HTMLElement from 'node-html-parser/dist/nodes/html';
 import {parse} from 'node-html-parser';
 import {relative, resolve, sep} from 'path';
@@ -231,4 +233,18 @@ export function preprocessPageHtmlForSinglePage(
     replaceImages(root, options);
 
     return root.toString();
+}
+
+export function joinSinglePageResults(
+    singlePageResults: SinglePageResult[],
+    root: string,
+    tocDir: string,
+): string {
+    const delimeter = `<hr class="yfm-page__delimeter">`;
+    return singlePageResults
+        .filter(({content}) => content)
+        .map(({content, path, title}) =>
+            preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}),
+        )
+        .join(delimeter);
 }
