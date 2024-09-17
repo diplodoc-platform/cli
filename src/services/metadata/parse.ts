@@ -103,9 +103,7 @@ export const parseExistingMetadata = (
 };
 
 export const serializeMetadata = (objectMetadata: FileMetadata) => {
-    const dumped = unescapeLiquidSubstitutionSyntax(
-        dump(objectMetadata).trimEnd(),
-    );
+    const dumped = unescapeLiquidSubstitutionSyntax(dump(objectMetadata).trimEnd());
 
     // This empty object check is a bit naive
     // The other option would be to check if all own fields are `undefined`,

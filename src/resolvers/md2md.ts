@@ -91,7 +91,8 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
 }
 
 export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {applyPresets, resolveConditions, conditionsInCode, useLegacyConditions} = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, conditionsInCode, useLegacyConditions} =
+        ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
