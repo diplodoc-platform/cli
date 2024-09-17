@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.36.2](https://github.com/diplodoc-platform/cli/compare/v4.36.1...v4.36.2) (2024-09-17)
+
+
+### Bug Fixes
+
+* add useLegacyConditions option, disable forceQuotes in yaml ([#829](https://github.com/diplodoc-platform/cli/issues/829)) ([a0e77b4](https://github.com/diplodoc-platform/cli/commit/a0e77b4c04fad1dcdd1dd6eaa8a8c0fbb8a2d4a1))
+
 ## [4.36.1](https://github.com/diplodoc-platform/cli/compare/v4.36.0...v4.36.1) (2024-09-17)
 
 
