@@ -162,7 +162,7 @@ export function liquidFields(
 }
 
 export function liquidField(input: string, vars: Record<string, unknown>, path: string) {
-    const {applyPresets, resolveConditions} = ArgvService.getConfig();
+    const {applyPresets, resolveConditions, useLegacyConditions} = ArgvService.getConfig();
 
     if (!applyPresets && !resolveConditions) {
         return input;
@@ -173,6 +173,7 @@ export function liquidField(input: string, vars: Record<string, unknown>, path: 
         conditions: resolveConditions,
         keepNotVar: true,
         withSourceMap: false,
+        useLegacyConditions,
     });
 }
 

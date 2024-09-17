@@ -203,11 +203,12 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
 }
 
 export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
-    const {conditionsInCode} = ArgvService.getConfig();
+    const {conditionsInCode, useLegacyConditions} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditionsInCode,
         withSourceMap: true,
+        useLegacyConditions,
     });
 }
 
