@@ -4,14 +4,14 @@ exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `"["
 
 exports[`Include toc Nested toc inclusions with mixed including modes 2`] = `
 "---
-sourcePath: product1/core/_includes/inc.md
+sourcePath: 'product1/core/_includes/inc.md'
 ---
 This is the core include."
 `;
 
 exports[`Include toc Nested toc inclusions with mixed including modes 3`] = `
 "---
-sourcePath: product1/core/article1.md
+sourcePath: 'product1/core/article1.md'
 ---
 This is the core content of Article 1.
 
@@ -31,7 +31,7 @@ deepBase: 1
 
 exports[`Include toc Nested toc inclusions with mixed including modes 5`] = `
 "---
-sourcePath: product2/core/_includes/inc.md
+sourcePath: 'product2/core/_includes/inc.md'
 ---
 This is the core include.
 "
@@ -39,7 +39,7 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes 6`] = `
 "---
-sourcePath: product2/overlay1/product/article1.md
+sourcePath: 'product2/overlay1/product/article1.md'
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -49,7 +49,7 @@ This is the overlay content of Article 1 for product 2.
 
 exports[`Include toc Nested toc inclusions with mixed including modes 7`] = `
 "---
-sourcePath: product2/core/_includes/inc.md
+sourcePath: 'product2/core/_includes/inc.md'
 ---
 This is the core include.
 "
@@ -57,7 +57,7 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes 8`] = `
 "---
-sourcePath: product2/overlay2/product/article1.md
+sourcePath: 'product2/overlay2/product/article1.md'
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -67,7 +67,7 @@ This is the overlay number #2  of Article 1 content for product 2.
 
 exports[`Include toc Nested toc inclusions with mixed including modes 9`] = `
 "---
-sourcePath: product2/core/_includes/inc.md
+sourcePath: 'product2/core/_includes/inc.md'
 ---
 This is the core include.
 "
@@ -75,7 +75,7 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes 10`] = `
 "---
-sourcePath: product2/core/article1.md
+sourcePath: 'product2/core/article1.md'
 ---
 This is the core content of Article 1.
 
@@ -160,9 +160,9 @@ exports[`Include toc Toc is included inline, not as a new section 3`] = `
 
 exports[`Include toc Toc is included inline, not as a new section 4`] = `
 "---
-title: File A
-description: YFM description
-sourcePath: folder/fileA.md
+title: 'File A'
+description: 'YFM description'
+sourcePath: 'folder/fileA.md'
 ---
 # File A
 
@@ -176,7 +176,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 
 exports[`Include toc Toc is included inline, not as a new section 5`] = `
 "---
-sourcePath: folder/fileB.md
+sourcePath: 'folder/fileB.md'
 ---
 # File B
 
@@ -192,7 +192,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 
 exports[`Include toc Toc is included inline, not as a new section 6`] = `
 "---
-sourcePath: folder/folder/fileC.md
+sourcePath: 'folder/folder/fileC.md'
 ---
 # File C
 "
@@ -205,8 +205,8 @@ exports[`Include toc Toc is included inline, not as a new section 7`] = `
 
 exports[`Include toc Toc is included inline, not as a new section 8`] = `
 "---
-title: File A
-description: YFM description
+title: 'File A'
+description: 'YFM description'
 ---
 # File A
 
@@ -233,7 +233,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 
 exports[`Include toc Toc is included inline, not as a new section 10`] = `
 "---
-sourcePath: folder/folder/fileC.md
+sourcePath: 'folder/folder/fileC.md'
 ---
 # File C
 "
