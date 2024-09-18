@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.36.3](https://github.com/diplodoc-platform/cli/compare/v4.36.2...v4.36.3) (2024-09-18)
+
+
+### Bug Fixes
+
+* re-enable `forceQuotes` while also fixing `systemVars` behaviour ([2c4a8b3](https://github.com/diplodoc-platform/cli/commit/2c4a8b30e3d0b79def437a373d56752e00669ed4))
+* unconstrain line width when dumping metadata to yaml ([d936302](https://github.com/diplodoc-platform/cli/commit/d936302b49f3b3608b69899596571be8386eca01))
+
 ## [4.36.2](https://github.com/diplodoc-platform/cli/compare/v4.36.1...v4.36.2) (2024-09-17)
 
 
