@@ -35,7 +35,7 @@
     "node": ">=18.*"
   },
   "dependencies": {
-    "@diplodoc/client": "^2.7.0",
+    "@diplodoc/client": "^2.8.2",
     "@diplodoc/translation": "^1.4.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
