@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.36.4](https://github.com/diplodoc-platform/cli/compare/v4.36.3...v4.36.4) (2024-09-20)
+
+
+### Bug Fixes
+
+* bump transform plugin ([906362c](https://github.com/diplodoc-platform/cli/commit/906362ccc33121a61b6c0e8cb65df385870dfaf8))
+* update @diplodoc/client@2.8.2 ([#837](https://github.com/diplodoc-platform/cli/issues/837)) ([cd14826](https://github.com/diplodoc-platform/cli/commit/cd148269fde3adc23cb9158ab7af1408de724ed1))
+
 ## [4.36.3](https://github.com/diplodoc-platform/cli/compare/v4.36.2...v4.36.3) (2024-09-18)
 
 
