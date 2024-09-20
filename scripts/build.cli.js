@@ -10,12 +10,11 @@ const clientManifest = require('@diplodoc/client/manifest');
 const assets = [...clientManifest.js, ...clientManifest.css];
 
 const {version, dependencies} = require('../package.json');
-const {compilerOptions: {target}} = require('../tsconfig.json');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
     platform: 'node',
-    target: target,
+    target: 'ES6',
     format: 'cjs',
     bundle: true,
     sourcemap: true,

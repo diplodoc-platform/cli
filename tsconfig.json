@@ -2,9 +2,10 @@
   "extends": "@diplodoc/tsconfig",
   "compilerOptions": {
     "lib": ["ES2019"],
-    "target": "es6",
+    "target": "ES2019",
     "outDir": "build",
-    "module": "CommonJS",
+    "module": "preserve",
+    "moduleResolution": "bundler",
     "paths": {
       "~/*": ["./src/*"]
     }
