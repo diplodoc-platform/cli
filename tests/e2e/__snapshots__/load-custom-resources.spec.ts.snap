@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html single page with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html","single-page.html","single-page.json"]"`;
+exports[`Allow load custom resources md2html single page with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/829.js","_bundle/998.js","_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/extensions_search_lib_worker_index_js.js","_bundle/react.js","_bundle/search.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","_bundle/vendors-node_modules_lunr_lunr_js.js","index.html","page.html","project/config.html","single-page.html","single-page.json"]"`;
 
 exports[`Allow load custom resources md2html single page with custom resources 2`] = `
 <!DOCTYPE html>
@@ -48,7 +48,7 @@ exports[`Allow load custom resources md2html single page with custom resources 2
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html"},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -111,7 +111,7 @@ exports[`Allow load custom resources md2html single page with custom resources 3
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru","langs":["ru"]};
+      </p>/n"},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -171,7 +171,7 @@ exports[`Allow load custom resources md2html single page with custom resources 4
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"project/config.html"},"lang":"ru","langs":["ru"]};
+      </p>/n"},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -254,7 +254,7 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 
 exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
+exports[`Allow load custom resources md2html with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/829.js","_bundle/998.js","_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/extensions_search_lib_worker_index_js.js","_bundle/react.js","_bundle/search.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","_bundle/vendors-node_modules_lunr_lunr_js.js","index.html","page.html","project/config.html"]"`;
 
 exports[`Allow load custom resources md2html with custom resources 2`] = `
 <!DOCTYPE html>
@@ -302,7 +302,7 @@ exports[`Allow load custom resources md2html with custom resources 2`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html"},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]}},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -365,7 +365,7 @@ exports[`Allow load custom resources md2html with custom resources 3`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"page.html"},"lang":"ru","langs":["ru"]};
+      </p>/n"},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
@@ -425,7 +425,7 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"project/config.html"},"lang":"ru","langs":["ru"]};
+      </p>/n"},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"],"search":{}};
     </script>
     <script type="application/javascript"
             src="_bundle/react.js"
