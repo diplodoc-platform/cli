@@ -1,9 +1,10 @@
+import type {DocInnerProps} from '@diplodoc/client';
+
 import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve, sep} from 'path';
 import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
-import type {DocInnerProps} from '@diplodoc/client';
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
@@ -13,7 +14,7 @@ import yaml from 'js-yaml';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PluginService, TocService} from '../services';
+import {ArgvService, PluginService, SearchService, TocService} from '../services';
 import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
 import {
     getLinksWithContentExtersion,
@@ -83,7 +84,7 @@ const getFileProps = async (options: ResolverOptions) => {
     const pathToFileDir: string =
         pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
 
-    const {lang: configLang, langs: configLangs, analytics} = ArgvService.getConfig();
+    const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
     const meta = await getFileMeta(options);
 
     const tocBaseLang = tocBase?.split('/')[0];
@@ -102,9 +103,14 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         router: {
             pathname,
+            depth: pathname.split('/').length,
         },
         lang,
         langs,
+        search: {
+            ...search,
+            ...SearchService.config(lang),
+        },
         analytics,
     };
 

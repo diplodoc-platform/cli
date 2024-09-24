@@ -1,7 +1,8 @@
+import type {DocAnalytics} from '@diplodoc/client';
+
 import {Logger} from '@diplodoc/transform/lib/log';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
-import type {DocAnalytics} from '@diplodoc/client';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
@@ -84,7 +85,10 @@ interface YfmConfig {
      */
     changelogs?: string | boolean;
     analytics?: DocAnalytics;
-    useLegacyConditions: boolean;
+    useLegacyConditions?: boolean;
+    search?: {
+        provider: string;
+    } & {[prop: string]: unknown};
 }
 
 export interface YfmArgv extends YfmConfig {
