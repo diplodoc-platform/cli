@@ -1,4 +1,4 @@
-const {resolve, join} = require('path');
+const {resolve} = require('path');
 const {readFileSync} = require('fs');
 const {sync: glob} = require('glob');
 const normalize = require('normalize-path');

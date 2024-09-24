@@ -1,4 +1,4 @@
-import {CARRIAGE_RETURN} from '~/constants';
+import {CARRIAGE_RETURN} from '../../constants';
 import {FileMetadata, serializeMetadata} from './parse';
 
 // IMO, we should just always apply this at the end of the whole processing pipeline,
