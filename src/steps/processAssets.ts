@@ -14,7 +14,6 @@ import {
     ASSETS_FOLDER,
     LINT_CONFIG_FILENAME,
     REDIRECTS_FILENAME,
-    RTL_LANGS,
     YFM_CONFIG_FILENAME,
 } from '../constants';
 import {Resources} from '../models';
@@ -49,7 +48,7 @@ export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFo
 }
 
 function processAssetsHtmlRun({outputBundlePath}) {
-    const {input: inputFolderPath, output: outputFolderPath, langs} = ArgvService.getConfig();
+    const {input: inputFolderPath, output: outputFolderPath} = ArgvService.getConfig();
 
     const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
         directories: false,
@@ -59,11 +58,9 @@ function processAssetsHtmlRun({outputBundlePath}) {
 
     copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
 
-    const hasRTLlang = hasIntersection(langs, RTL_LANGS);
     const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
         directories: false,
         includeBasePath: false,
-        ignore: !hasRTLlang && ['**/*.rtl.css'],
     });
 
     copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
@@ -129,9 +126,4 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
 
         copyFiles(args.input, tmpOutputFolder, localMediaLinks);
     });
-}
-
-function hasIntersection(array1, array2) {
-    const set1 = new Set(array1);
-    return array2.some((element) => set1.has(element));
 }
