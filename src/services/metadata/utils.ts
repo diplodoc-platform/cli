@@ -1,4 +1,4 @@
-import {CARRIAGE_RETURN} from '~/constants';
+import {CARRIAGE_RETURN} from '../../constants';
 
 // IMO, we should just always apply this at the end of the whole processing pipeline,
 // not when dumping meta/front matter
