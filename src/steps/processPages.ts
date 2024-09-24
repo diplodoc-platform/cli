@@ -23,7 +23,7 @@ import {
     YfmToc,
 } from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, TocService} from '../services';
+import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
 import {joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
@@ -289,6 +289,8 @@ async function preparingPagesByOutputFormat(
                 return;
             case 'html': {
                 const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
+
+                SearchService.add(resolvedFileProps);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path);
