@@ -1,7 +1,7 @@
+import {join} from 'path';
 import {BUNDLE_FOLDER, Lang, RTL_LANGS} from '../constants';
 import {PluginService} from '../services';
 
-import {join} from 'path';
 import manifest from '@diplodoc/client/manifest';
 
 export function generateStaticRedirect(lang: Lang, link: string): string {
@@ -20,7 +20,7 @@ export function generateStaticRedirect(lang: Lang, link: string): string {
                         height: 100vh;
                     }
                 </style>
-                ${manifest.css
+                ${manifest.app.css
                     .filter((file: string) => isRTL === file.includes('.rtl.css'))
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)

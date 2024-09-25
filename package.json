@@ -3,7 +3,7 @@
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "license": "MIT",
-  "version": "4.36.4",
+  "version": "4.37.0",
   "repository": {
     "type": "git",
     "url": "git@github.com:diplodoc-platform/cli.git"
@@ -35,7 +35,8 @@
     "node": ">=18.*"
   },
   "dependencies": {
-    "@diplodoc/client": "^2.8.2",
+    "@diplodoc/client": "^3.0.2",
+    "@diplodoc/search-extension": "^1.1.0",
     "@diplodoc/translation": "^1.4.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
@@ -47,7 +48,7 @@
     "@diplodoc/eslint-config": "^2.0.0",
     "@diplodoc/latex-extension": "^1.1.0",
     "@diplodoc/mermaid-extension": "^1.2.1",
-    "@diplodoc/openapi-extension": "^2.3.2",
+    "@diplodoc/openapi-extension": "^2.3.3",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/transform": "^4.31.3",
     "@diplodoc/tsconfig": "^1.0.2",
@@ -70,7 +71,7 @@
     "axios": "^1.6.7",
     "chalk": "^4.1.2",
     "commander": "^12.0.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.23.1",
     "glob": "^8.0.3",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
