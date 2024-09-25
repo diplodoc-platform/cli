@@ -36,7 +36,7 @@
   },
   "dependencies": {
     "@diplodoc/client": "^3.0.2",
-    "@diplodoc/search-extension": "^1.0.0",
+    "@diplodoc/search-extension": "^1.1.0",
     "@diplodoc/translation": "^1.4.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
