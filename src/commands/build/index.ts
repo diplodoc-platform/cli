@@ -21,6 +21,11 @@ const parser = yargs
         describe: 'YFM configuration file',
         type: 'string',
     })
+    // .option('theme-config', {
+    //     alias: 'tc',
+    //     describe: 'Theme config file',
+    //     type: 'string',
+    // })
     .option('strict', {
         alias: 's',
         default: false,
@@ -33,7 +38,8 @@ const parser = yargs
         describe: "Run in quiet mode. Don't write logs to stdout",
         type: 'boolean',
     })
-    .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
+    // ? may be need to add theme-config command, etc
+    .group(['config', /*'theme-config', */'strict', 'quiet', 'help', 'version'], 'Common options:')
     .version(typeof VERSION !== 'undefined' ? VERSION : '')
     .help();
 
@@ -79,8 +85,6 @@ export class Build
             if ((strict && warn.length) || error.length) {
                 process.exit(1);
             }
-
-            console.log(output);
 
             process.exit(0);
         });

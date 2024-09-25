@@ -57,6 +57,7 @@ export class Publish
         options.accessKeyId,
         options.secretAccessKey,
         options.config(YFM_CONFIG_FILENAME),
+        // options.themeConfig(THEME_CONFIG_FILENAME),
         options.region,
         options.hidden,
     ];

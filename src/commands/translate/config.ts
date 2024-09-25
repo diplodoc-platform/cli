@@ -119,6 +119,7 @@ export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
     config: globalOptions.config,
+    // themeConfig: globalOptions.themeConfig,
     provider,
     source,
     target,

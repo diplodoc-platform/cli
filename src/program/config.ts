@@ -78,6 +78,23 @@ const config = (defaultConfig: string) =>
         default: defaultConfig,
     });
 
+// ? may be need to add
+// const themeConfig = (defaultConfig: string) =>
+//     option({
+//         flags: '-tc, --theme-config <string>',
+//         desc: `
+//                 Configure path to {{PROGRAM}} theme config.
+
+//                 Relative paths resolves from execution directory.
+//                 Other paths resolves from --input argument if present or from execution directory.
+
+//                 Example:
+//                   {{PROGRAM}} -c ./theme.yaml
+//                   {{PROGRAM}} -c .theme
+//             `,
+//         default: defaultConfig,
+//     });
+
 const absolute = (path: string) => resolve(process.cwd(), path);
 
 export const options = {
@@ -85,6 +102,7 @@ export const options = {
     strict,
     extensions,
     config,
+    // themeConfig,
     input,
     output,
 };

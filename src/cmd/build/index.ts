@@ -17,6 +17,7 @@ import {
     processLogs,
     processPages,
     processServiceFiles,
+    processThemer,
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
 import {copyFiles, logger} from '../../utils';
@@ -199,6 +200,7 @@ async function handler(args: Arguments<any>) {
             lintDisabled,
             buildDisabled,
             addMapFile,
+            useThemer,
         } = ArgvService.getConfig();
 
         preparingTemporaryFolders(userOutputFolder);
@@ -233,6 +235,10 @@ async function handler(args: Arguments<any>) {
                 tmpOutputFolder,
                 userOutputFolder,
             });
+
+            if (useThemer) {
+                await processThemer({args, outputFormat, outputBundlePath, tmpOutputFolder});
+            }
 
             await processChangelogs();
 

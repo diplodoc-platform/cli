@@ -49,6 +49,7 @@ const hidden = option({
 export const options = {
     input: globalOptions.input,
     config: globalOptions.config,
+    // themeConfig: globalOptions.themeConfig,
     endpoint,
     bucket,
     prefix,

@@ -20,6 +20,7 @@ export type ExtensionInfo = {
 export type ProgramConfig = {
     input: string;
     config: string;
+    // themeConfig: string;
     extensions: ExtensionInfo[];
     quiet: boolean;
     strict: boolean;
@@ -28,6 +29,7 @@ export type ProgramConfig = {
 export type ProgramArgs = {
     input: string;
     config: string;
+    // themeConfig: string;
     extensions: string[];
     quiet: boolean;
     strict: boolean;
@@ -63,6 +65,7 @@ export class Program
     protected options = [
         options.input('./'),
         options.config(YFM_CONFIG_FILENAME),
+        // options.themeConfig(THEME_CONFIG_FILENAME),
         options.extensions,
         options.quiet,
         options.strict,
@@ -71,6 +74,7 @@ export class Program
     private readonly parser: Command = new Command(NAME)
         .addOption(options.input('./'))
         .addOption(options.config(YFM_CONFIG_FILENAME))
+        // .addOption(options.themeConfig(THEME_CONFIG_FILENAME))
         .addOption(options.extensions)
         .helpOption(false)
         .allowUnknownOption(true);

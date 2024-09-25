@@ -108,6 +108,7 @@ export class Translate
         options.vars,
         options.dryRun,
         options.config(YFM_CONFIG_FILENAME),
+        // options.themeConfig(THEME_CONFIG_FILENAME),
     ];
 
     readonly provider: IProvider | undefined;

@@ -5,6 +5,7 @@ import type {DocAnalytics} from '@diplodoc/client';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
+import {Color} from './steps/themer';
 
 export type VarsPreset = 'internal' | 'external';
 
@@ -83,9 +84,40 @@ interface YfmConfig {
      */
     changelogs?: string | boolean;
     analytics?: DocAnalytics;
+    useThemer?: boolean;
 }
 
-export interface YfmArgv extends YfmConfig {
+// THEMER START =================================================================
+export interface ThemeConfig {
+    light?: Partial<ThemeVariantConfig>;
+    dark?: Partial<ThemeVariantConfig>;
+}
+
+export interface ThemeVariantConfig {
+    'brand-color': Color;
+    'text-on-brand-color': Color;
+    'page-background': Color;
+    'advanced-settings': {
+        'brand-palette': {
+            'hovered-brand-color': Color;
+            'brand-text': Color;
+            'hc-brand-text': Color;
+            'brand-line-color': Color;
+            'selection-background': Color;
+            'hovered-selection-background': Color;
+        };
+        'link-colors': {
+            link: Color;
+            'hovered-link': Color;
+            'visited-link': Color;
+            'hovered-visited-link': Color;
+        };
+    };
+}
+
+// THEMER END =================================================================
+
+export interface YfmArgv extends YfmConfig, ThemeConfig {
     rootInput: string;
     input: string;
     output: string;

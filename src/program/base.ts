@@ -137,6 +137,26 @@ export const BaseProgram = <
                     fallback: args.config === YFM_CONFIG_FILENAME ? defaults() : null,
                 }));
 
+            // ? delete this ?
+            // if (config.useThemer) {
+            //     const themeConfigPath =
+            //         isAbsolute(args.themeConfig) || isRelative(args.themeConfig)
+            //             ? resolve(args.themeConfig)
+            //             : resolve(args.input, args.themeConfig);
+
+            //     // ?: what about unnecessary props like:
+            //     // * [Symbol(configRoot)]: '/Users/bagautdinovrl/Desktop/projects/diplodoc-meta-3/docs',
+            //     // * [Symbol(configPath)]: '/Users/bagautdinovrl/Desktop/projects/diplodoc-meta-3/docs/theme.yaml
+            //     config = this.config?.theme ? this.config : {
+            //         ...config,
+            //         theme: await resolveConfig(themeConfigPath, {
+            //             filter: filter || undefined,
+            //             // defaults: defaults(),
+            //             fallback: args.themeConfig === THEME_CONFIG_FILENAME ? defaults() : null,
+            //         }),
+            //     };
+            // }
+
             return this.hooks.Config.promise(config, args);
         }
 
