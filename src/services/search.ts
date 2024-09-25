@@ -20,9 +20,22 @@ function init() {
     indexer = new Indexer();
 }
 
-function add(info: DocInnerProps) {
+function isSearchEnabled() {
     const {search} = ArgvService.getConfig();
-    if (!search || search.provider !== 'local') {
+
+    return Boolean(search);
+}
+
+function isLocalSearchEnabled() {
+    const {search} = ArgvService.getConfig();
+
+    return (
+        isSearchEnabled() && (search === true || search!.provider === 'local' || !search!.provider)
+    );
+}
+
+function add(info: DocInnerProps) {
+    if (!isLocalSearchEnabled()) {
         return;
     }
 
@@ -40,12 +53,11 @@ function add(info: DocInnerProps) {
 }
 
 async function release() {
-    const {search} = ArgvService.getConfig();
-    if (!search) {
+    if (!isSearchEnabled()) {
         return;
     }
 
-    if (search.provider === 'local') {
+    if (isLocalSearchEnabled()) {
         copyFileSync(apiPath, apiLink());
     }
 
@@ -58,7 +70,7 @@ async function release() {
         writeFileSync(registryLink(lang), registry, 'utf8');
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
 
-        if (search.provider === 'local' && langs.includes(lang)) {
+        if (isLocalSearchEnabled() && langs.includes(lang)) {
             copyFileSync(join(dirname(langsPath), lang + '.js'), languageLink(lang));
         }
     }
@@ -108,9 +120,9 @@ function languageLink(lang: string) {
 }
 
 function config(lang: string) {
-    const {search, output} = ArgvService.getConfig();
+    const {output} = ArgvService.getConfig();
 
-    if (!search || search.provider !== 'local') {
+    if (!isLocalSearchEnabled()) {
         return {};
     }
 
