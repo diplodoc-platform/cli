@@ -1,16 +1,18 @@
 import type {DocInnerProps, DocPageData} from '@diplodoc/client';
 import type {Lang} from '../constants';
 
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {mkdirSync, writeFileSync} from 'node:fs';
 
 import {Indexer} from '@diplodoc/search-extension/indexer';
+import {langs} from '@diplodoc/search-extension/worker/langs';
 
 import {ArgvService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
 
-const api = require.resolve('@diplodoc/search-extension/worker');
+const apiPath = require.resolve('@diplodoc/search-extension/worker');
+const langsPath = require.resolve('@diplodoc/search-extension/worker/langs');
 
 let indexer: Indexer;
 
@@ -44,7 +46,7 @@ async function release() {
     }
 
     if (search.provider === 'local') {
-        copyFileSync(api, apiLink());
+        copyFileSync(apiPath, apiLink());
     }
 
     for (const lang of indexer.langs) {
@@ -55,6 +57,10 @@ async function release() {
         writeFileSync(indexLink(lang), index, 'utf8');
         writeFileSync(registryLink(lang), registry, 'utf8');
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
+
+        if (search.provider === 'local' && langs.includes(lang)) {
+            copyFileSync(join(dirname(langsPath), lang + '.js'), languageLink(lang));
+        }
     }
 }
 
@@ -97,6 +103,10 @@ function registryLink(lang: string) {
     return outputLink(lang, 'registry.json');
 }
 
+function languageLink(lang: string) {
+    return outputLink(lang, 'language.js');
+}
+
 function config(lang: string) {
     const {search, output} = ArgvService.getConfig();
 
@@ -112,6 +122,9 @@ function config(lang: string) {
         resources: {
             index: short(indexLink(lang), output),
             registry: short(registryLink(lang), output),
+            language: langs.includes(lang)
+                ? short(languageLink(lang), output)
+                : undefined,
         },
     };
 }
