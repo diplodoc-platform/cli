@@ -122,9 +122,7 @@ function config(lang: string) {
         resources: {
             index: short(indexLink(lang), output),
             registry: short(registryLink(lang), output),
-            language: langs.includes(lang)
-                ? short(languageLink(lang), output)
-                : undefined,
+            language: langs.includes(lang) ? short(languageLink(lang), output) : undefined,
         },
     };
 }
