@@ -108,11 +108,11 @@ function apiLink() {
 }
 
 function indexLink(lang: string) {
-    return outputLink(lang, 'index.json');
+    return outputLink(lang, 'index.js');
 }
 
 function registryLink(lang: string) {
-    return outputLink(lang, 'registry.json');
+    return outputLink(lang, 'registry.js');
 }
 
 function languageLink(lang: string) {
@@ -126,15 +126,15 @@ function config(lang: string) {
         return {};
     }
 
-    const short = (link: string, root: string) => link.replace(root, '').replace(/^\/?/, '');
+    const short = (link: string) => link.replace(output, '').replace(/^\/?/, '');
 
     return {
-        api: short(apiLink(), bundleDir()),
-        link: short(pageLink(lang), output),
+        api: short(apiLink()),
+        link: short(pageLink(lang)),
         resources: {
-            index: short(indexLink(lang), output),
-            registry: short(registryLink(lang), output),
-            language: langs.includes(lang) ? short(languageLink(lang), output) : undefined,
+            index: short(indexLink(lang)),
+            registry: short(registryLink(lang)),
+            language: langs.includes(lang) ? short(languageLink(lang)) : undefined,
         },
     };
 }
