@@ -191,7 +191,7 @@ async function handler(args: Arguments<any>) {
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
-        SearchService.init(args.output);
+        SearchService.init();
         Includers.init([OpenapiIncluder as any]);
 
         const {
