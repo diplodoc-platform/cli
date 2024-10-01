@@ -1,11 +1,19 @@
-import {parseExistingMetadata} from './parse';
-import {emplaceMetadata} from './utils';
+import {
+    emplaceFrontMatter,
+    separateAndExtractFrontMatter,
+} from '@diplodoc/transform/lib/frontmatter';
+import {normalizeLineEndings} from './utils';
 
 export const addSourcePath = (fileContent: string, sourcePath: string) => {
-    const {metadata, metadataStrippedContent} = parseExistingMetadata(fileContent, sourcePath);
-
-    return emplaceMetadata(metadataStrippedContent, {
-        ...metadata,
+    const {frontMatter, frontMatterStrippedContent} = separateAndExtractFrontMatter(
+        fileContent,
         sourcePath,
-    });
+    );
+
+    return normalizeLineEndings(
+        emplaceFrontMatter(frontMatterStrippedContent, {
+            ...frontMatter,
+            sourcePath,
+        }),
+    );
 };

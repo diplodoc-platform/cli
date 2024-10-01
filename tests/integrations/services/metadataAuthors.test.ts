@@ -1,7 +1,7 @@
+import {separateAndExtractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 import {readFileSync} from 'fs';
 import {MetaDataOptions} from 'models';
 import {enrichWithFrontMatter} from 'services/metadata';
-import {parseExistingMetadata} from 'services/metadata/parse';
 import {VCSConnector} from 'vcs-connector/connector-models';
 
 const authorAliasInMetadataFilePath = 'mocks/fileContent/metadata/authorAliasInMetadata.md';
@@ -63,8 +63,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            const {metadata: originalMeta} = parseExistingMetadata(fileContent);
-            const {metadata: updatedMeta} = parseExistingMetadata(updatedFileContent);
+            const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
+            const {frontMatter: updatedMeta} = separateAndExtractFrontMatter(updatedFileContent);
 
             const expectedMeta = {
                 ...originalMeta,
@@ -83,8 +83,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            const {metadata: originalMeta} = parseExistingMetadata(fileContent);
-            const {metadata: updatedMeta} = parseExistingMetadata(updatedFileContent);
+            const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
+            const {frontMatter: updatedMeta} = separateAndExtractFrontMatter(updatedFileContent);
 
             expect(updatedMeta).toEqual(originalMeta);
         });
@@ -119,8 +119,10 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
-            const {metadata: metadataAfterEnrichment} = parseExistingMetadata(updatedFileContent);
+            const {frontMatter: metadataBeforeEnrichment} =
+                separateAndExtractFrontMatter(fileContent);
+            const {frontMatter: metadataAfterEnrichment} =
+                separateAndExtractFrontMatter(updatedFileContent);
 
             expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
         });
@@ -139,9 +141,10 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
-                const {metadata: metadataAfterEnrichment} =
-                    parseExistingMetadata(updatedFileContent);
+                const {frontMatter: metadataBeforeEnrichment} =
+                    separateAndExtractFrontMatter(fileContent);
+                const {frontMatter: metadataAfterEnrichment} =
+                    separateAndExtractFrontMatter(updatedFileContent);
 
                 expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
             },
@@ -165,9 +168,10 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                const {metadata: metadataBeforeEnrichment} = parseExistingMetadata(fileContent);
-                const {metadata: metadataAfterEnrichment} =
-                    parseExistingMetadata(updatedFileContent);
+                const {frontMatter: metadataBeforeEnrichment} =
+                    separateAndExtractFrontMatter(fileContent);
+                const {frontMatter: metadataAfterEnrichment} =
+                    separateAndExtractFrontMatter(updatedFileContent);
 
                 expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
             },
@@ -184,8 +188,8 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            const {metadata: originalMeta} = parseExistingMetadata(fileContent);
-            const {metadata: updatedMeta} = parseExistingMetadata(updatedFileContent);
+            const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
+            const {frontMatter: updatedMeta} = separateAndExtractFrontMatter(updatedFileContent);
 
             const expectedMeta = {
                 ...originalMeta,

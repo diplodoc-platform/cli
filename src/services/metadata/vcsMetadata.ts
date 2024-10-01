@@ -8,7 +8,7 @@ import {
 } from '../authors';
 import {ContributorsServiceFileData, getFileContributors, getFileIncludes} from '../contributors';
 import {isObject} from '../utils';
-import {FileMetadata} from './parse';
+import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
 
 const getFileDataForContributorsService = (
     pathData: PathData,
@@ -103,7 +103,7 @@ export const getVCSMetadata = async (
 };
 
 export const resolveVCSFrontMatter = async (
-    existingMetadata: FileMetadata,
+    existingMetadata: FrontMatter,
     options: MetaDataOptions,
     fileContent: string,
 ) => {
