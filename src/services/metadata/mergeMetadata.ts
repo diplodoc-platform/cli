@@ -1,21 +1,21 @@
 import {Resources, VarsMetadata} from '../../models';
 import {isObject} from '../utils';
-import {FileMetadata} from './parse';
+import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
 
-export const mergeMetadata = ({
+export const mergeFrontMatter = ({
     existingMetadata,
     resources,
     systemVars,
     metadataVars = [],
     additionalMetadata,
 }: {
-    existingMetadata: FileMetadata;
+    existingMetadata: FrontMatter;
     metadataVars?: VarsMetadata;
     resources?: Resources;
     systemVars?: unknown;
     additionalMetadata?: Record<string, unknown>;
-}): FileMetadata => {
-    const mergedInnerMetadata: FileMetadata['metadata'] = [
+}): FrontMatter => {
+    const mergedInnerMetadata: FrontMatter['metadata'] = [
         ...(existingMetadata.metadata ?? []),
         ...metadataVars,
     ];
@@ -28,7 +28,7 @@ export const mergeMetadata = ({
     const innerMetadataToSpread =
         mergedInnerMetadata.length > 0 ? {metadata: mergedInnerMetadata} : undefined;
 
-    const mergedMetadata: FileMetadata = {
+    const mergedMetadata: FrontMatter = {
         ...existingMetadata,
         ...resources,
         ...systemVarsMetadataToSpread,

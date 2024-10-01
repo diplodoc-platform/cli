@@ -1,8 +1,12 @@
 import {MetaDataOptions, VarsMetadata} from '../../models';
-import {mergeMetadata} from './mergeMetadata';
-import {FileMetadata, parseExistingMetadata} from './parse';
-import {emplaceMetadata} from './utils';
+import {mergeFrontMatter} from './mergeMetadata';
+import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
 import {resolveVCSFrontMatter} from './vcsMetadata';
+import {
+    emplaceFrontMatter,
+    separateAndExtractFrontMatter,
+} from '@diplodoc/transform/lib/frontmatter';
+import {normalizeLineEndings} from './utils';
 
 type FrontMatterVars = {
     metadataVars?: VarsMetadata;
@@ -15,8 +19,8 @@ type EnrichWithFrontMatterOptions = {
     resolvedFrontMatterVars: FrontMatterVars;
 };
 
-const resolveVCSPath = (metadata: FileMetadata, relativeInputPath: string) => {
-    const maybePreProcessedSourcePath = metadata.sourcePath;
+const resolveVCSPath = (frontMatter: FrontMatter, relativeInputPath: string) => {
+    const maybePreProcessedSourcePath = frontMatter.sourcePath;
 
     return typeof maybePreProcessedSourcePath === 'string' && maybePreProcessedSourcePath.length > 0
         ? maybePreProcessedSourcePath
@@ -31,29 +35,29 @@ export const enrichWithFrontMatter = async ({
     const {systemVars, metadataVars} = resolvedFrontMatterVars;
     const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
 
-    const {metadata, metadataStrippedContent} = parseExistingMetadata(
+    const {frontMatter, frontMatterStrippedContent} = separateAndExtractFrontMatter(
         fileContent,
         pathData.pathToFile,
     );
 
     const vcsFrontMatter = metadataOptions.isContributorsEnabled
-        ? await resolveVCSFrontMatter(metadata, metadataOptions, fileContent)
+        ? await resolveVCSFrontMatter(frontMatter, metadataOptions, fileContent)
         : undefined;
 
-    const mergedMetadata = mergeMetadata({
-        existingMetadata: metadata,
+    const mergedFrontMatter = mergeFrontMatter({
+        existingMetadata: frontMatter,
         resources,
         metadataVars,
         systemVars: addSystemMeta ? systemVars : undefined,
         additionalMetadata: {
             vcsPath:
-                metadata.vcsPath ??
+                frontMatter.vcsPath ??
                 (shouldAlwaysAddVCSPath
-                    ? resolveVCSPath(metadata, pathData.pathToFile)
+                    ? resolveVCSPath(frontMatter, pathData.pathToFile)
                     : undefined),
             ...vcsFrontMatter,
         },
     });
 
-    return emplaceMetadata(metadataStrippedContent, mergedMetadata);
+    return normalizeLineEndings(emplaceFrontMatter(frontMatterStrippedContent, mergedFrontMatter));
 };
