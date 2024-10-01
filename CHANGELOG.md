@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.37.0](https://github.com/diplodoc-platform/cli/compare/v4.36.5...v4.37.0) (2024-10-01)
+
+
+### Features
+
+* bump transform to 4.32.2, use transform metadata utilities ([a21fc3e](https://github.com/diplodoc-platform/cli/commit/a21fc3ef34134753c3e32edbbbd2e6f3ade45bb4))
+
 ## [4.36.5](https://github.com/diplodoc-platform/cli/compare/v4.36.4...v4.36.5) (2024-09-26)
 
 
