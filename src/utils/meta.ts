@@ -52,7 +52,7 @@ export async function updateMetaFile(
                     const changed = !cached || !metaFiles[pathToAsset];
                     const modDate = Number((await stat(from)).mtime);
                     metaFiles[pathToAsset] = {
-                        mod_date: changed ? modDate : metaFiles[pathToAsset]?.mod_date ?? modDate,
+                        mod_date: changed ? modDate : (metaFiles[pathToAsset]?.mod_date ?? modDate),
                         dependencies: metaFiles[pathToAsset]?.dependencies || {},
                         changed,
                     };
