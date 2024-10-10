@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.38.0](https://github.com/diplodoc-platform/cli/compare/v4.37.0...v4.38.0) (2024-10-10)
+
+
+### Features
+
+* support deprecated in openapi ([7ae588d](https://github.com/diplodoc-platform/cli/commit/7ae588da487e3b02c47b2bc99fba6eee600522c1))
+
 ## [4.37.0](https://github.com/diplodoc-platform/cli/compare/v4.36.5...v4.37.0) (2024-10-01)
 
 
