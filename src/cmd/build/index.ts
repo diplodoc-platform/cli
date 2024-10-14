@@ -52,6 +52,12 @@ function builder<T>(argv: Argv<T>) {
             type: 'string',
             group: 'Build options:',
         })
+        .option('plugins', {
+            alias: 'p',
+            describe: 'Path to plugins js file',
+            type: 'string',
+            group: 'Build options:',
+        })
         .option('cached', {
             default: false,
             describe: 'Use cache from revision meta file',
