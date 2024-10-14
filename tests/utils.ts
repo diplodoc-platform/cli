@@ -29,6 +29,7 @@ export function compareDirectories(outputPath: string) {
 
     filesFromOutput
         .filter(uselessFile)
+        .sort()
         .forEach((filePath) => {
             if (!filePath.endsWith('.revision.meta.json')) {
                 const content = getFileContent(resolve(outputPath, filePath));
