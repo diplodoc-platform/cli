@@ -4,7 +4,7 @@ import {resolve} from 'path';
 
 import {CollectionOfPluginsFunction, Plugin, PluginOptions} from '../models';
 import {YFM_PLUGINS} from '../constants';
-import { ArgvService } from '.';
+import {ArgvService} from '.';
 
 let plugins: Function[] | Plugin[];
 let collectionOfPlugins: CollectionOfPluginsFunction;
@@ -56,7 +56,7 @@ function getCustomPlugins(): Function[] {
 }
 
 function getArgsPlugins(): Function[] {
-    const { plugins: pluginsFile } = ArgvService.getConfig();
+    const {plugins: pluginsFile} = ArgvService.getConfig();
     if (pluginsFile && existsSync(resolve(pluginsFile))) {
         return require(resolve(pluginsFile));
     }
