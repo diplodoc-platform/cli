@@ -61,6 +61,7 @@ interface YfmConfig {
     outputFormat: string;
     debug: boolean;
     cached: boolean;
+    plugins: string;
     allowHTML: boolean;
     vars: Record<string, string>;
     applyPresets: boolean;
