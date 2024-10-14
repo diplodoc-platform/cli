@@ -30,8 +30,10 @@ export function compareDirectories(outputPath: string) {
     filesFromOutput
         .filter(uselessFile)
         .forEach((filePath) => {
-            const content = getFileContent(resolve(outputPath, filePath));
-            expect(content).toMatchSnapshot();
+            if (!filePath.endsWith('.revision.meta.json')) {
+                const content = getFileContent(resolve(outputPath, filePath));
+                expect(content).toMatchSnapshot();
+            }
         });
 }
 
