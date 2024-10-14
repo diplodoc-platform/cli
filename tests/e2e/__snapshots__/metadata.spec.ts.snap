@@ -1,23 +1,40 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html with metadata 1`] = `
-"[
-  "_bundle/search-async-0",
-  "_bundle/app-css-1",
-  "_bundle/app-js-1",
-  "_bundle/search-css-2",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search-css-0",
-  "_bundle/search-js-2",
-  "_bundle/search-css-1",
-  "index.html",
-  "page.html",
-  "project/config.html"
-]"
-`;
+exports[`Allow load custom resources md2html with metadata 1`] = `"[".revision.meta.json","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
 
 exports[`Allow load custom resources md2html with metadata 2`] = `
+"{
+    "files": {
+        "index.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "presets.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "project/config.md": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Allow load custom resources md2html with metadata 3`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -80,7 +97,7 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 3`] = `
+exports[`Allow load custom resources md2html with metadata 4`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -142,7 +159,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 4`] = `
+exports[`Allow load custom resources md2html with metadata 5`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -204,16 +221,41 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2md with metadata 1`] = `
-"[
-  "index.yaml",
-  "page.md",
-  "project/config.md",
-  "toc.yaml"
-]"
-`;
+exports[`Allow load custom resources md2md with metadata 1`] = `"[".revision.meta.json","index.yaml","page.md","project/config.md","toc.yaml"]"`;
 
 exports[`Allow load custom resources md2md with metadata 2`] = `
+"{
+    "files": {
+        "index.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "presets.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "project/config.md": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1711097516640,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Allow load custom resources md2md with metadata 3`] = `
 "title: Documentation
 description: ''
 meta:
@@ -226,7 +268,7 @@ links:
 "
 `;
 
-exports[`Allow load custom resources md2md with metadata 3`] = `
+exports[`Allow load custom resources md2md with metadata 4`] = `
 "---
 metadata:
   - name: yfm
@@ -240,7 +282,7 @@ metadata:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with metadata 4`] = `
+exports[`Allow load custom resources md2md with metadata 5`] = `
 "---
 metadata:
   - name: yfm
@@ -254,7 +296,7 @@ metadata:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with metadata 5`] = `
+exports[`Allow load custom resources md2md with metadata 6`] = `
 "title: Documentation
 href: index.yaml
 items:
