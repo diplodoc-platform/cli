@@ -1,15 +1,112 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `"["product1/_includes/inc.md","product1/article1.md","product1/toc.yaml","product2/overlay1/_includes/inc.md","product2/overlay1/article1.md","product2/overlay2/_includes/inc.md","product2/overlay2/article1.md","product2/overlay3/_includes/inc.md","product2/overlay3/article1.md","product2/p2.md","product2/toc.yaml"]"`;
+exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `"[".revision.meta.json","product1/_includes/inc.md","product1/article1.md","product1/core/_includes/inc.md","product1/toc.yaml","product2/core/_includes/inc.md","product2/overlay1/_includes/inc.md","product2/overlay1/article1.md","product2/overlay2/_includes/inc.md","product2/overlay2/article1.md","product2/overlay3/_includes/inc.md","product2/overlay3/article1.md","product2/p2.md","product2/toc.yaml"]"`;
 
 exports[`Include toc Nested toc inclusions with mixed including modes 2`] = `
+"{
+    "files": {
+        "product1/core/_includes/inc.md": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product1/core/article1.md": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product1/core/toc_m.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product1/product/toc_p.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product1/toc.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/core/_includes/inc.md": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/core/article1.md": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/core/toc_m.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay1/product/article1.md": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay1/product/toc_p.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay1/toc.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay2/product/article1.md": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay2/product/toc_p.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay2/toc.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay3/product/toc_p.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/overlay3/toc.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/p2.md": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "product2/toc.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Include toc Nested toc inclusions with mixed including modes 3`] = `
 "---
 sourcePath: product1/core/_includes/inc.md
 ---
 This is the core include."
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 3`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 4`] = `
 "---
 sourcePath: product1/core/article1.md
 ---
@@ -19,7 +116,9 @@ This is the core content of Article 1.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 4`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 5`] = `"This is the core include."`;
+
+exports[`Include toc Nested toc inclusions with mixed including modes 6`] = `
 "title: Product 1 title
 items:
   - name: Article1
@@ -29,7 +128,12 @@ deepBase: 1
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 5`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 7`] = `
+"This is the core include.
+"
+`;
+
+exports[`Include toc Nested toc inclusions with mixed including modes 8`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -37,7 +141,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 6`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 9`] = `
 "---
 sourcePath: product2/overlay1/product/article1.md
 ---
@@ -47,7 +151,7 @@ This is the overlay content of Article 1 for product 2.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 7`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 10`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -55,7 +159,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 8`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 11`] = `
 "---
 sourcePath: product2/overlay2/product/article1.md
 ---
@@ -65,7 +169,7 @@ This is the overlay number #2  of Article 1 content for product 2.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 9`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 12`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -73,7 +177,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 10`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 13`] = `
 "---
 sourcePath: product2/core/article1.md
 ---
@@ -83,14 +187,14 @@ This is the core content of Article 1.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 11`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 14`] = `
 "This is the product 2 specific article.
 
 Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 12`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes 15`] = `
 "title: Product 2 title
 items:
   - name: P2 Article
@@ -112,24 +216,61 @@ deepBase: 1
 "
 `;
 
-exports[`Include toc Toc is included in link mode 1`] = `"["a1.md","folder1/a1.md","folder1/folder2/a1.md","toc.yaml"]"`;
+exports[`Include toc Toc is included in link mode 1`] = `"[".revision.meta.json","a1.md","folder1/a1.md","folder1/folder2/a1.md","toc.yaml"]"`;
 
 exports[`Include toc Toc is included in link mode 2`] = `
+"{
+    "files": {
+        "folder1/folder2/a1.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder1/folder2/toc.yaml": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder1/toc.yaml": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "a1.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder1/a1.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Include toc Toc is included in link mode 3`] = `
 "This is the /a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode 3`] = `
+exports[`Include toc Toc is included in link mode 4`] = `
 "This is the /folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode 4`] = `
+exports[`Include toc Toc is included in link mode 5`] = `
 "This is the /folder1/folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode 5`] = `
+exports[`Include toc Toc is included in link mode 6`] = `
 "items:
   - name: A1
     href: a1.md
@@ -146,19 +287,71 @@ deepBase: 0
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 1`] = `"[".yfm","file1.md","fileA.md","fileB.md","fileC.md","fileX.md","folder/fileA.md","folder/fileB.md","folder/fileC.md","folder/folder/fileC.md","toc.yaml"]"`;
+exports[`Include toc Toc is included inline, not as a new section 1`] = `"[".revision.meta.json",".yfm","file1.md","fileA.md","fileB.md","fileC.md","fileX.md","folder/fileA.md","folder/fileB.md","folder/fileC.md","folder/folder/fileC.md","toc.yaml"]"`;
 
 exports[`Include toc Toc is included inline, not as a new section 2`] = `
+"{
+    "files": {
+        "file1.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder/fileB.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder/folder/fileC.md": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "fileX.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder/fileA.md": {
+            "mod_date": 1710845610140,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder/toc.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "folder/folder/toc.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "presets.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610141,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Include toc Toc is included inline, not as a new section 3`] = `
 "applyPresets: true
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 3`] = `
+exports[`Include toc Toc is included inline, not as a new section 4`] = `
 "# File 1
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 4`] = `
+exports[`Include toc Toc is included inline, not as a new section 5`] = `
 "---
 title: File A
 description: YFM description
@@ -174,7 +367,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 5`] = `
+exports[`Include toc Toc is included inline, not as a new section 6`] = `
 "---
 sourcePath: folder/fileB.md
 ---
@@ -190,7 +383,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 6`] = `
+exports[`Include toc Toc is included inline, not as a new section 7`] = `
 "---
 sourcePath: folder/folder/fileC.md
 ---
@@ -198,12 +391,12 @@ sourcePath: folder/folder/fileC.md
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 7`] = `
+exports[`Include toc Toc is included inline, not as a new section 8`] = `
 "# File X
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 8`] = `
+exports[`Include toc Toc is included inline, not as a new section 9`] = `
 "---
 title: File A
 description: YFM description
@@ -218,7 +411,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 9`] = `
+exports[`Include toc Toc is included inline, not as a new section 10`] = `
 "# File B
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -231,7 +424,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 10`] = `
+exports[`Include toc Toc is included inline, not as a new section 11`] = `
 "---
 sourcePath: folder/folder/fileC.md
 ---
@@ -239,12 +432,12 @@ sourcePath: folder/folder/fileC.md
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 11`] = `
+exports[`Include toc Toc is included inline, not as a new section 12`] = `
 "# File C
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 12`] = `
+exports[`Include toc Toc is included inline, not as a new section 13`] = `
 "items:
   - name: Name1
     href: file1.md
@@ -261,14 +454,36 @@ deepBase: 0
 "
 `;
 
-exports[`Include toc Toc with expressions 1`] = `"["a1.md","index.yaml","toc.yaml"]"`;
+exports[`Include toc Toc with expressions 1`] = `"[".revision.meta.json","a1.md","index.yaml","toc.yaml"]"`;
 
 exports[`Include toc Toc with expressions 2`] = `
+"{
+    "files": {
+        "a1.md": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "index.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610142,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Include toc Toc with expressions 3`] = `
 "This is the /a1.md file content.
 "
 `;
 
-exports[`Include toc Toc with expressions 3`] = `
+exports[`Include toc Toc with expressions 4`] = `
 "title: Title A
 description:
   - Desc A
@@ -281,7 +496,7 @@ links:
 "
 `;
 
-exports[`Include toc Toc with expressions 4`] = `
+exports[`Include toc Toc with expressions 5`] = `
 "title: Title A
 href: index.yaml
 items:

@@ -1,8 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","index.html","page.html"]"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 1`] = `"[".revision.meta.json","_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","index.html","page.html"]"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 2`] = `
+"{
+    "files": {
+        "index.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 3`] = `
 <!DOCTYPE html>
 <html lang="he"
       dir="rtl"
@@ -53,7 +75,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 3`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 4`] = `
 <!DOCTYPE html>
 <html lang="he"
       dir="rtl"
@@ -106,9 +128,46 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","ar/index.html","ar/page.html","en/index.html","en/page.html","index.html"]"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `"[".revision.meta.json","_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","ar/index.html","ar/page.html","en/index.html","en/page.html","index.html"]"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 2`] = `
+"{
+    "files": {
+        "ar/index.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "ar/toc.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "ar/page.md": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "en/index.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "en/page.md": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        },
+        "en/toc.yaml": {
+            "mod_date": 1711097516641,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 3`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"
@@ -159,7 +218,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 3`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"
@@ -212,7 +271,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 5`] = `
 <!DOCTYPE html>
 <html lang="en"
       dir="ltr"
@@ -269,7 +328,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 5`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 6`] = `
 <!DOCTYPE html>
 <html lang="en"
       dir="ltr"
@@ -325,7 +384,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 6`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 7`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"

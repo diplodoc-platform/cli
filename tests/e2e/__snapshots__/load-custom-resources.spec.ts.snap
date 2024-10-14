@@ -1,8 +1,45 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html single page with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html","single-page.html","single-page.json"]"`;
+exports[`Allow load custom resources md2html single page with custom resources 1`] = `"[".revision.meta.json","_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html","single-page.html","single-page.json"]"`;
 
 exports[`Allow load custom resources md2html single page with custom resources 2`] = `
+"{
+    "files": {
+        "_assets/script/test1.js": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "_assets/style/test.css": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "index.yaml": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516639,
+            "dependencies": {},
+            "changed": true
+        },
+        "project/config.md": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Allow load custom resources md2html single page with custom resources 3`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -66,7 +103,7 @@ exports[`Allow load custom resources md2html single page with custom resources 2
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 3`] = `
+exports[`Allow load custom resources md2html single page with custom resources 4`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -129,7 +166,7 @@ exports[`Allow load custom resources md2html single page with custom resources 3
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 4`] = `
+exports[`Allow load custom resources md2html single page with custom resources 5`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -189,7 +226,7 @@ exports[`Allow load custom resources md2html single page with custom resources 4
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 5`] = `
+exports[`Allow load custom resources md2html single page with custom resources 6`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -252,11 +289,48 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html with custom resources 1`] = `"["_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
+exports[`Allow load custom resources md2html with custom resources 1`] = `"[".revision.meta.json","_assets/script/test1.js","_assets/style/test.css","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
 
 exports[`Allow load custom resources md2html with custom resources 2`] = `
+"{
+    "files": {
+        "_assets/script/test1.js": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "_assets/style/test.css": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "index.yaml": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516639,
+            "dependencies": {},
+            "changed": true
+        },
+        "project/config.md": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Allow load custom resources md2html with custom resources 3`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -320,7 +394,7 @@ exports[`Allow load custom resources md2html with custom resources 2`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources 3`] = `
+exports[`Allow load custom resources md2html with custom resources 4`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -383,7 +457,7 @@ exports[`Allow load custom resources md2html with custom resources 3`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources 4`] = `
+exports[`Allow load custom resources md2html with custom resources 5`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -443,9 +517,46 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2md with custom resources 1`] = `"[".yfm","_assets/script/test1.js","_assets/style/test.css","index.yaml","page.md","project/config.md","toc.yaml"]"`;
+exports[`Allow load custom resources md2md with custom resources 1`] = `"[".revision.meta.json",".yfm","_assets/script/test1.js","_assets/style/test.css","index.yaml","page.md","project/config.md","toc.yaml"]"`;
 
 exports[`Allow load custom resources md2md with custom resources 2`] = `
+"{
+    "files": {
+        "_assets/script/test1.js": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "_assets/style/test.css": {
+            "mod_date": 1710845610143,
+            "dependencies": {},
+            "changed": true
+        },
+        "index.yaml": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "page.md": {
+            "mod_date": 1711097516639,
+            "dependencies": {},
+            "changed": true
+        },
+        "project/config.md": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        },
+        "toc.yaml": {
+            "mod_date": 1710845610144,
+            "dependencies": {},
+            "changed": true
+        }
+    }
+}"
+`;
+
+exports[`Allow load custom resources md2md with custom resources 3`] = `
 "resources:
   style:
     - _assets/style/test.css
@@ -454,7 +565,7 @@ exports[`Allow load custom resources md2md with custom resources 2`] = `
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources 3`] = `
+exports[`Allow load custom resources md2md with custom resources 4`] = `
 "title: Documentation
 description: ''
 meta:
@@ -471,7 +582,7 @@ links:
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources 4`] = `
+exports[`Allow load custom resources md2md with custom resources 5`] = `
 "---
 metadata:
   - name: yfm
@@ -486,7 +597,7 @@ Lorem
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources 5`] = `
+exports[`Allow load custom resources md2md with custom resources 6`] = `
 "---
 style:
   - _assets/style/test.css
@@ -496,7 +607,7 @@ script:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with custom resources 6`] = `
+exports[`Allow load custom resources md2md with custom resources 7`] = `
 "title: Documentation
 href: index.yaml
 items:
