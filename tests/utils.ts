@@ -23,13 +23,13 @@ export function compareDirectories(outputPath: string) {
         folder: outputPath,
         directories: false,
         includeBasePath: false,
-    });
+    })
+    .sort();
 
     expect(JSON.stringify(filesFromOutput)).toMatchSnapshot();
 
     filesFromOutput
         .filter(uselessFile)
-        .sort()
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath));
             expect(content).toMatchSnapshot();
