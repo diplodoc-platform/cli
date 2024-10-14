@@ -66,7 +66,11 @@ export class FileQueueProcessor {
     }
 
     isProcessable(pattern: string) {
-        return pattern.endsWith('.yaml') || pattern.endsWith('.md');
+        if (pattern.endsWith('.yaml')) {
+            return !this.isInclude(pattern);
+        }
+
+        return pattern.endsWith('.md');
     }
 
     async processQueue(fn: FileQueueProcessorFn, files: string[] = []) {
