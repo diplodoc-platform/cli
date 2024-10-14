@@ -16,7 +16,7 @@ export function getFileContent(filePath: string) {
     return platformless(readFileSync(filePath, 'utf8'));
 }
 
-const uselessFile = (file) => !['_bundle/', '_assets/'].some(part => file.includes(part));
+const uselessFile = (file) => !['_bundle/', '_assets/', '.revision.meta.json'].some(part => file.includes(part));
 
 export function compareDirectories(outputPath: string) {
     const filesFromOutput = walk({
@@ -31,10 +31,8 @@ export function compareDirectories(outputPath: string) {
         .filter(uselessFile)
         .sort()
         .forEach((filePath) => {
-            if (!filePath.endsWith('.revision.meta.json')) {
-                const content = getFileContent(resolve(outputPath, filePath));
-                expect(content).toMatchSnapshot();
-            }
+            const content = getFileContent(resolve(outputPath, filePath));
+            expect(content).toMatchSnapshot();
         });
 }
 
