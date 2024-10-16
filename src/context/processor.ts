@@ -29,8 +29,6 @@ export class FileQueueProcessor {
                 files.push(path);
             }
         }
-        // eslint-disable-next-line no-console
-        console.log(files);
 
         return files;
     }
