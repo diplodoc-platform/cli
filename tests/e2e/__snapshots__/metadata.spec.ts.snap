@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html with metadata 1`] = `"["_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
+exports[`Allow load custom resources md2html with metadata 1`] = `"[".revision.meta.json","_bundle/app.css","_bundle/app.js","_bundle/react.js","_bundle/vendor.css","_bundle/vendor.js","index.html","page.html","project/config.html"]"`;
 
 exports[`Allow load custom resources md2html with metadata 2`] = `
 <!DOCTYPE html>
@@ -189,7 +189,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2md with metadata 1`] = `"["index.yaml","page.md","project/config.md","toc.yaml"]"`;
+exports[`Allow load custom resources md2md with metadata 1`] = `"[".revision.meta.json","index.yaml","page.md","project/config.md","toc.yaml"]"`;
 
 exports[`Allow load custom resources md2md with metadata 2`] = `
 "title: Documentation
