@@ -241,11 +241,10 @@ async function handler(args: Arguments<any>) {
             await SearchService.release();
 
             // Copy all generated files to user' output folder
-            shell.cp(
-                '-r',
-                [join(tmpOutputFolder, '*'), join(tmpOutputFolder, '.*')],
-                userOutputFolder,
-            );
+            shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
+            if (glob.sync('.*', {cwd: tmpOutputFolder}).length) {
+                shell.cp('-r', join(tmpOutputFolder, '.*'), userOutputFolder);
+            }
 
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
