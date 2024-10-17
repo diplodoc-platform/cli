@@ -4,6 +4,7 @@ import {resolve, join} from 'path';
 import walkSync from 'walk-sync';
 
 const yfmDocsPath = require.resolve('../build');
+const assets = require('@diplodoc/client/manifest');
 
 export function platformless(text: string) {
     return text
@@ -12,8 +13,24 @@ export function platformless(text: string) {
         .replace(/(Config|Documentation)-\d+-\d+.\d+/g, '$1-RANDOM');
 }
 
+export function bundleless(text: string) {
+    for (const [entryKey, entry] of Object.entries(assets)) {
+        for (const [typeKey, type] of Object.entries(entry)) {
+            for (let index = 0; index < type.length; index++) {
+                let prev = '';
+                while (prev !== text) {
+                    prev = text;
+                    text = text.replace(type[index], `${entryKey}-${typeKey}-${index}`);
+                }
+            }
+        }
+    }
+
+    return text;
+}
+
 export function getFileContent(filePath: string) {
-    return platformless(readFileSync(filePath, 'utf8'));
+    return bundleless(platformless(readFileSync(filePath, 'utf8')));
 }
 
 const uselessFile = (file) => !['_bundle/', '_assets/'].some(part => file.includes(part));
@@ -24,7 +41,7 @@ export function compareDirectories(outputPath: string) {
         includeBasePath: false,
     });
 
-    expect(JSON.stringify(filesFromOutput)).toMatchSnapshot();
+    expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot();
 
     filesFromOutput
         .filter(uselessFile)
