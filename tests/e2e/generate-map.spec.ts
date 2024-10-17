@@ -1,4 +1,4 @@
-import {getTestPaths, runYfmDocs, getFileContent} from '../utils';
+import {getTestPaths, runYfmDocs, getFileContent, bundleless} from '../utils';
 import {join} from 'path';
 
 const generateMapTestTemplate = (testTitle: string, testRootPath: string, md2md = true, md2html = true) => {
@@ -9,7 +9,7 @@ const generateMapTestTemplate = (testTitle: string, testRootPath: string, md2md 
 
         const content = getFileContent(join(outputPath, 'files.json'));
 
-        expect(content).toMatchSnapshot();
+        expect(bundleless(content)).toMatchSnapshot();
     });
 }
 

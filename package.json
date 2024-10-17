@@ -35,7 +35,8 @@
     "node": ">=18.*"
   },
   "dependencies": {
-    "@diplodoc/client": "^2.8.2",
+    "@diplodoc/client": "^3.1.2",
+    "@diplodoc/search-extension": "^1.1.4",
     "@diplodoc/translation": "^1.4.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
@@ -70,7 +71,7 @@
     "axios": "^1.6.7",
     "chalk": "^4.1.2",
     "commander": "^12.0.0",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.23.1",
     "glob": "^8.0.3",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",

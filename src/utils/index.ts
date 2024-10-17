@@ -1,5 +1,6 @@
+export * from './common';
 export * from './logger';
-export * from './markup';
+export * from './singlePage';
 export * from './url';
 export * from './path';
 export * from './toc';

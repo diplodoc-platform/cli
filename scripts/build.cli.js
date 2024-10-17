@@ -7,7 +7,14 @@ const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
 const ASSETS_PATH = resolve(__dirname, '..', 'assets');
 
 const clientManifest = require('@diplodoc/client/manifest');
-const assets = [...clientManifest.js, ...clientManifest.css];
+const assets = [
+    ...clientManifest.app.js,
+    ...clientManifest.app.css,
+    ...clientManifest.app.async,
+    ...clientManifest.search.js,
+    ...clientManifest.search.css,
+    ...clientManifest.search.async
+];
 
 const {version, dependencies} = require('../package.json');
 

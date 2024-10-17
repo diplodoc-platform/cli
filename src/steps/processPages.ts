@@ -23,16 +23,12 @@ import {
     YfmToc,
 } from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, TocService} from '../services';
-import {
-    generateStaticMarkup,
-    joinSinglePageResults,
-    logger,
-    transformTocForSinglePage,
-} from '../utils';
+import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
+import {generateStaticMarkup} from '~/pages/document';
+import {generateStaticRedirect} from '~/pages/redirect';
+import {joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
-import {generateStaticRedirect} from '../utils/redirect';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
@@ -293,6 +289,8 @@ async function preparingPagesByOutputFormat(
                 return;
             case 'html': {
                 const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
+
+                SearchService.add(resolvedFileProps);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path);
