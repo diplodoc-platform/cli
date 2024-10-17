@@ -1,6 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html with metadata 1`] = `"["_bundle/112.js","_bundle/829.js","_bundle/934.js","_bundle/998.js","_bundle/app.css","_bundle/app.js","_bundle/app.rtl.css","_bundle/extensions_search_lib_worker_index_js.js","_bundle/react.js","_bundle/search.js","_bundle/vendor.css","_bundle/vendor.js","_bundle/vendor.rtl.css","_bundle/vendors-node_modules_lunr_lunr_js.js","index.html","page.html","project/config.html"]"`;
+exports[`Allow load custom resources md2html with metadata 1`] = `
+"[
+  "_bundle/search-async-0",
+  "_bundle/app-css-1",
+  "_bundle/app-js-1",
+  "_bundle/search-css-2",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-css-0",
+  "_bundle/search-js-2",
+  "_bundle/search-css-1",
+  "index.html",
+  "page.html",
+  "project/config.html"
+]"
+`;
 
 exports[`Allow load custom resources md2html with metadata 2`] = `
 <!DOCTYPE html>
@@ -35,11 +50,11 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/search-css-0"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app-css-1"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -47,18 +62,18 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]}},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
+                   window.__DATA__ = {"data":{"leading":true,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]}},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
-            src="_bundle/react.js"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/app.js"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
@@ -95,11 +110,11 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/search-css-0"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app-css-1"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -109,18 +124,18 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"],"search":{}};
+      </p>/n"},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
-            src="_bundle/react.js"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/app.js"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
@@ -157,11 +172,11 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/vendor.css"
+          href="_bundle/search-css-0"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="_bundle/app.css"
+          href="_bundle/app-css-1"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -171,25 +186,32 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0},"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n"},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"],"search":{}};
+      </p>/n"},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
-            src="_bundle/react.js"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/app.js"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="_bundle/vendor.js"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
 </html>
 `;
 
-exports[`Allow load custom resources md2md with metadata 1`] = `"["index.yaml","page.md","project/config.md","toc.yaml"]"`;
+exports[`Allow load custom resources md2md with metadata 1`] = `
+"[
+  "index.yaml",
+  "page.md",
+  "project/config.md",
+  "toc.yaml"
+]"
+`;
 
 exports[`Allow load custom resources md2md with metadata 2`] = `
 "title: Documentation

@@ -1,6 +1,20 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `"["product1/_includes/inc.md","product1/article1.md","product1/toc.yaml","product2/overlay1/_includes/inc.md","product2/overlay1/article1.md","product2/overlay2/_includes/inc.md","product2/overlay2/article1.md","product2/overlay3/_includes/inc.md","product2/overlay3/article1.md","product2/p2.md","product2/toc.yaml"]"`;
+exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `
+"[
+  "product1/_includes/inc.md",
+  "product1/article1.md",
+  "product1/toc.yaml",
+  "product2/overlay1/_includes/inc.md",
+  "product2/overlay1/article1.md",
+  "product2/overlay2/_includes/inc.md",
+  "product2/overlay2/article1.md",
+  "product2/overlay3/_includes/inc.md",
+  "product2/overlay3/article1.md",
+  "product2/p2.md",
+  "product2/toc.yaml"
+]"
+`;
 
 exports[`Include toc Nested toc inclusions with mixed including modes 2`] = `
 "---
@@ -112,7 +126,14 @@ deepBase: 1
 "
 `;
 
-exports[`Include toc Toc is included in link mode 1`] = `"["a1.md","folder1/a1.md","folder1/folder2/a1.md","toc.yaml"]"`;
+exports[`Include toc Toc is included in link mode 1`] = `
+"[
+  "a1.md",
+  "folder1/a1.md",
+  "folder1/folder2/a1.md",
+  "toc.yaml"
+]"
+`;
 
 exports[`Include toc Toc is included in link mode 2`] = `
 "This is the /a1.md file content.
@@ -146,7 +167,21 @@ deepBase: 0
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 1`] = `"[".yfm","file1.md","fileA.md","fileB.md","fileC.md","fileX.md","folder/fileA.md","folder/fileB.md","folder/fileC.md","folder/folder/fileC.md","toc.yaml"]"`;
+exports[`Include toc Toc is included inline, not as a new section 1`] = `
+"[
+  ".yfm",
+  "file1.md",
+  "fileA.md",
+  "fileB.md",
+  "fileC.md",
+  "fileX.md",
+  "folder/fileA.md",
+  "folder/fileB.md",
+  "folder/fileC.md",
+  "folder/folder/fileC.md",
+  "toc.yaml"
+]"
+`;
 
 exports[`Include toc Toc is included inline, not as a new section 2`] = `
 "applyPresets: true
@@ -261,7 +296,13 @@ deepBase: 0
 "
 `;
 
-exports[`Include toc Toc with expressions 1`] = `"["a1.md","index.yaml","toc.yaml"]"`;
+exports[`Include toc Toc with expressions 1`] = `
+"[
+  "a1.md",
+  "index.yaml",
+  "toc.yaml"
+]"
+`;
 
 exports[`Include toc Toc with expressions 2`] = `
 "This is the /a1.md file content.
