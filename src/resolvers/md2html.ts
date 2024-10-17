@@ -103,7 +103,7 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         router: {
             pathname,
-            depth: inputPath.split('/').length,
+            depth: inputPath.replace(/\\/g, '/').split('/').length,
         },
         lang,
         langs,
