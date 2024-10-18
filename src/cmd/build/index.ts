@@ -237,17 +237,11 @@ async function handler(args: Arguments<any>) {
             await processChangelogs();
 
             // Copy all generated files to user' output folder
-            shell.cp(
-                '-r',
-                join(tmpOutputFolder, '*'),
-                userOutputFolder,
-            );
+            shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
             // Better way is to use cp -rT, but it doesn't work on Mac
-            shell.test('-e',join(tmpOutputFolder, '.*')) && shell.cp(
-                '-r',
-                join(tmpOutputFolder, '.*'),
-                userOutputFolder,
-            );
+            if (shell.test('-e',join(tmpOutputFolder, '.*'))) {
+                shell.cp('-r', join(tmpOutputFolder, '.*'), userOutputFolder);
+            }
 
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
