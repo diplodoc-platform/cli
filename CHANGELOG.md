@@ -1,5 +1,26 @@
 # Changelog
 
+## [4.39.0](https://github.com/diplodoc-platform/cli/compare/v4.38.0...v4.39.0) (2024-10-18)
+
+
+### Features
+
+* Add language specific scoring ([ca4c349](https://github.com/diplodoc-platform/cli/commit/ca4c349c445f76b23930ebda7a0b3abbe20871b1))
+* Implement local search adapter ([3766714](https://github.com/diplodoc-platform/cli/commit/376671495dd68dfa73650742ca30c3ebacd326bc))
+* Update client to major 3 version ([be7ad13](https://github.com/diplodoc-platform/cli/commit/be7ad1387ebf3ea00c23111c072b74f64806dab4))
+
+
+### Bug Fixes
+
+* Do not enable search on search=false ([b647f0b](https://github.com/diplodoc-platform/cli/commit/b647f0b9ef0b25b2b5c070ebeba72941fc243672))
+* Fix depth computation on windows ([d0c708d](https://github.com/diplodoc-platform/cli/commit/d0c708df494e87dbb9e9e1fc5b746117de9f4395))
+* Fix search loading on file protocol ([6b8c2b5](https://github.com/diplodoc-platform/cli/commit/6b8c2b515257099a7fe2f6418442d4dd7f923aaf))
+* Fix search loading on simple docs (without langs) ([4c11edc](https://github.com/diplodoc-platform/cli/commit/4c11edcfedfd3832766f5e1e66c5dccc568981aa))
+* Fix typescript bundler mode ([c74fd8d](https://github.com/diplodoc-platform/cli/commit/c74fd8d258f0c883ccddf23880a5a2b2cae7336f))
+* Move page generators to page folder ([6cae881](https://github.com/diplodoc-platform/cli/commit/6cae881fb723bf7057b074a03e9b2ad963d9b96b))
+* Remove langs dependency from assets ([fd5294d](https://github.com/diplodoc-platform/cli/commit/fd5294d617956c2102ca0f1cd586f5ca3bf56483))
+* Simplify search configuration ([8fb62ba](https://github.com/diplodoc-platform/cli/commit/8fb62bae5183d5b80db2915a03789b73ef195d5f))
+
 ## [4.38.0](https://github.com/diplodoc-platform/cli/compare/v4.37.0...v4.38.0) (2024-10-10)
 
 
