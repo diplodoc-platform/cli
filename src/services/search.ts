@@ -58,6 +58,7 @@ async function release() {
     }
 
     if (isLocalSearchEnabled()) {
+        mkdirSync(bundleDir(), {recursive: true});
         copyFileSync(apiPath, apiLink());
     }
 
