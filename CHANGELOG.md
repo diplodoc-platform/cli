@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.39.1](https://github.com/diplodoc-platform/cli/compare/v4.39.0...v4.39.1) (2024-10-20)
+
+
+### Bug Fixes
+
+* Fix assets bundling ([37c1f7c](https://github.com/diplodoc-platform/cli/commit/37c1f7c8c392fcb9d14553512adaf205aca382dc))
+
 ## [4.39.0](https://github.com/diplodoc-platform/cli/compare/v4.38.0...v4.39.0) (2024-10-18)
 
 
