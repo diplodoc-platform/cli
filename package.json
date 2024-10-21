@@ -1,38 +1,56 @@
 {
   "name": "@diplodoc/cli",
-  "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
-  "description": "Make documentation using yfm-docs in Markdown and HTML formats",
-  "license": "MIT",
   "version": "4.39.1",
+  "description": "Make documentation using yfm-docs in Markdown and HTML formats",
+  "keywords": [
+    "markdown",
+    "yandex",
+    "docs",
+    "yfm",
+    "documentation",
+    "tool",
+    "tools",
+    "generator"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:diplodoc-platform/cli.git"
   },
-  "bin": {
-    "yfm": "build/index.js",
-    "docs": "build/index.js"
+  "license": "MIT",
+  "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
+  "exports": {
+    "./package": "./package.json"
   },
   "main": "build/index.js",
+  "bin": {
+    "docs": "build/index.js",
+    "yfm": "build/index.js"
+  },
   "files": [
     "build",
     "assets",
     "schemas",
     "src"
   ],
-  "exports": {
-    "./package": "./package.json"
-  },
   "scripts": {
     "build": "node scripts/build.cli.js",
-    "start": "node build/index.js",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
-    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run lint && npm run build",
+    "start": "node build/index.js",
     "test": "vitest",
-    "prepublishOnly": "npm run lint && npm run build"
+    "typecheck": "tsc --noEmit"
   },
-  "engines": {
-    "node": ">=18.*"
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "dependencies": {
     "@diplodoc/client": "^3.1.3",
@@ -91,25 +109,7 @@
     "vitest": "^1.1.3",
     "walk-sync": "^3.0.0"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix",
-      "git add"
-    ]
-  },
-  "keywords": [
-    "markdown",
-    "yandex",
-    "docs",
-    "yfm",
-    "documentation",
-    "tool",
-    "tools",
-    "generator"
-  ]
+  "engines": {
+    "node": ">=18.*"
+  }
 }
