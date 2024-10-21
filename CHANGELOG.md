@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.39.2](https://github.com/diplodoc-platform/cli/compare/v4.39.1...v4.39.2) (2024-10-21)
+
+
+### Features
+
+* Update OpenAPI extension version ([e3e12cd](https://github.com/diplodoc-platform/cli/commit/e3e12cdca7ddcd5bac5efa1cef9efa8a3c4d9221))
+* Update transformer version ([93efc6e](https://github.com/diplodoc-platform/cli/commit/93efc6ea55fd00c36ceb9f81147fb87b8b01805e))
+
 ## [4.39.1](https://github.com/diplodoc-platform/cli/compare/v4.39.0...v4.39.1) (2024-10-20)
 
 
