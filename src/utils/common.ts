@@ -21,10 +21,10 @@ export function findAllValuesByKeys(obj: object, keysToFind: string[]) {
 export function modifyValuesByKeys(
     originalObj: object,
     keysToFind: string[],
-    modifyFn: (value: string) => string,
+    modifyFn: (value: string) => string | undefined,
 ) {
     // Clone the object deeply with a customizer function that modifies matching keys
-    return cloneDeepWith(originalObj, function (value: unknown, key) {
+    return cloneDeepWith(originalObj, (value: unknown, key) => {
         if (keysToFind.includes(key as string) && isString(value)) {
             return modifyFn(value);
         }

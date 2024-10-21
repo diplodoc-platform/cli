@@ -12,7 +12,7 @@ import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
 import {Lang, PROCESSING_FINISHED} from '~/constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '~/models';
-import {ArgvService, PluginService, TocService} from '~/services';
+import {ArgvService, PluginService, SearchService, TocService} from '~/services';
 import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '~/services/metadata';
 import {
     getLinksWithContentExtersion,
@@ -24,6 +24,7 @@ import {
 } from '../utils';
 import {RevisionContext} from '~/context/context';
 import {DependencyContext, FsContext} from '@diplodoc/transform/lib/typings';
+import {generateStaticMarkup} from '~/pages';
 
 export interface FileTransformOptions {
     lang: string;
@@ -242,7 +243,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
 
     return transform(content, {
         ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
+        plugins: plugins as MarkdownItPluginCb[],
         vars,
         root,
         path,

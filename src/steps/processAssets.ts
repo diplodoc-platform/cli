@@ -10,6 +10,7 @@ import {
     ASSETS_FOLDER,
     LINT_CONFIG_FILENAME,
     REDIRECTS_FILENAME,
+    RTL_LANGS,
     YFM_CONFIG_FILENAME,
 } from '~/constants';
 import {ArgvService, TocService} from '~/services';

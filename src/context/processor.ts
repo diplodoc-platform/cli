@@ -1,4 +1,3 @@
-import {sep} from 'path';
 import {DependencyContext} from '@diplodoc/transform/lib/typings';
 import {logger} from '~/utils/logger';
 import {Queue} from '~/utils/queue';
@@ -13,24 +12,29 @@ export class FileQueueProcessor {
     private deps: DependencyContext;
 
     private processed = new Set<string>();
+    private navigationPaths = new Set<string>();
 
     constructor(context: RevisionContext, deps: DependencyContext) {
         this.context = context;
         this.deps = deps;
     }
 
-    getFilesToProcess(navigationPaths: string[] = []) {
-        const files = Object.keys(this.context.meta?.files || {})
-            .filter((path) => this.isChanged(path))
-            .filter((path) => !this.isProcessable(path) || this.isInclude(path));
+    setNavigationPaths(navigationPaths: string[]) {
+        this.navigationPaths = new Set(navigationPaths);
+    }
 
-        for (const path of navigationPaths) {
+    getFilesToProcess() {
+        const files = new Set(
+            Object.keys(this.context.meta?.files || {}).filter((path) => this.isChanged(path)),
+        );
+
+        for (const path of this.navigationPaths) {
             if (this.isChanged(path)) {
-                files.push(path);
+                files.add(path);
             }
         }
 
-        return files;
+        return [...files];
     }
 
     addDepsToQueue(path: string, add: (path: string) => void) {
@@ -57,20 +61,8 @@ export class FileQueueProcessor {
         return this.context.meta?.files?.[path]?.changed !== false;
     }
 
-    isInclude(path: string) {
-        const names = path.split(sep);
-        if (names.findIndex((name) => name.startsWith('_')) >= 0) {
-            return true;
-        }
-        return false;
-    }
-
     isProcessable(pattern: string) {
-        if (pattern.endsWith('.yaml')) {
-            return !this.isInclude(pattern);
-        }
-
-        return pattern.endsWith('.md');
+        return this.navigationPaths.has(pattern);
     }
 
     async processQueue(fn: FileQueueProcessorFn, files: string[] = []) {

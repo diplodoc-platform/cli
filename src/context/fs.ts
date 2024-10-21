@@ -31,6 +31,14 @@ export class FsContextCli implements FsContext {
             arr.unshift(originPath);
         }
 
+        const isFromTmpOutputFolder = path.startsWith(resolve(this.context.tmpOutputFolder) + '/');
+        if (isFromTmpOutputFolder) {
+            const assetPath = path.replace(resolve(this.context.tmpOutputFolder) + '/', '');
+            const originPath = resolve(this.context.userOutputFolder, assetPath);
+
+            arr.unshift(originPath);
+        }
+
         return arr;
     }
 

@@ -6,7 +6,7 @@ import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
 import {argvValidator} from '~/validator';
-import {ArgvService, Includers, TocService} from '~/services';
+import {ArgvService, Includers, SearchService, TocService} from '~/services';
 import {
     finishProcessPages,
     getLintFn,
@@ -250,8 +250,11 @@ async function handler(args: Arguments<any>) {
 
         const navigationPaths = TocService.getNavigationPaths();
 
+        pageProcessor.setNavigationPaths(navigationPaths);
+        pageLintProcessor.setNavigationPaths(navigationPaths);
+
         if (!lintDisabled) {
-            const filesToProcess = pageLintProcessor.getFilesToProcess(navigationPaths);
+            const filesToProcess = pageLintProcessor.getFilesToProcess();
 
             const processLintPageFn = await getLintFn(context);
 
@@ -259,7 +262,7 @@ async function handler(args: Arguments<any>) {
         }
 
         if (!buildDisabled) {
-            const filesToProcess = pageProcessor.getFilesToProcess(navigationPaths);
+            const filesToProcess = pageProcessor.getFilesToProcess();
 
             const processPageFn = await getProcessPageFn(fs, deps, context, outputBundlePath);
 

@@ -22,16 +22,11 @@ import {
     YfmToc,
 } from '~/models';
 import {resolveMd2HTML, resolveMd2Md} from '~/resolvers';
-import {ArgvService, LeadingService, PluginService, TocService} from '~/services';
-import {
-    generateStaticMarkup,
-    joinSinglePageResults,
-    logger,
-    transformTocForSinglePage,
-} from '~/utils';
+import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '~/services';
+import {joinSinglePageResults, logger, transformTocForSinglePage} from '~/utils';
+import {generateStaticMarkup, generateStaticRedirect} from '~/pages';
 import {getVCSConnector} from '~/vcs-connector';
 import {VCSConnector} from '~/vcs-connector/connector-models';
-import {generateStaticRedirect} from '~/utils/redirect';
 import {RevisionContext} from '~/context/context';
 import {DependencyContext, FsContext} from '@diplodoc/transform/lib/typings';
 
@@ -125,7 +120,7 @@ export const getProcessPageFn = async (
 
         logger.proc(pathToFile);
 
-        const metaDataOptions = getMetaDataOptions(pathData, inputFolderPath.length, vcsConnector);
+        const metaDataOptions = getMetaDataOptions(pathData, vcsConnector);
 
         await preparingPagesByOutputFormat(
             fs,

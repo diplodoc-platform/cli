@@ -1,15 +1,16 @@
 import {join} from 'path';
+import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
+import {escape} from 'html-escaper';
 
 import {BUNDLE_FOLDER, CARRIAGE_RETURN, CUSTOM_STYLE, RTL_LANGS} from '../constants';
-import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
+import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
+import {preprocessPageHtmlForSinglePage} from '../utils';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 import {FsContext} from '@diplodoc/transform/lib/typings';
-
-import {escape} from 'html-escaper';
 
 export interface TitleMeta {
     title?: string;

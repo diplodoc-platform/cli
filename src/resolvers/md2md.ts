@@ -42,6 +42,7 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
     });
 
     const {result, changelogs} = transformMd2Md(content, {
+        ...options,
         path: resolvedInputPath,
         destPath: outputPath,
         root: resolve(input),
@@ -134,6 +135,7 @@ function transformMd2Md(input: string, options: PluginOptions) {
 
     if (collectOfPlugins) {
         output = collectOfPlugins(output, {
+            ...options,
             vars,
             path,
             root,
