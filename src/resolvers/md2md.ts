@@ -106,17 +106,7 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 
 function transformMd2Md(input: string, options: PluginOptions) {
     const {disableLiquid, changelogs: changelogsSetting} = ArgvService.getConfig();
-    const {
-        vars = {},
-        path,
-        root,
-        destPath,
-        destRoot,
-        collectOfPlugins,
-        log: pluginLog,
-        copyFile: pluginCopyFile,
-        included,
-    } = options;
+    const {vars = {}, path, collectOfPlugins, log: pluginLog} = options;
 
     let output = input;
     const changelogs: ChangelogItem[] = [];
@@ -129,17 +119,12 @@ function transformMd2Md(input: string, options: PluginOptions) {
 
     if (collectOfPlugins) {
         output = collectOfPlugins(output, {
+            ...options,
             vars,
             path,
-            root,
-            destPath,
-            destRoot,
-            log: pluginLog,
-            copyFile: pluginCopyFile,
             collectOfPlugins,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
-            included,
         });
     }
 
