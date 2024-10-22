@@ -34,7 +34,7 @@ const parser = yargs
         type: 'boolean',
     })
     .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
-    .version(typeof VERSION !== 'undefined' ? VERSION : '')
+    .version(typeof VERSION === 'undefined' ? '' : VERSION)
     .help();
 
 export class Build
