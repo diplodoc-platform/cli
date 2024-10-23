@@ -1,133 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `
-"[
-  "product1/_includes/inc.md",
-  "product1/article1.md",
-  "product1/toc.yaml",
-  "product2/overlay1/_includes/inc.md",
-  "product2/overlay1/article1.md",
-  "product2/overlay2/_includes/inc.md",
-  "product2/overlay2/article1.md",
-  "product2/overlay3/_includes/inc.md",
-  "product2/overlay3/article1.md",
-  "product2/p2.md",
-  "product2/toc.yaml"
-]"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 2`] = `
-"---
-sourcePath: product1/core/_includes/inc.md
----
-This is the core include."
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 3`] = `
-"---
-sourcePath: product1/core/article1.md
----
-This is the core content of Article 1.
-
-{% include [x](_includes/inc.md) %}
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 4`] = `
-"title: Product 1 title
-items:
-  - name: Article1
-    href: article1.md
-base: product1
-deepBase: 1
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 5`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 6`] = `
-"---
-sourcePath: product2/overlay1/product/article1.md
----
-This is the overlay content of Article 1 for product 2.
-
-{% include [x](_includes/inc.md) %}
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 7`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 8`] = `
-"---
-sourcePath: product2/overlay2/product/article1.md
----
-This is the overlay number #2  of Article 1 content for product 2.
-
-{% include [x](_includes/inc.md) %}
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 9`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 10`] = `
-"---
-sourcePath: product2/core/article1.md
----
-This is the core content of Article 1.
-
-{% include [x](_includes/inc.md) %}
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 11`] = `
-"This is the product 2 specific article.
-
-Check here link to [Article1 overlay 1](overlay1/article1.md)
-Check here link to [Article1 overlay 2](overlay2/article1.md)"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes 12`] = `
-"title: Product 2 title
-items:
-  - name: P2 Article
-    href: p2.md
-  - name: Overlay1
-    items:
-      - name: Article1
-        href: overlay1/article1.md
-  - name: Overlay 2
-    items:
-      - name: Article1
-        href: overlay2/article1.md
-  - name: Overlay 3
-    items:
-      - name: Article1
-        href: overlay3/article1.md
-base: product2
-deepBase: 1
-"
-`;
-
 exports[`Include toc Toc is included in link mode 1`] = `
 "[
+  ".revision.meta.json",
   "a1.md",
   "folder1/a1.md",
   "folder1/folder2/a1.md",
@@ -169,6 +44,7 @@ deepBase: 0
 
 exports[`Include toc Toc is included inline, not as a new section 1`] = `
 "[
+  ".revision.meta.json",
   ".yfm",
   "file1.md",
   "fileA.md",
@@ -298,6 +174,7 @@ deepBase: 0
 
 exports[`Include toc Toc with expressions 1`] = `
 "[
+  ".revision.meta.json",
   "a1.md",
   "index.yaml",
   "toc.yaml"

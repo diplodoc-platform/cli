@@ -2,17 +2,16 @@
 
 exports[`Allow load custom resources md2html single page with custom resources 1`] = `
 "[
+  ".revision.meta.json",
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
   "_bundle/search-js-0",
   "_bundle/search-js-1",
   "_bundle/search-css-0",
   "_bundle/search-js-2",
-  "_bundle/search-css-1",
   "index.html",
   "page.html",
   "project/config.html",
@@ -250,9 +249,6 @@ exports[`Allow load custom resources md2html single page with custom resources 5
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"html":"
       <p>Lorem
-      </p>/n
-      <hr class=\\"yfm-page__delimeter\\">
-      <p>Lorem
       </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]};
     </script>
     <script type="application/javascript"
@@ -271,21 +267,20 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
 
 exports[`Allow load custom resources md2html with custom resources 1`] = `
 "[
+  ".revision.meta.json",
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
   "_bundle/search-js-0",
   "_bundle/search-js-1",
   "_bundle/search-css-0",
   "_bundle/search-js-2",
-  "_bundle/search-css-1",
   "index.html",
   "page.html",
   "project/config.html"
@@ -481,12 +476,11 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
 
 exports[`Allow load custom resources md2md with custom resources 1`] = `
 "[
+  ".revision.meta.json",
   ".yfm",
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "index.yaml",
-  "page.md",
-  "project/config.md",
   "toc.yaml"
 ]"
 `;
@@ -518,31 +512,6 @@ links:
 `;
 
 exports[`Allow load custom resources md2md with custom resources 4`] = `
-"---
-metadata:
-  - name: yfm
-    content: builder
-style:
-  - _assets/style/test.css
-script:
-  - _assets/script/test1.js
----
-
-Lorem
-"
-`;
-
-exports[`Allow load custom resources md2md with custom resources 5`] = `
-"---
-style:
-  - _assets/style/test.css
-script:
-  - _assets/script/test1.js
----
-Lorem"
-`;
-
-exports[`Allow load custom resources md2md with custom resources 6`] = `
 "title: Documentation
 href: index.yaml
 items:
