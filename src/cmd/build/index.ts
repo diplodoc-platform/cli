@@ -1,26 +1,29 @@
-import glob from 'glob';
 import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
-import {argvValidator} from '../../validator';
-import {ArgvService, Includers, SearchService} from '../../services';
+import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
+import {argvValidator} from '~/validator';
+import {ArgvService, Includers, SearchService, TocService} from '~/services';
 import {
-    initLinterWorkers,
+    finishProcessPages,
+    getLintFn,
+    getProcessPageFn,
     processAssets,
     processChangelogs,
     processExcludedFiles,
-    processLinter,
     processLogs,
-    processPages,
     processServiceFiles,
-} from '../../steps';
-import {prepareMapFile} from '../../steps/processMapFile';
-import {copyFiles, logger} from '../../utils';
-import {upload as publishFilesToS3} from '../../commands/publish/upload';
+} from '~/steps';
+import {prepareMapFile} from '~/steps/processMapFile';
+import {copyFiles, logger} from '~/utils';
+import {upload as publishFilesToS3} from '~/commands/publish/upload';
+import {RevisionContext, makeRevisionContext, setRevisionContext} from '~/context/context';
+import {FsContextCli} from '~/context/fs';
+import {DependencyContextCli} from '~/context/dependency';
+import {FileQueueProcessor} from '~/context/processor';
 
 export const build = {
     command: ['build', '$0'],
@@ -37,10 +40,28 @@ function builder<T>(argv: Argv<T>) {
             type: 'string',
             group: 'Build options:',
         })
+        .option('debug', {
+            alias: 'd',
+            describe: 'Debug mode for development',
+            type: 'string',
+            group: 'Build options:',
+        })
         .option('output', {
             alias: 'o',
             describe: 'Path to output folder',
             type: 'string',
+            group: 'Build options:',
+        })
+        .option('plugins', {
+            alias: 'p',
+            describe: 'Path to plugins js file',
+            type: 'string',
+            group: 'Build options:',
+        })
+        .option('cached', {
+            default: false,
+            describe: 'Use cache from revision meta file',
+            type: 'boolean',
             group: 'Build options:',
         })
         .option('varsPreset', {
@@ -176,6 +197,8 @@ function builder<T>(argv: Argv<T>) {
 }
 
 async function handler(args: Arguments<any>) {
+    let hasError = false;
+
     const userOutputFolder = resolve(args.output);
     const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
     const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
@@ -203,37 +226,61 @@ async function handler(args: Arguments<any>) {
             addMapFile,
         } = ArgvService.getConfig();
 
-        preparingTemporaryFolders(userOutputFolder);
+        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
-        await processServiceFiles();
-        processExcludedFiles();
+        const context = await makeRevisionContext(
+            userOutputFolder,
+            tmpInputFolder,
+            tmpOutputFolder,
+            outputBundlePath,
+        );
+
+        const fs = new FsContextCli(context);
+        const deps = new DependencyContextCli(context);
+        const pageProcessor = new FileQueueProcessor(context, deps);
+        const pageLintProcessor = new FileQueueProcessor(context, deps);
+
+        await preparingTemporaryFolders(context);
+        await processServiceFiles(context, fs);
+        await processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
         }
 
-        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
+        const navigationPaths = TocService.getNavigationPaths();
+
+        pageProcessor.setNavigationPaths(navigationPaths);
+        pageLintProcessor.setNavigationPaths(navigationPaths);
 
         if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
+            const filesToProcess = pageLintProcessor.getFilesToProcess();
+
+            const processLintPageFn = await getLintFn(context);
+
+            await pageLintProcessor.processQueue(processLintPageFn, filesToProcess);
         }
 
-        const processes = [
-            !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
-        ].filter(Boolean) as Promise<void>[];
+        if (!buildDisabled) {
+            const filesToProcess = pageProcessor.getFilesToProcess();
 
-        await Promise.all(processes);
+            const processPageFn = await getProcessPageFn(fs, deps, context, outputBundlePath);
+
+            await pageProcessor.processQueue(processPageFn, filesToProcess);
+
+            await finishProcessPages(fs);
+        }
 
         if (!buildDisabled) {
             // process additional files
-            processAssets({
+            await processAssets({
                 args,
                 outputFormat,
                 outputBundlePath,
                 tmpOutputFolder,
                 userOutputFolder,
+                context,
+                fs,
             });
 
             await processChangelogs();
@@ -270,34 +317,37 @@ async function handler(args: Arguments<any>) {
                 });
             }
         }
+
+        await setRevisionContext(context);
     } catch (err) {
+        if (args.debug) {
+            console.error(err);
+        }
+
         logger.error('', err.message);
+
+        hasError = true;
     } finally {
         processLogs(tmpInputFolder);
 
         shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
     }
+
+    if (hasError) {
+        process.exit(1);
+    }
 }
 
-function preparingTemporaryFolders(userOutputFolder: string) {
+async function preparingTemporaryFolders(revisionContext: RevisionContext) {
     const args = ArgvService.getConfig();
 
-    shell.mkdir('-p', userOutputFolder);
+    shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
     shell.rm('-rf', args.input, args.output);
     shell.mkdir(args.input, args.output);
 
-    copyFiles(
-        args.rootInput,
-        args.input,
-        glob.sync('**', {
-            cwd: args.rootInput,
-            nodir: true,
-            follow: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        }),
-    );
+    await copyFiles(args.rootInput, args.input, revisionContext.files, revisionContext.meta);
 
     shell.chmod('-R', 'u+w', args.input);
 }

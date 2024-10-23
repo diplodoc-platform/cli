@@ -1,7 +1,10 @@
 import {LintConfig, LintRule} from '@diplodoc/transform/lib/yfmlint';
+import {existsSync} from 'fs';
+import {resolve} from 'path';
 
 import {CollectionOfPluginsFunction, Plugin, PluginOptions} from '../models';
 import {YFM_PLUGINS} from '../constants';
+import {ArgvService} from '.';
 
 let plugins: Function[] | Plugin[];
 let collectionOfPlugins: CollectionOfPluginsFunction;
@@ -24,22 +27,22 @@ function makeCollectOfPlugins(): CollectionOfPluginsFunction {
         return typeof plugin.collect === 'function';
     });
 
-    return (output: string, options: PluginOptions) => {
+    return async (output: string, options: PluginOptions) => {
         let collectsOutput = output;
 
-        pluginsWithCollect.forEach((plugin: Plugin) => {
-            const collectOutput = plugin.collect(collectsOutput, options);
-
+        for (const plugin of pluginsWithCollect) {
+            const collectOutput = await plugin.collect(collectsOutput, options);
             collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
-        });
+        }
 
         return collectsOutput;
     };
 }
 
 function getAllPlugins(): Function[] {
+    const argsPlugins = getArgsPlugins();
     const customPlugins = getCustomPlugins();
-    return [...YFM_PLUGINS, ...customPlugins];
+    return [...YFM_PLUGINS, ...argsPlugins, ...customPlugins];
 }
 
 function getCustomPlugins(): Function[] {
@@ -49,6 +52,14 @@ function getCustomPlugins(): Function[] {
     } catch (e) {
         return [];
     }
+}
+
+function getArgsPlugins(): Function[] {
+    const {plugins: pluginsFile} = ArgvService.getConfig();
+    if (pluginsFile && existsSync(resolve(pluginsFile))) {
+        return require(resolve(pluginsFile));
+    }
+    return [];
 }
 
 export function getHeadContent(): string {
