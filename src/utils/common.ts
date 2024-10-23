@@ -1,5 +1,6 @@
 import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
-import {isFileExists, resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
 export function findAllValuesByKeys(obj: object, keysToFind: string[]) {
     return flatMapDeep(obj, (value: string | string[], key: string) => {
@@ -21,10 +22,10 @@ export function findAllValuesByKeys(obj: object, keysToFind: string[]) {
 export function modifyValuesByKeys(
     originalObj: object,
     keysToFind: string[],
-    modifyFn: (value: string) => string,
+    modifyFn: (value: string) => string | undefined,
 ) {
     // Clone the object deeply with a customizer function that modifies matching keys
-    return cloneDeepWith(originalObj, function (value: unknown, key) {
+    return cloneDeepWith(originalObj, (value: unknown, key) => {
         if (keysToFind.includes(key as string) && isString(value)) {
             return modifyFn(value);
         }
@@ -45,8 +46,8 @@ export function getLinksWithExtension(link: string) {
     return oneLineWithExtension.test(link);
 }
 
-export function checkPathExists(path: string, parentFilePath: string) {
+export async function checkPathExists(fs: FsContext, path: string, parentFilePath: string) {
     const includePath = resolveRelativePath(parentFilePath, path);
 
-    return isFileExists(includePath);
+    return fs.existAsync(includePath);
 }

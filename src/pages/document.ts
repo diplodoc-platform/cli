@@ -1,13 +1,14 @@
 import {join} from 'path';
+import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
+import {escape} from 'html-escaper';
 
 import {BUNDLE_FOLDER, CARRIAGE_RETURN, CUSTOM_STYLE, RTL_LANGS} from '../constants';
-import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
+import {LeadingPage, Resources, SinglePageResult, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
+import {preprocessPageHtmlForSinglePage} from '../utils';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
-
-import {escape} from 'html-escaper';
 
 export interface TitleMeta {
     title?: string;
@@ -148,4 +149,66 @@ function getResources({style, script}: Resources) {
     }
 
     return resourcesTags.join('\n');
+}
+
+export function joinSinglePageResults(
+    singlePageResults: SinglePageResult[],
+    root: string,
+    tocDir: string,
+): string {
+    const delimeter = `<hr class="yfm-page__delimeter">`;
+    return singlePageResults
+        .filter(({content}) => content)
+        .map(({content, path, title}) =>
+            preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}),
+        )
+        .join(delimeter);
+}
+
+export function replaceDoubleToSingleQuotes(str: string): string {
+    return str.replace(/"/g, "'");
+}
+
+export function findAllValuesByKeys(obj, keysToFind: string[]) {
+    return flatMapDeep(obj, (value: string | string[], key: string) => {
+        if (
+            keysToFind?.includes(key) &&
+            (isString(value) || (isArray(value) && value.every(isString)))
+        ) {
+            return [value];
+        }
+
+        if (isObject(value)) {
+            return findAllValuesByKeys(value, keysToFind);
+        }
+
+        return [];
+    });
+}
+
+export function modifyValuesByKeys(
+    originalObj,
+    keysToFind: string[],
+    modifyFn: (value: string) => string,
+) {
+    function customizer(value, key) {
+        if (keysToFind?.includes(key) && isString(value)) {
+            return modifyFn(value);
+        }
+    }
+
+    // Clone the object deeply with a customizer function that modifies matching keys
+    return cloneDeepWith(originalObj, customizer);
+}
+
+export function getLinksWithContentExtersion(link: string) {
+    return new RegExp(/^\S.*\.(md|ya?ml|html)$/gm).test(link);
+}
+
+export function getLinksWithExtension(link: string) {
+    const oneLineWithExtension = new RegExp(
+        /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
+    );
+
+    return oneLineWithExtension.test(link);
 }
