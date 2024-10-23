@@ -1,6 +1,8 @@
 import type {DocInnerProps, DocPageData} from '@diplodoc/client';
 import type {Lang} from '../constants';
 
+import {SEARCH_API, SEARCH_LANGS} from '../constants';
+
 import {join} from 'node:path';
 import {mkdirSync, writeFileSync} from 'node:fs';
 

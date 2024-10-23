@@ -8,6 +8,7 @@ const SEARCH_LANGS = require.resolve('@diplodoc/search-extension/worker/langs');
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
 const ASSETS_PATH = resolve(__dirname, '..', 'assets');
 
+// TODO: link with constants
 const SEARCH_API_OUTPUT = join(ASSETS_PATH, 'search', 'index.js');
 const SEARCH_LANGS_OUTPUT = join(ASSETS_PATH, 'search', 'langs');
 
@@ -38,8 +39,6 @@ const commonConfig = {
     ],
     define: {
         VERSION: JSON.stringify(version),
-        SEARCH_API: JSON.stringify(SEARCH_API_OUTPUT),
-        SEARCH_LANGS: JSON.stringify(SEARCH_LANGS_OUTPUT),
     },
 };
 

@@ -9,6 +9,5 @@
       "~/*": ["../src/*"]
     },
     "types": ["node", "jest"]
-  },
-  "include": ["../src/globals.d.ts"]
+  }
 }

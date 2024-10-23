@@ -1,4 +1,4 @@
-import {resolve} from 'path';
+import {join, resolve} from 'node:path';
 import {platform} from 'process';
 const os = require('os');
 const notes = require('@diplodoc/transform/lib/plugins/notes');
@@ -38,6 +38,8 @@ export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
+export const SEARCH_API = join(ASSETS_FOLDER, 'search', 'index.js');
+export const SEARCH_LANGS = join(ASSETS_FOLDER, 'search', 'langs');
 
 export enum Stage {
     NEW = 'new',
