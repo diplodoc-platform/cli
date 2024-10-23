@@ -6,6 +6,8 @@ import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
+import {RevisionContext} from './context/context';
+import {DependencyContext, FsContext} from '@diplodoc/transform/lib/typings';
 
 export type VarsPreset = 'internal' | 'external';
 
@@ -26,7 +28,10 @@ export type NestedContributorsForPathFunction = (
     nestedContributors: Contributors,
 ) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
-export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
+export type CollectionOfPluginsFunction = (
+    output: string,
+    options: PluginOptions,
+) => Promise<string>;
 export type GetModifiedTimeByPathFunction = (filepath: string) => number | undefined;
 
 /**
@@ -58,6 +63,9 @@ interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
+    debug: boolean;
+    cached: boolean;
+    plugins: string;
     allowHTML: boolean;
     vars: Record<string, string>;
     applyPresets: boolean;
@@ -96,6 +104,7 @@ interface YfmConfig {
 export interface YfmArgv extends YfmConfig {
     rootInput: string;
     input: string;
+    config: string;
     output: string;
     quiet: string;
     publish: boolean;
@@ -257,16 +266,22 @@ export interface PluginOptions {
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
     included?: boolean;
+    context: RevisionContext;
+    fs?: FsContext;
+    deps?: DependencyContext;
 }
 
 export interface Plugin {
-    collect: (input: string, options: PluginOptions) => string | void;
+    collect: (input: string, options: PluginOptions) => Promise<string | void>;
 }
 
 export interface ResolveMd2MdOptions {
     inputPath: string;
     outputPath: string;
     metadata: MetaDataOptions;
+    context: RevisionContext;
+    fs: FsContext;
+    deps?: DependencyContext;
 }
 
 export interface ResolverOptions {
@@ -278,6 +293,9 @@ export interface ResolverOptions {
     outputPath: string;
     outputBundlePath: string;
     metadata?: MetaDataOptions;
+    context: RevisionContext;
+    fs: FsContext;
+    deps?: DependencyContext;
 }
 
 export interface PathData {
