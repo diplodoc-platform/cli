@@ -10,23 +10,27 @@ import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 import {getLogLevel} from '@diplodoc/transform/lib/yfmlint/utils';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {readFileSync} from 'fs';
 import {bold} from 'chalk';
 
-import {ArgvService, PluginService} from '../services';
+import {FsContext} from '@diplodoc/transform/lib/typings';
+import {ArgvService, PluginService} from '~/services';
+import {RevisionContext} from '~/context/context';
+import {FsContextCli} from '~/context/fs';
 import {
     checkPathExists,
     findAllValuesByKeys,
     getLinksWithExtension,
     getVarsPerFile,
     getVarsPerRelativeFile,
-} from '../utils';
+} from '~/utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
 
 interface FileTransformOptions {
     path: string;
     root?: string;
+    context: RevisionContext;
+    fs: FsContext;
 }
 
 const FileLinter: Record<string, Function> = {
@@ -38,22 +42,24 @@ export interface ResolverLintOptions {
     inputPath: string;
     fileExtension: string;
     onFinish?: () => void;
+    context: RevisionContext;
 }
 
-export function lintPage(options: ResolverLintOptions) {
-    const {inputPath, fileExtension, onFinish} = options;
+export async function lintPage(options: ResolverLintOptions) {
+    const {inputPath, fileExtension, onFinish, context} = options;
     const {input} = ArgvService.getConfig();
     const resolvedPath: string = resolve(input, inputPath);
+    const fs = new FsContextCli(context);
 
     try {
-        const content: string = readFileSync(resolvedPath, 'utf8');
+        const content: string = await fs.readAsync(resolvedPath);
 
         const lintFn: Function = FileLinter[fileExtension];
         if (!lintFn) {
             return;
         }
 
-        lintFn(content, {path: inputPath});
+        await lintFn(content, {path: inputPath, fs, context});
     } catch (e) {
         const message = `No such file or has no access to ${bold(resolvedPath)}`;
         console.error(message, e);
@@ -65,7 +71,7 @@ export function lintPage(options: ResolverLintOptions) {
     }
 }
 
-function YamlFileLinter(content: string, lintOptions: FileTransformOptions): void {
+async function YamlFileLinter(content: string, lintOptions: FileTransformOptions): Promise<void> {
     const {input, lintConfig} = ArgvService.getConfig();
     const {path: filePath} = lintOptions;
     const currentFilePath: string = resolve(input, filePath);
@@ -76,21 +82,24 @@ function YamlFileLinter(content: string, lintOptions: FileTransformOptions): voi
         defaultLevel: log.LogLevels.ERROR,
     });
 
-    const contentLinks = findAllValuesByKeys(load(content), LINK_KEYS);
+    const data = load(content) as object;
+    const contentLinks: string[] = findAllValuesByKeys(data, LINK_KEYS);
     const localLinks = contentLinks.filter(
         (link) => getLinksWithExtension(link) && isLocalUrl(link),
     );
 
-    return localLinks.forEach(
-        (link) =>
-            checkPathExists(link, currentFilePath) ||
-            log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
+    await Promise.all(
+        localLinks.map(
+            async (link) =>
+                (await checkPathExists(lintOptions.fs, link, currentFilePath)) ||
+                log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
+        ),
     );
 }
 
-function MdFileLinter(content: string, lintOptions: FileTransformOptions): void {
+async function MdFileLinter(content: string, lintOptions: FileTransformOptions): Promise<void> {
     const {input, lintConfig, disableLiquid, outputFormat, ...options} = ArgvService.getConfig();
-    const {path: filePath} = lintOptions;
+    const {path: filePath, fs} = lintOptions;
 
     const plugins = outputFormat === 'md' ? [] : PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
@@ -101,7 +110,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
     /* Relative path from folder of .md file to root of user' output folder */
     const assetsPublicPath = relative(dirname(path), root);
 
-    const lintMarkdown = function lintMarkdown(opts: LintMarkdownFunctionOptions) {
+    const lintMarkdown = async function lintMarkdown(opts: LintMarkdownFunctionOptions) {
         const {input: localInput, path: localPath, sourceMap} = opts;
 
         const pluginOptions: PluginOptions = {
@@ -114,9 +123,10 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
             disableLiquid,
             log,
             getVarsPerFile: getVarsPerRelativeFile,
+            fs,
         };
 
-        yfmlint({
+        await yfmlint({
             input: localInput,
             lintConfig,
             pluginOptions,
@@ -140,7 +150,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         sourceMap = liquidResult.sourceMap;
     }
 
-    lintMarkdown({
+    await lintMarkdown({
         input: preparedContent,
         path,
         sourceMap,
