@@ -3,8 +3,13 @@ const esbuild = require('esbuild');
 const tsPaths = require('./ts-paths');
 const shell = require('shelljs');
 
+const SEARCH_API = require.resolve('@diplodoc/search-extension/worker');
+const SEARCH_LANGS = require.resolve('@diplodoc/search-extension/worker/langs');
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
 const ASSETS_PATH = resolve(__dirname, '..', 'assets');
+
+const SEARCH_API_OUTPUT = join(ASSETS_PATH, 'search', 'index.js');
+const SEARCH_LANGS_OUTPUT = join(ASSETS_PATH, 'search', 'langs');
 
 const clientManifest = require('@diplodoc/client/manifest');
 const assets = [
@@ -33,6 +38,8 @@ const commonConfig = {
     ],
     define: {
         VERSION: JSON.stringify(version),
+        SEARCH_API: JSON.stringify(SEARCH_API_OUTPUT),
+        SEARCH_LANGS: JSON.stringify(SEARCH_LANGS_OUTPUT),
     },
 };
 
@@ -61,8 +68,12 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     return esbuild.build(currentConfig);
 })).then(() => {
+    shell.mkdir('-p', ASSETS_PATH);
     for (const file of assets) {
-        shell.mkdir('-p', ASSETS_PATH);
         shell.cp('-f', join(CLIENT_PATH, file), join(ASSETS_PATH, file));
     }
+
+    shell.mkdir('-p', SEARCH_LANGS_OUTPUT);
+    shell.cp('-f', SEARCH_API, SEARCH_API_OUTPUT);
+    shell.cp('-f', join(dirname(SEARCH_LANGS), '*'), SEARCH_LANGS_OUTPUT);
 });
