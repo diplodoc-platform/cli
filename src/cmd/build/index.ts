@@ -238,8 +238,7 @@ async function handler(args: Arguments<any>) {
 
             // Copy all generated files to user' output folder
             shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
-            // Better way is to use cp -rT, but it doesn't work on Mac
-            if (shell.test('-e',join(tmpOutputFolder, '.*'))) {
+            if (glob.sync('.*', {cwd: tmpOutputFolder}).length) {
                 shell.cp('-r', join(tmpOutputFolder, '.*'), userOutputFolder);
             }
 
