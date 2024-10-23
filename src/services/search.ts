@@ -1,7 +1,7 @@
 import type {DocInnerProps, DocPageData} from '@diplodoc/client';
 import type {Lang} from '../constants';
 
-import {dirname, join} from 'node:path';
+import {join} from 'node:path';
 import {mkdirSync, writeFileSync} from 'node:fs';
 
 import {Indexer} from '@diplodoc/search-extension/indexer';
@@ -10,9 +10,6 @@ import {langs} from '@diplodoc/search-extension/worker/langs';
 import {ArgvService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
-
-const apiPath = require.resolve('@diplodoc/search-extension/worker');
-const langsPath = require.resolve('@diplodoc/search-extension/worker/langs');
 
 let indexer: Indexer;
 
@@ -59,7 +56,7 @@ async function release() {
 
     if (isLocalSearchEnabled()) {
         mkdirSync(bundleDir(), {recursive: true});
-        copyFileSync(apiPath, apiLink());
+        copyFileSync(SEARCH_API, apiLink());
     }
 
     for (const lang of indexer.langs) {
@@ -72,7 +69,7 @@ async function release() {
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
 
         if (isLocalSearchEnabled() && langs.includes(lang)) {
-            copyFileSync(join(dirname(langsPath), lang + '.js'), languageLink(lang));
+            copyFileSync(join(SEARCH_LANGS, lang + '.js'), languageLink(lang));
         }
     }
 }
