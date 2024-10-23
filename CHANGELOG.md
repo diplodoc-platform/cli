@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.39.3](https://github.com/diplodoc-platform/cli/compare/v4.39.2...v4.39.3) (2024-10-23)
+
+
+### Bug Fixes
+
+* linter ([f9b923f](https://github.com/diplodoc-platform/cli/commit/f9b923f8a76f0d9851d1e7a89df78526c4402fdd))
+* Move search scripts to assets ([4bd36c0](https://github.com/diplodoc-platform/cli/commit/4bd36c0a5c9dad90d70607de2765dddc9154d167))
+
 ## [4.39.2](https://github.com/diplodoc-platform/cli/compare/v4.39.1...v4.39.2) (2024-10-21)
 
 
