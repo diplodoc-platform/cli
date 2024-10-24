@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.40.0](https://github.com/diplodoc-platform/cli/compare/v4.39.4...v4.40.0) (2024-10-24)
+
+
+### Features
+
+* passthrough options to transformMd2Md ([1b7422a](https://github.com/diplodoc-platform/cli/commit/1b7422a1f24cb0d4f3c6beeef2544384eab23b98))
+
 ## [4.39.4](https://github.com/diplodoc-platform/cli/compare/v4.39.3...v4.39.4) (2024-10-23)
 
 
