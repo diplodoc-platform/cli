@@ -26,8 +26,8 @@ export function processExcludedFiles() {
     const excludedFiles = allContentFiles.filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
     if (excludedFiles.length) {
-        shell.rm('-f', excludedFiles)
-    } 
+        shell.rm('-f', excludedFiles);
+    }
 
     const includedTocPaths = TocService.getIncludedTocPaths().map((filePath) => {
         const relativeTocPath = relative(inputFolderPath, filePath);
@@ -37,6 +37,6 @@ export function processExcludedFiles() {
     });
 
     if (includedTocPaths.length) {
-        shell.rm('-rf', includedTocPaths)
+        shell.rm('-rf', includedTocPaths);
     }
 }
