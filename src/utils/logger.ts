@@ -16,8 +16,8 @@ export const logger = {
     info: function (pathToFile: string, extraMessage?: string) {
         writeLog(`${grey('INFO')} ${extraMessage} ${pathToFile}`);
     },
-    prog: function (current: number, total: number) {
-        writeLog(`${cyan('PROG')} Processing ${((current / total * 100).toFixed())}% (${current} of ${total} files)`);
+    prog: function (current: number, total: number, pathToFile: string) {
+        writeLog(`${cyan('PROG')} Processing ${((current / total * 100).toFixed())}% (${current} of ${total} files) for ${pathToFile}`);
     },
     proc: function (pathToFile: string) {
         writeLog(`${blue('PROC')} Processing file ${pathToFile}`);

@@ -51,7 +51,7 @@ export class FileQueueProcessor {
 
                         // Check that the file is the entry file
                         if (this.isProcessable(file)) {
-                            logger.prog(index, this.navigationPaths.size);
+                            logger.prog(index, this.navigationPaths.size, file);
                             index++;
 
                             await fn(file);
