@@ -2,6 +2,9 @@ import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
 import glob from 'glob';
+import liveServer from 'live-server';
+import chokidar from 'chokidar';
+import debounce from 'lodash/debounce';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
@@ -64,6 +67,24 @@ function builder<T>(argv: Argv<T>) {
             default: false,
             describe: 'Remove output folder before build',
             type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('dev', {
+            default: false,
+            describe: 'Enable watch with http server',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('host', {
+            default: false,
+            describe: 'Host for dev server (Default is 0.0.0.0)',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('port', {
+            default: false,
+            describe: 'Port for dev server (Default is 5000)',
+            type: 'number',
             group: 'Build options:',
         })
         .option('varsPreset', {
@@ -198,7 +219,71 @@ function builder<T>(argv: Argv<T>) {
         );
 }
 
-async function handler(args: Arguments<YfmArgv>) {
+let isCompiling = false;
+let needToCompile = false;
+
+const runCompile = debounce(async () => {
+    if (isCompiling) {
+        needToCompile = true;
+    } else {
+        isCompiling = true;
+        needToCompile = false;
+
+        try {
+            await compile();
+        } catch (error) {
+            //
+        }
+
+        isCompiling = false;
+
+        if (needToCompile) {
+            runCompile();
+        }
+    }
+}, 1000);
+
+let args: Arguments<YfmArgv>;
+
+async function handler(initArgs: Arguments<YfmArgv>) {
+    args = initArgs;
+
+    if (args.dev) {
+        chokidar
+            .watch(resolve(args.input), {
+                ignored: (path) => path.includes('.tmp_'),
+                persistent: true,
+                followSymlinks: true,
+                awaitWriteFinish: true,
+            })
+            .on('raw', runCompile);
+
+        const params = {
+            port: args.port ?? 5000,
+            host: args.host ?? '0.0.0.0',
+            root: resolve(args.output),
+            open: false,
+            wait: 1000,
+            logLevel: 0,
+        };
+
+        liveServer.start(params);
+
+        runCompile();
+
+        return await new Promise(() => null);
+    } else {
+        return await compile();
+    }
+}
+
+async function compile() {
+    let hasError = false;
+
+    const userOutputFolder = resolve(args.output);
+    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
+    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
+
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
