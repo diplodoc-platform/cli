@@ -3,7 +3,6 @@ import {
     RevisionMeta,
 } from '@diplodoc/transform/lib/typings';
 import glob from 'glob';
-import {ArgvService} from '~/services';
 import {getMetaFile, makeMetaFile, updateChangedMetaFile, updateMetaFile} from '~/utils/meta';
 
 export interface RevisionContext extends RevisionContextTransfrom {
@@ -15,15 +14,15 @@ export interface RevisionContext extends RevisionContextTransfrom {
 }
 
 export async function makeRevisionContext(
+    cached: boolean,
+    userInputFolder: string,
     userOutputFolder: string,
     tmpInputFolder: string,
     tmpOutputFolder: string,
     outputBundlePath: string,
 ): Promise<RevisionContext> {
-    const args = ArgvService.getConfig();
-
     const files = glob.sync('**', {
-        cwd: args.rootInput,
+        cwd: userInputFolder,
         nodir: true,
         follow: true,
         ignore: ['node_modules/**', '*/node_modules/**'],
@@ -31,12 +30,12 @@ export async function makeRevisionContext(
 
     const meta = normalizeMeta(await getMetaFile(userOutputFolder));
 
-    await updateMetaFile(args.cached, args.rootInput, meta.files, files);
+    await updateMetaFile(cached, userInputFolder, meta.files, files);
 
-    await updateChangedMetaFile(args.cached, args.rootInput, meta.files);
+    await updateChangedMetaFile(cached, userInputFolder, meta.files);
 
     return {
-        userInputFolder: args.rootInput,
+        userInputFolder,
         userOutputFolder,
         tmpInputFolder,
         tmpOutputFolder,

@@ -7,6 +7,7 @@ import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
 import {argvValidator} from '~/validator';
+import {Includer, YfmArgv} from '~/models';
 import {ArgvService, Includers, SearchService, TocService} from '~/services';
 import {
     finishProcessPages,
@@ -191,26 +192,27 @@ function builder<T>(argv: Argv<T>) {
         );
 }
 
-async function handler(args: Arguments<any>) {
-    let hasError = false;
-
-    const userOutputFolder = resolve(args.output);
-    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
-    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
-
+async function handler(args: Arguments<YfmArgv>) {
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
 
+    let hasError = false;
+
+    const userInputFolder = resolve(args.input);
+    const userOutputFolder = resolve(args.output);
+    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
+    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
+
     try {
         ArgvService.init({
             ...args,
-            rootInput: args.input,
+            rootInput: userInputFolder,
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
         SearchService.init();
-        Includers.init([OpenapiIncluder as any]);
+        Includers.init([OpenapiIncluder as Includer]);
 
         const {
             output: outputFolderPath,
@@ -224,6 +226,8 @@ async function handler(args: Arguments<any>) {
         const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
         const context = await makeRevisionContext(
+            args.cached,
+            userInputFolder,
             userOutputFolder,
             tmpInputFolder,
             tmpOutputFolder,
@@ -324,21 +328,26 @@ async function handler(args: Arguments<any>) {
         shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
     }
 
+    // If build has some errors, then exit with error code 1
     if (hasError) {
         process.exit(1);
     }
 }
 
+// Creating temp .input folder
 async function preparingTemporaryFolders(revisionContext: RevisionContext) {
-    const args = ArgvService.getConfig();
-
     shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
-    shell.rm('-rf', args.input, args.output);
-    shell.mkdir(args.input, args.output);
+    shell.rm('-rf', revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
+    shell.mkdir(revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
 
-    await copyFiles(args.rootInput, args.input, revisionContext.files, revisionContext.meta);
+    await copyFiles(
+        revisionContext.userInputFolder,
+        revisionContext.tmpInputFolder,
+        revisionContext.files,
+        revisionContext.meta,
+    );
 
-    shell.chmod('-R', 'u+w', args.input);
+    shell.chmod('-R', 'u+w', revisionContext.tmpInputFolder);
 }
