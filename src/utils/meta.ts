@@ -52,7 +52,9 @@ export async function updateMetaFile(
                     const changed = !cached || !metaFiles[pathToAsset];
                     const modDate = Number((await stat(from)).mtime);
                     metaFiles[pathToAsset] = {
-                        mod_date: changed ? modDate : (metaFiles[pathToAsset]?.mod_date ?? modDate),
+                        modifyedDate: changed
+                            ? modDate
+                            : (metaFiles[pathToAsset]?.modifyedDate ?? modDate),
                         dependencies: metaFiles[pathToAsset]?.dependencies || {},
                         changed,
                     };
@@ -83,13 +85,13 @@ export async function updateChangedMetaFile(
                 if (metaFiles[pathToAsset] && !metaFiles[pathToAsset].changed) {
                     const from = resolve(inputFolderPath, pathToAsset);
                     const modDateNullable = await getFileModifiedDate(from);
-                    const modDate = modDateNullable ?? metaFiles[pathToAsset].mod_date;
+                    const modDate = modDateNullable ?? metaFiles[pathToAsset].modifyedDate;
 
                     metaFiles[pathToAsset].changed =
                         !cached ||
                         !modDateNullable ||
-                        isFileModified(modDate, metaFiles[pathToAsset].mod_date);
-                    metaFiles[pathToAsset].mod_date = modDate;
+                        isFileModified(modDate, metaFiles[pathToAsset].modifyedDate);
+                    metaFiles[pathToAsset].modifyedDate = modDate;
                 }
             },
             META_ACTIVE_QUEUE_LENGTH,
