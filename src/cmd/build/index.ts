@@ -1,6 +1,7 @@
 import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
+import glob from 'glob';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
@@ -37,12 +38,6 @@ function builder<T>(argv: Argv<T>) {
         .option('input', {
             alias: 'i',
             describe: 'Path to input folder with .md files',
-            type: 'string',
-            group: 'Build options:',
-        })
-        .option('debug', {
-            alias: 'd',
-            describe: 'Debug mode for development',
             type: 'string',
             group: 'Build options:',
         })
@@ -320,10 +315,6 @@ async function handler(args: Arguments<any>) {
 
         await setRevisionContext(context);
     } catch (err) {
-        if (args.debug) {
-            console.error(err);
-        }
-
         logger.error('', err.message);
 
         hasError = true;

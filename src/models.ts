@@ -63,7 +63,6 @@ interface YfmConfig {
     varsPreset: VarsPreset;
     ignore: string[];
     outputFormat: string;
-    debug: boolean;
     cached: boolean;
     plugins: string;
     allowHTML: boolean;
