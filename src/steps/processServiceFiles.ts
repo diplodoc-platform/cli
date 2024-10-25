@@ -12,11 +12,11 @@ import {RevisionContext} from '~/context/context';
 type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
 
 export async function processServiceFiles(context: RevisionContext, fs: FsContext): Promise<void> {
-    const {input: inputFolderPath, ignore} = ArgvService.getConfig();
+    const {ignore} = ArgvService.getConfig();
 
     const getFilePathsByGlobals = (globs: string[]): string[] => {
         return walk({
-            folder: [inputFolderPath, context.userInputFolder],
+            folder: [context.tmpInputFolder, context.userInputFolder],
             directories: false,
             includeBasePath: false,
             globs,
@@ -47,14 +47,14 @@ async function preparingPresetFiles(
             logger.proc(path);
 
             const pathToPresetFile = resolve(inputFolderPath, path);
-            const content = fs.read(pathToPresetFile);
+            const content = await fs.readAsync(pathToPresetFile);
             const parsedPreset = load(content) as DocPreset;
 
             PresetService.add(parsedPreset, path, varsPreset);
 
             if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
                 // Should save filtered presets.yaml only when --apply-presets=false or --resolve-conditions=false
-                saveFilteredPresets(fs, path, parsedPreset);
+                await saveFilteredPresets(fs, path, parsedPreset);
             }
         }
     } catch (error) {
@@ -63,7 +63,7 @@ async function preparingPresetFiles(
     }
 }
 
-function saveFilteredPresets(fs: FsContext, path: string, parsedPreset: DocPreset): void {
+async function saveFilteredPresets(fs: FsContext, path: string, parsedPreset: DocPreset): Promise<void> {
     const {output: outputFolderPath, varsPreset = ''} = ArgvService.getConfig();
 
     const outputPath = resolve(outputFolderPath, path);
@@ -80,7 +80,7 @@ function saveFilteredPresets(fs: FsContext, path: string, parsedPreset: DocPrese
     });
 
     shell.mkdir('-p', dirname(outputPath));
-    fs.write(outputPath, outputPreset);
+    await fs.writeAsync(outputPath, outputPreset);
 }
 
 async function preparingTocFiles(

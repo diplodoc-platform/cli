@@ -60,7 +60,7 @@ async function add(path: string) {
     } = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
-    const content = fsContext.read(resolve(inputFolderPath, path));
+    const content = await fsContext.readAsync(resolve(inputFolderPath, path));
     const parsedToc = load(content) as YfmToc;
 
     // Should ignore toc with specified stage.
@@ -116,7 +116,7 @@ async function add(path: string) {
         const outputPath = resolve(outputFolderPath, path);
         const outputToc = dump(parsedToc);
         shell.mkdir('-p', dirname(outputPath));
-        fsContext.write(outputPath, outputToc);
+        await fsContext.writeAsync(outputPath, outputToc);
     }
 }
 
@@ -260,7 +260,7 @@ function _normalizeHref(href: string): string {
  * @return
  * @private
  */
-function _copyTocDir(tocPath: string, destDir: string) {
+async function _copyTocDir(tocPath: string, destDir: string) {
     const {input: inputFolderPath} = ArgvService.getConfig();
 
     const {dir: tocDir} = parse(tocPath);
@@ -271,7 +271,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
         directories: false,
     });
 
-    files.forEach((relPath) => {
+    for (const relPath of files) {
         const from = resolve(tocDir, relPath);
         const to = resolve(destDir, relPath);
         const fileExtension = extname(relPath);
@@ -280,11 +280,11 @@ function _copyTocDir(tocPath: string, destDir: string) {
         shell.mkdir('-p', parse(to).dir);
 
         if (isMdFile) {
-            const fileContent = fsContext.read(from);
+            const fileContent = await fsContext.readAsync(from);
             const sourcePath = relative(inputFolderPath, from);
             const updatedFileContent = addSourcePath(fileContent, sourcePath);
 
-            fsContext.write(to, updatedFileContent);
+            await fsContext.writeAsync(to, updatedFileContent);
         } else {
             shell.cp(from, to);
         }
@@ -292,7 +292,7 @@ function _copyTocDir(tocPath: string, destDir: string) {
         const relFrom = relative(inputFolderPath, from);
         const relTo = relative(inputFolderPath, to);
         tocFileCopyMap.set(relTo, relFrom);
-    });
+    }
 }
 
 /**
@@ -395,7 +395,9 @@ async function _replaceIncludes(
             const includeTocDir = dirname(includeTocPath);
 
             try {
-                const includeToc = load(fsContext.read(includeTocPath)) as YfmToc;
+                const includeToc = load(
+                    await fsContext.readAsync(includeTocPath),
+                ) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {
@@ -403,7 +405,7 @@ async function _replaceIncludes(
                 }
 
                 if (mode === IncludeMode.MERGE || mode === IncludeMode.ROOT_MERGE) {
-                    _copyTocDir(includeTocPath, tocDir);
+                    await _copyTocDir(includeTocPath, tocDir);
                 }
 
                 /* Save the path to exclude toc from the output directory in the next step */
@@ -460,7 +462,7 @@ async function _replaceIncludes(
     return result;
 }
 
-function getTocDir(pagePath: string, pageBasePath?: string): string {
+async function getTocDir(pagePath: string, pageBasePath?: string): Promise<string> {
     pageBasePath = pageBasePath ?? pagePath;
 
     const {input: inputFolderPath} = ArgvService.getConfig();
@@ -472,11 +474,11 @@ function getTocDir(pagePath: string, pageBasePath?: string): string {
         throw new Error(`Error while finding toc dir for "${pageBasePath}"`);
     }
 
-    if (fsContext.exist(tocPath)) {
+    if (await fsContext.existAsync(tocPath)) {
         return tocDir;
     }
 
-    return getTocDir(tocDir, pageBasePath);
+    return await getTocDir(tocDir, pageBasePath);
 }
 
 function setNavigationPaths(paths: TocServiceData['navigationPaths']) {

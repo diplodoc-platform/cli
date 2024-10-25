@@ -55,11 +55,11 @@ const getFileMeta = async ({
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
-    const content: string = fs.read(resolvedPath);
+    const content: string = await fs.readAsync(resolvedPath);
 
     const transformFn: Function = FileTransformer[fileExtension];
 
-    const {result} = transformFn(content, {path: inputPath, context, fs, deps});
+    const {result} = await transformFn(content, {path: inputPath, context, fs, deps});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -171,7 +171,7 @@ function getHref(path: string, href: string) {
     return href;
 }
 
-function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
+async function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
     let data: LeadingPage | null = null;
 
     try {
@@ -196,7 +196,7 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         const {path, lang} = transformOptions;
         const transformFn: Function = FileTransformer['.md'];
 
-        data = preprocess(data, {lang}, (lang, content) => {
+        data = await preprocess(data, {lang}, (lang, content) => {
             const {result} = transformFn(content, {path});
             return result?.html;
         });
@@ -222,17 +222,17 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
     };
 }
 
-export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
+export async function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
     const {conditionsInCode, useLegacyConditions} = ArgvService.getConfig();
 
-    return liquid(input, vars, path, {
+    return await liquid(input, vars, path, {
         conditionsInCode,
         withSourceMap: true,
         useLegacyConditions,
     });
 }
 
-function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
+async function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
     const {input, ...options} = ArgvService.getConfig();
     const {path: filePath, context, fs, deps} = transformOptions;
 
@@ -241,7 +241,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     const root = resolve(input);
     const path: string = resolve(input, filePath);
 
-    return transform(content, {
+    return await transform(content, {
         ...options,
         plugins: plugins as MarkdownItPluginCb[],
         vars,

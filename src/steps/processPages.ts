@@ -58,7 +58,7 @@ export async function processPages(
         navigationPaths,
         PAGE_PROCESS_CONCURRENCY,
         asyncify(async (pathToFile: string) => {
-            const pathData = getPathData(
+            const pathData = await getPathData(
                 pathToFile,
                 inputFolderPath,
                 outputFolderPath,
@@ -110,7 +110,7 @@ export const getProcessPageFn = async (
     PluginService.setPlugins();
 
     return async (pathToFile: string) => {
-        const pathData = getPathData(
+        const pathData = await getPathData(
             pathToFile,
             inputFolderPath,
             outputFolderPath,
@@ -146,13 +146,13 @@ export const finishProcessPages = async (fs: FsContext) => {
     }
 };
 
-function getPathData(
+async function getPathData(
     pathToFile: string,
     inputFolderPath: string,
     outputFolderPath: string,
     outputFormat: string,
     outputBundlePath: string,
-): PathData {
+): Promise<PathData> {
     const pathToDir: string = dirname(pathToFile);
     const filename: string = basename(pathToFile);
     const fileExtension: string = extname(pathToFile);
@@ -161,7 +161,8 @@ function getPathData(
     const outputFileName = `${fileBaseName}.${outputFormat}`;
     const outputPath = resolve(outputDir, outputFileName);
     const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
-    const outputTocDir = TocService.getTocDir(resolvedPathToFile);
+
+    const outputTocDir = await TocService.getTocDir(resolvedPathToFile);
 
     const pathData: PathData = {
         pathToFile,
@@ -333,11 +334,11 @@ async function preparingPagesByOutputFormat(
         const isYamlFileExtension = fileExtension === '.yaml';
 
         if (resolveConditions && fileBaseName === 'index' && isYamlFileExtension) {
-            LeadingService.filterFile(pathToFile);
+            await LeadingService.filterFile(pathToFile);
         }
 
         if (outputFormat === 'md' && isYamlFileExtension && allowCustomResources) {
-            processingYamlFile(fs, path, metaDataOptions);
+            await processingYamlFile(fs, path, metaDataOptions);
             return;
         }
 
@@ -345,7 +346,7 @@ async function preparingPagesByOutputFormat(
             (outputFormat === 'md' && isYamlFileExtension) ||
             (outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md')
         ) {
-            copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
+            await copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
             return;
         }
 
@@ -400,7 +401,7 @@ async function addTocPresetsDeps(path: PathData, fs: FsContext, deps: Dependency
     }
 }
 
-function processingYamlFile(fs: FsContext, path: PathData, metaDataOptions: MetaDataOptions) {
+async function processingYamlFile(fs: FsContext, path: PathData, metaDataOptions: MetaDataOptions) {
     const {pathToFile, outputFolderPath, inputFolderPath} = path;
 
     const filePath = resolve(inputFolderPath, pathToFile);
@@ -411,14 +412,14 @@ function processingYamlFile(fs: FsContext, path: PathData, metaDataOptions: Meta
         parsedContent.meta = {...parsedContent.meta, ...metaDataOptions.resources};
     }
 
-    fs.write(resolve(outputFolderPath, pathToFile), dump(parsedContent));
+    await fs.writeAsync(resolve(outputFolderPath, pathToFile), dump(parsedContent));
 }
 
-function copyFileWithoutChanges(
+async function copyFileWithoutChanges(
     resolvedPathToFile: string,
     outputDir: string,
     filename: string,
-): void {
+) {
     const from = resolvedPathToFile;
     const to = resolve(outputDir, filename);
 

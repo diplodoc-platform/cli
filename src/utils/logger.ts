@@ -1,5 +1,5 @@
 import log from '@diplodoc/transform/lib/log';
-import {blue, green, grey, red, yellow} from 'chalk';
+import {blue, cyan, green, grey, red, yellow} from 'chalk';
 import {ArgvService} from '../services';
 
 function writeLog(msg: string, fatal = false) {
@@ -15,6 +15,9 @@ function writeLog(msg: string, fatal = false) {
 export const logger = {
     info: function (pathToFile: string, extraMessage?: string) {
         writeLog(`${grey('INFO')} ${extraMessage} ${pathToFile}`);
+    },
+    prog: function (current: number, total: number) {
+        writeLog(`${cyan('PROG')} Processing ${((current / total * 100).toFixed())}% (${current} of ${total} files)`);
     },
     proc: function (pathToFile: string) {
         writeLog(`${blue('PROC')} Processing file ${pathToFile}`);

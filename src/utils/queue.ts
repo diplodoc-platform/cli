@@ -1,3 +1,7 @@
+// Queue is the system that processes async tasks in parallel but limits them by paralleledTasks.
+// For example, we have 120 files to process. If the limit is 50, and time to process 1 file takes 1 minute, then the total time will take 3 minutes.
+// The files will be groupped by 50 tasks in memory, so 50 + 50 + 20 ~> 1 + 1 + 1 = 3 minutes.
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export class Queue {
     stack = new Set();
@@ -30,7 +34,7 @@ export class Queue {
 
     loop = async () => {
         for await (const _ of this.getTasks()) {
-            // process tasks
+            // Process tasks
         }
         await this.promiseFinish;
         this.whenEmpty?.();
@@ -38,6 +42,10 @@ export class Queue {
 
     private canDryStack() {
         return this.stack.size < this.paralleledTasks;
+    }
+
+    private canFinish() {
+        return this.stack.size === 0 && this.queue.length === 0;
     }
 
     private createPromiseForStack() {
@@ -65,7 +73,7 @@ export class Queue {
             this.promise = null;
         }
 
-        if (this.promiseFinish && this.stack.size === 0) {
+        if (this.promiseFinish && this.canFinish()) {
             this.promiseFinishResolve?.();
             this.promiseFinish = null;
         }

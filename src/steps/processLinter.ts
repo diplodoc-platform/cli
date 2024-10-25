@@ -20,7 +20,7 @@ export async function processLinter(
     const argvConfig = ArgvService.getConfig();
 
     if (!processLinterWorkers) {
-        lintPagesFallback(filesToProcess, context);
+        await lintPagesFallback(filesToProcess, context);
 
         const {error} = log.get();
 
@@ -104,11 +104,11 @@ function getChunkSize(arr: string[]) {
     return Math.ceil(arr.length / WORKERS_COUNT);
 }
 
-function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
+async function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
     PluginService.setPlugins();
 
-    filesToProcess.forEach((pathToFile) => {
-        lintPage({
+    for (const pathToFile of filesToProcess) {
+        await lintPage({
             inputPath: pathToFile,
             fileExtension: extname(pathToFile),
             onFinish: () => {
@@ -116,7 +116,7 @@ function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
             },
             context,
         });
-    });
+    }
 }
 
 export async function getLintFn(context: RevisionContext) {

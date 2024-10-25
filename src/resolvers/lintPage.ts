@@ -141,9 +141,9 @@ async function MdFileLinter(content: string, lintOptions: FileTransformOptions):
     if (!disableLiquid) {
         let liquidResult;
         if (outputFormat === 'md') {
-            liquidResult = liquidMd2Md(content, vars, path);
+            liquidResult = await liquidMd2Md(content, vars, path);
         } else {
-            liquidResult = liquidMd2Html(content, vars, path);
+            liquidResult = await liquidMd2Html(content, vars, path);
         }
 
         preparedContent = liquidResult.output;
