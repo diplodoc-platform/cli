@@ -64,6 +64,9 @@ interface YfmConfig {
     ignore: string[];
     outputFormat: string;
     cached: boolean;
+    dev: boolean;
+    host: string;
+    port: number;
     plugins: string;
     allowHTML: boolean;
     vars: Record<string, string>;
