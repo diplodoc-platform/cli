@@ -9,7 +9,7 @@ import {mkdirSync, writeFileSync} from 'node:fs';
 import {Indexer} from '@diplodoc/search-extension/indexer';
 import {langs} from '@diplodoc/search-extension/worker/langs';
 
-import {ArgvService} from '.';
+import {ArgvService, TocService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
 
@@ -33,7 +33,7 @@ function isLocalSearchEnabled() {
     );
 }
 
-function add(info: DocInnerProps) {
+function add(path: string, info: DocInnerProps) {
     if (!isLocalSearchEnabled()) {
         return;
     }
@@ -45,7 +45,8 @@ function add(info: DocInnerProps) {
         return;
     }
 
-    const base = (data.toc as {base?: string}).base || '';
+    const toc = TocService.getForPath(path);
+    const base = (toc as {base?: string}).base || '';
     const url = base + '/' + router.pathname;
 
     indexer.add(lang, url, data as DocPageData);

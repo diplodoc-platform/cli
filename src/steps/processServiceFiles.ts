@@ -9,25 +9,23 @@ import {logger} from '../utils';
 import {DocPreset} from '../models';
 import shell from 'shelljs';
 
-type GetFilePathsByGlobalsFunction = (globs: string[]) => string[];
+const getFilePathsByGlobals = (globs: string[]): string[] => {
+    const {input, ignore = []} = ArgvService.getConfig();
+
+    return walkSync(input, {
+        directories: false,
+        includeBasePath: false,
+        globs,
+        ignore,
+    });
+};
 
 export async function processServiceFiles(): Promise<void> {
-    const {input: inputFolderPath, ignore = []} = ArgvService.getConfig();
-
-    const getFilePathsByGlobals = (globs: string[]): string[] => {
-        return walkSync(inputFolderPath, {
-            directories: false,
-            includeBasePath: false,
-            globs,
-            ignore,
-        });
-    };
-
-    preparingPresetFiles(getFilePathsByGlobals);
-    await preparingTocFiles(getFilePathsByGlobals);
+    await preparingPresetFiles();
+    await preparingTocFiles();
 }
 
-function preparingPresetFiles(getFilePathsByGlobals: GetFilePathsByGlobalsFunction): void {
+async function preparingPresetFiles() {
     const {
         input: inputFolderPath,
         varsPreset = '',
@@ -79,9 +77,7 @@ function saveFilteredPresets(path: string, parsedPreset: DocPreset): void {
     writeFileSync(outputPath, outputPreset);
 }
 
-async function preparingTocFiles(
-    getFilePathsByGlobals: GetFilePathsByGlobalsFunction,
-): Promise<void> {
+async function preparingTocFiles(): Promise<void> {
     try {
         const tocFilePaths = getFilePathsByGlobals(['**/toc.yaml']);
         await TocService.init(tocFilePaths);

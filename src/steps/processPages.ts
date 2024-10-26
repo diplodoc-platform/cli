@@ -6,6 +6,7 @@ import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
+import dedent from 'ts-dedent';
 
 import {
     Lang,
@@ -26,7 +27,7 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
-import {joinSinglePageResults, logger, transformTocForSinglePage} from '../utils';
+import {joinSinglePageResults, logger, transformToc, transformTocForSinglePage} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -80,6 +81,7 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     if (outputFormat === 'html') {
         saveRedirectPage(outputFolderPath);
+        await saveTocData();
     }
 }
 
@@ -116,6 +118,22 @@ function getPathData(
     };
 
     return pathData;
+}
+
+async function saveTocData() {
+    const tocs = TocService.getAllTocs();
+    const {output} = ArgvService.getConfig();
+
+    for (const [path, toc] of tocs) {
+        const outputPath = join(output, path.replace(/\.yaml$/, '.js'));
+        writeFileSync(
+            outputPath,
+            dedent`
+            window.__DATA__.data.toc = ${JSON.stringify(transformToc(toc))};
+        `,
+            'utf8',
+        );
+    }
 }
 
 async function saveSinglePages() {
@@ -290,7 +308,7 @@ async function preparingPagesByOutputFormat(
             case 'html': {
                 const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
 
-                SearchService.add(resolvedFileProps);
+                SearchService.add(pathToFile, resolvedFileProps);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path);

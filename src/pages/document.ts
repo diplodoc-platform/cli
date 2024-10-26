@@ -24,15 +24,6 @@ export function generateStaticMarkup(
     deep = 0,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
-    const {title: tocTitle} = props.data.toc;
-    const {title: pageTitle} = props.data;
-
-    const title = getTitle({
-        metaTitle: props.data.meta.title,
-        tocTitle: tocTitle as string,
-        pageTitle,
-    });
-
     const resources = getResources({style, script});
 
     const {staticContent} = ArgvService.getConfig();
@@ -50,7 +41,7 @@ export function generateStaticMarkup(
                 <base href="${deepPath}" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${title}</title>
+                <title>${props.data.title}</title>
                 <style type="text/css">
                     body {
                         height: 100vh;
@@ -70,6 +61,7 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
+                <script src="./toc.js" type="application/javascript"></script>
                 ${manifest.app.js
                     .map((url: string) => join(deepBasePath, BUNDLE_FOLDER, url))
                     .map(
@@ -80,26 +72,6 @@ export function generateStaticMarkup(
             </body>
         </html>
     `;
-}
-
-interface GetTitleOptions {
-    tocTitle?: string;
-    metaTitle?: string;
-    pageTitle?: string;
-}
-
-function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
-    const resultPageTitle = metaTitle || pageTitle;
-
-    if (!resultPageTitle && tocTitle) {
-        return tocTitle;
-    }
-
-    if (resultPageTitle && !tocTitle) {
-        return resultPageTitle;
-    }
-
-    return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
 }
 
 function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['meta']): string {
