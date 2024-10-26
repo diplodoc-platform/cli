@@ -22,7 +22,6 @@ import {
     getVarsPerRelativeFile,
     logger,
     modifyValuesByKeys,
-    transformToc,
 } from '../utils';
 import {generateStaticMarkup} from '../pages';
 
@@ -95,11 +94,17 @@ const getFileProps = async (options: ResolverOptions) => {
 
     const pathname = join(pathToFileDir, basename(outputPath));
 
+    const title = getTitle({
+        metaTitle: meta.meta.title,
+        tocTitle: toc?.title as string,
+        pageTitle: meta.title,
+    });
+
     const props = {
         data: {
-            leading: inputPath.endsWith('.yaml'),
-            toc: transformToc(toc) || {},
             ...meta,
+            title,
+            leading: inputPath.endsWith('.yaml'),
         },
         router: {
             pathname,
@@ -128,6 +133,26 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
+}
+
+interface GetTitleOptions {
+    tocTitle?: string;
+    metaTitle?: string;
+    pageTitle?: string;
+}
+
+function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
+    const resultPageTitle = metaTitle || pageTitle;
+
+    if (!resultPageTitle && tocTitle) {
+        return tocTitle;
+    }
+
+    if (resultPageTitle && !tocTitle) {
+        return resultPageTitle;
+    }
+
+    return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
 }
 
 function getHref(path: string, href: string) {

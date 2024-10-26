@@ -483,7 +483,7 @@ function getCopyFileMap() {
 }
 
 function getAllTocs() {
-    return [...tocs.keys()];
+    return [...tocs.entries()];
 }
 
 export default {
