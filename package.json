@@ -68,7 +68,7 @@
     "@diplodoc/openapi-extension": "^2.4.1",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/search-extension": "^1.1.4",
-    "@diplodoc/transform": "^4.32.3",
+    "@diplodoc/transform": "^4.34.0",
     "@diplodoc/tsconfig": "^1.0.2",
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
