@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.41.0](https://github.com/diplodoc-platform/cli/compare/v4.40.0...v4.41.0) (2024-10-28)
+
+
+### Features
+
+* update deps ([#862](https://github.com/diplodoc-platform/cli/issues/862)) ([477c251](https://github.com/diplodoc-platform/cli/commit/477c251ec017f34d004266483dc801c0bc4d5bb5))
+
 ## [4.40.0](https://github.com/diplodoc-platform/cli/compare/v4.39.4...v4.40.0) (2024-10-24)
 
 
