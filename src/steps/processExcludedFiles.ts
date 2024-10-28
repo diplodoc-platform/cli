@@ -25,7 +25,7 @@ export function processExcludedFiles() {
     const tocSpecifiedFiles = new Set(navigationPaths);
     const excludedFiles = allContentFiles.filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
-    if (excludedFiles.length) {
+    if (excludedFiles?.length) {
         shell.rm('-f', excludedFiles);
     }
 
@@ -36,7 +36,7 @@ export function processExcludedFiles() {
         return convertBackSlashToSlash(destTocPath);
     });
 
-    if (includedTocPaths.length) {
+    if (includedTocPaths?.length) {
         shell.rm('-rf', includedTocPaths);
     }
 }

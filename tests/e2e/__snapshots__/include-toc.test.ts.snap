@@ -2,6 +2,7 @@
 
 exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `
 "[
+  ".revision.meta.json",
   "product1/_includes/inc.md",
   "product1/article1.md",
   "product1/toc.yaml",
@@ -128,6 +129,7 @@ deepBase: 1
 
 exports[`Include toc Toc is included in link mode 1`] = `
 "[
+  ".revision.meta.json",
   "a1.md",
   "folder1/a1.md",
   "folder1/folder2/a1.md",
@@ -169,6 +171,7 @@ deepBase: 0
 
 exports[`Include toc Toc is included inline, not as a new section 1`] = `
 "[
+  ".revision.meta.json",
   ".yfm",
   "file1.md",
   "fileA.md",
@@ -298,6 +301,7 @@ deepBase: 0
 
 exports[`Include toc Toc with expressions 1`] = `
 "[
+  ".revision.meta.json",
   "a1.md",
   "index.yaml",
   "toc.yaml"
