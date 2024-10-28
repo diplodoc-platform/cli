@@ -361,8 +361,8 @@ async function preparingTemporaryFolders(revisionContext: RevisionContext) {
     shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
-    shell.rm('-rf', revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
-    shell.mkdir(revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
+    shell.rm('-rf', revisionContext.tmpInputFolder, revisionContext.tmpOutputFolder);
+    shell.mkdir(revisionContext.tmpInputFolder, revisionContext.tmpOutputFolder);
 
     await copyFiles(
         revisionContext.userInputFolder,
