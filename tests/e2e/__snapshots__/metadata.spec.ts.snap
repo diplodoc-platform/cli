@@ -2,10 +2,10 @@
 
 exports[`Allow load custom resources md2html with metadata 1`] = `
 "[
+  ".revision.meta.json",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
   "_bundle/search-js-0",
   "_bundle/search-js-1",
   "_bundle/search/index.js",
@@ -41,7 +41,6 @@ exports[`Allow load custom resources md2html with metadata 1`] = `
   "_bundle/search/langs/vi.js",
   "_bundle/search-css-0",
   "_bundle/search-js-2",
-  "_bundle/search-css-1",
   "index.html",
   "page.html",
   "project/config.html"
@@ -237,6 +236,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 
 exports[`Allow load custom resources md2md with metadata 1`] = `
 "[
+  ".revision.meta.json",
   "index.yaml",
   "page.md",
   "project/config.md",

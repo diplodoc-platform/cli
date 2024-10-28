@@ -1,9 +1,8 @@
 import {relative, resolve} from 'path';
-import walkSync from 'walk-sync';
 import shell from 'shelljs';
 
 import {ArgvService, TocService} from '../services';
-import {convertBackSlashToSlash} from '../utils';
+import {convertBackSlashToSlash, walk} from '../utils';
 
 /**
  * Removes all content files that unspecified in toc files or ignored.
@@ -12,7 +11,8 @@ import {convertBackSlashToSlash} from '../utils';
 export function processExcludedFiles() {
     const {input: inputFolderPath, output: outputFolderPath, ignore} = ArgvService.getConfig();
 
-    const allContentFiles: string[] = walkSync(inputFolderPath, {
+    const allContentFiles: string[] = walk({
+        folder: inputFolderPath,
         directories: false,
         includeBasePath: true,
         globs: ['**/*.md', '**/index.yaml', ...ignore],
@@ -25,7 +25,7 @@ export function processExcludedFiles() {
     const tocSpecifiedFiles = new Set(navigationPaths);
     const excludedFiles = allContentFiles.filter((filePath) => !tocSpecifiedFiles.has(filePath));
 
-    if (excludedFiles.length) {
+    if (excludedFiles?.length) {
         shell.rm('-f', excludedFiles);
     }
 
@@ -36,7 +36,7 @@ export function processExcludedFiles() {
         return convertBackSlashToSlash(destTocPath);
     });
 
-    if (includedTocPaths.length) {
+    if (includedTocPaths?.length) {
         shell.rm('-rf', includedTocPaths);
     }
 }

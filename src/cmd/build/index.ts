@@ -1,26 +1,34 @@
-import glob from 'glob';
 import {Arguments, Argv} from 'yargs';
 import {join, resolve} from 'path';
 import shell from 'shelljs';
+import glob from 'glob';
+import liveServer from 'live-server';
+import chokidar from 'chokidar';
+import debounce from 'lodash/debounce';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '../../constants';
-import {argvValidator} from '../../validator';
-import {ArgvService, Includers, SearchService} from '../../services';
+import {BUNDLE_FOLDER, Stage, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER} from '~/constants';
+import {argvValidator} from '~/validator';
+import {Includer, YfmArgv} from '~/models';
+import {ArgvService, Includers, SearchService, TocService} from '~/services';
 import {
-    initLinterWorkers,
+    finishProcessPages,
+    getLintFn,
+    getProcessPageFn,
     processAssets,
     processChangelogs,
     processExcludedFiles,
-    processLinter,
     processLogs,
-    processPages,
     processServiceFiles,
-} from '../../steps';
-import {prepareMapFile} from '../../steps/processMapFile';
-import {copyFiles, logger} from '../../utils';
-import {upload as publishFilesToS3} from '../../commands/publish/upload';
+} from '~/steps';
+import {prepareMapFile} from '~/steps/processMapFile';
+import {copyFiles, logger} from '~/utils';
+import {upload as publishFilesToS3} from '~/commands/publish/upload';
+import {RevisionContext, makeRevisionContext, setRevisionContext} from '~/context/context';
+import {FsContextCli} from '~/context/fs';
+import {DependencyContextCli} from '~/context/dependency';
+import {FileQueueProcessor} from '~/context/processor';
 
 export const build = {
     command: ['build', '$0'],
@@ -41,6 +49,42 @@ function builder<T>(argv: Argv<T>) {
             alias: 'o',
             describe: 'Path to output folder',
             type: 'string',
+            group: 'Build options:',
+        })
+        .option('plugins', {
+            alias: 'p',
+            describe: 'Path to plugins js file',
+            type: 'string',
+            group: 'Build options:',
+        })
+        .option('cached', {
+            default: false,
+            describe: 'Use cache from revision meta file',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('clean', {
+            default: false,
+            describe: 'Remove output folder before build',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('dev', {
+            default: false,
+            describe: 'Enable watch with http server',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('host', {
+            default: '0.0.0.0',
+            describe: 'Host for dev server (Default is 0.0.0.0)',
+            type: 'boolean',
+            group: 'Build options:',
+        })
+        .option('port', {
+            default: 5000,
+            describe: 'Port for dev server (Default is 5000)',
+            type: 'number',
             group: 'Build options:',
         })
         .option('varsPreset', {
@@ -175,24 +219,88 @@ function builder<T>(argv: Argv<T>) {
         );
 }
 
-async function handler(args: Arguments<any>) {
-    const userOutputFolder = resolve(args.output);
-    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
-    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
+let isCompiling = false;
+let needToCompile = false;
 
+const runCompile = debounce(async (init = true) => {
+    if (isCompiling) {
+        needToCompile = true;
+    } else {
+        isCompiling = true;
+        needToCompile = false;
+
+        try {
+            await compile(init);
+        } catch (error) {
+            //
+        }
+
+        isCompiling = false;
+
+        if (needToCompile) {
+            runCompile();
+        }
+    }
+}, 1000);
+
+let args: Arguments<YfmArgv>;
+
+async function handler(initArgs: Arguments<YfmArgv>) {
+    args = initArgs;
+
+    if (args.dev) {
+        chokidar
+            .watch(resolve(args.input), {
+                ignored: (path) => path.includes('.tmp_'),
+                persistent: true,
+                followSymlinks: true,
+                awaitWriteFinish: true,
+            })
+            .on('raw', runCompile);
+
+        const params = {
+            port: args.port ?? 5000,
+            host: args.host ?? '0.0.0.0',
+            root: resolve(args.output),
+            open: false,
+            wait: 1000,
+            logLevel: 0,
+        };
+
+        liveServer.start(params);
+
+        runCompile(true);
+
+        return await new Promise(() => null);
+    } else {
+        return await compile();
+    }
+}
+
+async function compile(init = true) {
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
 
+    shell.config.silent = true;
+
+    let hasError = false;
+
+    const userInputFolder = resolve(args.input);
+    const userOutputFolder = resolve(args.output);
+    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
+    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
+
     try {
+        // Init singletone services
         ArgvService.init({
             ...args,
-            rootInput: args.input,
+            rootInput: userInputFolder,
             input: tmpInputFolder,
             output: tmpOutputFolder,
         });
         SearchService.init();
-        Includers.init([OpenapiIncluder as any]);
+        Includers.init([OpenapiIncluder as Includer]);
 
         const {
             output: outputFolderPath,
@@ -203,41 +311,77 @@ async function handler(args: Arguments<any>) {
             addMapFile,
         } = ArgvService.getConfig();
 
-        preparingTemporaryFolders(userOutputFolder);
+        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
-        await processServiceFiles();
-        processExcludedFiles();
+        if (init && args.clean) {
+            await clearTemporaryFolders(userOutputFolder);
+        }
 
+        // Create build context that stores the information about the current build
+        const context = await makeRevisionContext(
+            args.cached,
+            userInputFolder,
+            userOutputFolder,
+            tmpInputFolder,
+            tmpOutputFolder,
+            outputBundlePath,
+        );
+
+        const fs = new FsContextCli(context);
+        const deps = new DependencyContextCli(context);
+
+        // Creating temp .input & .output folder
+        await preparingTemporaryFolders(context);
+
+        // Read and prepare Preset & Toc data
+        await processServiceFiles(context, fs);
+
+        // Removes all content files that unspecified in toc files or ignored.
+        await processExcludedFiles();
+
+        // Write files.json
         if (addMapFile) {
             prepareMapFile();
         }
 
-        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
+        // Collect navigation paths as entry files
+        const navigationPaths = TocService.getNavigationPaths();
 
+        // 1. Linting
         if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
+            const pageLintProcessor = new FileQueueProcessor(context, deps);
+            pageLintProcessor.setNavigationPaths(navigationPaths);
+
+            const processLintPageFn = await getLintFn(context);
+            await pageLintProcessor.processQueue(processLintPageFn);
         }
 
-        const processes = [
-            !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
-        ].filter(Boolean) as Promise<void>[];
-
-        await Promise.all(processes);
-
+        // 2. Building
         if (!buildDisabled) {
-            // process additional files
-            processAssets({
+            const pageProcessor = new FileQueueProcessor(context, deps);
+            pageProcessor.setNavigationPaths(navigationPaths);
+
+            const processPageFn = await getProcessPageFn(fs, deps, context, outputBundlePath);
+            await pageProcessor.processQueue(processPageFn);
+
+            // Save single pages & redirects
+            await finishProcessPages(fs);
+
+            // Process asset files
+            await processAssets({
                 args,
                 outputFormat,
                 outputBundlePath,
                 tmpOutputFolder,
                 userOutputFolder,
+                context,
+                fs,
             });
 
+            // Process changelogs
             await processChangelogs();
 
+            // Finish search service processing
             await SearchService.release();
 
             // Copy all generated files to user' output folder
@@ -246,6 +390,7 @@ async function handler(args: Arguments<any>) {
                 shell.cp('-r', join(tmpOutputFolder, '.*'), userOutputFolder);
             }
 
+            // Upload the files to S3
             if (publish) {
                 const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
                 const {
@@ -269,35 +414,46 @@ async function handler(args: Arguments<any>) {
                     secretAccessKey,
                 });
             }
+
+            // Save .revision.meta.json file for the future processing
+            await setRevisionContext(context);
         }
     } catch (err) {
         logger.error('', err.message);
+
+        hasError = true;
     } finally {
+        // Print logs
         processLogs(tmpInputFolder);
 
         shell.rm('-rf', tmpInputFolder, tmpOutputFolder);
     }
+
+    // If build has some errors, then exit with error code 1
+    if (hasError) {
+        process.exit(1);
+    }
 }
 
-function preparingTemporaryFolders(userOutputFolder: string) {
-    const args = ArgvService.getConfig();
-
-    shell.mkdir('-p', userOutputFolder);
+// Creating temp .input & .output folder
+async function preparingTemporaryFolders(revisionContext: RevisionContext) {
+    shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
-    shell.rm('-rf', args.input, args.output);
-    shell.mkdir(args.input, args.output);
+    shell.rm('-rf', revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
+    shell.mkdir(revisionContext.tmpInputFolder, revisionContext.userOutputFolder);
 
-    copyFiles(
-        args.rootInput,
-        args.input,
-        glob.sync('**', {
-            cwd: args.rootInput,
-            nodir: true,
-            follow: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        }),
+    await copyFiles(
+        revisionContext.userInputFolder,
+        revisionContext.tmpInputFolder,
+        revisionContext.files,
+        revisionContext.meta,
     );
 
-    shell.chmod('-R', 'u+w', args.input);
+    shell.chmod('-R', 'u+w', revisionContext.tmpInputFolder);
+}
+
+// Clear output folder folders
+async function clearTemporaryFolders(userOutputFolder: string) {
+    shell.rm('-rf', userOutputFolder);
 }
