@@ -234,6 +234,10 @@ async function handler(args: Arguments<YfmArgv>) {
 
         const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
+        if (args.clean) {
+            await clearTemporaryFolders(userOutputFolder);
+        }
+
         // Create build context that stores the information about the current build
         const context = await makeRevisionContext(
             args.cached,
@@ -248,7 +252,7 @@ async function handler(args: Arguments<YfmArgv>) {
         const deps = new DependencyContextCli(context);
 
         // Creating temp .input & .output folder
-        await preparingTemporaryFolders(context, args.clean);
+        await preparingTemporaryFolders(context);
 
         // Read and prepare Preset & Toc data
         await processServiceFiles(context, fs);
@@ -353,11 +357,7 @@ async function handler(args: Arguments<YfmArgv>) {
 }
 
 // Creating temp .input & .output folder
-async function preparingTemporaryFolders(revisionContext: RevisionContext, cleanOutput: boolean) {
-    if (cleanOutput) {
-        shell.rm('-rf', revisionContext.userOutputFolder);
-    }
-
+async function preparingTemporaryFolders(revisionContext: RevisionContext) {
     shell.mkdir('-p', revisionContext.userOutputFolder);
 
     // Create temporary input/output folders
@@ -372,4 +372,9 @@ async function preparingTemporaryFolders(revisionContext: RevisionContext, clean
     );
 
     shell.chmod('-R', 'u+w', revisionContext.tmpInputFolder);
+}
+
+// Clear output folder folders
+async function clearTemporaryFolders(userOutputFolder: string) {
+    shell.rm('-rf', userOutputFolder);
 }
