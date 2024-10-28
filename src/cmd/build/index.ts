@@ -222,7 +222,7 @@ function builder<T>(argv: Argv<T>) {
 let isCompiling = false;
 let needToCompile = false;
 
-const runCompile = debounce(async (init = true) => {
+const runCompile = debounce(async (init: boolean) => {
     if (isCompiling) {
         needToCompile = true;
     } else {
@@ -238,7 +238,7 @@ const runCompile = debounce(async (init = true) => {
         isCompiling = false;
 
         if (needToCompile) {
-            runCompile();
+            runCompile(false);
         }
     }
 }, 1000);
@@ -256,7 +256,7 @@ async function handler(initArgs: Arguments<YfmArgv>) {
                 followSymlinks: true,
                 awaitWriteFinish: true,
             })
-            .on('raw', runCompile);
+            .on('raw', () => runCompile(false));
 
         const params = {
             port: args.port ?? 5000,
@@ -273,11 +273,11 @@ async function handler(initArgs: Arguments<YfmArgv>) {
 
         return await new Promise(() => null);
     } else {
-        return await compile();
+        return await compile(true);
     }
 }
 
-async function compile(init = true) {
+async function compile(init: boolean) {
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
