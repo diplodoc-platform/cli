@@ -395,9 +395,7 @@ async function _replaceIncludes(
             const includeTocDir = dirname(includeTocPath);
 
             try {
-                const includeToc = load(
-                    await fsContext.readAsync(includeTocPath),
-                ) as YfmToc;
+                const includeToc = load(await fsContext.readAsync(includeTocPath)) as YfmToc;
 
                 // Should ignore included toc with tech-preview stage.
                 if (includeToc.stage === Stage.TECH_PREVIEW) {

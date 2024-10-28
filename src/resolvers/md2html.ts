@@ -171,7 +171,10 @@ function getHref(path: string, href: string) {
     return href;
 }
 
-async function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
+async function YamlFileTransformer(
+    content: string,
+    transformOptions: FileTransformOptions,
+): Object {
     let data: LeadingPage | null = null;
 
     try {

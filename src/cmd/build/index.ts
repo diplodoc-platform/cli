@@ -258,9 +258,12 @@ async function handler(initArgs: Arguments<YfmArgv>) {
             })
             .on('raw', () => runCompile(false));
 
+        const port = args.port || 5000;
+        const host = args.host || '0.0.0.0';
+
         const params = {
-            port: args.port ?? 5000,
-            host: args.host ?? '0.0.0.0',
+            port,
+            host,
             root: resolve(args.output),
             open: false,
             wait: 1000,
@@ -268,6 +271,9 @@ async function handler(initArgs: Arguments<YfmArgv>) {
         };
 
         liveServer.start(params);
+
+        // eslint-disable-next-line no-console
+        console.log(`Dev server is running at http://${host}:${port}`);
 
         runCompile(true);
 
@@ -279,6 +285,7 @@ async function handler(initArgs: Arguments<YfmArgv>) {
 
 async function compile(init: boolean) {
     if (typeof VERSION !== 'undefined') {
+        // eslint-disable-next-line no-console
         console.log(`Using v${VERSION} version`);
     }
 
@@ -319,6 +326,7 @@ async function compile(init: boolean) {
 
         // Create build context that stores the information about the current build
         const context = await makeRevisionContext(
+            !init,
             args.cached,
             userInputFolder,
             userOutputFolder,
@@ -430,8 +438,10 @@ async function compile(init: boolean) {
     }
 
     // If build has some errors, then exit with error code 1
-    if (hasError) {
+    if (hasError && !args.dev) {
         process.exit(1);
+    } else if (args.dev) {
+        logger.clear();
     }
 }
 

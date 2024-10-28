@@ -63,15 +63,17 @@ async function processAssetsHtmlRun({outputBundlePath, context}: Props) {
 
     await copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath, context.meta);
 
-    const hasRTLlang = hasIntersection(langs, RTL_LANGS);
-    const bundleAssetFilePath: string[] = walk({
-        folder: ASSETS_FOLDER,
-        directories: false,
-        includeBasePath: false,
-        ignore: hasRTLlang ? undefined : ['**/*.rtl.css'],
-    });
+    if (!context?.shallow) {
+        const hasRTLlang = hasIntersection(langs, RTL_LANGS);
+        const bundleAssetFilePath: string[] = walk({
+            folder: ASSETS_FOLDER,
+            directories: false,
+            includeBasePath: false,
+            ignore: hasRTLlang ? undefined : ['**/*.rtl.css'],
+        });
 
-    await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
+        await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath, context.meta);
+    }
 }
 
 async function processAssetsMdRun({args, tmpOutputFolder, context, fs}: Props) {

@@ -6,6 +6,7 @@ import glob from 'glob';
 import {getMetaFile, makeMetaFile, updateChangedMetaFile, updateMetaFile} from '~/utils/meta';
 
 export interface RevisionContext extends RevisionContextTransfrom {
+    shallow: boolean;
     userInputFolder: string;
     userOutputFolder: string;
     tmpInputFolder: string;
@@ -14,6 +15,7 @@ export interface RevisionContext extends RevisionContextTransfrom {
 }
 
 export async function makeRevisionContext(
+    shallow: boolean,
     cached: boolean,
     userInputFolder: string,
     userOutputFolder: string,
@@ -35,6 +37,7 @@ export async function makeRevisionContext(
     await updateChangedMetaFile(cached, userInputFolder, meta.files);
 
     return {
+        shallow,
         userInputFolder,
         userOutputFolder,
         tmpInputFolder,

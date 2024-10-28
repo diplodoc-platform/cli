@@ -17,7 +17,9 @@ export const logger = {
         writeLog(`${grey('INFO')} ${extraMessage} ${pathToFile}`);
     },
     prog: function (current: number, total: number, pathToFile: string) {
-        writeLog(`${cyan('PROG')} Processing ${((current / total * 100).toFixed())}% (${current} of ${total} files) for ${pathToFile}`);
+        writeLog(
+            `${cyan('PROG')} Processing ${((current / total) * 100).toFixed()}% (${current} of ${total} files) for ${pathToFile}`,
+        );
     },
     proc: function (pathToFile: string) {
         writeLog(`${blue('PROC')} Processing file ${pathToFile}`);
@@ -41,5 +43,8 @@ export const logger = {
         writeLog(message, true);
 
         log.error(`file: ${pathToFile} ${extraMessage}`);
+    },
+    clear: function () {
+        log.clear();
     },
 };

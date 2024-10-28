@@ -63,7 +63,11 @@ async function preparingPresetFiles(
     }
 }
 
-async function saveFilteredPresets(fs: FsContext, path: string, parsedPreset: DocPreset): Promise<void> {
+async function saveFilteredPresets(
+    fs: FsContext,
+    path: string,
+    parsedPreset: DocPreset,
+): Promise<void> {
     const {output: outputFolderPath, varsPreset = ''} = ArgvService.getConfig();
 
     const outputPath = resolve(outputFolderPath, path);
