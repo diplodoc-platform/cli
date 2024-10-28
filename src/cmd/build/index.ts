@@ -76,13 +76,13 @@ function builder<T>(argv: Argv<T>) {
             group: 'Build options:',
         })
         .option('host', {
-            default: false,
+            default: '0.0.0.0',
             describe: 'Host for dev server (Default is 0.0.0.0)',
             type: 'boolean',
             group: 'Build options:',
         })
         .option('port', {
-            default: false,
+            default: 5000,
             describe: 'Port for dev server (Default is 5000)',
             type: 'number',
             group: 'Build options:',
@@ -222,7 +222,7 @@ function builder<T>(argv: Argv<T>) {
 let isCompiling = false;
 let needToCompile = false;
 
-const runCompile = debounce(async () => {
+const runCompile = debounce(async (init = true) => {
     if (isCompiling) {
         needToCompile = true;
     } else {
@@ -230,7 +230,7 @@ const runCompile = debounce(async () => {
         needToCompile = false;
 
         try {
-            await compile();
+            await compile(init);
         } catch (error) {
             //
         }
@@ -269,7 +269,7 @@ async function handler(initArgs: Arguments<YfmArgv>) {
 
         liveServer.start(params);
 
-        runCompile();
+        runCompile(true);
 
         return await new Promise(() => null);
     } else {
@@ -277,13 +277,7 @@ async function handler(initArgs: Arguments<YfmArgv>) {
     }
 }
 
-async function compile() {
-    let hasError = false;
-
-    const userOutputFolder = resolve(args.output);
-    const tmpInputFolder = resolve(args.output, TMP_INPUT_FOLDER);
-    const tmpOutputFolder = resolve(args.output, TMP_OUTPUT_FOLDER);
-
+async function compile(init = true) {
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
@@ -319,7 +313,7 @@ async function compile() {
 
         const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
 
-        if (args.clean) {
+        if (init && args.clean) {
             await clearTemporaryFolders(userOutputFolder);
         }
 
