@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.42.0](https://github.com/diplodoc-platform/cli/compare/v4.41.0...v4.42.0) (2024-10-29)
+
+
+### Features
+
+* Move toc to separated script for html build ([40e976a](https://github.com/diplodoc-platform/cli/commit/40e976ae680afa8bbb798d411690f08dfa5aa9e4))
+
+
+### Bug Fixes
+
+* Fix liquid processing for toc.yaml ([938a817](https://github.com/diplodoc-platform/cli/commit/938a8174c5496a82ba1fa6167dbfe4612af85f95))
+
 ## [4.41.0](https://github.com/diplodoc-platform/cli/compare/v4.40.0...v4.41.0) (2024-10-28)
 
 
