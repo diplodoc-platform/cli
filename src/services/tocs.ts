@@ -3,7 +3,7 @@ import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
 import walkSync from 'walk-sync';
-import liquid from '@diplodoc/transform/lib/liquid';
+import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {bold} from 'chalk';
 
@@ -333,7 +333,7 @@ function _liquidSubstitutions(input: string, vars: Record<string, string>, path:
         return input;
     }
 
-    return liquid(input, vars, path, {
+    return liquidSnippet(input, vars, path, {
         conditions: false,
         substitutions: true,
     });

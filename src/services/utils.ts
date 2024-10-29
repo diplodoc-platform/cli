@@ -1,6 +1,6 @@
 import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {Filter, TextItems} from '../models';
-import liquid from '@diplodoc/transform/lib/liquid';
+import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 import {ArgvService} from './index';
 
 export interface FilterFilesOptions {
@@ -168,7 +168,7 @@ export function liquidField(input: string, vars: Record<string, unknown>, path: 
         return input;
     }
 
-    return liquid(input, vars, path, {
+    return liquidSnippet(input, vars, path, {
         substitutions: applyPresets,
         conditions: resolveConditions,
         keepNotVar: true,
