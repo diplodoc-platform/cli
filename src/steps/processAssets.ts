@@ -1,23 +1,23 @@
 import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
-import {readFileSync} from 'fs';
 import shell from 'shelljs';
 import {join, resolve, sep} from 'path';
 
-import {ArgvService, TocService} from '../services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
-
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
+import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
 import {
     ASSETS_FOLDER,
     LINT_CONFIG_FILENAME,
     REDIRECTS_FILENAME,
     YFM_CONFIG_FILENAME,
-} from '../constants';
-import {Resources} from '../models';
-import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+} from '~/constants';
+import {ArgvService, TocService} from '~/services';
+import {checkPathExists, copyFiles, findAllValuesByKeys} from '~/utils';
+import {Resources, YfmArgv} from '~/models';
+import {RevisionContext} from '~/context/context';
 
 /**
  * @param {Array} args
@@ -28,26 +28,29 @@ import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
  */
 
 type Props = {
-    args: string[];
+    args: YfmArgv;
     outputBundlePath: string;
     outputFormat: string;
     tmpOutputFolder: string;
+    context: RevisionContext;
+    fs: FsContext;
 };
+
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
-    switch (outputFormat) {
+export async function processAssets(props: Props) {
+    switch (props.outputFormat) {
         case 'html':
-            processAssetsHtmlRun({outputBundlePath});
+            await processAssetsHtmlRun(props);
             break;
         case 'md':
-            processAssetsMdRun({args, tmpOutputFolder});
+            await processAssetsMdRun(props);
             break;
     }
 }
 
-function processAssetsHtmlRun({outputBundlePath}) {
+async function processAssetsHtmlRun({outputBundlePath}: Props) {
     const {input: inputFolderPath, output: outputFolderPath} = ArgvService.getConfig();
 
     const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
@@ -56,17 +59,17 @@ function processAssetsHtmlRun({outputBundlePath}) {
         ignore: ['**/*.yaml', '**/*.md'],
     });
 
-    copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
+    await copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
 
     const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
         directories: false,
         includeBasePath: false,
     });
 
-    copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+    await copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
 }
 
-function processAssetsMdRun({args, tmpOutputFolder}) {
+async function processAssetsMdRun({args, tmpOutputFolder, fs}: Props) {
     const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
 
     const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
@@ -85,11 +88,11 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
             resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path)),
         );
 
-        //copy resources
-        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+        // Сopy resources
+        await copyFiles(args.input, tmpOutputFolder, resourcePaths);
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
+    const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
         if (file.endsWith('.yaml')) {
             const resolvedPathToFile = resolve(inputFolderPath, file);
 
@@ -98,32 +101,34 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         return acc;
     }, []);
 
-    tocYamlFiles.forEach((yamlFile) => {
-        const content = load(readFileSync(yamlFile, 'utf8'));
+    for (const yamlFile of tocYamlFiles) {
+        const text = await fs.readAsync(yamlFile);
+        const content = load(text) as object;
 
         if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
             return;
         }
 
         const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
-        const localMediaLinks = contentLinks.reduce(
-            (acc, link) => {
-                const linkHasMediaExt = new RegExp(
-                    /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
-                ).test(link);
+        const localMediaLinks = [];
 
-                if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
-                    const linkAbsolutePath = resolveRelativePath(yamlFile, link);
-                    const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+        for (const link of contentLinks) {
+            const linkHasMediaExt = new RegExp(
+                /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
+            ).test(link);
 
-                    acc.push(linkRootPath);
-                }
-                return acc;
-            },
+            if (
+                linkHasMediaExt &&
+                isLocalUrl(link) &&
+                (await checkPathExists(fs, link, yamlFile))
+            ) {
+                const linkAbsolutePath = resolveRelativePath(yamlFile, link);
+                const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
 
-            [],
-        );
+                localMediaLinks.push(linkRootPath);
+            }
+        }
 
-        copyFiles(args.input, tmpOutputFolder, localMediaLinks);
-    });
+        await copyFiles(args.input, tmpOutputFolder, localMediaLinks);
+    }
 }

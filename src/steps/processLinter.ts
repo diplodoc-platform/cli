@@ -2,24 +2,25 @@ import log from '@diplodoc/transform/lib/log';
 import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
-import {ArgvService, PluginService, PresetService, TocService} from '../services';
-import {ProcessLinterWorker} from '../workers/linter';
-import {logger} from '../utils';
-import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
-import {lintPage} from '../resolvers';
-import {splitOnChunks} from '../utils/worker';
+import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '~/constants';
+import {ArgvService, PluginService, PresetService} from '~/services';
+import {ProcessLinterWorker} from '~/workers/linter';
+import {logger} from '~/utils';
+import {lintPage} from '~/resolvers';
+import {splitOnChunks} from '~/utils/worker';
+import {RevisionContext} from '~/context/context';
 
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
-let navigationPathsChunks: string[][];
+let filesToProcessChunks: string[][];
 
-export async function processLinter(): Promise<void> {
+export async function processLinter(
+    context: RevisionContext,
+    filesToProcess: string[],
+): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
-    const navigationPaths = TocService.getNavigationPaths();
-
     if (!processLinterWorkers) {
-        lintPagesFallback(navigationPaths);
-
+        await lintPagesFallback(filesToProcess, context);
         return;
     }
 
@@ -35,12 +36,13 @@ export async function processLinter(): Promise<void> {
     /* Run processing the linter */
     await Promise.all(
         processLinterWorkers.map((worker, i) => {
-            const navigationPathsChunk = navigationPathsChunks[i];
+            const navigationPathsChunk = filesToProcessChunks[i];
 
             return worker.run({
                 argvConfig,
                 presetStorage,
                 navigationPaths: navigationPathsChunk,
+                context,
             });
         }),
     );
@@ -62,17 +64,16 @@ export async function processLinter(): Promise<void> {
     );
 }
 
-export async function initLinterWorkers() {
-    const navigationPaths = TocService.getNavigationPaths();
-    const chunkSize = getChunkSize(navigationPaths);
+export async function initLinterWorkers(filesToProcess: string[]) {
+    const chunkSize = getChunkSize(filesToProcess);
 
     if (process.env.DISABLE_PARALLEL_BUILD || chunkSize < MIN_CHUNK_SIZE || WORKERS_COUNT <= 0) {
         return;
     }
 
-    navigationPathsChunks = splitOnChunks(navigationPaths, chunkSize).filter((arr) => arr.length);
+    filesToProcessChunks = splitOnChunks(filesToProcess, chunkSize).filter((arr) => arr.length);
 
-    const workersCount = navigationPathsChunks.length;
+    const workersCount = filesToProcessChunks.length;
 
     processLinterWorkers = await Promise.all(
         new Array(workersCount).fill(null).map(() => {
@@ -86,16 +87,17 @@ function getChunkSize(arr: string[]) {
     return Math.ceil(arr.length / WORKERS_COUNT);
 }
 
-function lintPagesFallback(navigationPaths: string[]) {
+async function lintPagesFallback(filesToProcess: string[], context: RevisionContext) {
     PluginService.setPlugins();
 
-    navigationPaths.forEach((pathToFile) => {
-        lintPage({
+    for (const pathToFile of filesToProcess) {
+        await lintPage({
             inputPath: pathToFile,
             fileExtension: extname(pathToFile),
             onFinish: () => {
                 logger.info(pathToFile, LINTING_FINISHED);
             },
+            context,
         });
-    });
+    }
 }
