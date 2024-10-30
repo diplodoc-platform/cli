@@ -9,7 +9,7 @@ import {convertBackSlashToSlash} from '../utils';
  * Removes all content files that unspecified in toc files or ignored.
  * @return {void}
  */
-export function processExcludedFiles() {
+export async function processExcludedFiles() {
     const {input: inputFolderPath, output: outputFolderPath, ignore} = ArgvService.getConfig();
 
     const allContentFiles: string[] = walkSync(inputFolderPath, {

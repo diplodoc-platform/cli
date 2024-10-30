@@ -24,14 +24,13 @@ function makeCollectOfPlugins(): CollectionOfPluginsFunction {
         return typeof plugin.collect === 'function';
     });
 
-    return (output: string, options: PluginOptions) => {
+    return async (output: string, options: PluginOptions) => {
         let collectsOutput = output;
 
-        pluginsWithCollect.forEach((plugin: Plugin) => {
-            const collectOutput = plugin.collect(collectsOutput, options);
-
+        for (const plugin of pluginsWithCollect) {
+            const collectOutput = await plugin.collect(collectsOutput, options);
             collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
-        });
+        }
 
         return collectsOutput;
     };

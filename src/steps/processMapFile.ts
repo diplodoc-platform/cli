@@ -1,4 +1,4 @@
-import {writeFileSync} from 'fs';
+import {writeFile} from 'fs/promises';
 import {extname, join} from 'path';
 
 import {ArgvService, TocService} from '../services';
@@ -12,7 +12,7 @@ type TocItem = {
 
 type TocItems = TocItem[];
 
-export function prepareMapFile(): void {
+export async function prepareMapFile(): Promise<void> {
     const {output: outputFolderPath} = ArgvService.getConfig();
 
     const navigationPathsWithoutExtensions = TocService.getNavigationPaths().map((path) => {
@@ -28,5 +28,5 @@ export function prepareMapFile(): void {
     const filesMapBuffer = Buffer.from(JSON.stringify(navigationPaths, null, '\t'), 'utf8');
     const mapFile = join(outputFolderPath, 'files.json');
 
-    writeFileSync(mapFile, filesMapBuffer);
+    await writeFile(mapFile, filesMapBuffer);
 }

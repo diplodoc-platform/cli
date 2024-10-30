@@ -1,21 +1,20 @@
-import type {DocInnerProps} from '@diplodoc/client';
-
-import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, join, resolve, sep} from 'path';
-import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
+import yaml from 'js-yaml';
 
+import type {DocInnerProps} from '@diplodoc/client';
+import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
 import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
-import yaml from 'js-yaml';
+import {FsContext} from '@diplodoc/transform/lib/typings';
 
-import {Lang, PROCESSING_FINISHED} from '../constants';
-import {LeadingPage, ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PluginService, SearchService, TocService} from '../services';
-import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
+import {Lang, PROCESSING_FINISHED} from '~/constants';
+import {LeadingPage, ResolverOptions, YfmToc} from '~/models';
+import {ArgvService, PluginService, SearchService, TocService} from '~/services';
+import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '~/services/metadata';
 import {
     getLinksWithContentExtersion,
     getVarsPerFile,
@@ -23,11 +22,15 @@ import {
     logger,
     modifyValuesByKeys,
 } from '../utils';
-import {generateStaticMarkup} from '../pages';
+import {RevisionContext} from '~/context/context';
+import {generateStaticMarkup} from '~/pages';
 
 export interface FileTransformOptions {
+    lang: string;
     path: string;
     root?: string;
+    fs: FsContext;
+    context: RevisionContext;
 }
 
 const FileTransformer: Record<string, Function> = {
@@ -39,14 +42,15 @@ const fixRelativePath = (relativeTo: string) => (path: string) => {
     return join(getAssetsPublicPath(relativeTo), path);
 };
 
-const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
+async function getFileMeta({fileExtension, metadata, inputPath, context, fs}: ResolverOptions) {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedPath, 'utf8');
+    const content: string = await fs.readAsync(resolvedPath);
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+
+    const {result} = await transformFn(content, {path: inputPath, context, fs});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -72,9 +76,9 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
     }
 
     return {...result, meta: fileMeta};
-};
+}
 
-const getFileProps = async (options: ResolverOptions) => {
+async function getFileProps(options: ResolverOptions) {
     const {inputPath, outputPath} = options;
 
     const pathToDir: string = dirname(inputPath);
@@ -122,14 +126,14 @@ const getFileProps = async (options: ResolverOptions) => {
     };
 
     return props;
-};
+}
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
-    const {outputPath, inputPath, deep, deepBase} = options;
+    const {outputPath, inputPath, deep, deepBase, fs} = options;
     const props = await getFileProps(options);
 
     const outputFileContent = generateStaticMarkup(props, deepBase, deep);
-    writeFileSync(outputPath, outputFileContent);
+    await fs.writeAsync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
@@ -184,7 +188,10 @@ function getHref(path: string, href: string) {
     return href;
 }
 
-function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
+async function YamlFileTransformer(
+    content: string,
+    transformOptions: FileTransformOptions,
+): Promise<Object> {
     let data: LeadingPage | null = null;
 
     try {
@@ -209,7 +216,7 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         const {path, lang} = transformOptions;
         const transformFn: Function = FileTransformer['.md'];
 
-        data = preprocess(data, {lang}, (lang, content) => {
+        data = await preprocess(data, {lang}, (lang, content) => {
             const {result} = transformFn(content, {path});
             return result?.html;
         });
@@ -235,28 +242,31 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
     };
 }
 
-export function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
+export async function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
     const {conditionsInCode, useLegacyConditions} = ArgvService.getConfig();
 
-    return liquid(input, vars, path, {
+    return await liquid(input, vars, path, {
         conditionsInCode,
         withSourceMap: true,
         useLegacyConditions,
     });
 }
 
-function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
+async function MdFileTransformer(
+    content: string,
+    transformOptions: FileTransformOptions,
+): Promise<Output> {
     const {input, ...options} = ArgvService.getConfig();
-    const {path: filePath} = transformOptions;
+    const {path: filePath, context, fs} = transformOptions;
 
     const plugins = PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
     const root = resolve(input);
     const path: string = resolve(input, filePath);
 
-    return transform(content, {
+    return await transform(content, {
         ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
+        plugins: plugins as MarkdownItPluginCb[],
         vars,
         root,
         path,
@@ -265,5 +275,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
         extractTitle: true,
+        context,
+        fs,
     });
 }
