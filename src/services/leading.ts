@@ -1,5 +1,5 @@
 import {dirname, resolve} from 'path';
-import {readFileSync, writeFileSync} from 'fs';
+import {readFile, writeFile} from 'fs/promises';
 import {dump, load} from 'js-yaml';
 import log from '@diplodoc/transform/lib/log';
 
@@ -13,12 +13,12 @@ import {
     liquidFields,
 } from './utils';
 
-function filterFile(path: string) {
+async function filterFile(path: string) {
     const {input: inputFolderPath, vars} = ArgvService.getConfig();
 
     const pathToDir = dirname(path);
     const filePath = resolve(inputFolderPath, path);
-    const content = readFileSync(filePath, 'utf8');
+    const content = await readFile(filePath, 'utf8');
     const parsedIndex = load(content) as LeadingPage;
 
     const combinedVars = {
@@ -74,7 +74,7 @@ function filterFile(path: string) {
             }
         });
 
-        writeFileSync(filePath, dump(parsedIndex));
+        await writeFile(filePath, dump(parsedIndex));
     } catch (error) {
         log.error(`Error while filtering index file: ${path}. Error message: ${error}`);
     }
