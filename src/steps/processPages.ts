@@ -1,5 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, join, relative, resolve} from 'path';
+import {basename, dirname, extname, join, resolve} from 'path';
 import {existsSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
@@ -77,11 +77,15 @@ export async function processPages(outputBundlePath: string): Promise<void> {
 
     if (singlePage) {
         await saveSinglePages();
+
+        if (outputFormat === 'html') {
+            await saveTocData(transformTocForSinglePage, 'single-page-toc');
+        }
     }
 
     if (outputFormat === 'html') {
         saveRedirectPage(outputFolderPath);
-        await saveTocData();
+        await saveTocData(transformToc, 'toc');
     }
 }
 
@@ -120,17 +124,17 @@ function getPathData(
     return pathData;
 }
 
-async function saveTocData() {
+async function saveTocData(transform: (toc: YfmToc, tocDir: string) => YfmToc, filename: string) {
     const tocs = TocService.getAllTocs();
     const {output} = ArgvService.getConfig();
 
     for (const [path, toc] of tocs) {
-        const outputPath = join(output, path.replace(/\.yaml$/, '.js'));
+        const outputPath = join(output, dirname(path), filename + '.js');
         writeFileSync(
             outputPath,
             dedent`
-            window.__DATA__.data.toc = ${JSON.stringify(transformToc(toc))};
-        `,
+                window.__DATA__.data.toc = ${JSON.stringify(transform(toc, dirname(path)))};
+            `,
             'utf8',
         );
     }
@@ -151,18 +155,15 @@ async function saveSinglePages() {
                     return;
                 }
 
+                const relativeTocDir = tocDir
+                    .replace(inputFolderPath, '')
+                    .replace(/\\/g, '/')
+                    .replace(/^\/?/, '');
                 const singlePageBody = joinSinglePageResults(
                     singlePageResults[tocDir],
                     inputFolderPath,
-                    tocDir,
+                    relativeTocDir,
                 );
-                const tocPath = join(relative(inputFolderPath, tocDir), 'toc.yaml');
-                const toc: YfmToc | null = TocService.getForPath(tocPath) || null;
-                const preparedToc = transformTocForSinglePage(toc, {
-                    root: inputFolderPath,
-                    currentPath: join(tocDir, SINGLE_PAGE_FILENAME),
-                }) as YfmToc;
-
                 const lang = configLang ?? Lang.RU;
                 const langs = configLangs?.length ? configLangs : [lang];
 
@@ -172,10 +173,10 @@ async function saveSinglePages() {
                         html: singlePageBody,
                         headings: [],
                         meta: resources || {},
-                        toc: preparedToc,
                     },
                     router: {
                         pathname: SINGLE_PAGE_FILENAME,
+                        depth: relativeTocDir.split('/').length + 1,
                     },
                     lang,
                     langs,
@@ -186,7 +187,8 @@ async function saveSinglePages() {
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
                     pageData,
-                    toc?.root?.deepBase || toc?.deepBase || 0,
+                    relativeTocDir,
+                    'single-page-toc',
                 );
 
                 writeFileSync(singlePageFn, singlePageContent);
@@ -364,7 +366,6 @@ async function processingFileToHtml(
     metaDataOptions: MetaDataOptions,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
-    const {deepBase, deep} = TocService.getDeepForPath(pathToFile);
 
     return resolveMd2HTML({
         inputPath: pathToFile,
@@ -373,7 +374,5 @@ async function processingFileToHtml(
         outputPath,
         filename,
         metadata: metaDataOptions,
-        deep,
-        deepBase,
     });
 }

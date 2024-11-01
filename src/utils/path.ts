@@ -14,3 +14,13 @@ export function convertBackSlashToSlash(path: string): string {
 
     return path;
 }
+
+export function getDepth(path: string) {
+    return path.replace(/\\/g, '/').split('/').length;
+}
+
+export function getDepthPath(path: string | number) {
+    const depth = typeof path === 'number' ? path : getDepth(path);
+
+    return Array(depth).fill('../').join('') || './';
+}

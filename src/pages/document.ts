@@ -3,6 +3,7 @@ import {join} from 'path';
 import {BUNDLE_FOLDER, CARRIAGE_RETURN, CUSTOM_STYLE, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
+import {getDepthPath} from '~/utils';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
@@ -20,25 +21,25 @@ export type Meta = TitleMeta &
 
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
-    deepBase: number,
-    deep = 0,
+    tocDir: string,
+    tocName = 'toc',
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const resources = getResources({style, script});
 
     const {staticContent} = ArgvService.getConfig();
 
+    const depth = props.router.depth;
     const html = staticContent ? render(props) : '';
     const isRTL = RTL_LANGS.includes(props.lang);
-    const deepBasePath = deepBase > 0 ? Array(deepBase).fill('../').join('') : './';
-    const deepPath = deep > 0 ? Array(deep).fill('../').join('') : './';
+    const base = getDepthPath(depth - 1);
 
     return `
         <!DOCTYPE html>
         <html lang="${props.lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
             <head>
                 <meta charset="utf-8">
-                <base href="${deepPath}" />
+                <base href="${base}" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${props.data.title}</title>
@@ -49,7 +50,7 @@ export function generateStaticMarkup(
                 </style>
                 ${manifest.app.css
                     .filter((file: string) => isRTL === file.includes('.rtl.css'))
-                    .map((url: string) => join(deepBasePath, BUNDLE_FOLDER, url))
+                    .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
                 ${PluginService.getHeadContent()}
@@ -61,9 +62,9 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script src="./toc.js" type="application/javascript"></script>
+                <script src="${join(tocDir, tocName + '.js')}" type="application/javascript"></script>
                 ${manifest.app.js
-                    .map((url: string) => join(deepBasePath, BUNDLE_FOLDER, url))
+                    .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map(
                         (src: string) =>
                             `<script type="application/javascript" src="${src}"></script>`,
