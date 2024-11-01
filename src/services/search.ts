@@ -45,7 +45,7 @@ function add(path: string, info: DocInnerProps) {
         return;
     }
 
-    const toc = TocService.getForPath(path);
+    const toc = TocService.getForPath(path)[1];
     const base = (toc as {base?: string}).base || '';
     const url = base + '/' + router.pathname;
 

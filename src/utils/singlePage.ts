@@ -2,21 +2,9 @@ import type {SinglePageResult} from '~/models';
 
 import HTMLElement from 'node-html-parser/dist/nodes/html';
 import {parse} from 'node-html-parser';
-import {relative, resolve, sep} from 'path';
-import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
-import url from 'url';
-import escape from 'lodash/escapeRegExp';
-
-import {isExternalHref} from './url';
-
-interface ModifyNode {
-    innerHTML: string;
-    rawTagName: string;
-    attrEntries?: string[][];
-}
+import {dirname, join} from 'path';
 
 interface PreprocessSinglePageOptions {
-    root: string;
     path: string;
     tocDir: string;
     title?: string;
@@ -24,34 +12,27 @@ interface PreprocessSinglePageOptions {
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 
+function dropExt(path: string) {
+    return path.replace(/\.(md|ya?ml|html)$/i, '');
+}
+
 function toUrl(path: string) {
     // replace windows backslashes
-    return path.replace(new RegExp(escape(sep), 'g'), '/');
+    return path.replace(/\\/g, '/').replace(/^\.\//, '');
 }
 
-function getNewNode(options: ModifyNode): HTMLElement | null {
-    const {rawTagName, innerHTML, attrEntries} = options;
+function relativeTo(root: string, path: string) {
+    root = toUrl(root);
+    path = toUrl(path);
 
-    const nodeNew = parse(`<html><${rawTagName}></${rawTagName}></html>`).querySelector(
-        `${rawTagName}`,
-    );
-
-    if (!nodeNew) {
-        return null;
-    }
-
-    if (attrEntries) {
-        for (const [name, value] of attrEntries) {
-            nodeNew.setAttribute(name, value);
-        }
-    }
-
-    nodeNew.innerHTML = innerHTML;
-
-    return nodeNew;
+    return path.replace(root + '/', '');
 }
 
-export function decreaseHeadingLevels(root: HTMLElement) {
+function all(root: HTMLElement, selector: string): HTMLElement[] {
+    return Array.from(root.querySelectorAll(selector));
+}
+
+function decreaseHeadingLevels(root: HTMLElement) {
     const headersSelector = 'h1, h2, h3, h4, h5';
 
     root.querySelectorAll(headersSelector).forEach((node) => {
@@ -62,7 +43,7 @@ export function decreaseHeadingLevels(root: HTMLElement) {
     });
 }
 
-export function tryFixFirstPageHeader(root: HTMLElement) {
+function tryFixFirstPageHeader(root: HTMLElement) {
     const firstPageHeader = root.querySelector(HEADERS_SELECTOR);
     if (!firstPageHeader || firstPageHeader.rawTagName === 'h1') {
         return;
@@ -71,168 +52,77 @@ export function tryFixFirstPageHeader(root: HTMLElement) {
     firstPageHeader.rawTagName = 'h1';
 }
 
-export function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
-    const {root, path, tocDir} = options;
+function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
+    const {path, tocDir} = options;
 
-    rootEl.querySelectorAll('a:not(.yfm-anchor):not([target="_blank"])').forEach((node) => {
+    for (const node of all(rootEl, 'a:not(.yfm-anchor):not([target="_blank"])')) {
         const href = node.getAttribute('href') || '';
+        const linkFullPath = join(dirname(path), href);
 
-        const resolvedPath = resolve(root, path);
-        const linkFullPath = resolveRelativePath(resolvedPath, href);
+        // TODO: This is wrong check
+        // we need to to something like TocService.getForPath
+        // and then compare with local toc path.
         const isLinkOutOfToc = !linkFullPath.startsWith(tocDir);
 
-        let preparedHref = href;
-
         if (isLinkOutOfToc) {
-            preparedHref = relative(tocDir, linkFullPath);
-        } else {
-            const {pathname, hash} = url.parse(href);
-            if (pathname) {
-                preparedHref = getSinglePageAnchorId({
-                    root,
-                    currentPath: resolvedPath,
-                    pathname,
-                    hash,
-                });
-            } else if (hash) {
-                preparedHref = getSinglePageAnchorId({root, currentPath: resolvedPath, hash});
-            }
-        }
-
-        node.setAttribute('href', toUrl(preparedHref));
-    });
-}
-
-export function replaceImages(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
-    const {root, path, tocDir} = options;
-
-    rootEl.querySelectorAll('img').forEach((node) => {
-        const href = node.getAttribute('src') || '';
-
-        if (isExternalHref(href)) {
             return;
         }
 
-        const resolvedPath = resolve(root, path);
-        const linkFullPath = resolveRelativePath(resolvedPath, href);
-        const preparedHref = relative(tocDir, linkFullPath);
-
-        node.setAttribute('src', toUrl(preparedHref));
-    });
-}
-
-function prepareAnchorAttr(name: string, value: string, pageId: string) {
-    switch (name) {
-        case 'href':
-            return `#${pageId}_${value.slice(1)}`;
-        case 'id':
-            return `${pageId}_${value}`;
-        default:
-            return value;
+        node.setAttribute('href', getSinglePageUrl(tocDir, href));
     }
 }
 
-function prepareAnchorAttrs(node: HTMLElement, pageId: string) {
+function prepareAnchorAttrs(node: HTMLElement, pathname: string, page: string) {
     for (const [name, value] of Object.entries(node.attributes)) {
-        const preparedValue = prepareAnchorAttr(name, value, pageId);
+        if (name === 'href') {
+            const anchor = value.split('#')[1] || value;
+            node.setAttribute(name, `${pathname}#${page}_${anchor}`);
+        }
 
-        node.setAttribute(name, toUrl(preparedValue));
+        if (name === 'id') {
+            node.setAttribute(name, `#${page}_${value}`);
+        }
     }
 }
 
-export function addPagePrefixToAnchors(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
-    const {root, path} = options;
+function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessSinglePageOptions) {
+    const {path, tocDir} = options;
 
-    const resolvedPath = resolve(root, path);
-    const pageIdAnchor = getSinglePageAnchorId({root, currentPath: resolvedPath});
-    const originalArticleHref = transformLinkToOriginalArticle({root, currentPath: resolvedPath});
-    const pageId = pageIdAnchor.slice(1);
-    const anchorSelector = '.yfm-anchor';
+    const url = getSinglePageUrl(tocDir, path);
+    const [pathname, anchor] = url.split('#');
+
+    for (const node of all(root, HEADERS_SELECTOR)) {
+        prepareAnchorAttrs(node, pathname, anchor);
+    }
 
     // Add the page prefix id to all existing anchors
-    rootEl.querySelectorAll(anchorSelector).forEach((node) => {
-        prepareAnchorAttrs(node, pageId);
-    });
+    for (const node of all(root, '.yfm-anchor')) {
+        prepareAnchorAttrs(node, pathname, anchor);
+    }
 
-    const mainHeader = rootEl.querySelector('h1');
+    const mainHeader = root.querySelector('h1');
     if (mainHeader) {
-        const anchor = parse(
-            `<a class="yfm-anchor" aria-hidden="true" href="${pageIdAnchor}" id="${pageId}"></a>`,
+        const node = parse(
+            `<a class="yfm-anchor" aria-hidden="true" href="${url}" id="${anchor}"></a>`,
         );
-        if (!anchor) {
-            return;
-        }
 
-        mainHeader.setAttribute('data-original-article', `${originalArticleHref}.html`);
-        mainHeader.appendChild(anchor);
+        mainHeader.setAttribute('data-original-article', `${dropExt(path)}.html`);
+        mainHeader.appendChild(node);
     }
-
-    rootEl.querySelectorAll(HEADERS_SELECTOR).forEach((node) => {
-        prepareAnchorAttrs(node, pageId);
-    });
 }
 
-export function addMainTitle(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
-    const {title} = options;
-
-    if (!title) {
-        return;
+function addMainTitle(root: HTMLElement, options: PreprocessSinglePageOptions) {
+    if (options.title) {
+        root.insertAdjacentHTML('afterbegin', `<h1>${options.title}</h1>`);
     }
-
-    const mainTitle = getNewNode({innerHTML: title, rawTagName: 'h1'});
-
-    if (!mainTitle) {
-        return;
-    }
-
-    rootEl.insertAdjacentHTML('afterbegin', mainTitle.toString());
 }
 
-export function getSinglePageAnchorId(args: {
-    root: string;
-    currentPath: string;
-    pathname?: string;
-    hash?: string | null;
-}) {
-    const {root, currentPath, pathname, hash} = args;
-    let resultAnchor = currentPath;
-
-    if (pathname) {
-        resultAnchor = resolveRelativePath(currentPath, pathname);
-    }
-
-    resultAnchor = resultAnchor
-        .replace(root, '')
-        .replace(/\.(md|ya?ml|html)$/i, '')
-        .replace(new RegExp(escape(sep), 'gi'), '_');
-
-    if (hash) {
-        resultAnchor = resultAnchor + '_' + hash.slice(1);
-    }
-
-    return `#${resultAnchor}`;
+function getAnchorId(tocDir: string, path: string) {
+    return relativeTo(tocDir, toUrl(dropExt(path))).replace(/[#/]/g, '_');
 }
 
-export function transformLinkToOriginalArticle(opts: {root: string; currentPath: string}) {
-    const {root, currentPath} = opts;
-
-    return currentPath.replace(root, '').replace(/\.(md|ya?ml|html)$/i, '');
-}
-
-export function preprocessPageHtmlForSinglePage(
-    content: string,
-    options: PreprocessSinglePageOptions,
-) {
-    const root = parse(content);
-
-    addMainTitle(root, options);
-    tryFixFirstPageHeader(root);
-    addPagePrefixToAnchors(root, options);
-    decreaseHeadingLevels(root);
-    replaceLinks(root, options);
-    replaceImages(root, options);
-
-    return root.toString();
+export function getSinglePageUrl(tocDir: string, path: string) {
+    return toUrl(tocDir) + '/single-page.html#' + getAnchorId(tocDir, path);
 }
 
 export function joinSinglePageResults(
@@ -241,10 +131,20 @@ export function joinSinglePageResults(
     tocDir: string,
 ): string {
     const delimeter = `<hr class="yfm-page__delimeter">`;
+
     return singlePageResults
         .filter(({content}) => content)
-        .map(({content, path, title}) =>
-            preprocessPageHtmlForSinglePage(content, {root, path, tocDir, title}),
-        )
+        .map(({content, path, title}) => {
+            const root = parse(content);
+            const options = {path, tocDir, title};
+
+            addMainTitle(root, options);
+            tryFixFirstPageHeader(root);
+            addPagePrefixToAnchors(root, options);
+            decreaseHeadingLevels(root);
+            replaceLinks(root, options);
+
+            return root.toString();
+        })
         .join(delimeter);
 }

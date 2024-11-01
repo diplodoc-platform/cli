@@ -1,7 +1,7 @@
 import type {DocInnerProps} from '@diplodoc/client';
 
 import {readFileSync, writeFileSync} from 'fs';
-import {basename, dirname, join, resolve, sep} from 'path';
+import {dirname, extname, join, resolve} from 'path';
 import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
@@ -15,11 +15,14 @@ import yaml from 'js-yaml';
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions, YfmToc} from '../models';
 import {ArgvService, PluginService, SearchService, TocService} from '../services';
-import {getAssetsPublicPath, getAssetsRootPath, getVCSMetadata} from '../services/metadata';
+import {getVCSMetadata} from '../services/metadata';
 import {
+    getDepth,
+    getDepthPath,
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
+    isExternalHref,
     logger,
     modifyValuesByKeys,
 } from '../utils';
@@ -27,16 +30,12 @@ import {generateStaticMarkup} from '../pages';
 
 export interface FileTransformOptions {
     path: string;
-    root?: string;
+    root: string;
 }
 
 const FileTransformer: Record<string, Function> = {
     '.yaml': YamlFileTransformer,
     '.md': MdFileTransformer,
-};
-
-const fixRelativePath = (relativeTo: string) => (path: string) => {
-    return join(getAssetsPublicPath(relativeTo), path);
 };
 
 const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
@@ -46,7 +45,7 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath});
+    const {result} = transformFn(content, {path: inputPath, root: input});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -62,10 +61,8 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
 
     if (allowCustomResources) {
         const {script, style} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || []).map(fixRelativePath(inputPath));
-        fileMeta.script = (fileMeta.script || [])
-            .concat(script || [])
-            .map(fixRelativePath(inputPath));
+        fileMeta.style = (fileMeta.style || []).concat(style || []);
+        fileMeta.script = (fileMeta.script || []).concat(script || []);
     } else {
         fileMeta.style = [];
         fileMeta.script = [];
@@ -75,24 +72,19 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
 };
 
 const getFileProps = async (options: ResolverOptions) => {
-    const {inputPath, outputPath} = options;
-
-    const pathToDir: string = dirname(inputPath);
-    const toc: YfmToc | null = TocService.getForPath(inputPath) || null;
-    const tocBase: string = toc?.root?.base || toc?.base || '';
-    const pathToFileDir: string =
-        pathToDir === tocBase ? '' : pathToDir.replace(`${tocBase}${sep}`, '');
+    const {inputPath} = options;
+    const toc = TocService.getForPath(inputPath)[1];
 
     const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
     const meta = await getFileMeta(options);
 
-    const tocBaseLang = tocBase?.split('/')[0];
+    const tocBaseLang = inputPath.split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
     const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
 
-    const pathname = join(pathToFileDir, basename(outputPath));
+    const pathname = inputPath.replace(extname(inputPath), '');
 
     const title = getTitle({
         metaTitle: meta.meta.title,
@@ -100,7 +92,7 @@ const getFileProps = async (options: ResolverOptions) => {
         pageTitle: meta.title,
     });
 
-    const props = {
+    return {
         data: {
             ...meta,
             title,
@@ -108,7 +100,7 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         router: {
             pathname,
-            depth: inputPath.replace(/\\/g, '/').split('/').length,
+            depth: getDepth(inputPath),
         },
         lang,
         langs,
@@ -120,15 +112,15 @@ const getFileProps = async (options: ResolverOptions) => {
             : undefined,
         analytics,
     };
-
-    return props;
 };
 
 export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
-    const {outputPath, inputPath, deep, deepBase} = options;
+    const {outputPath, inputPath} = options;
     const props = await getFileProps(options);
 
-    const outputFileContent = generateStaticMarkup(props, deepBase, deep);
+    const tocDir = TocService.getForPath(inputPath)[0] as string;
+
+    const outputFileContent = generateStaticMarkup(props, tocDir);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
@@ -155,32 +147,24 @@ function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
     return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
 }
 
-function getHref(path: string, href: string) {
-    if (!href.includes('//')) {
-        const {input} = ArgvService.getConfig();
-        const root = resolve(input);
-        const assetRootPath = getAssetsRootPath(path) || '';
-
-        let filePath = resolve(input, dirname(path), href);
-
-        if (href.startsWith('/')) {
-            filePath = resolve(input, assetRootPath, href.replace(/^\/+/gi, ''));
-        }
-
-        href = getPublicPath(
-            {
-                root,
-                rootPublicPath: assetRootPath,
-            },
-            filePath,
-        );
-
-        if (isFileExists(filePath) || isFileExists(filePath + '.md')) {
-            href = href.replace(/\.md$/gi, '.html');
-        } else if (!/.+\.\w+$/gi.test(href)) {
-            href = href + '/';
-        }
+function getHref(root: string, path: string, href: string) {
+    if (isExternalHref(href)) {
+        return href;
     }
+
+    if (!href.startsWith('/')) {
+        href = join(dirname(path), href);
+    }
+
+    const filePath = resolve(root, href);
+
+    if (isFileExists(filePath) || isFileExists(filePath + '.md')) {
+        href = href.replace(/\.(md|ya?ml)$/gi, '.html');
+    } else if (!/.+\.\w+$/gi.test(href)) {
+        // TODO: isFileExists index.md or index.yaml
+        href = href + '/index.html';
+    }
+
     return href;
 }
 
@@ -216,7 +200,8 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
     } else {
         const links = data?.links?.map((link) => {
             if (link.href) {
-                const href = getHref(transformOptions.path, link.href);
+                const {root, path} = transformOptions;
+                const href = getHref(root, path, link.href);
                 return {
                     ...link,
                     href,
@@ -252,7 +237,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
     const plugins = PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
     const root = resolve(input);
-    const path: string = resolve(input, filePath);
+    const path = resolve(input, filePath);
 
     return transform(content, {
         ...options,
@@ -260,8 +245,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         vars,
         root,
         path,
-        assetsPublicPath: getAssetsPublicPath(filePath),
-        rootPublicPath: getAssetsRootPath(filePath),
+        assetsPublicPath: getDepthPath(dirname(filePath)),
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
         extractTitle: true,

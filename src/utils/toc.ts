@@ -1,15 +1,12 @@
-import {basename, dirname, extname, format, join, relative} from 'path';
+import type {YfmToc} from '~/models';
 
-import {YfmToc} from '../models';
+import {basename, dirname, extname, join} from 'node:path';
+
 import {filterFiles} from '../services/utils';
 import {isExternalHref} from './url';
-import {getSinglePageAnchorId} from './singlePage';
+import {getSinglePageUrl} from './singlePage';
 
-export function transformToc(toc: YfmToc | null): YfmToc | null {
-    if (!toc) {
-        return null;
-    }
-
+function baseTransformToc(toc: YfmToc, transformItemHref: (href: string) => string): YfmToc {
     const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
 
     if (localToc.items) {
@@ -23,79 +20,48 @@ export function transformToc(toc: YfmToc | null): YfmToc | null {
         );
     }
 
-    const navigationItemQueue = [localToc];
+    const queue = [localToc];
 
-    while (navigationItemQueue.length) {
-        const navigationItem = navigationItemQueue.shift();
+    while (queue.length) {
+        const item = queue.shift();
 
-        if (!navigationItem) {
+        if (!item) {
             continue;
         }
 
-        const {items, href} = navigationItem;
+        const {items, href} = item;
 
         if (items) {
-            navigationItemQueue.push(...navigationItem.items);
+            queue.push(...items);
         }
 
-        if (href && !isExternalHref(href)) {
-            const relativeHref = join(
-                relative(toc.root?.base || toc.base || '', toc.base || ''),
-                href,
-            );
-
-            const fileExtension: string = extname(relativeHref);
-            const filename: string = basename(relativeHref, fileExtension);
-            const transformedFilename: string = format({
-                name: filename,
-                ext: '.html',
-            });
-
-            navigationItem.href = join(dirname(relativeHref), transformedFilename);
+        if (href) {
+            item.href = transformItemHref(href);
         }
     }
 
     return localToc;
 }
 
-export function transformTocForSinglePage(
-    toc: YfmToc | null,
-    options: {root: string; currentPath: string},
-) {
-    const {root, currentPath} = options;
+export function transformToc(toc: YfmToc, tocDir: string) {
+    return baseTransformToc(toc, (href: string) => {
+        if (isExternalHref(href)) {
+            return href;
+        }
 
-    if (!toc) {
-        return null;
-    }
+        const fileExtension: string = extname(href);
+        const filename: string = basename(href, fileExtension) + '.html';
 
-    const localToc: YfmToc = JSON.parse(JSON.stringify(toc));
+        return join(tocDir, dirname(href), filename);
+    });
+}
 
-    if (localToc.items) {
-        localToc.items = filterFiles(
-            localToc.items,
-            'items',
-            {},
-            {
-                removeHiddenTocItems: true,
-            },
-        );
-    }
+export function transformTocForSinglePage(toc: YfmToc, tocDir: string) {
+    return baseTransformToc(toc, (href: string) => {
+        if (isExternalHref(href)) {
+            return href;
+        }
 
-    function processItems(items: YfmToc[]) {
-        items.forEach((item) => {
-            if (item.items) {
-                processItems(item.items);
-            }
-
-            if (item.href && !isExternalHref(item.href)) {
-                item.href = getSinglePageAnchorId({root, currentPath, pathname: item.href});
-            }
-        });
-    }
-
-    processItems(localToc.items);
-
-    localToc.singlePage = true;
-
-    return localToc;
+        return getSinglePageUrl(tocDir, href);
+    });
 }
