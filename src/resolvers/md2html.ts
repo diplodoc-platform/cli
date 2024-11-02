@@ -38,7 +38,7 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
-const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
+const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
@@ -73,10 +73,9 @@ const getFileMeta = async ({fileExtension, metadata, inputPath}: ResolverOptions
 
 const getFileProps = async (options: ResolverOptions) => {
     const {inputPath} = options;
-    const toc = TocService.getForPath(inputPath)[1];
-
     const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
-    const meta = await getFileMeta(options);
+
+    const data = await getFileData(options);
 
     const tocBaseLang = inputPath.split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
@@ -86,16 +85,10 @@ const getFileProps = async (options: ResolverOptions) => {
 
     const pathname = inputPath.replace(extname(inputPath), '');
 
-    const title = getTitle({
-        metaTitle: meta.meta.title,
-        tocTitle: toc?.title as string,
-        pageTitle: meta.title,
-    });
-
     return {
         data: {
-            ...meta,
-            title,
+            ...data,
+            title: data.meta.title || data.title || '',
             leading: inputPath.endsWith('.yaml'),
         },
         router: {
@@ -118,33 +111,22 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
     const {outputPath, inputPath} = options;
     const props = await getFileProps(options);
 
-    const tocDir = TocService.getForPath(inputPath)[0] as string;
+    const [tocDir, toc] = TocService.getForPath(inputPath) as [string, YfmToc];
 
-    const outputFileContent = generateStaticMarkup(props, tocDir);
+    const title = getTitle(toc.title as string, props.data.title);
+    const outputFileContent = generateStaticMarkup(props, join(tocDir, 'toc'), title);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
 }
 
-interface GetTitleOptions {
-    tocTitle?: string;
-    metaTitle?: string;
-    pageTitle?: string;
-}
-
-function getTitle({tocTitle, metaTitle, pageTitle}: GetTitleOptions) {
-    const resultPageTitle = metaTitle || pageTitle;
-
-    if (!resultPageTitle && tocTitle) {
-        return tocTitle;
+function getTitle(tocTitle: string, dataTitle: string) {
+    if (dataTitle && tocTitle) {
+        return `${dataTitle} | ${tocTitle}`;
     }
 
-    if (resultPageTitle && !tocTitle) {
-        return resultPageTitle;
-    }
-
-    return resultPageTitle && tocTitle ? `${resultPageTitle} | ${tocTitle}` : '';
+    return tocTitle || dataTitle || '';
 }
 
 function getHref(root: string, path: string, href: string) {

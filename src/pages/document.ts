@@ -21,8 +21,8 @@ export type Meta = TitleMeta &
 
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
-    tocDir: string,
-    tocName = 'toc',
+    tocPath: string,
+    title: string,
 ): string {
     const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const resources = getResources({style, script});
@@ -42,7 +42,7 @@ export function generateStaticMarkup(
                 <base href="${base}" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${props.data.title}</title>
+                <title>${title}</title>
                 <style type="text/css">
                     body {
                         height: 100vh;
@@ -62,7 +62,7 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script src="${join(tocDir, tocName + '.js')}" type="application/javascript"></script>
+                <script src="${tocPath + '.js'}" type="application/javascript"></script>
                 ${manifest.app.js
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map(
