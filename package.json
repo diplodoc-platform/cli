@@ -53,7 +53,7 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^3.1.4",
+    "@diplodoc/client": "^3.1.5",
     "@diplodoc/translation": "^1.4.3",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
