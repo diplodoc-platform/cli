@@ -27,7 +27,13 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
-import {joinSinglePageResults, logger, transformToc, transformTocForSinglePage} from '../utils';
+import {
+    getDepth,
+    joinSinglePageResults,
+    logger,
+    transformToc,
+    transformTocForSinglePage,
+} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -164,6 +170,8 @@ async function saveSinglePages() {
                     inputFolderPath,
                     relativeTocDir,
                 );
+
+                const toc = TocService.getForPath(relativeTocDir + '/toc.yaml')[1] as YfmToc;
                 const lang = configLang ?? Lang.RU;
                 const langs = configLangs?.length ? configLangs : [lang];
 
@@ -173,10 +181,11 @@ async function saveSinglePages() {
                         html: singlePageBody,
                         headings: [],
                         meta: resources || {},
+                        title: toc.title || '',
                     },
                     router: {
                         pathname: SINGLE_PAGE_FILENAME,
-                        depth: relativeTocDir.split('/').length + 1,
+                        depth: getDepth(relativeTocDir) + 1,
                     },
                     lang,
                     langs,
@@ -187,8 +196,8 @@ async function saveSinglePages() {
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
                     pageData,
-                    relativeTocDir,
-                    'single-page-toc',
+                    join(relativeTocDir, 'single-page-toc'),
+                    toc.title as string || '',
                 );
 
                 writeFileSync(singlePageFn, singlePageContent);
@@ -218,6 +227,7 @@ function saveRedirectPage(outputDir: string): void {
 function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathData): void {
     const {pathToFile, outputTocDir} = pathData;
 
+    // TODO: allow page-constructor pages?
     if (pageProps.data.leading) {
         return;
     }
@@ -235,6 +245,7 @@ function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathDat
         path: pathToFile,
         content: pageProps.data.html,
         title: pageProps.data.title,
+        // TODO: handle file resources
     });
 }
 
