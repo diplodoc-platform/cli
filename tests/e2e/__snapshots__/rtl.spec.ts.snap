@@ -81,9 +81,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"Documentation","leading":true},"router":{"pathname":"index.html","depth":1},"lang":"he","langs":["he"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"he","langs":["he"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -136,11 +136,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>תיעוד
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":1},"lang":"he","langs":["he"]};
+      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -160,7 +160,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":".","deepBase":0};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}]};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `
 "[
@@ -221,7 +221,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./">
+    <base href="../">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -235,11 +235,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-1"
+          href="_bundle/search-css-1"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-2"
+          href="_bundle/search-css-2"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -247,22 +247,22 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"Documentation","leading":true},"router":{"pathname":"index.html","depth":2},"lang":"ar","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"","leading":true},"router":{"pathname":"ar/index","depth":2},"lang":"ar","langs":["ar","en"]};
     </script>
-    <script src="./toc.js"
+    <script src="ar/toc.js"
             type="application/javascript"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-0"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/app-js-1"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-2"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
@@ -276,7 +276,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./">
+    <base href="../">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -290,11 +290,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-1"
+          href="_bundle/search-css-1"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-2"
+          href="_bundle/search-css-2"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -302,31 +302,31 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>توثيق
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":2},"lang":"ar","langs":["ar","en"]};
+      </p>/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]};
     </script>
-    <script src="./toc.js"
+    <script src="ar/toc.js"
             type="application/javascript"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-0"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/app-js-1"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-2"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"ar","deepBase":1};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"Documentation-RANDOM"}]};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 5`] = `
 <!DOCTYPE html>
@@ -335,7 +335,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./">
+    <base href="../">
     <meta name="title"
           content="Documentation"
     >
@@ -355,11 +355,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-0"
+          href="_bundle/search-css-0"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/app-css-1"
+          href="_bundle/app-css-1"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -367,22 +367,22 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"title":"Documentation | Documentation","leading":true},"router":{"pathname":"index.html","depth":2},"lang":"en","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]};
     </script>
-    <script src="./toc.js"
+    <script src="en/toc.js"
             type="application/javascript"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-0"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/app-js-1"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-2"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
@@ -396,7 +396,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <base href="./">
+    <base href="../">
     <meta name="yfm"
           content="builder"
     >
@@ -413,11 +413,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </style>
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/search-css-0"
+          href="_bundle/search-css-0"
     >
     <link type="text/css"
           rel="stylesheet"
-          href="../_bundle/app-css-1"
+          href="_bundle/app-css-1"
     >
   </head>
   <body class="g-root g-root_theme_light">
@@ -425,31 +425,31 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":2},"lang":"en","langs":["ar","en"]};
+      </p>/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]};
     </script>
-    <script src="./toc.js"
+    <script src="en/toc.js"
             type="application/javascript"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-0"
+            src="_bundle/search-js-0"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/app-js-1"
+            src="_bundle/app-js-1"
     >
     </script>
     <script type="application/javascript"
-            src="../_bundle/search-js-2"
+            src="_bundle/search-js-2"
     >
     </script>
   </body>
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 7`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}],"base":"en","deepBase":1};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 7`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"Documentation-RANDOM"}]};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 8`] = `
 <!DOCTYPE html>

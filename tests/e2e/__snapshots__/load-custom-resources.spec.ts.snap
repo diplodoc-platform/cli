@@ -47,6 +47,7 @@ exports[`Allow load custom resources md2html single page with custom resources 1
   "index.html",
   "page.html",
   "project/config.html",
+  "single-page-toc.js",
   "single-page.html",
   "single-page.json",
   "toc.js"
@@ -99,9 +100,9 @@ exports[`Allow load custom resources md2html single page with custom resources 2
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation | Documentation","leading":true},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -164,11 +165,11 @@ exports[`Allow load custom resources md2html single page with custom resources 3
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -228,11 +229,11 @@ exports[`Allow load custom resources md2html single page with custom resources 4
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -252,19 +253,21 @@ exports[`Allow load custom resources md2html single page with custom resources 4
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 5`] = `
+exports[`Allow load custom resources md2html single page with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page","id":"Documentation-RANDOM"},{"name":"Config","href":"#project_config","id":"Config-RANDOM"}]};"`;
+
+exports[`Allow load custom resources md2html single page with custom resources 6`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
 >
   <head>
     <meta charset="utf-8">
-    <base href="./">
+    <base href="../">
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
     <title>
-      undefined
+      Documentation
     </title>
     <style type="text/css">
       body {
@@ -293,21 +296,13 @@ exports[`Allow load custom resources md2html single page with custom resources 5
     <script type="application/javascript">
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"leading":false,"html":"
-      <h2 data-original-article=\\"/page.html\\">Documentation
-      <a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#_page\\" id=\\"_page\\">
-      </a>
-      </h2>
       <p>Lorem
       </p>/n
       <hr class=\\"yfm-page__delimeter\\">
-      <h2 data-original-article=\\"/project/config.html\\">Documentation
-      <a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#_project_config\\" id=\\"_project_config\\">
-      </a>
-      </h2>
       <p>Lorem
-      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]};
+      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="single-page-toc.js"
             type="application/javascript"
     >
     </script>
@@ -327,9 +322,9 @@ exports[`Allow load custom resources md2html single page with custom resources 5
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources 6`] = `"{"data":{"leading":false,"html":"<h2 data-original-article=\\"/page.html\\">Documentation<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#_page\\" id=\\"_page\\"></a></h2><p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><h2 data-original-article=\\"/project/config.html\\">Documentation<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#_project_config\\" id=\\"_project_config\\"></a></h2><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"toc":{"title":"Documentation","href":"index.yaml","items":[{"name":"Documentation","href":"#_page","id":"Documentation-RANDOM"},{"name":"Config","href":"#_project_config","id":"Config-RANDOM"}],"base":".","deepBase":0,"singlePage":true}},"router":{"pathname":"single-page.html"},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html single page with custom resources 7`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0};"`;
+exports[`Allow load custom resources md2html single page with custom resources 8`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
 
 exports[`Allow load custom resources md2html with custom resources 1`] = `
 "[
@@ -428,9 +423,9 @@ exports[`Allow load custom resources md2html with custom resources 2`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation | Documentation","leading":true},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -493,11 +488,11 @@ exports[`Allow load custom resources md2html with custom resources 3`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -557,11 +552,11 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -581,7 +576,7 @@ exports[`Allow load custom resources md2html with custom resources 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0};"`;
+exports[`Allow load custom resources md2html with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
 
 exports[`Allow load custom resources md2md with custom resources 1`] = `
 "[
@@ -654,7 +649,5 @@ items:
     href: page.md
   - name: Config
     href: project/config.md
-base: .
-deepBase: 0
 "
 `;

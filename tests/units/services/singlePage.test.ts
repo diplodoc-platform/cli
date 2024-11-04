@@ -7,14 +7,12 @@ import {
     addPagePrefixToAnchors,
     decreaseHeadingLevels,
     replaceLinks,
-    replaceImages,
     addMainTitle,
 } from 'utils/singlePage';
 
 describe('Adding the main title', () => {
     const options = {
         title: 'Title',
-        root: __dirname,
         path: 'about.html',
         tocDir: '',
     };
@@ -70,7 +68,6 @@ describe('Add a page prefix to anchors', () => {
 
         const root = parse(content);
         addPagePrefixToAnchors(root, {
-            root: __dirname,
             path: 'index.html',
             tocDir: '',
         });
@@ -96,9 +93,8 @@ describe('Make links to pages as hashes to sections in a single page', () => {
         ].join('\n');
         const root = parse(content);
         replaceLinks(root, {
-            root: __dirname,
             path: 'index.html',
-            tocDir: __dirname,
+            tocDir: '',
         });
         expect(platformless(root.toString())).toMatchSnapshot();
     });
@@ -111,9 +107,8 @@ describe('Make links to pages as hashes to sections in a single page', () => {
         ].join('\n');
         const root = parse(content);
         replaceLinks(root, {
-            root: __dirname,
             path: 'folder1/index.html',
-            tocDir: __dirname,
+            tocDir: '',
         });
         expect(platformless(root.toString())).toMatchSnapshot();
     });
@@ -122,9 +117,8 @@ describe('Make links to pages as hashes to sections in a single page', () => {
         const content = '<a href="https://ydocs.tech" target="_blank"></a>';
         const root = parse(content);
         replaceLinks(root, {
-            root: __dirname,
             path: 'index.html',
-            tocDir: __dirname,
+            tocDir: '',
         });
         expect(platformless(root.toString())).toMatchSnapshot();
     });
@@ -133,9 +127,8 @@ describe('Make links to pages as hashes to sections in a single page', () => {
         const content = `<a href="../../index.html"></a>`;
         const root = parse(content);
         replaceLinks(root, {
-            root: __dirname,
             path: 'folder/index.html',
-            tocDir: __dirname,
+            tocDir: '',
         });
         expect(platformless(root.toString())).toMatchSnapshot();
     });
@@ -144,51 +137,8 @@ describe('Make links to pages as hashes to sections in a single page', () => {
         const content = `<a href="../../service2/index.html"></a>`;
         const root = parse(content);
         replaceLinks(root, {
-            root: __dirname,
             path: 'service1/folder/index.html',
-            tocDir: join(__dirname, 'service1'),
-        });
-        expect(platformless(root.toString())).toMatchSnapshot();
-    });
-});
-
-describe('Make image sources relative from the single page file', () => {
-    test('Image sources should not be replaced if file is root', () => {
-        const content = [
-            `<img src="_assets/index.png" alt="test">`,
-            `<img src="../../_assets/index.png" alt="test">`,
-        ].join('\n');
-        const root = parse(content);
-        replaceImages(root, {
-            root: __dirname,
-            path: 'index.html',
-            tocDir: __dirname,
-        });
-        expect(platformless(root.toString())).toMatchSnapshot();
-    });
-
-    test('Image sources should be replaced if the file is not root', () => {
-        const content = [
-            `<img src="_assets/index.png" alt="test">`,
-            `<img src="../../_assets/index.png" alt="test">`,
-        ].join('\n');
-        const root = parse(content);
-        replaceImages(root, {
-            root: __dirname,
-            path: 'folder/index.html',
-            tocDir: __dirname,
-        });
-        const result = root.toString();
-        expect(platformless(result)).toMatchSnapshot();
-    });
-
-    test('External image sources should not be replaced', () => {
-        const content = '<img src="https://ydocs.tech/favicon.png" alt="test">';
-        const root = parse(content);
-        replaceImages(root, {
-            root: __dirname,
-            path: 'index.html',
-            tocDir: __dirname,
+            tocDir: 'service1',
         });
         expect(platformless(root.toString())).toMatchSnapshot();
     });

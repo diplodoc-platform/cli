@@ -74,5 +74,5 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     shell.mkdir('-p', SEARCH_LANGS_OUTPUT);
     shell.cp('-f', SEARCH_API, SEARCH_API_OUTPUT);
-    shell.cp('-f', join(dirname(SEARCH_LANGS), '*'), SEARCH_LANGS_OUTPUT);
+    shell.cp('-f', join(dirname(SEARCH_LANGS), '*.js'), SEARCH_LANGS_OUTPUT);
 });

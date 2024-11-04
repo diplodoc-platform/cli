@@ -25,14 +25,18 @@ function relativeTo(root: string, path: string) {
     root = toUrl(root);
     path = toUrl(path);
 
-    return path.replace(root + '/', '');
+    if (root && path.startsWith(root + '/')) {
+        path = path.replace(root + '/', '');
+    }
+
+    return path;
 }
 
 function all(root: HTMLElement, selector: string): HTMLElement[] {
     return Array.from(root.querySelectorAll(selector));
 }
 
-function decreaseHeadingLevels(root: HTMLElement) {
+export function decreaseHeadingLevels(root: HTMLElement) {
     const headersSelector = 'h1, h2, h3, h4, h5';
 
     root.querySelectorAll(headersSelector).forEach((node) => {
@@ -43,7 +47,7 @@ function decreaseHeadingLevels(root: HTMLElement) {
     });
 }
 
-function tryFixFirstPageHeader(root: HTMLElement) {
+export function tryFixFirstPageHeader(root: HTMLElement) {
     const firstPageHeader = root.querySelector(HEADERS_SELECTOR);
     if (!firstPageHeader || firstPageHeader.rawTagName === 'h1') {
         return;
@@ -52,19 +56,20 @@ function tryFixFirstPageHeader(root: HTMLElement) {
     firstPageHeader.rawTagName = 'h1';
 }
 
-function replaceLinks(rootEl: HTMLElement, options: PreprocessSinglePageOptions) {
+export function replaceLinks(root: HTMLElement, options: PreprocessSinglePageOptions) {
     const {path, tocDir} = options;
 
-    for (const node of all(rootEl, 'a:not(.yfm-anchor):not([target="_blank"])')) {
+    for (const node of all(root, 'a:not(.yfm-anchor):not([target="_blank"])')) {
         const href = node.getAttribute('href') || '';
         const linkFullPath = join(dirname(path), href);
 
-        // TODO: This is wrong check
+        // TODO: isLinkOutOfToc is wrong check
         // we need to to something like TocService.getForPath
         // and then compare with local toc path.
         const isLinkOutOfToc = !linkFullPath.startsWith(tocDir);
+        const isLinkOutOfRoot = linkFullPath.startsWith('../');
 
-        if (isLinkOutOfToc) {
+        if (isLinkOutOfToc || isLinkOutOfRoot) {
             return;
         }
 
@@ -80,12 +85,12 @@ function prepareAnchorAttrs(node: HTMLElement, pathname: string, page: string) {
         }
 
         if (name === 'id') {
-            node.setAttribute(name, `#${page}_${value}`);
+            node.setAttribute(name, `${page}_${value}`);
         }
     }
 }
 
-function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessSinglePageOptions) {
+export function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessSinglePageOptions) {
     const {path, tocDir} = options;
 
     const url = getSinglePageUrl(tocDir, path);
@@ -111,18 +116,29 @@ function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessSinglePage
     }
 }
 
-function addMainTitle(root: HTMLElement, options: PreprocessSinglePageOptions) {
+export function addMainTitle(root: HTMLElement, options: PreprocessSinglePageOptions) {
     if (options.title) {
         root.insertAdjacentHTML('afterbegin', `<h1>${options.title}</h1>`);
     }
 }
 
 function getAnchorId(tocDir: string, path: string) {
-    return relativeTo(tocDir, toUrl(dropExt(path))).replace(/[#/]/g, '_');
+    const [pathname, hash] = path.split('#');
+    const url = toUrl(dropExt(pathname)) + (hash ? '#' + hash : '');
+
+    // TODO: encodeURIComponent will be best option
+    return relativeTo(tocDir, url.replace(/\.\.\/|[/#]/g, '_'));
 }
 
 export function getSinglePageUrl(tocDir: string, path: string) {
-    return toUrl(tocDir) + '/single-page.html#' + getAnchorId(tocDir, path);
+    const prefix = toUrl(tocDir) || '.';
+    const suffix = getAnchorId(tocDir, path);
+
+    if (prefix === '.') {
+        return '#' + suffix;
+    }
+
+    return prefix + '/single-page.html#' + suffix;
 }
 
 export function joinSinglePageResults(

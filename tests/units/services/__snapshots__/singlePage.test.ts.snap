@@ -1,37 +1,37 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Add a page prefix to anchors Should be added 1`] = `
-<h1 id="_index_first-header"
-    data-original-article="/index.html"
+<h1 id="index_first-header"
+    data-original-article="index.html"
 >
   <a class="yfm-anchor"
-     href="#_index_first-header"
-     id="_index_first-header"
+     href="#index_first-header"
+     id="index_first-header"
   >
   </a>
   <a class="yfm-anchor"
      aria-hidden="true"
-     href="#_index"
-     id="_index"
+     href="#index"
+     id="index"
   >
   </a>
 </h1>
-<h2 id="_index_second-header">
+<h2 id="index_second-header">
   <a class="yfm-anchor"
-     href="#_index_second-header"
-     id="_index_second-header"
+     href="#index_second-header"
+     id="index_second-header"
   >
   </a>
 </h2>
 `;
 
 exports[`Adding the main title Should be added the page attributes 1`] = `
-<h1 data-original-article="/about.html">
+<h1 data-original-article="about.html">
   Title
   <a class="yfm-anchor"
      aria-hidden="true"
-     href="#_about"
-     id="_about"
+     href="#about"
+     id="about"
   >
   </a>
 </h1>
@@ -62,30 +62,6 @@ exports[`Decrease heading levels Should work 1`] = `
 </h6>
 `;
 
-exports[`Make image sources relative from the single page file External image sources should not be replaced 1`] = `
-<img src="https://ydocs.tech/favicon.png"
-     alt="test"
->
-`;
-
-exports[`Make image sources relative from the single page file Image sources should be replaced if the file is not root 1`] = `
-<img src="folder/_assets/index.png"
-     alt="test"
->
-<img src="../_assets/index.png"
-     alt="test"
->
-`;
-
-exports[`Make image sources relative from the single page file Image sources should not be replaced if file is root 1`] = `
-<img src="_assets/index.png"
-     alt="test"
->
-<img src="../../_assets/index.png"
-     alt="test"
->
-`;
-
 exports[`Make links to pages as hashes to sections in a single page External links should not be replaced 1`] = `
 <a href="https://ydocs.tech"
    target="_blank"
@@ -103,21 +79,21 @@ exports[`Make links to pages as hashes to sections in a single page Should be re
 `;
 
 exports[`Make links to pages as hashes to sections in a single page Should be replaced if file is root 1`] = `
-<a href="#_folder_index">
+<a href="#folder_index">
 </a>
-<a href="#_folder_index_third-header">
+<a href="#folder_index_third-header">
 </a>
-<a href="#_index">
+<a href="#index">
 </a>
 `;
 
 exports[`Make links to pages as hashes to sections in a single page Should not be replaced as hash if a link is out of the root folder 1`] = `
-<a href="../index.html">
+<a href="../../index.html">
 </a>
 `;
 
 exports[`Make links to pages as hashes to sections in a single page Should not be replaced as hash if a link is out of the single page (but not out of the root) 1`] = `
-<a href="../service2/index.html">
+<a href="../../service2/index.html">
 </a>
 `;
 
