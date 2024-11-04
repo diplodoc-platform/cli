@@ -94,9 +94,9 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"title":"Documentation | Documentation","leading":true},"router":{"pathname":"index.html","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -158,11 +158,11 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page.html","depth":1},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -224,11 +224,11 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"Documentation","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"project/config.html","depth":2},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
-    <script src="./toc.js"
+    <script src="toc.js"
             type="application/javascript"
     >
     </script>
@@ -248,7 +248,7 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}],"base":".","deepBase":0};"`;
+exports[`Allow load custom resources md2html with metadata 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
 
 exports[`Allow load custom resources md2md with metadata 1`] = `
 "[
@@ -308,7 +308,5 @@ items:
     href: page.md
   - name: Config
     href: project/config.md
-base: .
-deepBase: 0
 "
 `;

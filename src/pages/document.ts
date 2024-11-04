@@ -3,7 +3,7 @@ import {join} from 'path';
 import {BUNDLE_FOLDER, CARRIAGE_RETURN, CUSTOM_STYLE, RTL_LANGS} from '../constants';
 import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
-import {getDepthPath} from '~/utils';
+import {getDepthPath} from '../utils';
 
 import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';

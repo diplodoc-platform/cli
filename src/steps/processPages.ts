@@ -171,7 +171,7 @@ async function saveSinglePages() {
                     relativeTocDir,
                 );
 
-                const toc = TocService.getForPath(relativeTocDir + '/toc.yaml')[1] as YfmToc;
+                const toc = TocService.getForPath(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
                 const lang = configLang ?? Lang.RU;
                 const langs = configLangs?.length ? configLangs : [lang];
 
@@ -197,7 +197,7 @@ async function saveSinglePages() {
                 const singlePageContent = generateStaticMarkup(
                     pageData,
                     join(relativeTocDir, 'single-page-toc'),
-                    toc.title as string || '',
+                    (toc.title as string) || '',
                 );
 
                 writeFileSync(singlePageFn, singlePageContent);

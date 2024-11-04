@@ -67,8 +67,8 @@ async function release() {
         const dir = outputDir(lang);
 
         mkdirSync(dir, {recursive: true});
-        writeFileSync(indexLink(lang), index, 'utf8');
-        writeFileSync(registryLink(lang), registry, 'utf8');
+        writeFileSync(indexLink(lang), index as string, 'utf8');
+        writeFileSync(registryLink(lang), registry as string, 'utf8');
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
 
         if (isLocalSearchEnabled() && langs.includes(lang)) {
