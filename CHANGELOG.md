@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.42.1](https://github.com/diplodoc-platform/cli/compare/v4.42.0...v4.42.1) (2024-11-05)
+
+
+### Bug Fixes
+
+* Fix extracted toc for single page mode ([5183022](https://github.com/diplodoc-platform/cli/commit/5183022797a6c8fd078ce97d961fb98d081bdab3))
+* Fix page title computation ([f9135ce](https://github.com/diplodoc-platform/cli/commit/f9135ce61086b03bba9dcfd203c3b1234ae1a0cd))
+* Fix tests ([224774b](https://github.com/diplodoc-platform/cli/commit/224774b9b8cdb29c906d157bf23e179a7404c61c))
+* Fix tests ([58fe2a3](https://github.com/diplodoc-platform/cli/commit/58fe2a3b95f18a5702cf9ad991b6ec5baa4781ae))
+* Umpdate mermaid extension ([7d97c32](https://github.com/diplodoc-platform/cli/commit/7d97c32594577a33b26f2f6db524e211e167bd9f))
+* Update client ([f34fb16](https://github.com/diplodoc-platform/cli/commit/f34fb16deccde245c8d55953decf06f65efa0318))
+* Update client ([ff73944](https://github.com/diplodoc-platform/cli/commit/ff7394443a64b23dad7d8539d6ec00cedae6ced7))
+* Update search ([303b688](https://github.com/diplodoc-platform/cli/commit/303b68808309164b045215314d0f57cbd50b297a))
+
 ## [4.42.0](https://github.com/diplodoc-platform/cli/compare/v4.41.0...v4.42.0) (2024-10-29)
 
 
