@@ -145,22 +145,38 @@ async function loadFile<T = string | JSONObject>(path: string): Promise<T> {
  * If `$schema` attribute not found anc precise schema not resolved,
  * we think that current yaml is a part of complex toc.yaml
  */
-export async function resolveSchemas(path: string) {
+export async function resolveSchemas({
+    content,
+    path,
+}: {
+    content: string | JSONObject;
+    path: string;
+}) {
+    if (typeof content === 'object' && content?.blocks) {
+        return {
+            schemas: [await loadFile(join(ROOT, 'schemas/page-constructor-schema.json'))],
+            ajvOptions: {
+                keywords: 'select',
+                extendWithSchemas: [],
+            },
+        };
+    }
+
     if (path.endsWith('toc.yaml')) {
-        return [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))];
+        return {schemas: [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))]};
     }
 
     if (path.endsWith('index.yaml')) {
-        return [await loadFile(join(ROOT, 'schemas/leading-schema.yaml'))];
+        return {schemas: [await loadFile(join(ROOT, 'schemas/leading-schema.yaml'))]};
     }
 
     if (path.endsWith('presets.yaml')) {
-        return [await loadFile(join(ROOT, 'schemas/presets-schema.yaml'))];
+        return {schemas: [await loadFile(join(ROOT, 'schemas/presets-schema.yaml'))]};
     }
 
     if (path.endsWith('redirects.yaml')) {
-        return [];
+        return {schemas: []};
     }
 
-    return [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))];
+    return {schemas: [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))]};
 }

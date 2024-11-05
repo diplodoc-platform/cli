@@ -154,13 +154,17 @@ function pipeline(
 
         await Promise.all([skeleton.load(), xliff.load()]);
 
-        const schemas = await resolveSchemas(file.path);
         const content = new FileLoader(join(output, file.path));
+        const {schemas, ajvOptions} = await resolveSchemas({
+            content: content.data,
+            path: file.path,
+        });
 
         const result = compose(skeleton.data, xliff.data, {
             useExperimentalParser,
             useSource,
             schemas,
+            ajvOptions,
         });
         let contentData = result;
         if (useExperimentalParser && typeof result === 'object') {

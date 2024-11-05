@@ -278,7 +278,7 @@ function processor(params: TranslatorParams, translate: Translate) {
             return;
         }
 
-        const schemas = await resolveSchemas(path);
+        const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
         const {units, skeleton} = extract(content.data, {
             compact: true,
             source: {
@@ -290,6 +290,7 @@ function processor(params: TranslatorParams, translate: Translate) {
                 locale: 'US',
             },
             schemas,
+            ajvOptions,
         });
 
         if (!units.length) {
@@ -299,7 +300,7 @@ function processor(params: TranslatorParams, translate: Translate) {
 
         const parts = await translate(path, units);
 
-        content.set(compose(skeleton, parts, {useSource: true, schemas}));
+        content.set(compose(skeleton, parts, {useSource: true, schemas, ajvOptions}));
 
         await content.dump(output);
     };
