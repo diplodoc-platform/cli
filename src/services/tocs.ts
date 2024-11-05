@@ -144,8 +144,15 @@ async function processTocItems(
 }
 
 function getForPath(path: string): [string | null, YfmToc | null] {
-    const tocPath = paths.get(path) || null;
-    const tocData = storage.get(path) || null;
+    let tocPath = paths.get(path) || null;
+    let tocData = storage.get(path) || null;
+
+    // TODO: normalize paths on add
+    if (!tocData && path.endsWith('.md')) {
+        path = path.replace('.md', '');
+        tocPath = paths.get(path) || null;
+        tocData = storage.get(path) || null;
+    }
 
     return [tocPath, tocData];
 }
