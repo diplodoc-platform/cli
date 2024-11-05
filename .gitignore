@@ -4,6 +4,7 @@ input
 output
 output-html
 !tests/**/input
+schemas/page-constructor-schema.json
 
 # libraries
 npm-debug.log

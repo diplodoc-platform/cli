@@ -70,6 +70,7 @@
     "@diplodoc/search-extension": "^1.1.5",
     "@diplodoc/transform": "^4.34.0",
     "@diplodoc/tsconfig": "^1.0.2",
+    "@gravity-ui/page-constructor": "^5.28.6",
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",

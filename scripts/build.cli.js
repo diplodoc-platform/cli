@@ -23,6 +23,7 @@ const assets = [
 ];
 
 const {version, dependencies} = require('../package.json');
+const generatePageConstuctorSchema = require('./generate-pc-schema');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -41,6 +42,8 @@ const commonConfig = {
         VERSION: JSON.stringify(version),
     },
 };
+
+generatePageConstuctorSchema();
 
 const builds = [
     [['src/index.ts'], 'build/index.js'],

@@ -213,13 +213,14 @@ function pipeline(params: PipelineParameters) {
             );
         }
 
-        const schemas = await resolveSchemas(path);
+        const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
         const {xliff, skeleton, units} = extract(content.data, {
             originalFile: path,
             source,
             target,
             schemas,
             useExperimentalParser,
+            ajvOptions,
         });
 
         let xliffResult = xliff;
