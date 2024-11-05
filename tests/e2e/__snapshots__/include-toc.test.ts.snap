@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: filelist 1`] = `
 "[
   "product1/_includes/inc.md",
   "product1/article1.md",
@@ -16,14 +16,14 @@ exports[`Include toc Nested toc inclusions with mixed including modes 1`] = `
 ]"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 2`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product1/_includes/inc.md 1`] = `
 "---
 sourcePath: product1/core/_includes/inc.md
 ---
 This is the core include."
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 3`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product1/article1.md 1`] = `
 "---
 sourcePath: product1/core/article1.md
 ---
@@ -33,7 +33,7 @@ This is the core content of Article 1.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 4`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product1/toc.yaml 1`] = `
 "title: Product 1 title
 items:
   - name: Article1
@@ -41,7 +41,7 @@ items:
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 5`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/_includes/inc.md 1`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -49,7 +49,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 6`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/article1.md 1`] = `
 "---
 sourcePath: product2/overlay1/product/article1.md
 ---
@@ -59,7 +59,7 @@ This is the overlay content of Article 1 for product 2.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 7`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/_includes/inc.md 1`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -67,7 +67,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 8`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/article1.md 1`] = `
 "---
 sourcePath: product2/overlay2/product/article1.md
 ---
@@ -77,7 +77,7 @@ This is the overlay number #2  of Article 1 content for product 2.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 9`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/_includes/inc.md 1`] = `
 "---
 sourcePath: product2/core/_includes/inc.md
 ---
@@ -85,7 +85,7 @@ This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 10`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/article1.md 1`] = `
 "---
 sourcePath: product2/core/article1.md
 ---
@@ -95,14 +95,14 @@ This is the core content of Article 1.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 11`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/p2.md 1`] = `
 "This is the product 2 specific article.
 
 Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 12`] = `
+exports[`Include toc Nested toc inclusions with mixed including modes: product2/toc.yaml 1`] = `
 "title: Product 2 title
 items:
   - name: P2 Article
@@ -122,7 +122,12 @@ items:
 "
 `;
 
-exports[`Include toc Toc is included in link mode 1`] = `
+exports[`Include toc Toc is included in link mode: a1.md 1`] = `
+"This is the /a1.md file content.
+"
+`;
+
+exports[`Include toc Toc is included in link mode: filelist 1`] = `
 "[
   "a1.md",
   "folder1/a1.md",
@@ -131,22 +136,17 @@ exports[`Include toc Toc is included in link mode 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc is included in link mode 2`] = `
-"This is the /a1.md file content.
-"
-`;
-
-exports[`Include toc Toc is included in link mode 3`] = `
+exports[`Include toc Toc is included in link mode: folder1/a1.md 1`] = `
 "This is the /folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode 4`] = `
+exports[`Include toc Toc is included in link mode: folder1/folder2/a1.md 1`] = `
 "This is the /folder1/folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode 5`] = `
+exports[`Include toc Toc is included in link mode: toc.yaml 1`] = `
 "items:
   - name: A1
     href: a1.md
@@ -161,33 +161,17 @@ exports[`Include toc Toc is included in link mode 5`] = `
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 1`] = `
-"[
-  ".yfm",
-  "file1.md",
-  "fileA.md",
-  "fileB.md",
-  "fileC.md",
-  "fileX.md",
-  "folder/fileA.md",
-  "folder/fileB.md",
-  "folder/fileC.md",
-  "folder/folder/fileC.md",
-  "toc.yaml"
-]"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section 2`] = `
+exports[`Include toc Toc is included inline, not as a new section: .yfm 1`] = `
 "applyPresets: true
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 3`] = `
+exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] = `
 "# File 1
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 4`] = `
+exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] = `
 "---
 title: File A
 description: YFM description
@@ -203,7 +187,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 5`] = `
+exports[`Include toc Toc is included inline, not as a new section: fileB.md 1`] = `
 "---
 sourcePath: folder/fileB.md
 ---
@@ -219,7 +203,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 6`] = `
+exports[`Include toc Toc is included inline, not as a new section: fileC.md 1`] = `
 "---
 sourcePath: folder/folder/fileC.md
 ---
@@ -227,12 +211,28 @@ sourcePath: folder/folder/fileC.md
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 7`] = `
+exports[`Include toc Toc is included inline, not as a new section: fileX.md 1`] = `
 "# File X
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 8`] = `
+exports[`Include toc Toc is included inline, not as a new section: filelist 1`] = `
+"[
+  ".yfm",
+  "file1.md",
+  "fileA.md",
+  "fileB.md",
+  "fileC.md",
+  "fileX.md",
+  "folder/fileA.md",
+  "folder/fileB.md",
+  "folder/fileC.md",
+  "folder/folder/fileC.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc Toc is included inline, not as a new section: folder/fileA.md 1`] = `
 "---
 title: File A
 description: YFM description
@@ -247,7 +247,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 9`] = `
+exports[`Include toc Toc is included inline, not as a new section: folder/fileB.md 1`] = `
 "# File B
 
 Lorem Ipsum is simply dummy text of the printing and typesetting industry.
@@ -260,7 +260,7 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 10`] = `
+exports[`Include toc Toc is included inline, not as a new section: folder/fileC.md 1`] = `
 "---
 sourcePath: folder/folder/fileC.md
 ---
@@ -268,12 +268,12 @@ sourcePath: folder/folder/fileC.md
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 11`] = `
+exports[`Include toc Toc is included inline, not as a new section: folder/folder/fileC.md 1`] = `
 "# File C
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section 12`] = `
+exports[`Include toc Toc is included inline, not as a new section: toc.yaml 1`] = `
 "items:
   - name: Name1
     href: file1.md
@@ -288,7 +288,12 @@ exports[`Include toc Toc is included inline, not as a new section 12`] = `
 "
 `;
 
-exports[`Include toc Toc with expressions 1`] = `
+exports[`Include toc Toc with expressions: a1.md 1`] = `
+"This is the /a1.md file content.
+"
+`;
+
+exports[`Include toc Toc with expressions: filelist 1`] = `
 "[
   "a1.md",
   "index.yaml",
@@ -296,12 +301,7 @@ exports[`Include toc Toc with expressions 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc with expressions 2`] = `
-"This is the /a1.md file content.
-"
-`;
-
-exports[`Include toc Toc with expressions 3`] = `
+exports[`Include toc Toc with expressions: index.yaml 1`] = `
 "title: Title A
 description:
   - Desc A
@@ -314,7 +314,7 @@ links:
 "
 `;
 
-exports[`Include toc Toc with expressions 4`] = `
+exports[`Include toc Toc with expressions: toc.yaml 1`] = `
 "title: Title A
 href: index.yaml
 items:
