@@ -61,7 +61,7 @@ export function replaceLinks(root: HTMLElement, options: PreprocessSinglePageOpt
 
     for (const node of all(root, 'a:not(.yfm-anchor):not([target="_blank"])')) {
         const href = node.getAttribute('href') || '';
-        const linkFullPath = join(dirname(path), href);
+        const linkFullPath = toUrl(join(dirname(path), href));
 
         // TODO: isLinkOutOfToc is wrong check
         // we need to to something like TocService.getForPath
@@ -147,6 +147,8 @@ export function joinSinglePageResults(
     tocDir: string,
 ): string {
     const delimeter = `<hr class="yfm-page__delimeter">`;
+
+    tocDir = toUrl(tocDir);
 
     return singlePageResults
         .filter(({content}) => content)

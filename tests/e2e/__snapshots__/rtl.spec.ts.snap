@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 1`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: filelist 1`] = `
 "[
   "_bundle/search-async-0",
   "_bundle/app-css-1",
@@ -48,7 +48,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 ]"
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 2`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: index.html 1`] = `
 <!DOCTYPE html>
 <html lang="he"
       dir="rtl"
@@ -103,7 +103,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 3`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: page.html 1`] = `
 <!DOCTYPE html>
 <html lang="he"
       dir="rtl"
@@ -160,61 +160,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}]};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"}]};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 1`] = `
-"[
-  "_bundle/search-async-0",
-  "_bundle/app-css-1",
-  "_bundle/app-js-1",
-  "_bundle/search-css-2",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search/index.js",
-  "_bundle/search/langs/ar.js",
-  "_bundle/search/langs/da.js",
-  "_bundle/search/langs/de.js",
-  "_bundle/search/langs/du.js",
-  "_bundle/search/langs/el.js",
-  "_bundle/search/langs/es.js",
-  "_bundle/search/langs/fi.js",
-  "_bundle/search/langs/fr.js",
-  "_bundle/search/langs/he.js",
-  "_bundle/search/langs/hi.js",
-  "_bundle/search/langs/hu.js",
-  "_bundle/search/langs/hy.js",
-  "_bundle/search/langs/index.js",
-  "_bundle/search/langs/it.js",
-  "_bundle/search/langs/ja.js",
-  "_bundle/search/langs/jp.js",
-  "_bundle/search/langs/kn.js",
-  "_bundle/search/langs/ko.js",
-  "_bundle/search/langs/nl.js",
-  "_bundle/search/langs/no.js",
-  "_bundle/search/langs/pt.js",
-  "_bundle/search/langs/ro.js",
-  "_bundle/search/langs/ru.js",
-  "_bundle/search/langs/sa.js",
-  "_bundle/search/langs/sv.js",
-  "_bundle/search/langs/ta.js",
-  "_bundle/search/langs/te.js",
-  "_bundle/search/langs/th.js",
-  "_bundle/search/langs/tr.js",
-  "_bundle/search/langs/vi.js",
-  "_bundle/search-css-0",
-  "_bundle/search-js-2",
-  "_bundle/search-css-1",
-  "ar/index.html",
-  "ar/page.html",
-  "ar/toc.js",
-  "en/index.html",
-  "en/page.html",
-  "en/toc.js",
-  "index.html"
-]"
-`;
-
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 2`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/index.html 1`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"
@@ -269,7 +217,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 3`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/page.html 1`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"
@@ -326,9 +274,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"Documentation-RANDOM"}]};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"Documentation-RANDOM"}]};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 5`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/index.html 1`] = `
 <!DOCTYPE html>
 <html lang="en"
       dir="ltr"
@@ -389,7 +337,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 6`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/page.html 1`] = `
 <!DOCTYPE html>
 <html lang="en"
       dir="ltr"
@@ -449,9 +397,61 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 7`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"Documentation-RANDOM"}]};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"Documentation-RANDOM"}]};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs 8`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: filelist 1`] = `
+"[
+  "_bundle/search-async-0",
+  "_bundle/app-css-1",
+  "_bundle/app-js-1",
+  "_bundle/search-css-2",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search/index.js",
+  "_bundle/search/langs/ar.js",
+  "_bundle/search/langs/da.js",
+  "_bundle/search/langs/de.js",
+  "_bundle/search/langs/du.js",
+  "_bundle/search/langs/el.js",
+  "_bundle/search/langs/es.js",
+  "_bundle/search/langs/fi.js",
+  "_bundle/search/langs/fr.js",
+  "_bundle/search/langs/he.js",
+  "_bundle/search/langs/hi.js",
+  "_bundle/search/langs/hu.js",
+  "_bundle/search/langs/hy.js",
+  "_bundle/search/langs/index.js",
+  "_bundle/search/langs/it.js",
+  "_bundle/search/langs/ja.js",
+  "_bundle/search/langs/jp.js",
+  "_bundle/search/langs/kn.js",
+  "_bundle/search/langs/ko.js",
+  "_bundle/search/langs/nl.js",
+  "_bundle/search/langs/no.js",
+  "_bundle/search/langs/pt.js",
+  "_bundle/search/langs/ro.js",
+  "_bundle/search/langs/ru.js",
+  "_bundle/search/langs/sa.js",
+  "_bundle/search/langs/sv.js",
+  "_bundle/search/langs/ta.js",
+  "_bundle/search/langs/te.js",
+  "_bundle/search/langs/th.js",
+  "_bundle/search/langs/tr.js",
+  "_bundle/search/langs/vi.js",
+  "_bundle/search-css-0",
+  "_bundle/search-js-2",
+  "_bundle/search-css-1",
+  "ar/index.html",
+  "ar/page.html",
+  "ar/toc.js",
+  "en/index.html",
+  "en/page.html",
+  "en/toc.js",
+  "index.html"
+]"
+`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: index.html 1`] = `
 <!DOCTYPE html>
 <html lang="ar"
       dir="rtl"

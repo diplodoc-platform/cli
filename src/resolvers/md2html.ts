@@ -77,7 +77,7 @@ const getFileProps = async (options: ResolverOptions) => {
 
     const data = await getFileData(options);
 
-    const tocBaseLang = inputPath.split('/')[0];
+    const tocBaseLang = inputPath.replace(/\\/g, '/').split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
     const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Allow load custom resources md2html with metadata 1`] = `
+exports[`Allow load custom resources md2html with metadata: filelist 1`] = `
 "[
   "_bundle/search-async-0",
   "_bundle/app-css-1",
@@ -49,7 +49,7 @@ exports[`Allow load custom resources md2html with metadata 1`] = `
 ]"
 `;
 
-exports[`Allow load custom resources md2html with metadata 2`] = `
+exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -116,7 +116,7 @@ exports[`Allow load custom resources md2html with metadata 2`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 3`] = `
+exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -182,7 +182,7 @@ exports[`Allow load custom resources md2html with metadata 3`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 4`] = `
+exports[`Allow load custom resources md2html with metadata: project/config.html 1`] = `
 <!DOCTYPE html>
 <html lang="ru"
       dir="ltr"
@@ -248,9 +248,9 @@ exports[`Allow load custom resources md2html with metadata 4`] = `
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
+exports[`Allow load custom resources md2html with metadata: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
 
-exports[`Allow load custom resources md2md with metadata 1`] = `
+exports[`Allow load custom resources md2md with metadata: filelist 1`] = `
 "[
   "index.yaml",
   "page.md",
@@ -259,7 +259,7 @@ exports[`Allow load custom resources md2md with metadata 1`] = `
 ]"
 `;
 
-exports[`Allow load custom resources md2md with metadata 2`] = `
+exports[`Allow load custom resources md2md with metadata: index.yaml 1`] = `
 "title: Documentation
 description: ''
 meta:
@@ -272,7 +272,7 @@ links:
 "
 `;
 
-exports[`Allow load custom resources md2md with metadata 3`] = `
+exports[`Allow load custom resources md2md with metadata: page.md 1`] = `
 "---
 metadata:
   - name: yfm
@@ -286,7 +286,7 @@ metadata:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with metadata 4`] = `
+exports[`Allow load custom resources md2md with metadata: project/config.md 1`] = `
 "---
 metadata:
   - name: yfm
@@ -300,7 +300,7 @@ metadata:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with metadata 5`] = `
+exports[`Allow load custom resources md2md with metadata: toc.yaml 1`] = `
 "title: Documentation
 href: index.yaml
 items:

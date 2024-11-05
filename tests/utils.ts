@@ -41,13 +41,13 @@ export function compareDirectories(outputPath: string) {
         includeBasePath: false,
     });
 
-    expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot();
+    expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
     filesFromOutput
         .filter(uselessFile)
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath));
-            expect(content).toMatchSnapshot();
+            expect(content).toMatchSnapshot(filePath);
         });
 }
 
