@@ -154,6 +154,12 @@ function getForPath(path: string): [string | null, YfmToc | null] {
         tocData = storage.get(path) || null;
     }
 
+    if (!tocData && path.endsWith('index.yaml')) {
+        path = path.replace('index.yaml', '');
+        tocPath = paths.get(path) || null;
+        tocData = storage.get(path) || null;
+    }
+
     return [tocPath, tocData];
 }
 
