@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.42.3](https://github.com/diplodoc-platform/cli/compare/v4.42.2...v4.42.3) (2024-11-05)
+
+
+### Bug Fixes
+
+* Fix dir creation on toc.js save ([c6fe709](https://github.com/diplodoc-platform/cli/commit/c6fe709d6112b4330783103c63bf86ad947a3129))
+* Fix toc resolving for dir paths ([9099fb9](https://github.com/diplodoc-platform/cli/commit/9099fb9ec80cd3be54bc37d16df9ea136ec3c0a2))
+
 ## [4.42.2](https://github.com/diplodoc-platform/cli/compare/v4.42.1...v4.42.2) (2024-11-05)
 
 
