@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.42.2](https://github.com/diplodoc-platform/cli/compare/v4.42.1...v4.42.2) (2024-11-05)
+
+
+### Bug Fixes
+
+* Fix missed paths in toc ([739f9e3](https://github.com/diplodoc-platform/cli/commit/739f9e36b59700bc11da91be876413b0559674ee))
+
 ## [4.42.1](https://github.com/diplodoc-platform/cli/compare/v4.42.0...v4.42.1) (2024-11-05)
 
 
