@@ -1,6 +1,6 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import {basename, dirname, extname, join, resolve} from 'path';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
@@ -136,6 +136,7 @@ async function saveTocData(transform: (toc: YfmToc, tocDir: string) => YfmToc, f
 
     for (const [path, toc] of tocs) {
         const outputPath = join(output, dirname(path), filename + '.js');
+        mkdirSync(dirname(outputPath), {recursive: true});
         writeFileSync(
             outputPath,
             dedent`
