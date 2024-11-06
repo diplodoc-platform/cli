@@ -16,11 +16,12 @@ export function convertBackSlashToSlash(path: string): string {
 }
 
 export function getDepth(path: string) {
-    return path.replace(/\\/g, '/').split('/').length;
+    return path
+        .replace(/\\/g, '/')
+        .replace(/^\.\/|\/$/g, '')
+        .split('/').length;
 }
 
-export function getDepthPath(path: string | number) {
-    const depth = typeof path === 'number' ? path : getDepth(path) - 1;
-
+export function getDepthPath(depth: number) {
     return Array(depth).fill('../').join('') || './';
 }

@@ -18,7 +18,6 @@ import {ArgvService, PluginService, SearchService, TocService} from '../services
 import {getVCSMetadata} from '../services/metadata';
 import {
     getDepth,
-    getDepthPath,
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
@@ -229,7 +228,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         vars,
         root,
         path,
-        assetsPublicPath: getDepthPath(dirname(filePath)),
+        assetsPublicPath: './',
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
         extractTitle: true,
