@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.42.5](https://github.com/diplodoc-platform/cli/compare/v4.42.4...v4.42.5) (2024-11-06)
+
+
+### Bug Fixes
+
+* Fix images path resolution ([f214db1](https://github.com/diplodoc-platform/cli/commit/f214db16c6c6c56f41aab2033cfc150722eec486))
+
 ## [4.42.4](https://github.com/diplodoc-platform/cli/compare/v4.42.3...v4.42.4) (2024-11-06)
 
 
