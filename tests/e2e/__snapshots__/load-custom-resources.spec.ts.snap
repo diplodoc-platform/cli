@@ -68,6 +68,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <meta name="noIndex"
           content="true"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -100,7 +103,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -133,6 +136,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <meta name="yfm"
           content="builder"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -165,7 +171,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -197,6 +203,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -229,7 +238,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -391,6 +400,9 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
     <meta name="noIndex"
           content="true"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -423,7 +435,7 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -456,6 +468,9 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     <meta name="yfm"
           content="builder"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -488,7 +503,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -520,6 +535,9 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -552,7 +570,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>

@@ -60,12 +60,14 @@ const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions
     fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
 
     if (allowCustomResources) {
-        const {script, style} = metadata?.resources || {};
+        const {script, style, csp} = metadata?.resources || {};
         fileMeta.style = (fileMeta.style || []).concat(style || []);
         fileMeta.script = (fileMeta.script || []).concat(script || []);
+        fileMeta.csp = (fileMeta.csp || []).concat(csp || []);
     } else {
         fileMeta.style = [];
         fileMeta.script = [];
+        fileMeta.csp = [];
     }
 
     return {...result, meta: fileMeta};

@@ -56,6 +56,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -81,7 +84,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"he","langs":["he"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}]},"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"he","langs":["he"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -111,6 +114,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -136,7 +142,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>תיעוד
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]};
     </script>
@@ -170,6 +176,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -195,7 +204,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}]},"meta":{"metadata":[],"style":[],"script":[]},"title":"","leading":true},"router":{"pathname":"ar/index","depth":2},"lang":"ar","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}]},"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"title":"","leading":true},"router":{"pathname":"ar/index","depth":2},"lang":"ar","langs":["ar","en"]};
     </script>
     <script src="ar/toc.js"
             type="application/javascript"
@@ -225,6 +234,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -250,7 +262,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>توثيق
       </p>/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]};
     </script>
@@ -290,6 +302,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <meta name="noIndex"
           content="true"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -315,7 +330,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[]},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":[],"script":[],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]};
     </script>
     <script src="en/toc.js"
             type="application/javascript"
@@ -348,6 +363,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <meta name="yfm"
           content="builder"
     >
+    <meta name="csp"
+          content
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -373,7 +391,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]};
     </script>
