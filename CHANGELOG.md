@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.43.0](https://github.com/diplodoc-platform/cli/compare/v4.42.5...v4.43.0) (2024-11-06)
+
+
+### Features
+
+* support csp in cli ([5f3b820](https://github.com/diplodoc-platform/cli/commit/5f3b820364afbeb1a2cf0622672130b44ade3fb1))
+
 ## [4.42.5](https://github.com/diplodoc-platform/cli/compare/v4.42.4...v4.42.5) (2024-11-06)
 
 
