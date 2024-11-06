@@ -20,7 +20,7 @@ export function getDepth(path: string) {
 }
 
 export function getDepthPath(path: string | number) {
-    const depth = typeof path === 'number' ? path : getDepth(path);
+    const depth = typeof path === 'number' ? path : getDepth(path) - 1;
 
     return Array(depth).fill('../').join('') || './';
 }
