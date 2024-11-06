@@ -85,6 +85,7 @@ export enum IncludeMode {
 export enum ResourceType {
     style = 'style',
     script = 'script',
+    csp = 'csp',
 }
 
 export const YFM_PLUGINS = [
