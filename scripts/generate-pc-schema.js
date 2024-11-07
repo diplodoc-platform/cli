@@ -1,6 +1,4 @@
 const fs = require('fs');
-
-//TODO: server export for generateDefaultSchema in @gravity-ui/page-constructor 
 const {generateDefaultSchema} = require('@gravity-ui/page-constructor');
 
 function replaceField(obj, oldFieldName, newFieldName, newFieldValue) {
