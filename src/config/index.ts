@@ -4,29 +4,7 @@ import {Command as BaseCommand, Help as BaseHelp, Option} from 'commander';
 import {identity} from 'lodash';
 import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
-
-const getPadX = (string: string) => {
-    const match = /^(\s+)/.exec(string);
-    const pad = (match && match[1]) || '';
-
-    return new RegExp('^[\\s]{0,' + pad.length + '}');
-};
-
-export function trim(string: string | TemplateStringsArray): string {
-    let lines = Array.isArray(string) ? (string as string[]) : (string as string).split('\n');
-
-    let pad: RegExp;
-    if (lines[0].trim() === '') {
-        pad = getPadX(lines[1]);
-        lines = lines.slice(1);
-    } else {
-        pad = getPadX(lines[0]);
-    }
-
-    lines = lines.map((line) => line.replace(pad, ''));
-
-    return lines.join('\n').trim();
-}
+import {dedent} from 'ts-dedent';
 
 export function toArray(value: string | string[], previous: string | string[]) {
     value = ([] as string[]).concat(value);
@@ -256,13 +234,13 @@ export class Help extends BaseHelp {
     commandUsage(command: Command) {
         const usage = super.commandUsage(command);
 
-        return trim(usage.replace(/{{PROGRAM}}/g, cmd(command)));
+        return dedent(usage.replace(/{{PROGRAM}}/g, cmd(command)));
     }
 
     commandDescription(command: Command) {
         const desc = super.commandDescription(command);
 
-        return trim(desc.replace(/{{PROGRAM}}/g, cmd(command)));
+        return dedent(desc.replace(/{{PROGRAM}}/g, cmd(command)));
     }
 
     optionDescription(option: ExtendedOption) {
@@ -287,10 +265,10 @@ export class Help extends BaseHelp {
         }
 
         if (extraInfo.length > 0) {
-            return trim(option.description) + `\n\n${cyan(extraInfo.join(' '))}\n\n\n`;
+            return dedent(option.description) + `\n\n${cyan(extraInfo.join(' '))}\n\n\n`;
         }
 
-        return trim(option.description) + '\n\n\n';
+        return dedent(option.description) + '\n\n\n';
     }
 
     // Ugly method - copypasted from commander source

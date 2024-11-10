@@ -1,5 +1,7 @@
 import {cyan, gray} from 'chalk';
-import {option, trim} from '~/config';
+import {dedent} from 'ts-dedent';
+
+import {option} from '~/config';
 
 const folder = option({
     flags: '--folder <value>',
@@ -9,14 +11,13 @@ const folder = option({
     `,
 });
 
-const configExample = trim(
-    gray(`
-glossaryPairs:
-  - sourceText: string
-    translatedText: string
-  - sourceText: string
-    translatedText: string`),
-);
+const configExample = gray(dedent`
+    glossaryPairs:
+      - sourceText: string
+        translatedText: string
+      - sourceText: string
+        translatedText: string
+`);
 
 const glossary = option({
     flags: '--glossary <path>',
