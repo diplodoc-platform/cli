@@ -5,8 +5,8 @@ import type {Logger} from '~/logger';
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 type Hooks = Record<string, Hook<any, any> | HookMap<any>>;
 
-export interface ICallable {
-    apply(program?: IProgram): void;
+export interface ICallable<TArgs extends Hash = Hash> {
+    apply(program?: IProgram<TArgs>): void;
 }
 
 /**
@@ -28,7 +28,7 @@ export interface ICallable {
  * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
  *    (example: hookConfig)
  */
-export interface IProgram<Args extends Hash = Hash> extends ICallable {
+export interface IProgram<Args extends Hash = Hash> extends ICallable<Args> {
     command: Command;
 
     parent?: IParent;
