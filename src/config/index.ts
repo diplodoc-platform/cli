@@ -135,11 +135,9 @@ export function option(o: OptionInfo) {
 
 export const configPath = Symbol('configPath');
 
-export const configRoot = Symbol('configRoot');
-
 type ConfigUtils = {
     [configPath]?: string;
-    [configRoot]: string;
+    resolve(subpath: string): AbsolutePath;
 };
 
 export type Config<T> = T & ConfigUtils;
@@ -147,13 +145,15 @@ export type Config<T> = T & ConfigUtils;
 export function withConfigUtils<T extends Hash = Hash>(path: string, config: T): Config<T> {
     return {
         ...config,
-        [configRoot]: dirname(resolve(path)),
+        resolve(subpath: string): AbsolutePath {
+            return resolve(dirname(path), subpath) as AbsolutePath;
+        },
         [configPath]: resolve(path),
     };
 }
 
 export async function resolveConfig<T extends Hash = {}>(
-    path: string,
+    path: AbsolutePath,
     {
         defaults,
         fallback,
@@ -165,7 +165,7 @@ export async function resolveConfig<T extends Hash = {}>(
     } = {},
 ): Promise<Config<T>> {
     try {
-        const content = await readFile(resolve(path), 'utf8');
+        const content = await readFile(path, 'utf8');
         const data = load(content) as Hash;
 
         return withConfigUtils(path, {

@@ -29,10 +29,6 @@ export async function runTranslate(args: string) {
     return translate;
 }
 
-type DeepPartial<T> = {
-    [P in keyof T]?: T[P] extends Record<any, any> ? DeepPartial<T[P]> : T[P];
-};
-
 export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
     function _testConfig(name: string, args: string, result: DeepPartial<Config>): void;
     function _testConfig(name: string, args: string, result: Error | string): void;
