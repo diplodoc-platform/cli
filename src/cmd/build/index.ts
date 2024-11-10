@@ -20,7 +20,6 @@ import {
 } from '../../steps';
 import {prepareMapFile} from '../../steps/processMapFile';
 import {copyFiles, logger} from '../../utils';
-import {upload as publishFilesToS3} from '../../commands/publish/upload';
 
 export const build = {
     command: ['build', '$0'],
@@ -197,7 +196,6 @@ async function handler(args: Arguments<any>) {
         const {
             output: outputFolderPath,
             outputFormat,
-            publish,
             lintDisabled,
             buildDisabled,
             addMapFile,
@@ -244,30 +242,6 @@ async function handler(args: Arguments<any>) {
             shell.cp('-r', join(tmpOutputFolder, '*'), userOutputFolder);
             if (glob.sync('.*', {cwd: tmpOutputFolder}).length) {
                 shell.cp('-r', join(tmpOutputFolder, '.*'), userOutputFolder);
-            }
-
-            if (publish) {
-                const DEFAULT_PREFIX = process.env.YFM_STORAGE_PREFIX ?? '';
-                const {
-                    ignore = [],
-                    storageRegion,
-                    storageEndpoint: endpoint,
-                    storageBucket: bucket,
-                    storagePrefix: prefix = DEFAULT_PREFIX,
-                    storageKeyId: accessKeyId,
-                    storageSecretKey: secretAccessKey,
-                } = ArgvService.getConfig();
-
-                await publishFilesToS3({
-                    input: userOutputFolder,
-                    region: storageRegion,
-                    ignore: [...ignore, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER],
-                    endpoint,
-                    bucket,
-                    prefix,
-                    accessKeyId,
-                    secretAccessKey,
-                });
             }
         }
     } catch (err) {

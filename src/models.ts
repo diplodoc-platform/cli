@@ -98,13 +98,6 @@ export interface YfmArgv extends YfmConfig {
     input: string;
     output: string;
     quiet: string;
-    publish: boolean;
-    storageEndpoint: string;
-    storageBucket: string;
-    storagePrefix: string;
-    storageKeyId: string;
-    storageSecretKey: string;
-    storageRegion: string;
     contributors: boolean;
     ignoreAuthorPatterns: string;
     addSystemMeta: boolean;
