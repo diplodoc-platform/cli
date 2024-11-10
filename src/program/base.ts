@@ -88,7 +88,7 @@ export const BaseProgram = <
             }
         }
 
-        apply(program?: IProgram) {
+        apply(program?: IProgram<TArgs>) {
             // @ts-ignore
             this['parent'] = program;
 
