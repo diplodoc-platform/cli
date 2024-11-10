@@ -73,19 +73,6 @@ export const strictScope = (scopeName: string) => (config: Hash) => {
     }
 };
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-export const deprecated = (config: Hash, option: string, value: () => any) => {
-    Object.defineProperty(config, option, {
-        enumerable: false,
-        get: () => {
-            // TODO: uncomment under system flag
-            // console.warn(`DEPRECATED: Option ${ option } is deprecated`);
-
-            return value();
-        },
-    });
-};
-
 export const defined = (option: string, ...scopes: Hash[]) => {
     for (const scope of scopes) {
         if (option in scope) {
