@@ -7,7 +7,7 @@ import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
 import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
 
-export type VarsPreset = 'internal' | 'external';
+export type VarsPreset = string;
 
 export type VarsMetadata = {
     [field: string]: string;
@@ -51,7 +51,7 @@ interface VCSConfiguration {
      *
      * you should pass `https://github.com/foo-org/bar/tree/main/docs` as a value for this parameter.
      */
-    remoteBase: string;
+    remoteBase?: string;
 }
 
 interface YfmConfig {
@@ -152,18 +152,14 @@ export interface YfmTocInclude {
 export type YfmTocIncluders = YfmTocIncluder[];
 
 export type YfmTocIncluder = {
-    name: YfmTocIncluderName;
+    name: string;
     // arbitrary includer parameters
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
 } & Record<string, unknown>;
 
-export const includersNames = ['sourcedocs', 'openapi', 'generic', 'unarchive'] as const;
-
-export type YfmTocIncluderName = (typeof includersNames)[number];
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Includer<FnParams = any> = {
-    name: YfmTocIncluderName;
+    name: string;
     includerFunction: IncluderFunction<FnParams>;
 };
 

@@ -42,7 +42,7 @@ export class Program
             }),
         },
     })
-    implements IProgram
+    implements IProgram<ProgramArgs>
 {
     readonly command: Command = new Command(NAME)
         .helpOption(true)
