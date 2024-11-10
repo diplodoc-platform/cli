@@ -1,6 +1,7 @@
 import type {IProgram} from '~/program';
 import type {TranslateArgs, TranslateConfig} from '~/commands/translate';
 import {ok} from 'assert';
+import {resolve} from 'node:path';
 import {Translate} from '~/commands/translate';
 import {defined, resolveConfig} from '~/config';
 import {Provider} from './provider';
@@ -68,11 +69,18 @@ export class Extension {
                 ok(config.auth, 'Required param auth is not configured');
                 ok(config.folder, 'Required param folder is not configured');
 
-                const glossary = defined('glossary', args, config);
-                if (glossary) {
-                    const glossaryConfig = await resolveConfig(config.glossary, {
+                if (defined('glossary', args, config)) {
+                    let glossary: AbsolutePath;
+                    if (defined('glossary', args)) {
+                        glossary = resolve(args.input, args.glossary);
+                    } else {
+                        glossary = config.resolve(config.glossary);
+                    }
+
+                    const glossaryConfig = await resolveConfig(glossary, {
                         defaults: {glossaryPairs: []},
                     });
+
                     config.glossaryPairs = glossaryConfig.glossaryPairs || [];
                 } else {
                     config.glossaryPairs = [];
