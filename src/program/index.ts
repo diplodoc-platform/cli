@@ -1,7 +1,7 @@
 import type {ICallable, IParent, IProgram} from './types';
 import {resolve} from 'node:path';
 
-import {Command, Config, configRoot} from '~/config';
+import {Command, Config} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build, Publish, Translate} from '~/commands';
 
@@ -103,7 +103,7 @@ export class Program
         const configExtensions: ExtensionInfo[] = (config.extensions || []).map(
             (ext: ExtensionInfo | string) => {
                 const extPath = typeof ext === 'string' ? ext : ext.path;
-                const path = isRelative(extPath) ? resolve(config[configRoot], extPath) : extPath;
+                const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
                 const options = typeof ext === 'string' ? {} : ext.options || {};
 
                 return {path, options};
