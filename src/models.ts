@@ -294,7 +294,9 @@ export interface PathData {
 }
 
 export type Resources = {
-    [key in ResourceType]?: string[];
+    [key in Exclude<ResourceType, 'csp'>]?: string[];
+} & {
+    csp?: Record<string, string[]>[];
 };
 
 export type YandexCloudTranslateGlossaryPair = {

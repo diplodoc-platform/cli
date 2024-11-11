@@ -55,6 +55,7 @@
   "dependencies": {
     "@diplodoc/client": "^3.1.6",
     "@diplodoc/translation": "^1.4.3",
+    "csp-header": "^5.2.1",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
     "threads": "1.7.0",
