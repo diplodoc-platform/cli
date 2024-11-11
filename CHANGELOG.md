@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.44.0](https://github.com/diplodoc-platform/cli/compare/v4.43.1...v4.44.0) (2024-11-11)
+
+
+### Features
+
+* change custom csp in md2md mode ([7ef5a5f](https://github.com/diplodoc-platform/cli/commit/7ef5a5fde3e8db4cb374c61170d64e779b01fe9c))
+
 ## [4.43.1](https://github.com/diplodoc-platform/cli/compare/v4.43.0...v4.43.1) (2024-11-06)
 
 
