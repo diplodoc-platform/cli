@@ -40,6 +40,18 @@ export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
 export const SEARCH_API = join(ASSETS_FOLDER, 'search', 'index.js');
 export const SEARCH_LANGS = join(ASSETS_FOLDER, 'search', 'langs');
+export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
+    'default-src': ["'self'"],
+    'script-src': ["'self'", "'unsafe-inline'"],
+    'style-src': ["'self'", "'unsafe-inline'"],
+    'img-src': ["'self'", 'data:'],
+    'font-src': ["'self'", 'data:'],
+    'connect-src': ["'self'"],
+    'frame-src': ["'none'"],
+    'object-src': ["'none'"],
+    'base-uri': ["'self'"],
+    'form-action': ["'self'"],
+};
 
 export enum Stage {
     NEW = 'new',

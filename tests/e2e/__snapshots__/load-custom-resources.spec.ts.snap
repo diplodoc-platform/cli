@@ -68,8 +68,8 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <meta name="noIndex"
           content="true"
     >
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -136,8 +136,8 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <meta name="yfm"
           content="builder"
     >
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -203,8 +203,8 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -400,8 +400,8 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
     <meta name="noIndex"
           content="true"
     >
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -468,8 +468,8 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     <meta name="yfm"
           content="builder"
     >
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -535,8 +535,8 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta name="csp"
-          content
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"

@@ -1,6 +1,12 @@
 import {join} from 'path';
 
-import {BUNDLE_FOLDER, CARRIAGE_RETURN, CUSTOM_STYLE, RTL_LANGS} from '../constants';
+import {
+    BUNDLE_FOLDER,
+    CARRIAGE_RETURN,
+    CUSTOM_STYLE,
+    DEFAULT_CSP_SETTINGS,
+    RTL_LANGS,
+} from '../constants';
 import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {getDepthPath} from '../utils';
@@ -9,6 +15,7 @@ import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {escape} from 'html-escaper';
+import {getCSP} from 'csp-header';
 
 export interface TitleMeta {
     title?: string;
@@ -24,7 +31,8 @@ export function generateStaticMarkup(
     tocPath: string,
     title: string,
 ): string {
-    const {style, script, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
+    /* @todo replace rest operator with proper unpacking */
+    const {style, script, csp, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const resources = getResources({style, script});
 
     const {staticContent} = ArgvService.getConfig();
@@ -41,6 +49,7 @@ export function generateStaticMarkup(
                 <meta charset="utf-8">
                 <base href="${base}" />
                 ${getMetadata(metadata, restYamlConfigMeta)}
+                ${generateCSP(csp)}
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${title}</title>
                 <style type="text/css">
@@ -101,6 +110,38 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
     }
 
     return result;
+}
+
+function generateCSP(csp?: Record<string, string[]>[]) {
+    if (!csp) {
+        return '';
+    }
+
+    const collected = [DEFAULT_CSP_SETTINGS].concat(csp).reduce((acc, curr) => {
+        if (!curr || typeof curr !== 'object') {
+            return acc;
+        }
+
+        const entries = Object.entries(curr);
+
+        for (const [cspRule, value] of entries) {
+            acc[cspRule] ??= [];
+
+            const flat = Array.isArray(value) ? value : [value];
+
+            flat.forEach((cspValue) => {
+                if (!acc[cspRule].includes(cspValue)) {
+                    acc[cspRule].push(cspValue);
+                }
+            });
+        }
+
+        return acc;
+    }, {});
+
+    const stringified = getCSP({directives: collected});
+
+    return `<meta http-equiv="Content-Security-Policy" content="${stringified}">`;
 }
 
 function getResources({style, script}: Resources) {
