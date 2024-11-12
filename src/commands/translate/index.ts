@@ -43,7 +43,7 @@ export type TranslateArgs = ProgramArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
-    vars?: Record<string, any>;
+    vars?: Hash;
 };
 
 export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
@@ -55,7 +55,7 @@ export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> 
     exclude: string[];
     files: string[];
     skipped: [string, string][];
-    vars: Record<string, any>;
+    vars: Hash;
     dryRun: boolean;
 };
 

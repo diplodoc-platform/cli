@@ -91,7 +91,7 @@ export class Extension {
 
             const provider = new Provider(config);
 
-            provider.logger.pipe(program.logger);
+            provider.pipe(program.logger);
 
             return provider;
         });

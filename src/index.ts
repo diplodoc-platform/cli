@@ -10,6 +10,7 @@ import {Program} from './program';
 
 if (require.main === module) {
     (async () => {
+        // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
         let exitCode = 0;
@@ -23,10 +24,12 @@ if (require.main === module) {
             const message = error?.message || error;
 
             if (message) {
+                // eslint-disable-next-line no-console
                 console.error(error.stack || error.message || error);
             }
         }
 
+        // eslint-disable-next-line no-console
         console.timeEnd(MAIN_TIMER_ID);
 
         process.exit(exitCode);

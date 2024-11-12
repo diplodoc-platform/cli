@@ -3,7 +3,7 @@ export {LimitExceed, RequestError, AuthError} from './errors';
 export class Defer<T = string> {
     resolve!: (text: T) => void;
 
-    reject!: (error: any) => void;
+    reject!: (error: unknown) => void;
 
     promise: Promise<T>;
 

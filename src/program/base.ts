@@ -26,6 +26,7 @@ export type BaseHooks<TConfig, TArgs> = {
 export const BaseProgram = <
     TConfig extends Record<string, unknown>,
     TArgs extends ProgramArgs = ProgramArgs,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     THooks extends Record<string, Hook<any, any> | HookMap<any>> = BaseHooks<TConfig, TArgs>,
 >(
     name: string,
@@ -75,7 +76,7 @@ export const BaseProgram = <
 
         readonly logger: Logger = new Logger();
 
-        protected options!: ExtendedOption[];
+        readonly options!: ExtendedOption[];
 
         protected args: string[] = [];
 
