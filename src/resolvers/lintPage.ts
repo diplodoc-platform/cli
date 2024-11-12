@@ -1,6 +1,6 @@
 import {dirname, relative, resolve} from 'path';
 import {load} from 'js-yaml';
-import log from '@diplodoc/transform/lib/log';
+import log, {LogLevels} from '@diplodoc/transform/lib/log';
 import {
     LintMarkdownFunctionOptions,
     PluginOptions,
@@ -8,7 +8,7 @@ import {
 } from '@diplodoc/transform/lib/yfmlint';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 import {getLogLevel} from '@diplodoc/transform/lib/yfmlint/utils';
-import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {ConfigData, LINK_KEYS} from '@diplodoc/client/ssr';
 
 import {readFileSync} from 'fs';
 import {bold} from 'chalk';
@@ -23,6 +23,7 @@ import {
 } from '../utils';
 import {liquidMd2Html} from './md2html';
 import {liquidMd2Md} from './md2md';
+import {LeadingPage} from '~/models';
 
 interface FileTransformOptions {
     path: string;
@@ -76,7 +77,7 @@ function YamlFileLinter(content: string, lintOptions: FileTransformOptions): voi
         defaultLevel: log.LogLevels.ERROR,
     });
 
-    const contentLinks = findAllValuesByKeys(load(content), LINK_KEYS);
+    const contentLinks = findAllValuesByKeys(load(content) as LeadingPage | ConfigData, LINK_KEYS);
     const localLinks = contentLinks.filter(
         (link) => getLinksWithExtension(link) && isLocalUrl(link),
     );
@@ -84,7 +85,8 @@ function YamlFileLinter(content: string, lintOptions: FileTransformOptions): voi
     return localLinks.forEach(
         (link) =>
             checkPathExists(link, currentFilePath) ||
-            log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`),
+            (logLevel !== LogLevels.DISABLED &&
+                log[logLevel](`Link is unreachable: ${bold(link)} in ${bold(currentFilePath)}`)),
     );
 }
 
