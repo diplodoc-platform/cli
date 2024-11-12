@@ -120,7 +120,7 @@ export class Compose
                     this.logger.compose(file.path);
                     await configuredPipeline(file);
                     this.logger.composed(file.path);
-                } catch (error: any) {
+                } catch (error: unknown) {
                     if (error instanceof TranslateError) {
                         this.logger.composeError(file.path, `${error.message}`);
 
@@ -128,7 +128,7 @@ export class Compose
                             process.exit(1);
                         }
                     } else {
-                        this.logger.error(file.path, error.message);
+                        this.logger.error(file.path, error);
                     }
                 }
             }),

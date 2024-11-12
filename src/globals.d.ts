@@ -1,9 +1,10 @@
-const VERSION: string;
+declare const VERSION: string;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
 
 type DeepPartial<T> = {
-    [P in keyof T]?: T[P] extends Record<any, any> ? DeepPartial<T[P]> : T[P];
+    [P in keyof T]?: T[P] extends {} ? DeepPartial<T[P]> : T[P];
 };
 
 type UnresolvedPath = string & {
@@ -24,7 +25,7 @@ type NormalizedPath = string & {
 
 type AnyPath = string | UnresolvedPath | AbsolutePath | RelativePath | NormalizedPath;
 
-declare module "path" {
+declare module 'path' {
     namespace path {
         interface PlatformPath extends PlatformPath {
             normalize<T extends AnyPath>(path: T): T;

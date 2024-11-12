@@ -18,7 +18,7 @@ export type ExtensionInfo = {
 };
 
 export type ProgramConfig = {
-    input: string;
+    input: AbsolutePath;
     config: string;
     extensions: ExtensionInfo[];
     quiet: boolean;
@@ -26,7 +26,7 @@ export type ProgramConfig = {
 };
 
 export type ProgramArgs = {
-    input: string;
+    input: AbsolutePath;
     config: string;
     extensions: string[];
     quiet: boolean;
@@ -60,7 +60,7 @@ export class Program
 
     readonly translate = new Translate();
 
-    protected options = [
+    readonly options = [
         options.input('./'),
         options.config(YFM_CONFIG_FILENAME),
         options.extensions,
@@ -75,7 +75,7 @@ export class Program
         .helpOption(false)
         .allowUnknownOption(true);
 
-    private readonly modules: ICallable[] = [this.build, this.publish, this.translate];
+    private readonly modules: ICallable<ProgramArgs>[] = [this.build, this.publish, this.translate];
 
     async init(argv: string[]) {
         const args = this.parser.parse(argv).opts() as ProgramArgs;

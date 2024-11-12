@@ -24,6 +24,10 @@ export class Provider {
         this.logger = new TranslateLogger(config);
     }
 
+    pipe(logger: Logger) {
+        this.logger.pipe(logger);
+    }
+
     async skip(skipped: [string, string][]) {
         this.logger.skipped(skipped);
     }

@@ -33,7 +33,7 @@ export type ExtractArgs = ProgramArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
-    vars?: Record<string, any>;
+    vars?: Hash;
     useExperimentalParser?: boolean;
 };
 
@@ -45,7 +45,7 @@ export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & 
     exclude: string[];
     files: string[];
     skipped: [string, string][];
-    vars: Record<string, any>;
+    vars: Hash;
     useExperimentalParser?: boolean;
 };
 
@@ -154,7 +154,7 @@ export class Extract
                         this.logger.extract(file);
                         await configuredPipeline(file);
                         this.logger.extracted(file);
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                         if (error instanceof TranslateError) {
                             if (error instanceof SkipTranslation) {
                                 this.logger.skipped([[error.reason, file]]);
@@ -167,7 +167,7 @@ export class Extract
                                 process.exit(1);
                             }
                         } else {
-                            this.logger.error(file, error.message);
+                            this.logger.error(file, error);
                         }
                     }
                 }),
@@ -181,7 +181,7 @@ export type PipelineParameters = {
     output: string;
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
-    vars: Record<string, any>;
+    vars: Hash;
     useExperimentalParser?: boolean;
 };
 

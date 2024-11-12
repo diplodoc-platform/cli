@@ -71,8 +71,8 @@ interface YfmConfig {
     removeHiddenTocItems: boolean;
     vcs?: VCSConfiguration;
     connector?: VCSConnectorConfig;
-    lang?: Lang;
-    langs?: Lang[];
+    lang?: `${Lang}`;
+    langs?: `${Lang}`[];
     lintDisabled: boolean;
     buildDisabled: boolean;
     lintConfig: LintConfig;
@@ -83,7 +83,7 @@ interface YfmConfig {
      * true -> extract changelogs
      * <URL> -> extract and push to s3
      */
-    changelogs?: string | boolean;
+    changelogs: string | boolean;
     analytics?: DocAnalytics;
     useLegacyConditions?: boolean;
     search?:
@@ -97,9 +97,9 @@ export interface YfmArgv extends YfmConfig {
     rootInput: string;
     input: string;
     output: string;
-    quiet: string;
+    quiet: boolean;
     contributors: boolean;
-    ignoreAuthorPatterns: string;
+    ignoreAuthorPatterns: string[];
     addSystemMeta: boolean;
     addMapFile: boolean;
     allowCustomResources: boolean;
