@@ -4,13 +4,12 @@
     "lib": ["ES2019"],
     "target": "ES2019",
     "outDir": "build",
-    "module": "preserve",
+    "module": "es2022",
     "moduleResolution": "bundler",
     "paths": {
       "~/*": ["./src/*"]
     }
   },
   "include": ["src"],
-  "exclude": ["node_modules"],
   "types": ["node"]
 }
