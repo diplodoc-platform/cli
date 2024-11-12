@@ -317,8 +317,8 @@ describe('Translate command', () => {
         expect(instance.provider?.translate).toBeCalledWith(
             expect.anything(),
             expect.objectContaining({
-                input: expect.stringMatching(/^\//),
-                output: expect.stringMatching(/^\//),
+                input: expect.stringMatching(/^(\/|[A-Z]:\\).*?/),
+                output: expect.stringMatching(/^(\/|[A-Z]:\\).*?/),
             }),
         );
     });

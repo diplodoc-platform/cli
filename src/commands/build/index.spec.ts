@@ -17,13 +17,13 @@ describe('Build command', () => {
 
         describe('input', () => {
             test('should be absolute', '--input ./input', {
-                input: expect.stringMatching(/^\/.*?\/input$/),
+                input: expect.stringMatching(/^(\/|[A-Z]:\\).*?(\/|\\)input$/),
             });
         });
 
         describe('output', () => {
             test('should be absolute', '--output ./output', {
-                output: expect.stringMatching(/^\/.*?\/output$/),
+                output: expect.stringMatching(/^(\/|[A-Z]:\\).*?(\/|\\)output$/),
             });
         });
 
