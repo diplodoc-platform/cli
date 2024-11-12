@@ -12,6 +12,7 @@ import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, Config, configPath, defined, valuable} from '~/config';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
+import {handler} from './handler';
 
 import {
     Templating,
@@ -273,8 +274,6 @@ export class Build
 
         run.logger.pipe(this.logger);
 
-        // console.log(run.config);
-
         shell.mkdir('-p', run.originalOutput);
 
         // Create temporary input/output folders
@@ -283,7 +282,7 @@ export class Build
 
         await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
-        await Promise.all([this.handler(run), this.hooks.Run.promise(run)]);
+        await Promise.all([handler(run), this.hooks.Run.promise(run)]);
         await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
         await this.hooks.AfterAnyRun.promise(run);
 
@@ -295,15 +294,5 @@ export class Build
         }
 
         shell.rm('-rf', run.input, run.output);
-    }
-
-    /**
-     * Loads handler in async mode to not initialise all deps on startup.
-     */
-    private async handler(run: Run) {
-        // @ts-ignore
-        const {handler} = await import('./handler');
-
-        return handler(run);
     }
 }
