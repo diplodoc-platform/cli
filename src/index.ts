@@ -25,7 +25,7 @@ if (require.main === module) {
 
             if (message) {
                 // eslint-disable-next-line no-console
-                console.error(error.stack || error.message || error);
+                console.error(error.message || error);
             }
         }
 
