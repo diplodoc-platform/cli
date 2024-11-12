@@ -1,5 +1,5 @@
 import type {Hook, HookMap} from 'tapable';
-import type {Command} from '~/config';
+import type {Command, ExtendedOption} from '~/config';
 import type {Logger} from '~/logger';
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
@@ -24,12 +24,14 @@ export interface ICallable<TArgs extends Hash = Hash> {
  * 3. Program can be subprogram. This can be detected by non empty param passed to `apply` method.
  *    But anyway program should be independent unit.
  * 4. Optional 'action' method - is a main place for hooks call.
- *    For compatibility with Commander.Command->action methos result shoul be void.
+ *    For compatibility with Commander.Command->action method result should be void.
  * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
  *    (example: hookConfig)
  */
 export interface IProgram<Args extends Hash = Hash> extends ICallable<Args> {
     command: Command;
+
+    options: Readonly<ExtendedOption[]>;
 
     parent?: IParent;
 
