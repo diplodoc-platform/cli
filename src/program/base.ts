@@ -4,6 +4,7 @@ import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';
 import {once} from 'lodash';
 import {Logger} from '~/logger';
+import log from '@diplodoc/transform/lib/log';
 import {
     resolveConfig,
     scope as scopeConfig,
@@ -151,9 +152,13 @@ export const BaseProgram = <
         }
 
         private async post() {
-            const {error, warn} = this.logger;
-            if (error.count || (this.config.strict && warn.count)) {
-                throw new HandledError('There is some errors.');
+            if (this.logger.error.count || (this.config.strict && this.logger.warn.count)) {
+                throw new HandledError('There is some processing errors.');
+            }
+
+            const {error, warn} = log.get();
+            if (error.length || (this.config.strict && warn.length)) {
+                throw new HandledError('There is some processing errors.');
             }
         }
 
