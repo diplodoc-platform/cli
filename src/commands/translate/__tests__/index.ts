@@ -44,6 +44,7 @@ export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
         config: DeepPartial<Config>,
         result: Error | string,
     ): void;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     function _testConfig(name: string, args: string, config: any, result?: any): void {
         it(name, async () => {
             if (!result) {
@@ -59,9 +60,8 @@ export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
             });
 
             if (result instanceof Error || typeof result === 'string') {
-                const message = result.message || result;
                 await expect(async () => runTranslate(defaultArgs + ' ' + args)).rejects.toThrow(
-                    message,
+                    result,
                 );
             } else {
                 const instance = await runTranslate(defaultArgs + ' ' + args);
