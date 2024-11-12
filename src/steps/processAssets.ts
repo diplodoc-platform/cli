@@ -7,7 +7,7 @@ import {join, resolve, sep} from 'path';
 import {ArgvService, TocService} from '../services';
 import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
 
-import {LINK_KEYS} from '@diplodoc/client/ssr';
+import {DocLeadingPageData, LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 
 import {
@@ -93,7 +93,7 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         copyFiles(args.input, tmpOutputFolder, resourcePaths);
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce((acc, file) => {
+    const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
         if (file.endsWith('.yaml')) {
             const resolvedPathToFile = resolve(inputFolderPath, file);
 
@@ -109,9 +109,9 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
             return;
         }
 
-        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
+        const contentLinks = findAllValuesByKeys(content as DocLeadingPageData, LINK_KEYS);
         const localMediaLinks = contentLinks.reduce(
-            (acc, link) => {
+            (acc: string[], link: string) => {
                 const linkHasMediaExt = new RegExp(
                     /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
                 ).test(link);

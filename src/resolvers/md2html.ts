@@ -2,7 +2,7 @@ import type {DocInnerProps} from '@diplodoc/client';
 
 import {readFileSync, writeFileSync} from 'fs';
 import {dirname, extname, join, resolve} from 'path';
-import {LINK_KEYS, preprocess} from '@diplodoc/client/ssr';
+import {ConfigData, LINK_KEYS, PreloadParams, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
 import transform, {Output} from '@diplodoc/transform';
@@ -30,6 +30,7 @@ import {generateStaticMarkup} from '../pages';
 export interface FileTransformOptions {
     path: string;
     root: string;
+    lang: Lang;
 }
 
 const FileTransformer: Record<string, Function> = {
@@ -156,10 +157,10 @@ function getHref(root: string, path: string, href: string) {
 }
 
 function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
-    let data: LeadingPage | null = null;
+    let data;
 
     try {
-        data = yaml.load(content) as LeadingPage;
+        data = yaml.load(content);
     } catch (error) {
         log.error(`Yaml transform has been failed. Error: ${error}`);
     }
@@ -175,17 +176,19 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
             if (isString(link) && getLinksWithContentExtersion(link)) {
                 return link.replace(/.(md|yaml)$/gmu, '.html');
             }
+
+            return link;
         });
 
         const {path, lang} = transformOptions;
         const transformFn: Function = FileTransformer['.md'];
 
-        data = preprocess(data, {lang}, (lang, content) => {
+        data = preprocess(data as ConfigData, {lang} as PreloadParams, (_lang, content) => {
             const {result} = transformFn(content, {path});
             return result?.html;
         });
     } else {
-        const links = data?.links?.map((link) => {
+        const links = (data as LeadingPage)?.links?.map((link) => {
             if (link.href) {
                 const {root, path} = transformOptions;
                 const href = getHref(root, path, link.href);
@@ -198,7 +201,7 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         });
 
         if (links) {
-            data.links = links;
+            (data as LeadingPage).links = links;
         }
     }
 

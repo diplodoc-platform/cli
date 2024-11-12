@@ -1,7 +1,7 @@
 import {cloneDeepWith, flatMapDeep, isArray, isObject, isString} from 'lodash';
 import {isFileExists, resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
-export function findAllValuesByKeys(obj: object, keysToFind: string[]) {
+export function findAllValuesByKeys(obj: object, keysToFind: string[]): string[] {
     return flatMapDeep(obj, (value: string | string[], key: string) => {
         if (
             keysToFind?.includes(key) &&
