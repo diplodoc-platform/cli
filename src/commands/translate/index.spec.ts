@@ -99,7 +99,7 @@ describe('Translate command', () => {
             );
 
             test(
-                'should handle  args with priority',
+                'should handle args with priority',
                 '--source ru',
                 {
                     // @ts-ignore
@@ -312,8 +312,14 @@ describe('Translate command', () => {
     });
 
     it('should call provider translate with config', async () => {
-        const instance = await run('-o output --folder 1');
+        const instance = await run('-o output --folder 1 --source ru --target en --auth y0_1');
 
-        expect(instance.provider?.translate).toBeCalledWith(expect.objectContaining({}));
+        expect(instance.provider?.translate).toBeCalledWith(
+            expect.anything(),
+            expect.objectContaining({
+                input: expect.stringMatching(/^\//),
+                output: expect.stringMatching(/^\//),
+            }),
+        );
     });
 });

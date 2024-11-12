@@ -120,6 +120,7 @@ export function resolveFiles(
         result = glob.sync(extmatch, {
             cwd: input,
             nodir: true,
+            ignore: ['node_modules/**', '*/node_modules/**'],
         });
 
         if (exclude.length) {
