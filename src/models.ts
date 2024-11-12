@@ -86,11 +86,10 @@ interface YfmConfig {
     changelogs: string | boolean;
     analytics?: DocAnalytics;
     useLegacyConditions?: boolean;
-    search?:
-        | true
-        | ({
-              provider?: string;
-          } & {[prop: string]: unknown});
+    search: {
+        enabled: boolean;
+        provider?: string;
+    } & {[prop: string]: unknown};
 }
 
 export interface YfmArgv extends YfmConfig {
