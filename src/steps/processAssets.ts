@@ -1,8 +1,9 @@
+import type {Run} from '~/commands/build';
+
 import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
 import {readFileSync} from 'fs';
-import shell from 'shelljs';
-import {join, resolve, sep} from 'path';
+import {join, relative} from 'path';
 
 import {ArgvService, TocService} from '../services';
 import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
@@ -10,12 +11,7 @@ import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
 import {DocLeadingPageData, LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 
-import {
-    ASSETS_FOLDER,
-    LINT_CONFIG_FILENAME,
-    REDIRECTS_FILENAME,
-    YFM_CONFIG_FILENAME,
-} from '../constants';
+import {ASSETS_FOLDER} from '../constants';
 import {Resources} from '../models';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
@@ -28,7 +24,7 @@ import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
  */
 
 type Props = {
-    args: string[];
+    run: Run;
     outputBundlePath: string;
     outputFormat: string;
     tmpOutputFolder: string;
@@ -36,13 +32,13 @@ type Props = {
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets({args, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
+export function processAssets({run, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
     switch (outputFormat) {
         case 'html':
             processAssetsHtmlRun({outputBundlePath});
             break;
         case 'md':
-            processAssetsMdRun({args, tmpOutputFolder});
+            processAssetsMdRun({run, tmpOutputFolder});
             break;
     }
 }
@@ -66,16 +62,8 @@ function processAssetsHtmlRun({outputBundlePath}) {
     copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
 }
 
-function processAssetsMdRun({args, tmpOutputFolder}) {
-    const {input: inputFolderPath, allowCustomResources, resources} = ArgvService.getConfig();
-
-    const pathToConfig = args.config || join(args.input, YFM_CONFIG_FILENAME);
-    const pathToRedirects = join(args.input, REDIRECTS_FILENAME);
-    const pathToLintConfig = join(args.input, LINT_CONFIG_FILENAME);
-
-    shell.cp(resolve(pathToConfig), tmpOutputFolder);
-    shell.cp(resolve(pathToRedirects), tmpOutputFolder);
-    shell.cp(resolve(pathToLintConfig), tmpOutputFolder);
+function processAssetsMdRun({run, tmpOutputFolder}: {run: Run; tmpOutputFolder: string}) {
+    const {allowCustomResources, resources} = run.config;
 
     if (resources && allowCustomResources) {
         const resourcePaths: string[] = [];
@@ -90,17 +78,15 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
         });
 
         //copy resources
-        copyFiles(args.input, tmpOutputFolder, resourcePaths);
+        copyFiles(run.originalInput, tmpOutputFolder, resourcePaths);
     }
 
     const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
         if (file.endsWith('.yaml')) {
-            const resolvedPathToFile = resolve(inputFolderPath, file);
-
-            acc.push(resolvedPathToFile);
+            acc.push(join(run.input, file));
         }
         return acc;
-    }, []);
+    }, [] as AbsolutePath[]);
 
     tocYamlFiles.forEach((yamlFile) => {
         const content = load(readFileSync(yamlFile, 'utf8'));
@@ -118,16 +104,13 @@ function processAssetsMdRun({args, tmpOutputFolder}) {
 
                 if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
                     const linkAbsolutePath = resolveRelativePath(yamlFile, link);
-                    const linkRootPath = linkAbsolutePath.replace(`${inputFolderPath}${sep}`, '');
+                    const linkRootPath = relative(run.input, linkAbsolutePath);
 
                     acc.push(linkRootPath);
                 }
                 return acc;
-            },
+            }, [] as RelativePath[]);
 
-            [],
-        );
-
-        copyFiles(args.input, tmpOutputFolder, localMediaLinks);
+        copyFiles(run.originalInput, tmpOutputFolder, localMediaLinks);
     });
 }

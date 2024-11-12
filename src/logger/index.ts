@@ -123,7 +123,9 @@ export class Logger implements LogConsumer {
         const _writer = this[Symbol.for(level) as keyof LogConsumer];
         const _color = color || colors[level];
 
-        const topic = (...messages: string[]) => {
+        const topic = (...messages: unknown[]) => {
+            messages = messages.map(extractMessage);
+
             const message = this.filters.reduce((message, filter) => {
                 return filter(level, message);
             }, messages.join(' '));
@@ -178,4 +180,20 @@ export class Logger implements LogConsumer {
             console[level](message);
         }
     }
+}
+
+function extractMessage(error: unknown): string {
+    if (!error) {
+        return '';
+    }
+
+    if (typeof error === 'string') {
+        return error;
+    }
+
+    if (typeof error === 'object' && 'message' in error) {
+        return String(error.message);
+    }
+
+    return String(error);
 }

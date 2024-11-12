@@ -99,12 +99,7 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         lang,
         langs,
-        search: search
-            ? {
-                  ...(search === true ? {provider: 'local'} : search),
-                  ...SearchService.config(lang),
-              }
-            : undefined,
+        search: search.enabled ? SearchService.config(lang) : undefined,
         analytics,
     };
 };

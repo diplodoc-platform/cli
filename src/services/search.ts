@@ -22,15 +22,13 @@ function init() {
 function isSearchEnabled() {
     const {search} = ArgvService.getConfig();
 
-    return Boolean(search);
+    return Boolean(search.enabled);
 }
 
 function isLocalSearchEnabled() {
     const {search} = ArgvService.getConfig();
 
-    return (
-        isSearchEnabled() && (search === true || search!.provider === 'local' || !search!.provider)
-    );
+    return isSearchEnabled() && search.provider === 'local';
 }
 
 function add(path: string, info: DocInnerProps) {
@@ -129,6 +127,7 @@ function config(lang: string) {
     const short = (link: string) => link.replace(output, '').replace(/^\/?/, '');
 
     return {
+        provider: 'local',
         api: short(apiLink()),
         link: short(pageLink(lang)),
         resources: {

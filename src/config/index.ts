@@ -146,13 +146,17 @@ type ConfigUtils = {
 
 export type Config<T> = T & ConfigUtils;
 
-export function withConfigUtils<T extends Hash = Hash>(path: string, config: T): Config<T> {
+export function withConfigUtils<T extends Hash = Hash>(path: string | null, config: T): Config<T> {
     return {
         ...config,
-        resolve(subpath: string): AbsolutePath {
+        resolve: (subpath: string): AbsolutePath => {
+            if (path === null) {
+                return resolve(subpath) as AbsolutePath;
+            }
+
             return resolve(dirname(path), subpath) as AbsolutePath;
         },
-        [configPath]: resolve(path),
+        [configPath]: path === null ? path : resolve(path),
     };
 }
 
@@ -169,7 +173,7 @@ export async function resolveConfig<T extends Hash = {}>(
     } = {},
 ): Promise<Config<T>> {
     try {
-        const content = await readFile(path, 'utf8');
+        const content = (await readFile(path, 'utf8')) || '{}';
         const data = load(content) as Hash;
 
         return withConfigUtils(path, {
@@ -184,7 +188,7 @@ export async function resolveConfig<T extends Hash = {}>(
             case 'ScopeException':
             case 'ENOENT':
                 if (fallback) {
-                    return withConfigUtils(path, fallback);
+                    return withConfigUtils(null, fallback);
                 } else {
                     throw error;
                 }
