@@ -1,6 +1,6 @@
 import {resolve} from 'node:path';
 import {bold} from 'chalk';
-import {option, toArray} from '~/config';
+import {OptionInfo, option, toArray} from '~/config';
 
 export const NAME = 'yfm';
 
@@ -11,6 +11,8 @@ export const USAGE = `<command> [global-options] [options]
 ${NAME} build -i ./src -o ./dst
 
 If no command passed, ${bold('build')} command will be called by default.`;
+
+const absolute = (path: string) => resolve(process.cwd(), path);
 
 const quiet = option({
     flags: '-q, --quiet',
@@ -46,21 +48,31 @@ const extensions = option({
     parser: toArray,
 });
 
-const input = (defaultPath?: string) =>
-    option({
+const input = (defaults: string | Partial<OptionInfo> = {}) => {
+    const defaultPath = typeof defaults === 'string' ? defaults : defaults.default;
+    const overrides = typeof defaults === 'string' ? {} : defaults;
+
+    return option({
+        ...overrides,
         flags: '-i, --input <string>',
         desc: `Configure path to {{PROGRAM}} input directory.`,
-        default: defaultPath,
+        default: defaultPath ? absolute(defaultPath) : undefined,
         parser: absolute,
     });
+};
 
-const output = (defaultPath?: string) =>
-    option({
+const output = (defaults: string | Partial<OptionInfo> = {}) => {
+    const defaultPath = typeof defaults === 'string' ? defaults : defaults.default;
+    const overrides = typeof defaults === 'string' ? {} : defaults;
+
+    return option({
+        ...overrides,
         flags: '-o, --output <string>',
         desc: `Configure path to {{PROGRAM}} output directory.`,
-        default: defaultPath,
+        default: defaultPath ? absolute(defaultPath) : undefined,
         parser: absolute,
     });
+};
 
 const config = (defaultConfig: string) =>
     option({
@@ -77,8 +89,6 @@ const config = (defaultConfig: string) =>
         `,
         default: defaultConfig,
     });
-
-const absolute = (path: string) => resolve(process.cwd(), path);
 
 export const options = {
     quiet,

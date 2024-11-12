@@ -10,14 +10,7 @@ function getConfig() {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function init(argv: any) {
-    _argv = {
-        ...argv,
-        ignore: Array.isArray(argv.ignore) ? argv.ignore : [],
-    } as YfmArgv;
-
-    if (argv.vars) {
-        _argv.vars = JSON.parse(argv.vars);
-    }
+    _argv = argv as YfmArgv;
 
     try {
         const ignorefile = readFileSync(join(_argv.rootInput, '.yfmignore'), 'utf8');

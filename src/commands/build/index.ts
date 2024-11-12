@@ -1,88 +1,309 @@
-import type {IProgram} from '~/program';
-import yargs from 'yargs';
-import {hideBin} from 'yargs/helpers';
-import {Help} from 'commander';
-import log from '@diplodoc/transform/lib/log';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {DocAnalytics} from '@diplodoc/client';
+
+import {ok} from 'node:assert';
+import {join} from 'node:path';
+import glob from 'glob';
+import {pick} from 'lodash';
+import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
 import {BaseProgram} from '~/program/base';
-import {Command} from '~/config';
-import {build} from '~/cmd';
+import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
+import {Command, Config, configPath, defined, valuable} from '~/config';
+import {OutputFormat, options} from './config';
+import {Run} from './run';
+
+import {
+    Templating,
+    TemplatingArgs,
+    TemplatingConfig,
+    TemplatingRawConfig,
+} from './features/templating';
+import {Contributors, ContributorsArgs, ContributorsConfig} from './features/contributors';
+import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepage';
+import {Redirects} from './features/redirects';
+import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
+import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
+import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
+import shell from 'shelljs';
+
+export enum ResourceType {
+    style = 'style',
+    script = 'script',
+    csp = 'csp',
+}
+
+// TODO: Move to isolated feature?
+export type Resources = {
+    [key in ResourceType]?: string[];
+};
+
+type BaseArgs = {output: AbsolutePath};
+
+type BaseConfig = {
+    lang: `${Lang}`;
+    // TODO(patch): exetend langs list by newly supported langs or change type to string
+    langs: `${Lang}`[];
+    outputFormat: `${OutputFormat}`;
+    varsPreset: string;
+    vars: Hash;
+    allowHtml: boolean;
+    sanitizeHtml: boolean;
+    // TODO(minor): string[]
+    ignoreStage: string;
+    ignore: string[];
+    addSystemMeta: boolean;
+    // TODO(minor): we can generate this file all time
+    addMapFile: boolean;
+    // TODO(major): can this be solved by `when` prop in toc?
+    removeHiddenTocItems: boolean;
+    mergeIncludes: boolean;
+    // TODO(major): use as default behavior
+    staticContent: boolean;
+    // TODO(major): wtf? if we don't need to build, why we call build command?
+    buildDisabled: boolean;
+    allowCustomResources: boolean;
+    resources: Resources;
+    // TODO: explicitly handle
+    analytics: DocAnalytics;
+};
+
+export type {Run};
 
 const command = 'Build';
 
-export type BuildArgs = {};
+const hooks = () => ({
+    /**
+     * Async series hook which runs before start of any Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to subscribe on Run hooks.
+     */
+    BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
+    /**
+     * Async series hook map which runs before start of target Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to subscribe on target Run hooks.
+     */
+    BeforeRun: new HookMap(
+        (format: `${OutputFormat}`) =>
+            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
+    ),
+    /**
+     * Async parallel hook which runs on start of any Run type.<br/><br/>
+     * Args:
+     * - run - [Build.Run](./Run.ts) constructed context.<br/>
+     * Best place to do something in parallel with main build process.
+     */
+    Run: new AsyncParallelHook<Run>(['run'], `${command}.Run`),
+    // TODO: decompose handler and describe this hook
+    AfterRun: new HookMap(
+        (format: `${OutputFormat}`) =>
+            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
+    ),
+    // TODO: decompose handler and describe this hook
+    AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
+});
 
-export type BuildConfig = {};
+export type BuildArgs = ProgramArgs &
+    BaseArgs &
+    Partial<
+        TemplatingArgs &
+            ContributorsArgs &
+            SinglePageArgs &
+            LintArgs &
+            ChangelogsArgs &
+            SearchArgs &
+            LegacyArgs
+    >;
 
-const parser = yargs
-    .command(build)
-    .option('config', {
-        alias: 'c',
-        describe: 'YFM configuration file',
-        type: 'string',
-    })
-    .option('strict', {
-        alias: 's',
-        default: false,
-        describe: 'Run in strict mode',
-        type: 'boolean',
-    })
-    .option('quiet', {
-        alias: 'q',
-        default: false,
-        describe: "Run in quiet mode. Don't write logs to stdout",
-        type: 'boolean',
-    })
-    .group(['config', 'strict', 'quiet', 'help', 'version'], 'Common options:')
-    .version(typeof VERSION === 'undefined' ? '' : VERSION)
-    .help();
+export type BuildRawConfig = BaseArgs &
+    ProgramConfig &
+    BaseConfig &
+    TemplatingRawConfig &
+    ContributorsConfig &
+    SinglePageConfig &
+    LintRawConfig &
+    ChangelogsConfig &
+    SearchRawConfig &
+    LegacyRawConfig;
+
+export type BuildConfig = Config<
+    BaseArgs &
+        ProgramConfig &
+        BaseConfig &
+        TemplatingConfig &
+        ContributorsConfig &
+        SinglePageConfig &
+        LintConfig &
+        ChangelogsConfig &
+        SearchConfig &
+        LegacyConfig
+>;
+
+export type BuildHooks = ReturnType<typeof hooks>;
 
 export class Build
     // eslint-disable-next-line new-cap
-    extends BaseProgram<BuildConfig, BuildArgs>(command, {
+    extends BaseProgram<BuildConfig, BuildArgs, BuildHooks>(command, {
         config: {
-            // scope: 'build',
-            defaults: () => ({}),
+            scope: 'build',
+            defaults: () =>
+                ({
+                    langs: [],
+                    outputFormat: OutputFormat.html,
+                    varsPreset: 'default',
+                    vars: {},
+                    ignore: [],
+                    allowHtml: true,
+                    sanitizeHtml: true,
+                    addMapFile: false,
+                    removeHiddenTocItems: false,
+                    mergeIncludes: false,
+                    resources: [],
+                    allowCustomResources: false,
+                    staticContent: false,
+                    ignoreStage: Stage.SKIP,
+                    addSystemMeta: false,
+                    buildDisabled: false,
+                    lint: {enabled: true, config: {'log-levels': {}}},
+                }) as Partial<BuildConfig>,
         },
         command: {
             isDefault: true,
         },
-        hooks: () => {},
+        hooks: hooks(),
     })
     implements IProgram<BuildArgs>
 {
-    readonly command = new Command('build')
-        .allowUnknownOption(true)
-        .description('Build documentation in target directory');
+    readonly templating = new Templating();
 
-    protected options = [];
+    readonly contributors = new Contributors();
+
+    readonly singlepage = new SinglePage();
+
+    readonly redirects = new Redirects();
+
+    readonly linter = new Lint();
+
+    readonly changelogs = new Changelogs();
+
+    readonly search = new Search();
+
+    readonly legacy = new Legacy();
+
+    readonly command = new Command('build').description('Build documentation in target directory');
+
+    readonly options = [
+        options.input('./'),
+        options.output({required: true}),
+        options.langs,
+        options.outputFormat,
+        options.varsPreset,
+        options.vars,
+        options.allowHtml,
+        options.sanitizeHtml,
+        options.addMapFile,
+        options.removeHiddenTocItems,
+        options.mergeIncludes,
+        options.resources,
+        options.allowCustomResources,
+        options.staticContent,
+        options.addSystemMeta,
+        options.ignore,
+        options.ignoreStage,
+        options.config(YFM_CONFIG_FILENAME),
+        options.buildDisabled,
+    ];
 
     apply(program?: IProgram) {
-        super.apply(program);
+        this.hooks.Config.tap('Build', (config, args) => {
+            const langs = defined('langs', args, config) || [];
+            const lang = defined('lang', config);
 
-        this.command.createHelp = function () {
-            const help = new Help();
-            help.formatHelp = () => parser.getHelp();
-            return help;
-        };
+            if (valuable(lang)) {
+                if (!langs.length) {
+                    langs.push(lang);
+                }
+
+                ok(
+                    langs.includes(lang),
+                    `Configured default lang '${lang}' is not listed in langs (${langs.join(', ')})`,
+                );
+            }
+
+            if (!langs.length) {
+                langs.push(Lang.RU);
+            }
+
+            const options = [...this.options, ...(program?.options || [])].map((option) =>
+                option.attributeName(),
+            );
+
+            Object.assign(config, pick(args, options));
+
+            config.langs = langs;
+            config.lang = lang || langs[0];
+
+            return config;
+        });
+
+        this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+            if (run.config[configPath]) {
+                shell.cp(run.config[configPath], run.output);
+            }
+        });
+
+        this.templating.apply(this);
+        this.contributors.apply(this);
+        this.singlepage.apply(this);
+        this.redirects.apply(this);
+        this.linter.apply(this);
+        this.changelogs.apply(this);
+        this.search.apply(this);
+        this.legacy.apply(this);
+
+        super.apply(program);
     }
 
     async action() {
-        await parser.parse(hideBin(process.argv), {}, (err, {strict}, output) => {
-            if (err) {
-                console.error(err);
-                process.exit(1);
-            }
+        const run = new Run(this.config);
 
-            const {warn, error} = log.get();
+        run.logger.pipe(this.logger);
 
-            if ((strict && warn.length) || error.length) {
-                process.exit(1);
-            }
+        // console.log(run.config);
 
-            console.log(output);
+        shell.mkdir('-p', run.originalOutput);
 
-            process.exit(0);
-        });
+        // Create temporary input/output folders
+        shell.rm('-rf', run.input, run.output);
+        shell.mkdir('-p', run.input, run.output);
+
+        await this.hooks.BeforeAnyRun.promise(run);
+        await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
+        await Promise.all([this.handler(run), this.hooks.Run.promise(run)]);
+        await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
+        await this.hooks.AfterAnyRun.promise(run);
+
+        // Copy all generated files to user' output folder
+        shell.cp('-r', join(run.output, '*'), run.originalOutput);
+
+        if (glob.sync('.*', {cwd: run.output}).length) {
+            shell.cp('-r', join(run.output, '.*'), run.originalOutput);
+        }
+
+        shell.rm('-rf', run.input, run.output);
+    }
+
+    /**
+     * Loads handler in async mode to not initialise all deps on startup.
+     */
+    private async handler(run: Run) {
+        // @ts-ignore
+        const {handler} = await import('./handler');
+
+        return handler(run);
     }
 }
