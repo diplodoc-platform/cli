@@ -1,5 +1,5 @@
 const fs = require('fs');
-const {generateDefaultSchema} = require('@gravity-ui/page-constructor');
+const {generateDefaultSchema} = require('@gravity-ui/page-constructor/schema/index.js');
 
 function replaceField(obj, oldFieldName, newFieldName, newFieldValue) {
     if (Array.isArray(obj)) {
