@@ -1,0 +1,263 @@
+import {describe, expect, it} from 'vitest';
+import {handler, runBuild as run, testConfig as test, testBooleanFlag} from './__tests__';
+
+describe('Build command', () => {
+    describe('config', () => {
+        it('should fail without required output prop', async () => {
+            await expect(() => run('--input ./input')).rejects.toThrow(
+                `error: required option '-o, --output <string>' not specified`,
+            );
+        });
+
+        it('should handle required props in args', async () => {
+            await run('--input ./input --output ./output');
+
+            expect(handler).toBeCalled();
+        });
+
+        describe('input', () => {
+            test('should be absolute', '--input ./input', {
+                input: expect.stringMatching(/^\/.*?\/input$/),
+            });
+        });
+
+        describe('output', () => {
+            test('should be absolute', '--output ./output', {
+                output: expect.stringMatching(/^\/.*?\/output$/),
+            });
+        });
+
+        describe('langs', () => {
+            test('should handle default', '', {
+                langs: ['ru'],
+            });
+
+            test('should handle arg', '--langs en', {
+                langs: ['en'],
+            });
+
+            test('should handle shorthand arg', '--lang en', {
+                langs: ['en'],
+            });
+
+            test('should handle multiple arg', '--lang en --lang ru', {
+                langs: ['en', 'ru'],
+            });
+
+            test('should handle multiple different arg', '--lang en --langs ru', {
+                langs: ['en', 'ru'],
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    langs: ['ru', 'en'],
+                },
+                {
+                    langs: ['ru', 'en'],
+                },
+            );
+
+            test(
+                'should handle empty config',
+                '',
+                {
+                    langs: [],
+                },
+                {
+                    langs: ['ru'],
+                },
+            );
+
+            test(
+                'should fail on unlisted lang',
+                '',
+                {
+                    // @ts-ignore
+                    lang: 'fr',
+                    langs: ['ru', 'en'],
+                },
+                new Error(`Configured default lang 'fr' is not listed in langs (ru, en)`),
+            );
+        });
+
+        describe('lang', () => {
+            test('should handle default', '', {
+                lang: 'ru',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    lang: 'en',
+                },
+                {
+                    lang: 'en',
+                },
+            );
+
+            test(
+                'should handle first lang from langs',
+                '',
+                {
+                    langs: ['en', 'ru'],
+                },
+                {
+                    lang: 'en',
+                },
+            );
+        });
+
+        describe('outputFormat', () => {
+            test('should handle default', '', {
+                outputFormat: 'html',
+            });
+
+            test('should handle arg', '--output-format md', {
+                outputFormat: 'md',
+            });
+
+            test('should handle shorthand arg', '-f md', {
+                outputFormat: 'md',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    outputFormat: 'md',
+                },
+                {
+                    outputFormat: 'md',
+                },
+            );
+
+            it('should fail on unknown format', async () => {
+                await expect(() =>
+                    run('--input ./input --output ./output --output-format other'),
+                ).rejects.toThrow(
+                    `error: option '-f, --output-format <value>' argument 'other' is invalid. Allowed choices are html, md.`,
+                );
+            });
+        });
+
+        describe('varsPreset', () => {
+            test('should handle default', '', {
+                varsPreset: 'default',
+            });
+
+            test('should handle arg', '--vars-preset public', {
+                varsPreset: 'public',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    varsPreset: 'public',
+                },
+                {
+                    varsPreset: 'public',
+                },
+            );
+        });
+
+        describe('vars', () => {
+            test('should handle default', '', {
+                vars: {},
+            });
+
+            test('should handle arg', '--vars {"a":1}', {
+                vars: {a: 1},
+            });
+
+            test('should handle shorthand arg', '-v {"a":1}', {
+                vars: {a: 1},
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    vars: {a: 1},
+                },
+                {
+                    vars: {a: 1},
+                },
+            );
+
+            // TODO: should merge args ang config
+            // test('should merge args ang config')
+        });
+
+        describe('ignoreStage', () => {
+            test('should handle default', '', {
+                ignoreStage: 'skip',
+            });
+
+            test('should handle arg', '--ignore-stage preview', {
+                ignoreStage: 'preview',
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    ignoreStage: 'preview',
+                },
+                {
+                    ignoreStage: 'preview',
+                },
+            );
+        });
+
+        describe('ignore', () => {
+            test('should handle default', '', {
+                ignore: [],
+            });
+
+            test('should handle arg', '--ignore **/*.md', {
+                ignore: ['**/*.md'],
+            });
+
+            test('should handle args', '--ignore **/*.md --ignore **/*.yaml', {
+                ignore: ['**/*.md', '**/*.yaml'],
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    ignore: ['**/*.md'],
+                },
+                {
+                    ignore: ['**/*.md'],
+                },
+            );
+
+            // TODO: should merge args ang config
+            // test('should merge args ang config')
+        });
+
+        testBooleanFlag('addMapFile', '--add-map-file', false);
+        testBooleanFlag('removeHiddenTocItems', '--remove-hidden-toc-items', false);
+        testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
+        testBooleanFlag('staticContent', '--static-content', false);
+        testBooleanFlag('addSystemMeta', '--add-system-meta', false);
+        testBooleanFlag('buildDisabled', '--build-disabled', false);
+        testBooleanFlag('allowHtml', '--allow-html', true);
+        testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
+
+        // test('should handle required props in config', '', {
+        //     input: './input',
+        //     output: './output',
+        // }, {
+        //     input: './input',
+        //     output: './output',
+        // });
+    });
+
+    // describe('apply', () => {});
+});
