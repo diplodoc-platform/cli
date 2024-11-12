@@ -11,7 +11,7 @@ export default defineConfig({
             enabled: true,
             provider: 'v8',
             include: [
-                'src/cmd',
+                'src/commands',
                 'src/program',
                 'src/config',
                 'src/logger',
