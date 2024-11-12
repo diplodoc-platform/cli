@@ -1,7 +1,7 @@
 import {TranslateError} from '../../../utils';
 
 export class RequestError extends TranslateError {
-    static canRetry(error: any) {
+    static canRetry(error: unknown) {
         if (error instanceof RequestError) {
             switch (true) {
                 case error.status === 429:

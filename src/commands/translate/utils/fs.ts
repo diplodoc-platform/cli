@@ -46,6 +46,7 @@ function stringifyFile(content: JSONObject | string, path: string): string {
     }
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isObject(object: any): object is JSONObject {
     return object && typeof object === 'object';
 }

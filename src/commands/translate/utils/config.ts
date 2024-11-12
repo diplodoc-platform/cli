@@ -99,7 +99,7 @@ export function resolveFiles(
     lang: string | null,
     exts: string[],
 ) {
-    let result: string[] = [];
+    let result: string[];
     let skipped: [string, string][] = [];
 
     const extmatch = '**/*@(' + exts.map((ext) => '*' + ext).join('|') + ')';
@@ -150,10 +150,7 @@ export function resolveFiles(
     return [result, skipped];
 }
 
-export function resolveVars(
-    config: {vars?: Record<string, any>},
-    args: {vars?: Record<string, any>},
-) {
+export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
     return merge(config.vars || {}, args.vars);
 }
 

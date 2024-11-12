@@ -6,6 +6,8 @@ import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
+type ExtendedError = Error & {code: string};
+
 export function toArray(value: string | string[], previous: string | string[]) {
     value = ([] as string[]).concat(value);
 
@@ -50,6 +52,7 @@ export function args(command: Command | null) {
     let args: string[] | undefined;
 
     while (command) {
+        // @ts-ignore
         args = command.rawArgs || args;
         command = command.parent;
     }
@@ -67,7 +70,7 @@ export const strictScope = (scopeName: string) => (config: Hash) => {
     if (scopeName in config) {
         return config[scopeName];
     } else {
-        const error = new TypeError(`Scope ${scopeName} doesn't exist in config`);
+        const error = new TypeError(`Scope ${scopeName} doesn't exist in config`) as ExtendedError;
         error.code = 'ScopeException';
         throw error;
     }
@@ -84,7 +87,8 @@ export const defined = (option: string, ...scopes: Hash[]) => {
 };
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-export const valuable = (...values: any[]) => values.some((value) => value !== null);
+export const valuable = (...values: any[]) =>
+    values.some((value) => value !== null && value !== undefined);
 
 const OptionSource = Symbol('OptionSource');
 
@@ -136,7 +140,7 @@ export function option(o: OptionInfo) {
 export const configPath = Symbol('configPath');
 
 type ConfigUtils = {
-    [configPath]?: string;
+    [configPath]: AbsolutePath | null;
     resolve(subpath: string): AbsolutePath;
 };
 

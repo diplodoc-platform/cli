@@ -32,6 +32,7 @@ export async function runPublish(args: string) {
 }
 
 type DeepPartial<T> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [P in keyof T]?: T[P] extends Record<any, any> ? DeepPartial<T[P]> : T[P];
 };
 
@@ -49,6 +50,7 @@ export function testConfig(
     config: DeepPartial<PublishConfig>,
     result: Error | string,
 ): void;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function testConfig(name: string, args: string, config: any, result?: any): void {
     it(name, async () => {
         if (!result) {
@@ -70,6 +72,7 @@ export function testConfig(name: string, args: string, config: any, result?: any
         try {
             await runPublish('--input ./input --access-key-id 1 --secret-access-key 1 ' + args);
             expect(upload).toBeCalled();
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             const message = error.message || error;
             if (result instanceof Error) {

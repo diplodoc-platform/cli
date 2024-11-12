@@ -9,8 +9,8 @@ export function extract(content: Content, options: ExtractOptions) {
         const {xliff, units, skeleton} = _extract(content, options);
 
         return {xliff, units, skeleton};
-    } catch (error: any) {
-        throw new ExtractError(error);
+    } catch (error: unknown) {
+        throw new ExtractError(error as Error);
     }
 }
 
@@ -20,7 +20,7 @@ type Xliff = Parameters<typeof _compose>[1];
 export function compose(skeleton: Skeleton, xliff: Xliff, options: ComposeOptions) {
     try {
         return _compose(skeleton, xliff, options);
-    } catch (error: any) {
-        throw new ComposeError(error);
+    } catch (error: unknown) {
+        throw new ComposeError(error as Error);
     }
 }
