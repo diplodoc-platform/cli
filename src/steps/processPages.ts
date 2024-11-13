@@ -197,7 +197,7 @@ async function saveSinglePages() {
                 const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
                     pageData,
-                    join(relativeTocDir, 'single-page-toc'),
+                    {path: join(relativeTocDir, 'single-page-toc'), content: toc},
                     (toc.title as string) || '',
                 );
 

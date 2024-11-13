@@ -115,7 +115,11 @@ export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInner
     const [tocDir, toc] = TocService.getForPath(inputPath) as [string, YfmToc];
 
     const title = getTitle(toc.title as string, props.data.title);
-    const outputFileContent = generateStaticMarkup(props, join(tocDir, 'toc'), title);
+    const tocInfo = {
+        content: toc,
+        path: join(tocDir, 'toc'),
+    };
+    const outputFileContent = generateStaticMarkup(props, tocInfo, title);
     writeFileSync(outputPath, outputFileContent);
     logger.info(inputPath, PROCESSING_FINISHED);
 
