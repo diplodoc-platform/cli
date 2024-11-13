@@ -56,9 +56,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -114,9 +111,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -176,9 +170,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -234,9 +225,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -302,9 +290,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <meta name="noIndex"
           content="true"
     >
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -362,9 +347,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <base href="../">
     <meta name="yfm"
           content="builder"
-    >
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"

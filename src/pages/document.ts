@@ -123,7 +123,7 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
 }
 
 function generateCSP(csp?: Record<string, string[]>[]) {
-    if (!csp) {
+    if (!csp || !csp.length) {
         return '';
     }
 
