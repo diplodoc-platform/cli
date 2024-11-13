@@ -7,7 +7,7 @@ import {
     DEFAULT_CSP_SETTINGS,
     RTL_LANGS,
 } from '../constants';
-import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
+import {LeadingPage, Resources, TextItems, VarsMetadata, YfmToc} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {getDepthPath} from '../utils';
 
@@ -26,9 +26,14 @@ export type Meta = TitleMeta &
         metadata: VarsMetadata;
     };
 
+type TocInfo = {
+    content: YfmToc;
+    path: string;
+};
+
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
-    tocPath: string,
+    toc: TocInfo,
     title: string,
 ): string {
     /* @todo replace rest operator with proper unpacking */
@@ -36,6 +41,11 @@ export function generateStaticMarkup(
     const resources = getResources({style, script});
 
     const {staticContent} = ArgvService.getConfig();
+    if (staticContent) {
+        // TODO: there shoul be two different types YfmToc and YfmProcessedToc
+        // @ts-ignore
+        props.data.toc = toc.content;
+    }
 
     const depth = props.router.depth;
     const html = staticContent ? render(props) : '';
@@ -71,7 +81,7 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script src="${tocPath + '.js'}" type="application/javascript"></script>
+                <script src="${toc.path + '.js'}" type="application/javascript"></script>
                 ${manifest.app.js
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map(

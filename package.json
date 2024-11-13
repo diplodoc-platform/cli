@@ -53,9 +53,8 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^3.1.6",
+    "@diplodoc/client": "^3.1.8",
     "@diplodoc/translation": "^1.4.3",
-    "csp-header": "^5.2.1",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
     "threads": "1.7.0",
@@ -90,6 +89,7 @@
     "axios": "^1.6.7",
     "chalk": "^4.1.2",
     "commander": "^12.0.0",
+    "csp-header": "^5.2.1",
     "esbuild": "^0.23.1",
     "glob": "^8.0.3",
     "html-escaper": "^3.0.3",
