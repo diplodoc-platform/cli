@@ -1,5 +1,15 @@
 # Changelog
 
+## [4.44.1](https://github.com/diplodoc-platform/cli/compare/v4.44.0...v4.44.1) (2024-11-13)
+
+
+### Bug Fixes
+
+* deprecated with empty schemas ([a5b820c](https://github.com/diplodoc-platform/cli/commit/a5b820cdfb21ecd0507fe150471233b33ec3a0bb))
+* Fix CSP tag generation ([8b64d8a](https://github.com/diplodoc-platform/cli/commit/8b64d8a7fefa47995b95cfd16bd952c3fd370c6c))
+* Fix missed toc data for static-content ([b24876b](https://github.com/diplodoc-platform/cli/commit/b24876b1568e2f783828f104d4986c4d8979d1c1))
+* pc types & @diplodoc/client update ([e8c8f55](https://github.com/diplodoc-platform/cli/commit/e8c8f554f319961d83e28aff5d2173baaa684f85))
+
 ## [4.44.0](https://github.com/diplodoc-platform/cli/compare/v4.43.1...v4.44.0) (2024-11-11)
 
 
