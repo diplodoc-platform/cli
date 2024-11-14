@@ -3,8 +3,6 @@ const esbuild = require('esbuild');
 const tsPaths = require('./ts-paths');
 const shell = require('shelljs');
 
-const generatePageConstuctorSchema = require('./generate-pc-schema');
-
 const SEARCH_API = require.resolve('@diplodoc/search-extension/worker');
 const SEARCH_LANGS = require.resolve('@diplodoc/search-extension/worker/langs');
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
@@ -48,8 +46,6 @@ const builds = [
     [['src/index.ts'], 'build/index.js'],
     [['src/workers/linter/index.ts'], 'build/linter.js'],
 ];
-
-generatePageConstuctorSchema();
 
 Promise.all(builds.map(([entries, outfile]) => {
     const currentConfig = {
