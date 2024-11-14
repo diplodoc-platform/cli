@@ -64,7 +64,6 @@ const colors = {
     [LogLevel.ERROR]: red,
 };
 
-
 /**
  * Logger has three logging channels: info, warning, and error.
  * There are also many topics that use one of these channels.
@@ -198,7 +197,7 @@ export class Logger implements LogConsumer {
             [LogLevel.INFO]: this[INFO].count,
             [LogLevel.WARN]: this[WARN].count,
             [LogLevel.ERROR]: this[ERROR].count,
-        }
+        };
     }
 
     [Write](level: LogLevels, message: string) {

@@ -161,7 +161,7 @@ export function withConfigUtils<T extends Hash = Hash>(path: string | null, conf
         [configPath]: {
             enumerable: false,
             value: path === null ? path : resolve(path),
-        }
+        },
     });
 }
 
