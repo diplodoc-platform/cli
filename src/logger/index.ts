@@ -64,6 +64,18 @@ const colors = {
     [LogLevel.ERROR]: red,
 };
 
+
+/**
+ * Logger has three logging channels: info, warning, and error.
+ * There are also many topics that use one of these channels.
+ *
+ * By default, the logger has three topics named after the logging channels.
+ * New topics should always use one of defined channel.
+ *
+ * Loggers are also pipeable.
+ * In this mode, only the channel is passed along.
+ * Topics processing from the parent logger are ignored.
+ */
 export class Logger implements LogConsumer {
     [INFO] = writer(this, LogLevel.INFO);
 
@@ -71,11 +83,11 @@ export class Logger implements LogConsumer {
 
     [ERROR] = writer(this, LogLevel.ERROR);
 
-    [LogLevel.INFO] = this.topic(LogLevel.INFO, 'INFO');
+    info = this.topic(LogLevel.INFO, 'INFO');
 
-    [LogLevel.WARN] = this.topic(LogLevel.WARN, 'WARN');
+    warn = this.topic(LogLevel.WARN, 'WARN');
 
-    [LogLevel.ERROR] = this.topic(LogLevel.ERROR, 'ERR');
+    error = this.topic(LogLevel.ERROR, 'ERR');
 
     private options: LoggerOptions = {
         colors: true,
@@ -103,6 +115,13 @@ export class Logger implements LogConsumer {
         return this;
     }
 
+    /**
+     * Pipe local log channels to parent log channels.
+     * This doesn't pipe topics processing.
+     * So if child and parent has the same topic with name 'proc',
+     * only local topic will be applied to message.
+     * Message will be decorated by local topic and will be passed to parent as raw string.
+     */
     pipe(consumer: LogConsumer) {
         if (this.consumer && this.consumer !== consumer) {
             throw new Error('This log already piped to another consumer.');
@@ -119,8 +138,13 @@ export class Logger implements LogConsumer {
         return this;
     }
 
+    /**
+     * Defines new write decorator to one of defined log channeld.
+     * Each decorator adds colored prefix to messages and apply preconfigured filters.
+     */
     topic(level: LogLevels, prefix: string, color?: Color) {
-        const _writer = this[Symbol.for(level) as keyof LogConsumer];
+        const channel = Symbol.for(level) as keyof LogConsumer;
+        const _writer = this[channel];
         const _color = color || colors[level];
 
         const topic = (...messages: unknown[]) => {
@@ -167,6 +191,14 @@ export class Logger implements LogConsumer {
         }
 
         return this;
+    }
+
+    stat(): Record<LogLevels, number> {
+        return {
+            [LogLevel.INFO]: this[INFO].count,
+            [LogLevel.WARN]: this[WARN].count,
+            [LogLevel.ERROR]: this[ERROR].count,
+        }
     }
 
     [Write](level: LogLevels, message: string) {

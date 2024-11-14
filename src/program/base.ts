@@ -152,7 +152,8 @@ export const BaseProgram = <
         }
 
         private async post() {
-            if (this.logger.error.count || (this.config.strict && this.logger.warn.count)) {
+            const stat = this.logger.stat();
+            if (stat.error || (this.config.strict && stat.warn)) {
                 throw new HandledError('There is some processing errors.');
             }
 
