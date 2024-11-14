@@ -26,8 +26,7 @@ const outputFormat = option({
 
 const langs = option({
     flags: '--lang, --langs <value...>',
-    desc: 'Allow loading custom resources into statically generated pages.',
-    // parser: toArray,
+    desc: 'Configure langs supported by build',
 });
 
 const vars = option({

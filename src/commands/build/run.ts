@@ -32,7 +32,7 @@ export class Run {
     readonly config: BuildConfig;
 
     get bundlePath() {
-        return join(this.originalOutput, BUNDLE_FOLDER);
+        return join(this.output, BUNDLE_FOLDER);
     }
 
     get configPath() {
