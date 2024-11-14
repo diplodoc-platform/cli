@@ -18,11 +18,7 @@ function replaceField(obj, oldFieldName, newFieldName, newFieldValue) {
     return obj;
 }
 
-function generatePageConstuctorSchema() {
-  const schema = generateDefaultSchema();
-  const modifiedSchema = replaceField(schema, 'contentType', 'translate', 'md');
+const schema = generateDefaultSchema();
+const modifiedSchema = replaceField(schema, 'contentType', 'translate', 'md');
 
-  fs.writeFileSync('schemas/page-constructor-schema.json', JSON.stringify(modifiedSchema, null, 2));
-}
-
-module.exports = generatePageConstuctorSchema;
+fs.writeFileSync('schemas/page-constructor-schema.json', JSON.stringify(modifiedSchema, null, 2));
