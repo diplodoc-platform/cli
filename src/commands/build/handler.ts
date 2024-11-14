@@ -3,12 +3,10 @@ import type {Run} from './run';
 import 'threads/register';
 
 import glob from 'glob';
-import {join} from 'path';
 import shell from 'shelljs';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {BUNDLE_FOLDER} from '~/constants';
 import {ArgvService, Includers, SearchService} from '~/services';
 import {
     initLinterWorkers,
@@ -24,9 +22,6 @@ import {prepareMapFile} from '~/steps/processMapFile';
 import {copyFiles} from '~/utils';
 
 export async function handler(run: Run) {
-    const tmpInputFolder = run.input;
-    const tmpOutputFolder = run.output;
-
     if (typeof VERSION !== 'undefined') {
         console.log(`Using v${VERSION} version`);
     }
@@ -39,14 +34,12 @@ export async function handler(run: Run) {
         Includers.init([OpenapiIncluder]);
 
         const {
-            output: outputFolderPath,
-            outputFormat,
             lintDisabled,
             buildDisabled,
             addMapFile,
         } = ArgvService.getConfig();
 
-        preparingTemporaryFolders();
+        preparingTemporaryFolders(run);
 
         await processServiceFiles();
         processExcludedFiles();
@@ -55,7 +48,7 @@ export async function handler(run: Run) {
             prepareMapFile();
         }
 
-        const outputBundlePath = join(outputFolderPath, BUNDLE_FOLDER);
+        const outputBundlePath = run.bundlePath;
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -71,12 +64,7 @@ export async function handler(run: Run) {
 
         if (!buildDisabled) {
             // process additional files
-            processAssets({
-                run,
-                outputFormat,
-                outputBundlePath,
-                tmpOutputFolder,
-            });
+            processAssets(run);
 
             await processChangelogs();
 
@@ -85,23 +73,21 @@ export async function handler(run: Run) {
     } catch (error) {
         run.logger.error(error);
     } finally {
-        processLogs(tmpInputFolder);
+        processLogs(run.input);
     }
 }
 
-function preparingTemporaryFolders() {
-    const args = ArgvService.getConfig();
-
+function preparingTemporaryFolders(run: Run) {
     copyFiles(
-        args.rootInput,
-        args.input,
+        run.originalInput,
+        run.input,
         glob.sync('**', {
-            cwd: args.rootInput,
+            cwd: run.originalInput,
             nodir: true,
             follow: true,
             ignore: ['node_modules/**', '*/node_modules/**'],
         }),
     );
 
-    shell.chmod('-R', 'u+w', args.input);
+    shell.chmod('-R', 'u+w', run.input);
 }

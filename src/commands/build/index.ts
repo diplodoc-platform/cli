@@ -274,8 +274,6 @@ export class Build
 
         run.logger.pipe(this.logger);
 
-        shell.mkdir('-p', run.originalOutput);
-
         // Create temporary input/output folders
         shell.rm('-rf', run.input, run.output);
         shell.mkdir('-p', run.input, run.output);
@@ -287,6 +285,7 @@ export class Build
         await this.hooks.AfterAnyRun.promise(run);
 
         // Copy all generated files to user' output folder
+        shell.mkdir('-p', run.originalOutput);
         shell.cp('-r', join(run.output, '*'), run.originalOutput);
 
         if (glob.sync('.*', {cwd: run.output}).length) {

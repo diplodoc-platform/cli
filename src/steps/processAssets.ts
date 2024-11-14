@@ -5,7 +5,7 @@ import {load} from 'js-yaml';
 import {readFileSync} from 'fs';
 import {join, relative} from 'path';
 
-import {ArgvService, TocService} from '../services';
+import {TocService} from '../services';
 import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
 
 import {DocLeadingPageData, LINK_KEYS} from '@diplodoc/client/ssr';
@@ -15,54 +15,38 @@ import {ASSETS_FOLDER} from '../constants';
 import {Resources} from '../models';
 import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
 
-/**
- * @param {Array} args
- * @param {string} outputBundlePath
- * @param {string} outputFormat
- * @param {string} tmpOutputFolder
- * @return {void}
- */
-
-type Props = {
-    run: Run;
-    outputBundlePath: string;
-    outputFormat: string;
-    tmpOutputFolder: string;
-};
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets({run, outputFormat, outputBundlePath, tmpOutputFolder}: Props) {
-    switch (outputFormat) {
+export function processAssets(run: Run) {
+    switch (run.config.outputFormat) {
         case 'html':
-            processAssetsHtmlRun({outputBundlePath});
+            processAssetsHtmlRun(run);
             break;
         case 'md':
-            processAssetsMdRun({run, tmpOutputFolder});
+            processAssetsMdRun(run);
             break;
     }
 }
 
-function processAssetsHtmlRun({outputBundlePath}) {
-    const {input: inputFolderPath, output: outputFolderPath} = ArgvService.getConfig();
-
-    const documentationAssetFilePath: string[] = walkSync(inputFolderPath, {
+function processAssetsHtmlRun(run: Run) {
+    const documentationAssetFilePath: string[] = walkSync(run.input, {
         directories: false,
         includeBasePath: false,
         ignore: ['**/*.yaml', '**/*.md'],
     });
 
-    copyFiles(inputFolderPath, outputFolderPath, documentationAssetFilePath);
+    copyFiles(run.input, run.output, documentationAssetFilePath);
 
     const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
         directories: false,
         includeBasePath: false,
     });
 
-    copyFiles(ASSETS_FOLDER, outputBundlePath, bundleAssetFilePath);
+    copyFiles(ASSETS_FOLDER, run.bundlePath, bundleAssetFilePath);
 }
 
-function processAssetsMdRun({run, tmpOutputFolder}: {run: Run; tmpOutputFolder: string}) {
+function processAssetsMdRun(run: Run) {
     const {allowCustomResources, resources} = run.config;
 
     if (resources && allowCustomResources) {
@@ -78,7 +62,7 @@ function processAssetsMdRun({run, tmpOutputFolder}: {run: Run; tmpOutputFolder: 
         });
 
         //copy resources
-        copyFiles(run.originalInput, tmpOutputFolder, resourcePaths);
+        copyFiles(run.originalInput, run.output, resourcePaths);
     }
 
     const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
@@ -111,6 +95,6 @@ function processAssetsMdRun({run, tmpOutputFolder}: {run: Run; tmpOutputFolder: 
                 return acc;
             }, [] as RelativePath[]);
 
-        copyFiles(run.originalInput, tmpOutputFolder, localMediaLinks);
+        copyFiles(run.originalInput, run.output, localMediaLinks);
     });
 }
