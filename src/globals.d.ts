@@ -1,7 +1,16 @@
 declare const VERSION: string;
 
+type Action = (...args: any[]) => any;
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type NodeCallback<R = any> = (error?: Error | null, result?: R) => void;
+
+type SourceMap = {
+    version: string;
+};
 
 type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends {} ? DeepPartial<T[P]> : T[P];

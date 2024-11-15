@@ -56,9 +56,11 @@
   "dependencies": {
     "@diplodoc/client": "^3.1.8",
     "@diplodoc/translation": "^1.4.3",
+    "@types/vfile": "^4.0.0",
     "katex": "^0.16.9",
     "shelljs": "0.8.5",
-    "threads": "1.7.0"
+    "threads": "1.7.0",
+    "vfile": "^4.2.1"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.525.0",
