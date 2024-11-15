@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.45.0](https://github.com/diplodoc-platform/cli/compare/v4.44.1...v4.45.0) (2024-11-15)
+
+
+### Features
+
+* build pc schema ([e21c638](https://github.com/diplodoc-platform/cli/commit/e21c6380762730594989c228d9aa947b62c2ed21))
+* translate page-constructor pages ([f3ed0f6](https://github.com/diplodoc-platform/cli/commit/f3ed0f65f16a965e49ac8a2d6a7fa36ac99053fd))
+* update @diplodoc/translation & run schema build on postinstall ([e73cf48](https://github.com/diplodoc-platform/cli/commit/e73cf48cc86ada3070f2da1a825b61a9bdc2e014))
+
+
+### Bug Fixes
+
+* update @diplodoc/transform@4.37.1 ([#888](https://github.com/diplodoc-platform/cli/issues/888)) ([91425ab](https://github.com/diplodoc-platform/cli/commit/91425abbaf670a8f43afaddf0d61ceedd672c20e))
+
 ## [4.44.1](https://github.com/diplodoc-platform/cli/compare/v4.44.0...v4.44.1) (2024-11-13)
 
 
