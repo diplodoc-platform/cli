@@ -154,7 +154,7 @@ export async function resolveSchemas({
 }) {
     if (typeof content === 'object' && content?.blocks) {
         return {
-            schemas: [await loadFile(join(ROOT, 'schemas/page-constructor-schema.json'))],
+            schemas: [await loadFile(join(ROOT, 'schemas/page-constructor-schema.yaml'))],
             ajvOptions: {
                 keywords: 'select',
                 extendWithSchemas: [],
