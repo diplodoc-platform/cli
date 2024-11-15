@@ -1,4 +1,9 @@
-const fs = require('fs');
+#!/usr/bin/env node
+
+// Replaces some fields in page constructor schema and saves it to schemas folder.
+
+const {writeFileSync} = require('fs');
+const {dump} = require('js-yaml');
 const {generateDefaultSchema} = require('@gravity-ui/page-constructor/schema/index.js');
 
 function replaceField(obj, oldFieldName, newFieldName, newFieldValue) {
@@ -21,4 +26,4 @@ function replaceField(obj, oldFieldName, newFieldName, newFieldValue) {
 const schema = generateDefaultSchema();
 const modifiedSchema = replaceField(schema, 'contentType', 'translate', 'md');
 
-fs.writeFileSync('schemas/page-constructor-schema.json', JSON.stringify(modifiedSchema, null, 2));
+writeFileSync('schemas/page-constructor-schema.yaml', dump(modifiedSchema));

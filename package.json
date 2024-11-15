@@ -40,7 +40,7 @@
     "start": "node build/index.js",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "postinstall": "node scripts/generate-pc-schema.js"
+    "regenerate-schemas": "scripts/regenerate-schemas.js"
   },
   "husky": {
     "hooks": {
