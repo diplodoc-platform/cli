@@ -4,6 +4,8 @@ import {Headers, extract} from 'tar-stream';
 
 import type {PassThrough} from 'stream';
 
+import {getRealPath} from '@diplodoc/transform/lib/utilsFS';
+
 import {IncluderFunctionParams} from '../../../models';
 
 const name = 'unarchive';
@@ -87,7 +89,14 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
     const contentPath = index === 0 ? join(writeBasePath, input) : join(readBasePath, input);
 
-    const writePath = join(writeBasePath, output);
+    const writePath = getRealPath(join(writeBasePath, output));
+
+    if (!writePath.startsWith(writeBasePath)) {
+        throw new UnarchiveIncluderError(
+            `Expected the output parameter to be located inside project root, got: ${output}`,
+            output,
+        );
+    }
 
     try {
         await pipeline(contentPath, writePath);
