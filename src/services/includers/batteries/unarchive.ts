@@ -89,6 +89,10 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
 
     const writePath = join(writeBasePath, output);
 
+    if(!writePath.startsWith(writeBasePath)){
+        throw new UnarchiveIncluderError(`Invalid output parameter: ${output}. Provide includer with output parameter, which is located inside the documentation`, output);
+    }
+
     try {
         await pipeline(contentPath, writePath);
     } catch (err) {
