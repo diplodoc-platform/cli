@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.45.2](https://github.com/diplodoc-platform/cli/compare/v4.45.1...v4.45.2) (2024-11-18)
+
+
+### Bug Fixes
+
+* **deps:** update @diplodoc/tranform to 4.38.2 ([c39e7c6](https://github.com/diplodoc-platform/cli/commit/c39e7c6582fa5d754ebe71fb604ba89863af2f67))
+
 ## [4.45.1](https://github.com/diplodoc-platform/cli/compare/v4.45.0...v4.45.1) (2024-11-18)
 
 
