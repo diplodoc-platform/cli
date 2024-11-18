@@ -1,12 +1,17 @@
 name: CI
 
-on: workflow_dispatch
-
-inputs:
-  package:
-    required: true
-  version:
-    default: "latest"
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package name'
+        required: true
+        type: string
+      version:
+        description: 'Package version'
+        required: true
+        type: string
+        default: "latest"
 
 jobs:
   prerelease:
