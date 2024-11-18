@@ -69,7 +69,11 @@
     "@diplodoc/openapi-extension": "^2.4.4",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/search-extension": "^1.1.5",
+<<<<<<< Updated upstream
     "@diplodoc/transform": "^4.38.1",
+=======
+    "@diplodoc/transform": "^4.38.2",
+>>>>>>> Stashed changes
     "@diplodoc/tsconfig": "^1.0.2",
     "@gravity-ui/page-constructor": "^5.29.1",
     "@octokit/core": "4.2.4",
