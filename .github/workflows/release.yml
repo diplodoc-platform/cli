@@ -27,7 +27,7 @@ jobs:
           token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
           release-type: node
           package-name: ${{steps.package.outputs.name}}
-          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false}]'
+          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false},{"type":"deps","section":"Dependency update","hidden":false}]'
           bump-minor-pre-major: true
       - run: npm publish
         env:
