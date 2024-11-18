@@ -40,5 +40,5 @@ jobs:
           git checkout -b ci/update-deps/${{ inputs.package }}-$VERSION
           git add package.json package-lock.json
           git commit -m "deps: Update @diplodoc/transform to $VERSION"
-          git push -u origin/ci/update-deps/${{ inputs.package }}-$VERSION
+          git push -u origin ci/update-deps/${{ inputs.package }}-$VERSION
           gh pr create -f
