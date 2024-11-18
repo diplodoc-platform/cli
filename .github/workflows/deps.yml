@@ -14,7 +14,7 @@ on:
         default: "latest"
 
 jobs:
-  prerelease:
+  update-package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
       - name: Create and publish PR
         run: |
           VERSION=$(npm explore --no-workspaces @diplodoc/transform "node -pe 'require(\"./package.json\").version'" --shell sh)
-          git push -f origin :ci/update-deps/${{ inputs.package }}-$VERSION
+          git push -f origin :ci/update-deps/${{ inputs.package }}-$VERSION || true
           git checkout -b ci/update-deps/${{ inputs.package }}-$VERSION
           git add package.json package-lock.json
           git commit -m "deps: Update @diplodoc/transform to $VERSION"
