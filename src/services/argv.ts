@@ -1,6 +1,7 @@
-import {YfmArgv} from '../models';
 import {join} from 'path';
 import {readFileSync} from 'fs';
+
+import {YfmArgv} from '../models';
 
 let _argv!: YfmArgv;
 

@@ -1,7 +1,11 @@
+import {existsSync} from 'fs';
+import {resolve} from 'path';
 import {LintConfig, LintRule} from '@diplodoc/transform/lib/yfmlint';
 
 import {CollectionOfPluginsFunction, Plugin, PluginOptions} from '../models';
 import {YFM_PLUGINS} from '../constants';
+
+import ArgvService from './argv';
 
 let plugins: Function[] | Plugin[];
 let collectionOfPlugins: CollectionOfPluginsFunction;
@@ -38,8 +42,9 @@ function makeCollectOfPlugins(): CollectionOfPluginsFunction {
 }
 
 function getAllPlugins(): Function[] {
+    const argsPlugins = getArgsPlugins();
     const customPlugins = getCustomPlugins();
-    return [...YFM_PLUGINS, ...customPlugins];
+    return [...YFM_PLUGINS, ...argsPlugins, ...customPlugins];
 }
 
 function getCustomPlugins(): Function[] {
@@ -49,6 +54,14 @@ function getCustomPlugins(): Function[] {
     } catch (e) {
         return [];
     }
+}
+
+function getArgsPlugins(): Function[] {
+    const {plugins: pluginsFile} = ArgvService.getConfig();
+    if (pluginsFile && existsSync(resolve(pluginsFile))) {
+        return require(resolve(pluginsFile));
+    }
+    return [];
 }
 
 export function getHeadContent(): string {

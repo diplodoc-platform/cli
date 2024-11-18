@@ -98,6 +98,7 @@ export interface YfmArgv extends YfmConfig {
     input: string;
     output: string;
     quiet: string;
+    plugins: string;
     publish: boolean;
     storageEndpoint: string;
     storageBucket: string;
