@@ -28,6 +28,8 @@ jobs:
       - name: Update package
         run: npm i ${{ inputs.package }}@${{ inputs.version }}
       - name: Create and publish PR
+        env:
+          GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
         run: |
           VERSION=$(npm explore --no-workspaces @diplodoc/transform "node -pe 'require(\"./package.json\").version'" --shell sh)
           git push -f origin :ci/update-deps/${{ inputs.package }}-$VERSION || true
