@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.47.0](https://github.com/diplodoc-platform/cli/compare/v4.46.0...v4.47.0) (2024-11-19)
+
+
+### Features
+
+* **cli:** add ignore files starts from underline ([#904](https://github.com/diplodoc-platform/cli/issues/904)) ([dc1d0fa](https://github.com/diplodoc-platform/cli/commit/dc1d0fa4aca61e4b288265236dfb6dcdd9e9f9df))
+
+
+### Bug Fixes
+
+* generic include should be inside root ([ccaa6f5](https://github.com/diplodoc-platform/cli/commit/ccaa6f591700140afcf225f5cb32d2506c71f3c8))
+
 ## [4.46.0](https://github.com/diplodoc-platform/cli/compare/v4.45.2...v4.46.0) (2024-11-19)
 
 
