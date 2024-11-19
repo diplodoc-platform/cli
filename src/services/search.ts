@@ -47,7 +47,8 @@ function add(path: string, info: DocInnerProps) {
 
     const toc = TocService.getForPath(path)[1];
     const base = (toc as {base?: string}).base || '';
-    const url = base + '/' + router.pathname;
+    // TODO: adopt for non html links
+    const url = base + router.pathname + '.html';
 
     indexer.add(lang, url, data as DocPageData);
 }
