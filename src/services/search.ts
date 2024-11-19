@@ -9,7 +9,7 @@ import {mkdirSync, writeFileSync} from 'node:fs';
 import {Indexer} from '@diplodoc/search-extension/indexer';
 import {langs} from '@diplodoc/search-extension/worker/langs';
 
-import {ArgvService, TocService} from '.';
+import {ArgvService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
 
@@ -45,10 +45,8 @@ function add(path: string, info: DocInnerProps) {
         return;
     }
 
-    const toc = TocService.getForPath(path)[1];
-    const base = (toc as {base?: string}).base || '';
     // TODO: adopt for non html links
-    const url = base + router.pathname + '.html';
+    const url = router.pathname + '.html';
 
     indexer.add(lang, url, data as DocPageData);
 }
