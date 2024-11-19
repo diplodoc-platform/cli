@@ -4,6 +4,8 @@ import {dirname, join, parse} from 'path';
 import {updateWith} from 'lodash';
 import {dump} from 'js-yaml';
 
+import {getRealPath} from '@diplodoc/transform/lib/utilsFS';
+
 import {glob} from '../../../utils/glob';
 
 import {IncluderFunctionParams} from '../../../models';
@@ -66,7 +68,14 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
             cache,
         }));
 
-        const writePath = join(writeBasePath, tocDirPath, item.include.path);
+        const writePath = getRealPath(join(writeBasePath, tocDirPath, item.include.path));
+
+        if (!writePath.startsWith(writeBasePath)) {
+            throw new GenericIncluderError(
+                `Expected the include path to be located inside project root, got: ${writePath}`,
+                writePath,
+            );
+        }
 
         await mkdir(writePath, {recursive: true});
 
