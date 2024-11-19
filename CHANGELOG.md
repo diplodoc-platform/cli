@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.46.0](https://github.com/diplodoc-platform/cli/compare/v4.45.2...v4.46.0) (2024-11-19)
+
+
+### Features
+
+* add deprecated option in toc item ([ad77a43](https://github.com/diplodoc-platform/cli/commit/ad77a438dbd85fba8c2bdc76ae2cedc022cc6351))
+
+
+### Bug Fixes
+
+* check if output parameter is located inside root ([#896](https://github.com/diplodoc-platform/cli/issues/896)) ([69296e7](https://github.com/diplodoc-platform/cli/commit/69296e727af3a78f82e67b846142ee442f579499))
+
 ## [4.45.2](https://github.com/diplodoc-platform/cli/compare/v4.45.1...v4.45.2) (2024-11-18)
 
 
