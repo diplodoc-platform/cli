@@ -1,5 +1,21 @@
 # Changelog
 
+## [4.48.0](https://github.com/diplodoc-platform/cli/compare/v4.47.0...v4.48.0) (2024-11-19)
+
+
+### Features
+
+* **BREAKING** Drop internal build publish functionality ([fa93f88](https://github.com/diplodoc-platform/cli/commit/fa93f88691905293163fd3e209de6fb42560493c))
+
+
+### Bug Fixes
+
+* Fix search results urls ([fe036ea](https://github.com/diplodoc-platform/cli/commit/fe036eac29854cafc75228856c27810d0fabbea4))
+* Fix some lint and typecheck errors ([e035838](https://github.com/diplodoc-platform/cli/commit/e0358388459d80259c8e7a2db18bb1bd8aaf8d5d))
+* Fix translation tests ([e3f0174](https://github.com/diplodoc-platform/cli/commit/e3f017472813e94905eb1aa403f29434e71ec60b))
+* Improve some types ([26d5849](https://github.com/diplodoc-platform/cli/commit/26d58498a55ea6e50a8e0fbbf47cb4b40030f9d6))
+* Replace local trim with ts-dedent ([5f84624](https://github.com/diplodoc-platform/cli/commit/5f846240d5709c723d7069b3a479e2a7422d98aa))
+
 ## [4.47.0](https://github.com/diplodoc-platform/cli/compare/v4.46.0...v4.47.0) (2024-11-19)
 
 
