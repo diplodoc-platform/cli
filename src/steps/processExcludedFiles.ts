@@ -17,7 +17,7 @@ export function processExcludedFiles() {
         includeBasePath: true,
         globs: ['**/*.md', '**/index.yaml', ...ignore],
         // Ignores service directories like "_includes", "_templates" and etc.
-        ignore: ['**/_*/**/*'],
+        ignore: ['**/_*/**/*', '**/_include--*'],
     });
     const navigationPaths = TocService.getNavigationPaths().map((filePath) =>
         convertBackSlashToSlash(resolve(inputFolderPath, filePath)),
