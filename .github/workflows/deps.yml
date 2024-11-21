@@ -31,6 +31,10 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
         run: |
+          set -e
+
+          [[ -z $(git diff --stat | grep package.json) ]] && echo "::info::Nothing to update" && exit 0
+
           VERSION=$(npm explore --no-workspaces @diplodoc/transform "node -pe 'require(\"./package.json\").version'" --shell sh)
 
           git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
@@ -39,6 +43,6 @@ jobs:
           git push -f origin :ci/update-deps/${{ inputs.package }}-$VERSION || true
           git checkout -b ci/update-deps/${{ inputs.package }}-$VERSION
           git add package.json package-lock.json
-          git commit -m "deps: Update @diplodoc/transform to $VERSION"
+          git commit -m "deps: Update ${{ inputs.package }} to $VERSION"
           git push -u origin ci/update-deps/${{ inputs.package }}-$VERSION
           gh pr create -f
