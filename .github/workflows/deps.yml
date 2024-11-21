@@ -35,7 +35,7 @@ jobs:
 
           [[ -z $(git diff --stat | grep package.json) ]] && echo "::info::Nothing to update" && exit 0
 
-          VERSION=$(npm explore --no-workspaces @diplodoc/transform "node -pe 'require(\"./package.json\").version'" --shell sh)
+          VERSION=$(npm explore --no-workspaces ${{ inputs.package }} "node -pe 'require(\"./package.json\").version'" --shell sh)
 
           git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
           git config --global user.name "yc-ui-bot"
