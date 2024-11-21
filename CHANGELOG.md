@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.48.1](https://github.com/diplodoc-platform/cli/compare/v4.48.0...v4.48.1) (2024-11-21)
+
+
+### Dependency update
+
+* Update @diplodoc/openapi-extension to 2.6.0 ([b8388c1](https://github.com/diplodoc-platform/cli/commit/b8388c1f050868c78a87eeacab0fff9a91d43ffa))
+
 ## [4.48.0](https://github.com/diplodoc-platform/cli/compare/v4.47.0...v4.48.0) (2024-11-19)
 
 
