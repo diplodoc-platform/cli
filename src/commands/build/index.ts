@@ -14,7 +14,7 @@ export type BuildArgs = {};
 
 export type BuildConfig = {};
 
-const parser = yargs
+const parser = yargs()
     .command(build)
     .option('config', {
         alias: 'c',

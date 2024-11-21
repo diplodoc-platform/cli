@@ -12,6 +12,8 @@ ${NAME} build -i ./src -o ./dst
 
 If no command passed, ${bold('build')} command will be called by default.`;
 
+const absolute = (path: string) => resolve(process.cwd(), path);
+
 const quiet = option({
     flags: '-q, --quiet',
     desc: `
@@ -50,7 +52,7 @@ const input = (defaultPath?: string) =>
     option({
         flags: '-i, --input <string>',
         desc: `Configure path to {{PROGRAM}} input directory.`,
-        default: defaultPath,
+        default: defaultPath ? absolute(defaultPath) : undefined,
         parser: absolute,
     });
 
@@ -58,7 +60,7 @@ const output = (defaultPath?: string) =>
     option({
         flags: '-o, --output <string>',
         desc: `Configure path to {{PROGRAM}} output directory.`,
-        default: defaultPath,
+        default: defaultPath ? absolute(defaultPath) : undefined,
         parser: absolute,
     });
 
@@ -77,8 +79,6 @@ const config = (defaultConfig: string) =>
         `,
         default: defaultConfig,
     });
-
-const absolute = (path: string) => resolve(process.cwd(), path);
 
 export const options = {
     quiet,

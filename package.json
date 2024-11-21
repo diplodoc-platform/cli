@@ -38,7 +38,8 @@
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build",
     "start": "node build/index.js",
-    "test": "vitest",
+    "test": "vitest --run",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js"
   },
