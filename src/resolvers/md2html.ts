@@ -145,7 +145,7 @@ function getHref(root: string, path: string, href: string) {
         href = href.replace(/\.(md|ya?ml)$/gi, '.html');
     } else if (!/.+\.\w+$/gi.test(href)) {
         // TODO: isFileExists index.md or index.yaml
-        href = href + '/index.html';
+        href = href + (href.endsWith('/') ? '' : '/') + 'index.html';
     }
 
     return href;
