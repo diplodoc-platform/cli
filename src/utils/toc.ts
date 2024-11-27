@@ -49,6 +49,10 @@ export function transformToc(toc: YfmToc, tocDir: string) {
             return href;
         }
 
+        if (href.endsWith('/')) {
+            href += 'index.yaml';
+        }
+
         const fileExtension: string = extname(href);
         const filename: string = basename(href, fileExtension) + '.html';
 
