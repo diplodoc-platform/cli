@@ -1,5 +1,23 @@
 # Changelog
 
+## [4.49.0](https://github.com/diplodoc-platform/cli/compare/v4.48.1...v4.49.0) (2024-11-27)
+
+
+### Features
+
+* Implement new build configuration systemcon ([baf8f6b](https://github.com/diplodoc-platform/cli/commit/baf8f6b24c8e15500d41f373c6653e4772fad2fc))
+
+
+### Bug Fixes
+
+* Attach new build system to main program ([55aaf13](https://github.com/diplodoc-platform/cli/commit/55aaf13bcae2381a82038aa8feb8253595742707))
+* Enable new unit tests ([94773d9](https://github.com/diplodoc-platform/cli/commit/94773d9c5ac8e51bb20a5dc4ea24624c11711a7e))
+* Fix context config prototype to ballow serialization ([195d30a](https://github.com/diplodoc-platform/cli/commit/195d30a54f11e6a0e831025d51e51aa4fb67358b))
+* Fix global log processing to handle errors ([77a12a3](https://github.com/diplodoc-platform/cli/commit/77a12a39e0d7c4be8195354beef013e2b8ade121))
+* Fix leading page urls for static build ([31b564e](https://github.com/diplodoc-platform/cli/commit/31b564e327ac4953436f62015d7613192996fad9))
+* Fix post build logs processing ([2178c11](https://github.com/diplodoc-platform/cli/commit/2178c11ca9d46f01e34a60ad4ebe7b2da727c63c))
+* Fix some lint and typecheck errors ([cff3f6c](https://github.com/diplodoc-platform/cli/commit/cff3f6c338f113171e4430eb419d4151a7eecd73))
+
 ## [4.48.1](https://github.com/diplodoc-platform/cli/compare/v4.48.0...v4.48.1) (2024-11-21)
 
 
