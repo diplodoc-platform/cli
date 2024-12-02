@@ -334,26 +334,13 @@ export class Command extends BaseCommand {
     addOption(o: Option | ExtendedOption): this {
         super.addOption(o);
 
-        if (o.isBoolean() && (o as ExtendedOption)[OptionSource]) {
-            const original = (o as ExtendedOption)[OptionSource];
-            const flags = original.flags
-                // replace short flags with void
-                .replace(/(^|\s+|,)-\w+\s*($|,?\s*)/g, '')
-                // add negation to long options
-                .replace(/--/g, '--no-');
+        const camelcase = camelCaseOption(o as ExtendedOption);
+        if (camelcase) {
+            super.addOption(camelcase);
+        }
 
-            const negated = {
-                ...original,
-                flags,
-                desc: 'auto negation',
-                hidden: true,
-            };
-
-            delete negated.default;
-            delete negated.defaultInfo;
-            delete negated.deprecated;
-
-            super.addOption(option(negated));
+        if (o.isBoolean()) {
+            super.addOption(negatedOption(o as ExtendedOption));
         }
 
         if (o.description) {
@@ -366,4 +353,52 @@ export class Command extends BaseCommand {
     createHelp() {
         return new Help();
     }
+}
+
+function camelCaseOption(o: ExtendedOption) {
+    const original = (o as ExtendedOption)[OptionSource];
+    const flags = original.flags
+        // replace short flags with void
+        .replace(/(^|\s+|,)-\w+\s*($|,?\s*)/g, '')
+        // convert to camel case (ignoring option first letter)
+        .replace(/([^-])-([a-z])/g, (_, $1, $2) => $1 + $2.toUpperCase());
+
+    if (original.flags.includes(flags)) {
+        return null;
+    }
+
+    const camelcase = {
+        ...original,
+        flags,
+        desc: 'auto camelcase',
+        deprecated: 'Use "kebab case" variant of this option.',
+        hidden: true,
+    };
+
+    delete camelcase.default;
+    delete camelcase.defaultInfo;
+
+    return option(camelcase);
+}
+
+function negatedOption(o: ExtendedOption) {
+    const original = (o as ExtendedOption)[OptionSource];
+    const flags = original.flags
+        // replace short flags with void
+        .replace(/(^|\s+|,)-\w+\s*($|,?\s*)/g, '')
+        // add negation to long options
+        .replace(/--/g, '--no-');
+
+    const negated = {
+        ...original,
+        flags,
+        desc: 'auto negation',
+        hidden: true,
+    };
+
+    delete negated.default;
+    delete negated.defaultInfo;
+    delete negated.deprecated;
+
+    return option(negated);
 }
