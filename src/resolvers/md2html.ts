@@ -90,7 +90,7 @@ const getFileProps = async (options: ResolverOptions) => {
     return {
         data: {
             ...data,
-            title: data.meta.title || data.title || '',
+            title: data.title || data.meta.title || '',
             leading: inputPath.endsWith('.yaml'),
         },
         router: {
