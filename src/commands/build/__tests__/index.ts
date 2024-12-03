@@ -13,6 +13,12 @@ var resolveConfig: Mock;
 
 vi.mock('shelljs');
 vi.mock('../handler');
+vi.mock('../run', async (importOriginal) => {
+    return {
+        ...((await importOriginal()) as {}),
+        copy: vi.fn(),
+    };
+});
 vi.mock('~/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -28,6 +34,10 @@ export async function runBuild(args: string) {
     const build = new Build();
 
     build.apply();
+    build.hooks.BeforeAnyRun.tap('Tests', (run) => {
+        run.copy = vi.fn();
+        run.write = vi.fn();
+    });
 
     await build.parse(['node', 'index'].concat(args.split(' ')));
 }

@@ -2,9 +2,6 @@ import type {Run} from './run';
 
 import 'threads/register';
 
-import glob from 'glob';
-import shell from 'shelljs';
-
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {ArgvService, Includers, SearchService} from '~/services';
@@ -19,13 +16,8 @@ import {
     processServiceFiles,
 } from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
-import {copyFiles} from '~/utils';
 
 export async function handler(run: Run) {
-    if (typeof VERSION !== 'undefined') {
-        console.log(`Using v${VERSION} version`);
-    }
-
     try {
         ArgvService.init(run.legacyConfig);
         SearchService.init();
@@ -34,8 +26,6 @@ export async function handler(run: Run) {
         Includers.init([OpenapiIncluder]);
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
-
-        preparingTemporaryFolders(run);
 
         await processServiceFiles();
         processExcludedFiles();
@@ -71,19 +61,4 @@ export async function handler(run: Run) {
     } finally {
         processLogs(run.input);
     }
-}
-
-function preparingTemporaryFolders(run: Run) {
-    copyFiles(
-        run.originalInput,
-        run.input,
-        glob.sync('**', {
-            cwd: run.originalInput,
-            nodir: true,
-            follow: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        }),
-    );
-
-    shell.chmod('-R', 'u+w', run.input);
 }
