@@ -3,7 +3,6 @@ import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
 import {join} from 'node:path';
-import glob from 'glob';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -270,6 +269,10 @@ export class Build
     }
 
     async action() {
+        if (typeof VERSION !== 'undefined') {
+            console.log(`Using v${VERSION} version`);
+        }
+
         const run = new Run(this.config);
 
         run.logger.pipe(this.logger);
@@ -280,17 +283,15 @@ export class Build
 
         await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
+
+        await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
+
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);
+
         await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
         await this.hooks.AfterAnyRun.promise(run);
 
-        // Copy all generated files to user' output folder
-        shell.mkdir('-p', run.originalOutput);
-        shell.cp('-r', join(run.output, '*'), run.originalOutput);
-
-        if (glob.sync('.*', {cwd: run.output}).length) {
-            shell.cp('-r', join(run.output, '.*'), run.originalOutput);
-        }
+        await run.copy(run.output, run.originalOutput);
 
         shell.rm('-rf', run.input, run.output);
     }
