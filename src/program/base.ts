@@ -3,7 +3,7 @@ import type {Command, Config, ExtendedOption} from '~/config';
 import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';
 import {once} from 'lodash';
-import {Logger} from '~/logger';
+import {Logger, stats} from '~/logger';
 import log from '@diplodoc/transform/lib/log';
 import {
     resolveConfig,
@@ -152,7 +152,7 @@ export const BaseProgram = <
         }
 
         private async post() {
-            const stat = this.logger.stat();
+            const stat = stats(this.logger);
             if (stat.error || (this.config.strict && stat.warn)) {
                 throw new HandledError('There is some processing errors.');
             }
