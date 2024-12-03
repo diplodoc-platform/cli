@@ -2,7 +2,6 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
-import {join} from 'node:path';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -285,6 +284,14 @@ export class Build
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
 
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
+
+        const presets = (await run.glob('**/presets.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const preset of presets) {
+            await run.vars.load(preset);
+        }
 
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);
 

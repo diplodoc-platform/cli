@@ -4,16 +4,16 @@ import 'threads/register';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {ArgvService, Includers, SearchService} from '~/services';
+import {ArgvService, Includers, PresetService, SearchService} from '~/services';
 import {
     initLinterWorkers,
+    preparingTocFiles,
     processAssets,
     processChangelogs,
     processExcludedFiles,
     processLinter,
     processLogs,
     processPages,
-    processServiceFiles,
 } from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
@@ -27,7 +27,8 @@ export async function handler(run: Run) {
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
-        await processServiceFiles();
+        PresetService.init(run.vars);
+        await preparingTocFiles(run);
         processExcludedFiles();
 
         if (addMapFile) {

@@ -1,5 +1,7 @@
-import {describe} from 'vitest';
-import {testConfig as test} from '../../__tests__';
+import {describe, expect, it} from 'vitest';
+import {runBuild, setupBuild, testConfig as test} from '../../__tests__';
+import {resolve} from 'node:path';
+import {dedent} from 'ts-dedent';
 
 describe('Build template feature', () => {
     describe('config', () => {
@@ -50,6 +52,10 @@ describe('Build template feature', () => {
                     scopes: {
                         text: false,
                         code: false,
+                    },
+                    features: {
+                        conditions: false,
+                        substitutions: false,
                     },
                 },
             });
@@ -200,6 +206,78 @@ describe('Build template feature', () => {
                         },
                     },
                 },
+            );
+        });
+    });
+
+    describe('run', () => {
+        const args = (...args: string[]) =>
+            '-i /dev/null/input -o /dev/null/output ' + args.join(' ');
+
+        it('should not save presets.yaml for html build', async () => {
+            const build = setupBuild({
+                globs: {
+                    '**/presets.yaml': ['./presets.yaml'],
+                },
+                files: {
+                    './presets.yaml': dedent`
+                        default:
+                          field: value
+                    `,
+                },
+            });
+
+            await runBuild(args('-f', 'html', '--no-template'), build);
+
+            expect(build.run.write).not.toHaveBeenCalledWith(
+                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                `default:\n  field: value\n`,
+            );
+        });
+
+        it('should save presets.yaml for md build with disabled templating', async () => {
+            const build = setupBuild({
+                globs: {
+                    '**/presets.yaml': ['./presets.yaml'],
+                },
+                files: {
+                    './presets.yaml': dedent`
+                        default:
+                          field: value
+                    `,
+                },
+            });
+
+            await runBuild(args('-f', 'md', '--no-template'), build);
+
+            expect(build.run.write).toHaveBeenCalledWith(
+                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                `default:\n  field: value\n`,
+            );
+        });
+
+        it('should filter presets.yaml for md build with disabled templating', async () => {
+            const build = setupBuild({
+                globs: {
+                    '**/presets.yaml': ['./presets.yaml'],
+                },
+                files: {
+                    './presets.yaml': dedent`
+                        default:
+                          field: value
+                        internal:
+                          field: value
+                        external:
+                          field: value
+                    `,
+                },
+            });
+
+            await runBuild(args('-f', 'md', '--no-template', '--vars-preset', 'internal'), build);
+
+            expect(build.run.write).toHaveBeenCalledWith(
+                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                `default:\n  field: value\ninternal:\n  field: value\n`,
             );
         });
     });
