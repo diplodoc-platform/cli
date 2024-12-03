@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.49.1](https://github.com/diplodoc-platform/cli/compare/v4.49.0...v4.49.1) (2024-12-03)
+
+
+### Bug Fixes
+
+* Change page title resolving strategy ([669748a](https://github.com/diplodoc-platform/cli/commit/669748aff5e0e3e892b03fd6f1ce5bb034ad2d2a)), closes [#924](https://github.com/diplodoc-platform/cli/issues/924)
+* Fix translation compose step ([d61c2b9](https://github.com/diplodoc-platform/cli/commit/d61c2b9a79ef8f0b24ad2dd33b6a5a963d574c35))
+* Install highlight for prod package build ([0feb5ff](https://github.com/diplodoc-platform/cli/commit/0feb5ffd45c7c1989c16f58987b5a43fa9bf5993))
+* Support legasy camelCase args ([5886fe5](https://github.com/diplodoc-platform/cli/commit/5886fe5007ac6d8fcc3e1c811662162bcb7ad819))
+
+
+### Dependency update
+
+* Update translation ([ca34116](https://github.com/diplodoc-platform/cli/commit/ca34116480f1e370d59c013d12eda9cbf49a0e51))
+
 ## [4.49.0](https://github.com/diplodoc-platform/cli/compare/v4.48.1...v4.49.0) (2024-11-27)
 
 
