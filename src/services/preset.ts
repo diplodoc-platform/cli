@@ -1,43 +1,26 @@
 import {dirname, normalize} from 'path';
 
-import {DocPreset, YfmPreset} from '../models';
+import {YfmPreset} from '../models';
+import {VarsService} from '~/commands/build/core/vars';
 
 export type PresetStorage = Map<string, YfmPreset>;
 
 let presetStorage: PresetStorage = new Map();
 
-function add(parsedPreset: DocPreset, path: string, varsPreset: string) {
-    const combinedValues = {
-        ...(parsedPreset.default || {}),
-        ...(parsedPreset[varsPreset] || {}),
-        __metadata: parsedPreset.__metadata,
-    } as YfmPreset;
-
-    const key = dirname(normalize(path));
-    presetStorage.set(key, combinedValues);
+function init(vars: VarsService) {
+    for (const [path, values] of vars.entries()) {
+        presetStorage.set(dirname(normalize(path)), values);
+    }
 }
 
 function get(path: string): YfmPreset {
-    let combinedValues: YfmPreset = {};
-    let localPath = normalize(path);
-
-    while (localPath !== '.') {
-        const presetValues: YfmPreset = presetStorage.get(localPath) || {};
-        localPath = dirname(localPath);
-
-        combinedValues = {
-            ...presetValues,
-            ...combinedValues,
-        };
+    let vars;
+    while (path && path !== '.' && !vars) {
+        vars = presetStorage.get('.' + path);
+        path = dirname(path);
     }
 
-    // Add root' presets
-    combinedValues = {
-        ...presetStorage.get('.'),
-        ...combinedValues,
-    };
-
-    return combinedValues;
+    return vars || {};
 }
 
 function getPresetStorage(): Map<string, YfmPreset> {
@@ -49,7 +32,7 @@ function setPresetStorage(preset: Map<string, YfmPreset>): void {
 }
 
 export default {
-    add,
+    init,
     get,
     getPresetStorage,
     setPresetStorage,

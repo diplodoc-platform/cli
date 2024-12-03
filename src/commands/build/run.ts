@@ -13,9 +13,10 @@ import {
     TMP_OUTPUT_FOLDER,
     YFM_CONFIG_FILENAME,
 } from '~/constants';
-import {Logger} from '~/logger';
+import {LogLevel, Logger} from '~/logger';
 import {BuildConfig} from '.';
 import {InsecureAccessError} from './errors';
+import {VarsService} from './core/vars';
 
 type FileSystem = {
     access: typeof access;
@@ -26,6 +27,10 @@ type FileSystem = {
     readFile: typeof readFile;
     writeFile: typeof writeFile;
 };
+
+class RunLogger extends Logger {
+    proc = this.topic(LogLevel.INFO, 'PROC');
+}
 
 /**
  * This is transferable context for build command.
@@ -42,11 +47,13 @@ export class Run {
 
     readonly legacyConfig: YfmArgv;
 
-    readonly logger: Logger;
+    readonly logger: RunLogger;
 
     readonly config: BuildConfig;
 
     readonly fs: FileSystem = {access, stat, link, unlink, mkdir, readFile, writeFile};
+
+    readonly vars: VarsService;
 
     get bundlePath() {
         return join(this.output, BUNDLE_FOLDER);
@@ -72,6 +79,11 @@ export class Run {
         this.input = resolve(config.output, TMP_INPUT_FOLDER);
         this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
 
+        this.logger = new RunLogger(config, [
+            (_level, message) => message.replace(new RegExp(this.input, 'ig'), ''),
+        ]);
+
+        this.vars = new VarsService(this);
         this.legacyConfig = {
             rootInput: this.originalInput,
             input: this.input,
@@ -119,10 +131,6 @@ export class Run {
 
             included: config.mergeIncludes,
         };
-
-        this.logger = new Logger(config, [
-            (_level, message) => message.replace(new RegExp(this.input, 'ig'), ''),
-        ]);
     }
 
     write = async (path: AbsolutePath, content: string | Buffer) => {

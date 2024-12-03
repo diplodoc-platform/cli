@@ -2,18 +2,21 @@ import type {Run} from './run';
 
 import 'threads/register';
 
+import {glob} from 'glob';
+
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {ArgvService, Includers, SearchService} from '~/services';
 import {
     initLinterWorkers,
+    preparingPresetFiles,
+    preparingTocFiles,
     processAssets,
     processChangelogs,
     processExcludedFiles,
     processLinter,
     processLogs,
     processPages,
-    processServiceFiles,
 } from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
@@ -27,7 +30,16 @@ export async function handler(run: Run) {
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
-        await processServiceFiles();
+        const presets = (await glob('**/presets.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const preset of presets) {
+            await run.vars.load(preset);
+        }
+
+        await preparingPresetFiles(run);
+        await preparingTocFiles(run);
         processExcludedFiles();
 
         if (addMapFile) {

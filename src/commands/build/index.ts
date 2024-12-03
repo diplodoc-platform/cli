@@ -250,6 +250,13 @@ export class Build
             return config;
         });
 
+        this.hooks.BeforeRun.for('md').tap('Build', (run) => {
+            run.vars.hooks.PresetsLoaded.tapPromise('Build', async (presets, path) => {
+                await run.write(join(run.output, path), run.vars.dump(presets, {filtered: true}));
+
+                return presets;
+            });
+        });
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
             if (run.config[configPath]) {
                 shell.cp(run.config[configPath], run.output);
