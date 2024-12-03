@@ -1,7 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Allow load custom resources md2html single page with custom resources: .yfm 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
 exports[`Allow load custom resources md2html single page with custom resources: filelist 1`] = `
 "[
+  ".yfm",
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "_bundle/search-async-0",
@@ -326,8 +336,18 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 
 exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
 
+exports[`Allow load custom resources md2html with custom resources: .yfm 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
 exports[`Allow load custom resources md2html with custom resources: filelist 1`] = `
 "[
+  ".yfm",
   "_assets/script/test1.js",
   "_assets/style/test.css",
   "_bundle/search-async-0",

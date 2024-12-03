@@ -127,6 +127,7 @@ export class Run {
 
     write = async (path: AbsolutePath, content: string | Buffer) => {
         await this.fs.mkdir(dirname(path), {recursive: true});
+        await this.fs.unlink(path).catch(() => {});
         await this.fs.writeFile(path, content, 'utf8');
     };
 
@@ -154,8 +155,9 @@ export class Run {
 
         const dirs = new Set();
         // TODO: check dotfiles copy
-        const files = (await glob('*/**', {
+        const files = (await glob('**', {
             cwd: from,
+            dot: true,
             nodir: true,
             follow: true,
             ignore,
