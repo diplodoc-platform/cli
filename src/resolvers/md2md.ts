@@ -1,14 +1,14 @@
-import {readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, extname, join, resolve} from 'path';
 import shell from 'shelljs';
 import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
+import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 
 import {ArgvService, PluginService} from '../services';
 import {getVarsPerFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
-import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {enrichWithFrontMatter} from '../services/metadata';
 
 export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
@@ -81,12 +81,14 @@ export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> 
 function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
     shell.mkdir('-p', dirname(targetDestPath));
 
-    if (options) {
-        const sourceIncludeContent = readFileSync(targetPath, 'utf8');
-        const {result} = transformMd2Md(sourceIncludeContent, options);
-        writeFileSync(targetDestPath, result);
-    } else {
-        shell.cp(targetPath, targetDestPath);
+    if (!existsSync(targetPath)) {
+        if (options) {
+            const sourceIncludeContent = readFileSync(targetPath, 'utf8');
+            const {result} = transformMd2Md(sourceIncludeContent, options);
+            writeFileSync(targetDestPath, result);
+        } else {
+            shell.cp(targetPath, targetDestPath);
+        }
     }
 }
 
