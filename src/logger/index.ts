@@ -192,14 +192,6 @@ export class Logger implements LogConsumer {
         return this;
     }
 
-    stat(): Record<LogLevels, number> {
-        return {
-            [LogLevel.INFO]: this[INFO].count,
-            [LogLevel.WARN]: this[WARN].count,
-            [LogLevel.ERROR]: this[ERROR].count,
-        };
-    }
-
     [Write](level: LogLevels, message: string) {
         if (this.options.quiet) {
             return;
@@ -227,4 +219,12 @@ function extractMessage(error: unknown): string {
     }
 
     return String(error);
+}
+
+export function stats(logger: Logger) {
+    return {
+        [LogLevel.INFO]: logger[INFO].count,
+        [LogLevel.WARN]: logger[WARN].count,
+        [LogLevel.ERROR]: logger[ERROR].count,
+    };
 }

@@ -148,7 +148,7 @@ function pipeline(
     output: string,
     {useSource, useExperimentalParser}: ComposeOptions,
 ) {
-    return async (file: FileInfo) => {
+    return async function pipeline(file: FileInfo) {
         const skeleton = new FileLoader(join(input, file.skl));
         const xliff = new FileLoader<string>(join(input, file.xliff));
 
@@ -156,7 +156,7 @@ function pipeline(
 
         const content = new FileLoader(join(output, file.path));
         const {schemas, ajvOptions} = await resolveSchemas({
-            content: content.data,
+            content: skeleton.data,
             path: file.path,
         });
 
