@@ -1,21 +1,13 @@
 import type {Build} from '~/commands';
 import type {Command} from '~/config';
+import type {Preset} from '~/commands/build/core/vars';
+
+import {join} from 'node:path';
+import {dump} from 'js-yaml';
+import {merge} from 'lodash';
+
 import {defined, valuable} from '~/config';
 import {options} from './config';
-
-const merge = (acc: Hash, ...sources: Hash[]) => {
-    for (const source of sources) {
-        for (const [key, value] of Object.entries(source)) {
-            if (!acc[key] || !value) {
-                acc[key] = value;
-            } else if (typeof value === 'object') {
-                acc[key] = merge({}, acc[key], value);
-            }
-        }
-    }
-
-    return acc;
-};
 
 export type TemplatingArgs = {
     template?: boolean | 'all' | 'text' | 'code';
@@ -88,7 +80,38 @@ export class Templating {
                 config.template.features.conditions = templateConditions;
             }
 
+            if (!config.template.enabled) {
+                config.template.features.substitutions = false;
+                config.template.features.conditions = false;
+            }
+
             return config;
+        });
+
+        program.hooks.BeforeRun.for('md').tap('Build', (run) => {
+            const {varsPreset, template} = run.config;
+            const {substitutions, conditions} = template.features;
+
+            // For case when we need to copy project from private to public repo and filter private presets.
+            if (!substitutions || !conditions) {
+                run.vars.hooks.PresetsLoaded.tapPromise('Build', async (presets, path) => {
+                    const scopes = [
+                        {default: presets.default},
+                        varsPreset !== 'default' &&
+                            presets[varsPreset] && {[varsPreset]: presets[varsPreset]},
+                    ].filter(Boolean) as Preset[];
+                    const result = merge({}, ...scopes);
+
+                    await run.write(
+                        join(run.output, path),
+                        dump(result, {
+                            lineWidth: 120,
+                        }),
+                    );
+
+                    return presets;
+                });
+            }
         });
     }
 }

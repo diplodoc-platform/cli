@@ -1,7 +1,9 @@
 import type {Run} from '../run';
 import type {BuildConfig, BuildRawConfig} from '..';
 
+import {join} from 'node:path';
 import {Mock, describe, expect, it, vi} from 'vitest';
+import {when} from 'vitest-when';
 import {Build} from '..';
 import {handler as originalHandler} from '../handler';
 import {withConfigUtils} from '~/config';
@@ -30,15 +32,53 @@ vi.mock('~/config', async (importOriginal) => {
     };
 });
 
-export async function runBuild(args: string) {
+type BuildState = {
+    globs?: Hash<string[]>;
+    files?: Hash<string>;
+};
+export function setupBuild(state: BuildState = {}): Build & {run: Run} {
     const build = new Build();
 
     build.apply();
     build.hooks.BeforeAnyRun.tap('Tests', (run) => {
+        (build as Build & {run: Run}).run = run;
+
+        // @ts-ignore
+        run.glob = vi.fn(() => []);
         run.copy = vi.fn();
         run.write = vi.fn();
+        run.fs.writeFile = vi.fn();
+        // @ts-ignore
+        run.fs.readFile = vi.fn();
+        // @ts-ignore
+        run.logger.proc = vi.fn();
+        // @ts-ignore
+        run.logger.info = vi.fn();
+        // @ts-ignore
+        run.logger.warn = vi.fn();
+        // @ts-ignore
+        run.logger.error = vi.fn();
+
+        if (state.globs) {
+            for (const [pattern, files] of Object.entries(state.globs)) {
+                when(run.glob).calledWith(pattern, expect.anything()).thenResolve(files);
+            }
+        }
+
+        if (state.files) {
+            for (const [file, content] of Object.entries(state.files)) {
+                when(run.fs.readFile)
+                    .calledWith(join(run.input, file), expect.anything())
+                    .thenResolve(content);
+            }
+        }
     });
 
+    return build as Build & {run: Run};
+}
+
+export async function runBuild(args: string, build?: Build) {
+    build = build || setupBuild();
     await build.parse(['node', 'index'].concat(args.split(' ')));
 }
 

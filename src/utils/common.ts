@@ -50,3 +50,28 @@ export function checkPathExists(path: string, parentFilePath: string) {
 
     return isFileExists(includePath);
 }
+
+export function own<T extends string>(box: unknown, field: T): box is {[p in T]: unknown} {
+    return (
+        Boolean(box && typeof box === 'object') && Object.prototype.hasOwnProperty.call(box, field)
+    );
+}
+
+export function freeze<T>(target: T, visited = new Set()): T {
+    if (!visited.has(target)) {
+        visited.add(target);
+
+        if (Array.isArray(target)) {
+            target.forEach((item) => freeze(item, visited));
+        }
+
+        if (isObject(target) && !Object.isSealed(target)) {
+            Object.freeze(target);
+            Object.keys(target).forEach((key) =>
+                freeze(target[key as keyof typeof target], visited),
+            );
+        }
+    }
+
+    return target;
+}
