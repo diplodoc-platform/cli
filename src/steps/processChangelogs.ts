@@ -1,4 +1,4 @@
-import {glob} from '../utils/glob';
+import {glob} from 'glob';
 import {dirname, join, normalize, resolve} from 'node:path';
 import {ArgvService} from '../services';
 import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
@@ -37,11 +37,9 @@ export async function processChangelogs() {
         return;
     }
 
-    const result = await glob('**/**/__changes-*.json', {
+    const files = await glob('**/**/__changes-*.json', {
         cwd: outputFolderPath,
     });
-
-    const files = result.state.found;
 
     if (!files.length) {
         return;

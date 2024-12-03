@@ -6,7 +6,7 @@ import {dump} from 'js-yaml';
 
 import {getRealPath} from '@diplodoc/transform/lib/utilsFS';
 
-import {glob} from '../../../utils/glob';
+import {glob} from 'glob';
 
 import {IncluderFunctionParams} from '../../../models';
 
@@ -56,17 +56,10 @@ async function includerFunction(params: IncluderFunctionParams<Params>) {
                 ? join(writeBasePath, tocDirPath, input)
                 : join(readBasePath, tocDirPath, input);
 
-        let cache = {};
-        let found = [];
-
-        ({
-            state: {found, cache},
-        } = await glob(MD_GLOB, {
+        const found = await glob(MD_GLOB, {
             cwd: contentPath,
-            nosort: true,
             nocase: true,
-            cache,
-        }));
+        });
 
         const writePath = getRealPath(join(writeBasePath, tocDirPath, item.include.path));
 

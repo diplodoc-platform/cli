@@ -1,5 +1,5 @@
 import {dirname, resolve} from 'path';
-import {readFileSync, writeFileSync} from 'fs';
+import {readFileSync, unlinkSync, writeFileSync} from 'fs';
 import {dump, load} from 'js-yaml';
 import log from '@diplodoc/transform/lib/log';
 
@@ -74,6 +74,7 @@ function filterFile(path: string) {
             }
         });
 
+        unlinkSync(filePath);
         writeFileSync(filePath, dump(parsedIndex));
     } catch (error) {
         log.error(`Error while filtering index file: ${path}. Error message: ${error}`);

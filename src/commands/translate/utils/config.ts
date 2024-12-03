@@ -1,7 +1,7 @@
 import {ok} from 'node:assert';
 import {dirname, isAbsolute, relative, resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
-import glob from 'glob';
+import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
 import {defined} from '~/config';
@@ -117,7 +117,7 @@ export function resolveFiles(
             return acc.concat(path);
         }, [] as string[]);
     } else {
-        result = glob.sync(extmatch, {
+        result = globSync(extmatch, {
             cwd: input,
             nodir: true,
             ignore: ['node_modules/**', '*/node_modules/**'],
