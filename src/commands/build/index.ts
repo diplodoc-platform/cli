@@ -3,7 +3,6 @@ import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
 import {join} from 'node:path';
-import glob from 'glob';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -25,6 +24,7 @@ import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepag
 import {Redirects} from './features/redirects';
 import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import shell from 'shelljs';
@@ -191,6 +191,8 @@ export class Build
 
     readonly changelogs = new Changelogs();
 
+    readonly html = new Html();
+
     readonly search = new Search();
 
     readonly legacy = new Legacy();
@@ -251,7 +253,20 @@ export class Build
             return config;
         });
 
+        this.hooks.BeforeRun.for('md').tap('Build', (run) => {
+            run.vars.hooks.PresetsLoaded.tapPromise('Build', async (presets, path) => {
+                await run.write(join(run.output, path), run.vars.dump(presets, {filtered: true}));
+
+                return presets;
+            });
+
+            run.toc.hooks.Resolved.tapPromise('Build', async (toc, path) => {
+                await run.write(join(run.output, path), run.toc.dump(toc));
+            });
+        });
+
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+            // TODO: save normalized config instead
             if (run.config[configPath]) {
                 shell.cp(run.config[configPath], run.output);
             }
@@ -264,12 +279,17 @@ export class Build
         this.linter.apply(this);
         this.changelogs.apply(this);
         this.search.apply(this);
+        this.html.apply(this);
         this.legacy.apply(this);
 
         super.apply(program);
     }
 
     async action() {
+        if (typeof VERSION !== 'undefined') {
+            console.log(`Using v${VERSION} version`);
+        }
+
         const run = new Run(this.config);
 
         run.logger.pipe(this.logger);
@@ -280,17 +300,15 @@ export class Build
 
         await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
+
+        await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
+
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);
+
         await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
         await this.hooks.AfterAnyRun.promise(run);
 
-        // Copy all generated files to user' output folder
-        shell.mkdir('-p', run.originalOutput);
-        shell.cp('-r', join(run.output, '*'), run.originalOutput);
-
-        if (glob.sync('.*', {cwd: run.output}).length) {
-            shell.cp('-r', join(run.output, '.*'), run.originalOutput);
-        }
+        await run.copy(run.output, run.originalOutput);
 
         shell.rm('-rf', run.input, run.output);
     }

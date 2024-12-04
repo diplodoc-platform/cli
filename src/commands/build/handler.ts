@@ -2,30 +2,25 @@ import type {Run} from './run';
 
 import 'threads/register';
 
-import glob from 'glob';
-import shell from 'shelljs';
+import {glob} from 'glob';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
 import {ArgvService, Includers, SearchService} from '~/services';
 import {
     initLinterWorkers,
+    preparingPresetFiles,
+    preparingTocFiles,
     processAssets,
     processChangelogs,
     processExcludedFiles,
     processLinter,
     processLogs,
     processPages,
-    processServiceFiles,
 } from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
-import {copyFiles} from '~/utils';
 
 export async function handler(run: Run) {
-    if (typeof VERSION !== 'undefined') {
-        console.log(`Using v${VERSION} version`);
-    }
-
     try {
         ArgvService.init(run.legacyConfig);
         SearchService.init();
@@ -35,16 +30,29 @@ export async function handler(run: Run) {
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
-        preparingTemporaryFolders(run);
+        const presets = (await glob('**/presets.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const preset of presets) {
+            await run.vars.load(preset);
+        }
 
-        await processServiceFiles();
+        const tocs = (await glob('**/toc.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const toc of tocs) {
+            await run.toc.load(toc);
+        }
+
+        await preparingPresetFiles(run);
+        await preparingTocFiles(run);
         processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
         }
-
-        const outputBundlePath = run.bundlePath;
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -53,7 +61,7 @@ export async function handler(run: Run) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(run),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);
@@ -67,23 +75,9 @@ export async function handler(run: Run) {
             await SearchService.release();
         }
     } catch (error) {
+        console.log(error);
         run.logger.error(error);
     } finally {
         processLogs(run.input);
     }
-}
-
-function preparingTemporaryFolders(run: Run) {
-    copyFiles(
-        run.originalInput,
-        run.input,
-        glob.sync('**', {
-            cwd: run.originalInput,
-            nodir: true,
-            follow: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        }),
-    );
-
-    shell.chmod('-R', 'u+w', run.input);
 }

@@ -1,6 +1,10 @@
 import type {YfmArgv} from '~/models';
 
-import {join, resolve} from 'path';
+import {ok} from 'node:assert';
+import {dirname, join, resolve} from 'node:path';
+import {access, link, mkdir, readFile, stat, unlink, writeFile} from 'node:fs/promises';
+import {glob} from 'glob';
+
 import {configPath} from '~/config';
 import {
     BUNDLE_FOLDER,
@@ -9,8 +13,25 @@ import {
     TMP_OUTPUT_FOLDER,
     YFM_CONFIG_FILENAME,
 } from '~/constants';
-import {Logger} from '~/logger';
+import {LogLevel, Logger} from '~/logger';
 import {BuildConfig} from '.';
+import {InsecureAccessError} from './errors';
+import {VarsService} from './core/vars';
+import {TocService} from './core/toc';
+
+type FileSystem = {
+    access: typeof access;
+    stat: typeof stat;
+    link: typeof link;
+    unlink: typeof unlink;
+    mkdir: typeof mkdir;
+    readFile: typeof readFile;
+    writeFile: typeof writeFile;
+};
+
+class RunLogger extends Logger {
+    proc = this.topic(LogLevel.INFO, 'PROC');
+}
 
 /**
  * This is transferable context for build command.
@@ -27,9 +48,15 @@ export class Run {
 
     readonly legacyConfig: YfmArgv;
 
-    readonly logger: Logger;
+    readonly logger: RunLogger;
 
     readonly config: BuildConfig;
+
+    readonly fs: FileSystem = {access, stat, link, unlink, mkdir, readFile, writeFile};
+
+    readonly vars: VarsService;
+
+    readonly toc: TocService;
 
     get bundlePath() {
         return join(this.output, BUNDLE_FOLDER);
@@ -43,6 +70,8 @@ export class Run {
         return join(this.originalInput, REDIRECTS_FILENAME);
     }
 
+    private _copyMap: Record<AbsolutePath, AbsolutePath> = {};
+
     constructor(config: BuildConfig) {
         this.config = config;
         this.originalInput = config.input;
@@ -52,6 +81,13 @@ export class Run {
         // We need to create system where we can safely work with original input.
         this.input = resolve(config.output, TMP_INPUT_FOLDER);
         this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
+
+        this.logger = new RunLogger(config, [
+            (_level, message) => message.replace(new RegExp(this.input, 'ig'), ''),
+        ]);
+
+        this.vars = new VarsService(this);
+        this.toc = new TocService(this);
 
         this.legacyConfig = {
             rootInput: this.originalInput,
@@ -100,9 +136,62 @@ export class Run {
 
             included: config.mergeIncludes,
         };
-
-        this.logger = new Logger(config, [
-            (_level, message) => message.replace(new RegExp(this.input, 'ig'), ''),
-        ]);
     }
+
+    write = async (path: AbsolutePath, content: string | Buffer) => {
+        await this.fs.mkdir(dirname(path), {recursive: true});
+        await this.fs.writeFile(path, content, 'utf8');
+    };
+
+    copy = async (from: AbsolutePath, to: AbsolutePath, ignore?: string[]) => {
+        const isFile = (await this.fs.stat(from)).isFile();
+        const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
+            // const realpath = this.realpath(from);
+            //
+            // ok(
+            //     realpath[0].startsWith(this.originalInput),
+            //     new InsecureAccessError(realpath[0], realpath),
+            // );
+
+            await this.fs.unlink(to).catch(() => {});
+            await this.fs.link(from, to);
+            this._copyMap[to] = from;
+        };
+
+        if (isFile) {
+            await this.fs.mkdir(dirname(to), {recursive: true});
+            await hardlink(from, to);
+
+            return;
+        }
+
+        const dirs = new Set();
+        // TODO: check dotfiles copy
+        const files = (await glob('*/**', {
+            cwd: from,
+            nodir: true,
+            follow: true,
+            ignore,
+        })) as RelativePath[];
+
+        for (const file of files) {
+            const dir = join(to, dirname(file));
+            if (!dirs.has(dir)) {
+                await this.fs.mkdir(dir, {recursive: true});
+                dirs.add(dir);
+            }
+
+            await hardlink(join(from, file), join(to, file));
+        }
+    };
+
+    realpath = (path: AbsolutePath): AbsolutePath[] => {
+        const stack = [path];
+        while (this._copyMap[path]) {
+            path = this._copyMap[path];
+            stack.unshift(path);
+        }
+
+        return stack;
+    };
 }

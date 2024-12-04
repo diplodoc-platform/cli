@@ -77,7 +77,6 @@
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
-    "@types/glob": "^8.1.0",
     "@types/html-escaper": "^3.0.0",
     "@types/js-yaml": "4.0.9",
     "@types/json-stringify-safe": "^5.0.3",
@@ -95,7 +94,7 @@
     "commander": "^12.0.0",
     "csp-header": "^5.2.1",
     "esbuild": "^0.23.1",
-    "glob": "^8.0.3",
+    "glob": "^10.4.5",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
     "js-yaml": "4.1.0",
@@ -113,6 +112,7 @@
     "typescript": "^5.4.5",
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "^1.1.3",
+    "vitest-when": "^0.5.0",
     "walk-sync": "^3.0.0"
   },
   "engines": {
