@@ -38,6 +38,14 @@ export async function handler(run: Run) {
             await run.vars.load(preset);
         }
 
+        const tocs = (await glob('**/toc.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const toc of tocs) {
+            await run.toc.load(toc);
+        }
+
         await preparingPresetFiles(run);
         await preparingTocFiles(run);
         processExcludedFiles();
@@ -46,8 +54,6 @@ export async function handler(run: Run) {
             prepareMapFile();
         }
 
-        const outputBundlePath = run.bundlePath;
-
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
             await initLinterWorkers();
@@ -55,7 +61,7 @@ export async function handler(run: Run) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(run),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);
@@ -69,6 +75,7 @@ export async function handler(run: Run) {
             await SearchService.release();
         }
     } catch (error) {
+        console.log(error);
         run.logger.error(error);
     } finally {
         processLogs(run.input);

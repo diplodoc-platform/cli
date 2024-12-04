@@ -24,6 +24,7 @@ import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepag
 import {Redirects} from './features/redirects';
 import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import shell from 'shelljs';
@@ -190,6 +191,8 @@ export class Build
 
     readonly changelogs = new Changelogs();
 
+    readonly html = new Html();
+
     readonly search = new Search();
 
     readonly legacy = new Legacy();
@@ -256,8 +259,14 @@ export class Build
 
                 return presets;
             });
+
+            run.toc.hooks.Resolved.tapPromise('Build', async (toc, path) => {
+                await run.write(join(run.output, path), run.toc.dump(toc));
+            });
         });
+
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+            // TODO: save normalized config instead
             if (run.config[configPath]) {
                 shell.cp(run.config[configPath], run.output);
             }
@@ -270,6 +279,7 @@ export class Build
         this.linter.apply(this);
         this.changelogs.apply(this);
         this.search.apply(this);
+        this.html.apply(this);
         this.legacy.apply(this);
 
         super.apply(program);

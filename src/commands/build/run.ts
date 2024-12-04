@@ -17,6 +17,7 @@ import {LogLevel, Logger} from '~/logger';
 import {BuildConfig} from '.';
 import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
+import {TocService} from './core/toc';
 
 type FileSystem = {
     access: typeof access;
@@ -55,6 +56,8 @@ export class Run {
 
     readonly vars: VarsService;
 
+    readonly toc: TocService;
+
     get bundlePath() {
         return join(this.output, BUNDLE_FOLDER);
     }
@@ -84,6 +87,8 @@ export class Run {
         ]);
 
         this.vars = new VarsService(this);
+        this.toc = new TocService(this);
+
         this.legacyConfig = {
             rootInput: this.originalInput,
             input: this.input,
