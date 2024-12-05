@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.50.0](https://github.com/diplodoc-platform/cli/compare/v4.49.1...v4.50.0) (2024-12-05)
+
+
+### Features
+
+* Add build run fs utils ([ecff64a](https://github.com/diplodoc-platform/cli/commit/ecff64ac2f9eb8ec9828072cdeb459d5ba0a5363))
+
+
+### Bug Fixes
+
+* Update glob ([4df705c](https://github.com/diplodoc-platform/cli/commit/4df705c76c02cdf4dac038a30a171c696435c787))
+
 ## [4.49.1](https://github.com/diplodoc-platform/cli/compare/v4.49.0...v4.49.1) (2024-12-03)
 
 
