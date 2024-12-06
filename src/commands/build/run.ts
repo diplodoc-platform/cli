@@ -1,9 +1,10 @@
 import type {YfmArgv} from '~/models';
 import type {GlobOptions} from 'glob';
+import type {BuildConfig} from '.';
 
-// import {ok} from 'node:assert';
+import {ok} from 'node:assert';
 import {dirname, join, resolve} from 'node:path';
-import {access, link, mkdir, readFile, stat, unlink, writeFile} from 'node:fs/promises';
+import {access, link, mkdir, readFile, realpath, stat, unlink, writeFile} from 'node:fs/promises';
 import {glob} from 'glob';
 
 import {configPath} from '~/config';
@@ -15,13 +16,14 @@ import {
     YFM_CONFIG_FILENAME,
 } from '~/constants';
 import {LogLevel, Logger} from '~/logger';
-import {BuildConfig} from '.';
-// import {InsecureAccessError} from './errors';
+import {legacyConfig} from './legacy-config';
+import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
 
 type FileSystem = {
     access: typeof access;
     stat: typeof stat;
+    realpath: typeof realpath;
     link: typeof link;
     unlink: typeof unlink;
     mkdir: typeof mkdir;
@@ -52,7 +54,7 @@ export class Run {
 
     readonly config: BuildConfig;
 
-    readonly fs: FileSystem = {access, stat, link, unlink, mkdir, readFile, writeFile};
+    readonly fs: FileSystem = {access, stat, realpath, link, unlink, mkdir, readFile, writeFile};
 
     readonly vars: VarsService;
 
@@ -85,68 +87,40 @@ export class Run {
         ]);
 
         this.vars = new VarsService(this);
-        this.legacyConfig = {
-            rootInput: this.originalInput,
-            input: this.input,
-            output: this.output,
-            quiet: config.quiet,
-            addSystemMeta: config.addSystemMeta,
-            addMapFile: config.addMapFile,
-            staticContent: config.staticContent,
-            strict: config.strict,
-            langs: config.langs,
-            lang: config.lang,
-            ignoreStage: config.ignoreStage,
-            singlePage: config.singlePage,
-            removeHiddenTocItems: config.removeHiddenTocItems,
-            allowCustomResources: config.allowCustomResources,
-            resources: config.resources,
-            analytics: config.analytics,
-            varsPreset: config.varsPreset,
-            vars: config.vars,
-            outputFormat: config.outputFormat,
-            allowHTML: config.allowHtml,
-            needToSanitizeHtml: config.sanitizeHtml,
-            useLegacyConditions: config.useLegacyConditions,
-
-            ignore: config.ignore,
-
-            applyPresets: config.template.features.substitutions,
-            resolveConditions: config.template.features.conditions,
-            conditionsInCode: config.template.scopes.code,
-            disableLiquid: !config.template.enabled,
-
-            buildDisabled: config.buildDisabled,
-
-            lintDisabled: !config.lint.enabled,
-            // @ts-ignore
-            lintConfig: config.lint.config,
-
-            vcs: config.vcs,
-            connector: config.vcs.connector,
-            contributors: config.contributors,
-            ignoreAuthorPatterns: config.ignoreAuthorPatterns,
-
-            changelogs: config.changelogs,
-            search: config.search,
-
-            included: config.mergeIncludes,
-        };
+        this.legacyConfig = legacyConfig(this);
     }
 
+    /**
+     * Run.input bounded read helper
+     */
+    read = async (path: AbsolutePath) => {
+        this.assetrProjectScope(path);
+
+        return this.fs.readFile(path, 'utf8');
+    };
+
+    /**
+     * Run.input bounded write helper.
+     *
+     * Checks what write path starts with run.input.
+     * Drops hardlink (unlink before write).
+     * Creates directory for file.
+     */
     write = async (path: AbsolutePath, content: string | Buffer) => {
+        this.assetrProjectScope(path);
+
         await this.fs.mkdir(dirname(path), {recursive: true});
         await this.fs.unlink(path).catch(() => {});
         await this.fs.writeFile(path, content, 'utf8');
     };
 
-    glob = async (pattern: string | string[], options: GlobOptions) => {
+    glob = async (pattern: string | string[], options: GlobOptions): Promise<RelativePath[]> => {
         return glob(pattern, {
             dot: true,
             nodir: true,
             follow: true,
             ...options,
-        });
+        }) as Promise<RelativePath[]>;
     };
 
     copy = async (from: AbsolutePath, to: AbsolutePath, ignore?: string[]) => {
@@ -188,13 +162,31 @@ export class Run {
         }
     };
 
-    realpath = (path: AbsolutePath): AbsolutePath[] => {
+    realpath = async (path: AbsolutePath): Promise<AbsolutePath[]> => {
         const stack = [path];
         while (this._copyMap[path]) {
             path = this._copyMap[path];
             stack.unshift(path);
         }
 
+        try {
+            const realpath = await this.fs.realpath(stack[0]);
+
+            if (realpath !== stack[0]) {
+                stack.unshift(realpath);
+            }
+        } catch {}
+
         return stack;
     };
+
+    private async assetrProjectScope(path: AbsolutePath) {
+        const realpath = await this.realpath(path);
+        const isInScope =
+            realpath[0].startsWith(this.originalInput) ||
+            realpath[0].startsWith(this.originalOutput) ||
+            realpath[0].startsWith(this.input) ||
+            realpath[0].startsWith(this.output);
+        ok(isInScope, new InsecureAccessError(path, realpath));
+    }
 }
