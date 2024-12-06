@@ -8,24 +8,41 @@ type DeepPartial<T> = {
 };
 
 type UnresolvedPath = string & {
-    __type: 'unresolved';
+    __type: 'path';
+    __mode: 'unresolved';
 };
 
-type AbsolutePath = string & {
-    __type: 'absolute';
-};
+type AbsolutePath = string &
+    (
+        | {
+              __type: 'path';
+              __mode: 'absolute';
+          }
+        | `/${string}`
+    );
 
-type RelativePath = string & {
-    __type: 'relative';
-};
+type RelativePath = string &
+    (
+        | {
+              __type: 'path';
+              __mode: 'relative';
+          }
+        | `./${string}`
+    );
 
 type NormalizedPath = string & {
-    __type: 'normalized';
+    __type: 'path';
+    __mode: 'relative' & 'normalized';
 };
 
 type AnyPath = string | UnresolvedPath | AbsolutePath | RelativePath | NormalizedPath;
 
-declare module 'path' {
+type URIString = string & {
+    __type: 'uri';
+    __mode: 'normalized';
+};
+
+declare module 'node:path' {
     namespace path {
         interface PlatformPath extends PlatformPath {
             normalize<T extends AnyPath>(path: T): T;
@@ -43,9 +60,25 @@ declare module 'path' {
             basename(path: AnyPath, suffix?: string): RelativePath;
 
             extname(path: AnyPath): string;
+
+            sep: string;
         }
     }
 
     const path: path.PlatformPath;
     export = path;
+}
+
+declare module 'node:fs/promises' {
+    import {BufferEncoding, ObjectEncodingOptions} from 'node:fs';
+
+    export function readFile(
+        path: AbsolutePath,
+        options: ObjectEncodingOptions | BufferEncoding,
+    ): Promise<string>;
+
+    export function realpath(
+        path: AbsolutePath,
+        options?: ObjectEncodingOptions | BufferEncoding | null,
+    ): Promise<AbsolutePath>;
 }

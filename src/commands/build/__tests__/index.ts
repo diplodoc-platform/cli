@@ -1,10 +1,11 @@
-import type {Run} from '../run';
 import type {BuildConfig, BuildRawConfig} from '..';
+import type {Mock, MockInstance} from 'vitest';
 
 import {join} from 'node:path';
-import {Mock, describe, expect, it, vi} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {Build} from '..';
+import {Run} from '../run';
 import {handler as originalHandler} from '../handler';
 import {withConfigUtils} from '~/config';
 
@@ -14,6 +15,7 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('shelljs');
+vi.mock('../legacy-config');
 vi.mock('../handler');
 vi.mock('../run', async (importOriginal) => {
     return {
@@ -32,8 +34,46 @@ vi.mock('~/config', async (importOriginal) => {
     };
 });
 
+const Mocked = Symbol('Mocked');
+
+export type RunSpy = Run & {
+    glob: MockInstance<Parameters<Run['glob']>, ReturnType<Run['glob']>>;
+    copy: MockInstance<Parameters<Run['copy']>, ReturnType<Run['copy']>>;
+    read: MockInstance<Parameters<Run['read']>, ReturnType<Run['read']>>;
+    write: MockInstance<Parameters<Run['write']>, ReturnType<Run['write']>>;
+    [Mocked]: boolean;
+};
+
+export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
+    run =
+        run ||
+        new Run({
+            input: '/dev/null/input',
+            output: '/dev/null/output',
+            ...config,
+        } as BuildConfig);
+
+    const impl = (method: string) => (...args: any[]) => {
+        throw new Error(`Method ${method} with args\n${args.join('\n')} not implemented.`);
+    };
+
+    for (const method of ['glob', 'copy', 'read', 'write'] as string[]) {
+        // @ts-ignore
+        vi.spyOn(run, method).mockImplementation(impl(method));
+    }
+
+    for (const method of ['proc', 'info', 'warn', 'error'] as string[]) {
+        // @ts-ignore
+        vi.spyOn(run.logger, method).mockImplementation(() => {});
+    }
+
+    (run as RunSpy)[Mocked] = true;
+
+    return run as RunSpy;
+}
+
 type BuildState = {
-    globs?: Hash<string[]>;
+    globs?: Hash<RelativePath[]>;
     files?: Hash<string>;
 };
 export function setupBuild(state: BuildState = {}): Build & {run: Run} {
@@ -43,21 +83,15 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
     build.hooks.BeforeAnyRun.tap('Tests', (run) => {
         (build as Build & {run: Run}).run = run;
 
-        // @ts-ignore
-        run.glob = vi.fn(() => []);
-        run.copy = vi.fn();
-        run.write = vi.fn();
-        run.fs.writeFile = vi.fn();
-        // @ts-ignore
-        run.fs.readFile = vi.fn();
-        // @ts-ignore
-        run.logger.proc = vi.fn();
-        // @ts-ignore
-        run.logger.info = vi.fn();
-        // @ts-ignore
-        run.logger.warn = vi.fn();
-        // @ts-ignore
-        run.logger.error = vi.fn();
+        if (!(run as RunSpy)[Mocked]) {
+            setupRun({}, run);
+        }
+
+        when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
+        when(run.copy).calledWith(expect.anything(), expect.anything(), expect.anything()).thenResolve();
+        when(run.write).calledWith(expect.anything(), expect.anything()).thenResolve();
+        when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
+        when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
 
         if (state.globs) {
             for (const [pattern, files] of Object.entries(state.globs)) {
@@ -67,8 +101,8 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
 
         if (state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.fs.readFile)
-                    .calledWith(join(run.input, file), expect.anything())
+                when(run.read)
+                    .calledWith(join(run.input, file))
                     .thenResolve(content);
             }
         }

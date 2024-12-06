@@ -32,8 +32,6 @@ export class VarsService {
 
     private run: Run;
 
-    private fs: Run['fs'];
-
     private logger: Run['logger'];
 
     private config: VarsServiceConfig;
@@ -42,7 +40,6 @@ export class VarsService {
 
     constructor(run: Run) {
         this.run = run;
-        this.fs = run.fs;
         this.logger = run.logger;
         this.config = run.config;
         this.hooks = {
@@ -69,7 +66,7 @@ export class VarsService {
 
         try {
             const presets = await this.hooks.PresetsLoaded.promise(
-                load(await this.fs.readFile(join(this.run.input, file), 'utf8')) as Presets,
+                load(await this.run.read(join(this.run.input, file))) as Presets,
                 file,
             );
 

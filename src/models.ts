@@ -108,8 +108,6 @@ export interface YfmArgv extends YfmConfig {
 export type DocPreset = {
     default: YfmPreset;
     [varsPreset: string]: YfmPreset;
-} & {
-    __metadata: Record<string, string>[];
 };
 
 export interface YfmTocLabel extends Filter {
@@ -124,14 +122,12 @@ export interface YfmToc extends Filter {
     items: YfmToc[];
     stage?: Stage;
     base?: string;
-    deepBase?: number;
     title?: TextItems;
     include?: YfmTocInclude;
     id?: string;
     singlePage?: boolean;
     hidden?: boolean;
     label?: YfmTocLabel[] | YfmTocLabel;
-    root?: YfmToc;
 }
 
 export interface YfmTocInclude {
