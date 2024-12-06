@@ -1,4 +1,3 @@
-import type {Run} from '~/commands/build';
 import type {VarsServiceConfig} from './VarsService';
 
 import {join} from 'node:path';
@@ -6,6 +5,8 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {dedent} from 'ts-dedent';
 import {YAMLException} from 'js-yaml';
+
+import {setupRun} from '~/commands/build/__tests__';
 
 import {VarsService} from './VarsService';
 
@@ -15,37 +16,26 @@ const ENOENT = Object.assign(new Error('ENOENT: no such file or directory'), {
 
 type Options = Partial<VarsServiceConfig>;
 
-function prepare(content: string | Hash<string> | Error, options: Options = {}) {
-    const input = '/dev/null/input' as AbsolutePath;
-    const output = '/dev/null/output' as AbsolutePath;
-    const run = {
-        input,
-        output,
-        config: {
-            varsPreset: options.varsPreset,
-            vars: options.vars || {},
-        },
-        logger: {
-            proc: vi.fn(),
-        },
-        fs: {
-            readFile: vi.fn(),
-        },
-    } as unknown as Run;
+function prepare(content: string | Error | Hash<string | Error>, options: Options = {}) {
+    const run = setupRun({
+        varsPreset: options.varsPreset,
+        vars: options.vars || {},
+    });
+
     const service = new VarsService(run);
 
-    if (content instanceof Error) {
-        when(run.fs.readFile)
-            .calledWith(join(input, './presets.yaml'), expect.anything())
-            .thenReject(content);
-    } else {
-        if (typeof content === 'string') {
-            content = {'./presets.yaml': content};
-        }
+    if (typeof content === 'string' || content instanceof Error) {
+        content = {'./presets.yaml': content};
+    }
 
-        for (const [file, data] of Object.entries(content)) {
-            when(run.fs.readFile)
-                .calledWith(join(input, file), expect.anything())
+    for (const [file, data] of Object.entries(content)) {
+        if (data instanceof Error) {
+            when(run.read)
+                .calledWith(join(run.input, file))
+                .thenReject(data);
+        } else {
+            when(run.read)
+                .calledWith(join(run.input, file))
                 .thenResolve(data);
         }
     }
@@ -134,38 +124,39 @@ describe('vars', () => {
                 const service = prepare(
                     {
                         './presets.yaml': dedent`
-                        default:
-                          field1: value1
-                          override1: value2
-                          override2: value2
-                          override3: value2
-                          override4: value2
-                        internal:
-                          field2: value1
-                          override1: value1
-                    `,
+                            default:
+                              field1: value1
+                              override1: value2
+                              override2: value2
+                              override3: value2
+                              override4: value2
+                            internal:
+                              field2: value1
+                              override1: value1
+                        `,
                         './subfolder/presets.yaml': dedent`
-                        default:
-                          sub1: value1
-                          sub2: value2
-                          override2: value1
-                          override5: value2
-                        internal:
-                          sub2: value1
-                          override3: value1
-                          override6: value2
-                    `,
+                            default:
+                              sub1: value1
+                              sub2: value2
+                              override2: value1
+                              override5: value2
+                            internal:
+                              sub2: value1
+                              override3: value1
+                              override6: value2
+                        `,
+                        './subfolder/subfolder/presets.yaml': ENOENT,
                         './subfolder/subfolder/subfolder/presets.yaml': dedent`
-                        default:
-                          subsub1: value2
-                          override4: value2
-                          override5: value1
-                        internal:
-                          subsub1: value1
-                          subsub2: value1
-                          override4: value1
-                          override6: value1
-                    `,
+                            default:
+                              subsub1: value2
+                              override4: value2
+                              override5: value1
+                            internal:
+                              subsub1: value1
+                              subsub2: value1
+                              override4: value1
+                              override6: value1
+                        `,
                     },
                     {varsPreset: 'internal'},
                 );

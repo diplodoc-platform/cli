@@ -1,5 +1,9 @@
-import {sep} from 'path';
+import {normalize, sep} from 'node:path';
 import {Platforms} from '../constants';
+
+export function normalizePath(path: string): NormalizedPath {
+    return normalize(path).replace(/\\/g, '/') as NormalizedPath;
+}
 
 export function addSlashPrefix(path: string): string {
     const slashPrefix = path.startsWith(sep) ? '' : sep;
