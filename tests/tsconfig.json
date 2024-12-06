@@ -9,5 +9,12 @@
       "~/*": ["../src/*"]
     },
     "types": ["node", "jest"]
-  }
+  },
+  "include": [
+    "../src",
+    "."
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
