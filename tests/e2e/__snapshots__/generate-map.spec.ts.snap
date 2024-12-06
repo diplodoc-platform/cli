@@ -3,12 +3,12 @@
 exports[`Generate map for project with external links in toc 1`] = `
 "{
 	"files": [
-		"ru/folder1/folder2/a1",
-		"ru/folder1/a1",
 		"ru/",
-		"ru/settings",
+		"ru/folder1/a1",
+		"ru/folder1/folder2/a1",
 		"ru/plugins/",
-		"ru/project/"
+		"ru/project/",
+		"ru/settings"
 	]
 }"
 `;
@@ -17,17 +17,17 @@ exports[`Generate map for project with multiple language 1`] = `
 "{
 	"files": [
 		"en/",
-		"en/settings",
 		"en/plugins/",
 		"en/plugins/import",
 		"en/project/",
 		"en/project/config",
+		"en/settings",
 		"ru/",
-		"ru/settings",
 		"ru/plugins/",
 		"ru/plugins/import",
 		"ru/project/",
-		"ru/project/config"
+		"ru/project/config",
+		"ru/settings"
 	]
 }"
 `;
@@ -35,14 +35,14 @@ exports[`Generate map for project with multiple language 1`] = `
 exports[`Generate map for project with single language and toc include - only md2html 1`] = `
 "{
 	"files": [
-		"ru/folder1/folder2/a1",
-		"ru/folder1/a1",
 		"ru/",
-		"ru/settings",
+		"ru/folder1/a1",
+		"ru/folder1/folder2/a1",
 		"ru/plugins/",
 		"ru/plugins/import",
 		"ru/project/",
-		"ru/project/config"
+		"ru/project/config",
+		"ru/settings"
 	]
 }"
 `;
@@ -50,14 +50,14 @@ exports[`Generate map for project with single language and toc include - only md
 exports[`Generate map for project with single language and toc include 1`] = `
 "{
 	"files": [
-		"ru/folder1/folder2/a1",
-		"ru/folder1/a1",
 		"ru/",
-		"ru/settings",
+		"ru/folder1/a1",
+		"ru/folder1/folder2/a1",
 		"ru/plugins/",
 		"ru/plugins/import",
 		"ru/project/",
-		"ru/project/config"
+		"ru/project/config",
+		"ru/settings"
 	]
 }"
 `;
