@@ -2,6 +2,7 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
+import {join} from 'node:path';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -23,9 +24,15 @@ import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepag
 import {Redirects} from './features/redirects';
 import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
+
+import {GenericIncluderExtension} from './core/toc';
+
 import shell from 'shelljs';
+
+export type * from './types';
 
 export enum ResourceType {
     style = 'style',
@@ -189,6 +196,8 @@ export class Build
 
     readonly changelogs = new Changelogs();
 
+    readonly html = new Html();
+
     readonly search = new Search();
 
     readonly legacy = new Legacy();
@@ -249,7 +258,14 @@ export class Build
             return config;
         });
 
+        this.hooks.BeforeRun.for('md').tap('Build', (run) => {
+            run.toc.hooks.Resolved.tapPromise('Build', async (toc, path) => {
+                await run.write(join(run.output, path), run.toc.dump(toc));
+            });
+        });
+
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+            // TODO: save normalized config instead
             if (run.config[configPath]) {
                 shell.cp(run.config[configPath], run.output);
             }
@@ -262,7 +278,10 @@ export class Build
         this.linter.apply(this);
         this.changelogs.apply(this);
         this.search.apply(this);
+        this.html.apply(this);
         this.legacy.apply(this);
+
+        new GenericIncluderExtension().apply(this);
 
         super.apply(program);
     }
@@ -291,6 +310,14 @@ export class Build
         })) as RelativePath[];
         for (const preset of presets) {
             await run.vars.load(preset);
+        }
+
+        const tocs = (await run.glob('**/toc.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        })) as RelativePath[];
+        for (const toc of tocs) {
+            await run.toc.load(toc);
         }
 
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);

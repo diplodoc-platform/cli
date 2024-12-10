@@ -4,10 +4,9 @@ import 'threads/register';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {ArgvService, Includers, PresetService, SearchService} from '~/services';
+import {ArgvService, PresetService, SearchService, TocService} from '~/services';
 import {
     initLinterWorkers,
-    preparingTocFiles,
     processAssets,
     processChangelogs,
     processExcludedFiles,
@@ -21,21 +20,16 @@ export async function handler(run: Run) {
     try {
         ArgvService.init(run.legacyConfig);
         SearchService.init();
-        // TODO: Remove duplicated types from openapi-extension
-        // @ts-ignore
-        Includers.init([OpenapiIncluder]);
+        PresetService.init(run.vars);
+        TocService.init(run.toc);
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
-        PresetService.init(run.vars);
-        await preparingTocFiles(run);
         processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
         }
-
-        const outputBundlePath = run.bundlePath;
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -44,7 +38,7 @@ export async function handler(run: Run) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(run),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);
@@ -58,6 +52,7 @@ export async function handler(run: Run) {
             await SearchService.release();
         }
     } catch (error) {
+        console.log(error);
         run.logger.error(error);
     } finally {
         processLogs(run.input);

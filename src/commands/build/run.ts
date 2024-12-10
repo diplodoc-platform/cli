@@ -19,6 +19,7 @@ import {LogLevel, Logger} from '~/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
+import {TocService} from './core/toc';
 
 type FileSystem = {
     access: typeof access;
@@ -33,6 +34,7 @@ type FileSystem = {
 
 class RunLogger extends Logger {
     proc = this.topic(LogLevel.INFO, 'PROC');
+    copy = this.topic(LogLevel.INFO, 'COPY');
 }
 
 /**
@@ -57,6 +59,8 @@ export class Run {
     readonly fs: FileSystem = {access, stat, realpath, link, unlink, mkdir, readFile, writeFile};
 
     readonly vars: VarsService;
+
+    readonly toc: TocService;
 
     get bundlePath() {
         return join(this.output, BUNDLE_FOLDER);
@@ -87,6 +91,8 @@ export class Run {
         ]);
 
         this.vars = new VarsService(this);
+        this.toc = new TocService(this);
+
         this.legacyConfig = legacyConfig(this);
     }
 
@@ -157,6 +163,8 @@ export class Run {
                 await this.fs.mkdir(dir, {recursive: true});
                 dirs.add(dir);
             }
+
+            this.logger.copy(join(from, file), join(to, file));
 
             await hardlink(join(from, file), join(to, file));
         }

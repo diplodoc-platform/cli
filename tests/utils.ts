@@ -39,7 +39,7 @@ export function compareDirectories(outputPath: string) {
     const filesFromOutput = walkSync(outputPath, {
         directories: false,
         includeBasePath: false,
-    });
+    }).sort();
 
     expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 

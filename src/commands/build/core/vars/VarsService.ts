@@ -56,7 +56,7 @@ export class VarsService {
             return this.cache[file];
         }
 
-        this.logger.proc(path);
+        this.logger.proc(file);
 
         const scopes = [];
 

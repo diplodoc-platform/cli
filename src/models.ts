@@ -108,8 +108,6 @@ export interface YfmArgv extends YfmConfig {
 export type DocPreset = {
     default: YfmPreset;
     [varsPreset: string]: YfmPreset;
-} & {
-    __metadata: Record<string, string>[];
 };
 
 export interface YfmTocLabel extends Filter {
