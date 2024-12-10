@@ -35,13 +35,9 @@ const getModifiedTimeISOString = async (options: MetaDataOptions, fileContent: s
     );
     includedFiles.push(relativeFilePath);
 
-    const tocCopyFileMap = TocService.getCopyFileMap();
-
-    const mtimeList = includedFiles
-        .map((path) => {
-            const mappedPath = tocCopyFileMap.get(path) || path;
-            return vcsConnector.getModifiedTimeByPath(mappedPath);
-        })
+    const mappedIncludedFiles = await Promise.all(includedFiles.map(TocService.realpath));
+    const mtimeList = mappedIncludedFiles
+        .map((path) => vcsConnector.getModifiedTimeByPath(path))
         .filter((v) => typeof v === 'number') as number[];
 
     if (mtimeList.length) {

@@ -25,7 +25,7 @@ type NormalizedPath = string & {
 
 type AnyPath = string | UnresolvedPath | AbsolutePath | RelativePath | NormalizedPath;
 
-declare module 'path' {
+declare module 'node:path' {
     namespace path {
         interface PlatformPath extends PlatformPath {
             normalize<T extends AnyPath>(path: T): T;
@@ -48,4 +48,23 @@ declare module 'path' {
 
     const path: path.PlatformPath;
     export = path;
+}
+
+declare module 'node:fs/promises' {
+    import {BufferEncoding, ObjectEncodingOptions} from 'node:fs';
+
+    export function readFile(
+        path: AbsolutePath,
+        options:
+            | ObjectEncodingOptions
+            | BufferEncoding,
+    ): Promise<string>;
+
+    export function realpath(
+        path: AbsolutePath,
+        options?:
+            | ObjectEncodingOptions
+            | BufferEncoding
+            | null
+    ): Promise<AbsolutePath>;
 }

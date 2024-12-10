@@ -24,7 +24,7 @@ export function prepareMapFile(): void {
 
         return preparedPath;
     });
-    const navigationPaths = {files: [...new Set(navigationPathsWithoutExtensions)]};
+    const navigationPaths = {files: [...new Set(navigationPathsWithoutExtensions)].sort()};
     const filesMapBuffer = Buffer.from(JSON.stringify(navigationPaths, null, '\t'), 'utf8');
     const mapFile = join(outputFolderPath, 'files.json');
 
