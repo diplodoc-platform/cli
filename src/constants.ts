@@ -124,6 +124,28 @@ export const YFM_PLUGINS = [
     blockAnchor,
 ];
 
+export const MD2MD_PARSER_PLUGINS = [
+    meta,
+    deflist,
+    cut,
+    images,
+    notes,
+    anchors,
+    tabs,
+    code,
+    imsize,
+    sup,
+    video,
+    monospace,
+    table,
+    term,
+    openapi.transform(),
+    mermaid.transform({bundle: false}),
+    latex.transform({bundle: false}),
+    changelog,
+    blockAnchor,
+];
+
 export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export const PROCESSING_FINISHED = 'Processing finished:';

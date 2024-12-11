@@ -7,11 +7,14 @@ import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, logger} from '../utils';
+import {getVarsPerFile, getVarsPerRelativeFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
-import {PROCESSING_FINISHED} from '../constants';
+import {MD2MD_PARSER_PLUGINS, PROCESSING_FINISHED} from '../constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {enrichWithFrontMatter} from '../services/metadata';
+import transform from '@diplodoc/transform';
+import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 
 export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata: metadataOptions} = options;
@@ -34,7 +37,6 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
         destPath: outputPath,
         root: resolve(input),
         destRoot: resolve(output),
-        collectOfPlugins: PluginService.getCollectOfPlugins(),
         vars: vars,
         log,
         copyFile,
@@ -107,28 +109,36 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {disableLiquid, changelogs: changelogsSetting} = ArgvService.getConfig();
-    const {vars = {}, path, collectOfPlugins, log: pluginLog} = options;
+    const {input: inputDir, changelogs: changelogsSetting, ...mdOptions} = ArgvService.getConfig();
+    const plugins = PluginService.getPlugins();
+    const {vars = {}, path, log: pluginLog} = options;
 
-    let output = input;
+    const root = resolve(inputDir);
+
     const changelogs: ChangelogItem[] = [];
 
-    if (!disableLiquid) {
-        const liquidResult = liquidMd2Md(input, vars, path);
-
-        output = liquidResult.output;
-    }
-
-    if (collectOfPlugins) {
-        output = collectOfPlugins(output, {
+    const output = transform.collect(input, {
+        mdItInitOptions: {
+            mdOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            plugins: plugins as MarkdownItPluginCb<any>[],
+            vars,
+            root,
+            path,
+            assetsPublicPath: './',
+            getVarsPerFile: getVarsPerRelativeFile,
+            getPublicPath,
+            extractTitle: true,
+        },
+        pluginCollectOptions: {
             ...options,
             vars,
             path,
-            collectOfPlugins,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
-        });
-    }
+        },
+        parserPluginsOverride: MD2MD_PARSER_PLUGINS,
+    });
 
     return {
         result: output,
