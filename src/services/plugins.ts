@@ -1,40 +1,16 @@
 import {LintConfig, LintRule} from '@diplodoc/transform/lib/yfmlint';
 
-import {CollectionOfPluginsFunction, Plugin, PluginOptions} from '../models';
+import {Plugin} from '../models';
 import {YFM_PLUGINS} from '../constants';
 
 let plugins: Function[] | Plugin[];
-let collectionOfPlugins: CollectionOfPluginsFunction;
 
 export function setPlugins(): void {
     plugins = getAllPlugins();
-    collectionOfPlugins = makeCollectOfPlugins();
 }
 
 export function getPlugins() {
     return plugins;
-}
-
-export function getCollectOfPlugins(): CollectionOfPluginsFunction {
-    return collectionOfPlugins;
-}
-
-function makeCollectOfPlugins(): CollectionOfPluginsFunction {
-    const pluginsWithCollect = (plugins as Plugin[]).filter((plugin: Plugin) => {
-        return typeof plugin.collect === 'function';
-    });
-
-    return (output: string, options: PluginOptions) => {
-        let collectsOutput = output;
-
-        pluginsWithCollect.forEach((plugin: Plugin) => {
-            const collectOutput = plugin.collect(collectsOutput, options);
-
-            collectsOutput = typeof collectOutput === 'string' ? collectOutput : collectsOutput;
-        });
-
-        return collectsOutput;
-    };
 }
 
 function getAllPlugins(): Function[] {
