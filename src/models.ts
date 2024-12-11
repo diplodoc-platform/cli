@@ -26,7 +26,6 @@ export type NestedContributorsForPathFunction = (
     nestedContributors: Contributors,
 ) => void;
 export type UserByLoginFunction = (login: string) => Promise<Contributor | null>;
-export type CollectionOfPluginsFunction = (output: string, options: PluginOptions) => string;
 export type GetModifiedTimeByPathFunction = (filepath: string) => number | undefined;
 
 /**
@@ -237,7 +236,6 @@ export interface PluginOptions {
     root?: string;
     destPath?: string;
     destRoot?: string;
-    collectOfPlugins?: (input: string, options: PluginOptions) => string;
     changelogs?: ChangelogItem[];
     extractChangelogs?: boolean;
     included?: boolean;
