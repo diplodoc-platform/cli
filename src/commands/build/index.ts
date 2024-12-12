@@ -26,6 +26,9 @@ import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelog
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import shell from 'shelljs';
+import {intercept} from '~/utils';
+
+export type * from './types';
 
 export enum ResourceType {
     style = 'style',
@@ -72,39 +75,40 @@ export type {Run};
 
 const command = 'Build';
 
-const hooks = () => ({
-    /**
-     * Async series hook which runs before start of any Run type.<br/><br/>
-     * Args:
-     * - run - [Build.Run](./Run.ts) constructed context.<br/>
-     * Best place to subscribe on Run hooks.
-     */
-    BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
-    /**
-     * Async series hook map which runs before start of target Run type.<br/><br/>
-     * Args:
-     * - run - [Build.Run](./Run.ts) constructed context.<br/>
-     * Best place to subscribe on target Run hooks.
-     */
-    BeforeRun: new HookMap(
-        (format: `${OutputFormat}`) =>
-            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
-    ),
-    /**
-     * Async parallel hook which runs on start of any Run type.<br/><br/>
-     * Args:
-     * - run - [Build.Run](./Run.ts) constructed context.<br/>
-     * Best place to do something in parallel with main build process.
-     */
-    Run: new AsyncParallelHook<Run>(['run'], `${command}.Run`),
-    // TODO: decompose handler and describe this hook
-    AfterRun: new HookMap(
-        (format: `${OutputFormat}`) =>
-            new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
-    ),
-    // TODO: decompose handler and describe this hook
-    AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
-});
+const hooks = () =>
+    intercept(command, {
+        /**
+         * Async series hook which runs before start of any Run type.<br/><br/>
+         * Args:
+         * - run - [Build.Run](./Run.ts) constructed context.<br/>
+         * Best place to subscribe on Run hooks.
+         */
+        BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
+        /**
+         * Async series hook map which runs before start of target Run type.<br/><br/>
+         * Args:
+         * - run - [Build.Run](./Run.ts) constructed context.<br/>
+         * Best place to subscribe on target Run hooks.
+         */
+        BeforeRun: new HookMap(
+            (format: `${OutputFormat}`) =>
+                new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
+        ),
+        /**
+         * Async parallel hook which runs on start of any Run type.<br/><br/>
+         * Args:
+         * - run - [Build.Run](./Run.ts) constructed context.<br/>
+         * Best place to do something in parallel with main build process.
+         */
+        Run: new AsyncParallelHook<Run>(['run'], `${command}.Run`),
+        // TODO: decompose handler and describe this hook
+        AfterRun: new HookMap(
+            (format: `${OutputFormat}`) =>
+                new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
+        ),
+        // TODO: decompose handler and describe this hook
+        AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
+    });
 
 export type BuildArgs = ProgramArgs &
     BaseArgs &
@@ -268,7 +272,7 @@ export class Build
     }
 
     async action() {
-        if (typeof VERSION !== 'undefined') {
+        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
             console.log(`Using v${VERSION} version`);
         }
 

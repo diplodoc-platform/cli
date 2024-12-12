@@ -53,9 +53,11 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
             ...config,
         } as BuildConfig);
 
-    const impl = (method: string) => (...args: any[]) => {
-        throw new Error(`Method ${method} with args\n${args.join('\n')} not implemented.`);
-    };
+    const impl =
+        (method: string) =>
+        (...args: any[]) => {
+            throw new Error(`Method ${method} with args\n${args.join('\n')} not implemented.`);
+        };
 
     for (const method of ['glob', 'copy', 'read', 'write'] as string[]) {
         // @ts-ignore
@@ -88,7 +90,9 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
         }
 
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
-        when(run.copy).calledWith(expect.anything(), expect.anything(), expect.anything()).thenResolve();
+        when(run.copy)
+            .calledWith(expect.anything(), expect.anything(), expect.anything())
+            .thenResolve();
         when(run.write).calledWith(expect.anything(), expect.anything()).thenResolve();
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
@@ -101,9 +105,7 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
 
         if (state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.read)
-                    .calledWith(join(run.input, file))
-                    .thenResolve(content);
+                when(run.read).calledWith(join(run.input, file)).thenResolve(content);
             }
         }
     });

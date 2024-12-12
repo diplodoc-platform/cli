@@ -19,6 +19,8 @@ import {LogLevel, Logger} from '~/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
+import {addSourcePath} from '~/services/metadata';
+import {relative} from 'path';
 
 type FileSystem = {
     access: typeof access;
@@ -36,8 +38,14 @@ type GlobOptions = {
     ignore?: string[];
 };
 
+type CopyOptions = {
+    ignore?: string[];
+    sourcePath?: boolean;
+};
+
 class RunLogger extends Logger {
     proc = this.topic(LogLevel.INFO, 'PROC');
+    copy = this.topic(LogLevel.INFO, 'COPY');
 }
 
 /**
@@ -142,7 +150,16 @@ export class Run {
         return paths.map(normalizePath);
     };
 
-    copy = async (from: AbsolutePath, to: AbsolutePath, ignore?: string[]) => {
+    copy = async (
+        from: AbsolutePath,
+        to: AbsolutePath,
+        options: CopyOptions | CopyOptions['ignore'] = {},
+    ) => {
+        if (Array.isArray(options)) {
+            options = {ignore: options};
+        }
+
+        const {ignore, sourcePath} = options;
         const isFile = (await this.fs.stat(from)).isFile();
         const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
             // const realpath = this.realpath(from);
@@ -177,7 +194,17 @@ export class Run {
                 dirs.add(dir);
             }
 
-            await hardlink(join(from, file), join(to, file));
+            this.logger.copy(join(from, file), join(to, file));
+
+            if (sourcePath) {
+                const content = await this.read(join(from, file));
+                this.write(
+                    join(to, file),
+                    addSourcePath(content, relative(this.input, join(from, file))),
+                );
+            } else {
+                await hardlink(join(from, file), join(to, file));
+            }
         }
     };
 
