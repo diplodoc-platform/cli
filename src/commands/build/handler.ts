@@ -28,14 +28,12 @@ export async function handler(run: Run) {
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
         PresetService.init(run.vars);
-        await preparingTocFiles(run);
+        await preparingTocFiles();
         processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile();
         }
-
-        const outputBundlePath = run.bundlePath;
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
@@ -44,7 +42,7 @@ export async function handler(run: Run) {
 
         const processes = [
             !lintDisabled && processLinter(),
-            !buildDisabled && processPages(outputBundlePath),
+            !buildDisabled && processPages(run),
         ].filter(Boolean) as Promise<void>[];
 
         await Promise.all(processes);

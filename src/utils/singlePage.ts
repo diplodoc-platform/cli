@@ -143,7 +143,6 @@ export function getSinglePageUrl(tocDir: string, path: string) {
 
 export function joinSinglePageResults(
     singlePageResults: SinglePageResult[],
-    root: string,
     tocDir: string,
 ): string {
     const delimeter = `<hr class="yfm-page__delimeter">`;

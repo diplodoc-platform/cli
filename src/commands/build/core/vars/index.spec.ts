@@ -30,13 +30,9 @@ function prepare(content: string | Error | Hash<string | Error>, options: Option
 
     for (const [file, data] of Object.entries(content)) {
         if (data instanceof Error) {
-            when(run.read)
-                .calledWith(join(run.input, file))
-                .thenReject(data);
+            when(run.read).calledWith(join(run.input, file)).thenReject(data);
         } else {
-            when(run.read)
-                .calledWith(join(run.input, file))
-                .thenResolve(data);
+            when(run.read).calledWith(join(run.input, file)).thenResolve(data);
         }
     }
 

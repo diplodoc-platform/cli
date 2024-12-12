@@ -1,5 +1,6 @@
 import type {DocInnerProps} from '@diplodoc/client';
-import {basename, dirname, extname, join, resolve} from 'path';
+import type {Run} from '~/commands/build';
+import {basename, dirname, extname, join, resolve} from 'node:path';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
@@ -27,13 +28,7 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
-import {
-    getDepth,
-    joinSinglePageResults,
-    logger,
-    transformToc,
-    transformTocForSinglePage,
-} from '../utils';
+import {getDepth, joinSinglePageResults, transformToc, transformTocForSinglePage} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -41,7 +36,7 @@ const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
-export async function processPages(outputBundlePath: string): Promise<void> {
+export async function processPages(run: Run): Promise<void> {
     const {
         input: inputFolderPath,
         output: outputFolderPath,
@@ -65,10 +60,10 @@ export async function processPages(outputBundlePath: string): Promise<void> {
                 inputFolderPath,
                 outputFolderPath,
                 outputFormat,
-                outputBundlePath,
+                run.bundlePath,
             );
 
-            logger.proc(pathToFile);
+            run.logger.proc(pathToFile);
 
             const metaDataOptions = getMetaDataOptions(pathData, vcsConnector);
 
@@ -82,11 +77,11 @@ export async function processPages(outputBundlePath: string): Promise<void> {
     );
 
     if (singlePage) {
-        await saveSinglePages();
 
         if (outputFormat === 'html') {
             await saveTocData(transformTocForSinglePage, 'single-page-toc');
         }
+        await saveSinglePages(run);
     }
 
     if (outputFormat === 'html') {
@@ -147,14 +142,7 @@ async function saveTocData(transform: (toc: YfmToc, tocDir: string) => YfmToc, f
     }
 }
 
-async function saveSinglePages() {
-    const {
-        input: inputFolderPath,
-        lang: configLang,
-        langs: configLangs,
-        resources,
-    } = ArgvService.getConfig();
-
+async function saveSinglePages(run: Run) {
     try {
         await Promise.all(
             Object.keys(singlePageResults).map(async (tocDir) => {
@@ -163,25 +151,24 @@ async function saveSinglePages() {
                 }
 
                 const relativeTocDir = tocDir
-                    .replace(inputFolderPath, '')
+                    .replace(run.input, '')
                     .replace(/\\/g, '/')
                     .replace(/^\/?/, '');
                 const singlePageBody = joinSinglePageResults(
                     singlePageResults[tocDir],
-                    inputFolderPath,
                     relativeTocDir,
                 );
 
                 const toc = TocService.getForPath(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
-                const lang = configLang ?? Lang.RU;
-                const langs = configLangs?.length ? configLangs : [lang];
+                const lang = run.config.lang ?? Lang.RU;
+                const langs = run.config.langs.length ? run.config.langs : [lang];
 
                 const pageData = {
                     data: {
                         leading: false as const,
                         html: singlePageBody,
                         headings: [],
-                        meta: resources || {},
+                        meta: run.config.resources,
                         title: toc.title || '',
                     },
                     router: {
