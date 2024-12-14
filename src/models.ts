@@ -263,6 +263,7 @@ export interface ResolverOptions {
     fileExtension: string;
     outputPath: string;
     outputBundlePath: string;
+    lang: string;
     metadata?: MetaDataOptions;
 }
 

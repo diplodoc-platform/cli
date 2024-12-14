@@ -38,14 +38,14 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
-const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
+const getFileData = async ({fileExtension, metadata, inputPath, lang}: ResolverOptions) => {
     const {input, allowCustomResources} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
 
     const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath, root: input});
+    const {result} = transformFn(content, {path: inputPath, root: input, lang});
 
     const vars = getVarsPerFile(inputPath);
     const updatedMetadata = metadata?.isContributorsEnabled
@@ -77,13 +77,13 @@ const getFileProps = async (options: ResolverOptions) => {
     const {inputPath} = options;
     const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
 
-    const data = await getFileData(options);
-
     const tocBaseLang = inputPath.replace(/\\/g, '/').split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
     const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
+
+    const data = await getFileData({...options, lang});
 
     const pathname = inputPath.replace(extname(inputPath), '');
 
@@ -217,7 +217,7 @@ export function liquidMd2Html(input: string, vars: Record<string, unknown>, path
 
 function MdFileTransformer(content: string, transformOptions: FileTransformOptions): Output {
     const {input, ...options} = ArgvService.getConfig();
-    const {path: filePath} = transformOptions;
+    const {path: filePath, lang} = transformOptions;
 
     const plugins = PluginService.getPlugins();
     const vars = getVarsPerFile(filePath);
@@ -230,6 +230,7 @@ function MdFileTransformer(content: string, transformOptions: FileTransformOptio
         vars,
         root,
         path,
+        lang,
         assetsPublicPath: './',
         getVarsPerFile: getVarsPerRelativeFile,
         getPublicPath,
