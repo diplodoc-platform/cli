@@ -3,7 +3,7 @@ import {normalize} from 'path';
 import {Contributor, Contributors, MetaDataOptions} from 'models';
 import {enrichWithFrontMatter} from 'services/metadata';
 import {VCSConnector} from 'vcs-connector/connector-models';
-import {separateAndExtractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import {extractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 
 const simpleMetadataFilePath = 'mocks/fileContent/metadata/simpleMetadata.md';
 const withoutMetadataFilePath = 'mocks/fileContent/metadata/withoutMetadata.md';
@@ -60,9 +60,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
-                const {frontMatter: updatedMeta} =
-                    separateAndExtractFrontMatter(updatedFileContent);
+                const [originalMeta] = extractFrontMatter(fileContent);
+                const [updatedMeta] = extractFrontMatter(updatedFileContent);
 
                 expect(updatedMeta).toEqual(originalMeta);
             });
@@ -84,9 +83,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                         resolvedFrontMatterVars: {},
                     });
 
-                    const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
-                    const {frontMatter: updatedMeta} =
-                        separateAndExtractFrontMatter(updatedFileContent);
+                    const [originalMeta] = extractFrontMatter(fileContent);
+                    const [updatedMeta] = extractFrontMatter(updatedFileContent);
 
                     expect(updatedMeta).toEqual(originalMeta);
                 },
@@ -127,9 +125,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
-                const {frontMatter: updatedMeta} =
-                    separateAndExtractFrontMatter(updatedFileContent);
+                const [originalMeta] = extractFrontMatter(fileContent);
+                const [updatedMeta] = extractFrontMatter(updatedFileContent);
 
                 const expectedMeta = {
                     ...originalMeta,
@@ -169,9 +166,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                         resolvedFrontMatterVars: {},
                     });
 
-                    const {frontMatter: originalMeta} = separateAndExtractFrontMatter(fileContent);
-                    const {frontMatter: updatedMeta} =
-                        separateAndExtractFrontMatter(updatedFileContent);
+                    const [originalMeta] = extractFrontMatter(fileContent);
+                    const [updatedMeta] = extractFrontMatter(updatedFileContent);
 
                     const expectedMeta = {
                         ...originalMeta,
@@ -257,10 +253,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                             resolvedFrontMatterVars: {},
                         });
 
-                        const {frontMatter: originalMeta} =
-                            separateAndExtractFrontMatter(fileContent);
-                        const {frontMatter: updatedMeta} =
-                            separateAndExtractFrontMatter(updatedFileContent);
+                        const [originalMeta] = extractFrontMatter(fileContent);
+                        const [updatedMeta] = extractFrontMatter(updatedFileContent);
 
                         const expectedMeta = {
                             ...originalMeta,
@@ -286,10 +280,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                 resolvedFrontMatterVars: {},
             });
 
-            const {frontMatter: metadataBeforeEnrichment} =
-                separateAndExtractFrontMatter(fileContent);
-            const {frontMatter: metadataAfterEnrichment} =
-                separateAndExtractFrontMatter(updatedFileContent);
+            const [metadataBeforeEnrichment] = extractFrontMatter(fileContent);
+            const [metadataAfterEnrichment] = extractFrontMatter(updatedFileContent);
 
             expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
         });
@@ -308,10 +300,8 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                     resolvedFrontMatterVars: {},
                 });
 
-                const {frontMatter: metadataBeforeEnrichment} =
-                    separateAndExtractFrontMatter(fileContent);
-                const {frontMatter: metadataAfterEnrichment} =
-                    separateAndExtractFrontMatter(updatedFileContent);
+                const [metadataBeforeEnrichment] = extractFrontMatter(fileContent);
+                const [metadataAfterEnrichment] = extractFrontMatter(updatedFileContent);
 
                 expect(metadataAfterEnrichment).toEqual(metadataBeforeEnrichment);
             },

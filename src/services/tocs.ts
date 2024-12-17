@@ -13,7 +13,7 @@ import {IncludeMode, Stage} from '../constants';
 import {isExternalHref, logger} from '../utils';
 import {filterFiles, firstFilterItem, firstFilterTextItems, liquidField} from './utils';
 import {IncludersError, applyIncluders} from './includers';
-import {addSourcePath} from './metadata';
+import {addSourcePath} from '../commands/build/core/meta';
 
 export interface TocServiceData {
     storage: Map<string, YfmToc>;

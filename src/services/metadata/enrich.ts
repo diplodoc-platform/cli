@@ -1,12 +1,9 @@
+import type {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
+
 import {MetaDataOptions, VarsMetadata} from '../../models';
 import {mergeFrontMatter} from './mergeMetadata';
-import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
 import {resolveVCSFrontMatter} from './vcsMetadata';
-import {
-    emplaceFrontMatter,
-    separateAndExtractFrontMatter,
-} from '@diplodoc/transform/lib/frontmatter';
-import {normalizeLineEndings} from './utils';
+import {composeFrontMatter, extractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 
 type FrontMatterVars = {
     metadataVars?: VarsMetadata;
@@ -35,10 +32,7 @@ export const enrichWithFrontMatter = async ({
     const {systemVars, metadataVars} = resolvedFrontMatterVars;
     const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
 
-    const {frontMatter, frontMatterStrippedContent} = separateAndExtractFrontMatter(
-        fileContent,
-        pathData.pathToFile,
-    );
+    const [frontMatter, strippedContent] = extractFrontMatter(fileContent, pathData.pathToFile);
 
     const vcsFrontMatter = metadataOptions.isContributorsEnabled
         ? await resolveVCSFrontMatter(frontMatter, metadataOptions, fileContent)
@@ -59,5 +53,5 @@ export const enrichWithFrontMatter = async ({
         },
     });
 
-    return normalizeLineEndings(emplaceFrontMatter(frontMatterStrippedContent, mergedFrontMatter));
+    return composeFrontMatter(mergedFrontMatter, strippedContent);
 };

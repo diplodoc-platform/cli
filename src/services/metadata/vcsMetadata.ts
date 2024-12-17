@@ -1,4 +1,6 @@
 import {TocService} from '..';
+import type {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
+
 import {Contributor, MetaDataOptions, Metadata, PathData} from '../../models';
 import {VCSConnector} from '../../vcs-connector/connector-models';
 import {
@@ -8,7 +10,6 @@ import {
 } from '../authors';
 import {ContributorsServiceFileData, getFileContributors, getFileIncludes} from '../contributors';
 import {isObject} from '../utils';
-import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
 
 const getFileDataForContributorsService = (
     pathData: PathData,

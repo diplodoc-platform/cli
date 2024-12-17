@@ -1,6 +1,6 @@
 import {Resources, VarsMetadata} from '../../models';
 import {isObject} from '../utils';
-import {FrontMatter} from '@diplodoc/transform/lib/frontmatter/common';
+import {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
 
 export const mergeFrontMatter = ({
     existingMetadata,
