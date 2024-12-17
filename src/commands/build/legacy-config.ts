@@ -15,7 +15,7 @@ export function legacyConfig(run: Run): YfmArgv {
         strict: config.strict,
         langs: config.langs,
         lang: config.lang,
-        ignoreStage: config.ignoreStage,
+        ignoreStage: config.ignoreStage[0],
         singlePage: config.singlePage,
         removeHiddenTocItems: config.removeHiddenTocItems,
         allowCustomResources: config.allowCustomResources,
