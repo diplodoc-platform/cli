@@ -2,7 +2,7 @@ import type {YfmArgv} from '~/models';
 import type {BuildConfig} from '.';
 
 import {ok} from 'node:assert';
-import {dirname, join, resolve} from 'node:path';
+import {dirname, join, relative, resolve} from 'node:path';
 import {access, link, mkdir, readFile, realpath, stat, unlink, writeFile} from 'node:fs/promises';
 import {glob} from 'glob';
 
@@ -19,8 +19,7 @@ import {LogLevel, Logger} from '~/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
-import {addSourcePath} from '~/services/metadata';
-import {relative} from 'path';
+import {addSourcePath} from './core/meta';
 
 type FileSystem = {
     access: typeof access;
@@ -40,7 +39,7 @@ type GlobOptions = {
 
 type CopyOptions = {
     ignore?: string[];
-    sourcePath?: boolean;
+    sourcePath?: (path: string) => boolean;
 };
 
 class RunLogger extends Logger {
