@@ -52,8 +52,7 @@ type BaseConfig = {
     vars: Hash;
     allowHtml: boolean;
     sanitizeHtml: boolean;
-    // TODO(minor): string[]
-    ignoreStage: string;
+    ignoreStage: string[];
     ignore: string[];
     addSystemMeta: boolean;
     // TODO(minor): we can generate this file all time
@@ -168,7 +167,7 @@ export class Build
                     resources: [],
                     allowCustomResources: false,
                     staticContent: false,
-                    ignoreStage: Stage.SKIP,
+                    ignoreStage: [Stage.SKIP],
                     addSystemMeta: false,
                     buildDisabled: false,
                     lint: {enabled: true, config: {'log-levels': {}}},
@@ -223,6 +222,7 @@ export class Build
 
     apply(program?: IProgram) {
         this.hooks.Config.tap('Build', (config, args) => {
+            const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
 
@@ -247,6 +247,7 @@ export class Build
 
             Object.assign(config, pick(args, options));
 
+            config.ignoreStage = [].concat(ignoreStage);
             config.langs = langs;
             config.lang = lang || langs[0];
 

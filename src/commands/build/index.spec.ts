@@ -194,21 +194,32 @@ describe('Build command', () => {
 
         describe('ignoreStage', () => {
             test('should handle default', '', {
-                ignoreStage: 'skip',
+                ignoreStage: ['skip'],
             });
 
             test('should handle arg', '--ignore-stage preview', {
-                ignoreStage: 'preview',
+                ignoreStage: ['preview'],
             });
 
             test(
                 'should handle config',
                 '',
                 {
+                    ignoreStage: ['preview'],
+                },
+                {
+                    ignoreStage: ['preview'],
+                },
+            );
+
+            test(
+                'should handle simplified config',
+                '',
+                {
                     ignoreStage: 'preview',
                 },
                 {
-                    ignoreStage: 'preview',
+                    ignoreStage: ['preview'],
                 },
             );
         });

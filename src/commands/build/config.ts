@@ -109,9 +109,9 @@ const staticContent = option({
 });
 
 const ignoreStage = option({
-    flags: '--ignore-stage <value>',
-    defaultInfo: Stage.SKIP,
-    desc: 'Ignore tocs with stage.',
+    flags: '--ignore-stage <value...>',
+    defaultInfo: [Stage.SKIP],
+    desc: 'Ignore tocs with selected stages.',
 });
 
 const addSystemMeta = option({
