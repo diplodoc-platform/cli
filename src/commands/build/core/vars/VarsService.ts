@@ -11,6 +11,7 @@ import {AsyncParallelHook, AsyncSeriesWaterfallHook} from 'tapable';
 export type VarsServiceConfig = {
     varsPreset: string;
     vars: Hash;
+    ignore: string[];
 };
 
 type VarsServiceHooks = {
@@ -46,6 +47,17 @@ export class VarsService {
             PresetsLoaded: new AsyncSeriesWaterfallHook(['presets', 'path']),
             Resolved: new AsyncParallelHook(['vars', 'path']),
         };
+    }
+
+    async init() {
+        const presets = (await this.run.glob('**/presets.yaml', {
+            cwd: this.run.input,
+            ignore: this.config.ignore,
+        })) as RelativePath[];
+
+        for (const preset of presets) {
+            await this.load(preset);
+        }
     }
 
     async load(path: RelativePath) {

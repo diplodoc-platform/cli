@@ -290,13 +290,7 @@ export class Build
 
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
 
-        const presets = (await run.glob('**/presets.yaml', {
-            cwd: run.input,
-            ignore: run.config.ignore,
-        })) as RelativePath[];
-        for (const preset of presets) {
-            await run.vars.load(preset);
-        }
+        await run.vars.init();
 
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);
 
