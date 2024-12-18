@@ -1,3 +1,3 @@
 export function isExternalHref(href: string) {
-    return href.startsWith('http') || href.startsWith('//');
+    return /^(\w{1,10}:)?\/\//.test(href);
 }

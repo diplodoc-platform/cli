@@ -41,7 +41,7 @@ export class VarsService {
 
     private config: VarsServiceConfig;
 
-    private cache: Record<RelativePath, Hash> = {};
+    private cache: Record<NormalizedPath, Hash> = {};
 
     constructor(run: Run) {
         this.run = run;
@@ -68,7 +68,7 @@ export class VarsService {
         path = normalizePath(path);
 
         const varsPreset = this.config.varsPreset || 'default';
-        const file = join(dirname(path), 'presets.yaml');
+        const file = normalizePath(join(dirname(path), 'presets.yaml'));
 
         if (this.cache[file]) {
             return this.cache[file];

@@ -332,9 +332,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 
 exports[`Allow load custom resources md2html single page with custom resources: single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page","id":"Documentation-RANDOM"},{"name":"Config","href":"#project_config","id":"Config-RANDOM"}]};"`;
+exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}]};"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
+exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html"},{"name":"Config","href":"project/config.html"}]};"`;
 
 exports[`Allow load custom resources md2html with custom resources: .yfm 1`] = `
 "resources:
@@ -596,7 +596,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
+exports[`Allow load custom resources md2html with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html"},{"name":"Config","href":"project/config.html"}]};"`;
 
 exports[`Allow load custom resources md2md with custom resources: .yfm 1`] = `
 "resources:

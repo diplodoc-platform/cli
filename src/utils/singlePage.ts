@@ -4,6 +4,8 @@ import HTMLElement from 'node-html-parser/dist/nodes/html';
 import {parse} from 'node-html-parser';
 import {dirname, join} from 'path';
 
+import {getSinglePageUrl} from '../commands/build/features/singlepage/utils';
+
 interface PreprocessSinglePageOptions {
     path: string;
     tocDir: string;
@@ -19,17 +21,6 @@ function dropExt(path: string) {
 function toUrl(path: string) {
     // replace windows backslashes
     return path.replace(/\\/g, '/').replace(/^\.\//, '');
-}
-
-function relativeTo(root: string, path: string) {
-    root = toUrl(root);
-    path = toUrl(path);
-
-    if (root && path.startsWith(root + '/')) {
-        path = path.replace(root + '/', '');
-    }
-
-    return path;
 }
 
 function all(root: HTMLElement, selector: string): HTMLElement[] {
@@ -120,25 +111,6 @@ export function addMainTitle(root: HTMLElement, options: PreprocessSinglePageOpt
     if (options.title) {
         root.insertAdjacentHTML('afterbegin', `<h1>${options.title}</h1>`);
     }
-}
-
-function getAnchorId(tocDir: string, path: string) {
-    const [pathname, hash] = path.split('#');
-    const url = toUrl(dropExt(pathname)) + (hash ? '#' + hash : '');
-
-    // TODO: encodeURIComponent will be best option
-    return relativeTo(tocDir, url.replace(/\.\.\/|[/#]/g, '_'));
-}
-
-export function getSinglePageUrl(tocDir: string, path: string) {
-    const prefix = toUrl(tocDir) || '.';
-    const suffix = getAnchorId(tocDir, path);
-
-    if (prefix === '.') {
-        return '#' + suffix;
-    }
-
-    return prefix + '/single-page.html#' + suffix;
 }
 
 export function joinSinglePageResults(

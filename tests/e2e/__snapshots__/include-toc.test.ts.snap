@@ -224,53 +224,8 @@ exports[`Include toc Toc is included inline, not as a new section: filelist 1`] 
   "fileB.md",
   "fileC.md",
   "fileX.md",
-  "folder/fileA.md",
-  "folder/fileB.md",
-  "folder/fileC.md",
-  "folder/folder/fileC.md",
   "toc.yaml"
 ]"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section: folder/fileA.md 1`] = `
-"---
-title: File A
-description: YFM description
----
-# File A
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section: folder/fileB.md 1`] = `
-"# File B
-
-Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section: folder/fileC.md 1`] = `
-"---
-sourcePath: folder/folder/fileC.md
----
-# File C
-"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section: folder/folder/fileC.md 1`] = `
-"# File C
-"
 `;
 
 exports[`Include toc Toc is included inline, not as a new section: toc.yaml 1`] = `

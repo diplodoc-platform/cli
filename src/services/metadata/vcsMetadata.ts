@@ -1,6 +1,7 @@
-import {TocService} from '..';
 import type {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import type {Run} from '~/commands/build';
 
+import {join, relative} from 'node:path';
 import {Contributor, MetaDataOptions, Metadata, PathData} from '../../models';
 import {VCSConnector} from '../../vcs-connector/connector-models';
 import {
@@ -10,6 +11,7 @@ import {
 } from '../authors';
 import {ContributorsServiceFileData, getFileContributors, getFileIncludes} from '../contributors';
 import {isObject} from '../utils';
+import {normalizePath} from '../../utils';
 
 const getFileDataForContributorsService = (
     pathData: PathData,
@@ -22,7 +24,11 @@ const getFileDataForContributorsService = (
     };
 };
 
-const getModifiedTimeISOString = async (options: MetaDataOptions, fileContent: string) => {
+const getModifiedTimeISOString = async (
+    run: Run,
+    options: MetaDataOptions,
+    fileContent: string,
+) => {
     const {isContributorsEnabled, vcsConnector, pathData} = options;
 
     const {pathToFile: relativeFilePath} = pathData;
@@ -31,18 +37,16 @@ const getModifiedTimeISOString = async (options: MetaDataOptions, fileContent: s
         return undefined;
     }
 
-    const includedFiles = await getFileIncludes(
-        getFileDataForContributorsService(pathData, fileContent),
+    const includedFiles = [relativeFilePath]
+        .concat(await getFileIncludes(getFileDataForContributorsService(pathData, fileContent)))
+        .map((path) => join(run.input, path));
+
+    const mappedIncludedFiles = await Promise.all(
+        includedFiles.map((path) => run.realpath(path, false)),
     );
-    includedFiles.push(relativeFilePath);
-
-    const tocCopyFileMap = TocService.getCopyFileMap();
-
-    const mtimeList = includedFiles
-        .map((path) => {
-            const mappedPath = tocCopyFileMap.get(path) || path;
-            return vcsConnector.getModifiedTimeByPath(mappedPath);
-        })
+    const mtimeList = mappedIncludedFiles
+        .map((path) => normalizePath(relative(run.input, path)))
+        .map((path) => vcsConnector.getModifiedTimeByPath(path))
         .filter((v) => typeof v === 'number') as number[];
 
     if (mtimeList.length) {
@@ -104,6 +108,7 @@ export const getVCSMetadata = async (
 };
 
 export const resolveVCSFrontMatter = async (
+    run: Run,
     existingMetadata: FrontMatter,
     options: MetaDataOptions,
     fileContent: string,
@@ -121,7 +126,7 @@ export const resolveVCSFrontMatter = async (
     const [author, contributors, updatedAt] = await Promise.all([
         getAuthor(),
         getContributorsMetadata(options, fileContent),
-        getModifiedTimeISOString(options, fileContent),
+        getModifiedTimeISOString(run, options, fileContent),
     ]);
 
     const authorToSpread = author === null ? undefined : {author};

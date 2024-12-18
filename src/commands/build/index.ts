@@ -2,6 +2,7 @@ import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
 import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
+import {join} from 'node:path';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -23,8 +24,12 @@ import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepag
 import {Redirects} from './features/redirects';
 import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
+
+import {GenericIncluderExtension, OpenapiIncluderExtension} from './core/toc';
+
 import shell from 'shelljs';
 import {intercept} from '~/utils';
 
@@ -192,6 +197,8 @@ export class Build
 
     readonly changelogs = new Changelogs();
 
+    readonly html = new Html();
+
     readonly search = new Search();
 
     readonly legacy = new Legacy();
@@ -254,7 +261,14 @@ export class Build
             return config;
         });
 
+        this.hooks.BeforeRun.for('md').tap('Build', (run) => {
+            run.toc.hooks.Resolved.tapPromise('Build', async (toc, path) => {
+                await run.write(join(run.output, path), run.toc.dump(toc));
+            });
+        });
+
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+            // TODO: save normalized config instead
             if (run.config[configPath]) {
                 shell.cp(run.config[configPath], run.output);
             }
@@ -267,13 +281,18 @@ export class Build
         this.linter.apply(this);
         this.changelogs.apply(this);
         this.search.apply(this);
+        this.html.apply(this);
         this.legacy.apply(this);
+
+        new GenericIncluderExtension().apply(this);
+        new OpenapiIncluderExtension().apply(this);
 
         super.apply(program);
     }
 
     async action() {
         if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
+            // eslint-disable-next-line no-console
             console.log(`Using v${VERSION} version`);
         }
 
@@ -291,6 +310,7 @@ export class Build
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
 
         await run.vars.init();
+        await run.toc.init();
 
         await Promise.all([handler(run), this.hooks.Run.promise(run)]);
 

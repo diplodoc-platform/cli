@@ -19,6 +19,7 @@ import {LogLevel, Logger} from '~/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
 import {VarsService} from './core/vars';
+import {TocService} from './core/toc';
 import {addSourcePath} from './core/meta';
 
 type FileSystem = {
@@ -70,6 +71,8 @@ export class Run {
 
     readonly vars: VarsService;
 
+    readonly toc: TocService;
+
     get bundlePath() {
         return join(this.output, BUNDLE_FOLDER);
     }
@@ -99,6 +102,8 @@ export class Run {
         ]);
 
         this.vars = new VarsService(this);
+        this.toc = new TocService(this);
+
         this.legacyConfig = legacyConfig(this);
     }
 
@@ -206,7 +211,7 @@ export class Run {
 
             this.logger.copy(join(from, file), join(to, file));
 
-            if (sourcePath) {
+            if (sourcePath && sourcePath(file)) {
                 const content = await this.read(join(from, file));
                 this.write(
                     join(to, file),
