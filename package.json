@@ -101,7 +101,7 @@
     "lint-staged": "^12.5.0",
     "lodash": "4.17.21",
     "mime-types": "2.1.35",
-    "minimatch": "^9.0.3",
+    "minimatch": "^10.0.1",
     "node-html-parser": "^6.1.5",
     "normalize-path": "^3.0.0",
     "simple-git": "3.22.0",
