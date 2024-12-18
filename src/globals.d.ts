@@ -30,6 +30,9 @@ type RelativePath = string &
         | `./${string}`
     );
 
+/**
+ * This is unix-like relative path with truncated heading ./
+ */
 type NormalizedPath = string & {
     __type: 'path';
     __mode: 'relative' & 'normalized';

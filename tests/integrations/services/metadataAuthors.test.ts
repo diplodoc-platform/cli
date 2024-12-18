@@ -37,12 +37,12 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             metadataOptions = {
                 pathData: {
                     pathToFile: '',
-                    resolvedPathToFile: '',
+                    resolvedPathToFile: '' as AbsolutePath,
                     filename: '',
                     fileBaseName: '',
                     fileExtension: '',
-                    outputDir: '',
-                    outputPath: '',
+                    outputDir: '' as AbsolutePath,
+                    outputPath: '' as AbsolutePath,
                     outputFormat: '',
                     outputBundlePath: '',
                     outputTocDir: '',
@@ -94,12 +94,12 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         const metadataOptions: MetaDataOptions = {
             pathData: {
                 pathToFile: '',
-                resolvedPathToFile: '',
+                resolvedPathToFile: '' as AbsolutePath,
                 filename: '',
                 fileBaseName: '',
                 fileExtension: '',
-                outputDir: '',
-                outputPath: '',
+                outputDir: '' as AbsolutePath,
+                outputPath: '' as AbsolutePath,
                 outputFormat: '',
                 outputBundlePath: '',
                 outputTocDir: '',

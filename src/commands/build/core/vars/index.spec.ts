@@ -41,7 +41,7 @@ function prepare(content: string | Error | Hash<string | Error>, options: Option
 
 async function call(content: string | Error, options: Options = {}) {
     const service = prepare(content, options);
-    const result = await service.load('./presets.yaml' as RelativePath);
+    const result = await service.load('presets.yaml' as NormalizedPath);
 
     expect(service.dump(result)).toMatchSnapshot();
 }
@@ -158,7 +158,7 @@ describe('vars', () => {
                 );
 
                 const result = await service.load(
-                    './subfolder/subfolder/subfolder/presets.yaml' as RelativePath,
+                    'subfolder/subfolder/subfolder/presets.yaml' as NormalizedPath,
                 );
 
                 expect(service.dump(result)).toMatchSnapshot();
@@ -174,7 +174,7 @@ describe('vars', () => {
 
                 service.hooks.PresetsLoaded.tap('Test', spy);
 
-                await service.load('./presets.yaml' as RelativePath);
+                await service.load('presets.yaml' as NormalizedPath);
 
                 expect(spy).toHaveBeenCalledWith({default: {field1: 'value1'}}, 'presets.yaml');
             });
@@ -189,7 +189,7 @@ describe('vars', () => {
 
                 service.hooks.Resolved.tap('Test', spy);
 
-                await service.load('./presets.yaml' as RelativePath);
+                await service.load('presets.yaml' as NormalizedPath);
 
                 expect(spy).toHaveBeenCalledWith({field1: 'value1'}, 'presets.yaml');
             });
@@ -206,7 +206,7 @@ describe('vars', () => {
                     return presets;
                 });
 
-                const result = await service.load('./presets.yaml' as RelativePath);
+                const result = await service.load('presets.yaml' as NormalizedPath);
 
                 expect(service.dump(result)).toMatchSnapshot();
             });
@@ -223,7 +223,7 @@ describe('vars', () => {
                     return presets;
                 });
 
-                const result = await service.load('./presets.yaml' as RelativePath);
+                const result = await service.load('presets.yaml' as NormalizedPath);
 
                 expect(service.dump(result)).toMatchSnapshot();
             });
@@ -239,7 +239,7 @@ describe('vars', () => {
                 });
 
                 await expect(() =>
-                    service.load('./presets.yaml' as RelativePath),
+                    service.load('presets.yaml' as NormalizedPath),
                 ).rejects.toThrow();
             });
 
@@ -254,7 +254,7 @@ describe('vars', () => {
                 });
 
                 await expect(() =>
-                    service.load('./presets.yaml' as RelativePath),
+                    service.load('presets.yaml' as NormalizedPath),
                 ).rejects.toThrow();
             });
 
@@ -270,8 +270,8 @@ describe('vars', () => {
                 service.hooks.PresetsLoaded.tap('Test', spy1);
                 service.hooks.Resolved.tap('Test', spy2);
 
-                await service.load('./presets.yaml' as RelativePath);
-                await service.load('./presets.yaml' as RelativePath);
+                await service.load('presets.yaml' as NormalizedPath);
+                await service.load('presets.yaml' as NormalizedPath);
 
                 expect(spy1).toHaveBeenCalledOnce();
                 expect(spy2).toHaveBeenCalledOnce();

@@ -25,7 +25,7 @@ export function modifyValuesByKeys(
     modifyFn: (value: string) => string,
 ) {
     // Clone the object deeply with a customizer function that modifies matching keys
-    return cloneDeepWith(originalObj, function (value: unknown, key) {
+    return cloneDeepWith(originalObj, (value: unknown, key) => {
         if (keysToFind.includes(key as string) && isString(value)) {
             return modifyFn(value);
         }
@@ -87,6 +87,7 @@ export type HookMeta = {
     type: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function intercept<T extends Hash<Hook<any, any> | HookMap<any>>>(
     service: string,
     hooks: T,
@@ -98,7 +99,7 @@ export function intercept<T extends Hash<Hook<any, any> | HookMap<any>>>(
                 const meta = {service, hook, name, type};
 
                 if (type === 'promise') {
-                    info.fn = async (...args: any[]) => {
+                    info.fn = async (...args: unknown[]) => {
                         try {
                             return await fn(...args);
                         } catch (error) {
@@ -110,7 +111,7 @@ export function intercept<T extends Hash<Hook<any, any> | HookMap<any>>>(
                         }
                     };
                 } else if (type === 'sync') {
-                    info.fn = (...args: any[]) => {
+                    info.fn = (...args: unknown[]) => {
                         try {
                             return fn(...args);
                         } catch (error) {

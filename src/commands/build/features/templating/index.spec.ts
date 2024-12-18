@@ -217,7 +217,7 @@ describe('Build template feature', () => {
         it('should not save presets.yaml for html build', async () => {
             const build = setupBuild({
                 globs: {
-                    '**/presets.yaml': ['./presets.yaml'],
+                    '**/presets.yaml': ['presets.yaml'] as NormalizedPath[],
                 },
                 files: {
                     './presets.yaml': dedent`
@@ -238,7 +238,7 @@ describe('Build template feature', () => {
         it('should save presets.yaml for md build with disabled templating', async () => {
             const build = setupBuild({
                 globs: {
-                    '**/presets.yaml': ['./presets.yaml'],
+                    '**/presets.yaml': ['presets.yaml'] as NormalizedPath[],
                 },
                 files: {
                     './presets.yaml': dedent`
@@ -259,7 +259,7 @@ describe('Build template feature', () => {
         it('should filter presets.yaml for md build with disabled templating', async () => {
             const build = setupBuild({
                 globs: {
-                    '**/presets.yaml': ['./presets.yaml'],
+                    '**/presets.yaml': ['presets.yaml'] as NormalizedPath[],
                 },
                 files: {
                     './presets.yaml': dedent`

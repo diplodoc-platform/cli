@@ -30,11 +30,6 @@ type LoggerOptions = Readonly<{
     quiet: boolean;
 }>;
 
-type MessageInfo = {
-    level: LogLevels;
-    message: string;
-};
-
 type Color = typeof red;
 
 const Write = Symbol('write');
@@ -95,8 +90,6 @@ export class Logger implements LogConsumer {
 
     private consumer: LogConsumer | null = null;
 
-    private buffer: MessageInfo[] = [];
-
     private filters: ((level: LogLevels, message: string) => string)[];
 
     constructor(
@@ -120,6 +113,9 @@ export class Logger implements LogConsumer {
      * So if child and parent has the same topic with name 'proc',
      * only local topic will be applied to message.
      * Message will be decorated by local topic and will be passed to parent as raw string.
+     *
+     * @param {LogConsumer} consumer - parent logger
+     * @returns {Logger}
      */
     pipe(consumer: LogConsumer) {
         if (this.consumer && this.consumer !== consumer) {
@@ -128,18 +124,17 @@ export class Logger implements LogConsumer {
 
         this.consumer = consumer;
 
-        for (const {level, message} of this.buffer) {
-            this.consumer[Symbol.for(level) as keyof LogConsumer](message);
-        }
-
-        this.buffer.length = 0;
-
         return this;
     }
 
     /**
      * Defines new write decorator to one of defined log channeld.
      * Each decorator adds colored prefix to messages and apply preconfigured filters.
+     *
+     * @param {LogLevels} level
+     * @param {string} prefix - any bounded text prefix, which will be colored
+     * @param {Color} [color] - prefix color
+     * @returns new topic
      */
     topic(level: LogLevels, prefix: string, color?: Color) {
         const channel = Symbol.for(level) as keyof LogConsumer;
@@ -177,14 +172,7 @@ export class Logger implements LogConsumer {
         return this;
     }
 
-    clear() {
-        this.buffer.length = 0;
-
-        return this;
-    }
-
     reset() {
-        this.clear();
         for (const level of Object.values(LogLevel)) {
             this[level].count = 0;
         }
@@ -200,6 +188,7 @@ export class Logger implements LogConsumer {
         if (this.consumer) {
             this.consumer[Symbol.for(level) as keyof LogConsumer](message);
         } else {
+            // eslint-disable-next-line no-console
             console[level](message);
         }
     }

@@ -8,7 +8,7 @@ export type PresetStorage = Map<string, YfmPreset>;
 let presetStorage: PresetStorage = new Map();
 
 function init(vars: VarsService) {
-    for (const [path, values] of vars.entries()) {
+    for (const [path, values] of vars.entries) {
         presetStorage.set(dirname(path), values);
     }
 }

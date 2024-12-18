@@ -1,7 +1,7 @@
 import type {Build} from '../..';
 import type {Command} from '~/config';
 
-import {resolve} from 'path';
+import {resolve} from 'node:path';
 import shell from 'shelljs';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 

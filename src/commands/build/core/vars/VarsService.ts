@@ -5,7 +5,7 @@ import {merge} from 'lodash';
 import {dump, load} from 'js-yaml';
 
 import {Run} from '~/commands/build';
-import {freeze, own} from '~/utils';
+import {freeze, normalizePath, own} from '~/utils';
 import {AsyncParallelHook, AsyncSeriesWaterfallHook} from 'tapable';
 
 export type VarsServiceConfig = {
@@ -31,6 +31,10 @@ type VarsServiceHooks = {
 export class VarsService {
     hooks: VarsServiceHooks;
 
+    get entries() {
+        return [...Object.entries(this.cache)];
+    }
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -50,10 +54,10 @@ export class VarsService {
     }
 
     async init() {
-        const presets = (await this.run.glob('**/presets.yaml', {
+        const presets = await this.run.glob('**/presets.yaml', {
             cwd: this.run.input,
             ignore: this.config.ignore,
-        })) as RelativePath[];
+        });
 
         for (const preset of presets) {
             await this.load(preset);
@@ -61,6 +65,8 @@ export class VarsService {
     }
 
     async load(path: RelativePath) {
+        path = normalizePath(path);
+
         const varsPreset = this.config.varsPreset || 'default';
         const file = join(dirname(path), 'presets.yaml');
 
@@ -106,9 +112,5 @@ export class VarsService {
         return dump(presets, {
             lineWidth: 120,
         });
-    }
-
-    entries() {
-        return Object.entries(this.cache);
     }
 }
