@@ -6,7 +6,7 @@ import {dirname, join, relative, resolve} from 'node:path';
 import {access, link, mkdir, readFile, realpath, stat, unlink, writeFile} from 'node:fs/promises';
 import {glob} from 'glob';
 
-import {normalizePath} from '~/utils';
+import {bounded, normalizePath} from '~/utils';
 import {configPath} from '~/config';
 import {
     BUNDLE_FOLDER,
@@ -112,11 +112,11 @@ export class Run {
      *
      * @returns {Promise<string>}
      */
-    read = async (path: AbsolutePath) => {
+    @bounded async read(path: AbsolutePath) {
         this.assertProjectScope(path);
 
         return this.fs.readFile(path, 'utf8');
-    };
+    }
 
     /**
      * Run.input bounded write helper.
@@ -130,15 +130,26 @@ export class Run {
      *
      * @returns {Promise<void>}
      */
-    write = async (path: AbsolutePath, content: string) => {
+    @bounded async write(path: AbsolutePath, content: string) {
         this.assertProjectScope(path);
 
         await this.fs.mkdir(dirname(path), {recursive: true});
         await this.fs.unlink(path).catch(() => {});
         await this.fs.writeFile(path, content, 'utf8');
-    };
+    }
 
-    glob = async (pattern: string | string[], options: GlobOptions): Promise<NormalizedPath[]> => {
+    /**
+     * Glob wrapper with some default settings
+     *
+     * @param {string | string[]} pattern
+     * @param {GlobOptions} options
+     *
+     * @returns {NormalizedPath[]}
+     */
+    @bounded async glob(
+        pattern: string | string[],
+        options: GlobOptions,
+    ): Promise<NormalizedPath[]> {
         const paths = await glob(pattern, {
             dot: true,
             nodir: true,
@@ -147,13 +158,13 @@ export class Run {
         });
 
         return paths.map(normalizePath);
-    };
+    }
 
-    copy = async (
+    @bounded async copy(
         from: AbsolutePath,
         to: AbsolutePath,
         options: CopyOptions | CopyOptions['ignore'] = {},
-    ) => {
+    ) {
         if (Array.isArray(options)) {
             options = {ignore: options};
         }
@@ -205,9 +216,12 @@ export class Run {
                 await hardlink(join(from, file), join(to, file));
             }
         }
-    };
+    }
 
-    realpath = async (path: AbsolutePath): Promise<AbsolutePath[]> => {
+    realpath(path: AbsolutePath): Promise<AbsolutePath[]>;
+    realpath(path: AbsolutePath, withStack: true): Promise<AbsolutePath[]>;
+    realpath(path: AbsolutePath, withStack: false): Promise<AbsolutePath>;
+    @bounded async realpath(path: AbsolutePath, withStack = true) {
         const stack = [path];
         while (this._copyMap[path]) {
             path = this._copyMap[path];
@@ -222,8 +236,8 @@ export class Run {
             }
         } catch {}
 
-        return stack;
-    };
+        return withStack ? stack : stack[0];
+    }
 
     private async assertProjectScope(path: AbsolutePath) {
         const realpath = await this.realpath(path);
