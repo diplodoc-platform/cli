@@ -37,10 +37,10 @@ vi.mock('~/config', async (importOriginal) => {
 const Mocked = Symbol('Mocked');
 
 export type RunSpy = Run & {
-    glob: MockInstance<Parameters<Run['glob']>, ReturnType<Run['glob']>>;
-    copy: MockInstance<Parameters<Run['copy']>, ReturnType<Run['copy']>>;
-    read: MockInstance<Parameters<Run['read']>, ReturnType<Run['read']>>;
-    write: MockInstance<Parameters<Run['write']>, ReturnType<Run['write']>>;
+    glob: MockInstance<Run['glob']>;
+    copy: MockInstance<Run['copy']>;
+    read: MockInstance<Run['read']>;
+    write: MockInstance<Run['write']>;
     [Mocked]: boolean;
 };
 
@@ -53,10 +53,20 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
             ...config,
         } as BuildConfig);
 
+    const stringify = (arg: unknown) => {
+        if (typeof arg === 'object' && arg) {
+            return JSON.stringify(arg);
+        }
+
+        return String(arg);
+    };
+
     const impl =
         (method: string) =>
-        (...args: any[]) => {
-            throw new Error(`Method ${method} with args\n${args.join('\n')} not implemented.`);
+        (...args: unknown[]) => {
+            throw new Error(
+                `Method ${method} with args\n${args.map(stringify).join('\n')} not implemented.`,
+            );
         };
 
     for (const method of ['glob', 'copy', 'read', 'write'] as string[]) {
@@ -75,7 +85,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
 }
 
 type BuildState = {
-    globs?: Hash<RelativePath[]>;
+    globs?: Hash<NormalizedPath[]>;
     files?: Hash<string>;
 };
 export function setupBuild(state: BuildState = {}): Build & {run: Run} {
