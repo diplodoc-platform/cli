@@ -1,3 +1,5 @@
+import type {Run} from '~/commands/build';
+
 import {readFileSync, writeFileSync} from 'fs';
 import {basename, dirname, extname, join, resolve} from 'path';
 import shell from 'shelljs';
@@ -11,14 +13,14 @@ import {PROCESSING_FINISHED} from '../constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {enrichWithFrontMatter} from '../services/metadata';
 
-export async function resolveMd2Md(options: ResolveMd2MdOptions): Promise<void> {
+export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata: metadataOptions} = options;
     const {input, output, changelogs: changelogsSetting, included} = ArgvService.getConfig();
     const resolvedInputPath = resolve(input, inputPath);
 
     const vars = getVarsPerFile(inputPath);
 
-    const content = await enrichWithFrontMatter({
+    const content = await enrichWithFrontMatter(run, {
         fileContent: readFileSync(resolvedInputPath, 'utf8'),
         metadataOptions,
         resolvedFrontMatterVars: {

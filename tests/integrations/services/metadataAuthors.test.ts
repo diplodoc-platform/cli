@@ -1,3 +1,5 @@
+import type {Run} from 'commands/build';
+
 import {extractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 import {readFileSync} from 'fs';
 import {MetaDataOptions} from 'models';
@@ -30,6 +32,11 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         getModifiedTimeByPath: () => undefined,
     };
 
+    const run = {
+        input: '',
+        realpath: (path: string) => path,
+    } as unknown as Run;
+
     describe('should return file content with updated author in metadata', () => {
         let metadataOptions: MetaDataOptions;
 
@@ -57,7 +64,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         test('if metadata has author alias', async () => {
             const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
 
-            const updatedFileContent = await enrichWithFrontMatter({
+            const updatedFileContent = await enrichWithFrontMatter(run, {
                 fileContent,
                 metadataOptions,
                 resolvedFrontMatterVars: {},
@@ -77,7 +84,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
         test('if metadata has full author data', async () => {
             const fileContent = readFileSync(fullAuthorInMetadataFilePath, 'utf8');
 
-            const updatedFileContent = await enrichWithFrontMatter({
+            const updatedFileContent = await enrichWithFrontMatter(run, {
                 fileContent,
                 metadataOptions,
                 resolvedFrontMatterVars: {},
@@ -113,7 +120,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             metadataOptions.vcsConnector = defaultVCSConnector;
             const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
 
-            const updatedFileContent = await enrichWithFrontMatter({
+            const updatedFileContent = await enrichWithFrontMatter(run, {
                 fileContent,
                 metadataOptions,
                 resolvedFrontMatterVars: {},
@@ -133,7 +140,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 metadataOptions.vcsConnector = undefined;
                 const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
 
-                const updatedFileContent = await enrichWithFrontMatter({
+                const updatedFileContent = await enrichWithFrontMatter(run, {
                     fileContent,
                     metadataOptions,
                     resolvedFrontMatterVars: {},
@@ -158,7 +165,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
                 };
                 const fileContent = readFileSync(authorAliasInMetadataFilePath, 'utf8');
 
-                const updatedFileContent = await enrichWithFrontMatter({
+                const updatedFileContent = await enrichWithFrontMatter(run, {
                     fileContent,
                     metadataOptions,
                     resolvedFrontMatterVars: {},
@@ -176,7 +183,7 @@ describe('getContentWithUpdatedMetadata (Authors)', () => {
             metadataOptions.vcsConnector = defaultVCSConnector;
             const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-            const updatedFileContent = await enrichWithFrontMatter({
+            const updatedFileContent = await enrichWithFrontMatter(run, {
                 fileContent,
                 metadataOptions,
                 resolvedFrontMatterVars: {},

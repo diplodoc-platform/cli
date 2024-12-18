@@ -1,13 +1,12 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import type {Run} from '~/commands/build';
 import {basename, dirname, extname, join, resolve} from 'node:path';
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
+import {existsSync, readFileSync, writeFileSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
 import shell from 'shelljs';
-import dedent from 'ts-dedent';
 
 import {
     Lang,
@@ -28,7 +27,7 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
-import {getDepth, joinSinglePageResults, transformToc, transformTocForSinglePage} from '../utils';
+import {getDepth, joinSinglePageResults} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -37,29 +36,19 @@ const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
 export async function processPages(run: Run): Promise<void> {
-    const {
-        input: inputFolderPath,
-        output: outputFolderPath,
-        outputFormat,
-        singlePage,
-        resolveConditions,
-    } = ArgvService.getConfig();
-
     const vcsConnector = await getVCSConnector();
 
     PluginService.setPlugins();
 
-    const navigationPaths = TocService.getNavigationPaths();
-
     await mapLimit(
-        navigationPaths,
+        run.toc.entries,
         PAGE_PROCESS_CONCURRENCY,
         asyncify(async (pathToFile: string) => {
             const pathData = getPathData(
                 pathToFile,
-                inputFolderPath,
-                outputFolderPath,
-                outputFormat,
+                run.input,
+                run.output,
+                run.config.outputFormat,
                 run.bundlePath,
             );
 
@@ -68,24 +57,21 @@ export async function processPages(run: Run): Promise<void> {
             const metaDataOptions = getMetaDataOptions(pathData, vcsConnector);
 
             await preparingPagesByOutputFormat(
+                run,
                 pathData,
                 metaDataOptions,
-                resolveConditions,
-                singlePage,
+                run.config.template.features.conditions,
+                run.config.singlePage,
             );
         }),
     );
 
-    if (singlePage) {
-        if (outputFormat === 'html') {
-            await saveTocData(transformTocForSinglePage, 'single-page-toc');
-        }
+    if (run.config.singlePage) {
         await saveSinglePages(run);
     }
 
-    if (outputFormat === 'html') {
-        saveRedirectPage(outputFolderPath);
-        await saveTocData(transformToc, 'toc');
+    if (run.config.outputFormat === 'html') {
+        saveRedirectPage(run);
     }
 }
 
@@ -104,7 +90,7 @@ function getPathData(
     const outputFileName = `${fileBaseName}.${outputFormat}`;
     const outputPath = resolve(outputDir, outputFileName);
     const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
-    const outputTocDir = TocService.getTocDir(resolvedPathToFile);
+    const outputTocDir = TocService.getTocDir(pathToFile);
 
     const pathData: PathData = {
         pathToFile,
@@ -124,23 +110,6 @@ function getPathData(
     return pathData;
 }
 
-async function saveTocData(transform: (toc: YfmToc, tocDir: string) => YfmToc, filename: string) {
-    const tocs = TocService.getAllTocs();
-    const {output} = ArgvService.getConfig();
-
-    for (const [path, toc] of tocs) {
-        const outputPath = join(output, dirname(path), filename + '.js');
-        mkdirSync(dirname(outputPath), {recursive: true});
-        writeFileSync(
-            outputPath,
-            dedent`
-                window.__DATA__.data.toc = ${JSON.stringify(transform(toc, dirname(path)))};
-            `,
-            'utf8',
-        );
-    }
-}
-
 async function saveSinglePages(run: Run) {
     try {
         await Promise.all(
@@ -149,10 +118,7 @@ async function saveSinglePages(run: Run) {
                     return;
                 }
 
-                const relativeTocDir = tocDir
-                    .replace(run.input, '')
-                    .replace(/\\/g, '/')
-                    .replace(/^\/?/, '');
+                const relativeTocDir = tocDir.replace(/\\/g, '/').replace(/^\/?/, '');
                 const singlePageBody = joinSinglePageResults(
                     singlePageResults[tocDir],
                     relativeTocDir,
@@ -179,8 +145,8 @@ async function saveSinglePages(run: Run) {
                 };
 
                 // Save the full single page for viewing locally
-                const singlePageFn = join(tocDir, SINGLE_PAGE_FILENAME);
-                const singlePageDataFn = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
+                const singlePageFn = join(run.output, tocDir, SINGLE_PAGE_FILENAME);
+                const singlePageDataFn = join(run.output, tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
                     pageData,
                     {path: join(relativeTocDir, 'single-page-toc'), content: toc},
@@ -196,17 +162,13 @@ async function saveSinglePages(run: Run) {
     }
 }
 
-function saveRedirectPage(outputDir: string): void {
-    const {lang, langs} = ArgvService.getConfig();
-
-    const redirectLang = lang || langs?.[0] || Lang.RU;
-    const redirectLangRelativePath = `./${redirectLang}/index.html`;
-
-    const redirectPagePath = join(outputDir, 'index.html');
-    const redirectLangPath = join(outputDir, redirectLangRelativePath);
+function saveRedirectPage(run: Run): void {
+    const redirectLangRelativePath = `./${run.config.lang}/index.html`;
+    const redirectPagePath = join(run.output, 'index.html');
+    const redirectLangPath = join(run.output, redirectLangRelativePath);
 
     if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
-        const content = generateStaticRedirect(redirectLang, redirectLangRelativePath);
+        const content = generateStaticRedirect(run.config.lang, redirectLangRelativePath);
         writeFileSync(redirectPagePath, content);
     }
 }
@@ -263,6 +225,7 @@ function getMetaDataOptions(pathData: PathData, vcsConnector?: VCSConnector): Me
 }
 
 async function preparingPagesByOutputFormat(
+    run: Run,
     path: PathData,
     metaDataOptions: MetaDataOptions,
     resolveConditions: boolean,
@@ -303,10 +266,10 @@ async function preparingPagesByOutputFormat(
 
         switch (outputFormat) {
             case 'md':
-                await processingFileToMd(path, metaDataOptions);
+                await processingFileToMd(run, path, metaDataOptions);
                 return;
             case 'html': {
-                const resolvedFileProps = await processingFileToHtml(path, metaDataOptions);
+                const resolvedFileProps = await processingFileToHtml(run, path, metaDataOptions);
 
                 SearchService.add(pathToFile, resolvedFileProps);
 
@@ -349,10 +312,14 @@ function copyFileWithoutChanges(
     shell.cp(from, to);
 }
 
-async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptions): Promise<void> {
+async function processingFileToMd(
+    run: Run,
+    path: PathData,
+    metaDataOptions: MetaDataOptions,
+): Promise<void> {
     const {outputPath, pathToFile} = path;
 
-    await resolveMd2Md({
+    await resolveMd2Md(run, {
         inputPath: pathToFile,
         outputPath,
         metadata: metaDataOptions,
@@ -360,12 +327,13 @@ async function processingFileToMd(path: PathData, metaDataOptions: MetaDataOptio
 }
 
 async function processingFileToHtml(
+    run: Run,
     path: PathData,
     metaDataOptions: MetaDataOptions,
 ): Promise<DocInnerProps> {
     const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
 
-    return resolveMd2HTML({
+    return resolveMd2HTML(run, {
         inputPath: pathToFile,
         outputBundlePath,
         fileExtension,

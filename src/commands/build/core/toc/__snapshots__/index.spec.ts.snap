@@ -1,0 +1,192 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`toc-loader > includers > should fix include path 1`] = `
+"items:
+  - name: Common item
+"
+`;
+
+exports[`toc-loader > includers > should handle registered includer 1`] = `
+"items:
+  - name: Common item
+"
+`;
+
+exports[`toc-loader > includers > should merge includer toc to parent 1`] = `
+"items:
+  - name: Common item
+  - name: Includer item 1
+"
+`;
+
+exports[`toc-loader > includers > should pass extra params to includer 1`] = `
+"items:
+  - name: Common item
+"
+`;
+
+exports[`toc-loader > includes > should filter include in preview stage 1`] = `
+"items:
+  - name: Common item
+"
+`;
+
+exports[`toc-loader > includes > should merge deep includes in link mode 1`] = `
+"items:
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
+        href: _includes/core/item-1.md
+      - name: Inner Item 2
+        items:
+          - name: Inner Lib Item 1
+            href: _includes/lib/item-1.md
+"
+`;
+
+exports[`toc-loader > includes > should merge deep includes in merge mode 1`] = `
+"items:
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
+        href: _includes/core/item-1.md
+      - name: Inner Item 2
+        items:
+          - name: Inner Merge Item 1
+            href: _includes/core/merge-item-1.md
+          - name: Inner Deep Merge Item 1
+            href: _includes/core/deep-merge-item-1.md
+          - name: Inner Sub Item 1
+            href: _includes/core/sub-item-1.md
+"
+`;
+
+exports[`toc-loader > includes > should merge includes in flat link mode 1`] = `
+"items:
+  - name: Inner Item 1
+"
+`;
+
+exports[`toc-loader > includes > should merge includes in link mode 1`] = `
+"items:
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
+"
+`;
+
+exports[`toc-loader > includes > should rebase items href for includes in link mode 1`] = `
+"items:
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
+        href: _includes/core/item-1.md
+        items:
+          - name: Inner Sub Item 1
+            href: _includes/core/sub-item-1.md
+      - name: Inner Item 2
+        href: _includes/core/item-2.md
+      - name: Inner Item 3
+        href: _includes/core/sub/item-3.md
+      - name: Inner Item 4
+        href: _includes/core/sub/item-4.md
+      - name: Inner Item 5
+        href: _includes/item-5.md
+      - name: Inner Item 6
+        href: https://example.com
+      - name: Inner Item 7
+        href: //example.com
+"
+`;
+
+exports[`toc-loader > should filter hidden item 1`] = `
+"items:
+  - name: Visible Item 1
+  - name: Visible Item 2
+"
+`;
+
+exports[`toc-loader > should filter item with declined rule 1`] = `
+"items:
+  - name: Visible Item 1
+  - name: Visible Item 2
+"
+`;
+
+exports[`toc-loader > should handle filter title 1`] = `
+"title: Title B
+"
+`;
+
+exports[`toc-loader > should handle simple title 1`] = `
+"title: Title
+"
+`;
+
+exports[`toc-loader > should interpolate conditions in title 1`] = `
+"title: 'Title  IF '
+"
+`;
+
+exports[`toc-loader > should interpolate filter title 1`] = `
+"title: Title C
+"
+`;
+
+exports[`toc-loader > should interpolate item href 1`] = `
+"items:
+  - href: file.md
+"
+`;
+
+exports[`toc-loader > should interpolate item name 1`] = `
+"items:
+  - name: Item C
+"
+`;
+
+exports[`toc-loader > should interpolate nested item 1`] = `
+"items:
+  - name: Parent
+    items:
+      - name: Item C
+        href: file.md
+"
+`;
+
+exports[`toc-loader > should interpolate title 1`] = `
+"title: Title C
+"
+`;
+
+exports[`toc-loader > should normalize items 1`] = `
+"items:
+  - name: Item without extension
+    href: some/href.md
+  - name: Item with slash
+    href: some/href/index.yaml
+"
+`;
+
+exports[`toc-loader > should not filter item with accepted rule 1`] = `
+"items:
+  - name: Visible Item 1
+  - name: Visible Item 2
+  - name: Visible Item 3
+"
+`;
+
+exports[`toc-loader > should not interpolate title if both templating is disabled 1`] = `
+"title: Title {% if var == "C"%} IF {% endif %}
+"
+`;
+
+exports[`toc-loader > should not interpolate title if conditions is disabled 1`] = `
+"title: Title {% if var == "C"%} IF {% endif %}
+"
+`;
+
+exports[`toc-loader > should not interpolate title if substitutions is disabled 1`] = `
+"title: Title {{var}}
+"
+`;

@@ -35,14 +35,16 @@ type RelativePath = string &
  */
 type NormalizedPath = string & {
     __type: 'path';
-    __mode: 'relative' & 'normalized';
+    __mode: 'relative';
+    __fix: 'normalized';
 };
 
 type AnyPath = string | UnresolvedPath | AbsolutePath | RelativePath | NormalizedPath;
 
 type URIString = string & {
     __type: 'uri';
-    __mode: 'normalized';
+    __mode: 'relative';
+    __fix: 'normalized';
 };
 
 declare module 'node:path' {
