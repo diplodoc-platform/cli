@@ -15,12 +15,12 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
     const metadataOptions: MetaDataOptions = {
         pathData: {
             pathToFile: '',
-            resolvedPathToFile: '',
+            resolvedPathToFile: '' as AbsolutePath,
             filename: '',
             fileBaseName: '',
             fileExtension: '',
-            outputDir: '',
-            outputPath: '',
+            outputDir: '' as AbsolutePath,
+            outputPath: '' as AbsolutePath,
             outputFormat: '',
             outputBundlePath: '',
             outputTocDir: '',
@@ -244,7 +244,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                                 contributors: getFileContributors(path),
                                 hasIncludes: item.getHasIncludes(path),
                             });
-                        metadataOptions.pathData.resolvedPathToFile = withIncludesFilePath;
+                        metadataOptions.pathData.resolvedPathToFile = withIncludesFilePath as AbsolutePath;
                         const fileContent = readFileSync(withIncludesFilePath, 'utf8');
 
                         const updatedFileContent = await enrichWithFrontMatter({

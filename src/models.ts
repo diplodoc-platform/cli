@@ -264,12 +264,12 @@ export interface ResolverOptions {
 
 export interface PathData {
     pathToFile: string;
-    resolvedPathToFile: string;
+    resolvedPathToFile: AbsolutePath;
     filename: string;
     fileBaseName: string;
     fileExtension: string;
-    outputDir: string;
-    outputPath: string;
+    outputDir: AbsolutePath;
+    outputPath: AbsolutePath;
     outputFormat: string;
     outputBundlePath: string;
     outputTocDir: string;

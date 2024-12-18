@@ -1,10 +1,10 @@
 import {join} from 'path';
-import {BUNDLE_FOLDER, Lang, RTL_LANGS} from '../constants';
+import {BUNDLE_FOLDER, RTL_LANGS} from '../constants';
 import {PluginService} from '../services';
 
 import manifest from '@diplodoc/client/manifest';
 
-export function generateStaticRedirect(lang: Lang, link: string): string {
+export function generateStaticRedirect(lang: string, link: string): string {
     const isRTL = RTL_LANGS.includes(lang);
 
     return `

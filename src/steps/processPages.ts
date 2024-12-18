@@ -77,7 +77,6 @@ export async function processPages(run: Run): Promise<void> {
     );
 
     if (singlePage) {
-
         if (outputFormat === 'html') {
             await saveTocData(transformTocForSinglePage, 'single-page-toc');
         }

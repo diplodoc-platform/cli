@@ -48,12 +48,12 @@ describe('getUpdatedMetadata', () => {
         metaDataOptions = {
             pathData: {
                 pathToFile: '',
-                resolvedPathToFile: '',
+                resolvedPathToFile: '' as AbsolutePath,
                 filename: '',
                 fileBaseName: '',
                 fileExtension: '',
-                outputDir: '',
-                outputPath: '',
+                outputDir: '' as AbsolutePath,
+                outputPath: '' as AbsolutePath,
                 outputFormat: '',
                 outputBundlePath: '',
                 outputTocDir: '',
