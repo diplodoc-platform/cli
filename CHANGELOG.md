@@ -1,5 +1,26 @@
 # Changelog
 
+## [4.51.0](https://github.com/diplodoc-platform/cli/compare/v4.50.0...v4.51.0) (2024-12-18)
+
+
+### Features
+
+* Add `init` method to service API ([1d81ab7](https://github.com/diplodoc-platform/cli/commit/1d81ab797e80f5ec58ad7530c69010f510eeed57))
+* Extend Build.Run fs API ([55de3a3](https://github.com/diplodoc-platform/cli/commit/55de3a33b01065787bc675979eec2dcb0e8b1385))
+* Handle `ignoreStage` as array ([0fa5fd0](https://github.com/diplodoc-platform/cli/commit/0fa5fd0dd06f07546b203769feef80a30d29c7a9))
+
+
+### Bug Fixes
+
+* Bound class methods with decorator ([4260d31](https://github.com/diplodoc-platform/cli/commit/4260d31a0758343d477476726b433928936e3997))
+* Handle hooks errors ([64359f8](https://github.com/diplodoc-platform/cli/commit/64359f80172a2f0f7953d40bed157086df588ac6))
+* Migrate to new frontmatter API ([d5b8fdb](https://github.com/diplodoc-platform/cli/commit/d5b8fdb491df3fe1c5814c57331d88b064c7a502))
+
+
+### Dependency update
+
+* Update transform, vitest ([fa30d1b](https://github.com/diplodoc-platform/cli/commit/fa30d1b86e2bee5bc59a7cdd4ceed7d3982da0a7))
+
 ## [4.50.0](https://github.com/diplodoc-platform/cli/compare/v4.49.1...v4.50.0) (2024-12-05)
 
 
