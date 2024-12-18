@@ -1,11 +1,11 @@
 import {readFile} from 'fs/promises';
-import {dirname, join} from 'path';
+import {dirname, join} from 'node:path';
 import {REGEXP_INCLUDE_CONTENTS, REGEXP_INCLUDE_FILE_PATH} from '../constants';
 import {Contributor, Contributors} from '../models';
 import {FileContributors, VCSConnector} from '../vcs-connector/connector-models';
 
 export interface ContributorsServiceFileData {
-    resolvedFilePath: string;
+    resolvedFilePath: AbsolutePath;
     inputFolderPathLength: number;
     fileContent: string;
 }
@@ -50,10 +50,7 @@ async function getContributorsForNestedFiles(
     }
 
     const includesContributors: Contributors[] = [];
-    const relativeIncludeFilePaths: Set<string> = getRelativeIncludeFilePaths(
-        fileData,
-        includeContents,
-    );
+    const relativeIncludeFilePaths = getRelativeIncludeFilePaths(fileData, includeContents);
 
     for (const relativeIncludeFilePath of relativeIncludeFilePaths.values()) {
         const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength);
@@ -92,8 +89,8 @@ async function getContributorsForNestedFiles(
 function getRelativeIncludeFilePaths(
     {resolvedFilePath: tmpInputFilePath}: ContributorsServiceFileData,
     includeContents: string[],
-): Set<string> {
-    const relativeIncludeFilePaths: Set<string> = new Set();
+): Set<AbsolutePath> {
+    const relativeIncludeFilePaths: Set<AbsolutePath> = new Set();
 
     includeContents.forEach((includeContent: string) => {
         const relativeIncludeFilePath = includeContent.match(REGEXP_INCLUDE_FILE_PATH);
@@ -121,13 +118,12 @@ export async function getFileIncludes(fileData: ContributorsServiceFileData) {
     if (!includeContents || includeContents.length === 0) {
         return [];
     }
-    const relativeIncludeFilePaths: Set<string> = getRelativeIncludeFilePaths(
-        fileData,
-        includeContents,
-    );
+    const relativeIncludeFilePaths = getRelativeIncludeFilePaths(fileData, includeContents);
     for (const relativeIncludeFilePath of relativeIncludeFilePaths.values()) {
         const relativeFilePath = relativeIncludeFilePath.substring(inputFolderPathLength + 1);
-        if (results.has(relativeFilePath)) continue;
+        if (results.has(relativeFilePath)) {
+            continue;
+        }
         results.add(relativeFilePath);
 
         let contentIncludeFile: string;
