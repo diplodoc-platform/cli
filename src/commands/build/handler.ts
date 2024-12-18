@@ -2,12 +2,9 @@ import type {Run} from './run';
 
 import 'threads/register';
 
-import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
-
-import {ArgvService, Includers, PresetService, SearchService} from '~/services';
+import {ArgvService, PresetService, SearchService, TocService} from '~/services';
 import {
     initLinterWorkers,
-    preparingTocFiles,
     processAssets,
     processChangelogs,
     processExcludedFiles,
@@ -21,18 +18,15 @@ export async function handler(run: Run) {
     try {
         ArgvService.init(run.legacyConfig);
         SearchService.init();
-        // TODO: Remove duplicated types from openapi-extension
-        // @ts-ignore
-        Includers.init([OpenapiIncluder]);
+        PresetService.init(run.vars);
+        TocService.init(run.toc);
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
-        PresetService.init(run.vars);
-        await preparingTocFiles();
         processExcludedFiles();
 
         if (addMapFile) {
-            prepareMapFile();
+            prepareMapFile(run);
         }
 
         if (!lintDisabled) {

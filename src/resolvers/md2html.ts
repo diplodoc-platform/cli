@@ -1,4 +1,5 @@
 import type {DocInnerProps} from '@diplodoc/client';
+import type {Run} from '~/commands/build';
 
 import {readFileSync, writeFileSync} from 'fs';
 import {dirname, extname, join, resolve} from 'path';
@@ -13,8 +14,8 @@ import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
 import yaml from 'js-yaml';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
-import {LeadingPage, ResolverOptions, YfmToc} from '../models';
-import {ArgvService, PluginService, SearchService, TocService} from '../services';
+import {LeadingPage, ResolverOptions} from '../models';
+import {ArgvService, PluginService, SearchService} from '../services';
 import {getVCSMetadata} from '../services/metadata';
 import {
     getDepth,
@@ -104,11 +105,12 @@ const getFileProps = async (options: ResolverOptions) => {
     };
 };
 
-export async function resolveMd2HTML(options: ResolverOptions): Promise<DocInnerProps> {
+export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promise<DocInnerProps> {
     const {outputPath, inputPath} = options;
     const props = await getFileProps(options);
 
-    const [tocDir, toc] = TocService.getForPath(inputPath) as [string, YfmToc];
+    const [tocPath, toc] = run.toc.for(inputPath);
+    const tocDir = dirname(tocPath);
 
     const title = getTitle(toc.title as string, props.data.title);
     const tocInfo = {

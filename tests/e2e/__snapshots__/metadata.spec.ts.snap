@@ -248,7 +248,7 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
 </html>
 `;
 
-exports[`Allow load custom resources md2html with metadata: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"Documentation-RANDOM"},{"name":"Config","href":"project/config.html","id":"Config-RANDOM"}]};"`;
+exports[`Allow load custom resources md2html with metadata: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html"},{"name":"Config","href":"project/config.html"}]};"`;
 
 exports[`Allow load custom resources md2md with metadata: filelist 1`] = `
 "[

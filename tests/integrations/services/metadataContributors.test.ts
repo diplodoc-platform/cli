@@ -1,3 +1,5 @@
+import type {Run} from 'commands/build';
+
 import {readFileSync} from 'fs';
 import {normalize} from 'path';
 import {Contributor, Contributors, MetaDataOptions} from 'models';
@@ -37,6 +39,11 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
         getModifiedTimeByPath: () => undefined,
     };
 
+    const run = {
+        input: '',
+        realpath: (path: string) => path,
+    } as unknown as Run;
+
     describe(
         'should return file content with updated contributors in metadata ' +
             'if metadata options has "isContributorsEnabled" equals true.',
@@ -54,7 +61,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                     });
                 const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-                const updatedFileContent = await enrichWithFrontMatter({
+                const updatedFileContent = await enrichWithFrontMatter(run, {
                     fileContent,
                     metadataOptions,
                     resolvedFrontMatterVars: {},
@@ -77,7 +84,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                         });
                     const fileContent = readFileSync(withoutMetadataFilePath, 'utf8');
 
-                    const updatedFileContent = await enrichWithFrontMatter({
+                    const updatedFileContent = await enrichWithFrontMatter(run, {
                         fileContent,
                         metadataOptions,
                         resolvedFrontMatterVars: {},
@@ -119,7 +126,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                     });
                 const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-                const updatedFileContent = await enrichWithFrontMatter({
+                const updatedFileContent = await enrichWithFrontMatter(run, {
                     fileContent,
                     metadataOptions,
                     resolvedFrontMatterVars: {},
@@ -160,7 +167,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                         });
                     const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-                    const updatedFileContent = await enrichWithFrontMatter({
+                    const updatedFileContent = await enrichWithFrontMatter(run, {
                         fileContent,
                         metadataOptions,
                         resolvedFrontMatterVars: {},
@@ -247,7 +254,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                         metadataOptions.pathData.resolvedPathToFile = withIncludesFilePath as AbsolutePath;
                         const fileContent = readFileSync(withIncludesFilePath, 'utf8');
 
-                        const updatedFileContent = await enrichWithFrontMatter({
+                        const updatedFileContent = await enrichWithFrontMatter(run, {
                             fileContent,
                             metadataOptions,
                             resolvedFrontMatterVars: {},
@@ -274,7 +281,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             metadataOptions.vcsConnector = defaultVCSConnector;
             const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-            const updatedFileContent = await enrichWithFrontMatter({
+            const updatedFileContent = await enrichWithFrontMatter(run, {
                 fileContent,
                 metadataOptions,
                 resolvedFrontMatterVars: {},
@@ -294,7 +301,7 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
                 metadataOptions.vcsConnector = undefined;
                 const fileContent = readFileSync(simpleMetadataFilePath, 'utf8');
 
-                const updatedFileContent = await enrichWithFrontMatter({
+                const updatedFileContent = await enrichWithFrontMatter(run, {
                     fileContent,
                     metadataOptions,
                     resolvedFrontMatterVars: {},

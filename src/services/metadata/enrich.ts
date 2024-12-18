@@ -1,4 +1,5 @@
 import type {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import type {Run} from '~/commands/build';
 
 import {MetaDataOptions, VarsMetadata} from '../../models';
 import {mergeFrontMatter} from './mergeMetadata';
@@ -24,18 +25,17 @@ const resolveVCSPath = (frontMatter: FrontMatter, relativeInputPath: string) => 
         : relativeInputPath;
 };
 
-export const enrichWithFrontMatter = async ({
-    fileContent,
-    metadataOptions,
-    resolvedFrontMatterVars,
-}: EnrichWithFrontMatterOptions) => {
+export const enrichWithFrontMatter = async (
+    run: Run,
+    {fileContent, metadataOptions, resolvedFrontMatterVars}: EnrichWithFrontMatterOptions,
+) => {
     const {systemVars, metadataVars} = resolvedFrontMatterVars;
     const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
 
     const [frontMatter, strippedContent] = extractFrontMatter(fileContent, pathData.pathToFile);
 
     const vcsFrontMatter = metadataOptions.isContributorsEnabled
-        ? await resolveVCSFrontMatter(frontMatter, metadataOptions, fileContent)
+        ? await resolveVCSFrontMatter(run, frontMatter, metadataOptions, fileContent)
         : undefined;
 
     const mergedFrontMatter = mergeFrontMatter({
