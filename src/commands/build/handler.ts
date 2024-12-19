@@ -2,7 +2,7 @@ import type {Run} from './run';
 
 import 'threads/register';
 
-import {ArgvService, PresetService, SearchService, TocService} from '~/services';
+import {ArgvService, PresetService, SearchService} from '~/services';
 import {
     initLinterWorkers,
     processAssets,
@@ -19,7 +19,6 @@ export async function handler(run: Run) {
         ArgvService.init(run.legacyConfig);
         SearchService.init();
         PresetService.init(run.vars);
-        TocService.init(run.toc);
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
 
@@ -31,11 +30,11 @@ export async function handler(run: Run) {
 
         if (!lintDisabled) {
             /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
+            await initLinterWorkers(run);
         }
 
         const processes = [
-            !lintDisabled && processLinter(),
+            !lintDisabled && processLinter(run),
             !buildDisabled && processPages(run),
         ].filter(Boolean) as Promise<void>[];
 
