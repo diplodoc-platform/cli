@@ -270,7 +270,6 @@ export interface PathData {
     outputPath: AbsolutePath;
     outputFormat: string;
     outputBundlePath: string;
-    outputTocDir: string;
     inputFolderPath: string;
     outputFolderPath: string;
 }

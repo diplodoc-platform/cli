@@ -25,7 +25,6 @@ describe('getContentWithUpdatedMetadata (Contributors)', () => {
             outputPath: '' as AbsolutePath,
             outputFormat: '',
             outputBundlePath: '',
-            outputTocDir: '',
             inputFolderPath: '',
             outputFolderPath: '',
         },

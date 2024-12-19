@@ -56,7 +56,6 @@ describe('getUpdatedMetadata', () => {
                 outputPath: '' as AbsolutePath,
                 outputFormat: '',
                 outputBundlePath: '',
-                outputTocDir: '',
                 inputFolderPath: '',
                 outputFolderPath: '',
             },

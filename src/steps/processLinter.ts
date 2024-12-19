@@ -1,8 +1,10 @@
+import type {Run} from '~/commands/build';
+
 import log from '@diplodoc/transform/lib/log';
 import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
-import {ArgvService, PluginService, PresetService, TocService} from '../services';
+import {ArgvService, PluginService, PresetService} from '../services';
 import {ProcessLinterWorker} from '../workers/linter';
 import {logger} from '../utils';
 import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
@@ -12,10 +14,10 @@ import {splitOnChunks} from '../utils/worker';
 let processLinterWorkers: (ProcessLinterWorker & Thread)[];
 let navigationPathsChunks: string[][];
 
-export async function processLinter(): Promise<void> {
+export async function processLinter(run: Run): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
-    const navigationPaths = TocService.getNavigationPaths();
+    const navigationPaths = run.toc.entries;
 
     if (!processLinterWorkers) {
         lintPagesFallback(navigationPaths);
@@ -62,8 +64,8 @@ export async function processLinter(): Promise<void> {
     );
 }
 
-export async function initLinterWorkers() {
-    const navigationPaths = TocService.getNavigationPaths();
+export async function initLinterWorkers(run: Run) {
+    const navigationPaths = run.toc.entries;
     const chunkSize = getChunkSize(navigationPaths);
 
     if (process.env.DISABLE_PARALLEL_BUILD || chunkSize < MIN_CHUNK_SIZE || WORKERS_COUNT <= 0) {

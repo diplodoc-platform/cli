@@ -24,7 +24,7 @@ import {
     YfmToc,
 } from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, SearchService, TocService} from '../services';
+import {ArgvService, LeadingService, PluginService, SearchService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
 import {getDepth, joinSinglePageResults} from '../utils';
@@ -90,7 +90,6 @@ function getPathData(
     const outputFileName = `${fileBaseName}.${outputFormat}`;
     const outputPath = resolve(outputDir, outputFileName);
     const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
-    const outputTocDir = TocService.getTocDir(pathToFile);
 
     const pathData: PathData = {
         pathToFile,
@@ -102,7 +101,6 @@ function getPathData(
         outputPath,
         outputFormat,
         outputBundlePath,
-        outputTocDir,
         inputFolderPath,
         outputFolderPath,
     };
@@ -124,7 +122,7 @@ async function saveSinglePages(run: Run) {
                     relativeTocDir,
                 );
 
-                const toc = TocService.getForPath(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
+                const toc = run.toc.for(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
                 const lang = run.config.lang ?? Lang.RU;
                 const langs = run.config.langs.length ? run.config.langs : [lang];
 
@@ -173,24 +171,28 @@ function saveRedirectPage(run: Run): void {
     }
 }
 
-function savePageResultForSinglePage(pageProps: DocInnerProps, pathData: PathData): void {
-    const {pathToFile, outputTocDir} = pathData;
+function savePageResultForSinglePage(
+    pageProps: DocInnerProps,
+    pathData: PathData,
+    tocDir: RelativePath,
+): void {
+    const {pathToFile} = pathData;
 
     // TODO: allow page-constructor pages?
     if (pageProps.data.leading) {
         return;
     }
 
-    singlePagePaths[outputTocDir] = singlePagePaths[outputTocDir] || new Set();
+    singlePagePaths[tocDir] = singlePagePaths[tocDir] || new Set();
 
-    if (singlePagePaths[outputTocDir].has(pathToFile)) {
+    if (singlePagePaths[tocDir].has(pathToFile)) {
         return;
     }
 
-    singlePagePaths[outputTocDir].add(pathToFile);
+    singlePagePaths[tocDir].add(pathToFile);
 
-    singlePageResults[outputTocDir] = singlePageResults[outputTocDir] || [];
-    singlePageResults[outputTocDir].push({
+    singlePageResults[tocDir] = singlePageResults[tocDir] || [];
+    singlePageResults[tocDir].push({
         path: pathToFile,
         content: pageProps.data.html,
         title: pageProps.data.title,
@@ -274,7 +276,7 @@ async function preparingPagesByOutputFormat(
                 SearchService.add(pathToFile, resolvedFileProps);
 
                 if (singlePage) {
-                    savePageResultForSinglePage(resolvedFileProps, path);
+                    savePageResultForSinglePage(resolvedFileProps, path, run.toc.dir(pathToFile));
                 }
 
                 return;
