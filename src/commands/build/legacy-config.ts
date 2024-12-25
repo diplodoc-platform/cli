@@ -50,5 +50,6 @@ export function legacyConfig(run: Run): YfmArgv {
         search: config.search,
 
         included: config.mergeIncludes,
+        hashIncludes: config.hashIncludes,
     };
 }
