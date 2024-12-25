@@ -291,6 +291,7 @@ describe('Build command', () => {
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);
         testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
+        testBooleanFlag('hashIncludes', '--hash-includes', true);
 
         // test('should handle required props in config', '', {
         //     input: './input',

@@ -61,6 +61,7 @@ const command = 'Build';
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
             lint: {enabled: true, config: {'log-levels': {}}},
+            hashIncludes: false,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgram<BuildArgs> {
@@ -104,6 +105,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
         options.addSystemMeta,
         options.ignore,
         options.ignoreStage,
+        options.hashIncludes,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
