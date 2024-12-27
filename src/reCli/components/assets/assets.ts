@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {BuildConfig, Run} from '~/commands/build';
-import {findAllValuesByKeys, logger} from '~/utils';
+import {findAllValuesByKeys} from '~/utils';
 import {cachedMkdir, fileExists, safePath} from '~/reCli/utils';
 import {ASSETS_FOLDER, BUNDLE_FOLDER, LINT_CONFIG_FILENAME, REDIRECTS_FILENAME} from '~/constants';
 import pMap from 'p-map';
@@ -10,6 +10,7 @@ import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isLocalUrl} from '@diplodoc/transform/lib/utils';
 import {CONCURRENCY} from '~/reCli/constants';
 import shell from 'shelljs';
+import {LogCollector} from '~/reCli/utils/logger';
 
 interface CopyAssetsProps {
     run: Run;
@@ -17,7 +18,7 @@ interface CopyAssetsProps {
     cwd: string;
     targetCwd: string;
     pages: string[];
-    logger: typeof logger;
+    logger: LogCollector;
 }
 
 export async function copyAssets(props: CopyAssetsProps) {

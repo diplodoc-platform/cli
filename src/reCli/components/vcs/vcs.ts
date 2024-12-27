@@ -1,12 +1,12 @@
 import GithubConnector from './github';
 import {BuildConfig, Run} from '~/commands/build';
 import {SourceType} from '~/vcs-connector/connector-models';
-import {logger} from '~/utils';
+import {LogCollector} from '~/reCli/utils/logger';
 
 interface GetVcsConnectorProps {
     options: BuildConfig;
     cwd: string;
-    logger: typeof logger;
+    logger: LogCollector;
     run: Run;
 }
 

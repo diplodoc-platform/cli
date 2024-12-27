@@ -12,7 +12,7 @@ import {transformYaml} from './transformYaml';
 import {BuildConfig, Run} from '~/commands/build';
 import {PresetIndex} from '~/reCli/components/presets/types';
 import {TocIndexMap} from '../toc/types';
-import {getLinksWithContentExtersion, isExternalHref, logger, modifyValuesByKeys} from '~/utils';
+import {getLinksWithContentExtersion, isExternalHref, modifyValuesByKeys} from '~/utils';
 import {getPageToc} from '../toc/utils';
 import {cachedMkdir, safePath} from '~/reCli/utils';
 import {Lang} from '~/constants';
@@ -20,6 +20,7 @@ import {LeadingPage} from '~/models';
 import {getFilePresets} from '~/reCli/components/presets';
 import {getPlugins} from '~/reCli/utils/plugins';
 import {generateStaticMarkup} from '~/reCli/components/render/document';
+import {LogCollector} from '~/reCli/utils/logger';
 
 /*eslint-disable no-console*/
 
@@ -32,7 +33,7 @@ interface PageToHtmlProps {
     fileMetaMap: FileMetaMap;
     vcsConnector?: GithubConnector;
     tocIndex: TocIndexMap;
-    logger: typeof logger;
+    logger: LogCollector;
 }
 
 export async function pageToHtml(props: PageToHtmlProps, pagePath: string) {
@@ -155,7 +156,7 @@ function yamlFileTransformer(props: YamlFileTransformerOptions, pageContent: str
         data = yaml.load(pageContent) as LeadingPage;
     } catch (err) {
         const error = err as Error;
-        logger.error(pagePath, `Yaml transform has been failed. Error: ${error.stack}`);
+        logger.error(`${pagePath} Yaml transform has been failed. Error: ${error.stack}`);
     }
 
     if (!data) {

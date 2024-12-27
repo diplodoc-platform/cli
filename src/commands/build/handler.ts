@@ -7,8 +7,7 @@ import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 import {ArgvService, Includers, SearchService} from '~/services';
 import {processLogs} from '~/steps';
 import {getNavigationPaths, getPresetIndex} from '~/reCli/components/presets';
-import {getTocIndex, transformTocForJs} from '~/reCli/components/toc';
-import {logger} from '~/utils';
+import {getTocIndex, transformTocForJs, transformTocForSinglePage} from '~/reCli/components/toc';
 import GithubConnector from '~/reCli/components/vcs/github';
 import {getVcsConnector} from '~/reCli/components/vcs/vcs';
 import path from 'node:path';
@@ -25,6 +24,8 @@ import {chunk} from 'lodash';
 import {TransformWorker} from '~/reCli/workers/transform';
 import {saveSinglePages} from '~/reCli/components/render/singlePage';
 import {copyAssets} from '~/reCli/components/assets/assets';
+import {saveRedirectPage} from '~/reCli/components/render/redirect';
+import {LogCollector} from '~/reCli/utils/logger';
 
 export async function handler(run: Run) {
     try {
@@ -38,6 +39,8 @@ export async function handler(run: Run) {
         const {applyPresets, resolveConditions} = run.legacyConfig;
 
         const presetIndex = await getPresetIndex(run.input, run.config, run);
+
+        const logger = new LogCollector(run.config.quiet);
 
         const tocIndex = await getTocIndex(input, {
             options: run.config,
@@ -107,6 +110,22 @@ export async function handler(run: Run) {
                         targetPath,
                         `window.__DATA__.data.toc = ${JSON.stringify(transformedToc)};`,
                     );
+
+                    if (singlePage) {
+                        const transformedToc = transformTocForSinglePage(
+                            toc,
+                            path.dirname(tocPath),
+                        );
+                        const tocJsPath = path.join(path.dirname(tocPath), `single-page-toc.js`);
+                        const targetPath = path.join(output, tocJsPath);
+                        await cachedMkdir(path.dirname(targetPath));
+                        await fs.promises.writeFile(
+                            targetPath,
+                            `window.__DATA__.data.toc = ${JSON.stringify(transformedToc)};`,
+                        );
+                    }
+
+                    await saveRedirectPage(output, run.config);
                 }
 
                 getNavigationPaths(tocPath, toc).forEach((page) => {
@@ -217,7 +236,7 @@ export async function handler(run: Run) {
         await pMap(
             Array.from(writeConflicts.entries()),
             async ([relTarget, data]) => {
-                logger.warn(relTarget, `Override ${relTarget}`);
+                logger.warn(`Override ${relTarget}`);
                 const targetFilename = path.join(output, relTarget);
                 await cachedMkdir(path.dirname(targetFilename));
                 await fs.promises.writeFile(targetFilename, data);

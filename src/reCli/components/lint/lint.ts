@@ -16,6 +16,10 @@ import {CONCURRENCY} from '~/reCli/constants';
 import {getFilePresets} from '~/reCli/components/presets';
 import {getPlugins} from '~/reCli/utils/plugins';
 import log from '@diplodoc/transform/src/transform/log';
+import {getLogLevel} from '@diplodoc/transform/lib/yfmlint/utils';
+import {LogLevels} from '@diplodoc/transform/lib/log';
+import {bold} from 'chalk';
+import {LogCollector} from '~/reCli/utils/logger';
 
 /*eslint-disable no-console*/
 
@@ -23,7 +27,7 @@ interface LintPageProps {
     cwd: string;
     draftCwd: string;
     presetIndex: PresetIndex;
-    logger: typeof logger;
+    logger: LogCollector;
     options: BuildConfig;
     run: Run;
 }
@@ -44,10 +48,21 @@ export async function lintPage(props: LintPageProps, pagePath: string) {
 }
 
 async function lintYaml(props: LintPageProps, pagePath: string) {
-    const {cwd, logger} = props;
+    const {
+        cwd,
+        run: {
+            legacyConfig: {lintConfig},
+        },
+    } = props;
     const page = yaml.load(
         await fs.promises.readFile(path.join(cwd, pagePath) as AbsolutePath, 'utf8'),
     ) as LeadingPage;
+
+    const logLevel = getLogLevel({
+        logLevelsConfig: lintConfig['log-levels'],
+        ruleNames: ['YAML001'],
+        defaultLevel: log.LogLevels.ERROR,
+    });
 
     const contentLinks = findAllValuesByKeys(page, LINK_KEYS);
     const localLinks = contentLinks.filter(
@@ -60,7 +75,9 @@ async function lintYaml(props: LintPageProps, pagePath: string) {
             const filePath = safePath(path.join(path.dirname(pagePath), link));
             const exists = await fileExists(path.join(cwd, filePath));
             if (!exists) {
-                logger.warn(pagePath, `Link is unreachable: ${link} in ${pagePath}`);
+                if (logLevel !== LogLevels.DISABLED) {
+                    logger[logLevel]('', `Link is unreachable: ${bold(link)} in ${bold(pagePath)}`);
+                }
             }
         },
         {concurrency: CONCURRENCY},
@@ -123,7 +140,7 @@ async function lintMd(props: LintPageProps, pagePath: string) {
 }
 
 interface LintMarkdownProps extends LintPageProps {
-    logger: typeof logger;
+    logger: LogCollector;
 }
 
 function lintMarkdown(props: LintMarkdownProps, params: LintMarkdownFunctionOptions) {

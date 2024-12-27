@@ -12,16 +12,16 @@ import {filterFiles, firstFilterItem, firstFilterTextItems} from '~/services/uti
 import {liquidField} from '~/reCli/components/toc/utils';
 import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 import {IncludersError, applyIncluders} from '~/services/includers';
-import {logger} from '~/utils';
 import {IncludeMode, Stage} from '~/constants';
 import shell from 'shelljs';
 import {safePath} from '~/reCli/utils';
+import {LogCollector} from '~/reCli/utils/logger';
 
 interface GetTocIndexProps {
     options: BuildConfig;
     presetIndex: PresetIndex;
     run: Run;
-    logger: typeof logger;
+    logger: LogCollector;
 }
 
 export async function getTocIndex(cwd: AbsolutePath, props: GetTocIndexProps) {
@@ -129,7 +129,6 @@ async function processTocItems(
         } catch (err) {
             const error = err as Error;
             logger.error(
-                tocPath,
                 `Error while filtering toc file: ${tocPath}. Error message: ${error.stack}`,
             );
         }
@@ -167,7 +166,7 @@ async function replaceIncludes(
 
                 const file = err instanceof IncludersError ? err.path : props.tocPath;
 
-                logger.error(file, message);
+                logger.error(`${file} ${message}`);
             }
         }
 
@@ -235,7 +234,6 @@ async function replaceIncludes(
             } catch (err) {
                 const error = err as Error;
                 logger.error(
-                    tocPath,
                     `Error while including toc: ${includeTocPath} to ${tocPath}. Error: ${error.stack}`,
                 );
 

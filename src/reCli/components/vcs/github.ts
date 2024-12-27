@@ -8,8 +8,8 @@ import assert from 'node:assert';
 import {Octokit} from '@octokit/core';
 import * as process from 'node:process';
 import {BuildConfig, Run} from '~/commands/build';
-import {logger} from '~/utils';
 import {SourceType} from '~/vcs-connector/connector-models';
+import {LogCollector} from '~/reCli/utils/logger';
 
 /*eslint-disable no-console*/
 
@@ -21,7 +21,7 @@ export interface GithubConnectorProps {
     options: BuildConfig;
     cwd: string;
     ignoreAuthorPatterns?: string[];
-    logger: typeof logger;
+    logger: LogCollector;
     run: Run;
 }
 
@@ -138,7 +138,6 @@ class GithubConnector {
         } catch (err) {
             const error = err as Error;
             this.props.logger.warn(
-                '-',
                 `Getting user for GitHub has been failed. Username: ${username}. Error: ${error.stack}`,
             );
             return null;
@@ -186,7 +185,6 @@ class GithubConnector {
         } catch (err) {
             const error = err as Error;
             this.props.logger.warn(
-                '-',
                 `Getting commit by sha has been failed for GitHub. SHA commit: ${hash}. Error: ${error.stack}`,
             );
             return null;

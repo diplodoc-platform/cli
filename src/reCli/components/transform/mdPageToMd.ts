@@ -10,8 +10,8 @@ import {getFilePresets} from '~/reCli/components/presets';
 import {joinMetaAndContent, splitMetaAndContent} from '~/reCli/components/toc/utils';
 import {Preset} from '~/commands/build';
 import {getCollectOfPlugins} from '~/reCli/utils/plugins';
-import log from '@diplodoc/transform/lib/log';
 import {PluginOptions, YfmPreset} from '~/models';
+import {getLog} from '~/reCli/utils/legacy';
 
 /*eslint-disable no-console*/
 
@@ -171,7 +171,7 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
             root: cwd,
             destRoot: targetCwd,
             collectOfPlugins,
-            log: log,
+            log: getLog(),
             copyFile: (targetPath: string, targetDestPath: string, subOptions?: unknown) => {
                 const relSource = safePath(path.relative(cwd, targetPath));
                 const relTarget = safePath(path.relative(targetCwd, targetDestPath));

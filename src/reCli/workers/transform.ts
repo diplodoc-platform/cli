@@ -9,11 +9,11 @@ import {BuildConfig} from '~/commands/build';
 import {Run} from '~/commands/build/run';
 import {PresetIndex} from '~/reCli/components/presets/types';
 import {TocIndexMap} from '~/reCli/components/toc/types';
-import {logger} from '~/utils/logger';
 import {SinglePageResult} from '~/models';
 import {readTransformLog} from '~/reCli/utils/legacy';
 import {lintPage} from '~/reCli/components/lint/lint';
 import {transformPage} from '~/reCli/components/transform/transform';
+import {LogCollector} from "~/reCli/utils/logger";
 
 /*eslint-disable no-console*/
 
@@ -57,6 +57,7 @@ class WorkerEnv {
         connectorData,
         tocIndex,
     }: TransformWorkerInitProps) {
+        const logger = new LogCollector(config.quiet);
         this.run = new Run(config);
         this.options = config;
         this.presetIndex = presetIndex;
@@ -125,7 +126,7 @@ async function run({pages}: TransformWorkerProps) {
                     );
                 } catch (err) {
                     const error = err as Error;
-                    logger.error(pagePath, `Lint page error ${pagePath}. Error: ${error.stack}`);
+                    logger.error(`Lint page error ${pagePath}. Error: ${error.stack}`);
                 }
             }
 
@@ -150,7 +151,6 @@ async function run({pages}: TransformWorkerProps) {
                 } catch (err) {
                     const error = err as Error;
                     logger.error(
-                        pagePath,
                         `Transform page error ${pagePath}. Error: ${error.stack}`,
                     );
                 }
