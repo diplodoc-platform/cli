@@ -13,7 +13,7 @@ import {SinglePageResult} from '~/models';
 import {readTransformLog} from '~/reCli/utils/legacy';
 import {lintPage} from '~/reCli/components/lint/lint';
 import {transformPage} from '~/reCli/components/transform/transform';
-import {LogCollector} from "~/reCli/utils/logger";
+import {LogCollector} from '~/reCli/utils/logger';
 
 /*eslint-disable no-console*/
 
@@ -150,9 +150,7 @@ async function run({pages}: TransformWorkerProps) {
                     );
                 } catch (err) {
                     const error = err as Error;
-                    logger.error(
-                        `Transform page error ${pagePath}. Error: ${error.stack}`,
-                    );
+                    logger.error(`Transform page error ${pagePath}. Error: ${error.stack}`);
                 }
             }
 

@@ -201,8 +201,7 @@ async function replaceIncludes(
                 const itemsWithIncluded = (item.items || []).concat(includeToc.items);
 
                 /* Resolve nested toc inclusions */
-                const baseTocPath =
-                    mode === IncludeMode.LINK ? includeTocPath : path.dirname(tocPath);
+                const baseTocPath = mode === IncludeMode.LINK ? includeTocPath : tocPath;
 
                 const {items: subItems, includedTocs: subIncludedTocs} = await processTocItems(
                     itemsWithIncluded,
@@ -308,11 +307,12 @@ async function copyTocDir(
     destDir: string,
     copyMap: Map<string, string>,
 ) {
-    const source = path.join(cwd, safePath(tocPath));
-    const target = path.join(cwd, safePath(destDir));
+    const source = path.join(cwd, safePath(tocPath)) as AbsolutePath;
+    const target = path.join(cwd, safePath(destDir)) as AbsolutePath;
 
     const files = await run.glob('**/*.*', {
         ignore: ['**/toc.yaml'],
+        cwd: source,
     });
 
     const dirs = new Set<string>();

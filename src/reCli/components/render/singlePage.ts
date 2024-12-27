@@ -11,11 +11,13 @@ import {DocInnerProps, DocPageData} from '@diplodoc/client/ssr';
 import {CONCURRENCY} from '~/reCli/constants';
 import fs from 'node:fs';
 import {LogCollector} from '~/reCli/utils/logger';
+import {cachedMkdir, safePath} from '~/reCli/utils';
 
 const SINGLE_PAGE_FILENAME = 'single-page.html';
 const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 
 export interface SaveSinglePagesProps {
+    targetCwd: string;
     options: BuildConfig;
     singlePageTocPagesMap: Map<string, SinglePageResult[]>;
     tocIndex: TocIndexMap;
@@ -23,6 +25,7 @@ export interface SaveSinglePagesProps {
 }
 
 export async function saveSinglePages({
+    targetCwd,
     options,
     singlePageTocPagesMap,
     tocIndex,
@@ -34,7 +37,9 @@ export async function saveSinglePages({
         await pMap(
             Array.from(singlePageTocPagesMap.entries()),
             async ([tocPath, pageResults]) => {
-                if (!pageResults.length) return;
+                if (!pageResults.length) {
+                    return;
+                }
 
                 const tocDir = path.dirname(tocPath.replace(/\\/g, '/').replace(/^\/?/, ''));
                 const singlePageBody = joinSinglePageResults(pageResults, tocDir);
@@ -66,8 +71,8 @@ export async function saveSinglePages({
                 };
 
                 // Save the full single page for viewing locally
-                const singlePageFn = join(tocPath, SINGLE_PAGE_FILENAME);
-                const singlePageDataFn = join(tocPath, SINGLE_PAGE_DATA_FILENAME);
+                const singlePageFn = path.join(tocDir, SINGLE_PAGE_FILENAME);
+                const singlePageDataFn = safePath(path.join(tocDir, SINGLE_PAGE_DATA_FILENAME));
                 const tocInfo = {path: join(tocDir, 'single-page-toc'), content: toc};
                 const singlePageContent = generateStaticMarkup(
                     options,
@@ -76,9 +81,16 @@ export async function saveSinglePages({
                     (toc.title as string) || '',
                 );
 
+                await cachedMkdir(path.join(targetCwd, safePath(tocDir)));
                 await Promise.all([
-                    fs.promises.writeFile(singlePageFn, singlePageContent),
-                    fs.promises.writeFile(singlePageDataFn, JSON.stringify(pageData)),
+                    fs.promises.writeFile(
+                        path.join(targetCwd, safePath(singlePageFn)),
+                        singlePageContent,
+                    ),
+                    fs.promises.writeFile(
+                        path.join(targetCwd, safePath(singlePageDataFn)),
+                        JSON.stringify(pageData),
+                    ),
                 ]);
             },
             {concurrency: CONCURRENCY},

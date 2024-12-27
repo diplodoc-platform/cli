@@ -4,8 +4,8 @@ import 'threads/register';
 
 import OpenapiIncluder from '@diplodoc/openapi-extension/includer';
 
-import {ArgvService, Includers, SearchService} from '~/services';
-import {processLogs} from '~/steps';
+import {ArgvService, Includers} from '~/services';
+import {processChangelogs, processLogs} from '~/steps';
 import {getNavigationPaths, getPresetIndex} from '~/reCli/components/presets';
 import {getTocIndex, transformTocForJs, transformTocForSinglePage} from '~/reCli/components/toc';
 import GithubConnector from '~/reCli/components/vcs/github';
@@ -26,16 +26,17 @@ import {saveSinglePages} from '~/reCli/components/render/singlePage';
 import {copyAssets} from '~/reCli/components/assets/assets';
 import {saveRedirectPage} from '~/reCli/components/render/redirect';
 import {LogCollector} from '~/reCli/utils/logger';
+import {getMapFile} from '~/reCli/components/toc/mapFile';
+import {BuildConfig} from '~/commands/build/index';
 
 export async function handler(run: Run) {
     try {
         ArgvService.init(run.legacyConfig);
-        SearchService.init();
         // TODO: Remove duplicated types from openapi-extension
         // @ts-ignore
         Includers.init([OpenapiIncluder]);
 
-        const {input, output, outputFormat, singlePage} = run.config;
+        const {input, output, outputFormat, singlePage, addMapFile} = run.config;
         const {applyPresets, resolveConditions} = run.legacyConfig;
 
         const presetIndex = await getPresetIndex(run.input, run.config, run);
@@ -139,6 +140,14 @@ export async function handler(run: Run) {
         );
         const pages = Array.from(pageSet.values());
 
+        if (addMapFile) {
+            const map = getMapFile(pages);
+            await fs.promises.writeFile(
+                path.join(output, 'files.json'),
+                JSON.stringify(map, null, '\t'),
+            );
+        }
+
         const writeConflicts = new Map<string, string>();
         const singlePageTocPagesMap = new Map<string, SinglePageResult[]>();
 
@@ -146,7 +155,7 @@ export async function handler(run: Run) {
         // eslint-disable-next-line new-cap
         const transformPool = Pool(
             () =>
-                spawn<TransformWorker>(new Worker('../../../reCli/workers/transform'), {
+                spawn<TransformWorker>(new Worker('./workers/transform'), {
                     timeout: 60000,
                 }),
             workerCount,
@@ -165,8 +174,15 @@ export async function handler(run: Run) {
                         index = workerIndex++;
                         workerIndexMap.set(worker, index);
                         const threadOutput = path.join(tmpThreads, String(index));
+
+                        const configClone: Record<string, unknown> = {};
+                        // eslint-disable-next-line guard-for-in
+                        for (const key in run.config) {
+                            configClone[key] = run.config[key as keyof BuildConfig];
+                        }
+
                         await worker.init({
-                            config: run.config,
+                            config: configClone as BuildConfig,
                             presetIndex,
                             tmpSource,
                             tmpDraft,
@@ -226,8 +242,8 @@ export async function handler(run: Run) {
                 }),
             );
             await Promise.all([
-                fs.promises.rm(tmpThreads, {recursive: true}),
-                fs.promises.rm(tmpDraft, {recursive: true}),
+                fs.promises.rm(tmpThreads, {recursive: true, force: true}),
+                fs.promises.rm(tmpDraft, {recursive: true, force: true}),
             ]);
         } finally {
             await transformPool.terminate(true);
@@ -246,6 +262,7 @@ export async function handler(run: Run) {
 
         if (singlePage) {
             await saveSinglePages({
+                targetCwd: output,
                 options: run.config,
                 singlePageTocPagesMap,
                 tocIndex,
@@ -261,6 +278,8 @@ export async function handler(run: Run) {
             pages,
             logger,
         });
+
+        await processChangelogs();
     } catch (error) {
         run.logger.error(error);
     } finally {
