@@ -1,4 +1,5 @@
 import transformLog from '@diplodoc/transform/lib/log';
+import {LogLevels} from '@diplodoc/transform/src/transform/log';
 
 export function readTransformLog() {
     const typeMessages = transformLog.get();
@@ -9,4 +10,12 @@ export function readTransformLog() {
         });
     });
     transformLog.clear();
+}
+
+export function getLog() {
+    return {
+        [LogLevels.INFO]: console.log.bind(console, 'INFO'),
+        [LogLevels.WARN]: console.log.bind(console, 'WARN'),
+        [LogLevels.ERROR]: console.log.bind(console, 'ERROR'),
+    };
 }

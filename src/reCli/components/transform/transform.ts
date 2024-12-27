@@ -6,7 +6,6 @@ import {BuildConfig, Run} from '~/commands/build';
 import {PresetIndex} from '~/reCli/components/presets/types';
 import GithubConnector from '../vcs/github';
 import {TocIndexMap} from '~/reCli/components/toc/types';
-import {logger} from '~/utils';
 import {LeadingPage, SinglePageResult} from '~/models';
 import {cachedMkdir} from '~/reCli/utils';
 import {getPageToc} from '~/reCli/components/toc/utils';
@@ -14,6 +13,7 @@ import {DocInnerProps} from '@diplodoc/client/ssr';
 import {mdPageToMd} from '~/reCli/components/transform/mdPageToMd';
 import {transformYaml} from '~/reCli/components/transform/transformYaml';
 import {pageToHtml} from '~/reCli/components/transform/pageToHtml';
+import {LogCollector} from '~/reCli/utils/logger';
 
 /*eslint-disable no-console*/
 
@@ -27,7 +27,7 @@ export interface TransformPageProps {
     writeConflicts: Map<string, string>;
     vcsConnector?: GithubConnector;
     tocIndex: TocIndexMap;
-    logger: typeof logger;
+    logger: LogCollector;
     singlePageTocPagesMap: null | Map<string, SinglePageResult[]>;
 }
 

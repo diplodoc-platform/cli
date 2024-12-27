@@ -3,13 +3,14 @@ import {join} from 'path';
 import {SinglePageResult} from '~/models';
 import {TocIndexMap} from '~/reCli/components/toc/types';
 import {BuildConfig} from '~/commands/build';
-import {getDepth, joinSinglePageResults, logger} from '~/utils';
+import {getDepth, joinSinglePageResults} from '~/utils';
 import pMap from 'p-map';
 import {Lang} from '~/constants';
 import {generateStaticMarkup} from '~/reCli/components/render/document';
 import {DocInnerProps, DocPageData} from '@diplodoc/client/ssr';
 import {CONCURRENCY} from '~/reCli/constants';
 import fs from 'node:fs';
+import {LogCollector} from '~/reCli/utils/logger';
 
 const SINGLE_PAGE_FILENAME = 'single-page.html';
 const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
@@ -18,7 +19,7 @@ export interface SaveSinglePagesProps {
     options: BuildConfig;
     singlePageTocPagesMap: Map<string, SinglePageResult[]>;
     tocIndex: TocIndexMap;
-    logger: typeof logger;
+    logger: LogCollector;
 }
 
 export async function saveSinglePages({
@@ -83,6 +84,6 @@ export async function saveSinglePages({
             {concurrency: CONCURRENCY},
         );
     } catch (error) {
-        logger.error('', `Error saving single pages: ${(error as Error).stack}`);
+        logger.error(`Error saving single pages: ${(error as Error).stack}`);
     }
 }

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import {YfmToc} from '~/models';
-import {isExternalHref} from '~/utils';
+import {getSinglePageUrl, isExternalHref} from '~/utils';
 import {safePath} from '~/reCli/utils';
 import {filterFiles} from '~/services/utils';
 
@@ -33,6 +33,16 @@ export function transformTocForJs(toc: YfmToc, tocDir: string) {
         const filename = path.basename(href, fileExtension) + '.html';
 
         return safePath(path.join(tocDir, path.dirname(href), filename));
+    });
+}
+
+export function transformTocForSinglePage(toc: YfmToc, tocDir: string) {
+    return baseTransformToc(toc, (href: string) => {
+        if (isExternalHref(href)) {
+            return href;
+        }
+
+        return getSinglePageUrl(tocDir, href);
     });
 }
 
