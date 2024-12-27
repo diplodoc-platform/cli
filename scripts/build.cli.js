@@ -45,6 +45,7 @@ const commonConfig = {
 const builds = [
     [['src/index.ts'], 'build/index.js'],
     [['src/workers/linter/index.ts'], 'build/linter.js'],
+    [['src/reCli/workers/transform.ts'], 'build/workers/transform.js'],
 ];
 
 Promise.all(builds.map(([entries, outfile]) => {

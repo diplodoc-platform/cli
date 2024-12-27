@@ -99,8 +99,9 @@ async function getFileProps(props: PageToHtmlProps, pagePath: string) {
 }
 
 async function getFileData(props: PageToHtmlProps, pagePath: string) {
-    const {cwd, fileMetaMap, vcsConnector, options} = props;
-    const {allowCustomResources, resources} = options;
+    const {cwd, fileMetaMap, vcsConnector, options, presetIndex} = props;
+    const {allowCustomResources, resources, vars} = options;
+    const combinedVars = getFilePresets(presetIndex, vars, pagePath);
 
     const pageContent: string = await fs.promises.readFile(
         path.join(cwd, safePath(pagePath)) as AbsolutePath,
@@ -126,6 +127,13 @@ async function getFileData(props: PageToHtmlProps, pagePath: string) {
 
     if (fileMeta?.metadata && !Array.isArray(fileMeta.metadata)) {
         fileMeta.metadata = [fileMeta.metadata];
+    }
+
+    if (Array.isArray(combinedVars.__metadata)) {
+        fileMeta.metadata = [
+            ...(fileMeta.metadata ?? []),
+            ...combinedVars.__metadata.filter(Boolean),
+        ];
     }
 
     if (allowCustomResources) {

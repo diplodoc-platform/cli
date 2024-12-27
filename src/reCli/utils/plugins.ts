@@ -6,15 +6,14 @@ import {
 
 export function getPlugins() {
     const plugins = getPluginsLegacy();
-    if (!plugins.length) {
+    if (!plugins?.length) {
         setPlugins();
     }
     return getPluginsLegacy();
 }
 
 export function getCollectOfPlugins() {
-    const list = getCollectOfPluginsLegacy();
-    if (!list.length) {
+    if (!getPluginsLegacy()?.length) {
         setPlugins();
     }
     return getCollectOfPluginsLegacy();

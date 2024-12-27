@@ -66,7 +66,7 @@ const TARGET_COPY_SET = new Set();
 
 async function transformMd(props: TransformPageProps, pagePath: string) {
     const {presetIndex, cwd, options, fileMetaMap, vcsConnector} = props;
-    const {vars, addSystemMeta} = options;
+    const {vars, addSystemMeta, allowCustomResources, resources} = options;
 
     const combinedVars = getFilePresets(presetIndex, vars, pagePath);
     const input = await fs.promises.readFile(path.join(cwd, pagePath) as AbsolutePath, 'utf8');
@@ -91,6 +91,13 @@ async function transformMd(props: TransformPageProps, pagePath: string) {
         fileMetaMap.set(pagePath, {...fileMetaMap.get(pagePath), __system: combinedVars.__system});
     }
 
+    if (Array.isArray(combinedVars.__metadata)) {
+        fileMetaMap.set(pagePath, {
+            ...fileMetaMap.get(pagePath),
+            metadata: [...(meta.metadata ?? []), ...combinedVars.__metadata],
+        });
+    }
+
     if (vcsConnector) {
         const author = vcsConnector.getAuthor(pagePath);
         const updatedAt = vcsConnector.getMtime(pagePath, includedPaths);
@@ -112,6 +119,13 @@ async function transformMd(props: TransformPageProps, pagePath: string) {
                 author: forceAuthor ?? undefined,
             });
         }
+    }
+
+    if (allowCustomResources && resources) {
+        fileMetaMap.set(pagePath, {
+            ...fileMetaMap.get(pagePath),
+            ...resources,
+        });
     }
 
     const extraMeta = fileMetaMap.get(pagePath);
