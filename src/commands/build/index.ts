@@ -68,6 +68,7 @@ type BaseConfig = {
     resources: Resources;
     // TODO: explicitly handle
     analytics: DocAnalytics;
+    hashIncludes?: boolean;
 };
 
 export type {Run};
@@ -169,6 +170,7 @@ export class Build
                     staticContent: false,
                     ignoreStage: [Stage.SKIP],
                     addSystemMeta: false,
+                    hashIncludes: true,
                     buildDisabled: false,
                     lint: {enabled: true, config: {'log-levels': {}}},
                 }) as Partial<BuildConfig>,
@@ -218,6 +220,7 @@ export class Build
         options.ignoreStage,
         options.config(YFM_CONFIG_FILENAME),
         options.buildDisabled,
+        options.hashIncludes,
     ];
 
     apply(program?: IProgram) {

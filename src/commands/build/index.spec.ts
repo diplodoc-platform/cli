@@ -260,6 +260,7 @@ describe('Build command', () => {
         testBooleanFlag('buildDisabled', '--build-disabled', false);
         testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
+        testBooleanFlag('hashIncludes', '--hash-includes', true);
 
         // test('should handle required props in config', '', {
         //     input: './input',

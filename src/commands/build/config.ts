@@ -119,6 +119,11 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const hashIncludes = option({
+    flags: '--hash-includes',
+    desc: 'Add hash to included files.',
+});
+
 const buildDisabled = option({
     flags: '--build-disabled',
     desc: 'Disable building.',
@@ -144,4 +149,5 @@ export const options = {
     ignoreStage,
     addSystemMeta,
     buildDisabled,
+    hashIncludes,
 };
