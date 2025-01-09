@@ -9,6 +9,7 @@ const assets = require('@diplodoc/client/manifest');
 export function platformless(text: string) {
     return text
         .replace(/\r\n/g, '\n')
+        .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
         .replace(/(\\(?![\/"'])){1,2}/g, '/');
 }
 

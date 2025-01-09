@@ -76,6 +76,7 @@ export type Toc = {
 };
 
 export type TocItem = NamedTocItem & {hidden?: boolean} & {
+    id: string;
     items?: TocItem[];
 };
 
