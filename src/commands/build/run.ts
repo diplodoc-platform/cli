@@ -11,6 +11,7 @@ import {
     mkdir,
     readFile,
     realpath,
+    rm,
     stat,
     unlink,
     writeFile,
@@ -41,6 +42,7 @@ type FileSystem = {
     unlink: typeof unlink;
     copyFile: typeof copyFile;
     mkdir: typeof mkdir;
+    rm: typeof rm;
     readFile: typeof readFile;
     writeFile: typeof writeFile;
 };
@@ -83,6 +85,7 @@ export class Run {
         access,
         stat,
         realpath,
+        rm,
         link,
         unlink,
         copyFile,
@@ -120,7 +123,10 @@ export class Run {
         this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
 
         this.logger = new RunLogger(config, [
-            (_level, message) => message.replace(new RegExp(this.input, 'ig'), ''),
+            (_level, message) => message.replace(new RegExp(this.input, 'ig'), '<input>'),
+            (_level, message) => message.replace(new RegExp(this.output, 'ig'), '<output>'),
+            (_level, message) => message.replace(new RegExp(this.originalInput, 'ig'), '<origin>'),
+            (_level, message) => message.replace(new RegExp(this.originalOutput, 'ig'), '<result>'),
         ]);
 
         this.vars = new VarsService(this);
@@ -244,6 +250,13 @@ export class Run {
                 await hardlink(join(from, file), join(to, file));
             }
         }
+    }
+
+    /**
+     * Remove selected file or directory.
+     */
+    async remove(path: AbsolutePath): Promise<void> {
+        await this.fs.rm(path, {recursive: true, force: true});
     }
 
     realpath(path: AbsolutePath): Promise<AbsolutePath[]>;
