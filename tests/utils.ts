@@ -9,8 +9,7 @@ const assets = require('@diplodoc/client/manifest');
 export function platformless(text: string) {
     return text
         .replace(/\r\n/g, '\n')
-        .replace(/(\\(?![\/"'])){1,2}/g, '/')
-        .replace(/(Config|Documentation)-\d+-\d+.\d+/g, '$1-RANDOM');
+        .replace(/(\\(?![\/"'])){1,2}/g, '/');
 }
 
 export function bundleless(text: string) {
@@ -60,15 +59,24 @@ interface RunYfmDocsArgs {
 export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = ''}: RunYfmDocsArgs = {}): void {
     shell.rm('-rf', outputPath);
 
+    const defaults = ` --quiet --allowHTML`;
+    const run = `node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
+
     if (md2md && md2html) {
         shell.rm('-rf', `${outputPath}-html`);
 
-        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet ${args}`);
-        shell.exec(`node ${yfmDocsPath} --input ${outputPath} --output ${outputPath}-html --allowHTML --quiet ${args}`);
+        logResult(shell.exec(`${run} --output ${outputPath} -f md ${args}`));
+        logResult(shell.exec(`${run} --output ${outputPath}-html ${args}`));
     } else if (md2md) {
-        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --output-format=md --allowHTML --quiet ${args}`);
+        logResult(shell.exec(`${run} --output ${outputPath} -f md ${args}`));
     } else {
-        shell.exec(`node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} --allowHTML --quiet ${args}`);
+        logResult(shell.exec(`${run} --output ${outputPath} ${args}`));
+    }
+}
+
+function logResult(result) {
+    if (result.code > 0) {
+        console.log('=== STDOUT ===\n' + result.stdout + '\n=== STDERR ===\n' + result.stderr);
     }
 }
 
