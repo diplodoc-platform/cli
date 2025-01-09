@@ -1,8 +1,7 @@
 import type {Build} from '../..';
 import type {Command} from '~/config';
 
-import {resolve} from 'node:path';
-import shell from 'shelljs';
+import {join} from 'node:path';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 
 import {configPath, resolveConfig, valuable} from '~/config';
@@ -69,7 +68,7 @@ export class Lint {
                 const configFilename =
                     typeof config.lint.config === 'string'
                         ? config.resolve(config.lint.config as string)
-                        : resolve(args.input, LINT_CONFIG_FILENAME);
+                        : join(args.input, LINT_CONFIG_FILENAME);
 
                 const lintConfig = await resolveConfig<Partial<LogLevelConfig>>(configFilename, {
                     fallback: {'log-levels': {}},
@@ -88,9 +87,9 @@ export class Lint {
             return config;
         });
 
-        program.hooks.AfterRun.for('md').tap('Lint', async (run) => {
+        program.hooks.AfterRun.for('md').tapPromise('Lint', async (run) => {
             if (resolvedPath) {
-                shell.cp(resolvedPath, run.output);
+                await run.copy(resolvedPath, join(run.output, LINT_CONFIG_FILENAME));
             }
         });
     }

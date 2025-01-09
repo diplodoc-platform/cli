@@ -30,7 +30,6 @@ import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/lega
 
 import {GenericIncluderExtension, OpenapiIncluderExtension} from './core/toc';
 
-import shell from 'shelljs';
 import {intercept} from '~/utils';
 
 export type * from './types';
@@ -267,10 +266,10 @@ export class Build
             });
         });
 
-        this.hooks.AfterRun.for('md').tap('Build', async (run) => {
+        this.hooks.AfterRun.for('md').tapPromise('Build', async (run) => {
             // TODO: save normalized config instead
             if (run.config[configPath]) {
-                shell.cp(run.config[configPath], run.output);
+                await run.copy(run.config[configPath], join(run.output, '.yfm'));
             }
         });
 
@@ -300,9 +299,7 @@ export class Build
 
         run.logger.pipe(this.logger);
 
-        // Create temporary input/output folders
-        shell.rm('-rf', run.input, run.output);
-        shell.mkdir('-p', run.input, run.output);
+        await this.cleanup(run);
 
         await this.hooks.BeforeAnyRun.promise(run);
         await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
@@ -319,6 +316,14 @@ export class Build
 
         await run.copy(run.output, run.originalOutput);
 
-        shell.rm('-rf', run.input, run.output);
+        await this.cleanup(run);
+    }
+
+    /**
+     * Remove all temporary data.
+     */
+    private async cleanup(run: Run) {
+        await run.remove(run.input);
+        await run.remove(run.output);
     }
 }
