@@ -1,6 +1,5 @@
 import {ok} from 'node:assert';
-import {resolve} from 'node:path';
-import shell from 'shelljs';
+import {join} from 'node:path';
 import {Build} from '../..';
 
 import {REDIRECTS_FILENAME} from '~/constants';
@@ -18,12 +17,12 @@ interface RedirectsConfig {
 
 export class Redirects {
     apply(program: Build) {
-        let resolvedPath: string | null = null;
+        let resolvedPath: AbsolutePath | null = null;
 
         program.hooks.BeforeRun.for('md').tap('Redirects', async (run) => {
             try {
                 const redirects = await resolveConfig<RedirectsConfig>(
-                    resolve(run.originalInput, REDIRECTS_FILENAME),
+                    join(run.originalInput, REDIRECTS_FILENAME),
                     {
                         fallback: {common: []},
                     },
@@ -39,9 +38,9 @@ export class Redirects {
             }
         });
 
-        program.hooks.AfterRun.for('md').tap('Redirects', async (run) => {
+        program.hooks.AfterRun.for('md').tapPromise('Redirects', async (run) => {
             if (resolvedPath) {
-                shell.cp(resolvedPath, run.output);
+                await run.copy(resolvedPath, join(run.output, REDIRECTS_FILENAME));
             }
         });
     }

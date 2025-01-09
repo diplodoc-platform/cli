@@ -7,7 +7,6 @@ import {
     initLinterWorkers,
     processAssets,
     processChangelogs,
-    processExcludedFiles,
     processLinter,
     processLogs,
     processPages,
@@ -21,8 +20,6 @@ export async function handler(run: Run) {
         PresetService.init(run.vars);
 
         const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
-
-        processExcludedFiles();
 
         if (addMapFile) {
             prepareMapFile(run);
@@ -42,7 +39,7 @@ export async function handler(run: Run) {
 
         if (!buildDisabled) {
             // process additional files
-            processAssets(run);
+            await processAssets(run);
 
             await processChangelogs();
 
