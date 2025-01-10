@@ -87,3 +87,7 @@ declare module 'node:fs/promises' {
         options?: ObjectEncodingOptions | BufferEncoding | null,
     ): Promise<AbsolutePath>;
 }
+
+interface Error {
+    code?: string;
+}

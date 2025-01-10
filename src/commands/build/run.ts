@@ -3,7 +3,18 @@ import type {BuildConfig} from '.';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative, resolve} from 'node:path';
-import {access, link, mkdir, readFile, realpath, stat, unlink, writeFile} from 'node:fs/promises';
+import {
+    access,
+    copyFile,
+    constants as fsConstants,
+    link,
+    mkdir,
+    readFile,
+    realpath,
+    stat,
+    unlink,
+    writeFile,
+} from 'node:fs/promises';
 import {glob} from 'glob';
 
 import {bounded, normalizePath} from '~/utils';
@@ -28,6 +39,7 @@ type FileSystem = {
     realpath: typeof realpath;
     link: typeof link;
     unlink: typeof unlink;
+    copyFile: typeof copyFile;
     mkdir: typeof mkdir;
     readFile: typeof readFile;
     writeFile: typeof writeFile;
@@ -67,7 +79,17 @@ export class Run {
 
     readonly config: BuildConfig;
 
-    readonly fs: FileSystem = {access, stat, realpath, link, unlink, mkdir, readFile, writeFile};
+    readonly fs: FileSystem = {
+        access,
+        stat,
+        realpath,
+        link,
+        unlink,
+        copyFile,
+        mkdir,
+        readFile,
+        writeFile,
+    };
 
     readonly vars: VarsService;
 
@@ -185,7 +207,8 @@ export class Run {
             // );
 
             await this.fs.unlink(to).catch(() => {});
-            await this.fs.link(from, to);
+            await this.fs.copyFile(from, to, fsConstants.COPYFILE_FICLONE);
+
             this._copyMap[to] = from;
         };
 
