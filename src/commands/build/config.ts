@@ -119,11 +119,6 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
-const buildDisabled = option({
-    flags: '--build-disabled',
-    desc: 'Disable building.',
-});
-
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -143,5 +138,4 @@ export const options = {
     ignore,
     ignoreStage,
     addSystemMeta,
-    buildDisabled,
 };

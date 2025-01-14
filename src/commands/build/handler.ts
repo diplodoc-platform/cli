@@ -10,27 +10,20 @@ export async function handler(run: Run) {
         SearchService.init();
         PresetService.init(run.vars);
 
-        const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
+        const {addMapFile} = ArgvService.getConfig();
 
         if (addMapFile) {
             prepareMapFile(run);
         }
 
-        const processes = [
-            !lintDisabled && processLinter(run),
-            !buildDisabled && processPages(run),
-        ].filter(Boolean) as Promise<void>[];
+        await Promise.all([processLinter(run), processPages(run)]);
 
-        await Promise.all(processes);
+        // process additional files
+        await processAssets(run);
 
-        if (!buildDisabled) {
-            // process additional files
-            await processAssets(run);
+        await processChangelogs();
 
-            await processChangelogs();
-
-            await SearchService.release();
-        }
+        await SearchService.release();
     } catch (error) {
         run.logger.error(error);
     } finally {

@@ -73,7 +73,6 @@ interface YfmConfig {
     lang?: `${Lang}`;
     langs?: `${Lang}`[];
     lintDisabled: boolean;
-    buildDisabled: boolean;
     lintConfig: LintConfig;
     resources?: Resources;
     needToSanitizeHtml: boolean;
