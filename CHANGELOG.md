@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.51.1](https://github.com/diplodoc-platform/cli/compare/v4.51.0...v4.51.1) (2025-01-14)
+
+
+### Bug Fixes
+
+* Fix toc include link mode ([05b6913](https://github.com/diplodoc-platform/cli/commit/05b69130826ef58044864eca50d26c55f92d8522))
+
 ## [4.51.0](https://github.com/diplodoc-platform/cli/compare/v4.50.0...v4.51.0) (2025-01-10)
 
 
