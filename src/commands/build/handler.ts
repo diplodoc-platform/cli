@@ -1,16 +1,7 @@
 import type {Run} from './run';
 
-import 'threads/register';
-
 import {ArgvService, PresetService, SearchService} from '~/services';
-import {
-    initLinterWorkers,
-    processAssets,
-    processChangelogs,
-    processLinter,
-    processLogs,
-    processPages,
-} from '~/steps';
+import {processAssets, processChangelogs, processLinter, processLogs, processPages} from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
 export async function handler(run: Run) {
@@ -23,11 +14,6 @@ export async function handler(run: Run) {
 
         if (addMapFile) {
             prepareMapFile(run);
-        }
-
-        if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers(run);
         }
 
         const processes = [
