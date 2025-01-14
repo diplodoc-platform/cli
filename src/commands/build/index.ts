@@ -66,8 +66,6 @@ type BaseConfig = {
     mergeIncludes: boolean;
     // TODO(major): use as default behavior
     staticContent: boolean;
-    // TODO(major): wtf? if we don't need to build, why we call build command?
-    buildDisabled: boolean;
     allowCustomResources: boolean;
     resources: Resources;
     // TODO: explicitly handle
@@ -173,7 +171,6 @@ export class Build
                     staticContent: false,
                     ignoreStage: [Stage.SKIP],
                     addSystemMeta: false,
-                    buildDisabled: false,
                     lint: {enabled: true, config: {'log-levels': {}}},
                 }) as Partial<BuildConfig>,
         },
@@ -223,7 +220,6 @@ export class Build
         options.ignore,
         options.ignoreStage,
         options.config(YFM_CONFIG_FILENAME),
-        options.buildDisabled,
     ];
 
     apply(program?: IProgram) {
