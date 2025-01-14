@@ -6,7 +6,7 @@ import shell from 'shelljs';
 import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
-import {ArgvService, PluginService} from '../services';
+import {ArgvService, PluginService, TocService} from '../services';
 import {getVarsPerFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
@@ -19,6 +19,7 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
     const resolvedInputPath = resolve(input, inputPath);
 
     const vars = getVarsPerFile(inputPath);
+    const tocItemVars = TocService.getTocItemPropPerFile(inputPath, 'restricted-access');
 
     const content = await enrichWithFrontMatter(run, {
         fileContent: readFileSync(resolvedInputPath, 'utf8'),
@@ -26,6 +27,7 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
         resolvedFrontMatterVars: {
             systemVars: vars.__system as unknown,
             metadataVars: vars.__metadata,
+            tocItemVars,
         },
     });
 
