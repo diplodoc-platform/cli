@@ -49,7 +49,7 @@ type RawIncludeTocItem = {
     include: TocInclude;
 };
 
-type TocInclude = {
+export type TocInclude = {
     mode?: IncludeMode;
     path: RelativePath;
     includers?: Includer[];

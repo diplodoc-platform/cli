@@ -1,5 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Include toc Nested toc inclusions with mixed including modes 2: filelist 1`] = `
+"[
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc Nested toc inclusions with mixed including modes 2: toc.yaml 1`] = `
+"title: main
+items:
+  - name: toc_i/item
+  - name: core/toc_m/item
+  - name: overlay/toc_p/item
+  - name: core/toc_i/item
+  - name: test
+    items:
+      - name: core/concepts/toc_i/item
+      - name: core/concepts/toc_p/item
+"
+`;
+
 exports[`Include toc Nested toc inclusions with mixed including modes: filelist 1`] = `
 "[
   "product1/_includes/inc.md",

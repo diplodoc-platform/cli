@@ -1,5 +1,5 @@
-import type {TocService} from './TocService';
-import type {RawToc, RawTocItem, YfmString} from './types';
+import type {IncludeInfo, TocService} from './TocService';
+import type {RawToc, RawTocItem, TocInclude, YfmString} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
@@ -14,10 +14,10 @@ export type LoaderContext = {
     /** Relative to run.input path to current processing toc */
     path: RelativePath;
     /** Path of last include level */
-    linkBase: RelativePath;
+    from: RelativePath;
     /** Path of last include level with 'merge' mode */
     mergeBase?: RelativePath;
-    mode: IncludeMode;
+    mode: IncludeMode | undefined;
     vars: Hash;
     options: {
         resolveConditions: boolean;
@@ -33,6 +33,16 @@ export enum IncludeMode {
     Link = 'link',
 }
 
+export function isLinkMode(mode: IncludeMode | undefined): mode is IncludeMode.Link {
+    return IncludeMode.Link === mode;
+}
+
+export function isMergeMode(
+    mode: IncludeMode | undefined,
+): mode is IncludeMode.Merge | IncludeMode.RootMerge {
+    return IncludeMode.RootMerge === mode || IncludeMode.Merge === mode;
+}
+
 // Designed to be isolated loaders in future
 export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     // Resolves toc fields which can be filterable arrays.
@@ -45,6 +55,9 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
 
     // Interpolate liquid vars in some toc fields
     toc = await templateFields.call(this, toc);
+
+    // Make include paths relative to project root instead of toc root
+    toc = await rebaseIncludes.call(this, toc);
 
     // Resolve includes and includers in toc items
     toc = await processItems.call(this, toc);
@@ -188,23 +201,19 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             toc = (await this.toc.load(tocPath, {
                 from: this.path,
                 mode: IncludeMode.Link,
-                mergeBase: this.mergeBase,
                 content: toc,
             })) as RawToc;
         } else {
             const includeInfo = {
                 from: this.path,
-                path: join(dirname(this.path), include.path),
                 mode: include.mode || IncludeMode.RootMerge,
-                mergeBase: this.mergeBase,
-            };
+            } as IncludeInfo;
 
-            if ([IncludeMode.RootMerge, IncludeMode.Merge].includes(includeInfo.mode)) {
-                includeInfo.mergeBase = includeInfo.mergeBase || dirname(this.path);
-                includeInfo.path = join(includeInfo.mergeBase, include.path);
+            if (isMergeMode(includeInfo.mode)) {
+                includeInfo.mergeBase = this.mergeBase || dirname(this.path);
             }
 
-            toc = (await this.toc.load(includeInfo.path, includeInfo)) as RawToc;
+            toc = (await this.toc.load(include.path, includeInfo)) as RawToc;
         }
 
         item = omit(item, ['include']) as RawTocItem;
@@ -227,16 +236,35 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 }
 
 /**
+ * Rebuses items includes path.
+ * For link moda path should be always relative to original toc source.
+ * For merge modes path should be relative to merge base, which can be inherited from parent->parent->toc.
+ */
+async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const rebaseIncludes = (item: RawTocItem | RawToc) => {
+        if (own<TocInclude, 'include'>(item, 'include')) {
+            if (isLinkMode(this.mode)) {
+                item.include.path = join(dirname(this.path), item.include.path);
+            } else {
+                item.include.path = join(this.mergeBase || dirname(this.path), item.include.path);
+            }
+        }
+
+        return item;
+    };
+
+    await this.toc.walkItems([toc], rebaseIncludes);
+
+    return toc;
+}
+
+/**
  * Rebuses items href after include in parent toc
  */
 async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    if (this.mode !== IncludeMode.Link) {
-        return toc;
-    }
-
-    const rebase = (item: RawTocItem | RawToc) => {
+    const rebaseHrefs = (item: RawTocItem | RawToc) => {
         if (own<AnyPath>(item, 'href') && isRelative(item.href)) {
-            const absBase = join(dirname(this.linkBase) as RelativePath);
+            const absBase = dirname(this.from);
             const absPath = join(this.mergeBase || dirname(this.path), item.href);
 
             item.href = relative(absBase, absPath);
@@ -245,7 +273,9 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         return item;
     };
 
-    await this.toc.walkItems([toc], rebase);
+    if (isLinkMode(this.mode)) {
+        await this.toc.walkItems([toc], rebaseHrefs);
+    }
 
     return toc;
 }
@@ -255,11 +285,6 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  */
 async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     await this.toc.walkItems([toc], (item: RawTocItem | RawToc) => {
-        // Looks like this logic is useless
-        // because we override ids on client
-        //
-        // (item as Partial<TocItem>).id = uuid();
-
         if (own<string>(item, 'href') && !isExternalHref(item.href)) {
             item.href = normalizePath(item.href);
 

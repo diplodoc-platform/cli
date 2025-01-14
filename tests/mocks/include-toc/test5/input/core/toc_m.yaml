@@ -1,0 +1,3 @@
+items:
+  - name: core/toc_m/item
+  - include: { mode: merge, path: overlay/toc_p.yaml }

@@ -1,0 +1,4 @@
+title: main
+items:
+  - name: toc_i/item
+  - include: { mode: merge, path: core/toc_m.yaml }

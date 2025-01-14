@@ -1,0 +1,6 @@
+items:
+  - name: core/toc_i/item
+  - name: test
+    include:
+      mode: link
+      path: concepts/toc_p.yaml

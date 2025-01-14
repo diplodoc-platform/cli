@@ -19,6 +19,12 @@ describe('Include toc', () => {
         compareDirectories(outputPath);
     });
 
+    test('Nested toc inclusions with mixed including modes 2', () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test5');
+        runYfmDocs(inputPath, outputPath);
+        compareDirectories(outputPath);
+    });
+
     test('Toc with expressions', () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test4');
         const vars = {

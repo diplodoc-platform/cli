@@ -1,0 +1,5 @@
+items:
+  - name: core/toc_p/item
+  - include:
+      mode: link
+      path: toc_i.yaml

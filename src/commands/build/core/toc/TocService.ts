@@ -1,5 +1,6 @@
 import type {BuildConfig, Run} from '~/commands/build';
 import type {IncluderOptions, RawToc, RawTocItem, Toc, TocItem, WithItems} from './types';
+import type {IncludeMode, LoaderContext} from './loader';
 
 import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
@@ -9,7 +10,7 @@ import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 import {freeze, intercept, isExternalHref, normalizePath, own} from '~/utils';
 import {Stage} from '~/constants';
 
-import {IncludeMode, LoaderContext, loader} from './loader';
+import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
     ignore: BuildConfig['ignore'];
@@ -34,12 +35,20 @@ type TocServiceHooks = {
     Included: AsyncParallelHook<[Toc, RelativePath, IncludeInfo]>;
 };
 
-type IncludeInfo = {
+export type IncludeInfo = {
     from: RelativePath;
     mode: IncludeMode;
-    mergeBase?: RelativePath;
     content?: RawToc;
-};
+} & (
+    | {
+          mode: IncludeMode.RootMerge | IncludeMode.Merge;
+          mergeBase: RelativePath;
+      }
+    | {
+          mode: IncludeMode.Link;
+          mergeBase?: undefined;
+      }
+);
 
 export class TocService {
     hooks: TocServiceHooks;
@@ -104,10 +113,10 @@ export class TocService {
         ok(file.startsWith(this.run.input), `Requested toc '${file}' is out of project scope.`);
 
         const context: LoaderContext = {
-            mode: include?.mode || IncludeMode.RootMerge,
-            linkBase: include?.from || dirname(path),
-            mergeBase: include?.mergeBase,
+            mode: include?.mode,
+            from: include?.from || path,
             path,
+            mergeBase: include?.mergeBase,
             vars: await this.vars.load(path),
             toc: this,
             options: {
@@ -130,10 +139,14 @@ export class TocService {
             return;
         }
 
-        if (include && [IncludeMode.RootMerge, IncludeMode.Merge].includes(include.mode)) {
-            const from = dirname(file);
-            const to = join(this.run.input, include.mergeBase || dirname(include.from));
-            await this.run.copy(from, to, {
+        if (include && isMergeMode(include.mode)) {
+            const from = normalizePath(dirname(path));
+            const to = normalizePath(include.mergeBase as RelativePath);
+
+            context.path = context.path.replace(from, to) as RelativePath;
+            context.from = include?.from || context.path;
+
+            await this.run.copy(join(this.run.input, from), join(this.run.input, to), {
                 sourcePath: (file: string) => file.endsWith('.md'),
                 ignore: [basename(file), '**/toc.yaml'],
             });
