@@ -15,6 +15,12 @@ let processLinterWorkers: (ProcessLinterWorker & Thread)[];
 let navigationPathsChunks: string[][];
 
 export async function processLinter(run: Run): Promise<void> {
+    if (!run.config.lint.enabled) {
+        return;
+    }
+
+    await initLinterWorkers(run);
+
     const argvConfig = ArgvService.getConfig();
 
     const navigationPaths = run.toc.entries;
