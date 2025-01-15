@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.52.0](https://github.com/diplodoc-platform/cli/compare/v4.51.1...v4.52.0) (2025-01-15)
+
+
+### Features
+
+* add an e2e test to verify img in deflist behavior ([da3076c](https://github.com/diplodoc-platform/cli/commit/da3076c98eb25d35202e326f25359ff69c482953))
+* make collect plugin functions aware of the token stream ([289b4f5](https://github.com/diplodoc-platform/cli/commit/289b4f53bf343a1ccb5ef5540c540bb3e6db43e4))
+* upgrade transform to 4.42.0 ([68ee535](https://github.com/diplodoc-platform/cli/commit/68ee535cd594094ff8b3ad82de6355ccdbcc53a7))
+
 ## [4.51.1](https://github.com/diplodoc-platform/cli/compare/v4.51.0...v4.51.1) (2025-01-14)
 
 
