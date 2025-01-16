@@ -1,7 +1,7 @@
 import type {PublishConfig} from './index';
 import {Logger} from '~/logger';
 import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {convertBackSlashToSlash} from '~/utils';
+import {normalizePath} from '~/utils';
 import {join, resolve} from 'path';
 import {createReadStream} from 'fs';
 
@@ -42,7 +42,7 @@ export class Run {
             new PutObjectCommand({
                 ContentType: typeof type === 'string' ? type : undefined,
                 Bucket: bucket,
-                Key: convertBackSlashToSlash(join(prefix, file)),
+                Key: normalizePath(join(prefix, file)),
                 Body: createReadStream(resolve(this.root, file)),
             }),
         );

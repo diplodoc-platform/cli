@@ -1,10 +1,11 @@
+import type {Run} from '~/commands/build';
+
 import {Octokit} from '@octokit/core';
 import {join, normalize} from 'path';
 import simpleGit, {SimpleGitOptions} from 'simple-git';
 import {minimatch} from 'minimatch';
 
 import github from './client/github';
-import {ArgvService} from '../services';
 import {
     CommitInfo,
     Contributor,
@@ -35,10 +36,8 @@ const contributorsData: Map<string, Contributor | null> = new Map();
 const loginUserMap: Map<string, Contributor | null> = new Map();
 const pathMTime = new Map<string, number>();
 
-async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
-    const {contributors, rootInput} = ArgvService.getConfig();
-
-    const httpClientByToken = getHttpClientByToken();
+async function getGitHubVCSConnector(config: Run['config']): Promise<VCSConnector | undefined> {
+    const httpClientByToken = getHttpClientByToken(config);
     if (!httpClientByToken) {
         return undefined;
     }
@@ -49,9 +48,9 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
     const getExternalAuthorByPath: ExternalAuthorByPathFunction = (path: string) =>
         authorByPath.get(path) ?? null;
 
-    if (contributors) {
-        await getFilesMTime(rootInput, pathMTime);
-        await getAllContributorsTocFiles(httpClientByToken);
+    if (config.contributors) {
+        await getFilesMTime(config, pathMTime);
+        await getAllContributorsTocFiles(config, httpClientByToken);
         addNestedContributorsForPath = (path: string, nestedContributors: Contributors) =>
             addNestedContributorsForPathFunction(path, nestedContributors);
         getContributorsByPath = async (path: string) => getFileContributorsByPath(path);
@@ -66,15 +65,17 @@ async function getGitHubVCSConnector(): Promise<VCSConnector | undefined> {
     };
 }
 
-function getHttpClientByToken(): Octokit | null {
-    const {connector, contributors} = ArgvService.getConfig();
-
-    if (!contributors) {
+function getHttpClientByToken(config: Run['config']): Octokit | null {
+    if (!config.contributors) {
         return null;
     }
 
     const neededProperties = [GitHubConnectorFields.TOKEN, GitHubConnectorFields.ENDPOINT];
-    const validatedFileds = validateConnectorFields(SourceType.GITHUB, neededProperties, connector);
+    const validatedFileds = validateConnectorFields(
+        SourceType.GITHUB,
+        neededProperties,
+        config.vcs.connector,
+    );
 
     if (Object.keys(validatedFileds).length === 0) {
         return null;
@@ -88,11 +89,12 @@ function getHttpClientByToken(): Octokit | null {
     return octokit;
 }
 
-async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<void> {
-    const {rootInput} = ArgvService.getConfig();
-
+async function getAllContributorsTocFiles(
+    config: Run['config'],
+    httpClientByToken: Octokit,
+): Promise<void> {
     const options: Partial<SimpleGitOptions> = {
-        baseDir: rootInput,
+        baseDir: config.input,
     };
 
     logger.info('', GETTING_ALL_CONTRIBUTORS);
@@ -110,7 +112,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
             'origin/master',
         );
         const fullRepoLogString = await simpleGit({
-            baseDir: join(rootInput, masterDir),
+            baseDir: join(config.input, masterDir),
         }).raw(
             'log',
             `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
@@ -120,7 +122,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
         const repoLogs = fullRepoLogString.split('\n\n');
         if (process.env.ENABLE_EXPERIMANTAL_AUTHORS) {
             const fullAuthorRepoLogString = await simpleGit({
-                baseDir: join(rootInput, masterDir),
+                baseDir: join(config.input, masterDir),
             }).raw(
                 'log',
                 `${FIRST_COMMIT_FROM_ROBOT_IN_GITHUB}..HEAD`,
@@ -129,9 +131,9 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
                 '--name-only',
             );
             const authorRepoLog = fullAuthorRepoLogString.split('\n\n');
-            await matchAuthorsForEachPath(authorRepoLog, httpClientByToken);
+            await matchAuthorsForEachPath(config, authorRepoLog, httpClientByToken);
         }
-        await matchContributionsForEachPath(repoLogs, httpClientByToken);
+        await matchContributionsForEachPath(config, repoLogs, httpClientByToken);
     } finally {
         await simpleGit(options).raw('worktree', 'remove', masterDir);
         await simpleGit(options).raw('branch', '-d', tmpMasterBranch);
@@ -141,6 +143,7 @@ async function getAllContributorsTocFiles(httpClientByToken: Octokit): Promise<v
 }
 
 async function matchContributionsForEachPath(
+    config: Run['config'],
     repoLogs: string[],
     httpClientByToken: Octokit,
 ): Promise<void> {
@@ -153,7 +156,7 @@ async function matchContributionsForEachPath(
         const userData = dataArray[0];
         const [email, name, hashCommit] = userData.split(', ');
 
-        if (shouldAuthorBeIgnored({email, name})) {
+        if (shouldAuthorBeIgnored(config, {email, name})) {
             continue;
         }
 
@@ -185,7 +188,11 @@ async function matchContributionsForEachPath(
     }
 }
 
-async function matchAuthorsForEachPath(authorRepoLogs: string[], httpClientByToken: Octokit) {
+async function matchAuthorsForEachPath(
+    config: Run['config'],
+    authorRepoLogs: string[],
+    httpClientByToken: Octokit,
+) {
     for (const repoLog of authorRepoLogs) {
         if (!repoLog) {
             continue;
@@ -195,7 +202,7 @@ async function matchAuthorsForEachPath(authorRepoLogs: string[], httpClientByTok
         const [userData, ...paths] = dataArray;
         const [email, name, hashCommit] = userData.split(';');
 
-        if (shouldAuthorBeIgnored({email, name})) {
+        if (shouldAuthorBeIgnored(config, {email, name})) {
             continue;
         }
 
@@ -344,12 +351,12 @@ type ShouldAuthorBeIgnoredArgs = {
     name?: string;
 };
 
-function shouldAuthorBeIgnored({email, name}: ShouldAuthorBeIgnoredArgs) {
+function shouldAuthorBeIgnored(config: Run['config'], {email, name}: ShouldAuthorBeIgnoredArgs) {
     if (!(email || name)) {
         return false;
     }
 
-    const {ignoreAuthorPatterns} = ArgvService.getConfig();
+    const {ignoreAuthorPatterns} = config;
     if (!ignoreAuthorPatterns) {
         return false;
     }
@@ -367,9 +374,9 @@ function shouldAuthorBeIgnored({email, name}: ShouldAuthorBeIgnoredArgs) {
     return false;
 }
 
-async function getFilesMTime(repoDir: string, pathMTime: Map<string, number>) {
+async function getFilesMTime(config: Run['config'], pathMTime: Map<string, number>) {
     const timeFiles = await simpleGit({
-        baseDir: repoDir,
+        baseDir: config.input,
     }).raw(
         'log',
         '--reverse',

@@ -1,54 +1,31 @@
 import type {Run} from './run';
 
-import 'threads/register';
-
-import {ArgvService, PresetService, SearchService, TocService} from '~/services';
-import {
-    initLinterWorkers,
-    processAssets,
-    processChangelogs,
-    processExcludedFiles,
-    processLinter,
-    processLogs,
-    processPages,
-} from '~/steps';
+import {ArgvService, PresetService, SearchService} from '~/services';
+import {processAssets, processChangelogs, processLinter, processLogs, processPages} from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
+
+import {legacyConfig} from './legacy-config';
 
 export async function handler(run: Run) {
     try {
-        ArgvService.init(run.legacyConfig);
+        ArgvService.init(legacyConfig(run));
         SearchService.init();
         PresetService.init(run.vars);
-        TocService.init(run.toc);
 
-        const {lintDisabled, buildDisabled, addMapFile} = ArgvService.getConfig();
-
-        processExcludedFiles();
+        const {addMapFile} = ArgvService.getConfig();
 
         if (addMapFile) {
             prepareMapFile(run);
         }
 
-        if (!lintDisabled) {
-            /* Initialize workers in advance to avoid a timeout failure due to not receiving a message from them */
-            await initLinterWorkers();
-        }
+        await Promise.all([processLinter(run), processPages(run)]);
 
-        const processes = [
-            !lintDisabled && processLinter(),
-            !buildDisabled && processPages(run),
-        ].filter(Boolean) as Promise<void>[];
+        // process additional files
+        await processAssets(run);
 
-        await Promise.all(processes);
+        await processChangelogs();
 
-        if (!buildDisabled) {
-            // process additional files
-            processAssets(run);
-
-            await processChangelogs();
-
-            await SearchService.release();
-        }
+        await SearchService.release();
     } catch (error) {
         run.logger.error(error);
     } finally {

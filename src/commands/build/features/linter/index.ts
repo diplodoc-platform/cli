@@ -1,10 +1,11 @@
-import type {Build} from '../..';
+import type {Build} from '~/commands/build';
 import type {Command} from '~/config';
 
-import {resolve} from 'node:path';
-import shell from 'shelljs';
+import {join} from 'node:path';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 
+import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getBuildHooks} from '~/commands/build';
 import {configPath, resolveConfig, valuable} from '~/config';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
@@ -36,13 +37,13 @@ type LogLevelConfig = {
 // TODO(major): move to separated 'lint' command
 export class Lint {
     apply(program: Build) {
-        program.hooks.Command.tap('Lint', (command: Command) => {
+        getBaseHooks(program).Command.tap('Lint', (command: Command) => {
             command.addOption(options.lint);
         });
 
         let resolvedPath: AbsolutePath | null = null;
 
-        program.hooks.Config.tapPromise('Lint', async (config, args) => {
+        getBaseHooks(program).Config.tapPromise('Lint', async (config, args) => {
             let lint: LintConfig['lint'] | boolean = {
                 enabled: true,
                 config: {'log-levels': {}},
@@ -69,7 +70,7 @@ export class Lint {
                 const configFilename =
                     typeof config.lint.config === 'string'
                         ? config.resolve(config.lint.config as string)
-                        : resolve(args.input, LINT_CONFIG_FILENAME);
+                        : join(args.input, LINT_CONFIG_FILENAME);
 
                 const lintConfig = await resolveConfig<Partial<LogLevelConfig>>(configFilename, {
                     fallback: {'log-levels': {}},
@@ -88,10 +89,12 @@ export class Lint {
             return config;
         });
 
-        program.hooks.AfterRun.for('md').tap('Lint', async (run) => {
-            if (resolvedPath) {
-                shell.cp(resolvedPath, run.output);
-            }
-        });
+        getBuildHooks(program)
+            .AfterRun.for('md')
+            .tap('Lint', async (run) => {
+                if (resolvedPath) {
+                    await run.copy(resolvedPath, join(run.output, '.yfmlint'));
+                }
+            });
     }
 }

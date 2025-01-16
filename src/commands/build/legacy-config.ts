@@ -35,8 +35,6 @@ export function legacyConfig(run: Run): YfmArgv {
         conditionsInCode: config.template.scopes.code,
         disableLiquid: !config.template.enabled,
 
-        buildDisabled: config.buildDisabled,
-
         lintDisabled: !config.lint.enabled,
         // @ts-ignore
         lintConfig: config.lint.config,

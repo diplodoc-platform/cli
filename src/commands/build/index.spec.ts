@@ -257,7 +257,6 @@ describe('Build command', () => {
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);
-        testBooleanFlag('buildDisabled', '--build-disabled', false);
         testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
 

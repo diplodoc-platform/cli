@@ -4,7 +4,7 @@ import type {Mock, MockInstance} from 'vitest';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {Build} from '..';
+import {Build, getHooks} from '..';
 import {Run} from '../run';
 import {handler as originalHandler} from '../handler';
 import {withConfigUtils} from '~/config';
@@ -14,15 +14,7 @@ export const handler = originalHandler as Mock;
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
 
-vi.mock('shelljs');
-vi.mock('../legacy-config');
 vi.mock('../handler');
-vi.mock('../run', async (importOriginal) => {
-    return {
-        ...((await importOriginal()) as {}),
-        copy: vi.fn(),
-    };
-});
 vi.mock('~/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -88,11 +80,11 @@ type BuildState = {
     globs?: Hash<NormalizedPath[]>;
     files?: Hash<string>;
 };
-export function setupBuild(state: BuildState = {}): Build & {run: Run} {
+export function setupBuild(state?: BuildState): Build & {run: Run} {
     const build = new Build();
 
     build.apply();
-    build.hooks.BeforeAnyRun.tap('Tests', (run) => {
+    getHooks(build).BeforeAnyRun.tap('Tests', (run) => {
         (build as Build & {run: Run}).run = run;
 
         if (!(run as RunSpy)[Mocked]) {
@@ -107,13 +99,13 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
 
-        if (state.globs) {
+        if (state && state.globs) {
             for (const [pattern, files] of Object.entries(state.globs)) {
                 when(run.glob).calledWith(pattern, expect.anything()).thenResolve(files);
             }
         }
 
-        if (state.files) {
+        if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
                 when(run.read).calledWith(join(run.input, file)).thenResolve(content);
             }

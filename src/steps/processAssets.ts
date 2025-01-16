@@ -1,99 +1,58 @@
 import type {Run} from '~/commands/build';
 
-import walkSync from 'walk-sync';
 import {load} from 'js-yaml';
-import {readFileSync} from 'fs';
-import {join, relative} from 'path';
+import {dirname, join} from 'node:path';
+import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {TocService} from '../services';
-import {checkPathExists, copyFiles, findAllValuesByKeys} from '../utils';
-
-import {DocLeadingPageData, LINK_KEYS} from '@diplodoc/client/ssr';
-import {isLocalUrl} from '@diplodoc/transform/lib/utils';
-
+import {checkPathExists, findAllValuesByKeys, isExternalHref, own} from '../utils';
 import {ASSETS_FOLDER} from '../constants';
-import {Resources} from '../models';
-import {resolveRelativePath} from '@diplodoc/transform/lib/utilsFS';
+
+const isMediaLink = (link: string) => /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test(link);
 
 /*
  * Processes assets files (everything except .md files)
  */
-export function processAssets(run: Run) {
+export async function processAssets(run: Run) {
     switch (run.config.outputFormat) {
         case 'html':
-            processAssetsHtmlRun(run);
-            break;
+            return processAssetsHtmlRun(run);
         case 'md':
-            processAssetsMdRun(run);
-            break;
+            return processAssetsMdRun(run);
     }
 }
 
-function processAssetsHtmlRun(run: Run) {
-    const documentationAssetFilePath: string[] = walkSync(run.input, {
-        directories: false,
-        includeBasePath: false,
-        ignore: ['**/*.yaml', '**/*.md'],
-    });
-
-    copyFiles(run.input, run.output, documentationAssetFilePath);
-
-    const bundleAssetFilePath: string[] = walkSync(ASSETS_FOLDER, {
-        directories: false,
-        includeBasePath: false,
-    });
-
-    copyFiles(ASSETS_FOLDER, run.bundlePath, bundleAssetFilePath);
+async function processAssetsHtmlRun(run: Run) {
+    await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+    await run.copy(ASSETS_FOLDER, run.bundlePath);
 }
 
-function processAssetsMdRun(run: Run) {
+async function processAssetsMdRun(run: Run) {
     const {allowCustomResources, resources} = run.config;
 
     if (resources && allowCustomResources) {
-        const resourcePaths: string[] = [];
-
-        // collect paths of all resources
-        Object.keys(resources).forEach((type) => {
-            if (type === 'csp') {
-                return;
-            }
-
-            resources[type as keyof Resources]?.forEach((path: string) => resourcePaths.push(path));
-        });
-
-        //copy resources
-        copyFiles(run.originalInput, run.output, resourcePaths);
+        for (const file of [...(resources.script || []), ...(resources.style || [])]) {
+            await run.copy(join(run.input, file), join(run.output, file));
+        }
     }
 
-    const tocYamlFiles = TocService.getNavigationPaths().reduce<string[]>((acc, file) => {
-        if (file.endsWith('.yaml')) {
-            acc.push(join(run.input, file));
-        }
-        return acc;
-    }, [] as AbsolutePath[]);
+    const yamlFiles = run.toc.entries.filter((file) => file.endsWith('.yaml'));
+    const mediaLinks = new Set<RelativePath>();
+    for (const yamlFile of yamlFiles) {
+        const content = load(await run.read(join(run.input, yamlFile)));
 
-    tocYamlFiles.forEach((yamlFile) => {
-        const content = load(readFileSync(yamlFile, 'utf8'));
-
-        if (!Object.prototype.hasOwnProperty.call(content, 'blocks')) {
+        if (!own(content, 'blocks')) {
             return;
         }
 
-        const contentLinks = findAllValuesByKeys(content as DocLeadingPageData, LINK_KEYS);
-        const localMediaLinks = contentLinks.reduce((acc: string[], link: string) => {
-            const linkHasMediaExt = new RegExp(
-                /^\S.*\.(svg|png|gif|jpg|jpeg|bmp|webp|ico)$/gm,
-            ).test(link);
-
-            if (linkHasMediaExt && isLocalUrl(link) && checkPathExists(link, yamlFile)) {
-                const linkAbsolutePath = resolveRelativePath(yamlFile, link);
-                const linkRootPath = relative(run.input, linkAbsolutePath);
-
-                acc.push(linkRootPath);
+        const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
+        for (const link of contentLinks) {
+            if (isMediaLink(link) && !isExternalHref(link) && checkPathExists(link, yamlFile)) {
+                mediaLinks.add(join(dirname(yamlFile), link));
             }
-            return acc;
-        }, [] as RelativePath[]);
+        }
+    }
 
-        copyFiles(run.originalInput, run.output, localMediaLinks);
-    });
+    for (const link of mediaLinks) {
+        await run.copy(join(run.input, link), join(run.output, link));
+    }
 }
