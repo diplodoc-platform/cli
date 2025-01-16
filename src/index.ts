@@ -16,6 +16,11 @@ if (require.main === module) {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
+        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
+            // eslint-disable-next-line no-console
+            console.log(`Using v${VERSION} version`);
+        }
+
         let exitCode = 0;
         try {
             const args = parse(NAME, process.argv);

@@ -246,11 +246,6 @@ export class Build
     }
 
     async action() {
-        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
-            // eslint-disable-next-line no-console
-            console.log(`Using v${VERSION} version`);
-        }
-
         const run = new Run(this.config);
 
         run.logger.pipe(this.logger);

@@ -1,8 +1,7 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/config';
 
-import {resolve} from 'node:path';
-import shell from 'shelljs';
+import {join} from 'node:path';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -71,7 +70,7 @@ export class Lint {
                 const configFilename =
                     typeof config.lint.config === 'string'
                         ? config.resolve(config.lint.config as string)
-                        : resolve(args.input, LINT_CONFIG_FILENAME);
+                        : join(args.input, LINT_CONFIG_FILENAME);
 
                 const lintConfig = await resolveConfig<Partial<LogLevelConfig>>(configFilename, {
                     fallback: {'log-levels': {}},

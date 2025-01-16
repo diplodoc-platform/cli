@@ -1,24 +1,21 @@
+import {join} from 'node:path';
+import {normalizePath} from '../../../../utils';
+
 function dropExt(path: string) {
     return path.replace(/\.(md|ya?ml|html)$/i, '');
 }
 
-// TODO: check that this is useless
-function toUrl(path: string) {
-    // replace windows backslashes
-    return path.replace(/\\/g, '/').replace(/^\.\//, '');
-}
-
 function getAnchorId(tocDir: string, path: string) {
     const [pathname, hash] = path.split('#');
-    const url = toUrl(dropExt(pathname)) + (hash ? '#' + hash : '');
+    const url = normalizePath(dropExt(pathname)) + (hash ? '#' + hash : '');
 
     // TODO: encodeURIComponent will be best option
     return relativeTo(tocDir, url.replace(/\.\.\/|[/#]/g, '_'));
 }
 
 function relativeTo(root: string, path: string) {
-    root = toUrl(root);
-    path = toUrl(path);
+    root = normalizePath(root);
+    path = normalizePath(path);
 
     if (root && path.startsWith(root + '/')) {
         path = path.replace(root + '/', '');
@@ -27,13 +24,13 @@ function relativeTo(root: string, path: string) {
     return path;
 }
 
-export function getSinglePageUrl(tocDir: string, path: string) {
-    const prefix = toUrl(tocDir) || '.';
+export function getSinglePageUrl(tocDir: string, path: string): NormalizedPath {
+    const prefix = normalizePath(tocDir) || '.';
     const suffix = getAnchorId(tocDir, path);
 
     if (prefix === '.') {
-        return '#' + suffix;
+        return ('#' + suffix) as NormalizedPath;
     }
 
-    return prefix + '/single-page.html#' + suffix;
+    return normalizePath(join(prefix, 'single-page.html#' + suffix));
 }

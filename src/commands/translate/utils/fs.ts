@@ -1,5 +1,6 @@
 import type {JSONObject, LinkedJSONObject} from '@diplodoc/translation';
-import {dirname, join, resolve} from 'node:path';
+
+import {dirname, join} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
 import {linkRefs, unlinkRefs} from '@diplodoc/translation';
@@ -72,11 +73,11 @@ export class FileLoader<T = string | JSONObject> {
 
     private parts: Record<string, T> = {};
 
-    private path: string;
+    private path: AbsolutePath;
 
     private resolveRefs: boolean;
 
-    constructor(path: string, resolveRefs = true) {
+    constructor(path: AbsolutePath, resolveRefs = true) {
         this.path = path;
         this.resolveRefs = resolveRefs;
     }
@@ -89,20 +90,18 @@ export class FileLoader<T = string | JSONObject> {
     }
 
     async load() {
-        const load = async (path: string, resolveRefs: boolean) => {
-            path = resolve(path);
-
+        const load = async (path: AbsolutePath, resolveRefs: boolean) => {
             if (!this.parts[path]) {
                 const text = await readFile(path, 'utf8');
                 const content = (this.parts[path] = parseFile(text, path) as T);
 
                 if (isObject(content) && resolveRefs) {
-                    await linkRefs(content, path, async (path: string) => {
-                        if (!this.parts[path]) {
-                            this.parts[path] = await load(path, false);
+                    await linkRefs(content, path, async (ref) => {
+                        if (!this.parts[ref]) {
+                            this.parts[ref] = await load(ref as AbsolutePath, false);
                         }
 
-                        return this.parts[path] as JSONObject;
+                        return this.parts[ref] as JSONObject;
                     });
                 }
             }
@@ -134,7 +133,7 @@ export class FileLoader<T = string | JSONObject> {
     }
 }
 
-async function loadFile<T = string | JSONObject>(path: string): Promise<T> {
+async function loadFile<T = string | JSONObject>(path: AbsolutePath): Promise<T> {
     return parseFile(await readFile(path, 'utf8'), path) as T;
 }
 

@@ -14,15 +14,7 @@ export const handler = originalHandler as Mock;
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
 
-vi.mock('shelljs');
-vi.mock('../legacy-config');
 vi.mock('../handler');
-vi.mock('../run', async (importOriginal) => {
-    return {
-        ...((await importOriginal()) as {}),
-        copy: vi.fn(),
-    };
-});
 vi.mock('~/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
