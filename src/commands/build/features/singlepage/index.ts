@@ -3,9 +3,12 @@ import type {Toc} from '~/core/toc';
 import type {Command} from '~/config';
 
 import {dirname, join} from 'node:path';
+
+import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/config';
-import {options} from './config';
 import {isExternalHref, own} from '~/utils';
+
+import {options} from './config';
 import {getSinglePageUrl} from './utils';
 
 export type SinglePageArgs = {
@@ -18,11 +21,11 @@ export type SinglePageConfig = {
 
 export class SinglePage {
     apply(program: Build) {
-        program.hooks.Command.tap('SinglePage', (command: Command) => {
+        getBaseHooks(program).Command.tap('SinglePage', (command: Command) => {
             command.addOption(options.singlePage);
         });
 
-        program.hooks.Config.tap('SinglePage', (config, args) => {
+        getBaseHooks(program).Config.tap('SinglePage', (config, args) => {
             config.singlePage = defined('singlePage', args, config) || false;
 
             return config;

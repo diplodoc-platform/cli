@@ -1,11 +1,7 @@
-import type {Hook, HookMap} from 'tapable';
 import type {Command, ExtendedOption} from '~/config';
 import type {Logger} from '~/logger';
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-type Hooks = Record<string, Hook<any, any> | HookMap<any>>;
-
-export interface ICallable<TArgs extends Hash = Hash> {
+export interface ICallable<TArgs extends BaseArgs = BaseArgs> {
     apply(program?: IProgram<TArgs>): void;
 }
 
@@ -28,7 +24,7 @@ export interface ICallable<TArgs extends Hash = Hash> {
  * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
  *    (example: hookConfig)
  */
-export interface IProgram<Args extends Hash = Hash> extends ICallable<Args> {
+export interface IProgram<Args extends BaseArgs = BaseArgs> extends ICallable<Args> {
     command: Command;
 
     options: Readonly<ExtendedOption[]>;
@@ -37,18 +33,38 @@ export interface IProgram<Args extends Hash = Hash> extends ICallable<Args> {
 
     action?: (props: Args) => Promise<void> | void;
 
-    hooks?: Hooks;
-
     logger: Logger;
+}
+
+export interface IExtension<Program extends IProgram = IProgram> {
+    apply(program: Program): void;
 }
 
 /**
  * Limited IProgram interface for access from sub programs.
  */
-export interface IParent<ParentHooks extends Hooks = Hooks> {
+export interface IParent {
     command: Command;
-
-    hooks: ParentHooks extends Hooks ? ParentHooks : undefined;
 
     logger: Logger;
 }
+
+export type BaseArgs = {
+    input: AbsolutePath;
+    config: AbsolutePath;
+    quiet: boolean;
+    strict: boolean;
+    extensions?: string[];
+};
+
+export type BaseConfig = {
+    input: AbsolutePath;
+    quiet: boolean;
+    strict: boolean;
+    extensions?: (string | ExtensionInfo)[];
+};
+
+export type ExtensionInfo = {
+    path: string;
+    options: Record<string, any>;
+};

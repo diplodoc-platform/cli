@@ -1,28 +1,31 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {BaseArgs, IProgram} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
+
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import {BaseProgram} from '~/program/base';
+import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
+
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {FileLoader, TranslateError, compose, resolveFiles, resolveSchemas} from '../utils';
-import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
 const MAX_CONCURRENCY = 50;
 
-export type ComposeArgs = ProgramArgs & {
-    output: string;
+export type ComposeArgs = BaseArgs & {
+    output: AbsolutePath;
     include?: string[];
     exclude?: string[];
     useSource?: boolean;
     useExperimentalParser?: boolean;
 };
 
-export type ComposeConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
-    output: string;
+export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+    output: AbsolutePath;
     include: string[];
     exclude: string[];
     files: string[];
@@ -58,7 +61,7 @@ export class Compose
     apply(program?: IProgram) {
         super.apply(program);
 
-        this.hooks.Config.tap('Translate.Compose', (config, args) => {
+        getBaseHooks(this).Config.tap('Translate.Compose', (config, args) => {
             const {input, output, quiet, strict} = pick(args, [
                 'input',
                 'output',
@@ -144,8 +147,8 @@ type FileInfo = {
 };
 
 function pipeline(
-    input: string,
-    output: string,
+    input: AbsolutePath,
+    output: AbsolutePath,
     {useSource, useExperimentalParser}: ComposeOptions,
 ) {
     return async function pipeline(file: FileInfo) {

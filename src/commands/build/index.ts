@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {IProgram, BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
-import {BaseProgram} from '~/program/base';
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, Config, configPath, defined, valuable} from '~/config';
 import {OutputFormat, options} from './config';
@@ -150,7 +150,7 @@ export type BuildHooks = ReturnType<typeof hooks>;
 
 export class Build
     // eslint-disable-next-line new-cap
-    extends BaseProgram<BuildConfig, BuildArgs, BuildHooks>(command, {
+    extends BaseProgram<BuildConfig, BuildArgs>(command, {
         config: {
             scope: 'build',
             defaults: () =>
@@ -176,7 +176,6 @@ export class Build
         command: {
             isDefault: true,
         },
-        hooks: hooks(),
     })
     implements IProgram<BuildArgs>
 {
@@ -221,8 +220,22 @@ export class Build
         options.config(YFM_CONFIG_FILENAME),
     ];
 
+    readonly modules = [
+        this.templating,
+        this.contributors,
+        this.singlepage,
+        this.redirects,
+        this.linter,
+        this.changelogs,
+        this.search,
+        this.html,
+        this.legacy,
+        new GenericIncluderExtension(),
+        new OpenapiIncluderExtension(),
+    ];
+
     apply(program?: IProgram) {
-        this.hooks.Config.tap('Build', (config, args) => {
+        getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
@@ -241,12 +254,6 @@ export class Build
             if (!langs.length) {
                 langs.push(Lang.RU);
             }
-
-            const options = [...this.options, ...(program?.options || [])].map((option) =>
-                option.attributeName(),
-            );
-
-            Object.assign(config, pick(args, options));
 
             config.ignoreStage = [].concat(ignoreStage);
             config.langs = langs;
@@ -267,19 +274,6 @@ export class Build
                 await run.copy(run.config[configPath], join(run.output, '.yfm'));
             }
         });
-
-        this.templating.apply(this);
-        this.contributors.apply(this);
-        this.singlepage.apply(this);
-        this.redirects.apply(this);
-        this.linter.apply(this);
-        this.changelogs.apply(this);
-        this.search.apply(this);
-        this.html.apply(this);
-        this.legacy.apply(this);
-
-        new GenericIncluderExtension().apply(this);
-        new OpenapiIncluderExtension().apply(this);
 
         super.apply(program);
     }

@@ -1,83 +1,65 @@
-import type {IParent, IProgram, ProgramArgs} from '.';
+import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, IParent, IProgram} from './types';
 import type {Command, Config, ExtendedOption} from '~/config';
-import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
+
 import {isAbsolute, resolve} from 'node:path';
-import {once} from 'lodash';
-import {Logger, stats} from '~/logger';
+import {once, pick} from 'lodash';
 import log from '@diplodoc/transform/lib/log';
+
 import {
     resolveConfig,
     scope as scopeConfig,
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/config';
+import {Logger, stats} from '~/logger';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
+import {Hooks, getHooks, hooks} from './hooks';
 import {HandledError} from './utils';
 
-const isRelative = (path: string) => /^\.{1,2}\//.test(path);
+export * from './types';
 
-export type BaseHooks<TConfig, TArgs> = {
-    Command: SyncHook<[Command, ExtendedOption[]]>;
-    /**
-     * asasdasdasd
-     */
-    Config: AsyncSeriesWaterfallHook<[Config<TConfig>, TArgs]>;
+export {getHooks};
+
+const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
+
+type ProgramParts<TConfig extends BaseConfig> = {
+    config?: {
+        defaults?: () => Partial<TConfig>;
+        scope?: string;
+        strictScope?: string;
+    };
+    command?: {
+        isDefault?: boolean;
+    };
 };
 
 export const BaseProgram = <
-    TConfig extends Record<string, unknown>,
-    TArgs extends ProgramArgs = ProgramArgs,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    THooks extends Record<string, Hook<any, any> | HookMap<any>> = BaseHooks<TConfig, TArgs>,
+    TConfig extends BaseConfig = BaseConfig,
+    TArgs extends BaseArgs = BaseArgs,
 >(
     name: string,
-    parts: {
-        config?: {
-            defaults?: () => Partial<TConfig>;
-            scope?: string;
-            strictScope?: string;
-        };
-        command?: {
-            isDefault?: boolean;
-        };
-        hooks?: THooks;
-    },
+    parts: ProgramParts<TConfig>,
 ) => {
     const {
         config: {defaults = () => ({}), scope, strictScope} = {},
-        hooks = {},
         command: {isDefault = false} = {},
     } = parts;
 
     return class BaseProgram implements IProgram<TArgs> {
-        readonly command!: Command;
+        readonly [Hooks] = hooks<TConfig, TArgs>(name);
 
-        readonly hooks = {
-            Command: new SyncHook<[Command, ExtendedOption[]]>(
-                ['command', 'options'],
-                `${name}.Command`,
-            ),
-            Config: new AsyncSeriesWaterfallHook<[Config<TConfig>, TArgs]>(
-                ['config', 'args'],
-                `${name}.Config`,
-            ),
-            ...hooks,
-        } as BaseHooks<TConfig, TArgs> & {
-            // for best ide suggestion
-            [prop in keyof THooks]: THooks[prop];
-        };
+        readonly command!: Command;
 
         readonly config!: Config<TConfig>;
 
-        readonly parent!:
-            | IParent<{
-                  Command: SyncHook<Command>;
-              }>
-            | undefined;
+        readonly parent!: IParent | undefined;
 
         readonly logger: Logger = new Logger();
 
         readonly options!: ExtendedOption[];
+
+        protected modules: ICallable<TArgs>[] = [];
 
         protected args: string[] = [];
 
@@ -90,6 +72,15 @@ export const BaseProgram = <
             }
         }
 
+        async init(args: BaseArgs) {
+            const config = await this.hookConfig(args as TArgs);
+            const extensions = await this.resolveExtensions(config, args);
+
+            this.modules.push(...extensions);
+
+            this.apply();
+        }
+
         apply(program?: IProgram<TArgs>) {
             // @ts-ignore
             this['parent'] = program;
@@ -99,17 +90,21 @@ export const BaseProgram = <
             });
             this.command.action(() => this._action());
 
+            for (const module of this.modules) {
+                module.apply(this);
+            }
+
             if (this.parent) {
-                this.parent.hooks.Command.tap(
+                getHooks(this.parent).Command.tap(
                     name,
                     once((command) => {
                         command.addCommand(this.command, {isDefault});
-                        this.hooks.Command.call(this.command, this.options);
+                        this[Hooks].Command.call(this.command, this.options);
                     }),
                 );
                 this.logger.pipe(this.parent.logger);
             } else {
-                this.hooks.Command.call(this.command, this.options);
+                this[Hooks].Command.call(this.command, this.options);
             }
         }
 
@@ -139,7 +134,13 @@ export const BaseProgram = <
                     fallback: args.config === YFM_CONFIG_FILENAME ? defaults() : null,
                 }));
 
-            return this.hooks.Config.promise(config, args);
+            await this[Hooks].RawConfig.promise(config, args);
+
+            const options = this.options.map((option) => option.attributeName());
+
+            Object.assign(config, pick(args, options));
+
+            return this[Hooks].Config.promise(config, args);
         }
 
         private async pre(args: TArgs) {
@@ -147,6 +148,10 @@ export const BaseProgram = <
 
             // @ts-ignore
             this['config'] = await this.hookConfig(args);
+
+            if (!this.parent) {
+                this.resolveExtensions(this.config, args);
+            }
 
             this.logger.setup(this.config);
         }
@@ -169,6 +174,42 @@ export const BaseProgram = <
             await this.pre(args);
             await this.action(args);
             await this.post();
+        }
+
+        private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
+            // args extension paths should be relative to PWD
+            const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
+                const path = isRelative(ext) ? resolve(ext) : ext;
+                const options = {};
+
+                return {path, options};
+            });
+
+            // config extension paths should be relative to config
+            const configExtensions: ExtensionInfo[] = (config.extensions || []).map((ext) => {
+                const extPath = typeof ext === 'string' ? ext : ext.path;
+                const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
+                const options = typeof ext === 'string' ? {} : ext.options || {};
+
+                return {path, options};
+            });
+
+            const extensions = [...argsExtensions, ...configExtensions];
+
+            const initialize = async ({
+                path,
+                options,
+            }: {
+                path: string;
+                options: Record<string, unknown>;
+            }) => {
+                const ExtensionModule = await import(path);
+                const Extension = ExtensionModule.Extension || ExtensionModule.default;
+
+                return new Extension(options);
+            };
+
+            return Promise.all(extensions.map(initialize));
         }
     };
 };

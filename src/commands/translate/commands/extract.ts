@@ -1,14 +1,18 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {BaseArgs, IProgram} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
+
 import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
-import {BaseProgram} from '~/program/base';
+import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
+
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {
@@ -23,11 +27,10 @@ import {
     resolveTargets,
     resolveVars,
 } from '../utils';
-import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 const MAX_CONCURRENCY = 50;
 
-export type ExtractArgs = ProgramArgs & {
+export type ExtractArgs = BaseArgs & {
     output: string;
     source?: string;
     target?: string | string[];
@@ -37,7 +40,7 @@ export type ExtractArgs = ProgramArgs & {
     useExperimentalParser?: boolean;
 };
 
-export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     output: string;
     source: Locale;
     target: Locale[];
@@ -79,7 +82,7 @@ export class Extract
     apply(program?: IProgram) {
         super.apply(program);
 
-        this.hooks.Config.tap('Translate.Extract', (config, args) => {
+        getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {
             const {input, output, quiet, strict} = pick(args, [
                 'input',
                 'output',

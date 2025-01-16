@@ -1,7 +1,8 @@
+import type {Build} from '~/commands/build';
+
 import {ok} from 'node:assert';
 import {resolve} from 'node:path';
 import shell from 'shelljs';
-import {Build} from '../..';
 
 import {REDIRECTS_FILENAME} from '~/constants';
 import {configPath, resolveConfig} from '~/config';

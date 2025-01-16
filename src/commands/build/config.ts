@@ -1,5 +1,5 @@
 import {bold, underline} from 'chalk';
-import {options as globalOptions} from '~/program/config';
+import {options as globalOptions} from '~/commands/config';
 import {option} from '~/config';
 import {Stage} from '~/constants';
 

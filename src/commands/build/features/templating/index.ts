@@ -1,4 +1,4 @@
-import type {Build} from '~/commands';
+import type {Build} from '~/commands/build';
 import type {Command} from '~/config';
 import type {Preset} from '~/core/vars';
 
@@ -6,6 +6,7 @@ import {join} from 'node:path';
 import {dump} from 'js-yaml';
 import {merge} from 'lodash';
 
+import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/config';
 import {options} from './config';
 
@@ -36,7 +37,7 @@ export type TemplatingRawConfig = {
 
 export class Templating {
     apply(program: Build) {
-        program.hooks.Command.tap('Templating', (command: Command) => {
+        getBaseHooks(program).Command.tap('Templating', (command: Command) => {
             command
                 .addOption(options.template)
                 .addOption(options.noTemplate)
@@ -44,7 +45,7 @@ export class Templating {
                 .addOption(options.templateConditions);
         });
 
-        program.hooks.Config.tap('Templating', (config, args) => {
+        getBaseHooks(program).Config.tap('Templating', (config, args) => {
             const template = defined('template', args);
             const templateVars = defined('templateVars', args);
             const templateConditions = defined('templateConditions', args);

@@ -1,4 +1,4 @@
-import {options as globalOptions} from '~/program/config';
+import {options as globalOptions} from '~/commands/config';
 import {option, toArray} from '~/config';
 
 const endpoint = option({

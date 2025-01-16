@@ -1,5 +1,7 @@
-import type {Build} from '~/commands';
+import type {Build} from '~/commands/build';
 import type {Command} from '~/config';
+
+import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/config';
 import {options} from './config';
 
@@ -13,11 +15,11 @@ export type ChangelogsConfig = {
 
 export class Changelogs {
     apply(program: Build) {
-        program.hooks.Command.tap('Changelogs', (command: Command) => {
+        getBaseHooks(program).Command.tap('Changelogs', (command: Command) => {
             command.addOption(options.changelogs);
         });
 
-        program.hooks.Config.tap('Changelogs', (config, args) => {
+        getBaseHooks(program).Config.tap('Changelogs', (config, args) => {
             config.changelogs = defined('changelogs', args, config) || false;
 
             return config;
