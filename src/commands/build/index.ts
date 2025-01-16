@@ -259,15 +259,8 @@ export class Build
 
         await run.vars.init();
         await run.toc.init();
+        await run.vcs.init();
 
-        const excluded = await run.glob(['**/*.md', '**/index.yaml', ...run.config.ignore], {
-            cwd: run.input,
-            ignore: ['**/_*/**/*', '**/_include--*'].concat(run.toc.entries),
-        });
-
-        for (const file of excluded) {
-            await run.remove(join(run.input, file));
-        }
         await Promise.all([handler(run), this[Hooks].Run.promise(run)]);
 
         await this[Hooks].AfterRun.for(this.config.outputFormat).promise(run);

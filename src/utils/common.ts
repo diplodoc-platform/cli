@@ -55,7 +55,7 @@ export function checkPathExists(path: string, parentFilePath: string) {
 export function own<V = unknown, T extends string = string>(
     box: unknown,
     field: T,
-): box is {[p in T]: V} {
+): box is {[P in T]: V} {
     return (
         Boolean(box && typeof box === 'object') && Object.prototype.hasOwnProperty.call(box, field)
     );

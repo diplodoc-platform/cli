@@ -12,7 +12,9 @@ import {
 } from '~/constants';
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
+import {MetaService} from '~/core/meta';
 import {TocService} from '~/core/toc';
+import {VcsService} from '~/core/vcs';
 
 /**
  * This is transferable context for build command.
@@ -29,14 +31,18 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly vars: VarsService;
 
+    readonly meta: MetaService;
+
     readonly toc: TocService;
 
-    get bundlePath() {
-        return join(this.output, BUNDLE_FOLDER);
-    }
+    readonly vcs: VcsService;
 
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
+    }
+
+    get bundlePath() {
+        return join(this.output, BUNDLE_FOLDER);
     }
 
     get redirectsPath() {
@@ -59,7 +65,8 @@ export class Run extends BaseRun<BuildConfig> {
         this.scopes.set('<result>', this.originalOutput);
 
         this.vars = new VarsService(this);
+        this.meta = new MetaService(this);
         this.toc = new TocService(this);
-
+        this.vcs = new VcsService(this);
     }
 }
