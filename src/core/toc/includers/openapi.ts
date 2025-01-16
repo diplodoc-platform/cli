@@ -1,4 +1,5 @@
-import type {Build, RawToc} from '~/commands/build';
+import type {Build} from '~/commands/build';
+import type {RawToc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 import {includer} from '@diplodoc/openapi-extension/includer';

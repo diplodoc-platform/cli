@@ -28,11 +28,9 @@ import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 
-import {GenericIncluderExtension, OpenapiIncluderExtension} from './core/toc';
+import {GenericIncluderExtension, OpenapiIncluderExtension} from '~/core/toc';
 
 import {intercept} from '~/utils';
-
-export type * from './types';
 
 export enum ResourceType {
     style = 'style',
@@ -266,7 +264,7 @@ export class Build
         this.hooks.AfterRun.for('md').tap('Build', async (run) => {
             // TODO: save normalized config instead
             if (run.config[configPath]) {
-                await run.copy(run.config[configPath], join(run.output, '.yfm'))
+                await run.copy(run.config[configPath], join(run.output, '.yfm'));
             }
         });
 
@@ -306,11 +304,7 @@ export class Build
         await run.vars.init();
         await run.toc.init();
 
-        const excluded = await run.glob([
-            '**/*.md',
-            '**/index.yaml',
-            ...run.config.ignore
-        ], {
+        const excluded = await run.glob(['**/*.md', '**/index.yaml', ...run.config.ignore], {
             cwd: run.input,
             ignore: ['**/_*/**/*', '**/_include--*'].concat(run.toc.entries),
         });

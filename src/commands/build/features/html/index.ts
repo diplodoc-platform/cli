@@ -1,4 +1,5 @@
-import type {Build, Toc, TocItem} from '../..';
+import type {Build} from '~/commands/build';
+import type {Toc, TocItem} from '~/core/toc';
 
 import {basename, dirname, extname, join} from 'node:path';
 import {isExternalHref, own} from '~/utils';

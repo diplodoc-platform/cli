@@ -30,9 +30,9 @@ import {
 import {LogLevel, Logger} from '~/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
-import {VarsService} from './core/vars';
-import {TocService} from './core/toc';
-import {addSourcePath} from './core/meta';
+import {VarsService} from '~/core/vars';
+import {TocService} from '~/core/toc';
+import {addSourcePath} from '~/core/meta';
 
 type FileSystem = {
     access: typeof access;

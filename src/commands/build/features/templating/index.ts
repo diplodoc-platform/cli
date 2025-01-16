@@ -1,6 +1,6 @@
 import type {Build} from '~/commands';
 import type {Command} from '~/config';
-import type {Preset} from '~/commands/build/core/vars';
+import type {Preset} from '~/core/vars';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';

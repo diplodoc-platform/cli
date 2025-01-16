@@ -1,6 +1,6 @@
-import type {Build} from '~/commands';
+import type {Build} from '~/commands/build';
+import type {Toc} from '~/core/toc';
 import type {Command} from '~/config';
-import type {Toc} from '~/commands/build';
 
 import {dirname, join} from 'node:path';
 import {defined} from '~/config';
