@@ -23,8 +23,6 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly input: AbsolutePath;
 
-    readonly legacyConfig: YfmArgv;
-
     readonly originalOutput: AbsolutePath;
 
     readonly output: AbsolutePath;
@@ -63,6 +61,5 @@ export class Run extends BaseRun<BuildConfig> {
         this.vars = new VarsService(this);
         this.toc = new TocService(this);
 
-        this.legacyConfig = legacyConfig(this);
     }
 }

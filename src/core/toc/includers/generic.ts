@@ -1,7 +1,11 @@
-import type {Build} from '~/commands';
+import type {IExtension} from '~/core/program';
+import type {Build} from '~/commands/build';
 import type {IncluderOptions, RawToc, RawTocItem, YfmString} from '~/core/toc';
 
 import {dirname, extname, join} from 'node:path';
+
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
 
 // const AUTOTITLE = '{$T}';
 
@@ -20,12 +24,12 @@ type Graph = {
 
 // TODO: implement autotitle after md refactoring
 // TODO: implement sort
-export class GenericIncluderExtension {
+export class GenericIncluderExtension implements IExtension {
     apply(program: Build) {
-        program.hooks.BeforeAnyRun.tap('GenericIncluder', (run) => {
-            run.toc.hooks.Includer.for('generic').tapPromise(
-                'GenericIncluder',
-                async (toc, options: Options, path) => {
+        getBuildHooks(program).BeforeAnyRun.tap('GenericIncluder', (run) => {
+            getTocHooks(run.toc)
+                .Includer.for('generic')
+                .tapPromise('GenericIncluder', async (toc, options: Options, path) => {
                     const input = options.input
                         ? join(dirname(path), options.input)
                         : dirname(options.path);
@@ -34,8 +38,7 @@ export class GenericIncluderExtension {
                     });
 
                     return fillToc(toc, graph(files), options);
-                },
-            );
+                });
         });
     }
 }

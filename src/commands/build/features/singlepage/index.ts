@@ -5,6 +5,8 @@ import type {Command} from '~/config';
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/config';
 import {isExternalHref, own} from '~/utils';
 
@@ -31,25 +33,27 @@ export class SinglePage {
             return config;
         });
 
-        program.hooks.BeforeRun.for('html').tap('SinglePage', (run) => {
-            if (!run.config.singlePage) {
-                return;
-            }
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('SinglePage', (run) => {
+                if (!run.config.singlePage) {
+                    return;
+                }
 
-            run.toc.hooks.Resolved.tapPromise('SinglePage', async (toc, path) => {
-                const copy = JSON.parse(JSON.stringify(toc)) as Toc;
-                await run.toc.walkItems([copy], (item) => {
-                    if (own<string>(item, 'href') && !isExternalHref(item.href)) {
-                        item.href = getSinglePageUrl(dirname(path), item.href);
-                    }
+                getTocHooks(run.toc).Resolved.tapPromise('SinglePage', async (toc, path) => {
+                    const copy = JSON.parse(JSON.stringify(toc)) as Toc;
+                    await run.toc.walkItems([copy], (item) => {
+                        if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
+                            item.href = getSinglePageUrl(dirname(path), item.href);
+                        }
 
-                    return item;
+                        return item;
+                    });
+
+                    const file = join(run.output, dirname(path), 'single-page-toc.js');
+
+                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
                 });
-
-                const file = join(run.output, dirname(path), 'single-page-toc.js');
-
-                await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
             });
-        });
     }
 }

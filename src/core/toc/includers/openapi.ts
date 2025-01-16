@@ -1,16 +1,23 @@
+import type {IExtension} from '~/core/program';
 import type {Build} from '~/commands/build';
 import type {RawToc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 import {includer} from '@diplodoc/openapi-extension/includer';
 
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
+
+const EXTENSION = 'OpenapiIncluder';
+const INCLUDER = 'openapi';
+
 // TODO: move to openapi-extension on major
-export class OpenapiIncluderExtension {
+export class OpenapiIncluderExtension implements IExtension {
     apply(program: Build) {
-        program.hooks.BeforeAnyRun.tap('OpenapiIncluder', (run) => {
-            run.toc.hooks.Includer.for('openapi').tapPromise(
-                'OpenapiIncluder',
-                async (_toc, options, path) => {
+        getBuildHooks(program).BeforeAnyRun.tap(EXTENSION, (run) => {
+            getTocHooks(run.toc)
+                .Includer.for(INCLUDER)
+                .tapPromise(EXTENSION, async (_toc, options, path) => {
                     // @ts-ignore
                     const {toc, files} = await includer(run, options, path);
 
@@ -21,8 +28,7 @@ export class OpenapiIncluderExtension {
 
                     // @ts-ignore
                     return toc as RawToc;
-                },
-            );
+                });
         });
     }
 }

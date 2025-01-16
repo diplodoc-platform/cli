@@ -1,15 +1,15 @@
 import type {BuildConfig, Run} from '~/commands/build';
-import type {IncluderOptions, RawToc, RawTocItem, Toc, TocItem, WithItems} from './types';
-import type {IncludeMode, LoaderContext} from './loader';
+import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
+import type {LoaderContext} from './loader';
 
 import {ok} from 'node:assert';
-import {basename, dirname, join} from 'node:path';
+import {basename, dirname, join, relative} from 'node:path';
 import {dump, load} from 'js-yaml';
-import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
-import {freeze, intercept, isExternalHref, normalizePath, own} from '~/utils';
+import {freeze, isExternalHref, normalizePath, own} from '~/utils';
 import {Stage} from '~/constants';
 
+import {Hooks, hooks} from './hooks';
 import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
@@ -21,37 +21,8 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
-type TocServiceHooks = {
-    /**
-     * Called before item data processing (but after data interpolation)
-     */
-    Item: AsyncSeriesWaterfallHook<[RawTocItem, RelativePath]>;
-    /**
-     * AsyncSeriesWaterfall HookMap called for each includer name detected in toc.
-     * Expects RawToc as result of waterfall.
-     */
-    Includer: HookMap<AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, RelativePath]>>;
-    Resolved: AsyncParallelHook<[Toc, RelativePath]>;
-    Included: AsyncParallelHook<[Toc, RelativePath, IncludeInfo]>;
-};
-
-export type IncludeInfo = {
-    from: RelativePath;
-    mode: IncludeMode;
-    content?: RawToc;
-} & (
-    | {
-          mode: IncludeMode.RootMerge | IncludeMode.Merge;
-          mergeBase: RelativePath;
-      }
-    | {
-          mode: IncludeMode.Link;
-          mergeBase?: undefined;
-      }
-);
-
 export class TocService {
-    hooks: TocServiceHooks;
+    readonly [Hooks] = hooks();
 
     get entries() {
         return [...this._entries];
@@ -76,12 +47,6 @@ export class TocService {
         this.logger = run.logger;
         this.vars = run.vars;
         this.config = run.config;
-        this.hooks = intercept('TocService', {
-            Item: new AsyncSeriesWaterfallHook(['item', 'path']),
-            Includer: new HookMap(() => new AsyncSeriesWaterfallHook(['toc', 'options', 'path'])),
-            Resolved: new AsyncParallelHook(['toc', 'path']),
-            Included: new AsyncParallelHook(['toc', 'path', 'info']),
-        });
     }
 
     async init() {
@@ -156,20 +121,20 @@ export class TocService {
 
         // If this is a part of other toc.yaml
         if (include) {
-            await this.hooks.Included.promise(toc, path, include);
+            await this[Hooks].Included.promise(toc, path, include);
         } else {
             // TODO: we don't need to store tocs in future
             // All processing should subscribe on toc.hooks.Resolved
             this.tocs.set(path as NormalizedPath, toc);
             await this.walkItems([toc], (item: TocItem | Toc) => {
-                if (own<string>(item, 'href') && !isExternalHref(item.href)) {
+                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                     this._entries.add(normalizePath(join(dirname(path), item.href)));
                 }
 
                 return item;
             });
 
-            await this.hooks.Resolved.promise(freeze(toc), path);
+            await this[Hooks].Resolved.promise(freeze(toc), path);
         }
 
         // eslint-disable-next-line consistent-return

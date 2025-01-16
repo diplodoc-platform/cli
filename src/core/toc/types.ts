@@ -66,11 +66,27 @@ export type IncluderOptions<T extends Hash = Hash> = {
     path: RelativePath;
 } & T;
 
+export type IncludeInfo = {
+    from: RelativePath;
+    mode: IncludeMode;
+    content?: RawToc;
+} & (
+    | {
+          mode: IncludeMode.RootMerge | IncludeMode.Merge;
+          mergeBase: RelativePath;
+      }
+    | {
+          mode: IncludeMode.Link;
+          mergeBase?: undefined;
+      }
+);
+
 export type Toc = {
+    id: string;
     title?: string;
     label?: string;
     stage?: string;
-    href?: string & NormalizedPath;
+    href?: NormalizedPath;
     navigation?: boolean | Navigation;
     items?: TocItem[];
 };

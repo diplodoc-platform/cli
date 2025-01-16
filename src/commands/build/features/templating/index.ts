@@ -7,6 +7,8 @@ import {dump} from 'js-yaml';
 import {merge} from 'lodash';
 
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getVarsHooks} from '~/core/vars';
 import {defined, valuable} from '~/config';
 import {options} from './config';
 
@@ -89,30 +91,35 @@ export class Templating {
             return config;
         });
 
-        program.hooks.BeforeRun.for('md').tap('Build', (run) => {
-            const {varsPreset, template} = run.config;
-            const {substitutions, conditions} = template.features;
+        getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tap('Build', (run) => {
+                const {varsPreset, template} = run.config;
+                const {substitutions, conditions} = template.features;
 
-            // For case when we need to copy project from private to public repo and filter private presets.
-            if (!substitutions || !conditions) {
-                run.vars.hooks.PresetsLoaded.tapPromise('Build', async (presets, path) => {
-                    const scopes = [
-                        {default: presets.default},
-                        varsPreset !== 'default' &&
-                            presets[varsPreset] && {[varsPreset]: presets[varsPreset]},
-                    ].filter(Boolean) as Preset[];
-                    const result = merge({}, ...scopes);
+                // For case when we need to copy project from private to public repo and filter private presets.
+                if (!substitutions || !conditions) {
+                    getVarsHooks(run.vars).PresetsLoaded.tapPromise(
+                        'Build',
+                        async (presets, path) => {
+                            const scopes = [
+                                {default: presets.default},
+                                varsPreset !== 'default' &&
+                                    presets[varsPreset] && {[varsPreset]: presets[varsPreset]},
+                            ].filter(Boolean) as Preset[];
+                            const result = merge({}, ...scopes);
 
-                    await run.write(
-                        join(run.output, path),
-                        dump(result, {
-                            lineWidth: 120,
-                        }),
+                            await run.write(
+                                join(run.output, path),
+                                dump(result, {
+                                    lineWidth: 120,
+                                }),
+                            );
+
+                            return presets;
+                        },
                     );
-
-                    return presets;
-                });
-            }
-        });
+                }
+            });
     }
 }

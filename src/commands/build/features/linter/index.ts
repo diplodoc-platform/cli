@@ -6,6 +6,7 @@ import shell from 'shelljs';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getBuildHooks} from '~/commands/build';
 import {configPath, resolveConfig, valuable} from '~/config';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
@@ -89,10 +90,12 @@ export class Lint {
             return config;
         });
 
-        program.hooks.AfterRun.for('md').tap('Lint', async (run) => {
-            if (resolvedPath) {
-                shell.cp(resolvedPath, run.output);
-            }
-        });
+        getBuildHooks(program)
+            .AfterRun.for('md')
+            .tap('Lint', async (run) => {
+                if (resolvedPath) {
+                    await run.copy(resolvedPath, join(run.output, '.yfmlint'));
+                }
+            });
     }
 }

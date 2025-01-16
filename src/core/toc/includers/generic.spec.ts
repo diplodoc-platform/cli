@@ -3,6 +3,8 @@ import {when} from 'vitest-when';
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {setupBuild, setupRun} from '~/commands/build/__tests__';
 
 import {GenericIncluderExtension} from './generic';
@@ -25,7 +27,7 @@ const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][
 
     extension.apply(build);
 
-    await build.hooks.BeforeAnyRun.promise(run);
+    await getBuildHooks(build).BeforeAnyRun.promise(run);
 
     return {build, run, extension};
 };
@@ -47,7 +49,7 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await run.toc.hooks.Includer.for('generic').promise(
+        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
             {},
             {
                 input: './test',
@@ -75,7 +77,7 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await run.toc.hooks.Includer.for('generic').promise(
+        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
             {},
             {
                 path: './path/test/toc.yaml',
@@ -102,17 +104,19 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await run.toc.hooks.Includer.for('generic').promise(
-            {},
-            {
-                input: './test',
-                path: './test/toc.yaml',
-                leadingPage: {
-                    name: 'Test Overview',
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    leadingPage: {
+                        name: 'Test Overview',
+                    },
                 },
-            },
-            './toc.yaml',
-        );
+                './toc.yaml',
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });

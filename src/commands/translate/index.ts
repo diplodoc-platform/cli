@@ -7,28 +7,15 @@ import {pick} from 'lodash';
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command, args, defined} from '~/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-import {DESCRIPTION, NAME, options} from './config';
 
+import {Hooks, getHooks, hooks} from './hooks';
+import {DESCRIPTION, NAME, options} from './config';
 import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {resolveFiles, resolveSource, resolveTargets, resolveVars} from './utils';
 
-type Parent = IProgram & {
-    translate: Translate;
-};
-
-const command = 'Translate';
-
-const hooks = () => ({
-    Provider: new HookMap(
-        (provider: string) =>
-            new AsyncSeriesWaterfallHook<[IProvider | undefined, TranslateConfig]>(
-                ['provider', 'config'],
-                `${command}.Provider.${provider}`,
-            ),
-    ),
-});
+export {getHooks};
 
 export interface IProvider {
     skip(files: [string, string][], config: TranslateConfig): Promise<void>;
@@ -58,8 +45,6 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     dryRun: boolean;
 };
 
-export type TranslateHooks = ReturnType<typeof hooks>;
-
 export class Translate
     // eslint-disable-next-line new-cap
     extends BaseProgram<TranslateConfig, TranslateArgs>('Translate', {
@@ -70,25 +55,7 @@ export class Translate
     })
     implements IProgram<TranslateArgs>
 {
-    static getHooks<
-        Config extends TranslateConfig = TranslateConfig,
-        Args extends TranslateArgs = TranslateArgs,
-    >(program: Translate | IProgram | undefined): BaseHooks<Config, Args> & TranslateHooks {
-        if (!program) {
-            throw new Error('Unable to resolve Translate hooks. Program is undefined.');
-        }
-
-        if (program instanceof Translate) {
-            return program.hooks as BaseHooks<Config, Args> & TranslateHooks;
-        }
-
-        if ((program as Parent).translate instanceof Translate) {
-            return (program as Parent).translate.hooks as BaseHooks<Config, Args> & TranslateHooks;
-        }
-
-        throw new Error('Unable to resolve Translate hooks. Unexpected program instance.');
-    }
-    readonly hooks = hooks();
+    readonly [Hooks] = hooks();
 
     readonly command = new Command(NAME)
         .description(DESCRIPTION)
@@ -167,7 +134,7 @@ export class Translate
         }
 
         // @ts-ignore
-        this['provider'] = await this.hooks.Provider.for(this.config.provider).promise(
+        this['provider'] = await this[Hooks].Provider.for(this.config.provider).promise(
             undefined,
             this.config,
         );

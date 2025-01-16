@@ -1,4 +1,4 @@
-import type {Preset, Presets} from './types';
+import type {Presets} from './types';
 
 import {dirname, join} from 'node:path';
 import {merge} from 'lodash';
@@ -6,7 +6,8 @@ import {dump, load} from 'js-yaml';
 
 import {Run} from '~/commands/build';
 import {freeze, normalizePath, own} from '~/utils';
-import {AsyncParallelHook, AsyncSeriesWaterfallHook} from 'tapable';
+
+import {Hooks, hooks} from './hooks';
 
 export type VarsServiceConfig = {
     varsPreset: string;
@@ -14,22 +15,8 @@ export type VarsServiceConfig = {
     ignore: string[];
 };
 
-type VarsServiceHooks = {
-    /**
-     * Async waterfall hook.
-     * Called after any presets.yaml was loaded.
-     */
-    PresetsLoaded: AsyncSeriesWaterfallHook<[Presets, RelativePath]>;
-    /**
-     * Async parallel hook.
-     * Called after vars was resolved on any level.
-     * Vars data is sealed here.
-     */
-    Resolved: AsyncParallelHook<[Preset, RelativePath]>;
-};
-
 export class VarsService {
-    hooks: VarsServiceHooks;
+    [Hooks] = hooks();
 
     get entries() {
         return [...Object.entries(this.cache)];
@@ -47,16 +34,11 @@ export class VarsService {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
-        this.hooks = {
-            PresetsLoaded: new AsyncSeriesWaterfallHook(['presets', 'path']),
-            Resolved: new AsyncParallelHook(['vars', 'path']),
-        };
     }
 
     async init() {
         const presets = await this.run.glob('**/presets.yaml', {
             cwd: this.run.input,
-            ignore: this.config.ignore,
         });
 
         for (const preset of presets) {
@@ -83,7 +65,7 @@ export class VarsService {
         }
 
         try {
-            const presets = await this.hooks.PresetsLoaded.promise(
+            const presets = await this[Hooks].PresetsLoaded.promise(
                 load(await this.run.read(join(this.run.input, file))) as Presets,
                 file,
             );
@@ -103,7 +85,7 @@ export class VarsService {
 
         this.cache[file] = freeze(merge({}, ...scopes));
 
-        await this.hooks.Resolved.promise(this.cache[file], file);
+        await this[Hooks].Resolved.promise(this.cache[file], file);
 
         return this.cache[file];
     }
