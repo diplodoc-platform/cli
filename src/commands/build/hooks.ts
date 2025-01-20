@@ -11,13 +11,6 @@ const name = 'Build';
 export function hooks() {
     return intercept(name, {
         /**
-         * Async series hook which runs before start of any Run type.<br/><br/>
-         * Args:
-         * - run - [Build.Run](./Run.ts) constructed context.<br/>
-         * Best place to subscribe on Run hooks.
-         */
-        BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${name}.BeforeAnyRun`),
-        /**
          * Async series hook map which runs before start of target Run type.<br/><br/>
          * Args:
          * - run - [Build.Run](./Run.ts) constructed context.<br/>
@@ -39,9 +32,6 @@ export function hooks() {
             (format: `${OutputFormat}`) =>
                 new AsyncSeriesHook<Run>(['run'], `${name}.${format}.AfterRun`),
         ),
-        // TODO: decompose handler and describe this hook
-        AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${name}.AfterAnyRun`),
-        Cleanup: new AsyncParallelHook<Run>(['run'], `${name}.Cleanup`),
     });
 }
 

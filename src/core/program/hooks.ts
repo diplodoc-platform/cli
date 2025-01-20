@@ -1,8 +1,9 @@
 import {intercept} from '~/utils';
+import type {Command, Config, ExtendedOption} from '~/core/config';
+import type {Run} from '~/core/run';
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook, SyncHook} from 'tapable';
-import type {Command, Config, ExtendedOption} from '~/config';
 
-export function hooks<TConfig, TArgs>(name: string) {
+export function hooks<TConfig extends BaseConfig, TArgs extends BaseArgs>(name: string) {
     return intercept(name, {
         Command: new SyncHook<[Command, ExtendedOption[]]>(
             ['command', 'options'],
@@ -26,6 +27,15 @@ export function hooks<TConfig, TArgs>(name: string) {
             ['config', 'args'],
             `${name}.Config`,
         ),
+        /**
+         * Async series hook which runs before start of any Run type.<br/><br/>
+         * Args:
+         * - run - [Build.Run](./Run.ts) constructed context.<br/>
+         * Best place to subscribe on Run services hooks.
+         */
+        BeforeAnyRun: new AsyncSeriesHook<Run<TConfig>>(['run'], `${name}.BeforeAnyRun`),
+        // TODO: decompose handler and describe this hook
+        AfterAnyRun: new AsyncSeriesHook<Run<TConfig>>(['run'], `${name}.AfterAnyRun`),
     });
 }
 

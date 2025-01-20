@@ -174,7 +174,7 @@ export class Build
 
         await cleanup(run);
 
-        await this[Hooks].BeforeAnyRun.promise(run);
+        await getBaseHooks(this).BeforeAnyRun.promise(run);
         await this[Hooks].BeforeRun.for(this.config.outputFormat).promise(run);
 
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
@@ -193,11 +193,10 @@ export class Build
         await Promise.all([handler(run), this[Hooks].Run.promise(run)]);
 
         await this[Hooks].AfterRun.for(this.config.outputFormat).promise(run);
-        await this[Hooks].AfterAnyRun.promise(run);
+        await getBaseHooks(this).AfterAnyRun.promise(run);
 
         await run.copy(run.output, run.originalOutput);
 
-        await this[Hooks].Cleanup.promise(run);
         await cleanup(run);
     }
 }

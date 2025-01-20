@@ -4,9 +4,10 @@ import type {Mock, MockInstance} from 'vitest';
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {Build, getHooks} from '..';
+import {Build} from '..';
 import {Run} from '../run';
 import {handler as originalHandler} from '../handler';
+import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
 
 export const handler = originalHandler as Mock;
@@ -84,11 +85,11 @@ export function setupBuild(state?: BuildState): Build & {run: Run} {
     const build = new Build();
 
     build.apply();
-    getHooks(build).BeforeAnyRun.tap('Tests', (run) => {
-        (build as Build & {run: Run}).run = run;
+    getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
+        (build as Build & {run: Run}).run = run as Run;
 
         if (!(run as RunSpy)[Mocked]) {
-            setupRun({}, run);
+            setupRun({}, run as Run);
         }
 
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
