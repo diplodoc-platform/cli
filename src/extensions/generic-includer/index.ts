@@ -1,11 +1,17 @@
-import type {IExtension} from '~/core/program';
-import type {Build} from '~/commands/build';
-import type {IncluderOptions, RawToc, RawTocItem, YfmString} from '~/core/toc';
+import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
+import type {
+    IncluderOptions,
+    RawToc,
+    RawTocItem,
+    TocService,
+    YfmString,
+} from '@diplodoc/cli/lib/toc';
 
 import {dirname, extname, join} from 'node:path';
 
-import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
+import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 
 // const AUTOTITLE = '{$T}';
 
@@ -22,14 +28,23 @@ type Graph = {
     [prop: string]: (YfmString & NormalizedPath) | Graph;
 };
 
+type Run = BaseRun & {
+    toc?: TocService;
+};
+
+const EXTENSION = 'GenericIncluder';
+const INCLUDER = 'generic';
+
 // TODO: implement autotitle after md refactoring
 // TODO: implement sort
-export class GenericIncluderExtension implements IExtension {
-    apply(program: Build) {
-        getBuildHooks(program).BeforeAnyRun.tap('GenericIncluder', (run) => {
+export class Extension implements IExtension {
+    apply(program: IBaseProgram) {
+        // console.log('generic', program.command.name());
+        getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
+            // console.log('generic');
             getTocHooks(run.toc)
-                .Includer.for('generic')
-                .tapPromise('GenericIncluder', async (toc, options: Options, path) => {
+                .Includer.for(INCLUDER)
+                .tapPromise(EXTENSION, async (toc, options: Options, path) => {
                     const input = options.input
                         ? join(dirname(path), options.input)
                         : dirname(options.path);

@@ -3,16 +3,16 @@ import {when} from 'vitest-when';
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
-import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {setupBuild, setupRun} from '~/commands/build/__tests__';
 
-import {GenericIncluderExtension} from './generic';
+import {Extension} from '.';
 
 const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][]) => {
     const build = setupBuild();
     const run = setupRun({});
-    const extension = new GenericIncluderExtension();
+    const extension = new Extension();
 
     for (const [pattern, cwd, files] of globs) {
         when(run.glob)
@@ -27,7 +27,7 @@ const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][
 
     extension.apply(build);
 
-    await getBuildHooks(build).BeforeAnyRun.promise(run);
+    await getBaseHooks(build).BeforeAnyRun.promise(run);
 
     return {build, run, extension};
 };

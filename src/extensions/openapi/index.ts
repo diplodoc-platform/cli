@@ -1,20 +1,24 @@
-import type {IExtension} from '~/core/program';
-import type {Build} from '~/commands/build';
-import type {RawToc} from '~/core/toc';
+import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
+import type {RawToc, TocService} from '@diplodoc/cli/lib/toc';
 
 import {dirname, join} from 'node:path';
 import {includer} from '@diplodoc/openapi-extension/includer';
 
-import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
+import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
+
+type Run = BaseRun & {
+    toc?: TocService;
+};
 
 const EXTENSION = 'OpenapiIncluder';
 const INCLUDER = 'openapi';
 
 // TODO: move to openapi-extension on major
-export class OpenapiIncluderExtension implements IExtension {
-    apply(program: Build) {
-        getBuildHooks(program).BeforeAnyRun.tap(EXTENSION, (run) => {
+export class Extension implements IExtension {
+    apply(program: IBaseProgram) {
+        getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (_toc, options, path) => {

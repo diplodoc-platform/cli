@@ -6,12 +6,8 @@ import {join} from 'node:path';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {
-    GenericIncluderExtension,
-    OpenapiIncluderExtension,
-    getHooks as getTocHooks,
-} from '~/core/toc';
 import {Command, configPath, defined, valuable} from '~/core/config';
+import {getHooks as getTocHooks} from '~/core/toc';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -120,11 +116,14 @@ export class Build
         this.search,
         this.html,
         this.legacy,
-        new GenericIncluderExtension(),
-        new OpenapiIncluderExtension(),
     ];
 
     apply(program?: IProgram) {
+    readonly extensions = [
+        OPENAPI_EXTENSION,
+        GENERIC_INCLUDER_EXTENSION,
+    ];
+
         getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];

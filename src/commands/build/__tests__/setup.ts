@@ -1,0 +1,2 @@
+global.OPENAPI_EXTENSION = '';
+global.GENERIC_INCLUDER_EXTENSION = '';
