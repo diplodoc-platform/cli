@@ -1,5 +1,5 @@
 import {bold} from 'chalk';
-import {option} from '~/config';
+import {option} from '~/core/config';
 
 const disableLiquid = option({
     flags: '--disable-liquid',

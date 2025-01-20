@@ -1,8 +1,8 @@
 import type {Build} from '~/commands/build';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 
 import {getHooks as getBaseHooks} from '~/core/program';
-import {valuable} from '~/config';
+import {valuable} from '~/core/config';
 import {options} from './config';
 
 export type SearchArgs = {

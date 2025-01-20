@@ -6,12 +6,12 @@ import {join} from 'node:path';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, Config, configPath, defined, valuable} from '~/config';
 import {
     GenericIncluderExtension,
     OpenapiIncluderExtension,
     getHooks as getTocHooks,
 } from '~/core/toc';
+import {Command, configPath, defined, valuable} from '~/core/config';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {OutputFormat, options} from './config';

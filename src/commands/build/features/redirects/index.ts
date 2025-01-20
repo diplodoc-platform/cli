@@ -6,7 +6,7 @@ import shell from 'shelljs';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {REDIRECTS_FILENAME} from '~/constants';
-import {configPath, resolveConfig} from '~/config';
+import {configPath, resolveConfig} from '~/core/config';
 
 interface Redirect {
     from: string;

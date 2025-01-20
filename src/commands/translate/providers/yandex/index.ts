@@ -5,7 +5,7 @@ import {join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks} from '~/commands/translate';
-import {defined, resolveConfig} from '~/config';
+import {defined, resolveConfig} from '~/core/config';
 import {own} from '~/utils';
 
 import {Provider} from './provider';

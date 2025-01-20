@@ -1,6 +1,6 @@
 import {bold, underline} from 'chalk';
 import {options as globalOptions} from '~/commands/config';
-import {option} from '~/config';
+import {option} from '~/core/config';
 import {Stage} from '~/constants';
 
 export enum OutputFormat {

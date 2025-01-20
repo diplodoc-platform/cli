@@ -1,5 +1,5 @@
 import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, IParent, IProgram} from './types';
-import type {Command, Config, ExtendedOption} from '~/config';
+import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
 import {once, pick} from 'lodash';
@@ -10,9 +10,9 @@ import {
     scope as scopeConfig,
     strictScope as strictScopeConfig,
     withConfigUtils,
-} from '~/config';
 import {Logger, stats} from '~/logger';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+} from '~/core/config';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {HandledError} from './utils';

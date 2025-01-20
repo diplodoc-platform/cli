@@ -2,7 +2,7 @@ import type {BuildConfig} from '.';
 
 import {join, resolve} from 'node:path';
 
-import {configPath} from '~/config';
+import {configPath} from '~/core/config';
 import {
     BUNDLE_FOLDER,
     REDIRECTS_FILENAME,

@@ -5,7 +5,7 @@ import {ok} from 'assert';
 import {pick} from 'lodash';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
-import {Command, args, defined} from '~/config';
+import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
 import {Hooks, getHooks, hooks} from './hooks';

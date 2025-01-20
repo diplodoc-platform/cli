@@ -1,5 +1,5 @@
 import {options as globalOptions} from '~/commands/config';
-import {option, toArray} from '~/config';
+import {option, toArray} from '~/core/config';
 
 const endpoint = option({
     flags: '--endpoint <value>',

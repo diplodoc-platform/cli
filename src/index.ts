@@ -8,8 +8,8 @@ import {own} from './utils';
 export type {ICallable, IProgram, BaseArgs, BaseConfig} from '~/core/program';
 export {Program} from '~/commands';
 
-export type {Config, OptionInfo} from './config';
-export {Command, option} from './config';
+export type {Config, OptionInfo} from '~/core/config';
+export {Command, option} from '~/core/config';
 
 if (require.main === module) {
     (async () => {

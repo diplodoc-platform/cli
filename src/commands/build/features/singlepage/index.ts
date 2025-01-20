@@ -1,13 +1,13 @@
 import type {Build} from '~/commands/build';
 import type {Toc} from '~/core/toc';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
-import {defined} from '~/config';
+import {defined} from '~/core/config';
 import {isExternalHref, own} from '~/utils';
 
 import {options} from './config';

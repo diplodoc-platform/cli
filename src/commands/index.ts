@@ -1,6 +1,6 @@
 import type {ExtensionInfo, IProgram} from '~/core/program';
 
-import {Command} from '~/config';
+import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build} from '~/commands/build';
 import {Publish} from '~/commands/publish';

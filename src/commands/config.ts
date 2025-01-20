@@ -1,6 +1,6 @@
 import {resolve} from 'node:path';
 import {bold} from 'chalk';
-import {OptionInfo, option, toArray} from '~/config';
+import {OptionInfo, option, toArray} from '~/core/config';
 
 export const NAME = 'yfm';
 

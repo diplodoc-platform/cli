@@ -1,5 +1,5 @@
-import type {Command, ExtendedOption} from '~/config';
 import type {Logger} from '~/logger';
+import type {Command, ExtendedOption} from '~/core/config';
 
 export interface ICallable<TArgs extends BaseArgs = BaseArgs> {
     apply(program?: IProgram<TArgs>): void;

@@ -1,4 +1,4 @@
-import type {Config} from '~/config';
+import type {Config} from '~/core/config';
 import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 

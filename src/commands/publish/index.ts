@@ -3,7 +3,7 @@ import type {BaseArgs, IProgram} from '~/core/program';
 import {ok} from 'assert';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
-import {Command} from '~/config';
+import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
 import {options} from './config';

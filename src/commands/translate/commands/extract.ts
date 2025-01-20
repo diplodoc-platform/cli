@@ -10,7 +10,7 @@ import liquid from '@diplodoc/transform/lib/liquid';
 import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
-import {Command, defined} from '~/config';
+import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
 import {options} from '../config';

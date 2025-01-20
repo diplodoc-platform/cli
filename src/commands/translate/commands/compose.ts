@@ -7,7 +7,7 @@ import {asyncify, eachLimit} from 'async';
 import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
 import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
-import {Command, defined} from '~/config';
+import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
 import {options} from '../config';

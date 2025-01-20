@@ -1,6 +1,6 @@
 import type {BaseArgs} from '~/core/program';
 
-import {Command} from '~/config';
+import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
 
