@@ -8,7 +8,7 @@ import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
 import {bounded, normalizePath} from '~/utils';
-import {LogLevel, Logger} from '~/logger';
+import {LogLevel, Logger} from '~/core/logger';
 
 import {InsecureAccessError} from './errors';
 

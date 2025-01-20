@@ -10,9 +10,9 @@ import {
     scope as scopeConfig,
     strictScope as strictScopeConfig,
     withConfigUtils,
-import {Logger, stats} from '~/logger';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 } from '~/core/config';
+import {Logger, stats} from '~/core/logger';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {HandledError} from './utils';
@@ -78,8 +78,7 @@ export const BaseProgram = <
             // @ts-ignore
             this['config'] = parent?.config || (await this.hookConfig(args as TArgs));
 
-            this.apply();
-        }
+            this.logger.setup(this.config);
 
             const extensions = await this.resolveExtensions(this.config, args);
 

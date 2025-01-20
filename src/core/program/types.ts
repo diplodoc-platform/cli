@@ -1,5 +1,5 @@
-import type {Logger} from '~/logger';
 import type {Command, ExtendedOption} from '~/core/config';
+import type {Logger} from '~/core/logger';
 import type {Hooks, hooks} from './hooks';
 
 export interface ICallable {
