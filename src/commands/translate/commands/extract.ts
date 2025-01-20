@@ -1,4 +1,4 @@
-import type {BaseArgs, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 
@@ -79,7 +79,7 @@ export class Extract
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {

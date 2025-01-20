@@ -1,4 +1,4 @@
-import type {BaseArgs, ICallable, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, ICallable, IProgram} from '~/core/program';
 import type {Locale} from './utils';
 
 import {ok} from 'assert';
@@ -84,7 +84,7 @@ export class Translate
 
     protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate', (config, args) => {

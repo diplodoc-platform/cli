@@ -1,4 +1,4 @@
-import type {BaseArgs, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 
 import {ok} from 'assert';
 
@@ -62,7 +62,7 @@ export class Publish
         options.hidden,
     ];
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).RawConfig.tap('Publish', (config) => {

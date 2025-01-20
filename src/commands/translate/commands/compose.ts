@@ -1,4 +1,4 @@
-import type {BaseArgs, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
 
 import {extname, join} from 'node:path';
@@ -58,7 +58,7 @@ export class Compose
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate.Compose', (config, args) => {

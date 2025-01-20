@@ -5,7 +5,6 @@ import {NAME, Program, parse} from '~/commands';
 
 import {own} from './utils';
 
-export type {ICallable, IProgram, BaseArgs, BaseConfig} from '~/core/program';
 export {Program} from '~/commands';
 
 export type {Config, OptionInfo} from '~/core/config';

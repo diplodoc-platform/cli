@@ -1,4 +1,4 @@
-import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, IParent, IProgram} from './types';
+import type {BaseArgs, BaseConfig, ExtensionInfo, IBaseProgram, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
@@ -46,24 +46,24 @@ export const BaseProgram = <
         command: {isDefault = false} = {},
     } = parts;
 
-    return class BaseProgram implements IProgram<TArgs> {
+    return class BaseProgram implements IBaseProgram<TConfig, TArgs> {
         readonly [Hooks] = hooks<TConfig, TArgs>(name);
 
         readonly command!: Command;
 
         readonly config!: Config<TConfig>;
 
-        readonly parent!: IParent | undefined;
-
         readonly logger: Logger = new Logger();
 
         readonly options!: ExtendedOption[];
 
-        protected modules: ICallable<TArgs>[] = [];
+        protected modules: ICallable[] = [];
+
+        protected extensions: (string | ExtensionInfo)[] = [];
 
         protected args: string[] = [];
 
-        constructor(config?: TConfig) {
+        constructor(config?: BaseConfig & TConfig) {
             if (config) {
                 this.config = withConfigUtils(process.cwd(), {
                     ...defaults(),
@@ -72,37 +72,49 @@ export const BaseProgram = <
             }
         }
 
-        async init(args: BaseArgs) {
-            const config = await this.hookConfig(args as TArgs);
-            const extensions = await this.resolveExtensions(config, args);
+        async init(args: BaseArgs, parent?: IBaseProgram) {
+            this.logger.setup(args);
 
-            this.modules.push(...extensions);
+            // @ts-ignore
+            this['config'] = parent?.config || (await this.hookConfig(args as TArgs));
 
             this.apply();
         }
 
-        apply(program?: IProgram<TArgs>) {
-            // @ts-ignore
-            this['parent'] = program;
+            const extensions = await this.resolveExtensions(this.config, args);
+
+            this.modules.push(...extensions);
 
             this.options.forEach((option) => {
                 this.command.addOption(option);
             });
+
             this.command.action(() => this._action());
 
             for (const module of this.modules) {
-                module.apply(this);
+                if (isProgram(module)) {
+                    await module.init(args, this);
+                } else {
+                    module.apply(this);
+                }
             }
 
-            if (this.parent) {
-                getHooks(this.parent).Command.tap(
+            this.apply(parent);
+        }
+
+        apply(program?: IBaseProgram) {
+            // @ts-ignore
+            this['parent'] = program;
+
+            if (program) {
+                getHooks(program).Command.tap(
                     name,
                     once((command) => {
                         command.addCommand(this.command, {isDefault});
                         this[Hooks].Command.call(this.command, this.options);
                     }),
                 );
-                this.logger.pipe(this.parent.logger);
+                this.logger.pipe(program.logger);
             } else {
                 this[Hooks].Command.call(this.command, this.options);
             }
@@ -143,19 +155,6 @@ export const BaseProgram = <
             return this[Hooks].Config.promise(config, args);
         }
 
-        private async pre(args: TArgs) {
-            this.logger.setup(args);
-
-            // @ts-ignore
-            this['config'] = await this.hookConfig(args);
-
-            if (!this.parent) {
-                this.resolveExtensions(this.config, args);
-            }
-
-            this.logger.setup(this.config);
-        }
-
         private async post() {
             const stat = stats(this.logger);
             if (stat.error || (this.config.strict && stat.warn)) {
@@ -171,7 +170,12 @@ export const BaseProgram = <
         private async _action() {
             const args = this.command.optsWithGlobals() as TArgs;
 
-            await this.pre(args);
+            // We already parse config in to init method,
+            // but there we need to rebuild it,
+            // because some extensions may affect config parsing.
+            // @ts-ignore
+            this['config'] = await this.hookConfig(args);
+
             await this.action(args);
             await this.post();
         }
@@ -186,7 +190,10 @@ export const BaseProgram = <
             });
 
             // config extension paths should be relative to config
-            const configExtensions: ExtensionInfo[] = (config.extensions || []).map((ext) => {
+            const configExtensions: ExtensionInfo[] = [
+                ...this.extensions,
+                ...(config.extensions || []),
+            ].map((ext) => {
                 const extPath = typeof ext === 'string' ? ext : ext.path;
                 const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
                 const options = typeof ext === 'string' ? {} : ext.options || {};
@@ -213,3 +220,7 @@ export const BaseProgram = <
         }
     };
 };
+
+function isProgram<TArgs extends BaseArgs>(module: unknown): module is IBaseProgram<TArgs> {
+    return Boolean(module && typeof (module as IBaseProgram).init === 'function');
+}

@@ -28,7 +28,7 @@ export class RunLogger extends Logger {
  * This is transferable context for build command.
  * Use this context to communicate with lower data processing levels.
  */
-export class Run<TConfig extends BaseConfig = BaseConfig> {
+export class Run<TConfig = BaseConfig> {
     readonly logger: RunLogger;
 
     readonly config: Config<TConfig>;
@@ -39,7 +39,7 @@ export class Run<TConfig extends BaseConfig = BaseConfig> {
 
     private _copyMap: Record<AbsolutePath, AbsolutePath> = {};
 
-    constructor(config: Config<TConfig>) {
+    constructor(config: Config<BaseConfig & TConfig>) {
         this.config = config;
         this.logger = new RunLogger(config, [
             (_level, message) => {

@@ -1,4 +1,4 @@
-import type {IProgram, BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
+import type {IBaseProgram, IProgram} from '~/core/program';
 import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
@@ -118,12 +118,9 @@ export class Build
         this.legacy,
     ];
 
-    apply(program?: IProgram) {
-    readonly extensions = [
-        OPENAPI_EXTENSION,
-        GENERIC_INCLUDER_EXTENSION,
-    ];
+    readonly extensions = [OPENAPI_EXTENSION, GENERIC_INCLUDER_EXTENSION];
 
+    apply(program?: IBaseProgram) {
         getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];

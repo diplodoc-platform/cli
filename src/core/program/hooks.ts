@@ -1,6 +1,8 @@
-import {intercept} from '~/utils';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 import type {Run} from '~/core/run';
+import type {BaseArgs, BaseConfig, IBaseProgram} from './types';
+
+import {intercept} from '~/core/utils';
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook, SyncHook} from 'tapable';
 
 export function hooks<TConfig extends BaseConfig, TArgs extends BaseArgs>(name: string) {
@@ -41,8 +43,8 @@ export function hooks<TConfig extends BaseConfig, TArgs extends BaseArgs>(name: 
 
 export const Hooks = Symbol(`BaseHooks`);
 
-export function getHooks<TConfig, TArgs>(program: {
-    [Hooks]?: ReturnType<typeof hooks<TConfig, TArgs>>;
-}) {
-    return program[Hooks] || hooks('Unknown');
+export function getHooks<TConfig extends BaseConfig, TArgs extends BaseArgs = BaseArgs>(
+    program: IBaseProgram<TConfig, TArgs> | undefined,
+) {
+    return (program && program[Hooks]) || hooks('Unknown');
 }

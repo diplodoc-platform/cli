@@ -1,8 +1,9 @@
 import type {Logger} from '~/logger';
 import type {Command, ExtendedOption} from '~/core/config';
+import type {Hooks, hooks} from './hooks';
 
-export interface ICallable<TArgs extends BaseArgs = BaseArgs> {
-    apply(program?: IProgram<TArgs>): void;
+export interface ICallable {
+    apply(program?: IBaseProgram): void;
 }
 
 /**
@@ -24,19 +25,27 @@ export interface ICallable<TArgs extends BaseArgs = BaseArgs> {
  * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
  *    (example: hookConfig)
  */
-export interface IProgram<Args extends BaseArgs = BaseArgs> extends ICallable<Args> {
-    command: Command;
-
-    options: Readonly<ExtendedOption[]>;
-
-    parent?: IParent;
-
-    action?: (props: Args) => Promise<void> | void;
+export interface IProgram<Args extends BaseArgs = BaseArgs> {
+    action: (props: Args) => Promise<void> | void;
 
     logger: Logger;
 }
 
-export interface IExtension<Program extends IProgram = IProgram> {
+export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends ICallable {
+    [Hooks]: ReturnType<typeof hooks<BaseConfig & TConfig, BaseArgs & TArgs>>;
+
+    command: Command;
+
+    options: Readonly<ExtendedOption[]>;
+
+    init(args: BaseArgs, parent?: IBaseProgram): Promise<void>;
+
+    config: TConfig;
+
+    logger: Logger;
+}
+
+export interface IExtension<Program extends IBaseProgram = IBaseProgram> {
     apply(program: Program): void;
 }
 
