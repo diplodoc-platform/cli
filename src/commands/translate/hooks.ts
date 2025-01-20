@@ -1,6 +1,6 @@
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 import {IProvider, TranslateConfig} from '~/commands/translate/index';
-import {intercept} from '~/utils';
+import {intercept} from '~/core/utils';
 
 const name = 'Translate';
 

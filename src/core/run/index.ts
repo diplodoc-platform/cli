@@ -7,7 +7,7 @@ import {dirname, join} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
-import {bounded, normalizePath} from '~/utils';
+import {bounded, normalizePath} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
 import {InsecureAccessError} from './errors';
@@ -31,9 +31,15 @@ export class RunLogger extends Logger {
 export class Run<TConfig = BaseConfig> {
     readonly logger: RunLogger;
 
-    readonly config: Config<TConfig>;
+    readonly config: Config<BaseConfig & TConfig>;
 
     readonly fs: FileSystem = fs;
+
+    readonly normalize: (path: RelativePath) => NormalizedPath = normalizePath;
+
+    readonly input: AbsolutePath;
+
+    readonly originalInput: AbsolutePath;
 
     protected scopes: Map<string, AbsolutePath> = new Map();
 
@@ -41,6 +47,8 @@ export class Run<TConfig = BaseConfig> {
 
     constructor(config: Config<BaseConfig & TConfig>) {
         this.config = config;
+        this.input = config.input;
+        this.originalInput = config.input;
         this.logger = new RunLogger(config, [
             (_level, message) => {
                 for (const [alias, scope] of this.scopes.entries()) {

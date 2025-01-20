@@ -1,4 +1,5 @@
 import type {TextFilter} from './types';
+
 import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 
 export function isRelative(path: AnyPath): path is RelativePath {

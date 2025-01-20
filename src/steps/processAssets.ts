@@ -4,7 +4,8 @@ import {load} from 'js-yaml';
 import {dirname, join} from 'node:path';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {checkPathExists, findAllValuesByKeys, isExternalHref, own} from '../utils';
+import {isExternalHref, own} from '~/core/utils';
+import {checkPathExists, findAllValuesByKeys} from '~/utils';
 import {ASSETS_FOLDER} from '../constants';
 
 const isMediaLink = (link: string) => /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test(link);

@@ -1,6 +1,6 @@
 import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
-import {intercept} from '~/utils';
+import {intercept} from '~/core/utils';
 import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
 const name = 'Toc';
@@ -19,10 +19,10 @@ export function hooks() {
          * Expects RawToc as result of waterfall.
          */
         Includer: new HookMap(
-            () =>
+            (type: string) =>
                 new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, RelativePath]>(
                     ['Toc', 'options', 'TocPath'],
-                    `${name}.Includer`,
+                    `${name}.Includer(${type})`,
                 ),
         ),
         Resolved: new AsyncParallelHook<[Toc, RelativePath]>(
@@ -38,6 +38,6 @@ export function hooks() {
 
 export const Hooks = Symbol(`${name}Hooks`);
 
-export function getHooks(program: {[Hooks]?: ReturnType<typeof hooks>}) {
-    return program[Hooks] || hooks();
+export function getHooks(program: {[Hooks]?: ReturnType<typeof hooks>} | undefined) {
+    return (program && program[Hooks]) || hooks();
 }

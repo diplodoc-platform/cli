@@ -1,4 +1,6 @@
-import type {BuildConfig, Run} from '~/commands/build';
+import type {Run as BaseRun} from '~/core/run';
+import type {VarsService} from '~/core/vars';
+import type {MetaService} from '~/core/meta';
 import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
@@ -6,20 +8,38 @@ import {ok} from 'node:assert';
 import {basename, dirname, join, relative} from 'node:path';
 import {dump, load} from 'js-yaml';
 
-import {freeze, isExternalHref, normalizePath, own} from '~/utils';
-import {Stage} from '~/constants';
+import {freeze, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {Hooks, hooks} from './hooks';
 import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
-    ignore: BuildConfig['ignore'];
-    ignoreStage: BuildConfig['ignoreStage'];
-    template: BuildConfig['template'];
-    removeHiddenTocItems: BuildConfig['removeHiddenTocItems'];
+    ignore: string[];
+    ignoreStage: string[];
+    template: {
+        enabled: boolean;
+        features: {
+            conditions: boolean;
+            substitutions: boolean;
+        };
+        scopes: {
+            code: boolean;
+            text: boolean;
+        };
+    };
+    removeHiddenTocItems: boolean;
 };
 
 type WalkStepResult<I> = I | I[] | null | undefined;
+
+enum Stage {
+    TECH_PREVIEW = 'tech-preview',
+}
+
+type Run = BaseRun<TocServiceConfig> & {
+    vars: VarsService;
+    meta: MetaService;
+};
 
 export class TocService {
     readonly [Hooks] = hooks();
@@ -34,6 +54,8 @@ export class TocService {
 
     private vars: Run['vars'];
 
+    private meta: Run['meta'];
+
     private config: TocServiceConfig;
 
     private tocs: Map<NormalizedPath, Toc> = new Map();
@@ -46,6 +68,7 @@ export class TocService {
         this.run = run;
         this.logger = run.logger;
         this.vars = run.vars;
+        this.meta = run.meta;
         this.config = run.config;
     }
 
@@ -111,10 +134,17 @@ export class TocService {
             context.path = context.path.replace(from, to) as RelativePath;
             context.from = include?.from || context.path;
 
-            await this.run.copy(join(this.run.input, from), join(this.run.input, to), {
-                sourcePath: (file: string) => file.endsWith('.md'),
-                ignore: [basename(file), '**/toc.yaml'],
-            });
+            const files = await this.run.copy(
+                join(this.run.input, from),
+                join(this.run.input, to),
+                [basename(file), '**/toc.yaml'],
+            );
+
+            for (const [from, to] of files) {
+                this.meta.add(relative(this.run.input, to), {
+                    sourcePath: relative(this.run.input, from),
+                });
+            }
         }
 
         const toc = (await loader.call(context, content)) as Toc;
@@ -187,6 +217,7 @@ export class TocService {
     for(path: RelativePath): [NormalizedPath, Toc] {
         path = normalizePath(path);
 
+        // TODO: check '.' value
         if (!path) {
             throw new Error('Error while finding toc dir.');
         }

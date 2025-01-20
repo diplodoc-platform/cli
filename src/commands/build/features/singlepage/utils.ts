@@ -1,5 +1,5 @@
 import {join} from 'node:path';
-import {normalizePath} from '../../../../utils';
+import {normalizePath} from '~/core/utils';
 
 function dropExt(path: string) {
     return path.replace(/\.(md|ya?ml|html)$/i, '');

@@ -2,7 +2,7 @@ import type {Run} from './run';
 
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
-import {intercept} from '~/utils';
+import {intercept} from '~/core/utils';
 
 import {OutputFormat} from './config';
 

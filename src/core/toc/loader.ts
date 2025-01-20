@@ -7,7 +7,8 @@ import {omit} from 'lodash';
 import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 
-import {isExternalHref, normalizePath, own} from '~/utils';
+import {isExternalHref, normalizePath, own} from '~/core/utils';
+
 import {getHooks} from './hooks';
 import {getFirstValuable, isRelative} from './utils';
 

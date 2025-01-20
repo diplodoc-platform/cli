@@ -10,7 +10,6 @@ import {
     scope as scopeConfig,
     strictScope as strictScopeConfig,
     withConfigUtils,
-import {YFM_CONFIG_FILENAME} from '~/constants';
 } from '~/core/config';
 import {Logger, stats} from '~/core/logger';
 
@@ -22,6 +21,8 @@ export * from './types';
 export {getHooks};
 
 const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
+
+const YFM_CONFIG_FILENAME = '.yfm';
 
 type ProgramParts<TConfig extends BaseConfig> = {
     config?: {
