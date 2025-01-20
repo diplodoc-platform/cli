@@ -75,18 +75,6 @@ export async function handler(run: Run) {
 
         await getPresetIndex(run.input, run.config, run, presetIndex);
 
-        if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
-            await pMap(
-                Array.from(presetIndex.entries()),
-                async ([presetPath, preset]) => {
-                    const targetPath = path.join(run.output, presetPath);
-                    await cachedMkdir(path.dirname(targetPath));
-                    await fs.promises.writeFile(targetPath, yaml.dump(preset));
-                },
-                {concurrency: CONCURRENCY},
-            );
-        }
-
         const pageSet = new Set<string>();
         const fileMetaMap: FileMetaMap = new Map();
 
@@ -217,6 +205,7 @@ export async function handler(run: Run) {
             }
 
             const TARGET_COPY_SET = new Set();
+            const PRESET_DIR_SET = new Set();
             await Promise.all(
                 new Array(workerIndex).fill(0).map(async (_, i) => {
                     const threadOutput = path.join(tmpThreads, String(i));
@@ -233,6 +222,13 @@ export async function handler(run: Run) {
                                 return;
                             }
                             TARGET_COPY_SET.add(filename);
+
+                            let fileDir = path.dirname(filename);
+                            while (!PRESET_DIR_SET.has(fileDir)) {
+                                PRESET_DIR_SET.add(fileDir);
+                                fileDir = path.dirname(fileDir);
+                            }
+
                             await cachedMkdir(path.dirname(targetPath));
                             await fs.promises.rename(sourcePath, targetPath);
                         },
@@ -240,6 +236,22 @@ export async function handler(run: Run) {
                     );
                 }),
             );
+
+            if (outputFormat === 'md' && (!applyPresets || !resolveConditions)) {
+                await pMap(
+                    Array.from(presetIndex.entries()),
+                    async ([presetPath, preset]) => {
+                        const presetDir = path.dirname(presetPath);
+                        if (!PRESET_DIR_SET.has(presetDir)) return;
+
+                        const targetPath = path.join(run.output, presetPath);
+                        await cachedMkdir(path.dirname(targetPath));
+                        await fs.promises.writeFile(targetPath, yaml.dump(preset));
+                    },
+                    {concurrency: CONCURRENCY},
+                );
+            }
+
             await Promise.all([
                 fs.promises.rm(tmpThreads, {recursive: true, force: true}),
                 fs.promises.rm(tmpDraft, {recursive: true, force: true}),
