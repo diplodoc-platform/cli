@@ -2,13 +2,14 @@ import type {Mock} from 'vitest';
 import type {TranslateConfig} from '..';
 
 import {expect, it, vi} from 'vitest';
+import {parse} from '~/commands/parser';
 import {Translate} from '..';
 
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
 
 vi.mock('../providers/yandex/provider');
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });
@@ -19,12 +20,13 @@ vi.mock('~/config', async (importOriginal) => {
     };
 });
 
-export async function runTranslate(args: string) {
+export async function runTranslate(argv: string) {
     const translate = new Translate();
+    const rawArgs = ['node', 'index'].concat(argv.split(' '));
+    const args = parse('translate', rawArgs);
 
-    translate.apply();
-
-    await translate.parse(['node', 'index'].concat(args.split(' ')));
+    await translate.init(args);
+    await translate.parse(rawArgs);
 
     return translate;
 }

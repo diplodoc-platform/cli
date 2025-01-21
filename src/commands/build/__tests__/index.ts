@@ -6,6 +6,7 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {Build} from '..';
 import {Run} from '../run';
+import {parse} from '~/commands/parser';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
@@ -84,7 +85,6 @@ type BuildState = {
 export function setupBuild(state?: BuildState): Build & {run: Run} {
     const build = new Build();
 
-    build.apply();
     getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
         (build as Build & {run: Run}).run = run as Run;
 
@@ -116,9 +116,14 @@ export function setupBuild(state?: BuildState): Build & {run: Run} {
     return build as Build & {run: Run};
 }
 
-export async function runBuild(args: string, build?: Build) {
+export async function runBuild(argv: string, build?: Build) {
     build = build || setupBuild();
-    await build.parse(['node', 'index'].concat(args.split(' ')));
+
+    const rawArgs = ['node', 'index'].concat(argv.split(' '));
+    const args = parse('build', rawArgs);
+
+    await build.init(args);
+    await build.parse(rawArgs);
 }
 
 export function testConfig(name: string, args: string, result: DeepPartial<BuildConfig>): void;

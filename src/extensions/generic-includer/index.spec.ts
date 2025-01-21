@@ -25,6 +25,7 @@ const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][
             .thenResolve(files);
     }
 
+    build.apply();
     extension.apply(build);
 
     await getBaseHooks(build).BeforeAnyRun.promise(run);
