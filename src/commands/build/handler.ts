@@ -18,7 +18,7 @@ import {FileMetaMap} from '~/reCli/types';
 import {SinglePageResult} from '~/models';
 // @ts-ignore
 import {Pool, spawn} from 'threads';
-import {chunk} from 'lodash';
+import {chunk, isEmpty} from 'lodash';
 import {TransformWorker} from '~/reCli/workers/transform';
 import {saveSinglePages} from '~/reCli/components/render/singlePage';
 import {copyAssets} from '~/reCli/components/assets/assets';
@@ -242,11 +242,11 @@ export async function handler(run: Run) {
                     Array.from(presetIndex.entries()),
                     async ([presetPath, preset]) => {
                         const presetDir = path.dirname(presetPath);
-                        if (!PRESET_DIR_SET.has(presetDir)) return;
+                        if (!PRESET_DIR_SET.has(presetDir) || isEmpty(preset)) return;
 
                         const targetPath = path.join(run.output, presetPath);
                         await cachedMkdir(path.dirname(targetPath));
-                        await fs.promises.writeFile(targetPath, yaml.dump(preset));
+                        await fs.promises.writeFile(targetPath, yaml.dump({default: preset}));
                     },
                     {concurrency: CONCURRENCY},
                 );
