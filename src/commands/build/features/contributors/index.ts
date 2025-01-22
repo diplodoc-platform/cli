@@ -1,8 +1,9 @@
-import type {Build} from '../..';
-import type {Command} from '~/config';
+import type {Build} from '~/commands/build';
+import type {Command} from '~/core/config';
 import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
-import {defined} from '~/config';
+import {getHooks as getBaseHooks} from '~/core/program';
+import {defined} from '~/core/config';
 import {options} from './config';
 
 interface VCSConfiguration {
@@ -39,12 +40,12 @@ export type ContributorsConfig = {
 
 export class Contributors {
     apply(program: Build) {
-        program.hooks.Command.tap('Contributors', (command: Command) => {
+        getBaseHooks(program).Command.tap('Contributors', (command: Command) => {
             command.addOption(options.contributors);
             command.addOption(options.ignoreAuthorPatterns);
         });
 
-        program.hooks.Config.tap('Contributors', (config, args) => {
+        getBaseHooks(program).Config.tap('Contributors', (config, args) => {
             config.vcs = defined('vcs', config) || {};
             config.contributors = defined('contributors', args, config) || false;
             config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];

@@ -1,4 +1,4 @@
-import {LogLevel, Logger} from '~/logger';
+import {LogLevel, Logger} from '~/core/logger';
 import {gray} from 'chalk';
 
 export class TranslateLogger extends Logger {

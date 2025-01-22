@@ -1,7 +1,8 @@
-import type {Build} from '~/commands';
-import type {Command} from '~/config';
+import type {Build} from '~/commands/build';
+import type {Command} from '~/core/config';
 
-import {valuable} from '~/config';
+import {getHooks as getBaseHooks} from '~/core/program';
+import {valuable} from '~/core/config';
 import {options} from './config';
 
 export type SearchArgs = {
@@ -25,11 +26,11 @@ type Config = {
 
 export class Search {
     apply(program: Build) {
-        program.hooks.Command.tap('Search', (command: Command) => {
+        getBaseHooks(program).Command.tap('Search', (command: Command) => {
             command.addOption(options.search);
         });
 
-        program.hooks.Config.tap('Search', (config, args) => {
+        getBaseHooks(program).Config.tap('Search', (config, args) => {
             let search: Config | boolean = {
                 enabled: false,
                 provider: 'local',

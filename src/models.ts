@@ -5,7 +5,7 @@ import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
 import {IncludeMode, Lang, ResourceType, Stage} from './constants';
-import {FileContributors, VCSConnector, VCSConnectorConfig} from './vcs-connector/connector-models';
+import {FileContributors, VCSConnectorConfig} from './vcs-connector/connector-models';
 
 export type VarsPreset = string;
 
@@ -73,7 +73,6 @@ interface YfmConfig {
     lang?: `${Lang}`;
     langs?: `${Lang}`[];
     lintDisabled: boolean;
-    buildDisabled: boolean;
     lintConfig: LintConfig;
     resources?: Resources;
     needToSanitizeHtml: boolean;
@@ -218,15 +217,6 @@ export interface Contributors {
     [email: string]: Contributor;
 }
 
-export interface MetaDataOptions {
-    pathData: PathData;
-    isContributorsEnabled?: boolean;
-    vcsConnector?: VCSConnector;
-    addSystemMeta?: boolean;
-    resources?: Resources;
-    shouldAlwaysAddVCSPath?: boolean;
-}
-
 export interface PluginOptions {
     vars: YfmPreset;
     path: string;
@@ -245,45 +235,10 @@ export interface Plugin {
     collect: (input: string, options: PluginOptions) => string | void;
 }
 
-export interface ResolveMd2MdOptions {
-    inputPath: string;
-    outputPath: string;
-    metadata: MetaDataOptions;
-}
-
-export interface ResolverOptions {
-    inputPath: string;
-    filename: string;
-    fileExtension: string;
-    outputPath: string;
-    outputBundlePath: string;
-    metadata?: MetaDataOptions;
-}
-
-export interface PathData {
-    pathToFile: string;
-    resolvedPathToFile: AbsolutePath;
-    filename: string;
-    fileBaseName: string;
-    fileExtension: string;
-    outputDir: AbsolutePath;
-    outputPath: AbsolutePath;
-    outputFormat: string;
-    outputBundlePath: string;
-    outputTocDir: string;
-    inputFolderPath: string;
-    outputFolderPath: string;
-}
-
 export type Resources = {
     [key in Exclude<ResourceType, 'csp'>]?: string[];
 } & {
     csp?: Record<string, string[]>[];
-};
-
-export type YandexCloudTranslateGlossaryPair = {
-    sourceText: string;
-    translatedText: string;
 };
 
 export type CommitInfo = {

@@ -3,7 +3,7 @@ import {dirname, join, normalize, resolve} from 'node:path';
 import {ArgvService} from '../services';
 import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import {groupBy} from 'lodash';
-import {isExternalHref} from '../utils';
+import {isExternalHref} from '~/core/utils';
 
 export const CHANGELOG_LIMIT = 50;
 export const LANG_SERVICE_RE =

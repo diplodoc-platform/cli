@@ -1,0 +1,17 @@
+{
+  "extends": "@diplodoc/tsconfig",
+  "compilerOptions": {
+    "lib": ["ES2019"],
+    "target": "ES2019",
+    "outDir": "lib",
+    "module": "commonjs",
+    "experimentalDecorators": false,
+    "paths": {
+      "~/*": ["./src/*"]
+    },
+    "plugins": [{ "transform": "typescript-transform-paths" }]
+  },
+  "include": ["src/globals.d.ts", "src/core"],
+  "exclude": ["**/__*__/**", "**/*.spec.ts"],
+  "types": ["node"]
+}

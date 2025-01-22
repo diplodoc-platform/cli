@@ -19,7 +19,8 @@
   "license": "MIT",
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
   "exports": {
-    "./package": "./package.json"
+    "./package": "./package.json",
+    "./lib/*": "./lib/*/index.js"
   },
   "main": "build/index.js",
   "bin": {
@@ -34,7 +35,9 @@
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
+    "transpile": "npm run transpile:clean && tspc -p tsconfig.transpile.json",
     "build:clean": "rm -rf build assets coverage",
+    "transpile:clean": "rm -rf lib",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build",
@@ -109,7 +112,9 @@
     "tapable": "^2.2.1",
     "tar-stream": "^3.1.4",
     "ts-dedent": "^2.2.0",
+    "ts-patch": "^3.3.0",
     "typescript": "^5.4.5",
+    "typescript-transform-paths": "^3.5.3",
     "uuid": "^11.0.4",
     "vite-tsconfig-paths": "^4.2.3",
     "vitest": "^2.1.8",

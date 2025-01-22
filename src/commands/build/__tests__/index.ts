@@ -6,24 +6,18 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {Build} from '..';
 import {Run} from '../run';
+import {parse} from '~/commands/parser';
 import {handler as originalHandler} from '../handler';
-import {withConfigUtils} from '~/config';
+import {getHooks as getBaseHooks} from '~/core/program';
+import {withConfigUtils} from '~/core/config';
 
 export const handler = originalHandler as Mock;
 
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
 
-vi.mock('shelljs');
-vi.mock('../legacy-config');
 vi.mock('../handler');
-vi.mock('../run', async (importOriginal) => {
-    return {
-        ...((await importOriginal()) as {}),
-        copy: vi.fn(),
-    };
-});
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });
@@ -88,15 +82,14 @@ type BuildState = {
     globs?: Hash<NormalizedPath[]>;
     files?: Hash<string>;
 };
-export function setupBuild(state: BuildState = {}): Build & {run: Run} {
+export function setupBuild(state?: BuildState): Build & {run: Run} {
     const build = new Build();
 
-    build.apply();
-    build.hooks.BeforeAnyRun.tap('Tests', (run) => {
-        (build as Build & {run: Run}).run = run;
+    getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
+        (build as Build & {run: Run}).run = run as Run;
 
         if (!(run as RunSpy)[Mocked]) {
-            setupRun({}, run);
+            setupRun({}, run as Run);
         }
 
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
@@ -107,13 +100,13 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
 
-        if (state.globs) {
+        if (state && state.globs) {
             for (const [pattern, files] of Object.entries(state.globs)) {
                 when(run.glob).calledWith(pattern, expect.anything()).thenResolve(files);
             }
         }
 
-        if (state.files) {
+        if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
                 when(run.read).calledWith(join(run.input, file)).thenResolve(content);
             }
@@ -123,9 +116,14 @@ export function setupBuild(state: BuildState = {}): Build & {run: Run} {
     return build as Build & {run: Run};
 }
 
-export async function runBuild(args: string, build?: Build) {
+export async function runBuild(argv: string, build?: Build) {
     build = build || setupBuild();
-    await build.parse(['node', 'index'].concat(args.split(' ')));
+
+    const rawArgs = ['node', 'index'].concat(argv.split(' '));
+    const args = parse('build', rawArgs);
+
+    await build.init(args);
+    await build.parse(rawArgs);
 }
 
 export function testConfig(name: string, args: string, result: DeepPartial<BuildConfig>): void;

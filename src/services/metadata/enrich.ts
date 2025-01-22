@@ -1,57 +1,54 @@
-import type {FrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import type {Meta} from '~/core/meta';
 import type {Run} from '~/commands/build';
 
-import {MetaDataOptions, VarsMetadata} from '../../models';
-import {mergeFrontMatter} from './mergeMetadata';
-import {resolveVCSFrontMatter} from './vcsMetadata';
-import {composeFrontMatter, extractFrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import {join} from 'node:path';
+import {load} from 'js-yaml';
+import {cloneDeepWith, omit} from 'lodash';
+import {extractFrontMatter as extractMdFrontMatter} from '@diplodoc/transform/lib/frontmatter';
+import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 
-type FrontMatterVars = {
-    metadataVars?: VarsMetadata;
-    systemVars?: unknown;
-};
+function extractYamlFrontMatter(file: string): [Meta, object] {
+    const parsed = load(file);
+    const frontmatter = parsed.meta || {};
+    const content = omit(parsed, ['meta']);
 
-type EnrichWithFrontMatterOptions = {
-    fileContent: string;
-    metadataOptions: MetaDataOptions;
-    resolvedFrontMatterVars: FrontMatterVars;
-};
+    return [frontmatter, content];
+}
 
-const resolveVCSPath = (frontMatter: FrontMatter, relativeInputPath: string) => {
-    const maybePreProcessedSourcePath = frontMatter.sourcePath;
+export async function mangleFrontMatter(run: Run, path: RelativePath, ext: string) {
+    const vars = await run.vars.load(path);
+    const file = await run.read(join(run.input, path));
 
-    return typeof maybePreProcessedSourcePath === 'string' && maybePreProcessedSourcePath.length > 0
-        ? maybePreProcessedSourcePath
-        : relativeInputPath;
-};
+    const [rawFrontmatter, content] =
+        ext === '.yaml' ? extractYamlFrontMatter(file) : extractMdFrontMatter(file, path);
 
-export const enrichWithFrontMatter = async (
-    run: Run,
-    {fileContent, metadataOptions, resolvedFrontMatterVars}: EnrichWithFrontMatterOptions,
-) => {
-    const {systemVars, metadataVars} = resolvedFrontMatterVars;
-    const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
+    const shouldAlwaysAddVCSPath = Boolean(run.config.vcs.remoteBase?.length);
 
-    const [frontMatter, strippedContent] = extractFrontMatter(fileContent, pathData.pathToFile);
+    const frontmatter = cloneDeepWith(rawFrontmatter, (value: unknown) =>
+        typeof value === 'string'
+            ? liquidSnippet(value, vars, path, {
+                  substitutions: run.config.template.features.substitutions,
+                  conditions: run.config.template.features.conditions,
+                  keepNotVar: true,
+                  withSourceMap: false,
+              })
+            : undefined,
+    );
 
-    const vcsFrontMatter = metadataOptions.isContributorsEnabled
-        ? await resolveVCSFrontMatter(run, frontMatter, metadataOptions, fileContent)
-        : undefined;
+    run.meta.add(path, frontmatter);
+    run.meta.addMetadata(path, vars.__metadata);
+    run.meta.addSystemVars(path, vars.__system);
+    run.meta.addResources(path, run.config.resources);
 
-    const mergedFrontMatter = mergeFrontMatter({
-        existingMetadata: frontMatter,
-        resources,
-        metadataVars,
-        systemVars: addSystemMeta ? systemVars : undefined,
-        additionalMetadata: {
-            vcsPath:
-                frontMatter.vcsPath ??
-                (shouldAlwaysAddVCSPath
-                    ? resolveVCSPath(frontMatter, pathData.pathToFile)
-                    : undefined),
-            ...vcsFrontMatter,
-        },
-    });
+    const meta = run.meta.dump(path);
 
-    return composeFrontMatter(mergedFrontMatter, strippedContent);
-};
+    run.meta.add(path, await run.vcs.metadata(path, meta, content));
+
+    if (shouldAlwaysAddVCSPath) {
+        run.meta.add(path, {
+            vcsPath: meta.vcsPath || meta.sourcePath || path,
+        });
+    }
+
+    return content;
+}

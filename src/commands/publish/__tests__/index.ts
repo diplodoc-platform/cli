@@ -3,6 +3,7 @@ import type {Mock} from 'vitest';
 import type {PublishConfig} from '..';
 
 import {expect, it, vi} from 'vitest';
+import {parse} from '~/commands/parser';
 import {Publish} from '..';
 import {upload as originalUpload} from '../upload';
 
@@ -12,7 +13,7 @@ export const upload = originalUpload as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../upload');
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });
@@ -23,12 +24,13 @@ vi.mock('~/config', async (importOriginal) => {
     };
 });
 
-export async function runPublish(args: string) {
+export async function runPublish(argv: string) {
     const publish = new Publish();
+    const rawArgs = ['node', 'index'].concat(argv.split(' '))
+    const args = parse('publish', rawArgs);
 
-    publish.apply();
-
-    await publish.parse(['node', 'index'].concat(args.split(' ')));
+    await publish.init(args);
+    await publish.parse(rawArgs);
 }
 
 type DeepPartial<T> = {

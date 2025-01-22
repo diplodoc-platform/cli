@@ -1,7 +1,7 @@
 import {cyan, gray} from 'chalk';
 import {dedent} from 'ts-dedent';
 
-import {option} from '~/config';
+import {option} from '~/core/config';
 
 const folder = option({
     flags: '--folder <value>',
