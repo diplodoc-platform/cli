@@ -12,9 +12,7 @@ export default defineConfig({
             provider: 'v8',
             include: [
                 'src/commands',
-                'src/program',
-                'src/config',
-                'src/logger',
+                'src/core',
             ],
             exclude: [
                 'assets/**',
