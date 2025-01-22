@@ -8,7 +8,7 @@ import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
 import {BaseProgram} from '~/program/base';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, Config, configPath, defined, valuable} from '~/config';
+import {Command, Config, configPath, defined, valuable} from '~/core/config';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
 import {handler} from './handler';

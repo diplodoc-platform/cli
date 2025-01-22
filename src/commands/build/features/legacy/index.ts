@@ -1,8 +1,8 @@
 import type {Build} from '~/commands';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
-import {defined, valuable} from '~/config';
+import {defined, valuable} from '~/core/config';
 import {options} from './config';
 
 export type LegacyArgs = {

@@ -1,4 +1,4 @@
-import {option} from '~/config';
+import {option} from '~/core/config';
 
 const search = option({
     flags: '--search',

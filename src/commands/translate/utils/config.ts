@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
-import {defined} from '~/config';
+import {defined} from '~/core/config';
 
 type PartialLocale = {
     language: string;

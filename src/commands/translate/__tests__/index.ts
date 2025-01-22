@@ -8,7 +8,7 @@ import {Translate} from '..';
 var resolveConfig: Mock;
 
 vi.mock('../providers/yandex/provider');
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });

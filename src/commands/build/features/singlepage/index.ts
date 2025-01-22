@@ -1,9 +1,9 @@
 import type {Build} from '~/commands';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 import type {Toc} from '~/commands/build';
 
 import {dirname, join} from 'node:path';
-import {defined} from '~/config';
+import {defined} from '~/core/config';
 import {options} from './config';
 import {isExternalHref, own} from '~/utils';
 import {getSinglePageUrl} from './utils';

@@ -7,7 +7,7 @@ import {when} from 'vitest-when';
 import {Build} from '..';
 import {Run} from '../run';
 import {handler as originalHandler} from '../handler';
-import {withConfigUtils} from '~/config';
+import {withConfigUtils} from '~/core/config';
 
 export const handler = originalHandler as Mock;
 
@@ -23,7 +23,7 @@ vi.mock('../run', async (importOriginal) => {
         copy: vi.fn(),
     };
 });
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });

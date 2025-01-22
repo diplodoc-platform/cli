@@ -5,7 +5,7 @@ import {ok} from 'assert';
 import {pick} from 'lodash';
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 import {BaseProgram} from '~/program/base';
-import {Command, args, defined} from '~/config';
+import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {DESCRIPTION, NAME, options} from './config';
 

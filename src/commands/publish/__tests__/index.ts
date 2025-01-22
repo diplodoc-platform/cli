@@ -12,7 +12,7 @@ export const upload = originalUpload as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../upload');
-vi.mock('~/config', async (importOriginal) => {
+vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
     });

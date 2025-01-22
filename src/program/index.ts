@@ -1,7 +1,7 @@
 import type {ICallable, IParent, IProgram} from './types';
 import {resolve} from 'node:path';
 
-import {Command, Config} from '~/config';
+import {Command, Config} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build, Publish, Translate} from '~/commands';
 

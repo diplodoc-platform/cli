@@ -1,8 +1,8 @@
 import type {Build} from '../..';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
-import {defined} from '~/config';
+import {defined} from '~/core/config';
 import {options} from './config';
 
 interface VCSConfiguration {

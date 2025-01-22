@@ -5,8 +5,8 @@ import {MAIN_TIMER_ID} from '~/constants';
 export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from './program';
 export {Program} from './program';
 
-export type {Config, OptionInfo} from './config';
-export {Command, option} from './config';
+export type {Config, OptionInfo} from '~/core/config';
+export {Command, option} from '~/core/config';
 
 import {Program} from './program';
 import {own} from './utils';

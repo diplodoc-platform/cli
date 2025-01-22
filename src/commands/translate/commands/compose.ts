@@ -4,7 +4,7 @@ import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import {BaseProgram} from '~/program/base';
-import {Command, defined} from '~/config';
+import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
