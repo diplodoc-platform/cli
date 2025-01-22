@@ -28,7 +28,7 @@ import {Html} from './features/html';
 import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 
-import {GenericIncluderExtension, OpenapiIncluderExtension} from './core/toc';
+import {GenericIncluderExtension, OpenapiIncluderExtension} from '~/core/toc';
 
 import {intercept} from '~/utils';
 
