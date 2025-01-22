@@ -1,34 +1,39 @@
-import type {Build} from '../..';
+import type {Build} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 
 import {basename, dirname, extname, join} from 'node:path';
-import {isExternalHref, normalizePath, own} from '~/utils';
 import {v4 as uuid} from 'uuid';
+import {isExternalHref, normalizePath, own} from '~/utils';
+
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
 
 export class Html {
     apply(program: Build) {
-        program.hooks.BeforeRun.for('html').tap('Html', async (run) => {
-            run.toc.hooks.Resolved.tapPromise('Html', async (toc, path) => {
-                const copy = JSON.parse(JSON.stringify(toc)) as Toc;
-                await run.toc.walkItems([copy], (item: Toc | TocItem) => {
-                    item.id = uuid();
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('Html', async (run) => {
+                getTocHooks(run.toc).Resolved.tapPromise('Html', async (toc, path) => {
+                    const copy = JSON.parse(JSON.stringify(toc)) as Toc;
+                    await run.toc.walkItems([copy], (item: Toc | TocItem) => {
+                        item.id = uuid();
 
-                    if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                        const fileExtension: string = extname(item.href);
-                        const filename: string = basename(item.href, fileExtension) + '.html';
+                        if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
+                            const fileExtension: string = extname(item.href);
+                            const filename: string = basename(item.href, fileExtension) + '.html';
 
-                        item.href = normalizePath(
-                            join(dirname(path), dirname(item.href), filename),
-                        );
-                    }
+                            item.href = normalizePath(
+                                join(dirname(path), dirname(item.href), filename),
+                            );
+                        }
 
-                    return item;
+                        return item;
+                    });
+
+                    const file = join(run.output, dirname(path), 'toc.js');
+
+                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
                 });
-
-                const file = join(run.output, dirname(path), 'toc.js');
-
-                await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
             });
-        });
     }
 }

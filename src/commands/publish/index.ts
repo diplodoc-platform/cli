@@ -1,9 +1,11 @@
-import type {BaseArgs, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
+
 import {ok} from 'assert';
-import {pick} from 'lodash';
-import {BaseProgram} from '~/core/program/base';
+
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {options} from './config';
 import {upload} from './upload';
 import {Run} from './run';
@@ -32,7 +34,7 @@ export type PublishConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 
 export class Publish
     // eslint-disable-next-line new-cap
-    extends BaseProgram<PublishConfig, PublishArgs, {}>('Publish', {
+    extends BaseProgram<PublishConfig, PublishArgs>('Publish', {
         config: {
             defaults: () => ({
                 endpoint: 'https://s3.amazonaws.com',
@@ -41,7 +43,6 @@ export class Publish
             }),
             strictScope: 'publish',
         },
-        hooks: {},
     })
     implements IProgram<PublishArgs>
 {
@@ -61,17 +62,15 @@ export class Publish
         options.hidden,
     ];
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
-        this.hooks.Config.tap('Publish', (config, args) => {
-            const options = this.options.map((option) => option.attributeName());
-
+        getBaseHooks(this).RawConfig.tap('Publish', (config) => {
             ok(!config.accessKeyId, 'Do not store `accessKeyId` in public config');
             ok(!config.secretAccessKey, 'Do not store `secretAccessKey` in public config');
+        });
 
-            Object.assign(config, pick(args, options));
-
+        getBaseHooks(this).Config.tap('Publish', (config) => {
             ok(config.endpoint, 'Required `endpoint` prop is not specified or empty');
             ok(config.bucket, 'Required `bucket` prop is not specified or empty');
             ok(config.region, 'Required `region` prop is not specified or empty');

@@ -1,30 +1,34 @@
-import type {HookMeta} from './utils';
+import type {HookMeta} from '~/core/utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
+import {NAME, Program, parse} from '~/commands';
+import {own} from '~/utils';
 
-export type {BaseArgs, BaseConfig, ICallable, IProgram} from '~/core/program';
-export {Program} from '~/core/program';
+export {Program} from '~/commands';
 
 export type {Config, OptionInfo} from '~/core/config';
 export {Command, option} from '~/core/config';
-
-import {Program} from '~/core/program';
-import {own} from './utils';
 
 if (require.main === module) {
     (async () => {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
+        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
+            // eslint-disable-next-line no-console
+            console.log(`Using v${VERSION} version`);
+        }
+
         let exitCode = 0;
         try {
+            const args = parse(NAME, process.argv);
             const program = new Program();
-            await program.init(process.argv);
+            await program.init(args);
             await program.parse(process.argv);
         } catch (error: any) {
             exitCode = 1;
 
-            if (own<HookMeta>(error, 'hook')) {
+            if (own<HookMeta, 'hook'>(error, 'hook')) {
                 const {service, hook, name} = error.hook;
                 // eslint-disable-next-line no-console
                 console.error(

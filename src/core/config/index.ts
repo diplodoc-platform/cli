@@ -147,22 +147,19 @@ type ConfigUtils = {
 export type Config<T> = T & ConfigUtils;
 
 export function withConfigUtils<T extends Hash = Hash>(path: string | null, config: T): Config<T> {
-    return Object.create(config, {
-        resolve: {
-            enumerable: false,
-            value: (subpath: string): AbsolutePath => {
+    return Object.setPrototypeOf(
+        {...config},
+        {
+            resolve: (subpath: string): AbsolutePath => {
                 if (path === null) {
                     return resolve(subpath) as AbsolutePath;
                 }
 
                 return resolve(dirname(path), subpath) as AbsolutePath;
             },
+            [configPath]: path === null ? path : resolve(path),
         },
-        [configPath]: {
-            enumerable: false,
-            value: path === null ? path : resolve(path),
-        },
-    });
+    );
 }
 
 export async function resolveConfig<T extends Hash = {}>(

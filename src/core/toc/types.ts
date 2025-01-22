@@ -72,14 +72,14 @@ export type IncludeInfo = {
     content?: RawToc;
 } & (
     | {
-    mode: IncludeMode.RootMerge | IncludeMode.Merge;
-    mergeBase: RelativePath;
-}
+          mode: IncludeMode.RootMerge | IncludeMode.Merge;
+          mergeBase: RelativePath;
+      }
     | {
-    mode: IncludeMode.Link;
-    mergeBase?: undefined;
-}
-    );
+          mode: IncludeMode.Link;
+          mergeBase?: undefined;
+      }
+);
 
 export type Toc = {
     id: string;

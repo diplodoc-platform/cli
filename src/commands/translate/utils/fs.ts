@@ -146,9 +146,9 @@ async function loadFile<T = string | JSONObject>(path: AbsolutePath): Promise<T>
  * we think that current yaml is a part of complex toc.yaml
  */
 export async function resolveSchemas({
-                                         content,
-                                         path,
-                                     }: {
+    content,
+    path,
+}: {
     content: string | JSONObject;
     path: string;
 }) {

@@ -1,7 +1,8 @@
-import type {Build} from '~/commands';
+import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
+import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
 import {options} from './config';
 
@@ -37,7 +38,7 @@ export type LegacyConfig = {
 
 export class Legacy {
     apply(program: Build) {
-        program.hooks.Command.tap('Legacy', (command: Command) => {
+        getBaseHooks(program).Command.tap('Legacy', (command: Command) => {
             command
                 .addOption(options.disableLiquid)
                 .addOption(options.applyPresets)
@@ -49,7 +50,7 @@ export class Legacy {
                 .addOption(options.useLegacyConditions);
         });
 
-        program.hooks.Config.tap('Legacy', (config, args) => {
+        getBaseHooks(program).Config.tap('Legacy', (config, args) => {
             const disableLiquid = defined('disableLiquid', args, config);
             const applyPresets = defined('applyPresets', args, config);
             const resolveConditions = defined('resolveConditions', args, config);

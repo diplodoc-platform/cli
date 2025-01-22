@@ -1,14 +1,19 @@
-import type {IProgram} from '~/core/program';
+import type {IBaseProgram, IProgram} from '~/core/program';
 import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
 import {join} from 'node:path';
-import {pick} from 'lodash';
-import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
-import {BaseProgram} from '~/core/program/base';
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, configPath, defined, valuable} from '~/core/config';
+import {
+    GenericIncluderExtension,
+    OpenapiIncluderExtension,
+    getHooks as getTocHooks,
+} from '~/core/toc';
+
+import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
 import {handler} from './handler';
@@ -23,56 +28,17 @@ import {Html} from './features/html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
 
-import {GenericIncluderExtension, OpenapiIncluderExtension} from '~/core/toc';
+export * from './types';
 
-import {intercept} from '~/utils';
-
-export type * from './types';
+export {getHooks};
 
 export type {Run};
 
 const command = 'Build';
 
-const hooks = () =>
-    intercept(command, {
-        /**
-         * Async series hook which runs before start of any Run type.<br/><br/>
-         * Args:
-         * - run - [Build.Run](./Run.ts) constructed context.<br/>
-         * Best place to subscribe on Run hooks.
-         */
-        BeforeAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.BeforeAnyRun`),
-        /**
-         * Async series hook map which runs before start of target Run type.<br/><br/>
-         * Args:
-         * - run - [Build.Run](./Run.ts) constructed context.<br/>
-         * Best place to subscribe on target Run hooks.
-         */
-        BeforeRun: new HookMap(
-            (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `${command}.${format}.BeforeRun`),
-        ),
-        /**
-         * Async parallel hook which runs on start of any Run type.<br/><br/>
-         * Args:
-         * - run - [Build.Run](./Run.ts) constructed context.<br/>
-         * Best place to do something in parallel with main build process.
-         */
-        Run: new AsyncParallelHook<Run>(['run'], `${command}.Run`),
-        // TODO: decompose handler and describe this hook
-        AfterRun: new HookMap(
-            (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `${command}.${format}.AfterRun`),
-        ),
-        // TODO: decompose handler and describe this hook
-        AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
-    });
-
-export type BuildHooks = ReturnType<typeof hooks>;
-
+@withHooks
 export class Build
-    // eslint-disable-next-line new-cap
-    extends BaseProgram<BuildConfig, BuildArgs, BuildHooks>(command, {
+    extends BaseProgram<BuildConfig, BuildArgs>(command, { // eslint-disable-line
         config: {
             scope: 'build',
             defaults: () =>
@@ -87,7 +53,7 @@ export class Build
                     addMapFile: false,
                     removeHiddenTocItems: false,
                     mergeIncludes: false,
-                    resources: [],
+                    resources: {},
                     allowCustomResources: false,
                     staticContent: false,
                     ignoreStage: [Stage.SKIP],
@@ -98,7 +64,6 @@ export class Build
         command: {
             isDefault: true,
         },
-        hooks: hooks(),
     })
     implements IProgram<BuildArgs>
 {
@@ -143,8 +108,22 @@ export class Build
         options.config(YFM_CONFIG_FILENAME),
     ];
 
-    apply(program?: IProgram) {
-        this.hooks.Config.tap('Build', (config, args) => {
+    readonly modules = [
+        this.templating,
+        this.contributors,
+        this.singlepage,
+        this.redirects,
+        this.linter,
+        this.changelogs,
+        this.search,
+        this.html,
+        this.legacy,
+        new GenericIncluderExtension(),
+        new OpenapiIncluderExtension(),
+    ];
+
+    apply(program?: IBaseProgram) {
+        getBaseHooks<BuildConfig>(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
@@ -164,12 +143,6 @@ export class Build
                 langs.push(Lang.RU);
             }
 
-            const options = [...this.options, ...(program?.options || [])].map((option) =>
-                option.attributeName(),
-            );
-
-            Object.assign(config, pick(args, options));
-
             config.ignoreStage = [].concat(ignoreStage);
             config.langs = langs;
             config.lang = lang || langs[0];
@@ -177,70 +150,53 @@ export class Build
             return config;
         });
 
-        this.hooks.BeforeRun.for('md').tap('Build', (run) => {
-            run.toc.hooks.Resolved.tapPromise('Build', async (toc, path) => {
-                await run.write(join(run.output, path), run.toc.dump(toc));
+        getHooks(this)
+            .BeforeRun.for('md')
+            .tap('Build', (run) => {
+                getTocHooks(run.toc).Resolved.tapPromise('Build', async (toc, path) => {
+                    await run.write(join(run.output, path), run.toc.dump(toc));
+                });
             });
-        });
 
-        this.hooks.AfterRun.for('md').tapPromise('Build', async (run) => {
-            // TODO: save normalized config instead
-            if (run.config[configPath]) {
-                await run.copy(run.config[configPath], join(run.output, '.yfm'));
-            }
-        });
-
-        this.templating.apply(this);
-        this.contributors.apply(this);
-        this.singlepage.apply(this);
-        this.redirects.apply(this);
-        this.linter.apply(this);
-        this.changelogs.apply(this);
-        this.search.apply(this);
-        this.html.apply(this);
-        this.legacy.apply(this);
-
-        new GenericIncluderExtension().apply(this);
-        new OpenapiIncluderExtension().apply(this);
+        getHooks(this)
+            .AfterRun.for('md')
+            .tapPromise('Build', async (run) => {
+                // TODO: save normalized config instead
+                if (run.config[configPath]) {
+                    await run.copy(run.config[configPath], join(run.output, '.yfm'));
+                }
+            });
 
         super.apply(program);
     }
 
     async action() {
-        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
-            // eslint-disable-next-line no-console
-            console.log(`Using v${VERSION} version`);
-        }
-
         const run = new Run(this.config);
 
         run.logger.pipe(this.logger);
 
-        await this.cleanup(run);
+        await cleanup(run);
 
-        await this.hooks.BeforeAnyRun.promise(run);
-        await this.hooks.BeforeRun.for(this.config.outputFormat).promise(run);
+        await getBaseHooks(this).BeforeAnyRun.promise(run);
+        await getHooks(this).BeforeRun.for(this.config.outputFormat).promise(run);
 
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
 
         await run.vars.init();
         await run.toc.init();
 
-        await Promise.all([handler(run), this.hooks.Run.promise(run)]);
+        await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
 
-        await this.hooks.AfterRun.for(this.config.outputFormat).promise(run);
-        await this.hooks.AfterAnyRun.promise(run);
+        await getHooks(this).AfterRun.for(this.config.outputFormat).promise(run);
+        await getBaseHooks(this).AfterAnyRun.promise(run);
 
         await run.copy(run.output, run.originalOutput);
 
-        await this.cleanup(run);
+        await cleanup(run);
     }
+}
 
-    /**
-     * Remove all temporary data.
-     */
-    private async cleanup(run: Run) {
-        await run.remove(run.input);
-        await run.remove(run.output);
-    }
+async function cleanup(run: Run) {
+    await run.remove(run.input);
+    await run.remove(run.output);
 }

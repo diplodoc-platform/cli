@@ -1,14 +1,18 @@
-import type {IProgram, BaseArgs} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
+
 import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
-import {BaseProgram} from '~/core/program/base';
+import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
+
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {
@@ -23,7 +27,6 @@ import {
     resolveTargets,
     resolveVars,
 } from '../utils';
-import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 const MAX_CONCURRENCY = 50;
 
@@ -76,45 +79,48 @@ export class Extract
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
-        this.hooks.Config.tap('Translate.Extract', (config, args) => {
-            const {input, output, quiet, strict} = pick(args, [
-                'input',
-                'output',
-                'quiet',
-                'strict',
-            ]) as ExtractArgs;
-            const source = resolveSource(config, args);
-            const target = resolveTargets(config, args);
-            const include = defined('include', args, config) || [];
-            const exclude = defined('exclude', args, config) || [];
-            const [files, skipped] = resolveFiles(
-                input,
-                defined('files', args, config),
-                include,
-                exclude,
-                source.language,
-                ['.md', '.yaml'],
-            );
-            const vars = resolveVars(config, args);
+        getBaseHooks<ExtractConfig, ExtractArgs>(this).Config.tap(
+            'Translate.Extract',
+            (config, args) => {
+                const {input, output, quiet, strict} = pick(args, [
+                    'input',
+                    'output',
+                    'quiet',
+                    'strict',
+                ]) as ExtractArgs;
+                const source = resolveSource(config, args);
+                const target = resolveTargets(config, args);
+                const include = defined('include', args, config) || [];
+                const exclude = defined('exclude', args, config) || [];
+                const [files, skipped] = resolveFiles(
+                    input,
+                    defined('files', args, config),
+                    include,
+                    exclude,
+                    source.language,
+                    ['.md', '.yaml'],
+                );
+                const vars = resolveVars(config, args);
 
-            return Object.assign(config, {
-                input,
-                output: output || input,
-                quiet,
-                strict,
-                source,
-                target,
-                files,
-                skipped,
-                include,
-                exclude,
-                vars,
-                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
-            });
-        });
+                return Object.assign(config, {
+                    input,
+                    output: output || input,
+                    quiet,
+                    strict,
+                    source,
+                    target,
+                    files,
+                    skipped,
+                    include,
+                    exclude,
+                    vars,
+                    useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+                });
+            },
+        );
     }
 
     async action() {

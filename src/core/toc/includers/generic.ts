@@ -1,7 +1,11 @@
-import type {Build} from '~/commands';
-import type {IncluderOptions, RawToc, RawTocItem, YfmString} from '~/core/toc';
+import type {IBaseProgram, IExtension} from '~/core/program';
+import type {Run as BaseRun} from '~/core/run';
+import type {IncluderOptions, RawToc, RawTocItem, TocService, YfmString} from '~/core/toc';
 
 import {dirname, extname, join} from 'node:path';
+
+import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getTocHooks} from '~/core/toc';
 
 // const AUTOTITLE = '{$T}';
 
@@ -18,14 +22,21 @@ type Graph = {
     [prop: string]: (YfmString & NormalizedPath) | Graph;
 };
 
+type Run = BaseRun & {
+    toc?: TocService;
+};
+
+const EXTENSION = 'GenericIncluder';
+const INCLUDER = 'generic';
+
 // TODO: implement autotitle after md refactoring
 // TODO: implement sort
-export class GenericIncluderExtension {
-    apply(program: Build) {
-        program.hooks.BeforeAnyRun.tap('GenericIncluder', (run) => {
-            run.toc.hooks.Includer.for('generic').tapPromise(
-                'GenericIncluder',
-                async (toc, options: Options, path) => {
+export class Extension implements IExtension {
+    apply(program: IBaseProgram) {
+        getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
+            getTocHooks(run.toc)
+                .Includer.for(INCLUDER)
+                .tapPromise(EXTENSION, async (toc, options: Options, path) => {
                     const input = options.input
                         ? join(dirname(path), options.input)
                         : dirname(options.path);
@@ -34,8 +45,7 @@ export class GenericIncluderExtension {
                     });
 
                     return fillToc(toc, graph(files), options);
-                },
-            );
+                });
         });
     }
 }

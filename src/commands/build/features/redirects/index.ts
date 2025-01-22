@@ -1,7 +1,9 @@
+import type {Build} from '~/commands/build';
+
 import {ok} from 'node:assert';
 import {join} from 'node:path';
-import {Build} from '../..';
 
+import {getHooks as getBuildHooks} from '~/commands/build';
 import {REDIRECTS_FILENAME} from '~/constants';
 import {configPath, resolveConfig} from '~/core/config';
 
@@ -19,30 +21,34 @@ export class Redirects {
     apply(program: Build) {
         let resolvedPath: AbsolutePath | null = null;
 
-        program.hooks.BeforeRun.for('md').tap('Redirects', async (run) => {
-            try {
-                const redirects = await resolveConfig<RedirectsConfig>(
-                    join(run.originalInput, REDIRECTS_FILENAME),
-                    {
-                        fallback: {common: []},
-                    },
-                );
+        getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tap('Redirects', async (run) => {
+                try {
+                    const redirects = await resolveConfig<RedirectsConfig>(
+                        join(run.originalInput, REDIRECTS_FILENAME),
+                        {
+                            fallback: {common: []},
+                        },
+                    );
 
-                if (redirects[configPath]) {
-                    validateRedirects(redirects, redirects[configPath]);
-                    resolvedPath = redirects[configPath];
+                    if (redirects[configPath]) {
+                        validateRedirects(redirects, redirects[configPath]);
+                        resolvedPath = redirects[configPath];
+                    }
+                    // eslint-disable-next-line  @typescript-eslint/no-explicit-any
+                } catch (error: any) {
+                    run.logger.error(error.message || error);
                 }
-                // eslint-disable-next-line  @typescript-eslint/no-explicit-any
-            } catch (error: any) {
-                run.logger.error(error.message || error);
-            }
-        });
+            });
 
-        program.hooks.AfterRun.for('md').tapPromise('Redirects', async (run) => {
-            if (resolvedPath) {
-                await run.copy(resolvedPath, join(run.output, REDIRECTS_FILENAME));
-            }
-        });
+        getBuildHooks(program)
+            .AfterRun.for('md')
+            .tapPromise('Redirects', async (run) => {
+                if (resolvedPath) {
+                    await run.copy(resolvedPath, join(run.output, REDIRECTS_FILENAME));
+                }
+            });
     }
 }
 
