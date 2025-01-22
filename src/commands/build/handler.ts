@@ -4,7 +4,7 @@ import 'threads/register';
 
 import {ArgvService, SearchService} from '~/services';
 import {processChangelogs, processLogs} from '~/steps';
-import {getNavigationPaths, getPresetIndex} from '~/reCli/components/presets';
+import {getNavigationPaths, getPresetIndex, getScopePreset} from '~/reCli/components/presets';
 import {getTocIndex, transformTocForJs, transformTocForSinglePage} from '~/reCli/components/toc';
 import GithubConnector from '~/reCli/components/vcs/github';
 import {getVcsConnector} from '~/reCli/components/vcs/vcs';
@@ -242,11 +242,12 @@ export async function handler(run: Run) {
                     Array.from(presetIndex.entries()),
                     async ([presetPath, preset]) => {
                         const presetDir = path.dirname(presetPath);
-                        if (!PRESET_DIR_SET.has(presetDir) || isEmpty(preset)) return;
+                        const scopePreset = getScopePreset(preset, run.config);
+                        if (!PRESET_DIR_SET.has(presetDir) || isEmpty(scopePreset)) return;
 
                         const targetPath = path.join(run.output, presetPath);
                         await cachedMkdir(path.dirname(targetPath));
-                        await fs.promises.writeFile(targetPath, yaml.dump({default: preset}));
+                        await fs.promises.writeFile(targetPath, yaml.dump(scopePreset));
                     },
                     {concurrency: CONCURRENCY},
                 );

@@ -8,6 +8,10 @@ import {PresetIndex} from '~/reCli/components/presets/types';
 import {YfmToc} from '~/models';
 import {isExternalHref} from '~/utils';
 import {safePath} from '~/reCli/utils';
+import {pick} from 'lodash';
+
+const PRESET_SCOPE_PRESET = new WeakMap<Preset, Presets>();
+const DEFAULT_SCOPE = 'default';
 
 export async function getPresetIndex(
     cwd: AbsolutePath,
@@ -32,9 +36,11 @@ export async function getPresetIndex(
             const presetPresets = yaml.load(data) as Presets;
 
             const preset = {
-                ...presetPresets.default,
+                ...presetPresets[DEFAULT_SCOPE],
                 ...presetPresets[varsPreset],
             };
+
+            PRESET_SCOPE_PRESET.set(preset, presetPresets);
 
             index.set(presetPath, preset);
         },
@@ -42,6 +48,12 @@ export async function getPresetIndex(
     );
 
     return index;
+}
+
+export function getScopePreset(preset: Preset, options: BuildConfig) {
+    const {varsPreset} = options;
+    const scopePreset = PRESET_SCOPE_PRESET.get(preset);
+    return pick(scopePreset, [DEFAULT_SCOPE, varsPreset]);
 }
 
 export function getFilePresets(presetIndex: PresetIndex, vars: Preset, filepath: string) {
