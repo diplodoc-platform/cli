@@ -1,4 +1,4 @@
-import type {IProgram} from '~/program';
+import type {IProgram} from '~/core/program';
 import type {TranslateArgs, TranslateConfig} from '~/commands/translate';
 import {ok} from 'assert';
 import {resolve} from 'node:path';

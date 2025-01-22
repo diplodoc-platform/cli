@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
 import type {DocAnalytics} from '@diplodoc/client';
 
 import {ok} from 'node:assert';
@@ -6,7 +6,7 @@ import {join} from 'node:path';
 import {pick} from 'lodash';
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
-import {BaseProgram} from '~/program/base';
+import {BaseProgram} from '~/core/program/base';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, Config, configPath, defined, valuable} from '~/core/config';
 import {OutputFormat, options} from './config';

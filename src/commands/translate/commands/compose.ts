@@ -1,9 +1,9 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import {BaseProgram} from '~/program/base';
+import {BaseProgram} from '~/core/program/base';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from '../config';

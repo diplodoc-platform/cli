@@ -1,7 +1,7 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
 import {ok} from 'assert';
 import {pick} from 'lodash';
-import {BaseProgram} from '~/program/base';
+import {BaseProgram} from '~/core/program/base';
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
