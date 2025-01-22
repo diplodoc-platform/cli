@@ -2,13 +2,13 @@ import type {HookMeta} from './utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
 
-export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from './program';
-export {Program} from './program';
+export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from '~/core/program';
+export {Program} from '~/core/program';
 
 export type {Config, OptionInfo} from '~/core/config';
 export {Command, option} from '~/core/config';
 
-import {Program} from './program';
+import {Program} from '~/core/program';
 import {own} from './utils';
 
 if (require.main === module) {

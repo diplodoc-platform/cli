@@ -1,4 +1,4 @@
-import type {IParent, IProgram, ProgramArgs} from '.';
+import type {IParent, IProgram, ProgramArgs} from './index';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';

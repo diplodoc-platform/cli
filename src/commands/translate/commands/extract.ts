@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/program';
+import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 import {ok} from 'node:assert';
@@ -6,7 +6,7 @@ import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
-import {BaseProgram} from '~/program/base';
+import {BaseProgram} from '~/core/program/base';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {options} from '../config';

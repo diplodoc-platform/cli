@@ -1,10 +1,10 @@
-import type {ICallable, IProgram, ProgramArgs, ProgramConfig} from '~/program';
-import type {BaseHooks} from '~/program/base';
+import type {ICallable, IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
+import type {BaseHooks} from '~/core/program/base';
 import type {Locale} from './utils';
 import {ok} from 'assert';
 import {pick} from 'lodash';
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
-import {BaseProgram} from '~/program/base';
+import {BaseProgram} from '~/core/program/base';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {DESCRIPTION, NAME, options} from './config';
