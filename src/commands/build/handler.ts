@@ -1,7 +1,14 @@
 import type {Run} from './run';
 
 import {ArgvService, PresetService, SearchService} from '~/services';
-import {processAssets, processChangelogs, processLinter, processLogs, processPages} from '~/steps';
+import {
+    processAssets,
+    processChangelogs,
+    processLinter,
+    processLogs,
+    processPages,
+    processThemer,
+} from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
 import {legacyConfig} from './legacy-config';
@@ -25,6 +32,7 @@ export async function handler(run: Run) {
 
         await processChangelogs();
 
+        await processThemer(run);
         await SearchService.release();
     } catch (error) {
         run.logger.error(error);
