@@ -3,7 +3,7 @@ import type {YandexTranslationConfig} from '.';
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
 import axios, {AxiosError, AxiosResponse} from 'axios';
-import {LogLevel, Logger} from '~/logger';
+import {LogLevel, Logger} from '~/core/logger';
 import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 import liquid from '@diplodoc/transform/lib/liquid';

@@ -27,7 +27,7 @@ import {
     TMP_OUTPUT_FOLDER,
     YFM_CONFIG_FILENAME,
 } from '~/constants';
-import {LogLevel, Logger} from '~/logger';
+import {LogLevel, Logger} from '~/core/logger';
 import {legacyConfig} from './legacy-config';
 import {InsecureAccessError} from './errors';
 import {VarsService} from '~/core/vars';

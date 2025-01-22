@@ -1,6 +1,6 @@
 import type {Hook, HookMap} from 'tapable';
 import type {Command, ExtendedOption} from '~/config';
-import type {Logger} from '~/logger';
+import type {Logger} from '~/core/logger';
 
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 type Hooks = Record<string, Hook<any, any> | HookMap<any>>;
