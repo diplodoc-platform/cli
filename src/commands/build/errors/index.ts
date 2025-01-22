@@ -1,1 +1,0 @@
-export {InsecureAccessError} from './InsecureAccessError';
