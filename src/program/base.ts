@@ -1,5 +1,5 @@
 import type {IParent, IProgram, ProgramArgs} from '.';
-import type {Command, Config, ExtendedOption} from '~/config';
+import type {Command, Config, ExtendedOption} from '~/core/config';
 import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';
 import {once} from 'lodash';
@@ -10,7 +10,7 @@ import {
     scope as scopeConfig,
     strictScope as strictScopeConfig,
     withConfigUtils,
-} from '~/config';
+} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 import {HandledError} from './utils';
 

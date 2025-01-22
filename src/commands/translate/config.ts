@@ -1,5 +1,5 @@
 import {cyan, green, underline} from 'chalk';
-import {option, toArray} from '~/config';
+import {option, toArray} from '~/core/config';
 import {options as globalOptions} from '~/program';
 
 export const NAME = 'translate';

@@ -3,7 +3,7 @@ import {join} from 'node:path';
 import {Build} from '../..';
 
 import {REDIRECTS_FILENAME} from '~/constants';
-import {configPath, resolveConfig} from '~/config';
+import {configPath, resolveConfig} from '~/core/config';
 
 interface Redirect {
     from: string;

@@ -1,4 +1,4 @@
-import {option} from '~/config';
+import {option} from '~/core/config';
 
 const contributors = option({
     flags: '--contributors',

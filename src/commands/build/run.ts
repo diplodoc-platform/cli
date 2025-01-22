@@ -19,7 +19,7 @@ import {
 import {glob} from 'glob';
 
 import {bounded, normalizePath, own} from '~/utils';
-import {configPath} from '~/config';
+import {configPath} from '~/core/config';
 import {
     BUNDLE_FOLDER,
     REDIRECTS_FILENAME,

@@ -1,10 +1,10 @@
 import type {Build} from '../..';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 
 import {join} from 'node:path';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 
-import {configPath, resolveConfig, valuable} from '~/config';
+import {configPath, resolveConfig, valuable} from '~/core/config';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
 

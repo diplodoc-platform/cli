@@ -1,12 +1,12 @@
 import type {Build} from '~/commands';
-import type {Command} from '~/config';
+import type {Command} from '~/core/config';
 import type {Preset} from '~/core/vars';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
 import {merge} from 'lodash';
 
-import {defined, valuable} from '~/config';
+import {defined, valuable} from '~/core/config';
 import {options} from './config';
 
 export type TemplatingArgs = {

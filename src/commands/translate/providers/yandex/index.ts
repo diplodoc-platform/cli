@@ -3,7 +3,7 @@ import type {TranslateArgs, TranslateConfig} from '~/commands/translate';
 import {ok} from 'assert';
 import {resolve} from 'node:path';
 import {Translate} from '~/commands/translate';
-import {defined, resolveConfig} from '~/config';
+import {defined, resolveConfig} from '~/core/config';
 import {Provider} from './provider';
 import {options} from './config';
 import {getYandexAuth} from './auth';
