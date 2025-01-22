@@ -1,5 +1,5 @@
-import type {IncludeInfo, TocService} from './TocService';
-import type {RawToc, RawTocItem, TocInclude, YfmString} from './types';
+import type {TocService} from './TocService';
+import type {IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
@@ -8,6 +8,8 @@ import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 
 import {isExternalHref, normalizePath, own} from '~/utils';
+
+import {getHooks} from './hooks';
 import {getFirstValuable, isRelative} from './utils';
 
 export type LoaderContext = {
@@ -161,7 +163,7 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  */
 async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     toc.items = await this.toc.walkItems(toc.items, async (item) => {
-        item = await this.toc.hooks.Item.promise(item, this.path);
+        item = await getHooks(this.toc).Item.promise(item, this.path);
 
         if (!item || !own(item, 'include')) {
             return item;
@@ -184,7 +186,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 : normalizePath(join(include.path, 'toc.yaml'));
 
             for (const includer of include.includers) {
-                const hook = this.toc.hooks.Includer.get(includer.name);
+                const hook = getHooks(this.toc).Includer.get(includer.name);
 
                 ok(includer.name, 'Includer name should be a string.');
                 ok(hook, `Includer with name '${includer.name}' is not registered.`);

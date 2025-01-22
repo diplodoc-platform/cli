@@ -8,6 +8,7 @@ import {YAMLException} from 'js-yaml';
 
 import {setupRun} from '~/commands/build/__tests__';
 
+import {getHooks} from './hooks';
 import {VarsService} from './VarsService';
 
 const ENOENT = Object.assign(new Error('ENOENT: no such file or directory'), {
@@ -172,7 +173,7 @@ describe('vars', () => {
 
                 const spy = vi.fn();
 
-                service.hooks.PresetsLoaded.tap('Test', spy);
+                getHooks(service).PresetsLoaded.tap('Test', spy);
 
                 await service.load('presets.yaml' as NormalizedPath);
 
@@ -187,7 +188,7 @@ describe('vars', () => {
 
                 const spy = vi.fn();
 
-                service.hooks.Resolved.tap('Test', spy);
+                getHooks(service).Resolved.tap('Test', spy);
 
                 await service.load('presets.yaml' as NormalizedPath);
 
@@ -200,7 +201,7 @@ describe('vars', () => {
                       field1: value1
                 `);
 
-                service.hooks.PresetsLoaded.tap('Test', (presets) => {
+                getHooks(service).PresetsLoaded.tap('Test', (presets) => {
                     presets.default.field1 = 'value2';
 
                     return presets;
@@ -217,7 +218,7 @@ describe('vars', () => {
                       field1: value1
                 `);
 
-                service.hooks.PresetsLoaded.tap('Test', (presets) => {
+                getHooks(service).PresetsLoaded.tap('Test', (presets) => {
                     presets.default.field2 = 'value2';
 
                     return presets;
@@ -234,7 +235,7 @@ describe('vars', () => {
                       field1: value1
                 `);
 
-                service.hooks.Resolved.tap('Test', (vars) => {
+                getHooks(service).Resolved.tap('Test', (vars) => {
                     vars.field1 = 'value2';
                 });
 
@@ -249,7 +250,7 @@ describe('vars', () => {
                       field1: value1
                 `);
 
-                service.hooks.Resolved.tap('Test', (vars) => {
+                getHooks(service).Resolved.tap('Test', (vars) => {
                     vars.field2 = 'value2';
                 });
 
@@ -267,8 +268,8 @@ describe('vars', () => {
                 const spy1 = vi.fn();
                 const spy2 = vi.fn();
 
-                service.hooks.PresetsLoaded.tap('Test', spy1);
-                service.hooks.Resolved.tap('Test', spy2);
+                getHooks(service).PresetsLoaded.tap('Test', spy1);
+                getHooks(service).Resolved.tap('Test', spy2);
 
                 await service.load('presets.yaml' as NormalizedPath);
                 await service.load('presets.yaml' as NormalizedPath);

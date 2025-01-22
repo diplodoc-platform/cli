@@ -1,20 +1,23 @@
-import type {BaseArgs, IProgram} from '~/core/program';
+import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
+
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import {BaseProgram} from '~/core/program/base';
+import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
+
+import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {FileLoader, TranslateError, compose, resolveFiles, resolveSchemas} from '../utils';
-import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
 const MAX_CONCURRENCY = 50;
 
 export type ComposeArgs = BaseArgs & {
-    output: string;
+    output: AbsolutePath;
     include?: string[];
     exclude?: string[];
     useSource?: boolean;
@@ -55,40 +58,43 @@ export class Compose
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IProgram) {
+    apply(program?: IBaseProgram) {
         super.apply(program);
 
-        this.hooks.Config.tap('Translate.Compose', (config, args) => {
-            const {input, output, quiet, strict} = pick(args, [
-                'input',
-                'output',
-                'quiet',
-                'strict',
-            ]) as ComposeArgs;
-            const include = defined('include', args, config) || [];
-            const exclude = defined('exclude', args, config) || [];
-            const [files, skipped] = resolveFiles(
-                input,
-                defined('files', args, config),
-                include,
-                exclude,
-                null,
-                ['.skl', '.xliff'],
-            );
+        getBaseHooks<ComposeConfig, ComposeArgs>(this).Config.tap(
+            'Translate.Compose',
+            (config, args) => {
+                const {input, output, quiet, strict} = pick(args, [
+                    'input',
+                    'output',
+                    'quiet',
+                    'strict',
+                ]) as ComposeArgs;
+                const include = defined('include', args, config) || [];
+                const exclude = defined('exclude', args, config) || [];
+                const [files, skipped] = resolveFiles(
+                    input,
+                    defined('files', args, config),
+                    include,
+                    exclude,
+                    null,
+                    ['.skl', '.xliff'],
+                );
 
-            return Object.assign(config, {
-                input,
-                output: output || input,
-                quiet,
-                strict,
-                files,
-                skipped,
-                include,
-                exclude,
-                useSource: defined('useSource', args, config) || false,
-                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
-            });
-        });
+                return Object.assign(config, {
+                    input,
+                    output: output || input,
+                    quiet,
+                    strict,
+                    files,
+                    skipped,
+                    include,
+                    exclude,
+                    useSource: defined('useSource', args, config) || false,
+                    useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+                });
+            },
+        );
     }
 
     async action() {

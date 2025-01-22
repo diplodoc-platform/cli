@@ -1,12 +1,9 @@
-import type {Hook, HookMap} from 'tapable';
 import type {Command, ExtendedOption} from '~/core/config';
 import type {Logger} from '~/core/logger';
+import type {Hooks, hooks} from './hooks';
 
-// eslint-disable-next-line  @typescript-eslint/no-explicit-any
-type Hooks = Record<string, Hook<any, any> | HookMap<any>>;
-
-export interface ICallable<TArgs extends Hash = Hash> {
-    apply(program?: IProgram<TArgs>): void;
+export interface ICallable {
+    apply(program?: IBaseProgram): void;
 }
 
 /**
@@ -28,27 +25,33 @@ export interface ICallable<TArgs extends Hash = Hash> {
  * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
  *    (example: hookConfig)
  */
-export interface IProgram<Args extends Hash = Hash> extends ICallable<Args> {
+export interface IProgram<Args extends BaseArgs = BaseArgs> {
+    action: (props: Args) => Promise<void> | void;
+
+    logger: Logger;
+}
+
+export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends ICallable {
+    [Hooks]: ReturnType<typeof hooks<BaseConfig & TConfig, BaseArgs & TArgs>>;
+
     command: Command;
 
     options: Readonly<ExtendedOption[]>;
 
-    parent?: IParent;
-
-    action?: (props: Args) => Promise<void> | void;
-
-    hooks?: Hooks;
+    init(args: BaseArgs, parent?: IBaseProgram): Promise<void>;
 
     logger: Logger;
+}
+
+export interface IExtension<Program extends IBaseProgram = IBaseProgram> {
+    apply(program: Program): void;
 }
 
 /**
  * Limited IProgram interface for access from sub programs.
  */
-export interface IParent<ParentHooks extends Hooks = Hooks> {
+export interface IParent {
     command: Command;
-
-    hooks: ParentHooks extends Hooks ? ParentHooks : undefined;
 
     logger: Logger;
 }

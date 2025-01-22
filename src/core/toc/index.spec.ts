@@ -6,8 +6,10 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {dedent} from 'ts-dedent';
 
-import {TocService, TocServiceConfig} from './TocService';
 import {setupRun} from '~/commands/build/__tests__';
+
+import {TocService, TocServiceConfig} from './TocService';
+import {getHooks} from './hooks';
 
 type Options = DeepPartial<TocServiceConfig>;
 
@@ -492,10 +494,12 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
-            toc.hooks.Includer.for('expected').tap('Tests', (toc) => ({
-                ...toc,
-                stage: 'test',
-            }));
+            getHooks(toc)
+                .Includer.for('expected')
+                .tap('Tests', (toc) => ({
+                    ...toc,
+                    stage: 'test',
+                }));
 
             const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
 
@@ -519,16 +523,18 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
-            toc.hooks.Includer.for('expected').tap('Tests', (toc, options) => {
-                expect(options).toMatchObject({
-                    path: '_includes/core/toc.yaml',
-                });
+            getHooks(toc)
+                .Includer.for('expected')
+                .tap('Tests', (toc, options) => {
+                    expect(options).toMatchObject({
+                        path: '_includes/core/toc.yaml',
+                    });
 
-                return {
-                    ...toc,
-                    stage: 'test',
-                };
-            });
+                    return {
+                        ...toc,
+                        stage: 'test',
+                    };
+                });
 
             const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
 
@@ -553,17 +559,19 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
-            toc.hooks.Includer.for('expected').tap('Tests', (toc, options) => {
-                expect(options).toMatchObject({
-                    path: '_includes/core/toc.yaml',
-                    field: 'value',
-                });
+            getHooks(toc)
+                .Includer.for('expected')
+                .tap('Tests', (toc, options) => {
+                    expect(options).toMatchObject({
+                        path: '_includes/core/toc.yaml',
+                        field: 'value',
+                    });
 
-                return {
-                    ...toc,
-                    stage: 'test',
-                };
-            });
+                    return {
+                        ...toc,
+                        stage: 'test',
+                    };
+                });
 
             const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
 
@@ -586,13 +594,15 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
-            toc.hooks.Includer.for('expected').tap('Tests', (toc) => {
-                return {
-                    ...toc,
-                    stage: 'test',
-                    items: [{name: 'Includer item 1'}],
-                };
-            });
+            getHooks(toc)
+                .Includer.for('expected')
+                .tap('Tests', (toc) => {
+                    return {
+                        ...toc,
+                        stage: 'test',
+                        items: [{name: 'Includer item 1'}],
+                    };
+                });
 
             const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
 

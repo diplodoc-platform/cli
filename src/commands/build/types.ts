@@ -1,5 +1,6 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
+import type {Resources} from '~/core/meta';
 import type {Config} from '~/core/config';
 import type {Lang} from '~/constants';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
@@ -10,12 +11,6 @@ import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {OutputFormat} from './config';
-
-export type Resources = {
-    script?: string[];
-    style?: string[];
-    csp?: Hash<string | string[]>;
-};
 
 type BaseArgs = {output: AbsolutePath};
 
