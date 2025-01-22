@@ -37,4 +37,10 @@ describe('Include toc', () => {
         });
         compareDirectories(outputPath);
     });
+
+    test('Toc with generic includer', () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test6');
+        runYfmDocs(inputPath, outputPath);
+        compareDirectories(outputPath);
+    });
 });

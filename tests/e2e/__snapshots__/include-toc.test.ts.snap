@@ -297,3 +297,57 @@ items:
     href: a1.md
 "
 `;
+
+exports[`Include toc Toc with generic includer: filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc Toc with generic includer: test/index.md 1`] = `
+"# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc Toc with generic includer: test/sub/sub/sub-3.md 1`] = `"# H1"`;
+
+exports[`Include toc Toc with generic includer: test/sub/sub-1.md 1`] = `
+"# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc Toc with generic includer: test/sub/sub-2.md 1`] = `"# H1"`;
+
+exports[`Include toc Toc with generic includer: test/test.md 1`] = `"# H1"`;
+
+exports[`Include toc Toc with generic includer: toc.yaml 1`] = `
+"title: main
+items:
+  - name: test
+    href: test/test.md
+  - name: Overview
+    href: test/index.md
+  - name: sub
+    items:
+      - name: sub-2
+        href: test/sub/sub-2.md
+      - name: sub-1
+        href: test/sub/sub-1.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: test/sub/sub/sub-3.md
+"
+`;
