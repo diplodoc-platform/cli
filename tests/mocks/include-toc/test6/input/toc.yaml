@@ -1,0 +1,7 @@
+title: main
+items:
+  - include:
+      path: test
+      includers:
+        - name: generic
+          input: test

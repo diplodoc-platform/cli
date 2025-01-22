@@ -179,10 +179,9 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             );
             ok(Array.isArray(include.includers), 'Includers should be an array.');
 
-            const path = include.path.endsWith('toc.yaml')
-                ? include.path
-                : join(include.path, 'toc.yaml');
-            const tocPath = normalizePath(join(dirname(this.path), path));
+            const tocPath = include.path.endsWith('toc.yaml')
+                ? normalizePath(include.path)
+                : normalizePath(join(include.path, 'toc.yaml'));
 
             for (const includer of include.includers) {
                 const hook = this.toc.hooks.Includer.get(includer.name);
