@@ -118,10 +118,14 @@ export class Build
         this.legacy,
     ];
 
-    readonly extensions = [OPENAPI_EXTENSION, GENERIC_INCLUDER_EXTENSION];
+    readonly extensions = [
+        OPENAPI_EXTENSION,
+        GENERIC_INCLUDER_EXTENSION,
+        // GITHUB_VCS_CONNECTOR_EXTENSION,
+    ].filter(Boolean);
 
     apply(program?: IBaseProgram) {
-        getBaseHooks(this).Config.tap('Build', (config, args) => {
+        getBaseHooks<BuildConfig>(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
@@ -178,15 +182,8 @@ export class Build
 
         await run.vars.init();
         await run.toc.init();
+        await run.vcs.init();
 
-        const excluded = await run.glob(['**/*.md', '**/index.yaml', ...run.config.ignore], {
-            cwd: run.input,
-            ignore: ['**/_*/**/*', '**/_include--*'].concat(run.toc.entries),
-        });
-
-        for (const file of excluded) {
-            await run.remove(join(run.input, file));
-        }
         await Promise.all([handler(run), this[Hooks].Run.promise(run)]);
 
         await this[Hooks].AfterRun.for(this.config.outputFormat).promise(run);

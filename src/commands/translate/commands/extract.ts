@@ -82,7 +82,7 @@ export class Extract
     apply(program?: IBaseProgram) {
         super.apply(program);
 
-        getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {
+        getBaseHooks<ExtractConfig, ExtractArgs>(this).Config.tap('Translate.Extract', (config, args) => {
             const {input, output, quiet, strict} = pick(args, [
                 'input',
                 'output',

@@ -1,11 +1,11 @@
+import type {Run as BaseRun} from '~/core/run';
 import type {Presets} from './types';
 
 import {dirname, join} from 'node:path';
 import {merge} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {Run} from '~/commands/build';
-import {freeze, normalizePath, own} from '~/utils';
+import {freeze, normalizePath, own} from '~/core/utils';
 
 import {Hooks, hooks} from './hooks';
 
@@ -14,6 +14,8 @@ export type VarsServiceConfig = {
     vars: Hash;
     ignore: string[];
 };
+
+type Run = BaseRun<VarsServiceConfig>;
 
 export class VarsService {
     [Hooks] = hooks();

@@ -61,7 +61,7 @@ export class Compose
     apply(program?: IBaseProgram) {
         super.apply(program);
 
-        getBaseHooks(this).Config.tap('Translate.Compose', (config, args) => {
+        getBaseHooks<ComposeConfig, ComposeArgs>(this).Config.tap('Translate.Compose', (config, args) => {
             const {input, output, quiet, strict} = pick(args, [
                 'input',
                 'output',

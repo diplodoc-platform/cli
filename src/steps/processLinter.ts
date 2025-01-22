@@ -25,6 +25,8 @@ export async function processLinter(run: Run): Promise<void> {
 
     const navigationPaths = run.toc.entries;
 
+    console.log(run.toc.entries);
+
     if (!processLinterWorkers) {
         lintPagesFallback(navigationPaths);
 

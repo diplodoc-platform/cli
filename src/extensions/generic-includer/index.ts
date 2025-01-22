@@ -39,9 +39,9 @@ const INCLUDER = 'generic';
 // TODO: implement sort
 export class Extension implements IExtension {
     apply(program: IBaseProgram) {
-        // console.log('generic', program.command.name());
+        console.log('generic', program.command.name());
         getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
-            // console.log('generic');
+            console.log('generic');
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (toc, options: Options, path) => {

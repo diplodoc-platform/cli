@@ -1,32 +1,28 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import type {Run} from '~/commands/build';
 
-import {readFileSync, writeFileSync} from 'fs';
-import {dirname, extname, join, resolve} from 'path';
+import {dirname, extname, join, resolve} from 'node:path';
 import {ConfigData, LINK_KEYS, PreloadParams, preprocess} from '@diplodoc/client/ssr';
 import {isString} from 'lodash';
 
 import transform, {Output} from '@diplodoc/transform';
 import liquid from '@diplodoc/transform/lib/liquid';
-import log from '@diplodoc/transform/lib/log';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
-import yaml from 'js-yaml';
 
-import {Lang, PROCESSING_FINISHED} from '../constants';
-import {LeadingPage, ResolverOptions} from '../models';
-import {ArgvService, PluginService, SearchService} from '../services';
-import {getVCSMetadata} from '../services/metadata';
+import {isExternalHref} from '~/core/utils';
+import {Lang, PROCESSING_FINISHED} from '~/constants';
+import {LeadingPage} from '~/models';
+import {ArgvService, PluginService, SearchService} from '~/services';
+import {mangleFrontMatter} from '~/services/metadata';
 import {
     getDepth,
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
-    isExternalHref,
-    logger,
     modifyValuesByKeys,
-} from '../utils';
-import {generateStaticMarkup} from '../pages';
+} from '~/utils';
+import {generateStaticMarkup} from '~/pages';
 
 export interface FileTransformOptions {
     path: string;
@@ -39,64 +35,47 @@ const FileTransformer: Record<string, Function> = {
     '.md': MdFileTransformer,
 };
 
-const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
-    const {input, allowCustomResources} = ArgvService.getConfig();
+const getFileData = async (run: Run, path: RelativePath) => {
+    const extension = extname(path);
+    const content = await mangleFrontMatter(run, path, extension);
 
-    const resolvedPath: string = resolve(input, inputPath);
-    const content: string = readFileSync(resolvedPath, 'utf8');
+    const transformFn: Function = FileTransformer[extension];
+    const {result} = transformFn(content, {path, root: run.input});
+    const meta = extension === '.yaml' ? (result?.data?.meta ?? {}) : result.meta;
 
-    const transformFn: Function = FileTransformer[fileExtension];
-    const {result} = transformFn(content, {path: inputPath, root: input});
+    run.meta.addResources(path, meta);
 
-    const vars = getVarsPerFile(inputPath);
-    const updatedMetadata = metadata?.isContributorsEnabled
-        ? await getVCSMetadata(metadata, content, result?.meta)
-        : result?.meta;
-    const fileMeta = fileExtension === '.yaml' ? (result?.data?.meta ?? {}) : updatedMetadata;
+    // const fileMeta = fileExtension === '.yaml' ? (result?.data?.meta ?? {}) : result.meta;
+    //
+    // if (!Array.isArray(fileMeta?.metadata)) {
+    //     fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
+    // }
 
-    if (!Array.isArray(fileMeta?.metadata)) {
-        fileMeta.metadata = [fileMeta?.metadata].filter(Boolean);
-    }
-
-    fileMeta.metadata = fileMeta.metadata.concat(vars.__metadata?.filter(Boolean) || []);
-
-    if (allowCustomResources) {
-        const {script, style, csp} = metadata?.resources || {};
-        fileMeta.style = (fileMeta.style || []).concat(style || []);
-        fileMeta.script = (fileMeta.script || []).concat(script || []);
-        fileMeta.csp = (fileMeta.csp || []).concat(csp || []);
-    } else {
-        fileMeta.style = [];
-        fileMeta.script = [];
-        fileMeta.csp = [];
-    }
-
-    return {...result, meta: fileMeta};
+    return {...result, meta: run.meta.dump(path)};
 };
 
-const getFileProps = async (options: ResolverOptions) => {
-    const {inputPath} = options;
+const getFileProps = async (run: Run, path: RelativePath) => {
     const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
 
-    const data = await getFileData(options);
+    const data = await getFileData(run, path);
 
-    const tocBaseLang = inputPath.replace(/\\/g, '/').split('/')[0];
+    const tocBaseLang = path.replace(/\\/g, '/').split('/')[0];
     const tocLang = configLangs?.includes(tocBaseLang as Lang) && tocBaseLang;
 
     const lang = tocLang || configLang || configLangs?.[0] || Lang.RU;
     const langs = configLangs?.length ? configLangs : [lang];
 
-    const pathname = inputPath.replace(extname(inputPath), '');
+    const pathname = path.replace(extname(path), '');
 
     return {
         data: {
             ...data,
             title: data.title || data.meta.title || '',
-            leading: inputPath.endsWith('.yaml'),
+            leading: path.endsWith('.yaml'),
         },
         router: {
             pathname,
-            depth: getDepth(inputPath),
+            depth: getDepth(path),
         },
         lang,
         langs,
@@ -105,11 +84,11 @@ const getFileProps = async (options: ResolverOptions) => {
     };
 };
 
-export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promise<DocInnerProps> {
-    const {outputPath, inputPath} = options;
-    const props = await getFileProps(options);
+export async function resolveMd2HTML(run: Run, path: RelativePath): Promise<DocInnerProps> {
+    const props = await getFileProps(run, path);
+    const output = join(run.output, path.replace(/\.(md|yaml)$/, '.html'));
 
-    const [tocPath, toc] = run.toc.for(inputPath);
+    const [tocPath, toc] = run.toc.for(path);
     const tocDir = dirname(tocPath);
 
     const title = getTitle(toc.title as string, props.data.title);
@@ -118,8 +97,10 @@ export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promis
         path: join(tocDir, 'toc'),
     };
     const outputFileContent = generateStaticMarkup(props, tocInfo, title);
-    writeFileSync(outputPath, outputFileContent);
-    logger.info(inputPath, PROCESSING_FINISHED);
+
+    await run.write(output, outputFileContent);
+
+    run.logger.info(PROCESSING_FINISHED, path);
 
     return props;
 }
@@ -153,23 +134,15 @@ function getHref(root: string, path: string, href: string) {
     return href;
 }
 
-function YamlFileTransformer(content: string, transformOptions: FileTransformOptions): Object {
-    let data;
-
-    try {
-        data = yaml.load(content);
-    } catch (error) {
-        log.error(`Yaml transform has been failed. Error: ${error}`);
-    }
-
-    if (!data) {
+function YamlFileTransformer(content: object, transformOptions: FileTransformOptions): Object {
+    if (!content) {
         return {
             result: {data: {}},
         };
     }
 
-    if (Object.prototype.hasOwnProperty.call(data, 'blocks')) {
-        data = modifyValuesByKeys(data, LINK_KEYS, (link) => {
+    if (Object.prototype.hasOwnProperty.call(content, 'blocks')) {
+        content = modifyValuesByKeys(content, LINK_KEYS, (link) => {
             if (isString(link) && getLinksWithContentExtersion(link)) {
                 return link.replace(/.(md|yaml)$/gmu, '.html');
             }
@@ -180,12 +153,12 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         const {path, lang} = transformOptions;
         const transformFn: Function = FileTransformer['.md'];
 
-        data = preprocess(data as ConfigData, {lang} as PreloadParams, (_lang, content) => {
+        content = preprocess(content as ConfigData, {lang} as PreloadParams, (_lang, content) => {
             const {result} = transformFn(content, {path});
             return result?.html;
         });
     } else {
-        const links = (data as LeadingPage)?.links?.map((link) => {
+        const links = (content as LeadingPage)?.links?.map((link) => {
             if (link.href) {
                 const {root, path} = transformOptions;
                 const href = getHref(root, path, link.href);
@@ -198,12 +171,12 @@ function YamlFileTransformer(content: string, transformOptions: FileTransformOpt
         });
 
         if (links) {
-            (data as LeadingPage).links = links;
+            (content as LeadingPage).links = links;
         }
     }
 
     return {
-        result: {data},
+        result: {data: content},
     };
 }
 

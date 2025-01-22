@@ -1,65 +1,41 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import type {Run} from '~/commands/build';
-import {basename, dirname, extname, join, resolve} from 'node:path';
-import {existsSync, readFileSync, writeFileSync} from 'fs';
+import {join} from 'node:path';
+import {existsSync} from 'fs';
 import log from '@diplodoc/transform/lib/log';
 import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
 import {dump, load} from 'js-yaml';
-import shell from 'shelljs';
 
 import {
     Lang,
     PAGE_PROCESS_CONCURRENCY,
-    ResourceType,
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
 } from '../constants';
-import {
-    LeadingPage,
-    MetaDataOptions,
-    PathData,
-    Resources,
-    SinglePageResult,
-    YfmToc,
-} from '../models';
+import {LeadingPage, SinglePageResult, YfmToc} from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, SearchService} from '../services';
+import {LeadingService, PluginService, SearchService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
 import {getDepth, joinSinglePageResults} from '../utils';
-import {getVCSConnector} from '../vcs-connector';
-import {VCSConnector} from '../vcs-connector/connector-models';
 
 const singlePageResults: Record<string, SinglePageResult[]> = {};
 const singlePagePaths: Record<string, Set<string>> = {};
 
 // Processes files of documentation (like index.yaml, *.md)
 export async function processPages(run: Run): Promise<void> {
-    const vcsConnector = await getVCSConnector();
-
     PluginService.setPlugins();
 
     await mapLimit(
         run.toc.entries,
         PAGE_PROCESS_CONCURRENCY,
-        asyncify(async (pathToFile: string) => {
-            const pathData = getPathData(
-                pathToFile,
-                run.input,
-                run.output,
-                run.config.outputFormat,
-                run.bundlePath,
-            );
-
+        asyncify(async (pathToFile: NormalizedPath) => {
             run.logger.proc(pathToFile);
-
-            const metaDataOptions = getMetaDataOptions(pathData, vcsConnector);
 
             await preparingPagesByOutputFormat(
                 run,
-                pathData,
-                metaDataOptions,
+                pathToFile,
                 run.config.template.features.conditions,
                 run.config.singlePage,
             );
@@ -71,41 +47,8 @@ export async function processPages(run: Run): Promise<void> {
     }
 
     if (run.config.outputFormat === 'html') {
-        saveRedirectPage(run);
+        await saveRedirectPage(run);
     }
-}
-
-function getPathData(
-    pathToFile: string,
-    inputFolderPath: string,
-    outputFolderPath: string,
-    outputFormat: string,
-    outputBundlePath: string,
-): PathData {
-    const pathToDir: string = dirname(pathToFile);
-    const filename: string = basename(pathToFile);
-    const fileExtension: string = extname(pathToFile);
-    const fileBaseName: string = basename(filename, fileExtension);
-    const outputDir = resolve(outputFolderPath, pathToDir);
-    const outputFileName = `${fileBaseName}.${outputFormat}`;
-    const outputPath = resolve(outputDir, outputFileName);
-    const resolvedPathToFile = resolve(inputFolderPath, pathToFile);
-
-    const pathData: PathData = {
-        pathToFile,
-        resolvedPathToFile,
-        filename,
-        fileBaseName,
-        fileExtension,
-        outputDir,
-        outputPath,
-        outputFormat,
-        outputBundlePath,
-        inputFolderPath,
-        outputFolderPath,
-    };
-
-    return pathData;
 }
 
 async function saveSinglePages(run: Run) {
@@ -151,8 +94,8 @@ async function saveSinglePages(run: Run) {
                     (toc.title as string) || '',
                 );
 
-                writeFileSync(singlePageFn, singlePageContent);
-                writeFileSync(singlePageDataFn, JSON.stringify(pageData));
+                await run.write(singlePageFn, singlePageContent);
+                await run.write(singlePageDataFn, JSON.stringify(pageData));
             }),
         );
     } catch (error) {
@@ -160,24 +103,22 @@ async function saveSinglePages(run: Run) {
     }
 }
 
-function saveRedirectPage(run: Run): void {
+async function saveRedirectPage(run: Run) {
     const redirectLangRelativePath = `./${run.config.lang}/index.html`;
     const redirectPagePath = join(run.output, 'index.html');
     const redirectLangPath = join(run.output, redirectLangRelativePath);
 
     if (!existsSync(redirectPagePath) && existsSync(redirectLangPath)) {
         const content = generateStaticRedirect(run.config.lang, redirectLangRelativePath);
-        writeFileSync(redirectPagePath, content);
+        await run.write(redirectPagePath, content);
     }
 }
 
 function savePageResultForSinglePage(
     pageProps: DocInnerProps,
-    pathData: PathData,
+    path: RelativePath,
     tocDir: RelativePath,
 ): void {
-    const {pathToFile} = pathData;
-
     // TODO: allow page-constructor pages?
     if (pageProps.data.leading) {
         return;
@@ -185,162 +126,90 @@ function savePageResultForSinglePage(
 
     singlePagePaths[tocDir] = singlePagePaths[tocDir] || new Set();
 
-    if (singlePagePaths[tocDir].has(pathToFile)) {
+    if (singlePagePaths[tocDir].has(path)) {
         return;
     }
 
-    singlePagePaths[tocDir].add(pathToFile);
+    singlePagePaths[tocDir].add(path);
 
     singlePageResults[tocDir] = singlePageResults[tocDir] || [];
     singlePageResults[tocDir].push({
-        path: pathToFile,
+        path: path,
         content: pageProps.data.html,
         title: pageProps.data.title,
         // TODO: handle file resources
     });
 }
 
-function getMetaDataOptions(pathData: PathData, vcsConnector?: VCSConnector): MetaDataOptions {
-    const {contributors, addSystemMeta, resources, allowCustomResources, vcs} =
-        ArgvService.getConfig();
-
-    const metaDataOptions: MetaDataOptions = {
-        pathData,
-        vcsConnector,
-        isContributorsEnabled: Boolean(contributors && vcsConnector),
-        addSystemMeta,
-        shouldAlwaysAddVCSPath: typeof vcs?.remoteBase === 'string' && vcs.remoteBase.length > 0,
-    };
-
-    if (allowCustomResources && resources) {
-        const allowedResources = Object.entries(resources).reduce((acc: Resources, [key, val]) => {
-            if (Object.keys(ResourceType).includes(key)) {
-                acc[key as keyof typeof ResourceType] = val;
-            }
-            return acc;
-        }, {});
-
-        metaDataOptions.resources = allowedResources;
-    }
-
-    return metaDataOptions;
-}
-
 async function preparingPagesByOutputFormat(
     run: Run,
-    path: PathData,
-    metaDataOptions: MetaDataOptions,
+    path: RelativePath,
     resolveConditions: boolean,
     singlePage: boolean,
 ): Promise<void> {
-    const {
-        filename,
-        fileExtension,
-        fileBaseName,
-        outputDir,
-        resolvedPathToFile,
-        outputFormat,
-        pathToFile,
-    } = path;
-    const {allowCustomResources} = ArgvService.getConfig();
+    const {outputFormat, allowCustomResources} = run.config;
 
     try {
-        shell.mkdir('-p', outputDir);
+        const isYaml = isYamlFile(path);
+        const isMd = isMdFile(path);
+        const isLeading = isLeadingFile(path);
 
-        const isYamlFileExtension = fileExtension === '.yaml';
-
-        if (resolveConditions && fileBaseName === 'index' && isYamlFileExtension) {
-            LeadingService.filterFile(pathToFile);
+        if (resolveConditions && isLeading) {
+            LeadingService.filterFile(path);
         }
 
-        if (outputFormat === 'md' && isYamlFileExtension && allowCustomResources) {
-            processingYamlFile(path, metaDataOptions);
+        if (outputFormat === 'md' && isYaml && allowCustomResources) {
+            await processingYamlFile(run, path);
             return;
         }
 
-        if (
-            (outputFormat === 'md' && isYamlFileExtension) ||
-            (outputFormat === 'html' && !isYamlFileExtension && fileExtension !== '.md')
-        ) {
-            copyFileWithoutChanges(resolvedPathToFile, outputDir, filename);
+        if ((outputFormat === 'md' && isYaml) || (outputFormat === 'html' && !isYaml && !isMd)) {
+            await run.copy(join(run.input, path), join(run.output, path));
             return;
         }
 
         switch (outputFormat) {
             case 'md':
-                await processingFileToMd(run, path, metaDataOptions);
+                await resolveMd2Md(run, path);
                 return;
             case 'html': {
-                const resolvedFileProps = await processingFileToHtml(run, path, metaDataOptions);
+                const resolvedFileProps = await resolveMd2HTML(run, path);
 
-                SearchService.add(pathToFile, resolvedFileProps);
+                SearchService.add(path, resolvedFileProps);
 
                 if (singlePage) {
-                    savePageResultForSinglePage(resolvedFileProps, path, run.toc.dir(pathToFile));
+                    savePageResultForSinglePage(resolvedFileProps, path, run.toc.dir(path));
                 }
 
                 return;
             }
         }
     } catch (e) {
-        const message = `No such file or has no access to ${bold(resolvedPathToFile)}`;
+        const message = `No such file or has no access to ${bold(join(run.input, path))}`;
         console.log(message, e);
         log.error(message);
     }
 }
-//@ts-ignore
-function processingYamlFile(path: PathData, metaDataOptions: MetaDataOptions) {
-    const {pathToFile, outputFolderPath, inputFolderPath} = path;
-
-    const filePath = resolve(inputFolderPath, pathToFile);
-    const content = readFileSync(filePath, 'utf8');
+async function processingYamlFile(run: Run, path: RelativePath) {
+    const content = await run.read(join(run.input, path));
     const parsedContent = load(content) as LeadingPage;
 
-    if (metaDataOptions.resources) {
-        parsedContent.meta = {...parsedContent.meta, ...metaDataOptions.resources};
-    }
+    run.meta.add(path, parsedContent.meta);
+    run.meta.addResources(path, run.config.resources);
 
-    writeFileSync(resolve(outputFolderPath, pathToFile), dump(parsedContent));
+    parsedContent.meta = run.meta.dump(path);
+
+    await run.write(join(run.output, path), dump(parsedContent));
 }
 
-function copyFileWithoutChanges(
-    resolvedPathToFile: string,
-    outputDir: string,
-    filename: string,
-): void {
-    const from = resolvedPathToFile;
-    const to = resolve(outputDir, filename);
-
-    shell.cp(from, to);
+function isYamlFile(path: AnyPath) {
+    return path.endsWith('.yaml');
 }
 
-async function processingFileToMd(
-    run: Run,
-    path: PathData,
-    metaDataOptions: MetaDataOptions,
-): Promise<void> {
-    const {outputPath, pathToFile} = path;
-
-    await resolveMd2Md(run, {
-        inputPath: pathToFile,
-        outputPath,
-        metadata: metaDataOptions,
-    });
+function isMdFile(path: AnyPath) {
+    return path.endsWith('.md');
 }
 
-async function processingFileToHtml(
-    run: Run,
-    path: PathData,
-    metaDataOptions: MetaDataOptions,
-): Promise<DocInnerProps> {
-    const {outputBundlePath, filename, fileExtension, outputPath, pathToFile} = path;
-
-    return resolveMd2HTML(run, {
-        inputPath: pathToFile,
-        outputBundlePath,
-        fileExtension,
-        outputPath,
-        filename,
-        metadata: metaDataOptions,
-    });
+function isLeadingFile(path: AnyPath) {
+    return path.endsWith('/index.yaml') || path === 'index.yaml';
 }

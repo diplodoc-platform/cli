@@ -1,8 +1,8 @@
-import type {Preset, Presets} from '~/core/vars/types';
+import type {Preset, Presets} from './types';
 
 import {AsyncParallelHook, AsyncSeriesWaterfallHook} from 'tapable';
 
-import {intercept} from '~/utils';
+import {intercept} from '~/core/utils';
 
 const name = 'Vars';
 
@@ -30,6 +30,6 @@ export function hooks() {
 
 export const Hooks = Symbol(`${name}Hooks`);
 
-export function getHooks(program: {[Hooks]?: ReturnType<typeof hooks>}) {
-    return program[Hooks] || hooks();
+export function getHooks(program: {[Hooks]?: ReturnType<typeof hooks>} | undefined) {
+    return (program && program[Hooks]) || hooks();
 }

@@ -7,6 +7,9 @@ export default defineConfig({
     })],
     test: {
         exclude: ['node_modules', 'tests'],
+        setupFiles: [
+            'src/commands/build/__tests__/setup.ts'
+        ],
         coverage: {
             enabled: true,
             provider: 'v8',
