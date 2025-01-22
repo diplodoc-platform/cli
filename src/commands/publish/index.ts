@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
+import type {BaseArgs, IProgram} from '~/core/program';
 import {ok} from 'assert';
 import {pick} from 'lodash';
 import {BaseProgram} from '~/core/program/base';
@@ -10,7 +10,7 @@ import {Run} from './run';
 
 export {upload, Run};
 
-export type PublishArgs = ProgramArgs & {
+export type PublishArgs = BaseArgs & {
     endpoint: string;
     bucket: string;
     prefix: string;
@@ -20,7 +20,7 @@ export type PublishArgs = ProgramArgs & {
     hidden: string[];
 };
 
-export type PublishConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+export type PublishConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     endpoint: string;
     bucket: string;
     prefix: string;

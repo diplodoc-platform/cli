@@ -162,7 +162,7 @@ export class TocService {
             // All processing should subscribe on toc.hooks.Resolved
             this.tocs.set(path as NormalizedPath, toc);
             await this.walkItems([toc], (item: TocItem | Toc) => {
-                if (own<string>(item, 'href') && !isExternalHref(item.href)) {
+                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                     this._entries.add(normalizePath(join(dirname(path), item.href)));
                 }
 

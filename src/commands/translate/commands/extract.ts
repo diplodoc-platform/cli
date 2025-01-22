@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
+import type {IProgram, BaseArgs} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 import {ok} from 'node:assert';
@@ -27,7 +27,7 @@ import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 const MAX_CONCURRENCY = 50;
 
-export type ExtractArgs = ProgramArgs & {
+export type ExtractArgs = BaseArgs & {
     output: string;
     source?: string;
     target?: string | string[];
@@ -37,7 +37,7 @@ export type ExtractArgs = ProgramArgs & {
     useExperimentalParser?: boolean;
 };
 
-export type ExtractConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     output: string;
     source: Locale;
     target: Locale[];

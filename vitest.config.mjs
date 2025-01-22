@@ -6,7 +6,7 @@ export default defineConfig({
         root: './'
     })],
     test: {
-        exclude: ['node_modules', 'tests'],
+        exclude: ['node_modules', 'tests', 'external'],
         coverage: {
             enabled: true,
             provider: 'v8',

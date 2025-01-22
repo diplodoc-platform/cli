@@ -1,4 +1,4 @@
-import type {IParent, IProgram, ProgramArgs} from './index';
+import type {BaseArgs, IParent, IProgram} from './index';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';
@@ -26,7 +26,7 @@ export type BaseHooks<TConfig, TArgs> = {
 
 export const BaseProgram = <
     TConfig extends Record<string, unknown>,
-    TArgs extends ProgramArgs = ProgramArgs,
+    TArgs extends BaseArgs = BaseArgs,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     THooks extends Record<string, Hook<any, any> | HookMap<any>> = BaseHooks<TConfig, TArgs>,
 >(

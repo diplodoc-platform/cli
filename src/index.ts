@@ -2,7 +2,7 @@ import type {HookMeta} from './utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
 
-export type {ICallable, IProgram, ProgramConfig, ProgramArgs} from '~/core/program';
+export type {BaseArgs, BaseConfig, ICallable, IProgram} from '~/core/program';
 export {Program} from '~/core/program';
 
 export type {Config, OptionInfo} from '~/core/config';

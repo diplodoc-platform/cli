@@ -1,5 +1,5 @@
 import type {Build} from '~/commands';
-import type {IncluderOptions, RawToc, RawTocItem, YfmString} from '~/commands/build';
+import type {IncluderOptions, RawToc, RawTocItem, YfmString} from '~/core/toc';
 
 import {dirname, extname, join} from 'node:path';
 
