@@ -4,9 +4,11 @@ import {ArgvService, PresetService, SearchService} from '~/services';
 import {processAssets, processChangelogs, processLinter, processLogs, processPages} from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
+import {legacyConfig} from './legacy-config';
+
 export async function handler(run: Run) {
     try {
-        ArgvService.init(run.legacyConfig);
+        ArgvService.init(legacyConfig(run));
         SearchService.init();
         PresetService.init(run.vars);
 
