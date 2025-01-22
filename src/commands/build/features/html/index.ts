@@ -1,7 +1,8 @@
-import type {Build, Toc, TocItem} from '../..';
+import type {Build} from '../..';
+import type {Toc, TocItem} from '~/core/toc';
 
 import {basename, dirname, extname, join} from 'node:path';
-import {isExternalHref, own} from '~/utils';
+import {isExternalHref, normalizePath, own} from '~/utils';
 import {v4 as uuid} from 'uuid';
 
 export class Html {
@@ -12,11 +13,13 @@ export class Html {
                 await run.toc.walkItems([copy], (item: Toc | TocItem) => {
                     item.id = uuid();
 
-                    if (own<string>(item, 'href') && !isExternalHref(item.href)) {
+                    if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                         const fileExtension: string = extname(item.href);
                         const filename: string = basename(item.href, fileExtension) + '.html';
 
-                        item.href = join(dirname(path), dirname(item.href), filename);
+                        item.href = normalizePath(
+                            join(dirname(path), dirname(item.href), filename),
+                        );
                     }
 
                     return item;

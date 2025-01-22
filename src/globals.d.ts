@@ -47,6 +47,12 @@ type URIString = string & {
     __fix: 'normalized';
 };
 
+interface NodeRequire {
+    resolve: {
+        (id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
+    };
+}
+
 declare module 'node:path' {
     namespace path {
         interface PlatformPath extends PlatformPath {

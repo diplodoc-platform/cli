@@ -1,3 +1,6 @@
+import { normalizePath } from '~/utils';
+import { join } from 'node:path';
+
 function dropExt(path: string) {
     return path.replace(/\.(md|ya?ml|html)$/i, '');
 }
@@ -27,13 +30,13 @@ function relativeTo(root: string, path: string) {
     return path;
 }
 
-export function getSinglePageUrl(tocDir: string, path: string) {
-    const prefix = toUrl(tocDir) || '.';
+export function getSinglePageUrl(tocDir: string, path: string): NormalizedPath {
+    const prefix = normalizePath(tocDir) || '.';
     const suffix = getAnchorId(tocDir, path);
 
     if (prefix === '.') {
-        return '#' + suffix;
+        return ('#' + suffix) as NormalizedPath;
     }
 
-    return prefix + '/single-page.html#' + suffix;
+    return normalizePath(join(prefix, 'single-page.html#' + suffix));
 }

@@ -1,4 +1,4 @@
-import type {ICallable, IParent, IProgram} from './types';
+import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, IProgram} from './types';
 import {resolve} from 'node:path';
 
 import {Command, Config} from '~/core/config';
@@ -9,40 +9,19 @@ import {NAME, USAGE, options} from './config';
 import {HandledError, isRelative} from './utils';
 import {BaseProgram} from './base';
 
-export type {IProgram, IParent, ICallable};
+export type * from './types';
 export {options, HandledError, BaseProgram};
-
-export type ExtensionInfo = {
-    path: string;
-    options: Record<string, any>;
-};
-
-export type ProgramConfig = {
-    input: AbsolutePath;
-    config: string;
-    extensions: ExtensionInfo[];
-    quiet: boolean;
-    strict: boolean;
-};
-
-export type ProgramArgs = {
-    input: AbsolutePath;
-    config: string;
-    extensions: string[];
-    quiet: boolean;
-    strict: boolean;
-};
 
 export class Program
     // eslint-disable-next-line new-cap
-    extends BaseProgram<ProgramConfig, ProgramArgs>('Program', {
+    extends BaseProgram<BaseConfig, BaseArgs>('Program', {
         config: {
             defaults: () => ({
                 extensions: [] as ExtensionInfo[],
             }),
         },
     })
-    implements IProgram<ProgramArgs>
+    implements IProgram<BaseArgs>
 {
     readonly command: Command = new Command(NAME)
         .helpOption(true)
@@ -75,10 +54,10 @@ export class Program
         .helpOption(false)
         .allowUnknownOption(true);
 
-    private readonly modules: ICallable<ProgramArgs>[] = [this.build, this.publish, this.translate];
+    private readonly modules: ICallable<BaseArgs>[] = [this.build, this.publish, this.translate];
 
     async init(argv: string[]) {
-        const args = this.parser.parse(argv).opts() as ProgramArgs;
+        const args = this.parser.parse(argv).opts() as BaseArgs;
         const config = await this.hookConfig(args);
 
         this.modules.push(...(await this.resolveExtensions(config, args)));
@@ -90,7 +69,7 @@ export class Program
         this.apply();
     }
 
-    private async resolveExtensions(config: Config<ProgramConfig>, args: ProgramArgs) {
+    private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         // args extension paths should be relative to PWD
         const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext: string) => {
             const path = isRelative(ext) ? resolve(ext) : ext;

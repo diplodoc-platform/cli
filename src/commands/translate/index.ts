@@ -1,4 +1,4 @@
-import type {ICallable, IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
+import type {BaseArgs, ICallable, IProgram} from '~/core/program';
 import type {BaseHooks} from '~/core/program/base';
 import type {Locale} from './utils';
 import {ok} from 'assert';
@@ -36,7 +36,7 @@ export interface IProvider {
     translate(files: string[], config: TranslateConfig): Promise<void>;
 }
 
-export type TranslateArgs = ProgramArgs & {
+export type TranslateArgs = BaseArgs & {
     output: string;
     provider: string;
     source?: string;
@@ -46,7 +46,7 @@ export type TranslateArgs = ProgramArgs & {
     vars?: Hash;
 };
 
-export type TranslateConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
+export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     output: string;
     provider: string;
     source: Locale;

@@ -1,6 +1,6 @@
 import type {Build} from '~/commands';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/commands/build';
+import type {Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 import {defined} from '~/core/config';
@@ -36,7 +36,7 @@ export class SinglePage {
             run.toc.hooks.Resolved.tapPromise('SinglePage', async (toc, path) => {
                 const copy = JSON.parse(JSON.stringify(toc)) as Toc;
                 await run.toc.walkItems([copy], (item) => {
-                    if (own<string>(item, 'href') && !isExternalHref(item.href)) {
+                    if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                         item.href = getSinglePageUrl(dirname(path), item.href);
                     }
 

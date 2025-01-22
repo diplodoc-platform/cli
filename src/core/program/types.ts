@@ -52,3 +52,23 @@ export interface IParent<ParentHooks extends Hooks = Hooks> {
 
     logger: Logger;
 }
+
+export type BaseArgs = {
+    input: AbsolutePath;
+    config: AbsolutePath;
+    quiet: boolean;
+    strict: boolean;
+    extensions?: string[];
+};
+
+export type BaseConfig = {
+    input: AbsolutePath;
+    quiet: boolean;
+    strict: boolean;
+    extensions?: (string | ExtensionInfo)[];
+};
+
+export type ExtensionInfo = {
+    path: string;
+    options: Record<string, any>;
+};

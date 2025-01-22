@@ -1,5 +1,5 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
-import type {DocAnalytics} from '@diplodoc/client';
+import type {IProgram} from '~/core/program';
+import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
 import {join} from 'node:path';
@@ -8,69 +8,26 @@ import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
 import {BaseProgram} from '~/core/program/base';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, Config, configPath, defined, valuable} from '~/core/config';
+import {Command, configPath, defined, valuable} from '~/core/config';
 import {OutputFormat, options} from './config';
 import {Run} from './run';
 import {handler} from './handler';
 
-import {
-    Templating,
-    TemplatingArgs,
-    TemplatingConfig,
-    TemplatingRawConfig,
-} from './features/templating';
-import {Contributors, ContributorsArgs, ContributorsConfig} from './features/contributors';
-import {SinglePage, SinglePageArgs, SinglePageConfig} from './features/singlepage';
+import {Templating} from './features/templating';
+import {Contributors} from './features/contributors';
+import {SinglePage} from './features/singlepage';
 import {Redirects} from './features/redirects';
-import {Lint, LintArgs, LintConfig, LintRawConfig} from './features/linter';
-import {Changelogs, ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import {Lint} from './features/linter';
+import {Changelogs} from './features/changelogs';
 import {Html} from './features/html';
-import {Search, SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
-import {Legacy, LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
+import {Search} from './features/search';
+import {Legacy} from './features/legacy';
 
 import {GenericIncluderExtension, OpenapiIncluderExtension} from '~/core/toc';
 
 import {intercept} from '~/utils';
 
 export type * from './types';
-
-export enum ResourceType {
-    style = 'style',
-    script = 'script',
-    csp = 'csp',
-}
-
-// TODO: Move to isolated feature?
-export type Resources = {
-    [key in ResourceType]?: string[];
-};
-
-type BaseArgs = {output: AbsolutePath};
-
-type BaseConfig = {
-    lang: `${Lang}`;
-    // TODO(patch): exetend langs list by newly supported langs or change type to string
-    langs: `${Lang}`[];
-    outputFormat: `${OutputFormat}`;
-    varsPreset: string;
-    vars: Hash;
-    allowHtml: boolean;
-    sanitizeHtml: boolean;
-    ignoreStage: string[];
-    ignore: string[];
-    addSystemMeta: boolean;
-    // TODO(minor): we can generate this file all time
-    addMapFile: boolean;
-    // TODO(major): can this be solved by `when` prop in toc?
-    removeHiddenTocItems: boolean;
-    mergeIncludes: boolean;
-    // TODO(major): use as default behavior
-    staticContent: boolean;
-    allowCustomResources: boolean;
-    resources: Resources;
-    // TODO: explicitly handle
-    analytics: DocAnalytics;
-};
 
 export type {Run};
 
@@ -110,42 +67,6 @@ const hooks = () =>
         // TODO: decompose handler and describe this hook
         AfterAnyRun: new AsyncSeriesHook<Run>(['run'], `${command}.AfterAnyRun`),
     });
-
-export type BuildArgs = ProgramArgs &
-    BaseArgs &
-    Partial<
-        TemplatingArgs &
-            ContributorsArgs &
-            SinglePageArgs &
-            LintArgs &
-            ChangelogsArgs &
-            SearchArgs &
-            LegacyArgs
-    >;
-
-export type BuildRawConfig = BaseArgs &
-    ProgramConfig &
-    BaseConfig &
-    TemplatingRawConfig &
-    ContributorsConfig &
-    SinglePageConfig &
-    LintRawConfig &
-    ChangelogsConfig &
-    SearchRawConfig &
-    LegacyRawConfig;
-
-export type BuildConfig = Config<
-    BaseArgs &
-        ProgramConfig &
-        BaseConfig &
-        TemplatingConfig &
-        ContributorsConfig &
-        SinglePageConfig &
-        LintConfig &
-        ChangelogsConfig &
-        SearchConfig &
-        LegacyConfig
->;
 
 export type BuildHooks = ReturnType<typeof hooks>;
 

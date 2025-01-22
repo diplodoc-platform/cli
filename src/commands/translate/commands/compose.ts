@@ -1,4 +1,4 @@
-import type {IProgram, ProgramArgs, ProgramConfig} from '~/core/program';
+import type {BaseArgs, IProgram} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
@@ -13,7 +13,7 @@ import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/exp
 
 const MAX_CONCURRENCY = 50;
 
-export type ComposeArgs = ProgramArgs & {
+export type ComposeArgs = BaseArgs & {
     output: string;
     include?: string[];
     exclude?: string[];
@@ -21,8 +21,8 @@ export type ComposeArgs = ProgramArgs & {
     useExperimentalParser?: boolean;
 };
 
-export type ComposeConfig = Pick<ProgramConfig, 'input' | 'strict' | 'quiet'> & {
-    output: string;
+export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
+    output: AbsolutePath;
     include: string[];
     exclude: string[];
     files: string[];
@@ -144,8 +144,8 @@ type FileInfo = {
 };
 
 function pipeline(
-    input: string,
-    output: string,
+    input: AbsolutePath,
+    output: AbsolutePath,
     {useSource, useExperimentalParser}: ComposeOptions,
 ) {
     return async function pipeline(file: FileInfo) {
