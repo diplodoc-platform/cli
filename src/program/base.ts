@@ -3,7 +3,7 @@ import type {Command, Config, ExtendedOption} from '~/config';
 import {AsyncSeriesWaterfallHook, Hook, HookMap, SyncHook} from 'tapable';
 import {isAbsolute, resolve} from 'node:path';
 import {once} from 'lodash';
-import {Logger, stats} from '~/logger';
+import {Logger, stats} from '~/core/logger';
 import log from '@diplodoc/transform/lib/log';
 import {
     resolveConfig,
