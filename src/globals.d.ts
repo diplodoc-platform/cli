@@ -1,3 +1,5 @@
+declare const __dirname: AbsolutePath;
+declare const require: Require;
 declare const VERSION: string;
 declare const OPENAPI_EXTENSION: string;
 declare const GENERIC_INCLUDER_EXTENSION: string;
@@ -53,10 +55,17 @@ type URIString = string & {
     __fix: 'normalized';
 };
 
-interface NodeRequire {
-    resolve: {
-        (id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
-    };
+type Require = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (id: string): any;
+    resolve(id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
+    main: Module | undefined;
+};
+
+declare module 'normalize-path' {
+    const normalize: (path: string, strip?: boolean) => NormalizedPath;
+
+    export = normalize;
 }
 
 declare module 'node:path' {
