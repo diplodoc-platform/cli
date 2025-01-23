@@ -27,7 +27,7 @@ import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
-import {getDepth, joinSinglePageResults} from '../utils';
+import {getDepth, getDepthPath, joinSinglePageResults} from '../utils';
 import {getVCSConnector} from '../vcs-connector';
 import {VCSConnector} from '../vcs-connector/connector-models';
 
@@ -125,6 +125,7 @@ async function saveSinglePages(run: Run) {
                 const toc = run.toc.for(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
                 const lang = run.config.lang ?? Lang.RU;
                 const langs = run.config.langs.length ? run.config.langs : [lang];
+                const depth = getDepth(relativeTocDir) + 1;
 
                 const pageData = {
                     data: {
@@ -136,7 +137,8 @@ async function saveSinglePages(run: Run) {
                     },
                     router: {
                         pathname: SINGLE_PAGE_FILENAME,
-                        depth: getDepth(relativeTocDir) + 1,
+                        depth,
+                        base: getDepthPath(depth - 1),
                     },
                     lang,
                     langs,

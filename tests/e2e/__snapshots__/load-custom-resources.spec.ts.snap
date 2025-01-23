@@ -308,7 +308,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
       </p>/n
       <hr class=\\"yfm-page__delimeter\\">
       <p>Lorem
-      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2},"lang":"ru","langs":["ru"]};
+      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]};
     </script>
     <script src="single-page-toc.js"
             type="application/javascript"
@@ -330,7 +330,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources md2html single page with custom resources: single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}"`;
 
 exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}]};"`;
 
