@@ -22,7 +22,7 @@ const assets = [
     ...clientManifest.search.async
 ];
 
-const {version, dependencies} = require('../package.json');
+const {version, dependencies, peerDependencies} = require('../package.json');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -62,6 +62,7 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     currentConfig.external = [
         ...Object.keys(dependencies),
+        ...Object.keys(peerDependencies),
         '@diplodoc/cli/package',
     ];
 

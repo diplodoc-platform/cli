@@ -13,6 +13,7 @@ export default defineConfig({
             include: [
                 'src/commands',
                 'src/core',
+                'src/extensions',
             ],
             exclude: [
                 'assets/**',
