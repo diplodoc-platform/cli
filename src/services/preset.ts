@@ -1,7 +1,7 @@
 import {dirname, normalize} from 'path';
 
 import {YfmPreset} from '../models';
-import {VarsService} from '~/commands/build/core/vars';
+import {VarsService} from '~/core/vars';
 
 export type PresetStorage = Map<string, YfmPreset>;
 
