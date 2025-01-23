@@ -1,5 +1,26 @@
 # Changelog
 
+## [4.52.0](https://github.com/diplodoc-platform/cli/compare/v4.51.1...v4.52.0) (2025-01-23)
+
+
+### Features
+
+* add an e2e test to verify img in deflist behavior ([da3076c](https://github.com/diplodoc-platform/cli/commit/da3076c98eb25d35202e326f25359ff69c482953))
+* add pdf generator base option ([4364944](https://github.com/diplodoc-platform/cli/commit/436494450e1221380608374389c37c129bae43be))
+* Implement base run ([a45f69e](https://github.com/diplodoc-platform/cli/commit/a45f69edb0590309e0e9ee7ec6cba3ab4620c3d2))
+* Improve Program initialization flow ([9c62c99](https://github.com/diplodoc-platform/cli/commit/9c62c99bae6f9e2cdb5d0126cd3e824d44d1a4b5))
+* make collect plugin functions aware of the token stream ([289b4f5](https://github.com/diplodoc-platform/cli/commit/289b4f53bf343a1ccb5ef5540c540bb3e6db43e4))
+* Remove `--buildDisabled` flag ([a61ec20](https://github.com/diplodoc-platform/cli/commit/a61ec209c1c94ce9df4e5051e361cd782ee38d09))
+* upgrade transform to 4.42.0 ([68ee535](https://github.com/diplodoc-platform/cli/commit/68ee535cd594094ff8b3ad82de6355ccdbcc53a7))
+
+
+### Bug Fixes
+
+* Drop legacy toc service ([7ef6c75](https://github.com/diplodoc-platform/cli/commit/7ef6c75eff5aaaf3fd233d28a9a75855a7758400))
+* Fix includers toc path resolution ([83e1e56](https://github.com/diplodoc-platform/cli/commit/83e1e5615a9c938fd9196ab2daa04bda4a38929c))
+* Isolate core code. Move new utils to core. ([486a4b4](https://github.com/diplodoc-platform/cli/commit/486a4b4700432596249b6c9c28d25b870f9a0fd4))
+* Remove some usages of shelljs ([2ccaf36](https://github.com/diplodoc-platform/cli/commit/2ccaf3611931838776cbb01c9d9704535fc971ac))
+
 ## [4.51.1](https://github.com/diplodoc-platform/cli/compare/v4.51.0...v4.51.1) (2025-01-14)
 
 
