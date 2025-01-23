@@ -72,8 +72,8 @@ export type BaseArgs = {
 
 export type BaseConfig = {
     input: AbsolutePath;
-    quiet: boolean;
-    strict: boolean;
+    quiet?: boolean;
+    strict?: boolean;
     extensions?: (string | ExtensionInfo)[];
 };
 
