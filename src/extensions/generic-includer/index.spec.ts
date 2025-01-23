@@ -3,11 +3,11 @@ import {when} from 'vitest-when';
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
-import {setupBuild, setupRun} from '~/commands/build/__tests__';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {setupBuild, setupRun} from '~/commands/build/__tests__';
 
-import {Extension} from './generic';
+import {Extension} from '.';
 
 const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][]) => {
     const build = setupBuild();
@@ -25,6 +25,7 @@ const prepareExtension = async (globs: [string, RelativePath, NormalizedPath[]][
             .thenResolve(files);
     }
 
+    build.apply();
     extension.apply(build);
 
     await getBaseHooks(build).BeforeAnyRun.promise(run);

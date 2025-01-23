@@ -2,7 +2,7 @@ import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
 
 import {ok} from 'assert';
 
-import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
+import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -32,20 +32,20 @@ export type PublishConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     hidden: string[];
 };
 
+@withDefaultConfig({
+    defaults: () => ({
+        endpoint: 'https://s3.amazonaws.com',
+        region: 'eu-central-1',
+        prefix: '',
+    }),
+    strictScope: 'publish',
+})
 export class Publish
-    // eslint-disable-next-line new-cap
-    extends BaseProgram<PublishConfig, PublishArgs>('Publish', {
-        config: {
-            defaults: () => ({
-                endpoint: 'https://s3.amazonaws.com',
-                region: 'eu-central-1',
-                prefix: '',
-            }),
-            strictScope: 'publish',
-        },
-    })
+    extends BaseProgram<PublishConfig, PublishArgs>
     implements IProgram<PublishArgs>
 {
+    readonly name = 'Publish';
+
     readonly command = new Command('publish').description(
         'Publish built documentation in target aws s3 compatible storage.',
     );

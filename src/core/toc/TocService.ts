@@ -7,7 +7,7 @@ import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
 import {dump, load} from 'js-yaml';
 
-import {freeze, isExternalHref, normalizePath, own} from '~/utils';
+import {freeze, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';

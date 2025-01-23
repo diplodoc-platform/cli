@@ -22,10 +22,10 @@ import {
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
-    isExternalHref,
     logger,
     modifyValuesByKeys,
 } from '../utils';
+import {isExternalHref} from '~/core/utils';
 import {generateStaticMarkup} from '../pages';
 
 export interface FileTransformOptions {

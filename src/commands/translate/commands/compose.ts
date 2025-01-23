@@ -6,7 +6,7 @@ import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
-import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
+import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -34,16 +34,15 @@ export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     useExperimentalParser?: boolean;
 };
 
+@withDefaultConfig({
+    strictScope: 'translate.compose',
+})
 export class Compose
-    // eslint-disable-next-line new-cap
-    extends BaseProgram<ComposeConfig, ComposeArgs>('Translate.Compose', {
-        config: {
-            defaults: () => ({}),
-            strictScope: 'translate.compose',
-        },
-    })
+    extends BaseProgram<ComposeConfig, ComposeArgs>
     implements IProgram<ComposeArgs>
 {
+    readonly name = 'Translate.Compose';
+
     readonly command = new Command('compose');
 
     readonly options = [

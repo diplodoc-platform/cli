@@ -9,7 +9,7 @@ import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
 import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
-import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
+import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -52,16 +52,15 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     useExperimentalParser?: boolean;
 };
 
+@withDefaultConfig({
+    strictScope: 'translate.extract',
+})
 export class Extract
-    // eslint-disable-next-line new-cap
-    extends BaseProgram<ExtractConfig, ExtractArgs>('Translate.Extract', {
-        config: {
-            defaults: () => ({}),
-            strictScope: 'translate.extract',
-        },
-    })
+    extends BaseProgram<ExtractConfig, ExtractArgs>
     implements IProgram<ExtractArgs>
 {
+    readonly name = 'Translate.Extract';
+
     readonly command = new Command('extract');
 
     readonly options = [

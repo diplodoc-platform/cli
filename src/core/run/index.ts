@@ -7,7 +7,7 @@ import {dirname, join, relative} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
-import {bounded, normalizePath} from '~/utils';
+import {bounded, normalizePath} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 import {addSourcePath} from '~/core/meta';
 

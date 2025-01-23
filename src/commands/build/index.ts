@@ -4,14 +4,12 @@ import type {BuildArgs, BuildConfig} from './types';
 import {ok} from 'node:assert';
 import {join} from 'node:path';
 
-import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
+import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, configPath, defined, valuable} from '~/core/config';
-import {
-    GenericIncluderExtension,
-    OpenapiIncluderExtension,
-    getHooks as getTocHooks,
-} from '~/core/toc';
+import {getHooks as getTocHooks} from '~/core/toc';
+import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
+import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -37,36 +35,31 @@ export type {Run};
 const command = 'Build';
 
 @withHooks
-export class Build
-    extends BaseProgram<BuildConfig, BuildArgs>(command, { // eslint-disable-line
-        config: {
-            scope: 'build',
-            defaults: () =>
-                ({
-                    langs: [],
-                    outputFormat: OutputFormat.html,
-                    varsPreset: 'default',
-                    vars: {},
-                    ignore: [],
-                    allowHtml: true,
-                    sanitizeHtml: true,
-                    addMapFile: false,
-                    removeHiddenTocItems: false,
-                    mergeIncludes: false,
-                    resources: {},
-                    allowCustomResources: false,
-                    staticContent: false,
-                    ignoreStage: [Stage.SKIP],
-                    addSystemMeta: false,
-                    lint: {enabled: true, config: {'log-levels': {}}},
-                }) as Partial<BuildConfig>,
-        },
-        command: {
-            isDefault: true,
-        },
-    })
-    implements IProgram<BuildArgs>
-{
+@withDefaultConfig({
+    scope: 'build',
+    defaults: () =>
+        ({
+            langs: [],
+            outputFormat: OutputFormat.html,
+            varsPreset: 'default',
+            vars: {},
+            ignore: [],
+            allowHtml: true,
+            sanitizeHtml: true,
+            addMapFile: false,
+            removeHiddenTocItems: false,
+            mergeIncludes: false,
+            resources: {},
+            allowCustomResources: false,
+            staticContent: false,
+            ignoreStage: [Stage.SKIP],
+            addSystemMeta: false,
+            lint: {enabled: true, config: {'log-levels': {}}},
+        }) as Partial<BuildConfig>,
+})
+export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgram<BuildArgs> {
+    readonly name = command;
+
     readonly templating = new Templating();
 
     readonly contributors = new Contributors();
@@ -123,7 +116,7 @@ export class Build
     ];
 
     apply(program?: IBaseProgram) {
-        getBaseHooks<BuildConfig>(this).Config.tap('Build', (config, args) => {
+        getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);

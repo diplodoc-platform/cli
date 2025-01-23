@@ -1,7 +1,7 @@
 import type {PublishConfig} from './index';
 import {Logger} from '~/core/logger';
 import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {normalizePath} from '~/utils';
+import {normalizePath} from '~/core/utils';
 import {join, resolve} from 'path';
 import {createReadStream} from 'fs';
 

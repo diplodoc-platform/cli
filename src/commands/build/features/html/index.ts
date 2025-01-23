@@ -3,7 +3,7 @@ import type {Toc, TocItem} from '~/core/toc';
 
 import {basename, dirname, extname, join} from 'node:path';
 import {v4 as uuid} from 'uuid';
-import {isExternalHref, normalizePath, own} from '~/utils';
+import {isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';

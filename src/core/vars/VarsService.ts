@@ -5,7 +5,7 @@ import {dirname, join} from 'node:path';
 import {merge} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {freeze, normalizePath, own} from '~/utils';
+import {freeze, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 

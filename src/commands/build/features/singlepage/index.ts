@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/core/config';
-import {isExternalHref, own} from '~/utils';
+import {isExternalHref, own} from '~/core/utils';
 
 import {options} from './config';
 import {getSinglePageUrl} from './utils';

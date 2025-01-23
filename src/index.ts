@@ -2,7 +2,7 @@ import type {HookMeta} from '~/core/utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
 import {NAME, Program, parse} from '~/commands';
-import {own} from '~/utils';
+import {own} from '~/core/utils';
 
 export {Program} from '~/commands';
 

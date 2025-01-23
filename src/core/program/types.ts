@@ -32,6 +32,8 @@ export interface IProgram<Args extends BaseArgs = BaseArgs> {
 }
 
 export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends ICallable {
+    name: string;
+
     [Hooks]: ReturnType<typeof hooks<BaseConfig & TConfig, BaseArgs & TArgs>>;
 
     command: Command;
@@ -39,6 +41,8 @@ export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends IC
     options: Readonly<ExtendedOption[]>;
 
     init(args: BaseArgs, parent?: IBaseProgram): Promise<void>;
+
+    config: BaseConfig;
 
     logger: Logger;
 }

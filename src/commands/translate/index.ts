@@ -4,7 +4,7 @@ import type {Locale} from './utils';
 import {ok} from 'assert';
 import {pick} from 'lodash';
 
-import {BaseProgram, getHooks as getBaseHooks} from '~/core/program';
+import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -46,15 +46,15 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 };
 
 @withHooks
+@withDefaultConfig({
+    strictScope: NAME,
+})
 export class Translate
-    extends BaseProgram<TranslateConfig, TranslateArgs>('Translate', { // eslint-disable-line
-        config: {
-            defaults: () => ({}),
-            strictScope: NAME,
-        },
-    })
+    extends BaseProgram<TranslateConfig, TranslateArgs>
     implements IProgram<TranslateArgs>
 {
+    readonly name = 'Translate';
+
     readonly command = new Command(NAME)
         .description(DESCRIPTION)
         .helpOption(false)
