@@ -1,7 +1,13 @@
 declare const VERSION: string;
+declare const OPENAPI_EXTENSION: string;
+declare const GENERIC_INCLUDER_EXTENSION: string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
+
+type ClassType = {
+    new (...args: any[]): any;
+};
 
 type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends {} ? DeepPartial<T[P]> : T[P];

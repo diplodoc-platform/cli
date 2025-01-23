@@ -1,11 +1,17 @@
-import type {IBaseProgram, IExtension} from '~/core/program';
-import type {Run as BaseRun} from '~/core/run';
-import type {IncluderOptions, RawToc, RawTocItem, TocService, YfmString} from '~/core/toc';
+import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
+import type {
+    IncluderOptions,
+    RawToc,
+    RawTocItem,
+    TocService,
+    YfmString,
+} from '@diplodoc/cli/lib/toc';
 
 import {dirname, extname, join} from 'node:path';
 
-import {getHooks as getBaseHooks} from '~/core/program';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
+import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 
 // const AUTOTITLE = '{$T}';
 

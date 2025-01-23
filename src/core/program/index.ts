@@ -15,211 +15,201 @@ import {Logger, stats} from '~/core/logger';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {HandledError} from './utils';
+import {getDefaultConfig, withDefaultConfig} from './decorators';
 
 export * from './types';
 
-export {getHooks};
+export {getHooks, withDefaultConfig};
 
 const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
 
 const YFM_CONFIG_FILENAME = '.yfm';
 
-type ProgramParts<TConfig extends BaseConfig> = {
-    config?: {
-        defaults?: () => Partial<TConfig>;
-        scope?: string;
-        strictScope?: string;
-    };
-    command?: {
-        isDefault?: boolean;
-    };
+type Behavior = {
+    isDefaultCommand?: boolean;
 };
 
-export const BaseProgram = <
-    TConfig extends BaseConfig = BaseConfig,
-    TArgs extends BaseArgs = BaseArgs,
->(
-    name: string,
-    parts: ProgramParts<TConfig>,
-) => {
-    const {
-        config: {defaults = () => ({}), scope, strictScope} = {},
-        command: {isDefault = false} = {},
-    } = parts;
+export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends BaseArgs = BaseArgs>
+    implements IBaseProgram<TConfig, TArgs>
+{
+    readonly name: string = 'Base';
 
-    return class BaseProgram implements IBaseProgram<TConfig, TArgs> {
-        readonly [Hooks] = hooks<TConfig, TArgs>(name);
+    readonly [Hooks] = hooks<TConfig, TArgs>('Base');
 
-        readonly command!: Command;
+    readonly command!: Command;
 
-        readonly config!: Config<TConfig>;
+    readonly config!: Config<TConfig>;
 
-        readonly logger: Logger = new Logger();
+    readonly logger: Logger = new Logger();
 
-        readonly options!: ExtendedOption[];
+    readonly options!: ExtendedOption[];
 
-        protected modules: ICallable[] = [];
+    protected modules: ICallable[] = [];
 
-        protected extensions: (string | ExtensionInfo)[] = [];
+    protected extensions: (string | ExtensionInfo)[] = [];
 
-        protected args: string[] = [];
+    protected args: string[] = [];
 
-        constructor(config?: BaseConfig & TConfig) {
-            if (config) {
-                this.config = withConfigUtils(process.cwd(), {
-                    ...defaults(),
-                    ...config,
-                });
-            }
-        }
+    private behavior: Behavior = {};
 
-        async init(args: BaseArgs, parent?: IBaseProgram) {
-            this.logger.setup(args);
+    constructor(config?: BaseConfig & TConfig, behavior: Behavior = {}) {
+        this.behavior = behavior;
 
-            // @ts-ignore
-            const config = parent?.config || (await this.hookConfig(args as TArgs));
-
-            this.logger.setup(config);
-
-            const extensions = await this.resolveExtensions(config, args);
-
-            this.modules.push(...extensions);
-
-            this.options.forEach((option) => {
-                this.command.addOption(option);
+        if (config) {
+            const {defaults} = getDefaultConfig(this);
+            this.config = withConfigUtils(process.cwd(), {
+                ...defaults(),
+                ...config,
             });
-
-            this.command.action(() => this._action());
-
-            for (const module of this.modules) {
-                if (isProgram(module)) {
-                    await module.init(args, this);
-                } else {
-                    module.apply(this);
-                }
-            }
-
-            this.apply(parent);
         }
+    }
 
-        apply(program?: IBaseProgram) {
-            // @ts-ignore
-            this['parent'] = program;
+    async init(args: BaseArgs, parent?: IBaseProgram) {
+        this.logger.setup(args);
 
-            if (program) {
-                getHooks(program).Command.tap(
-                    name,
-                    once((command) => {
-                        command.addCommand(this.command, {isDefault});
-                        this[Hooks].Command.call(this.command, this.options);
-                    }),
-                );
-                this.logger.pipe(program.logger);
+        // @ts-ignore
+        this['config'] = parent?.config || (await this.hookConfig(args as TArgs));
+
+        this.logger.setup(this['config']);
+
+        const extensions = await this.resolveExtensions(this['config'], args);
+
+        this.modules.push(...extensions);
+
+        this.options.forEach((option) => {
+            this.command.addOption(option);
+        });
+
+        this.command.action(() => this._action());
+
+        for (const module of this.modules) {
+            if (isProgram(module)) {
+                await module.init(args, this);
             } else {
-                this[Hooks].Command.call(this.command, this.options);
+                module.apply(this);
             }
         }
 
-        async parse(args: string[]) {
-            this.args = args;
-            return this.command.parseAsync(args);
+        this.apply(parent);
+    }
+
+    apply(program?: IBaseProgram) {
+        const isDefault = this.behavior.isDefaultCommand;
+        // @ts-ignore
+        this['parent'] = program;
+
+        if (program) {
+            getHooks(program).Command.tap(
+                this.name,
+                once((command) => {
+                    command.addCommand(this.command, {isDefault});
+                    this[Hooks].Command.call(this.command, this.options);
+                }),
+            );
+            this.logger.pipe(program.logger);
+        } else {
+            this[Hooks].Command.call(this.command, this.options);
+        }
+    }
+
+    async parse(args: string[]) {
+        this.args = args;
+        return this.command.parseAsync(args);
+    }
+
+    async action(_args: TArgs) {
+        throw new Error('Should be implemented');
+    }
+
+    private async hookConfig(args: TArgs) {
+        const {defaults, scope, strictScope} = getDefaultConfig(this);
+        const configPath =
+            isAbsolute(args.config) || isRelative(args.config)
+                ? resolve(args.config)
+                : resolve(args.input, args.config);
+
+        const filter =
+            (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
+
+        const config = await resolveConfig(configPath, {
+            filter: filter || undefined,
+            defaults: defaults(),
+            fallback: args.config === YFM_CONFIG_FILENAME ? defaults() : null,
+        });
+
+        await this[Hooks].RawConfig.promise(config, args);
+
+        const options = this.options.map((option) => option.attributeName());
+
+        Object.assign(config, pick(args, options));
+
+        return this[Hooks].Config.promise(config, args);
+    }
+
+    private async post() {
+        const stat = stats(this.logger);
+        if (stat.error || (this.config.strict && stat.warn)) {
+            throw new HandledError('There is some processing errors.');
         }
 
-        async action(_args: TArgs) {
-            throw new Error('Should be implemented');
+        const {error, warn} = log.get();
+        if (error.length || (this.config.strict && warn.length)) {
+            throw new HandledError('There is some processing errors.');
         }
+    }
 
-        protected async hookConfig(args: TArgs) {
-            const configPath =
-                isAbsolute(args.config) || isRelative(args.config)
-                    ? resolve(args.config)
-                    : resolve(args.input, args.config);
+    private async _action() {
+        const args = this.command.optsWithGlobals() as TArgs;
 
-            const filter =
-                (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
+        // We already parse config in to init method,
+        // but there we need to rebuild it,
+        // because some extensions may affect config parsing.
+        // @ts-ignore
+        this['config'] = await this.hookConfig(args);
 
-            const config =
-                this.config ||
-                (await resolveConfig(configPath, {
-                    filter: filter || undefined,
-                    defaults: defaults(),
-                    fallback: args.config === YFM_CONFIG_FILENAME ? defaults() : null,
-                }));
+        await this.action(args);
+        await this.post();
+    }
 
-            await this[Hooks].RawConfig.promise(config, args);
+    private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
+        // args extension paths should be relative to PWD
+        const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
+            const path = isRelative(ext) ? resolve(ext) : ext;
+            const options = {};
 
-            const options = this.options.map((option) => option.attributeName());
+            return {path, options};
+        });
 
-            Object.assign(config, pick(args, options));
+        // config extension paths should be relative to config
+        const configExtensions: ExtensionInfo[] = [
+            ...this.extensions,
+            ...(config.extensions || []),
+        ].map((ext) => {
+            const extPath = typeof ext === 'string' ? ext : ext.path;
+            const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
+            const options = typeof ext === 'string' ? {} : ext.options || {};
 
-            return this[Hooks].Config.promise(config, args);
-        }
+            return {path, options};
+        });
 
-        private async post() {
-            const stat = stats(this.logger);
-            if (stat.error || (this.config.strict && stat.warn)) {
-                throw new HandledError('There is some processing errors.');
-            }
+        const extensions = [...argsExtensions, ...configExtensions];
 
-            const {error, warn} = log.get();
-            if (error.length || (this.config.strict && warn.length)) {
-                throw new HandledError('There is some processing errors.');
-            }
-        }
+        const initialize = async ({
+            path,
+            options,
+        }: {
+            path: string;
+            options: Record<string, unknown>;
+        }) => {
+            const ExtensionModule = await import(path);
+            const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
-        private async _action() {
-            const args = this.command.optsWithGlobals() as TArgs;
+            return new Extension(options);
+        };
 
-            // We already parse config in to init method,
-            // but there we need to rebuild it,
-            // because some extensions may affect config parsing.
-            // @ts-ignore
-            this['config'] = await this.hookConfig(args);
-
-            await this.action(args);
-            await this.post();
-        }
-
-        private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
-            // args extension paths should be relative to PWD
-            const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-                const path = isRelative(ext) ? resolve(ext) : ext;
-                const options = {};
-
-                return {path, options};
-            });
-
-            // config extension paths should be relative to config
-            const configExtensions: ExtensionInfo[] = [
-                ...this.extensions,
-                ...(config.extensions || []),
-            ].map((ext) => {
-                const extPath = typeof ext === 'string' ? ext : ext.path;
-                const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
-                const options = typeof ext === 'string' ? {} : ext.options || {};
-
-                return {path, options};
-            });
-
-            const extensions = [...argsExtensions, ...configExtensions];
-
-            const initialize = async ({
-                path,
-                options,
-            }: {
-                path: string;
-                options: Record<string, unknown>;
-            }) => {
-                const ExtensionModule = await import(path);
-                const Extension = ExtensionModule.Extension || ExtensionModule.default;
-
-                return new Extension(options);
-            };
-
-            return Promise.all(extensions.map(initialize));
-        }
-    };
-};
+        return Promise.all(extensions.map(initialize));
+    }
+}
 
 function isProgram<TArgs extends BaseArgs>(module: unknown): module is IBaseProgram<TArgs> {
     return Boolean(module && typeof (module as IBaseProgram).init === 'function');

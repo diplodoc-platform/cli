@@ -11,7 +11,7 @@ import {
 } from '../authors';
 import {ContributorsServiceFileData, getFileContributors, getFileIncludes} from '../contributors';
 import {isObject} from '../utils';
-import {normalizePath} from '../../utils';
+import {normalizePath} from '~/core/utils';
 
 const getFileDataForContributorsService = (
     pathData: PathData,

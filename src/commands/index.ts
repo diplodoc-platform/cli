@@ -5,7 +5,7 @@ import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build} from '~/commands/build';
 import {Publish} from '~/commands/publish';
 import {Translate} from '~/commands/translate';
-import {BaseProgram} from '~/core/program';
+import {BaseProgram, withDefaultConfig} from '~/core/program';
 
 import {NAME, USAGE, options} from './config';
 
@@ -13,17 +13,14 @@ export {NAME};
 
 export {parse} from './parser';
 
-export class Program
-    // eslint-disable-next-line new-cap
-    extends BaseProgram('Program', {
-        config: {
-            defaults: () => ({
-                extensions: [] as ExtensionInfo[],
-            }),
-        },
-    })
-    implements IProgram
-{
+@withDefaultConfig({
+    defaults: () => ({
+        extensions: [] as ExtensionInfo[],
+    }),
+})
+export class Program extends BaseProgram implements IProgram {
+    readonly name = 'Program';
+
     readonly command: Command = new Command(NAME)
         .helpOption(true)
         .allowUnknownOption(false)
@@ -34,7 +31,7 @@ export class Program
         )
         .usage(USAGE);
 
-    readonly build = new Build();
+    readonly build = new Build(undefined, {isDefaultCommand: true});
 
     readonly publish = new Publish();
 

@@ -1,9 +1,5 @@
 import type {Hook, HookMap} from 'tapable';
 
-type ClassType = {
-    new (...args: any[]): any;
-};
-
 export function generateHooksAccess<THooks>(name: string, hooks: () => THooks) {
     const Hooks = Symbol(`${name}Hooks`);
 
