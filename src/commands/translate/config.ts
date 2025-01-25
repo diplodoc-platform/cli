@@ -116,6 +116,18 @@ const useExperimentalParser = option({
     `,
 });
 
+const schema = option({
+    flags: '--schema <path...>',
+    desc: `
+        List of paths to custom translate schema files.
+
+        Example:
+            {{PROGRAM}} --schema ./some/path/to/file.yaml ./some/path/toAnother/file.yaml
+
+    `,
+    parser: toArray,
+});
+
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -130,4 +142,5 @@ export const options = {
     dryRun,
     useSource,
     useExperimentalParser,
+    schema,
 };

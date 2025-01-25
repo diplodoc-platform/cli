@@ -1,6 +1,6 @@
-import type {JSONObject, LinkedJSONObject} from '@diplodoc/translation';
+import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translation';
 
-import {dirname, join} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
 import {linkRefs, unlinkRefs} from '@diplodoc/translation';
@@ -148,35 +148,47 @@ async function loadFile<T = string | JSONObject>(path: AbsolutePath): Promise<T>
 export async function resolveSchemas({
     content,
     path,
+    customSchemaPath,
 }: {
     content: string | JSONObject;
     path: string;
+    customSchemaPath?: string[];
 }) {
+    const result: {schemas: JSONObject[]; ajvOptions?: AjvOptions} = {
+        schemas: [],
+    };
+
     if (typeof content === 'object' && content?.blocks) {
-        return {
-            schemas: [await loadFile(join(ROOT, 'schemas/page-constructor-schema.yaml'))],
-            ajvOptions: {
-                keywords: 'select',
-                extendWithSchemas: [],
-            },
+        result.schemas.push(await loadFile(join(ROOT, 'schemas/page-constructor-schema.yaml')));
+        result.ajvOptions = {
+            keywords: ['select'],
+            extendWithSchemas: [],
         };
     }
 
     if (path.endsWith('toc.yaml')) {
-        return {schemas: [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))]};
+        result.schemas.push(await loadFile(join(ROOT, 'schemas/toc-schema.yaml')));
     }
 
     if (path.endsWith('index.yaml')) {
-        return {schemas: [await loadFile(join(ROOT, 'schemas/leading-schema.yaml'))]};
+        result.schemas.push(await loadFile(join(ROOT, 'schemas/leading-schema.yaml')));
     }
 
     if (path.endsWith('presets.yaml')) {
-        return {schemas: [await loadFile(join(ROOT, 'schemas/presets-schema.yaml'))]};
+        result.schemas.push(await loadFile(join(ROOT, 'schemas/presets-schema.yaml')));
     }
 
     if (path.endsWith('redirects.yaml')) {
-        return {schemas: []};
+        result.schemas = [];
+    } else {
+        result.schemas.push(await loadFile(join(ROOT, 'schemas/toc-schema.yaml')));
     }
 
-    return {schemas: [await loadFile(join(ROOT, 'schemas/toc-schema.yaml'))]};
+    if (customSchemaPath?.length) {
+        for (const path of customSchemaPath) {
+            result.schemas.push(await loadFile(resolve(path)));
+        }
+    }
+
+    return result;
 }
