@@ -50,6 +50,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     skipped: [string, string][];
     vars: Hash;
     useExperimentalParser?: boolean;
+    schema?: string;
 };
 
 @withDefaultConfig({
@@ -74,6 +75,7 @@ export class Extract
         options.vars,
         options.config(YFM_CONFIG_FILENAME),
         options.useExperimentalParser,
+        options.schema,
     ];
 
     readonly logger = new TranslateLogger();
@@ -132,6 +134,7 @@ export class Extract
             target: targets,
             vars,
             useExperimentalParser,
+            schema,
         } = this.config;
 
         this.logger.setup(this.config);
@@ -147,6 +150,7 @@ export class Extract
                 output,
                 vars,
                 useExperimentalParser,
+                schema,
             });
 
             this.logger.skipped(skipped);
@@ -188,10 +192,11 @@ export type PipelineParameters = {
     target: ExtractOptions['target'];
     vars: Hash;
     useExperimentalParser?: boolean;
+    schema?: ExtractOptions['schema'];
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars, useExperimentalParser} = params;
+    const {input, output, source, target, vars, useExperimentalParser, schema} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -218,7 +223,11 @@ function pipeline(params: PipelineParameters) {
             );
         }
 
-        const {schemas, ajvOptions} = await resolveSchemas({content: content.data, path});
+        const {schemas, ajvOptions} = await resolveSchemas({
+            content: content.data,
+            path,
+            customSchemaPath: schema,
+        });
         const {xliff, skeleton, units} = extract(content.data, {
             originalFile: path,
             source,
