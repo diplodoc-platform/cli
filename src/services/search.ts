@@ -5,6 +5,7 @@ import {SEARCH_API, SEARCH_LANGS} from '../constants';
 
 import {join} from 'node:path';
 import {mkdirSync, writeFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
 
 import {Indexer} from '@diplodoc/search-extension/indexer';
 import {langs} from '@diplodoc/search-extension/worker/langs';
@@ -63,9 +64,12 @@ async function release() {
         const {index, registry} = await indexer.release(lang);
         const dir = outputDir(lang);
 
+        const indexHash = hash(index);
+        const registryHash = hash(registry);
+
         mkdirSync(dir, {recursive: true});
-        writeFileSync(indexLink(lang), index as string, 'utf8');
-        writeFileSync(registryLink(lang), registry as string, 'utf8');
+        writeFileSync(indexLink(lang, indexHash), index as string, 'utf8');
+        writeFileSync(registryLink(lang, registryHash), registry as string, 'utf8');
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
 
         if (isLocalSearchEnabled() && langs.includes(lang)) {
@@ -105,12 +109,12 @@ function apiLink() {
     return path;
 }
 
-function indexLink(lang: string) {
-    return outputLink(lang, 'index.js');
+function indexLink(lang: string, hash: string) {
+    return outputLink(lang, `${hash}-index.js`);
 }
 
-function registryLink(lang: string) {
-    return outputLink(lang, 'registry.js');
+function registryLink(lang: string, hash: string) {
+    return outputLink(lang, `${hash}-registry.js`);
 }
 
 function languageLink(lang: string) {
@@ -136,6 +140,14 @@ function config(lang: string) {
             language: langs.includes(lang) ? short(languageLink(lang)) : undefined,
         },
     };
+}
+
+function hash(content: string) {
+    const hash = createHash('sha256');
+
+    hash.update(content);
+
+    return hash.digest('hex').slice(0, 12);
 }
 
 export default {
