@@ -8,7 +8,7 @@ import {basename, dirname, join} from 'node:path';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
-import {bounded, errorMessage, freeze, isExternalHref, normalizePath, own} from '~/core/utils';
+import {bounded, errorMessage, freezeJson, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
@@ -155,7 +155,7 @@ export class TocService {
             return item;
         });
 
-        await getHooks(this).Resolved.promise(freeze(toc), path);
+        await getHooks(this).Resolved.promise(freezeJson(toc), path);
 
         return toc;
     }
