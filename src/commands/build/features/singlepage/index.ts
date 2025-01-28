@@ -1,5 +1,4 @@
 import type {Build} from '~/commands/build';
-import type {Toc} from '~/core/toc';
 import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
@@ -8,7 +7,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/core/config';
-import {isExternalHref, own} from '~/core/utils';
+import {copyJson, isExternalHref, own} from '~/core/utils';
 
 import {options} from './config';
 import {getSinglePageUrl} from './utils';
@@ -41,7 +40,7 @@ export class SinglePage {
                 }
 
                 getTocHooks(run.toc).Resolved.tapPromise('SinglePage', async (toc, path) => {
-                    const copy = JSON.parse(JSON.stringify(toc)) as Toc;
+                    const copy = copyJson(toc);
                     await run.toc.walkItems([copy], (item) => {
                         if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                             item.href = getSinglePageUrl(dirname(path), item.href);

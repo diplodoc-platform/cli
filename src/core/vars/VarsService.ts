@@ -5,7 +5,7 @@ import {dirname, join} from 'node:path';
 import {merge} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {freeze, normalizePath, own} from '~/core/utils';
+import {freezeJson, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -84,7 +84,7 @@ export class VarsService {
 
         scopes.push(this.config.vars);
 
-        this.cache[file] = freeze(merge({}, ...scopes));
+        this.cache[file] = freezeJson(merge({}, ...scopes));
 
         await getHooks(this).Resolved.promise(this.cache[file], file);
 
