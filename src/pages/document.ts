@@ -1,4 +1,5 @@
 import {join} from 'path';
+import {copyJson} from '~/core/utils';
 
 import {
     BUNDLE_FOLDER,
@@ -30,8 +31,6 @@ type TocInfo = {
     content: YfmToc;
     path: string;
 };
-
-const copyJson = (json) => JSON.parse(JSON.stringify(json));
 
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,

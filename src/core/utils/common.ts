@@ -9,18 +9,22 @@ export function own<V = unknown, T extends string = string>(
     );
 }
 
-export function freeze<T>(target: T, visited = new Set()): T {
+export function copyJson<T extends object>(json: T | undefined): T {
+    return json ? JSON.parse(JSON.stringify(json)) : json;
+}
+
+export function freezeJson<T>(target: T, visited = new Set()): T {
     if (!visited.has(target)) {
         visited.add(target);
 
         if (Array.isArray(target)) {
-            target.forEach((item) => freeze(item, visited));
+            target.forEach((item) => freezeJson(item, visited));
         }
 
         if (isObject(target) && !Object.isSealed(target)) {
             Object.freeze(target);
             Object.keys(target).forEach((key) =>
-                freeze(target[key as keyof typeof target], visited),
+                freezeJson(target[key as keyof typeof target], visited),
             );
         }
     }
