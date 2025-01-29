@@ -34,6 +34,7 @@ export function hooks() {
             ['Toc', 'TocPath', 'IncludeInfo'],
             `${name}.Included`,
         ),
+        Dump: new AsyncSeriesWaterfallHook<[Toc, NormalizedPath]>(['toc', 'path'], `${name}.Dump`),
     });
 }
 

@@ -5,9 +5,9 @@ import type {LoaderContext} from './loader';
 
 import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
-import {dump, load} from 'js-yaml';
+import {load} from 'js-yaml';
 
-import {freeze, isExternalHref, normalizePath, own} from '~/core/utils';
+import {bounded, freeze, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
@@ -53,11 +53,11 @@ export class TocService {
 
     private config: TocServiceConfig;
 
-    private tocs: Map<NormalizedPath, Toc> = new Map();
-
     private _entries: Set<NormalizedPath> = new Set();
 
     private processed: Hash<boolean> = {};
+
+    private cache: Map<NormalizedPath, Toc | undefined> = new Map();
 
     constructor(run: Run) {
         this.run = run;
@@ -77,13 +77,13 @@ export class TocService {
         }
     }
 
-    async load(path: RelativePath, include?: IncludeInfo): Promise<Toc | undefined> {
+    @bounded async load(path: RelativePath, include?: IncludeInfo): Promise<Toc | undefined> {
         path = normalizePath(path);
 
         // There is no error. We really skip toc processing, if it was processed previously in any way.
         // For example toc can be processed as include of some other toc.
         if (!include && this.processed[path]) {
-            return;
+            return this.cache.get(path as NormalizedPath);
         }
 
         this.processed[path] = true;
@@ -113,12 +113,12 @@ export class TocService {
         // Should ignore included toc with tech-preview stage.
         // TODO(major): remove this
         if (content && content.stage === Stage.TECH_PREVIEW) {
-            return;
+            return undefined;
         }
 
         const {ignoreStage} = this.config;
         if (content.stage && ignoreStage.length && ignoreStage.includes(content.stage)) {
-            return;
+            return undefined;
         }
 
         if (include && isMergeMode(include.mode)) {
@@ -139,29 +139,32 @@ export class TocService {
         // If this is a part of other toc.yaml
         if (include) {
             await getHooks(this).Included.promise(toc, path, include);
-        } else {
-            // TODO: we don't need to store tocs in future
-            // All processing should subscribe on toc.hooks.Resolved
-            this.tocs.set(path as NormalizedPath, toc);
-            await this.walkItems([toc], (item: TocItem | Toc) => {
-                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                    this._entries.add(normalizePath(join(dirname(path), item.href)));
-                }
 
-                return item;
-            });
-
-            await getHooks(this).Resolved.promise(freeze(toc), path);
+            return toc;
         }
 
-        // eslint-disable-next-line consistent-return
+        this.cache.set(path as NormalizedPath, toc);
+
+        await this.walkItems([toc], (item: TocItem | Toc) => {
+            if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
+                this._entries.add(normalizePath(join(dirname(path), item.href)));
+            }
+
+            return item;
+        });
+
+        await getHooks(this).Resolved.promise(freeze(toc), path);
+
         return toc;
     }
 
-    dump(toc: Toc | undefined) {
-        ok(toc, 'Toc is empty.');
+    @bounded async dump(path: RelativePath): Promise<Toc> {
+        const file = normalizePath(path);
+        const toc = await this.load(path);
 
-        return dump(toc);
+        ok(toc, `Toc for path ${file} is not resolved.`);
+
+        return await getHooks(this).Dump.promise(toc, file);
     }
 
     /**
@@ -201,21 +204,22 @@ export class TocService {
      * Resolves toc path and data for any page path.
      * Expects what all paths are already loaded in service.
      */
-    for(path: RelativePath): [NormalizedPath, Toc] {
+    for(path: RelativePath): NormalizedPath {
         path = normalizePath(path);
-
-        // TODO: check '.' value
-        if (!path) {
-            throw new Error('Error while finding toc dir.');
-        }
 
         const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
 
-        if (this.tocs.has(tocPath as NormalizedPath)) {
-            return [tocPath, this.tocs.get(tocPath as NormalizedPath) as Toc];
+        if (this.cache.has(tocPath as NormalizedPath)) {
+            return tocPath;
         }
 
-        return this.for(dirname(path));
+        const nextPath = dirname(path);
+
+        if (path === nextPath) {
+            throw new Error('Error while finding toc dir.');
+        }
+
+        return this.for(nextPath);
     }
 
     dir(path: RelativePath): NormalizedPath {

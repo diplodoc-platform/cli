@@ -1,5 +1,6 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import type {Run} from '~/commands/build';
+import type {Toc} from '~/core/toc';
 
 import {readFileSync, writeFileSync} from 'fs';
 import {dirname, extname, join, resolve} from 'path';
@@ -109,7 +110,8 @@ export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promis
     const {outputPath, inputPath} = options;
     const props = await getFileProps(options);
 
-    const [tocPath, toc] = run.toc.for(inputPath);
+    const tocPath = run.toc.for(inputPath);
+    const toc = (await run.toc.dump(tocPath)) as Toc;
     const tocDir = dirname(tocPath);
 
     const title = getTitle(toc.title as string, props.data.title);

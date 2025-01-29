@@ -13,7 +13,7 @@ export class Html {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Html', async (toc, path) => {
+                getTocHooks(run.toc).Dump.tapPromise('Html', async (toc, path) => {
                     const copy = JSON.parse(JSON.stringify(toc)) as Toc;
                     await run.toc.walkItems([copy], (item: Toc | TocItem) => {
                         item.id = uuid();
@@ -30,9 +30,14 @@ export class Html {
                         return item;
                     });
 
-                    const file = join(run.output, dirname(path), 'toc.js');
+                    return copy;
+                });
 
-                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
+                getTocHooks(run.toc).Resolved.tapPromise('Html', async (_toc, path) => {
+                    const file = join(run.output, dirname(path), 'toc.js');
+                    const result = await run.toc.dump(path);
+
+                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
                 });
             });
     }
