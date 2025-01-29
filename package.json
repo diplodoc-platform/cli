@@ -71,7 +71,7 @@
     "@diplodoc/openapi-extension": "^2.7.0",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/search-extension": "^1.1.5",
-    "@diplodoc/transform": "^4.42.0",
+    "@diplodoc/transform": "^4.43.0",
     "@diplodoc/tsconfig": "^1.0.2",
     "@gravity-ui/page-constructor": "^5.29.1",
     "@octokit/core": "4.2.4",
