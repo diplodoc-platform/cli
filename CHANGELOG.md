@@ -1,5 +1,20 @@
 # Changelog
 
+## [4.52.1](https://github.com/diplodoc-platform/cli/compare/v4.52.0...v4.52.1) (2025-01-29)
+
+
+### Bug Fixes
+
+* Add hash to search index files ([df68dbb](https://github.com/diplodoc-platform/cli/commit/df68dbb563c19c008fd8c761006c2d200e02c0ff))
+* Add hash to search index files for static build ([095d3c3](https://github.com/diplodoc-platform/cli/commit/095d3c3e30a3ca85af51df7a4abf117e3bd6c6d4))
+* Fix NavPanel highlite for static content generation ([b470932](https://github.com/diplodoc-platform/cli/commit/b4709322d40ea07b12abaa44e9824d158e284f66))
+
+
+### Dependency update
+
+* bump transform version ([0a862b6](https://github.com/diplodoc-platform/cli/commit/0a862b6446a9e5624625a83d8ac779c7ea240673))
+* Update @diplodoc/transform to 4.43.0 ([#986](https://github.com/diplodoc-platform/cli/issues/986)) ([d531449](https://github.com/diplodoc-platform/cli/commit/d5314497e398d57c39dcb83ca3393d4a8c95a3fc))
+
 ## [4.52.0](https://github.com/diplodoc-platform/cli/compare/v4.51.1...v4.52.0) (2025-01-23)
 
 
