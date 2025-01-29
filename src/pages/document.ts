@@ -38,6 +38,7 @@ export function generateStaticMarkup(
     toc: TocInfo,
     title: string,
 ): string {
+    const {search} = props;
     /* @todo replace rest operator with proper unpacking */
     const {style, script, csp, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const resources = getResources({style, script});
@@ -84,6 +85,7 @@ export function generateStaticMarkup(
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
                 <script src="${toc.path + '.js'}" type="application/javascript"></script>
+                ${search ? `<script src="${search.resources}" type="application/javascript"></script>` : ''}
                 ${manifest.app.js
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map(

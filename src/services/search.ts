@@ -14,6 +14,8 @@ import {ArgvService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
 
+const TIME = Date.now();
+
 let indexer: Indexer;
 
 function init() {
@@ -64,12 +66,18 @@ async function release() {
         const {index, registry} = await indexer.release(lang);
         const dir = outputDir(lang);
 
-        const indexHash = hash(index);
-        const registryHash = hash(registry);
+        const indexHash = hash(index as string);
+        const registryHash = hash(registry as string);
+        const resourcesData = resources(lang, indexHash, registryHash);
 
         mkdirSync(dir, {recursive: true});
         writeFileSync(indexLink(lang, indexHash), index as string, 'utf8');
         writeFileSync(registryLink(lang, registryHash), registry as string, 'utf8');
+
+        if (resourcesData) {
+            writeFileSync(resourcesLink(lang), resourcesData, 'utf8');
+        }
+
         writeFileSync(pageLink(lang), generateStaticSearch(lang as Lang), 'utf8');
 
         if (isLocalSearchEnabled() && langs.includes(lang)) {
@@ -117,6 +125,10 @@ function registryLink(lang: string, hash: string) {
     return outputLink(lang, `${hash}-registry.js`);
 }
 
+function resourcesLink(lang: string) {
+    return outputLink(lang, `${TIME}-resources.js`);
+}
+
 function languageLink(lang: string) {
     return outputLink(lang, 'language.js');
 }
@@ -125,7 +137,7 @@ function config(lang: string) {
     const {output} = ArgvService.getConfig();
 
     if (!isLocalSearchEnabled()) {
-        return {};
+        return '';
     }
 
     const short = (link: string) => link.replace(output, '').replace(/^\/?/, '');
@@ -134,12 +146,22 @@ function config(lang: string) {
         provider: 'local',
         api: short(apiLink()),
         link: short(pageLink(lang)),
-        resources: {
-            index: short(indexLink(lang)),
-            registry: short(registryLink(lang)),
-            language: langs.includes(lang) ? short(languageLink(lang)) : undefined,
-        },
+        resources: short(resourcesLink(lang)),
     };
+}
+
+function resources(lang: string, indexHash: string, registryHash: string) {
+    const {output} = ArgvService.getConfig();
+
+    const short = (link: string) => link.replace(output, '').replace(/^\/?/, '');
+
+    const resources = {
+        index: short(indexLink(lang, indexHash)),
+        registry: short(registryLink(lang, registryHash)),
+        language: langs.includes(lang) ? short(languageLink(lang)) : undefined,
+    };
+
+    return `window.__DATA__.search.resources = ${JSON.stringify(resources)};`;
 }
 
 function hash(content: string) {
