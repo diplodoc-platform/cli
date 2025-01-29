@@ -17,7 +17,7 @@ export function generateHooksAccess<THooks>(name: string, hooks: () => THooks) {
         };
     }
 
-    return [getHooks, withHooks] as const;
+    return [getHooks, withHooks, Hooks] as const;
 }
 
 export type HookMeta = {

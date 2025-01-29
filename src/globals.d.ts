@@ -1,3 +1,4 @@
+declare const __dirname: AbsolutePath;
 declare const VERSION: string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
