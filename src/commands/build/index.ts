@@ -3,6 +3,7 @@ import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
 import {join} from 'node:path';
+import {dump} from 'js-yaml';
 
 import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
@@ -147,7 +148,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
             .BeforeRun.for('md')
             .tap('Build', (run) => {
                 getTocHooks(run.toc).Resolved.tapPromise('Build', async (toc, path) => {
-                    await run.write(join(run.output, path), run.toc.dump(toc));
+                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
             });
 

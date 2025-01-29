@@ -15,14 +15,7 @@ import {
     SINGLE_PAGE_DATA_FILENAME,
     SINGLE_PAGE_FILENAME,
 } from '../constants';
-import {
-    LeadingPage,
-    MetaDataOptions,
-    PathData,
-    Resources,
-    SinglePageResult,
-    YfmToc,
-} from '../models';
+import {LeadingPage, MetaDataOptions, PathData, Resources, SinglePageResult} from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
 import {ArgvService, LeadingService, PluginService, SearchService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
@@ -122,7 +115,8 @@ async function saveSinglePages(run: Run) {
                     relativeTocDir,
                 );
 
-                const toc = run.toc.for(join(relativeTocDir, 'toc.yaml'))[1] as YfmToc;
+                const tocPath = run.toc.for(join(relativeTocDir, 'toc.yaml'));
+                const toc = await run.toc.dump(tocPath);
                 const lang = run.config.lang ?? Lang.RU;
                 const langs = run.config.langs.length ? run.config.langs : [lang];
                 const depth = getDepth(relativeTocDir) + 1;

@@ -31,6 +31,8 @@ type TocInfo = {
     path: string;
 };
 
+const copyJson = (json) => JSON.parse(JSON.stringify(json));
+
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
     toc: TocInfo,
@@ -44,7 +46,7 @@ export function generateStaticMarkup(
     if (staticContent) {
         // TODO: there shoul be two different types YfmToc and YfmProcessedToc
         // @ts-ignore
-        props.data.toc = toc.content;
+        props.data.toc = copyJson(toc.content);
     }
 
     const depth = props.router.depth;

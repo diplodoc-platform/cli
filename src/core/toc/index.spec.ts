@@ -1,9 +1,10 @@
 import type {RunSpy} from '~/commands/build/__tests__';
-import type {Toc} from './types';
+import type {RawToc, Toc} from './types';
 
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
+import {dump} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {setupRun} from '~/commands/build/__tests__';
@@ -70,9 +71,9 @@ function test(
 
         mockData(run, content, vars, files, copy);
 
-        const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
+        const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
 
-        expect(toc.dump(result)).toMatchSnapshot();
+        expect(dump(result)).toMatchSnapshot();
     };
 }
 
@@ -501,9 +502,9 @@ describe('toc-loader', () => {
                     stage: 'test',
                 }));
 
-            const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
+            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
 
-            expect(toc.dump(result)).toMatchSnapshot();
+            expect(dump(result)).toMatchSnapshot();
         });
 
         it('should fix include path', async () => {
@@ -536,9 +537,9 @@ describe('toc-loader', () => {
                     };
                 });
 
-            const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
+            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
 
-            expect(toc.dump(result)).toMatchSnapshot();
+            expect(dump(result)).toMatchSnapshot();
         });
 
         it('should pass extra params to includer', async () => {
@@ -573,9 +574,9 @@ describe('toc-loader', () => {
                     };
                 });
 
-            const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
+            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
 
-            expect(toc.dump(result)).toMatchSnapshot();
+            expect(dump(result)).toMatchSnapshot();
         });
 
         it('should merge includer toc to parent', async () => {
@@ -601,12 +602,12 @@ describe('toc-loader', () => {
                         ...toc,
                         stage: 'test',
                         items: [{name: 'Includer item 1'}],
-                    };
+                    } as RawToc;
                 });
 
-            const result = (await toc.load('toc.yaml' as NormalizedPath)) as Toc;
+            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
 
-            expect(toc.dump(result)).toMatchSnapshot();
+            expect(dump(result)).toMatchSnapshot();
         });
     });
 });
