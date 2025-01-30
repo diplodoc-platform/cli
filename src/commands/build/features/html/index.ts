@@ -16,6 +16,10 @@ export class Html {
                 getTocHooks(run.toc).Dump.tapPromise('Html', async (toc, path) => {
                     const copy = JSON.parse(JSON.stringify(toc)) as Toc;
                     await run.toc.walkItems([copy], (item: Toc | TocItem) => {
+                        if (own(item, 'hidden') && item.hidden) {
+                            return;
+                        }
+
                         item.id = uuid();
 
                         if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
