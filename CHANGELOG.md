@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.1](https://github.com/diplodoc-platform/cli/compare/v4.53.0...v4.53.1) (2025-01-30)
+
+
+### Bug Fixes
+
+* Hide hidden items in final html toc ([9f77b00](https://github.com/diplodoc-platform/cli/commit/9f77b0091087e6baec98bb0cc2baeafe6b0a612e))
+
 ## [4.53.0](https://github.com/diplodoc-platform/cli/compare/v4.52.1...v4.53.0) (2025-01-30)
 
 
