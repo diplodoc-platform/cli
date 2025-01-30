@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.53.0](https://github.com/diplodoc-platform/cli/compare/v4.52.1...v4.53.0) (2025-01-30)
+
+
+### Features
+
+* add --schema param to translate extract command ([437c9c9](https://github.com/diplodoc-platform/cli/commit/437c9c9c87fdac97b2b56b1ccb184778cb10f3bc))
+
+
+### Bug Fixes
+
+* remove unpack from TocService.dir ([bf38ba9](https://github.com/diplodoc-platform/cli/commit/bf38ba92e6bcdbc7ba709d8cf4b52693103967bd))
+
 ## [4.52.1](https://github.com/diplodoc-platform/cli/compare/v4.52.0...v4.52.1) (2025-01-29)
 
 
