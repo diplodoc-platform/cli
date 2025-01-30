@@ -223,7 +223,7 @@ export class TocService {
     }
 
     dir(path: RelativePath): NormalizedPath {
-        const [tocPath] = this.for(path);
+        const tocPath = this.for(path);
 
         return normalizePath(dirname(tocPath));
     }
