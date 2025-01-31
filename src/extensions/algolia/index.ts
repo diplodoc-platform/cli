@@ -25,16 +25,12 @@ export type AlgoliaSearchConfig = BaseConfig &
 
 export class Extension implements IExtension {
     apply(program: IBaseProgram<AlgoliaSearchConfig>) {
-        let enabled = false;
-
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('AlgoliaSearch', (run) => {
                 getSearchHooks<AlgoliaSearchConfig['search']>(run.search)
                     .Provider.for('algolia')
                     .tap('AlgoliaSearch', (_connector, config) => {
-                        enabled = true;
-
                         return new AlgoliaSearchProvider(run, {
                             ...config,
                             api: API_LINK,
@@ -45,7 +41,7 @@ export class Extension implements IExtension {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('AlgoliaSearch', async (run) => {
-                if (enabled) {
+                if (run.search.enabled) {
                     await run.copy(join(__dirname, 'algolia-api.js'), join(run.output, API_LINK));
                 }
             });

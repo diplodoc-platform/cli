@@ -11,6 +11,8 @@ import {Command, configPath, defined, valuable} from '~/core/config';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
+import {Extension as LocalSearchExtension} from '~/extensions/search';
+import {Extension as AlgoliaSearchExtension} from '~/extensions/algolia';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -114,6 +116,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
         this.legacy,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
+        new LocalSearchExtension(),
+        new AlgoliaSearchExtension(),
     ];
 
     apply(program?: IBaseProgram) {
@@ -147,7 +151,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
         getHooks(this)
             .BeforeRun.for('md')
             .tap('Build', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build', async (toc, path) => {
+                getTocHooks(run.toc).Resolved.tapPromise('Build', async (_toc, path) => {
                     await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
             });
@@ -178,8 +182,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
 
         await run.vars.init();
         await run.toc.init();
+        await run.search.init();
 
         await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
+
+        await run.search.release();
 
         await getHooks(this).AfterRun.for(this.config.outputFormat).promise(run);
         await getBaseHooks(this).AfterAnyRun.promise(run);

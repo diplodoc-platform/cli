@@ -61,6 +61,7 @@
   },
   "dependencies": {
     "@diplodoc/client": "^3.1.9",
+    "@diplodoc/search-extension": "^1.2.0",
     "@diplodoc/translation": "^1.6.0",
     "highlight.js": "^11.10.0",
     "katex": "^0.16.9",
@@ -74,7 +75,6 @@
     "@diplodoc/mermaid-extension": "^1.3.2",
     "@diplodoc/openapi-extension": "^2.7.0",
     "@diplodoc/prettier-config": "^2.0.0",
-    "@diplodoc/search-extension": "^1.1.5",
     "@diplodoc/transform": "^4.44.1",
     "@diplodoc/tsconfig": "^1.0.2",
     "@gravity-ui/page-constructor": "^5.29.1",

@@ -4,8 +4,6 @@ import {join, resolve} from 'node:path';
 
 import {configPath} from '~/core/config';
 import {
-    ASSETS_FOLDER,
-    BUNDLE_FOLDER,
     REDIRECTS_FILENAME,
     TMP_INPUT_FOLDER,
     TMP_OUTPUT_FOLDER,
@@ -14,6 +12,7 @@ import {
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
 import {TocService} from '~/core/toc';
+import {SearchService} from '~/core/search';
 
 /**
  * This is transferable context for build command.
@@ -32,16 +31,18 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly toc: TocService;
 
+    readonly search: SearchService;
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
 
     get bundlePath() {
-        return join(this.output, BUNDLE_FOLDER);
+        return join(this.output, '_bundle');
     }
 
     get assetsPath() {
-        return join(this.output, ASSETS_FOLDER);
+        return join(this.output, '_assets');
     }
 
     get redirectsPath() {
@@ -58,6 +59,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.
+        this.scopes.set('<assets>', this.assetsPath);
         this.scopes.set('<input>', this.input);
         this.scopes.set('<output>', this.output);
         this.scopes.set('<origin>', this.originalInput);
@@ -65,5 +67,6 @@ export class Run extends BaseRun<BuildConfig> {
 
         this.vars = new VarsService(this);
         this.toc = new TocService(this);
+        this.search = new SearchService(this);
     }
 }

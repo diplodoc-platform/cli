@@ -7,5 +7,5 @@ export interface SearchProvider<TPath extends RelativePath = NormalizedPath> {
 
     release(): Promise<void>;
 
-    config(lang: string): SearchAppConfig;
+    config(lang: string): SearchAppConfig | undefined;
 }

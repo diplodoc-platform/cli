@@ -22,13 +22,16 @@ export function hooks<TConfig extends SearchServiceConfig['search']>() {
 const [getHooksInternal, withHooks, Hooks] = generateHooksAccess(name, hooks);
 
 function getHooks<TConfig = SearchServiceConfig['search']>(
-    holder: {
-        // @ts-ignore
-        [Hooks]: ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
-    } | undefined,
+    holder:
+        | {
+              // @ts-ignore
+              [Hooks]: ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
+          }
+        | undefined,
 ) {
-    return getHooksInternal(holder) as unknown as ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
+    return getHooksInternal(holder) as unknown as ReturnType<
+        typeof hooks<TConfig & SearchServiceConfig['search']>
+    >;
 }
-
 
 export {getHooks, withHooks};

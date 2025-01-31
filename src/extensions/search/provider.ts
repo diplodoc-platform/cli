@@ -70,7 +70,10 @@ export class LocalSearchProvider implements SearchProvider {
             await this.run.write(join(this.run.output, pageLink), await this.run.search.page(lang));
 
             if (languageLink) {
-                await this.run.copy(join(dirname(SEARCH_LANGS), lang + '.js'), join(this.run.output, languageLink));
+                await this.run.copy(
+                    join(dirname(SEARCH_LANGS), lang + '.js'),
+                    join(this.run.output, languageLink),
+                );
             }
         }
     }
