@@ -34,10 +34,14 @@ export class SearchService implements SearchProvider<RelativePath> {
 
     private provider: SearchProvider;
 
+    get enabled() {
+        return this.run.config.search.enabled !== false;
+    }
+
     get connected() {
         const isDefault = this.provider instanceof DefaultSearchProvider;
 
-        return this.run.config.search.enabled && !isDefault;
+        return this.enabled && !isDefault;
     }
 
     constructor(run: Run) {
@@ -69,12 +73,20 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded async add(path: RelativePath, lang: string, info: DocPageData) {
+        if (!this.enabled) {
+            return;
+        }
+
         const file = normalizePath(path);
 
         return this.provider.add(file, lang, info);
     }
 
     @bounded async release() {
+        if (!this.enabled) {
+            return;
+        }
+
         return this.provider.release();
     }
 

@@ -17,7 +17,7 @@ import {
 } from '../constants';
 import {LeadingPage, MetaDataOptions, PathData, Resources, SinglePageResult} from '../models';
 import {resolveMd2HTML, resolveMd2Md} from '../resolvers';
-import {ArgvService, LeadingService, PluginService, SearchService} from '../services';
+import {ArgvService, LeadingService, PluginService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
 import {getDepth, getDepthPath, joinSinglePageResults} from '../utils';
@@ -269,7 +269,7 @@ async function preparingPagesByOutputFormat(
             case 'html': {
                 const resolvedFileProps = await processingFileToHtml(run, path, metaDataOptions);
 
-                SearchService.add(pathToFile, resolvedFileProps);
+                await run.search.add(pathToFile, resolvedFileProps.lang, resolvedFileProps.data);
 
                 if (singlePage) {
                     savePageResultForSinglePage(resolvedFileProps, path, run.toc.dir(pathToFile));

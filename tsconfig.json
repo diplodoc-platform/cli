@@ -9,7 +9,8 @@
     "experimentalDecorators": false,
     "paths": {
       "~/*": ["./src/*"],
-      "@diplodoc/cli/lib/*": ["./src/core/*"]
+      "@diplodoc/cli/lib/*": ["./src/core/*"],
+      "@diplodoc/cli/commands/*": ["./src/commands/*"]
     }
   },
   "include": ["src"],
