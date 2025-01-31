@@ -14,7 +14,7 @@ import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
 import {getPublicPath, isFileExists} from '@diplodoc/transform/lib/utilsFS';
 import yaml from 'js-yaml';
 
-import {Lang, PROCESSING_FINISHED} from '../constants';
+import {Lang, PROCESSING_FINISHED, THEME_CSS_PATH} from '../constants';
 import {LeadingPage, ResolverOptions} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {getVCSMetadata} from '../services/metadata';
@@ -72,6 +72,7 @@ const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions
         fileMeta.csp = [];
     }
 
+    fileMeta.style = [THEME_CSS_PATH].concat(fileMeta.style || []);
     return {...result, meta: fileMeta};
 };
 
