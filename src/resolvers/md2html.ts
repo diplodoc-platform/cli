@@ -16,7 +16,7 @@ import yaml from 'js-yaml';
 
 import {Lang, PROCESSING_FINISHED} from '../constants';
 import {LeadingPage, ResolverOptions} from '../models';
-import {ArgvService, PluginService, SearchService} from '../services';
+import {ArgvService, PluginService} from '../services';
 import {getVCSMetadata} from '../services/metadata';
 import {
     getDepth,
@@ -75,7 +75,7 @@ const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions
     return {...result, meta: fileMeta};
 };
 
-const getFileProps = async (options: ResolverOptions) => {
+const getFileProps = async (run: Run, options: ResolverOptions) => {
     const {inputPath} = options;
     const {lang: configLang, langs: configLangs, analytics, search} = ArgvService.getConfig();
 
@@ -101,14 +101,14 @@ const getFileProps = async (options: ResolverOptions) => {
         },
         lang,
         langs,
-        search: search.enabled ? SearchService.config(lang) : undefined,
+        search: search.enabled ? run.search.config(lang) : undefined,
         analytics,
     };
 };
 
 export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promise<DocInnerProps> {
     const {outputPath, inputPath} = options;
-    const props = await getFileProps(options);
+    const props = await getFileProps(run, options);
 
     const tocPath = run.toc.for(inputPath);
     const toc = (await run.toc.dump(tocPath)) as Toc;

@@ -13,19 +13,15 @@ const SEARCH_API = require.resolve('@diplodoc/search-extension/worker');
 
 export class Extension implements IExtension {
     apply(program: IBaseProgram) {
-        let enabled = false;
-
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('LocalSearch', (run) => {
                 getSearchHooks<ProviderConfig>(run.search)
                     .Provider.for('local')
                     .tap('LocalSearch', (_connector, config) => {
-                        enabled = true;
-
                         return new LocalSearchProvider(run as ProviderRun, {
                             ...config,
-                            api: API_LINK
+                            api: API_LINK,
                         });
                     });
             });
@@ -33,7 +29,7 @@ export class Extension implements IExtension {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('LocalSearch', async (run) => {
-                if (enabled) {
+                if (run.search.enabled) {
                     await run.copy(SEARCH_API, join(run.output, API_LINK));
                 }
             });

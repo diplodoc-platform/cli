@@ -132,11 +132,7 @@ export class LeadingService {
     }
 }
 
-function modifyValuesByKeys(
-    object: object,
-    keys: string[],
-    modify: (value: string) => string,
-) {
+function modifyValuesByKeys(object: object, keys: string[], modify: (value: string) => string) {
     // Clone the object deeply with a customizer function that modifies matching keys
     return cloneDeepWith(object, (value: unknown, key) => {
         if (keys.includes(key as string) && isString(value)) {

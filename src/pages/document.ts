@@ -84,7 +84,7 @@ export function generateStaticMarkup(
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
                 <script src="${toc.path + '.js'}" type="application/javascript"></script>
-                ${search ? `<script src="${search.resources}" type="application/javascript"></script>` : ''}
+                ${search?.resources ? `<script src="${search.resources}" type="application/javascript"></script>` : ''}
                 ${manifest.app.js
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map(
