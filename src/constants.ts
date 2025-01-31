@@ -1,4 +1,4 @@
-import {join, resolve} from 'node:path';
+import {resolve} from 'node:path';
 import {platform} from 'process';
 const os = require('os');
 const notes = require('@diplodoc/transform/lib/plugins/notes');
@@ -38,8 +38,6 @@ export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
-export const SEARCH_API = join(ASSETS_FOLDER, 'search', 'index.js');
-export const SEARCH_LANGS = join(ASSETS_FOLDER, 'search', 'langs');
 export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'"],
@@ -118,8 +116,17 @@ export const YFM_PLUGINS = [
     table,
     term,
     openapi.transform(),
-    mermaid.transform(),
-    latex.transform(),
+    mermaid.transform({
+        bundle: false,
+        runtime: '_bundle/mermaid-extension.js',
+    }),
+    latex.transform({
+        bundle: false,
+        runtime: {
+            script: '_bundle/latex-extension.js',
+            style: '_bundle/latex-extension.css',
+        },
+    }),
     changelog,
     blockAnchor,
 ];

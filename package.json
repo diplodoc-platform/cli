@@ -29,15 +29,15 @@
   "files": [
     "build",
     "assets",
-    "schemas",
-    "src"
+    "schemas"
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
-    "build:clean": "rm -rf build assets coverage",
+    "build:clean": "rm -rf build",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build",
+    "postinstall": "node scripts/postinstall.js || true",
     "start": "node build/index.js",
     "test": "vitest --run",
     "test:watch": "vitest",
@@ -54,10 +54,6 @@
       "eslint --fix",
       "git add"
     ]
-  },
-  "peerDependencies": {
-    "vitest": "^2.1.8",
-    "vitest-when": "^0.5.0"
   },
   "dependencies": {
     "@diplodoc/client": "^3.1.9",

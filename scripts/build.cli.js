@@ -1,22 +1,7 @@
-const {resolve, join, dirname} = require('path');
 const esbuild = require('esbuild');
 const tsPaths = require('./ts-paths');
-const shell = require('shelljs');
 
-const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
-const ASSETS_PATH = resolve(__dirname, '..', 'assets');
-
-const clientManifest = require('@diplodoc/client/manifest');
-const assets = [
-    ...clientManifest.app.js,
-    ...clientManifest.app.css,
-    ...clientManifest.app.async,
-    ...clientManifest.search.js,
-    ...clientManifest.search.css,
-    ...clientManifest.search.async
-];
-
-const {version, dependencies, peerDependencies} = require('../package.json');
+const {version, dependencies = {}, peerDependencies = {}} = require('../package.json');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -71,9 +56,4 @@ Promise.all([
     ];
 
     return esbuild.build(currentConfig);
-}))).then(() => {
-    shell.mkdir('-p', ASSETS_PATH);
-    for (const file of assets) {
-        shell.cp('-f', join(CLIENT_PATH, file), join(ASSETS_PATH, file));
-    }
-});
+})));
