@@ -7,6 +7,9 @@ import {isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getLeadingHooks} from '~/core/leading';
+import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
+import {ASSETS_FOLDER} from '~/constants';
 
 export class Html {
     apply(program: Build) {
@@ -14,8 +17,7 @@ export class Html {
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
                 getTocHooks(run.toc).Dump.tapPromise('Html', async (toc, path) => {
-                    const copy = JSON.parse(JSON.stringify(toc)) as Toc;
-                    await run.toc.walkItems([copy], (item: Toc | TocItem) => {
+                    await run.toc.walkItems([toc], (item: Toc | TocItem) => {
                         if (own(item, 'hidden') && item.hidden) {
                             return;
                         }
@@ -34,7 +36,7 @@ export class Html {
                         return item;
                     });
 
-                    return copy;
+                    return toc;
                 });
 
                 getTocHooks(run.toc).Resolved.tapPromise('Html', async (_toc, path) => {
@@ -43,6 +45,40 @@ export class Html {
 
                     await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
                 });
+
+                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (leading, path) => {
+                    return run.leading.walkLinks(leading, getHref(run.input, path));
+                });
+            });
+
+        getBuildHooks(program)
+            .AfterRun.for('html')
+            .tapPromise('Html', async (run) => {
+                await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+                await run.copy(ASSETS_FOLDER, run.bundlePath);
             });
     }
+}
+
+function getHref(root: AbsolutePath, path: NormalizedPath) {
+    return function (href: string) {
+        if (isExternalHref(href)) {
+            return href;
+        }
+
+        if (!href.startsWith('/')) {
+            href = join(dirname(path), href);
+        }
+
+        const filePath = join(root, href);
+
+        if (isFileExists(filePath)) {
+            href = href.replace(/\.(md|ya?ml)$/gi, '.html');
+        } else if (!/.+\.\w+$/gi.test(href)) {
+            // TODO: isFileExists index.md or index.yaml
+            href = href + (href.endsWith('/') ? '' : '/') + 'index.html';
+        }
+
+        return href;
+    };
 }

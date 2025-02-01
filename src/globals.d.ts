@@ -1,4 +1,5 @@
 declare const __dirname: AbsolutePath;
+declare const require: Require;
 declare const VERSION: string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -52,11 +53,11 @@ type URIString = string & {
     __fix: 'normalized';
 };
 
-interface NodeRequire {
-    resolve: {
-        (id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
-    };
-}
+type Require = {
+    (id: string): any;
+    resolve(id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
+    main: Module | undefined;
+};
 
 declare module 'node:path' {
     namespace path {

@@ -1,6 +1,5 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
@@ -28,8 +27,6 @@ export type LegacyRawConfig = {
     allowHTML: boolean;
     needToSanitizeHtml: boolean;
     useLegacyConditions: boolean;
-
-    connector?: VCSConnectorConfig;
 };
 
 export type LegacyConfig = {

@@ -182,6 +182,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
 
         await run.vars.init();
         await run.toc.init();
+        await run.vcs.init();
         await run.search.init();
 
         await Promise.all([handler(run), getHooks(this).Run.promise(run)]);

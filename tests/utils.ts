@@ -92,7 +92,3 @@ export function getTestPaths(testRootPath: string): TestPaths {
         outputPath: resolve(join(testRootPath, 'output')),
     };
 }
-
-export function replaceDoubleToSingleQuotes(str: string): string {
-    return str.replace(/"/g, "'");
-}

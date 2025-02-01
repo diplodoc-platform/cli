@@ -1,5 +1,11 @@
 import {Meta} from '~/core/meta';
-import {PageContent} from '@gravity-ui/page-constructor';
+
+// TODO: import this type from client?
+// import {PageContent} from '@gravity-ui/page-constructor';
+
+type PageContent = {
+    blocks: object;
+};
 
 export interface RawLeadingPage {
     title: TextItems;
