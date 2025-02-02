@@ -1,0 +1,167 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Regression internal: 1.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Title
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
+      <p>Text {{not-var}} {{skip()}} default-var-value
+      </p>/n
+      <p>Text
+      <code>{{not-var}}
+      </code>
+      <code>{{skip()}}
+      </code>
+      <code>default-var-value
+      </code>
+      </p>/n
+      <p>Text
+      </p>/n/n
+      <div class=\\"yfm-clipboard\\">/n
+      <pre>
+      <code class=\\"hljs\\">{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n
+      </code>
+      </pre>/n/n
+      <button class=\\"yfm-clipboard-button\\">/n
+      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\">/n
+      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
+      </path>/n
+      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
+      <animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
+      </animate>/n
+      <animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\">
+      </animate>/n
+      </path>/n
+      </svg>/n
+      </button>/n
+      </div>/n","leading":false},"router":{"pathname":"1","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: 1.md 1`] = `
+"# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+"
+`;
+
+exports[`Regression internal: filelist 1`] = `
+"[
+  "1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Regression internal: filelist 2`] = `
+"[
+  "1.html",
+  "_bundle/search-async-0",
+  "_bundle/app-css-1",
+  "_bundle/app-js-1",
+  "_bundle/search-css-2",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search/index.js",
+  "_bundle/search/langs/ar.js",
+  "_bundle/search/langs/da.js",
+  "_bundle/search/langs/de.js",
+  "_bundle/search/langs/du.js",
+  "_bundle/search/langs/el.js",
+  "_bundle/search/langs/es.js",
+  "_bundle/search/langs/fi.js",
+  "_bundle/search/langs/fr.js",
+  "_bundle/search/langs/he.js",
+  "_bundle/search/langs/hi.js",
+  "_bundle/search/langs/hu.js",
+  "_bundle/search/langs/hy.js",
+  "_bundle/search/langs/index.js",
+  "_bundle/search/langs/it.js",
+  "_bundle/search/langs/ja.js",
+  "_bundle/search/langs/jp.js",
+  "_bundle/search/langs/kn.js",
+  "_bundle/search/langs/ko.js",
+  "_bundle/search/langs/nl.js",
+  "_bundle/search/langs/no.js",
+  "_bundle/search/langs/pt.js",
+  "_bundle/search/langs/ro.js",
+  "_bundle/search/langs/ru.js",
+  "_bundle/search/langs/sa.js",
+  "_bundle/search/langs/sv.js",
+  "_bundle/search/langs/ta.js",
+  "_bundle/search/langs/te.js",
+  "_bundle/search/langs/th.js",
+  "_bundle/search/langs/tr.js",
+  "_bundle/search/langs/vi.js",
+  "_bundle/search-css-0",
+  "_bundle/search-js-2",
+  "_bundle/search-css-1",
+  "toc.js"
+]"
+`;
+
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"not_var","href":"1.html","id":"UUID"}],"id":"UUID"};"`;
+
+exports[`Regression internal: toc.yaml 1`] = `
+"items:
+  - name: not_var
+    href: 1.md
+"
+`;
