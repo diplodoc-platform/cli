@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.4](https://github.com/diplodoc-platform/cli/compare/v4.53.3...v4.53.4) (2025-02-03)
+
+
+### Bug Fixes
+
+* Fix relative path search for page constructor links ([2792940](https://github.com/diplodoc-platform/cli/commit/2792940521e8d1b65a5ac5d132da6549446b75cb))
+
 ## [4.53.3](https://github.com/diplodoc-platform/cli/compare/v4.53.2...v4.53.3) (2025-02-03)
 
 
