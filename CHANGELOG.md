@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.53.5](https://github.com/diplodoc-platform/cli/compare/v4.53.4...v4.53.5) (2025-02-03)
+
+
+### Bug Fixes
+
+* Fix duplicated path prefix for root merged toc includes ([9c92d13](https://github.com/diplodoc-platform/cli/commit/9c92d1307abe9159271f82d9b54c4ed36479baac))
+* Handle empty href in toc items ([0e15f40](https://github.com/diplodoc-platform/cli/commit/0e15f4027a5db624c48f5d64858ea1e1acc2784e))
+
 ## [4.53.4](https://github.com/diplodoc-platform/cli/compare/v4.53.3...v4.53.4) (2025-02-03)
 
 
