@@ -1,4 +1,4 @@
-import {join, resolve} from 'node:path';
+import {resolve} from 'node:path';
 import {platform} from 'process';
 const os = require('os');
 const notes = require('@diplodoc/transform/lib/plugins/notes');
@@ -38,8 +38,6 @@ export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const SINGLE_PAGE_FILENAME = 'single-page.html';
 export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
-export const SEARCH_API = join(ASSETS_FOLDER, 'search', 'index.js');
-export const SEARCH_LANGS = join(ASSETS_FOLDER, 'search', 'langs');
 export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'"],
@@ -88,12 +86,6 @@ export enum Platforms {
     LINUX = 'linux',
 }
 
-export enum IncludeMode {
-    ROOT_MERGE = 'root_merge',
-    MERGE = 'merge',
-    LINK = 'link',
-}
-
 export enum ResourceType {
     style = 'style',
     script = 'script',
@@ -118,8 +110,17 @@ export const YFM_PLUGINS = [
     table,
     term,
     openapi.transform(),
-    mermaid.transform(),
-    latex.transform(),
+    mermaid.transform({
+        bundle: false,
+        runtime: '_bundle/mermaid-extension.js',
+    }),
+    latex.transform({
+        bundle: false,
+        runtime: {
+            script: '_bundle/latex-extension.js',
+            style: '_bundle/latex-extension.css',
+        },
+    }),
     changelog,
     blockAnchor,
 ];
@@ -150,31 +151,7 @@ export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export const PROCESSING_FINISHED = 'Processing finished:';
 export const LINTING_FINISHED = 'Linting finished:';
-export const GETTING_ALL_CONTRIBUTORS = 'Getting all contributors.';
-export const ALL_CONTRIBUTORS_RECEIVED = 'All contributors received.';
-export const getMsgСonfigurationMustBeProvided = (repo: string) =>
-    `Сonfiguration must be provided for ${repo} like env variables or in .yfm file`;
-
-export const FIRST_COMMIT_FROM_ROBOT_IN_GITHUB = '2dce14271359cd20d7e874956d604de087560cf4';
-
-// Include example: 'master\n' or 'nanov94/QUEUE-1234_some_branch_name.1.2.3\n'
-// Regexp result: 'master' or 'nanov94/QUEUE-1234_some_branch_name'
-export const REGEXP_BRANCH_NAME = /([\d\w\-_/.]+)(?=\r?\n)/g;
-
-// Include example: {% include [createfolder](create-folder.md) %}
-// Regexp result: [createfolder](create-folder.md)
-export const REGEXP_INCLUDE_CONTENTS = /(?<=[{%]\sinclude\s).+(?=\s[%}])/gm;
-
-// Include example: [createfolder](create-folder.md)
-// Regexp result: create-folder.md
-export const REGEXP_INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/g;
-
-// Include example: author: authorLogin
-// Regexp result: authorLogin
-export const REGEXP_AUTHOR = /(?<=author:\s).+(?=\r?\n)/g;
 
 export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
 export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1;
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 500;
-
-export const metadataBorder = '---';

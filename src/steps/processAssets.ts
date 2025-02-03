@@ -4,9 +4,8 @@ import {load} from 'js-yaml';
 import {dirname, join} from 'node:path';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {checkPathExists, findAllValuesByKeys} from '../utils';
 import {isExternalHref, own} from '~/core/utils';
-import {ASSETS_FOLDER} from '../constants';
+import {checkPathExists, findAllValuesByKeys} from '~/utils';
 
 const isMediaLink = (link: string) => /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test(link);
 
@@ -15,16 +14,9 @@ const isMediaLink = (link: string) => /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test
  */
 export async function processAssets(run: Run) {
     switch (run.config.outputFormat) {
-        case 'html':
-            return processAssetsHtmlRun(run);
         case 'md':
             return processAssetsMdRun(run);
     }
-}
-
-async function processAssetsHtmlRun(run: Run) {
-    await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
-    await run.copy(ASSETS_FOLDER, run.bundlePath);
 }
 
 async function processAssetsMdRun(run: Run) {

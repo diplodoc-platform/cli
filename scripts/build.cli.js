@@ -1,28 +1,7 @@
-const {resolve, join, dirname} = require('path');
 const esbuild = require('esbuild');
 const tsPaths = require('./ts-paths');
-const shell = require('shelljs');
 
-const SEARCH_API = require.resolve('@diplodoc/search-extension/worker');
-const SEARCH_LANGS = require.resolve('@diplodoc/search-extension/worker/langs');
-const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
-const ASSETS_PATH = resolve(__dirname, '..', 'assets');
-
-// TODO: link with constants
-const SEARCH_API_OUTPUT = join(ASSETS_PATH, 'search', 'index.js');
-const SEARCH_LANGS_OUTPUT = join(ASSETS_PATH, 'search', 'langs');
-
-const clientManifest = require('@diplodoc/client/manifest');
-const assets = [
-    ...clientManifest.app.js,
-    ...clientManifest.app.css,
-    ...clientManifest.app.async,
-    ...clientManifest.search.js,
-    ...clientManifest.search.css,
-    ...clientManifest.search.async
-];
-
-const {version, dependencies} = require('../package.json');
+const {version, dependencies = {}, peerDependencies = {}} = require('../package.json');
 
 const commonConfig = {
     tsconfig: './tsconfig.json',
@@ -47,9 +26,19 @@ const builds = [
     [['src/workers/linter/index.ts'], 'build/linter.js'],
 ];
 
-Promise.all(builds.map(([entries, outfile]) => {
+Promise.all([
+    esbuild.build({
+        tsconfig: './tsconfig.json',
+        bundle: true,
+        target: 'ES6',
+        platform: 'browser',
+        outfile: 'build/algolia-api.js',
+        entryPoints: ['src/extensions/algolia/worker.ts'],
+    })
+].concat(builds.map(([entries, outfile, config]) => {
     const currentConfig = {
         ...commonConfig,
+        ...config,
         entryPoints: entries,
         outfile,
     };
@@ -62,17 +51,9 @@ Promise.all(builds.map(([entries, outfile]) => {
 
     currentConfig.external = [
         ...Object.keys(dependencies),
+        ...Object.keys(peerDependencies),
         '@diplodoc/cli/package',
     ];
 
     return esbuild.build(currentConfig);
-})).then(() => {
-    shell.mkdir('-p', ASSETS_PATH);
-    for (const file of assets) {
-        shell.cp('-f', join(CLIENT_PATH, file), join(ASSETS_PATH, file));
-    }
-
-    shell.mkdir('-p', SEARCH_LANGS_OUTPUT);
-    shell.cp('-f', SEARCH_API, SEARCH_API_OUTPUT);
-    shell.cp('-f', join(dirname(SEARCH_LANGS), '*.js'), SEARCH_LANGS_OUTPUT);
-});
+})));

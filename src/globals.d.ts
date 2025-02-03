@@ -1,6 +1,6 @@
+declare const __dirname: AbsolutePath;
+declare const require: Require;
 declare const VERSION: string;
-declare const OPENAPI_EXTENSION: string;
-declare const GENERIC_INCLUDER_EXTENSION: string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
@@ -53,11 +53,11 @@ type URIString = string & {
     __fix: 'normalized';
 };
 
-interface NodeRequire {
-    resolve: {
-        (id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
-    };
-}
+type Require = {
+    (id: string): any;
+    resolve(id: string, options?: {paths?: string[] | undefined}): AbsolutePath;
+    main: Module | undefined;
+};
 
 declare module 'node:path' {
     namespace path {

@@ -33,7 +33,7 @@ export function getFileContent(filePath: string) {
     return bundleless(platformless(readFileSync(filePath, 'utf8')));
 }
 
-const uselessFile = (file) => !['_bundle/', '_assets/'].some(part => file.includes(part));
+const uselessFile = (file) => !['_bundle/', '_assets/', '_search/'].some(part => file.includes(part));
 
 export function compareDirectories(outputPath: string) {
     const filesFromOutput = walkSync(outputPath, {
@@ -91,8 +91,4 @@ export function getTestPaths(testRootPath: string): TestPaths {
         inputPath: resolve(join(testRootPath, 'input')),
         outputPath: resolve(join(testRootPath, 'output')),
     };
-}
-
-export function replaceDoubleToSingleQuotes(str: string): string {
-    return str.replace(/"/g, "'");
 }

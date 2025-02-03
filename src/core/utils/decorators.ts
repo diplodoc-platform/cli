@@ -12,23 +12,28 @@ export function bounded(_originalMethod: unknown, context: ClassMethodDecoratorC
 }
 
 export function memoize(...props: string[]) {
-    return function (originalMethod: Function, _context: ClassMethodDecoratorContext) {
-        const cache = new Map();
+    return function (_originalMethod: unknown, context: ClassMethodDecoratorContext) {
+        const methodName = context.name;
 
-        return function (this: unknown, ...args: unknown[]) {
-            const mem = args.slice(props.length);
+        context.addInitializer(function (this: any) {
+            const cache = new Map();
+            const method = this[methodName];
 
-            if (!mem.every(isPrimitive)) {
-                return originalMethod.call(this, ...args);
-            }
+            this[methodName] = function (this: unknown, ...args: unknown[]) {
+                const mem = args.slice(props.length);
 
-            const key = props.map((prop, index) => `${prop}=${mem[index]}`).join('&');
-            if (!cache.has(key)) {
-                cache.set(key, originalMethod.call(this, ...args));
-            }
+                if (!mem.every(isPrimitive)) {
+                    return method.call(this, ...args);
+                }
 
-            return cache.get(key);
-        };
+                const key = props.map((prop, index) => `${prop}=${mem[index]}`).join('&');
+                if (!cache.has(key)) {
+                    cache.set(key, method.call(this, ...args));
+                }
+
+                return cache.get(key);
+            };
+        });
     };
 }
 

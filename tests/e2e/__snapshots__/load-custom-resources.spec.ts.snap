@@ -18,39 +18,11 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   "_bundle/app-css-1",
   "_bundle/app-js-1",
   "_bundle/search-css-2",
+  "_bundle/latex-extension.css",
+  "_bundle/latex-extension.js",
+  "_bundle/mermaid-extension.js",
   "_bundle/search-js-0",
   "_bundle/search-js-1",
-  "_bundle/search/index.js",
-  "_bundle/search/langs/ar.js",
-  "_bundle/search/langs/da.js",
-  "_bundle/search/langs/de.js",
-  "_bundle/search/langs/du.js",
-  "_bundle/search/langs/el.js",
-  "_bundle/search/langs/es.js",
-  "_bundle/search/langs/fi.js",
-  "_bundle/search/langs/fr.js",
-  "_bundle/search/langs/he.js",
-  "_bundle/search/langs/hi.js",
-  "_bundle/search/langs/hu.js",
-  "_bundle/search/langs/hy.js",
-  "_bundle/search/langs/index.js",
-  "_bundle/search/langs/it.js",
-  "_bundle/search/langs/ja.js",
-  "_bundle/search/langs/jp.js",
-  "_bundle/search/langs/kn.js",
-  "_bundle/search/langs/ko.js",
-  "_bundle/search/langs/nl.js",
-  "_bundle/search/langs/no.js",
-  "_bundle/search/langs/pt.js",
-  "_bundle/search/langs/ro.js",
-  "_bundle/search/langs/ru.js",
-  "_bundle/search/langs/sa.js",
-  "_bundle/search/langs/sv.js",
-  "_bundle/search/langs/ta.js",
-  "_bundle/search/langs/te.js",
-  "_bundle/search/langs/th.js",
-  "_bundle/search/langs/tr.js",
-  "_bundle/search/langs/vi.js",
   "_bundle/search-css-0",
   "_bundle/search-js-2",
   "_bundle/search-css-1",
@@ -110,7 +82,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true}},"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -175,7 +147,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -239,7 +211,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -354,39 +326,11 @@ exports[`Allow load custom resources md2html with custom resources: filelist 1`]
   "_bundle/app-css-1",
   "_bundle/app-js-1",
   "_bundle/search-css-2",
+  "_bundle/latex-extension.css",
+  "_bundle/latex-extension.js",
+  "_bundle/mermaid-extension.js",
   "_bundle/search-js-0",
   "_bundle/search-js-1",
-  "_bundle/search/index.js",
-  "_bundle/search/langs/ar.js",
-  "_bundle/search/langs/da.js",
-  "_bundle/search/langs/de.js",
-  "_bundle/search/langs/du.js",
-  "_bundle/search/langs/el.js",
-  "_bundle/search/langs/es.js",
-  "_bundle/search/langs/fi.js",
-  "_bundle/search/langs/fr.js",
-  "_bundle/search/langs/he.js",
-  "_bundle/search/langs/hi.js",
-  "_bundle/search/langs/hu.js",
-  "_bundle/search/langs/hy.js",
-  "_bundle/search/langs/index.js",
-  "_bundle/search/langs/it.js",
-  "_bundle/search/langs/ja.js",
-  "_bundle/search/langs/jp.js",
-  "_bundle/search/langs/kn.js",
-  "_bundle/search/langs/ko.js",
-  "_bundle/search/langs/nl.js",
-  "_bundle/search/langs/no.js",
-  "_bundle/search/langs/pt.js",
-  "_bundle/search/langs/ro.js",
-  "_bundle/search/langs/ru.js",
-  "_bundle/search/langs/sa.js",
-  "_bundle/search/langs/sv.js",
-  "_bundle/search/langs/ta.js",
-  "_bundle/search/langs/te.js",
-  "_bundle/search/langs/th.js",
-  "_bundle/search/langs/tr.js",
-  "_bundle/search/langs/vi.js",
   "_bundle/search-css-0",
   "_bundle/search-js-2",
   "_bundle/search-css-1",
@@ -443,7 +387,7 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true}},"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -508,7 +452,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -572,7 +516,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -622,17 +566,17 @@ exports[`Allow load custom resources md2md with custom resources: filelist 1`] =
 exports[`Allow load custom resources md2md with custom resources: index.yaml 1`] = `
 "title: Documentation
 description: ''
-meta:
-  title: Documentation
-  noIndex: true
-  style:
-    - _assets/style/test.css
-  script:
-    - _assets/script/test1.js
 links:
   - title: Getting started with Documentation
     description: This guide will show you the basics of working with Documentation
     href: page.md
+meta:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+  title: Documentation
+  noIndex: true
 "
 `;
 
