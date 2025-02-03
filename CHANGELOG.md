@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.53.3](https://github.com/diplodoc-platform/cli/compare/v4.53.2...v4.53.3) (2025-02-03)
+
+
+### Bug Fixes
+
+* Disable `copy` logging noise ([8849771](https://github.com/diplodoc-platform/cli/commit/8849771b012bee73b9586da9bbc657ca29cd53e1))
+* Fix keepNotVar feature for md2md generator ([71a056f](https://github.com/diplodoc-platform/cli/commit/71a056f167785e27a56f8a37a1d63a230ccd6f61))
+
 ## [4.53.2](https://github.com/diplodoc-platform/cli/compare/v4.53.1...v4.53.2) (2025-01-30)
 
 
