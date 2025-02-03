@@ -47,7 +47,11 @@ async function processAssetsMdRun(run: Run) {
 
         const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
         for (const link of contentLinks) {
-            if (isMediaLink(link) && !isExternalHref(link) && checkPathExists(link, yamlFile)) {
+            if (
+                isMediaLink(link) &&
+                !isExternalHref(link) &&
+                checkPathExists(link, join(run.input, yamlFile))
+            ) {
                 mediaLinks.add(join(dirname(yamlFile), link));
             }
         }
