@@ -169,7 +169,7 @@ export class Run<TConfig = BaseConfig> {
                 dirs.add(dir);
             }
 
-            this.logger.copy(join(from, file), join(to, file));
+            // this.logger.copy(join(from, file), join(to, file));
 
             if (sourcePath && sourcePath(file)) {
                 const content = await this.read(join(from, file));
