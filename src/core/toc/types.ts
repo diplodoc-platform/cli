@@ -73,11 +73,11 @@ export type IncludeInfo = {
 } & (
     | {
           mode: IncludeMode.RootMerge | IncludeMode.Merge;
-          mergeBase: RelativePath;
+          base: RelativePath;
       }
     | {
           mode: IncludeMode.Link;
-          mergeBase?: undefined;
+          base?: undefined;
       }
 );
 

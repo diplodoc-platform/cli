@@ -43,4 +43,10 @@ describe('Include toc', () => {
         runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
+
+    test('Toc root merge on non root dir', () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test7');
+        runYfmDocs(inputPath, outputPath);
+        compareDirectories(outputPath);
+    });
 });

@@ -27,3 +27,15 @@ export function freeze<T>(target: T, visited = new Set()): T {
 
     return target;
 }
+
+export function errorMessage(error: unknown): string {
+    if (typeof error === 'string') {
+        return error;
+    }
+
+    if (own<string, 'message'>(error, 'message')) {
+        return error.message;
+    }
+
+    return String(error);
+}

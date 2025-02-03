@@ -263,6 +263,37 @@ exports[`Include toc Toc is included inline, not as a new section: toc.yaml 1`] 
 "
 `;
 
+exports[`Include toc Toc root merge on non root dir: .yfm 1`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Include toc Toc root merge on non root dir: filelist 1`] = `
+"[
+  ".yfm",
+  "ru/index.yaml",
+  "ru/toc.yaml"
+]"
+`;
+
+exports[`Include toc Toc root merge on non root dir: ru/index.yaml 1`] = `
+"blocks:
+  - type: header-block
+    title: Title
+    description: Description
+title: ''
+links: []
+"
+`;
+
+exports[`Include toc Toc root merge on non root dir: ru/toc.yaml 1`] = `
+"title: Toc
+items:
+  - name: sub-page
+    href: index.yaml
+"
+`;
+
 exports[`Include toc Toc with expressions: a1.md 1`] = `
 "This is the /a1.md file content.
 "

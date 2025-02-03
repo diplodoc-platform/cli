@@ -1,0 +1,3 @@
+title: Toc
+items:
+  - include: { mode: root_merge, path: ru/sub/folder/toc.yaml }

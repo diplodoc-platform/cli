@@ -6,8 +6,9 @@ import type {LoaderContext} from './loader';
 import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
 import {load} from 'js-yaml';
+import {dedent} from 'ts-dedent';
 
-import {bounded, freeze, isExternalHref, normalizePath, own} from '~/core/utils';
+import {bounded, errorMessage, freeze, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
@@ -98,7 +99,7 @@ export class TocService {
             mode: include?.mode,
             from: include?.from || path,
             path,
-            mergeBase: include?.mergeBase,
+            base: include?.base,
             vars: await this.vars.load(path),
             toc: this,
             options: {
@@ -108,7 +109,7 @@ export class TocService {
             },
         };
 
-        const content = include?.content || (load(await this.run.read(file)) as RawToc);
+        const content = include?.content || (await read(this.run, path, include?.from));
 
         // Should ignore included toc with tech-preview stage.
         // TODO(major): remove this
@@ -123,7 +124,7 @@ export class TocService {
 
         if (include && isMergeMode(include.mode)) {
             const from = normalizePath(dirname(path));
-            const to = normalizePath(include.mergeBase as RelativePath);
+            const to = normalizePath(include.base as RelativePath);
 
             context.path = context.path.replace(from, to) as RelativePath;
             context.from = include?.from || context.path;
@@ -226,5 +227,17 @@ export class TocService {
         const tocPath = this.for(path);
 
         return normalizePath(dirname(tocPath));
+    }
+}
+
+async function read(run: Run, path: RelativePath, from: string | undefined): Promise<RawToc> {
+    try {
+        return load(await run.read(join(run.input, path))) as RawToc;
+    } catch (error) {
+        throw new Error(dedent`
+            Unable to resolve ${path}${from ? ' from ' + from : ''}.
+            Original error:
+                ${errorMessage(error)}
+        `);
     }
 }

@@ -78,6 +78,8 @@ export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, m
 function logResult(result) {
     if (result.code > 0) {
         console.log('=== STDOUT ===\n' + result.stdout + '\n=== STDERR ===\n' + result.stderr);
+
+        throw result.stderr
     }
 }
 

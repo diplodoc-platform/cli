@@ -18,7 +18,7 @@ export type LoaderContext = {
     /** Path of last include level */
     from: RelativePath;
     /** Path of last include level with 'merge' mode */
-    mergeBase?: RelativePath;
+    base?: RelativePath;
     mode: IncludeMode | undefined;
     vars: Hash;
     options: {
@@ -207,11 +207,11 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         } else {
             const includeInfo = {
                 from: this.path,
-                mode: include.mode || IncludeMode.RootMerge,
+                mode: include.mode,
             } as IncludeInfo;
 
             if (isMergeMode(includeInfo.mode)) {
-                includeInfo.mergeBase = this.mergeBase || dirname(this.path);
+                includeInfo.base = this.base || dirname(this.path);
             }
 
             toc = (await this.toc.load(include.path, includeInfo)) as RawToc;
@@ -243,12 +243,24 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  */
 async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const rebaseIncludes = (item: RawTocItem | RawToc) => {
-        if (own<TocInclude, 'include'>(item, 'include')) {
-            if (isLinkMode(this.mode)) {
-                item.include.path = join(dirname(this.path), item.include.path);
-            } else {
-                item.include.path = join(this.mergeBase || dirname(this.path), item.include.path);
-            }
+        if (!own<TocInclude, 'include'>(item, 'include')) {
+            return item;
+        }
+
+        if (!item.include.mode) {
+            item.include.mode = own<unknown, 'includers'>(item.include, 'includers')
+                ? IncludeMode.Link
+                : IncludeMode.RootMerge;
+        }
+
+        if (item.include.mode === IncludeMode.RootMerge) {
+            return item;
+        }
+
+        if (isLinkMode(this.mode)) {
+            item.include.path = join(dirname(this.path), item.include.path);
+        } else {
+            item.include.path = join(this.base || dirname(this.path), item.include.path);
         }
 
         return item;
@@ -266,7 +278,7 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const rebaseHrefs = (item: RawTocItem | RawToc) => {
         if (own<AnyPath>(item, 'href') && isRelative(item.href)) {
             const absBase = dirname(this.from);
-            const absPath = join(this.mergeBase || dirname(this.path), item.href);
+            const absPath = join(this.base || dirname(this.path), item.href);
 
             item.href = relative(absBase, absPath);
         }
