@@ -7,3 +7,5 @@ items:
     href: ./1.md
   - name: Md item named without extension
     href: ./1
+  - name: Item with empty href
+    href:

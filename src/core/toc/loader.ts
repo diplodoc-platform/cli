@@ -299,6 +299,11 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     await this.toc.walkItems([toc], (item: RawTocItem | RawToc) => {
         if (own<string>(item, 'href') && !isExternalHref(item.href)) {
+            if (!item.href) {
+                delete item['href'];
+                return item;
+            }
+
             item.href = normalizePath(item.href);
 
             if (item.href.endsWith('/')) {

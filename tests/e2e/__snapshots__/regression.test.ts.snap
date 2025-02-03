@@ -223,7 +223,7 @@ title: ''
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression internal: toc.yaml 1`] = `
 "items:
@@ -235,5 +235,6 @@ exports[`Regression internal: toc.yaml 1`] = `
     href: 1.md
   - name: Md item named without extension
     href: 1.md
+  - name: Item with empty href
 "
 `;

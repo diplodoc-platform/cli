@@ -27,5 +27,6 @@ describe('Regression', () => {
     test(dedent`
         - not_var liquid syntax
         - normalize leading hrefs
+        - empty href in toc item
     `);
 });
