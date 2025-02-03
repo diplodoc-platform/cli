@@ -1,0 +1,6 @@
+default:
+  default-var: default-var-value
+  not-var: not-var-value
+
+internal:
+  default-var: default-var-internal-value

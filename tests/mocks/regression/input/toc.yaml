@@ -1,3 +1,9 @@
 items:
-  - name: not_var
+  - name: Verbose root (index.yaml) will be transformed to index.html
+    href: index.yaml
+  - name: Root will be transformed to index.html
+    href: /
+  - name: Md item with not_var syntax
     href: ./1.md
+  - name: Md item named without extension
+    href: ./1

@@ -1,0 +1,5 @@
+links:
+  - name: Link 1
+    href: ./1.md
+  - name: Link 2
+    href: ./1

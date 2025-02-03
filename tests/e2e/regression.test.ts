@@ -19,7 +19,6 @@ function test(_description: string) {
         });
         compareDirectories(outputPath);
         compareDirectories(outputPath + '-html');
-        //
         // compareDirectories(outputPath + '-static-html');
     });
 }
