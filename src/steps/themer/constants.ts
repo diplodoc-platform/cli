@@ -1,5 +1,7 @@
 import {BrandDependColorOptions, ThemeVariant} from './types';
 
+export const THEME_VARIANTS: ThemeVariant[] = ['light', 'dark'];
+
 export const THEME_GRAVITY_VARIABLE_PREFIX = '--g-color';
 
 export const THEME_YFM_VARIABLE_PREFIX = '--yfm-color';
