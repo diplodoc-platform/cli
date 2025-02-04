@@ -1,3 +1,5 @@
-: Definition 1
+**Term 1**
+
+:   Definition 1
   
-  ![](image.jpeg)
+    ![](image.jpeg)
