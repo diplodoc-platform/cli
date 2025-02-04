@@ -1,6 +1,5 @@
 import type {Run} from '~/commands/build';
 
-import {writeFileSync} from 'fs';
 import {extname, join} from 'path';
 
 type TocItem = {
@@ -11,7 +10,7 @@ type TocItem = {
 
 type TocItems = TocItem[];
 
-export function prepareMapFile(run: Run): void {
+export async function prepareMapFile(run: Run) {
     const navigationPathsWithoutExtensions = run.toc.entries.map((path) => {
         let preparedPath = path.replace(extname(path), '');
 
@@ -22,8 +21,7 @@ export function prepareMapFile(run: Run): void {
         return preparedPath;
     });
     const navigationPaths = {files: [...new Set(navigationPathsWithoutExtensions)].sort()};
-    const filesMapBuffer = Buffer.from(JSON.stringify(navigationPaths, null, '\t'), 'utf8');
-    const mapFile = join(run.output, 'files.json');
+    const content = JSON.stringify(navigationPaths, null, '\t');
 
-    writeFileSync(mapFile, filesMapBuffer);
+    await run.write(join(run.output, 'files.json'), content);
 }

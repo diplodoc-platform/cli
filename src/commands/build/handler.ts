@@ -15,7 +15,7 @@ export async function handler(run: Run) {
         const {addMapFile} = ArgvService.getConfig();
 
         if (addMapFile) {
-            prepareMapFile(run);
+            await prepareMapFile(run);
         }
 
         await Promise.all([processLinter(run), processPages(run)]);
