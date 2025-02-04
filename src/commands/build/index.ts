@@ -146,6 +146,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
             config.langs = langs;
             config.lang = lang || langs[0];
 
+            // Temporary disable fixed strict behavior.
+            // We need to announce this fix.
+            config.strict = false;
+
             return config;
         });
 
