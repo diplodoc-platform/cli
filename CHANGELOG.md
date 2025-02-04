@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.6](https://github.com/diplodoc-platform/cli/compare/v4.53.5...v4.53.6) (2025-02-04)
+
+
+### Dependency update
+
+* bump transform to 4.45.3 ([6ecbea2](https://github.com/diplodoc-platform/cli/commit/6ecbea28b768d5059a37c73ebf70267794a527ac))
+
 ## [4.53.5](https://github.com/diplodoc-platform/cli/compare/v4.53.4...v4.53.5) (2025-02-03)
 
 
