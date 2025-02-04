@@ -9,7 +9,12 @@ import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
 import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
-import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
+import {
+    BaseProgram,
+    getHooks as getBaseHooks,
+    withConfigDefaults,
+    withConfigScope,
+} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -53,9 +58,10 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     schema?: string;
 };
 
-@withDefaultConfig({
-    strictScope: 'translate.extract',
-})
+@withConfigScope('translate.extract', {strict: true})
+@withConfigDefaults(() => ({
+    useExperimentalParser: false,
+}))
 export class Extract
     extends BaseProgram<ExtractConfig, ExtractArgs>
     implements IProgram<ExtractArgs>

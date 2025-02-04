@@ -5,7 +5,12 @@ import {ok} from 'node:assert';
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
-import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
+import {
+    BaseProgram,
+    getHooks as getBaseHooks,
+    withConfigDefaults,
+    withConfigScope,
+} from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, configPath, defined, valuable} from '~/core/config';
 import {getHooks as getTocHooks} from '~/core/toc';
@@ -36,9 +41,9 @@ export type {Run};
 const command = 'Build';
 
 @withHooks
-@withDefaultConfig({
-    scope: 'build',
-    defaults: () =>
+@withConfigScope('build')
+@withConfigDefaults(
+    () =>
         ({
             langs: [],
             outputFormat: OutputFormat.html,
@@ -57,7 +62,7 @@ const command = 'Build';
             addSystemMeta: false,
             lint: {enabled: true, config: {'log-levels': {}}},
         }) as Partial<BuildConfig>,
-})
+)
 export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgram<BuildArgs> {
     readonly name = command;
 
@@ -147,7 +152,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
         getHooks(this)
             .BeforeRun.for('md')
             .tap('Build', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build', async (toc, path) => {
+                getTocHooks(run.toc).Resolved.tapPromise('Build', async (_toc, path) => {
                     await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
             });

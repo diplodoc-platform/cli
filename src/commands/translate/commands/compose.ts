@@ -6,7 +6,12 @@ import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
-import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
+import {
+    BaseProgram,
+    getHooks as getBaseHooks,
+    withConfigDefaults,
+    withConfigScope,
+} from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -34,9 +39,11 @@ export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     useExperimentalParser?: boolean;
 };
 
-@withDefaultConfig({
-    strictScope: 'translate.compose',
-})
+@withConfigScope('translate.compose', {strict: true})
+@withConfigDefaults(() => ({
+    useSource: false,
+    useExperimentalParser: false,
+}))
 export class Compose
     extends BaseProgram<ComposeConfig, ComposeArgs>
     implements IProgram<ComposeArgs>

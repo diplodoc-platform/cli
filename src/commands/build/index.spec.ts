@@ -252,6 +252,38 @@ describe('Build command', () => {
             // test('should merge args ang config')
         });
 
+        describe('strict', () => {
+            test('should handle default', '', {
+                strict: false,
+            });
+
+            // test('should handle arg', arg, {
+            //     [name]: true,
+            // });
+
+            test(
+                'should handle config enabled',
+                '',
+                {
+                    strict: true,
+                },
+                {
+                    strict: true,
+                },
+            );
+
+            test(
+                'should handle config disabled',
+                '',
+                {
+                    strict: false,
+                },
+                {
+                    strict: false,
+                },
+            );
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('removeHiddenTocItems', '--remove-hidden-toc-items', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);

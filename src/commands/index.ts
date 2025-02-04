@@ -5,7 +5,7 @@ import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build} from '~/commands/build';
 import {Publish} from '~/commands/publish';
 import {Translate} from '~/commands/translate';
-import {BaseProgram, withDefaultConfig} from '~/core/program';
+import {BaseProgram, withConfigDefaults} from '~/core/program';
 
 import {NAME, USAGE, options} from './config';
 
@@ -13,11 +13,9 @@ export {NAME};
 
 export {parse} from './parser';
 
-@withDefaultConfig({
-    defaults: () => ({
-        extensions: [] as ExtensionInfo[],
-    }),
-})
+@withConfigDefaults(() => ({
+    extensions: [] as ExtensionInfo[],
+}))
 export class Program extends BaseProgram implements IProgram {
     readonly name = 'Program';
 

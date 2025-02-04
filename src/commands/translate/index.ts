@@ -4,7 +4,12 @@ import type {Locale} from './utils';
 import {ok} from 'assert';
 import {pick} from 'lodash';
 
-import {BaseProgram, getHooks as getBaseHooks, withDefaultConfig} from '~/core/program';
+import {
+    BaseProgram,
+    getHooks as getBaseHooks,
+    withConfigDefaults,
+    withConfigScope,
+} from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
@@ -46,9 +51,10 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 };
 
 @withHooks
-@withDefaultConfig({
-    strictScope: NAME,
-})
+@withConfigScope(NAME, {strict: true})
+@withConfigDefaults(() => ({
+    dryRun: false,
+}))
 export class Translate
     extends BaseProgram<TranslateConfig, TranslateArgs>
     implements IProgram<TranslateArgs>

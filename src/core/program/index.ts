@@ -15,11 +15,11 @@ import {Logger, stats} from '~/core/logger';
 
 import {Hooks, getHooks, hooks} from './hooks';
 import {HandledError} from './utils';
-import {getDefaultConfig, withDefaultConfig} from './decorators';
+import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
 
 export * from './types';
 
-export {getHooks, withDefaultConfig};
+export {getHooks, withConfigDefaults, withConfigScope};
 
 const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
 
@@ -29,6 +29,10 @@ type Behavior = {
     isDefaultCommand?: boolean;
 };
 
+@withConfigDefaults(() => ({
+    strict: false,
+    quiet: false,
+}))
 export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends BaseArgs = BaseArgs>
     implements IBaseProgram<TConfig, TArgs>
 {
@@ -48,7 +52,7 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
 
     protected extensions: (string | ExtensionInfo)[] = [];
 
-    protected args: string[] = [];
+    private parent: IBaseProgram | null = null;
 
     private behavior: Behavior = {};
 
@@ -56,9 +60,9 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
         this.behavior = behavior;
 
         if (config) {
-            const {defaults} = getDefaultConfig(this);
+            const defaults = getConfigDefaults(this);
             this.config = withConfigUtils(process.cwd(), {
-                ...defaults(),
+                ...defaults,
                 ...config,
             });
         }
@@ -113,7 +117,6 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
     }
 
     async parse(args: string[]) {
-        this.args = args;
         return this.command.parseAsync(args);
     }
 
@@ -121,8 +124,18 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
         throw new Error('Should be implemented');
     }
 
+    args(args: Hash) {
+        const options = this.options.map((option) => option.attributeName());
+
+        return {
+            ...this.parent?.args(args),
+            ...pick(args, options),
+        };
+    }
+
     private async hookConfig(args: TArgs) {
-        const {defaults, scope, strictScope} = getDefaultConfig(this);
+        const defaults = getConfigDefaults(this);
+        const {scope, strictScope} = getConfigScope(this);
         const configPath =
             isAbsolute(args.config) || isRelative(args.config)
                 ? resolve(args.config)
@@ -133,15 +146,13 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
 
         const config = await resolveConfig(configPath, {
             filter: filter || undefined,
-            defaults: defaults(),
-            fallback: args.config === YFM_CONFIG_FILENAME ? defaults() : null,
+            defaults: defaults,
+            fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
 
         await this[Hooks].RawConfig.promise(config, args);
 
-        const options = this.options.map((option) => option.attributeName());
-
-        Object.assign(config, pick(args, options));
+        Object.assign(config, this.args(args));
 
         return this[Hooks].Config.promise(config, args);
     }

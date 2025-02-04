@@ -5,8 +5,8 @@ declare const GENERIC_INCLUDER_EXTENSION: string;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
 
-type ClassType = {
-    new (...args: any[]): any;
+type ClassType<T = any> = {
+    new (...args: any[]): T;
 };
 
 type DeepPartial<T> = {

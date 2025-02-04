@@ -38,6 +38,8 @@ export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends IC
 
     command: Command;
 
+    args(args: Hash): Hash;
+
     options: Readonly<ExtendedOption[]>;
 
     init(args: BaseArgs, parent?: IBaseProgram): Promise<void>;
