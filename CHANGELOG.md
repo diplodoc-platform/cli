@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.53.7](https://github.com/diplodoc-platform/cli/compare/v4.53.6...v4.53.7) (2025-02-04)
+
+
+### Bug Fixes
+
+* Temporary disable fixed strict mode ([119221b](https://github.com/diplodoc-platform/cli/commit/119221b17c25af92f9ecdda843a5a77f519b9725))
+* Use args and default config of parent program ([731e99c](https://github.com/diplodoc-platform/cli/commit/731e99cacfb7bb16ca3ccb01a83cadd03ffe5dee))
+* Use run.write on files.json to omit errors on empty projects ([0064b73](https://github.com/diplodoc-platform/cli/commit/0064b734270df997a4a20a68f071ba1807558b68))
+
 ## [4.53.6](https://github.com/diplodoc-platform/cli/compare/v4.53.5...v4.53.6) (2025-02-04)
 
 
