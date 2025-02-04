@@ -3,8 +3,9 @@ import {ThemeConfig} from './types';
 import Ajv, {FormatDefinition} from 'ajv';
 import chroma from 'chroma-js';
 
-const themeProperties = {
+const colorsPropertiesSchema = {
     type: 'object',
+    nullable: true,
     properties: {
         'base-brand': {type: 'string', nullable: true, format: 'color'},
         'base-brand-hover': {type: 'string', nullable: true, format: 'color'},
@@ -30,25 +31,27 @@ const themeProperties = {
         'text-hint': {type: 'string', nullable: true, format: 'color'},
         'text-misc': {type: 'string', nullable: true, format: 'color'},
     },
-    minProperties: 1,
+    required: [],
     additionalProperties: false,
+    minProperties: 1,
 } as const;
 
+// Основная схема для ThemeConfig
 const themeSchema: JSONSchemaType<ThemeConfig> = {
     type: 'object',
     properties: {
-        light: themeProperties,
-        dark: themeProperties,
+        ...colorsPropertiesSchema.properties,
+        light: colorsPropertiesSchema,
+        dark: colorsPropertiesSchema,
     },
-    required: ['light', 'dark'],
+    required: [],
     additionalProperties: false,
-};
+    minProperties: 1,
+} as const;
 
 const colorFormat: FormatDefinition<string> = {
     type: 'string',
-    validate: (colorString: string) => {
-        return chroma.valid(colorString);
-    },
+    validate: (colorString: string) => chroma.valid(colorString),
 };
 
 export function getThemeValidator() {
