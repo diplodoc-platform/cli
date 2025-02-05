@@ -1,14 +1,15 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {type BuildConfig, Preset, Presets, Run} from '~/commands/build';
+import {type BuildConfig, Run} from '~/commands/build';
 import {CONCURRENCY} from '~/reCli/constants';
 import yaml from 'js-yaml';
 import pMap from 'p-map';
 import {PresetIndex} from '~/reCli/components/presets/types';
 import {YfmToc} from '~/models';
-import {isExternalHref} from '~/utils';
+import {isExternalHref} from '~/core/utils';
 import {safePath} from '~/reCli/utils';
 import {pick} from 'lodash';
+import {Preset, Presets} from '~/core/vars';
 
 const PRESET_SCOPE_PRESET = new WeakMap<Preset, Presets>();
 const DEFAULT_SCOPE = 'default';

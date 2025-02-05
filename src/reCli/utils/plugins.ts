@@ -1,8 +1,4 @@
-import {
-    getCollectOfPlugins as getCollectOfPluginsLegacy,
-    getPlugins as getPluginsLegacy,
-    setPlugins,
-} from '~/services/plugins';
+import {getPlugins as getPluginsLegacy, setPlugins} from '~/services/plugins';
 
 export function getPlugins() {
     const plugins = getPluginsLegacy();
@@ -10,11 +6,4 @@ export function getPlugins() {
         setPlugins();
     }
     return getPluginsLegacy();
-}
-
-export function getCollectOfPlugins() {
-    if (!getPluginsLegacy()?.length) {
-        setPlugins();
-    }
-    return getCollectOfPluginsLegacy();
 }

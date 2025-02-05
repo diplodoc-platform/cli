@@ -61,7 +61,7 @@ const command = 'Build';
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
             lint: {enabled: true, config: {'log-levels': {}}},
-            hashIncludes: false,
+            hashIncludes: true,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgram<BuildArgs> {

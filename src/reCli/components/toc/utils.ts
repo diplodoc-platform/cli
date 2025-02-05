@@ -1,9 +1,11 @@
-import {type YfmArgv, YfmToc} from '~/models';
+import {Filter, type YfmArgv, YfmToc} from '~/models';
 import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
 import {composeFrontMatter} from '@diplodoc/transform/lib/frontmatter';
 import {FrontMatter, extractFrontMatter} from '@diplodoc/transform/src/transform/frontmatter';
 import path from 'node:path';
 import {TocIndexMap} from '~/reCli/components/toc/types';
+import {FilterFilesOptions} from '~/services/utils';
+import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 
 export type LiquidFieldOptions = Pick<
     YfmArgv,
@@ -82,4 +84,51 @@ export function getPageToc(tocIndex: TocIndexMap, pagePath: string) {
         }
     }
     return {toc, tocPath};
+}
+
+export function firstFilterItem<T extends Filter>(
+    itemOrItems: T | T[],
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
+    const items = Array.isArray(itemOrItems) ? itemOrItems : [itemOrItems];
+
+    const filteredItems = items.reduce<T[]>((result: T[], item) => {
+        const useItem = shouldProcessItem(item, vars, options);
+
+        if (useItem) {
+            result.push(item);
+        }
+
+        return result;
+    }, []);
+
+    return filteredItems[0];
+}
+
+function shouldProcessItem<T extends Filter>(
+    item: T,
+    vars: Record<string, string>,
+    options?: FilterFilesOptions,
+) {
+    const {resolveConditions, removeHiddenTocItems} = options || {};
+    let useItem = true;
+
+    if (resolveConditions) {
+        const {when} = item;
+        useItem =
+            when === true ||
+            when === undefined ||
+            (typeof when === 'string' && evalExp(when, vars));
+
+        delete item.when;
+    }
+
+    if (useItem && removeHiddenTocItems) {
+        useItem = !item.hidden;
+
+        delete item.hidden;
+    }
+
+    return useItem;
 }

@@ -14,6 +14,7 @@ import {readTransformLog} from '~/reCli/utils/legacy';
 import {lintPage} from '~/reCli/components/lint/lint';
 import {transformPage} from '~/reCli/components/transform/transform';
 import {LogCollector} from '~/reCli/utils/logger';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 
 /*eslint-disable no-console*/
 
@@ -105,13 +106,14 @@ async function run({pages}: TransformWorkerProps) {
         vcsConnector,
     } = workerEnv;
 
+    const legacyConfig = legacyConfigFn(run);
     const writeConflicts = new Map<string, string>();
     const singlePageTocPagesMap = options.singlePage ? new Map<string, SinglePageResult[]>() : null;
     await pMap(
         pages,
         async (pagePath) => {
             logger.info(`Page ${pagePath}`);
-            if (!run.legacyConfig.lintDisabled) {
+            if (!legacyConfig.lintDisabled) {
                 try {
                     await lintPage(
                         {
@@ -130,28 +132,26 @@ async function run({pages}: TransformWorkerProps) {
                 }
             }
 
-            if (!options.buildDisabled) {
-                try {
-                    await transformPage(
-                        {
-                            run,
-                            options,
-                            writeConflicts,
-                            singlePageTocPagesMap,
-                            presetIndex,
-                            cwd: tmpSource,
-                            targetCwd: output,
-                            fileMetaMap,
-                            vcsConnector,
-                            tocIndex,
-                            logger,
-                        },
-                        pagePath,
-                    );
-                } catch (err) {
-                    const error = err as Error;
-                    logger.error(`Transform page error ${pagePath}. Error: ${error.stack}`);
-                }
+            try {
+                await transformPage(
+                    {
+                        run,
+                        options,
+                        writeConflicts,
+                        singlePageTocPagesMap,
+                        presetIndex,
+                        cwd: tmpSource,
+                        targetCwd: output,
+                        fileMetaMap,
+                        vcsConnector,
+                        tocIndex,
+                        logger,
+                    },
+                    pagePath,
+                );
+            } catch (err) {
+                const error = err as Error;
+                logger.error(`Transform page error ${pagePath}. Error: ${error.stack}`);
             }
 
             readTransformLog();

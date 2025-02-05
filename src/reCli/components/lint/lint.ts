@@ -20,6 +20,7 @@ import {getLogLevel} from '@diplodoc/transform/lib/yfmlint/utils';
 import {LogLevels} from '@diplodoc/transform/lib/log';
 import {bold} from 'chalk';
 import {LogCollector} from '~/reCli/utils/logger';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 
 /*eslint-disable no-console*/
 
@@ -48,12 +49,8 @@ export async function lintPage(props: LintPageProps, pagePath: string) {
 }
 
 async function lintYaml(props: LintPageProps, pagePath: string) {
-    const {
-        cwd,
-        run: {
-            legacyConfig: {lintConfig},
-        },
-    } = props;
+    const {cwd, run} = props;
+    const {lintConfig} = legacyConfigFn(run);
     const page = yaml.load(
         await fs.promises.readFile(path.join(cwd, pagePath) as AbsolutePath, 'utf8'),
     ) as LeadingPage;
@@ -87,6 +84,7 @@ async function lintYaml(props: LintPageProps, pagePath: string) {
 async function lintMd(props: LintPageProps, pagePath: string) {
     const {cwd, presetIndex, logger, run} = props;
 
+    const legacyConfig = legacyConfigFn(run);
     const {
         outputFormat,
         vars,
@@ -95,7 +93,7 @@ async function lintMd(props: LintPageProps, pagePath: string) {
         applyPresets,
         resolveConditions,
         conditionsInCode,
-    } = run.legacyConfig;
+    } = legacyConfig;
 
     const combinedVars = getFilePresets(presetIndex, vars, pagePath);
 
@@ -145,7 +143,8 @@ interface LintMarkdownProps extends LintPageProps {
 
 function lintMarkdown(props: LintMarkdownProps, params: LintMarkdownFunctionOptions) {
     const {presetIndex, cwd, draftCwd, run} = props;
-    const {lintConfig, vars, disableLiquid, outputFormat} = run.legacyConfig;
+    const legacyConfig = legacyConfigFn(run);
+    const {lintConfig, vars, disableLiquid, outputFormat} = legacyConfig;
 
     const {input: page, path: absPagePath, sourceMap} = params;
     const pagePath = path.relative(cwd, absPagePath);

@@ -14,6 +14,7 @@ import {mdPageToMd} from '~/reCli/components/transform/mdPageToMd';
 import {transformYaml} from '~/reCli/components/transform/transformYaml';
 import {pageToHtml} from '~/reCli/components/transform/pageToHtml';
 import {LogCollector} from '~/reCli/utils/logger';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 
 /*eslint-disable no-console*/
 
@@ -33,8 +34,9 @@ export interface TransformPageProps {
 
 export async function transformPage(props: TransformPageProps, pagePath: string) {
     const {targetCwd, cwd, singlePageTocPagesMap, tocIndex, run} = props;
+    const legacyConfig = legacyConfigFn(run);
     const {resolveConditions, outputFormat, allowCustomResources, resources, singlePage} =
-        run.legacyConfig;
+        legacyConfig;
     const ext = path.extname(pagePath);
 
     switch (outputFormat) {

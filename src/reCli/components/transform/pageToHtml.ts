@@ -12,7 +12,7 @@ import {transformYaml} from './transformYaml';
 import {BuildConfig, Run} from '~/commands/build';
 import {PresetIndex} from '~/reCli/components/presets/types';
 import {TocIndexMap} from '../toc/types';
-import {getLinksWithContentExtersion, isExternalHref, modifyValuesByKeys} from '~/utils';
+import {getLinksWithContentExtersion, modifyValuesByKeys} from '~/utils';
 import {getPageToc} from '../toc/utils';
 import {cachedMkdir, safePath} from '~/reCli/utils';
 import {Lang} from '~/constants';
@@ -21,6 +21,8 @@ import {getFilePresets} from '~/reCli/components/presets';
 import {getPlugins} from '~/reCli/utils/plugins';
 import {generateStaticMarkup} from '~/reCli/components/render/document';
 import {LogCollector} from '~/reCli/utils/logger';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
+import {isExternalHref} from '~/core/utils';
 
 /*eslint-disable no-console*/
 
@@ -157,7 +159,8 @@ interface YamlFileTransformerOptions extends PageToHtmlProps {
 
 function yamlFileTransformer(props: YamlFileTransformerOptions, pageContent: string) {
     const {cwd, pagePath, logger, options, run} = props;
-    const {resolveConditions} = run.legacyConfig;
+    const legacyConfig = legacyConfigFn(run);
+    const {resolveConditions} = legacyConfig;
 
     let data;
     try {
@@ -224,8 +227,9 @@ interface MdFileTransformerOptions extends PageToHtmlProps {
 
 function mdFileTransformer(props: MdFileTransformerOptions, pageContent: string) {
     const {presetIndex, pagePath, cwd, logger, run} = props;
+    const legacyConfig = legacyConfigFn(run);
     const {vars, allowHTML, conditionsInCode, disableLiquid, needToSanitizeHtml, lang} =
-        run.legacyConfig;
+        legacyConfig;
     const combinedVars = getFilePresets(presetIndex, vars, pagePath);
     const plugins = getPlugins();
 

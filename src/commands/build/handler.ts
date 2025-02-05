@@ -27,16 +27,16 @@ import {LogCollector} from '~/reCli/utils/logger';
 import {getMapFile} from '~/reCli/components/toc/mapFile';
 import {BuildConfig} from '~/commands/build/index';
 
-import {legacyConfig} from './legacy-config';
+import {legacyConfig as legacyConfigFn} from './legacy-config';
 
 export async function handler(run: Run) {
     try {
-        const lConfig = legacyConfig(run);
-        ArgvService.init(lConfig);
+        const legacyConfig = legacyConfigFn(run);
+        ArgvService.init(legacyConfig);
         SearchService.init();
 
         const {input, output, outputFormat, singlePage, addMapFile} = run.config;
-        const {applyPresets, resolveConditions} = lConfig;
+        const {applyPresets, resolveConditions} = legacyConfig;
 
         const presetIndex = await getPresetIndex(run.input, run.config, run);
 
@@ -51,7 +51,7 @@ export async function handler(run: Run) {
 
         let vcsConnector;
         let connectorData: ReturnType<GithubConnector['serialize']> | undefined;
-        if (lConfig.contributors) {
+        if (legacyConfig.contributors) {
             vcsConnector = getVcsConnector({
                 options: run.config,
                 cwd: run.input,

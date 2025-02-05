@@ -8,14 +8,14 @@ import yaml from 'js-yaml';
 import {YfmToc} from '~/models';
 import {CONCURRENCY} from '~/reCli/constants';
 import {getFilePresets} from '~/reCli/components/presets';
-import {filterFiles, firstFilterItem, firstFilterTextItems} from '~/services/utils';
-import {liquidField} from '~/reCli/components/toc/utils';
+import {filterFiles, firstFilterTextItems} from '~/services/utils';
+import {firstFilterItem, liquidField} from '~/reCli/components/toc/utils';
 import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
-import {IncludersError, applyIncluders} from '~/services/includers';
 import {IncludeMode, Stage} from '~/constants';
 import shell from 'shelljs';
 import {safePath} from '~/reCli/utils';
 import {LogCollector} from '~/reCli/utils/logger';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 
 interface GetTocIndexProps {
     options: BuildConfig;
@@ -60,12 +60,8 @@ interface TransformTocProps extends GetTocIndexProps {
 }
 
 async function transformToc(tocOrig: YfmToc, props: TransformTocProps) {
-    const {
-        presetIndex,
-        tocPath,
-        options,
-        run: {legacyConfig},
-    } = props;
+    const {presetIndex, tocPath, options, run} = props;
+    const legacyConfig = legacyConfigFn(run);
     const {vars, ignoreStage} = options;
     const combinedVars = getFilePresets(presetIndex, vars, tocPath) as Record<string, string>;
 
@@ -115,7 +111,8 @@ async function processTocItems(
     props: ProcessTocItemsProps,
 ) {
     const {tocPath, logger, run} = props;
-    const {resolveConditions, removeHiddenTocItems} = run.legacyConfig;
+    const legacyConfig = legacyConfigFn(run);
+    const {resolveConditions, removeHiddenTocItems} = legacyConfig;
 
     let preparedItems = items;
 
@@ -156,18 +153,6 @@ async function replaceIncludes(
 
         if (item.name) {
             item.name = _liquidSubstitutions(item.name, vars, props);
-        }
-
-        try {
-            await applyIncluders(props.tocPath, item, vars);
-        } catch (err) {
-            if (err instanceof Error || err instanceof IncludersError) {
-                const message = err.toString();
-
-                const file = err instanceof IncludersError ? err.path : props.tocPath;
-
-                logger.error(`${file} ${message}`);
-            }
         }
 
         if (item.include) {
@@ -265,10 +250,8 @@ function _liquidSubstitutions(
     vars: Record<string, string>,
     props: TransformTocProps,
 ) {
-    const {
-        tocPath,
-        run: {legacyConfig},
-    } = props;
+    const {tocPath, run} = props;
+    const legacyConfig = legacyConfigFn(run);
     const {outputFormat, applyPresets} = legacyConfig;
     if (outputFormat === 'md' && !applyPresets) {
         return name;

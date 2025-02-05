@@ -8,10 +8,16 @@ import {TransformPageProps} from '~/reCli/components/transform/transform';
 import {cachedMkdir, cachedMkdirSync, getHash, safePath} from '~/reCli/utils';
 import {getFilePresets} from '~/reCli/components/presets';
 import {joinMetaAndContent, splitMetaAndContent} from '~/reCli/components/toc/utils';
-import {Preset} from '~/commands/build';
-import {getCollectOfPlugins} from '~/reCli/utils/plugins';
+import {getPlugins} from '~/reCli/utils/plugins';
 import {PluginOptions, YfmPreset} from '~/models';
 import {getLog} from '~/reCli/utils/legacy';
+import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
+import {Preset} from '~/core/vars';
+import transform from '@diplodoc/transform';
+import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
+import {getVarsPerRelativeFile} from '~/utils';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {MD2MD_PARSER_PLUGINS} from '~/constants';
 
 /*eslint-disable no-console*/
 
@@ -145,6 +151,7 @@ interface TransformMdLoopOptions extends TransformPageProps {
 
 function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath: string) {
     const {cwd, targetCwd, combinedVars, writeConflicts, includedPaths, logger, run} = props;
+    const legacyConfig = legacyConfigFn(run);
     const {
         resolveConditions,
         applyPresets,
@@ -153,7 +160,7 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
         disableLiquid,
         changelogs,
         hashIncludes,
-    } = run.legacyConfig;
+    } = legacyConfig;
 
     let output;
     if (disableLiquid) {
@@ -173,10 +180,78 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
 
     const changelogList: ChangelogItem[] = [];
 
-    const collectOfPlugins = getCollectOfPlugins();
+    const copyFile = (targetPath: string, targetDestPath: string, subOptions?: unknown) => {
+        const relSource = safePath(path.relative(cwd, targetPath));
+        const relTarget = safePath(path.relative(targetCwd, targetDestPath));
 
-    if (collectOfPlugins) {
-        output = collectOfPlugins(output, {
+        includedPaths.push(relSource);
+
+        if (subOptions) {
+            logger.info(`Include ${relSource}`);
+
+            const inputLocal = fs.readFileSync(path.join(cwd, relSource), 'utf-8');
+            const {content: inputLocalNoMeta} = splitMetaAndContent(inputLocal);
+            const {output: outputLocal} = transformMdLoop(inputLocalNoMeta, props, relSource);
+
+            const extName = path.extname(relTarget);
+            const fileName = path.basename(relTarget, extName);
+            const newRelTarget = hashIncludes
+                ? path.join(
+                      path.dirname(relTarget),
+                      `_include--${fileName}--${getHash(outputLocal, 7)}${extName}`,
+                  )
+                : relTarget;
+
+            const targetFilename = path.join(targetCwd, newRelTarget);
+
+            if (TARGET_COPY_SET.has(newRelTarget)) {
+                // console.log('skip sub page', newRelTarget);
+                if (!hashIncludes) {
+                    writeConflicts.set(newRelTarget, outputLocal);
+                }
+                return {
+                    target: targetFilename,
+                };
+            }
+            TARGET_COPY_SET.add(newRelTarget);
+
+            cachedMkdirSync(path.dirname(targetFilename));
+
+            fs.writeFileSync(targetFilename, outputLocal);
+
+            return {
+                target: targetFilename,
+            };
+        } else {
+            logger.info(`Copy resource ${relSource}`);
+
+            if (TARGET_COPY_SET.has(relTarget)) {
+                // console.log('skip copy', relSource);
+                return undefined;
+            }
+            TARGET_COPY_SET.add(relTarget);
+
+            const targetFilename = path.join(targetCwd, relTarget);
+            cachedMkdirSync(path.dirname(targetFilename));
+
+            fs.cpSync(path.join(cwd, relSource), targetFilename);
+        }
+        return undefined;
+    };
+
+    output = transform.collect(output, {
+        mdItInitOptions: {
+            isLiquided: true,
+            plugins: getPlugins() as MarkdownItPluginCb[],
+            vars: combinedVars as YfmPreset,
+            root: cwd,
+            path: path.join(cwd, safePath(pagePath)),
+            assetsPublicPath: './',
+            getVarsPerFile: getVarsPerRelativeFile,
+            getPublicPath,
+            extractTitle: true,
+        },
+        pluginCollectOptions: {
             applyPresets,
             resolveConditions,
             useLegacyConditions,
@@ -184,76 +259,15 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
             destPath: path.join(targetCwd, safePath(pagePath)),
             root: cwd,
             destRoot: targetCwd,
-            collectOfPlugins,
             log: getLog(),
-            copyFile: (targetPath: string, targetDestPath: string, subOptions?: unknown) => {
-                const relSource = safePath(path.relative(cwd, targetPath));
-                const relTarget = safePath(path.relative(targetCwd, targetDestPath));
-
-                includedPaths.push(relSource);
-
-                if (subOptions) {
-                    logger.info(`Include ${relSource}`);
-
-                    const inputLocal = fs.readFileSync(path.join(cwd, relSource), 'utf-8');
-                    const {content: inputLocalNoMeta} = splitMetaAndContent(inputLocal);
-                    const {output: outputLocal} = transformMdLoop(
-                        inputLocalNoMeta,
-                        props,
-                        relSource,
-                    );
-
-                    const extName = path.extname(relTarget);
-                    const fileName = path.basename(relTarget, extName);
-                    const newRelTarget = hashIncludes
-                        ? path.join(
-                              path.dirname(relTarget),
-                              `_include--${fileName}--${getHash(outputLocal, 7)}${extName}`,
-                          )
-                        : relTarget;
-
-                    const targetFilename = path.join(targetCwd, newRelTarget);
-
-                    if (TARGET_COPY_SET.has(newRelTarget)) {
-                        // console.log('skip sub page', newRelTarget);
-                        if (!hashIncludes) {
-                            writeConflicts.set(newRelTarget, outputLocal);
-                        }
-                        return {
-                            target: targetFilename,
-                        };
-                    }
-                    TARGET_COPY_SET.add(newRelTarget);
-
-                    cachedMkdirSync(path.dirname(targetFilename));
-
-                    fs.writeFileSync(targetFilename, outputLocal);
-
-                    return {
-                        target: targetFilename,
-                    };
-                } else {
-                    logger.info(`Copy resource ${relSource}`);
-
-                    if (TARGET_COPY_SET.has(relTarget)) {
-                        // console.log('skip copy', relSource);
-                        return undefined;
-                    }
-                    TARGET_COPY_SET.add(relTarget);
-
-                    const targetFilename = path.join(targetCwd, relTarget);
-                    cachedMkdirSync(path.dirname(targetFilename));
-
-                    fs.cpSync(path.join(cwd, relSource), targetFilename);
-                }
-                return undefined;
-            },
+            copyFile,
             vars: combinedVars as YfmPreset,
             path: path.join(cwd, safePath(pagePath)),
             changelogs: changelogList,
             extractChangelogs: Boolean(changelogs),
-        } as unknown as PluginOptions);
-    }
+        } as unknown as PluginOptions,
+        parserPluginsOverride: MD2MD_PARSER_PLUGINS,
+    });
 
     return {output, changelogList, includedPaths};
 }
