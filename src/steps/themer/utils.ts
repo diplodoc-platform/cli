@@ -26,9 +26,7 @@ export const generateBrandShades = ({
         throw Error('Not valid color for chroma');
     }
 
-    let colorsMapInternal = COLOR_MAP;
-
-    const pallete = Object.entries(colorsMapInternal).reduce(
+    const pallete = Object.entries(COLOR_MAP).reduce(
         (res, [key, {a, c}]) => {
             const solidColor = chroma.mix(colorValue, c > 0 ? darkBg : lightBg, 1 - a, 'rgb').css();
 

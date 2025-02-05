@@ -6,18 +6,18 @@ import {
     BRAND_COLOR_VARIABLE_PREFIX,
     ColorsOptions,
     DEFAULT_BRAND_DEPEND_COLORS,
-    generateBrandShades,
-    getThemeValidator,
-    loadFile,
-    Theme,
     THEME_GRAVITY_VARIABLE_PREFIX,
     THEME_VARIANTS,
     THEME_YFM_VARIABLE_PREFIX,
+    Theme,
     ThemeConfig,
     ThemeOptions,
     ThemeVariant,
-    YFM_COLOR_KEYS,
     YFMColorOptions,
+    YFM_COLOR_KEYS,
+    generateBrandShades,
+    getThemeValidator,
+    loadFile,
 } from './themer';
 import {writeFileSync} from 'node:fs';
 
@@ -38,7 +38,7 @@ export async function processThemer(run: Run) {
 }
 
 function createTheme(configData: ThemeConfig): Theme {
-    let theme: Theme = {};
+    const theme: Theme = {};
 
     // if (configData['base-background']) {
     //     delete configData['base-background'];
@@ -80,7 +80,7 @@ function createVariant(
     }
 
     const {'base-brand': brandColor, 'base-background': backgroundColor} = configData[themeVariant];
-    let themeOptions: ThemeOptions = {colors: {}};
+    const themeOptions: ThemeOptions = {colors: {}};
 
     if (brandColor || backgroundColor) {
         themeOptions.colors = {
@@ -153,7 +153,7 @@ function prepareThemeVariables(variant: ThemeVariant | 'base', theme: Theme) {
         const gravityColors = getGravityCSSColors(theme[variant].colors);
         const yfmCssVariables = getYFMCSSColors(theme[variant].colors);
 
-        if (palette != '' || gravityColors) {
+        if (palette !== '' || gravityColors) {
             css += `.g-root_theme_${variant} {\n${palette}\n${gravityColors}\n}\n\n`;
         }
         css += yfmCssVariables ? `.g-root_theme_${variant} .yfm {\n${yfmCssVariables}\n}\n\n` : '';

@@ -1,6 +1,5 @@
-import {JSONSchemaType} from 'ajv';
+import Ajv, {FormatDefinition, JSONSchemaType} from 'ajv';
 import {ThemeConfig} from './types';
-import Ajv, {FormatDefinition} from 'ajv';
 import chroma from 'chroma-js';
 
 const colorsPropertiesSchema = {
