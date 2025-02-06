@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.9](https://github.com/diplodoc-platform/cli/compare/v4.53.8...v4.53.9) (2025-02-06)
+
+
+### Bug Fixes
+
+* Handle same level toc root include ([cf8c5da](https://github.com/diplodoc-platform/cli/commit/cf8c5da9c8148feaa707f7cac0bd6d452e584588))
+
 ## [4.53.8](https://github.com/diplodoc-platform/cli/compare/v4.53.7...v4.53.8) (2025-02-05)
 
 
