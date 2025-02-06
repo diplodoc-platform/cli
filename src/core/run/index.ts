@@ -171,6 +171,10 @@ export class Run<TConfig = BaseConfig> {
 
             // this.logger.copy(join(from, file), join(to, file));
 
+            if (from === to) {
+                return;
+            }
+
             if (sourcePath && sourcePath(file)) {
                 const content = await this.read(join(from, file));
                 this.write(
