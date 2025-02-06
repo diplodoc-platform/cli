@@ -13,6 +13,7 @@ import {langs} from '@diplodoc/search-extension/worker/langs';
 import {ArgvService} from '.';
 import {generateStaticSearch} from '../pages';
 import {copyFileSync} from 'fs';
+import {YfmArgv} from '~/models';
 
 const TIME = Date.now();
 
@@ -22,19 +23,19 @@ function init() {
     indexer = new Indexer();
 }
 
-function isSearchEnabled() {
-    const {search} = ArgvService.getConfig();
+function isSearchEnabled(config?: YfmArgv) {
+    const {search} = config ?? ArgvService.getConfig();
 
     return Boolean(search.enabled);
 }
 
-function isLocalSearchEnabled() {
-    const {search} = ArgvService.getConfig();
+function isLocalSearchEnabled(config?: YfmArgv) {
+    const {search} = config ?? ArgvService.getConfig();
 
-    return isSearchEnabled() && search.provider === 'local';
+    return isSearchEnabled(config) && search.provider === 'local';
 }
 
-function add(path: string, info: DocInnerProps) {
+function add(_path: string, info: DocInnerProps) {
     if (!isLocalSearchEnabled()) {
         return;
     }
@@ -86,18 +87,18 @@ async function release() {
     }
 }
 
-function outputDir(lang: string) {
-    const {output} = ArgvService.getConfig();
+function outputDir(lang: string, config?: YfmArgv) {
+    const {output} = config ?? ArgvService.getConfig();
     return join(output, '_search', lang);
 }
 
-function bundleDir() {
-    const {output} = ArgvService.getConfig();
+function bundleDir(config?: YfmArgv) {
+    const {output} = config ?? ArgvService.getConfig();
     return join(output, '_bundle');
 }
 
-function outputLink(lang: string, file: string) {
-    const dir = outputDir(lang);
+function outputLink(lang: string, file: string, config?: YfmArgv) {
+    const dir = outputDir(lang, config);
     const path = join(dir, file);
 
     return path;
@@ -106,12 +107,12 @@ function outputLink(lang: string, file: string) {
 // <root>/_search/ru
 export const SEARCH_PAGE_DEPTH = 2;
 
-function pageLink(lang: string) {
-    return outputLink(lang, 'index.html');
+function pageLink(lang: string, config?: YfmArgv) {
+    return outputLink(lang, 'index.html', config);
 }
 
-function apiLink() {
-    const dir = bundleDir();
+function apiLink(config?: YfmArgv) {
+    const dir = bundleDir(config);
     const path = join(dir, 'search-api.js');
 
     return path;
@@ -125,18 +126,18 @@ function registryLink(lang: string, hash: string) {
     return outputLink(lang, `${hash}-registry.js`);
 }
 
-function resourcesLink(lang: string) {
-    return outputLink(lang, `${TIME}-resources.js`);
+function resourcesLink(lang: string, config?: YfmArgv) {
+    return outputLink(lang, `${TIME}-resources.js`, config);
 }
 
 function languageLink(lang: string) {
     return outputLink(lang, 'language.js');
 }
 
-function config(lang: string) {
-    const {output} = ArgvService.getConfig();
+function config(lang: string, config?: YfmArgv) {
+    const {output} = config ?? ArgvService.getConfig();
 
-    if (!isLocalSearchEnabled()) {
+    if (!isLocalSearchEnabled(config)) {
         return '';
     }
 
@@ -144,9 +145,9 @@ function config(lang: string) {
 
     return {
         provider: 'local',
-        api: short(apiLink()),
-        link: short(pageLink(lang)),
-        resources: short(resourcesLink(lang)),
+        api: short(apiLink(config)),
+        link: short(pageLink(lang, config)),
+        resources: short(resourcesLink(lang, config)),
     };
 }
 
