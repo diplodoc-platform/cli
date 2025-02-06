@@ -2,8 +2,8 @@ import path from 'node:path';
 import {YfmToc} from '~/models';
 import {safePath} from '~/reCli/utils';
 import {filterFiles} from '~/services/utils';
-import {isExternalHref} from "~/core/utils";
-import {getSinglePageUrl} from "~/commands/build/features/singlepage/utils";
+import {isExternalHref} from '~/core/utils';
+import {getSinglePageUrl} from '~/commands/build/features/singlepage/utils';
 
 export function transformTocForJs(toc: YfmToc, tocDir: string) {
     const processItems = (items: YfmToc[]) => {

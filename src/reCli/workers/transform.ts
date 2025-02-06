@@ -1,8 +1,10 @@
 import pMap from 'p-map';
-import {CONCURRENCY} from '../constants';
+import {CONCURRENCY, WorkerDataType} from '../constants';
 import {FileMetaMap} from '../types';
 // @ts-ignore
 import {expose} from 'threads';
+// @ts-ignore
+import {Observable, Subject} from 'threads/observable';
 import GithubConnector from '../components/vcs/github';
 import assert from 'node:assert';
 import {BuildConfig} from '~/commands/build';
@@ -47,6 +49,7 @@ class WorkerEnv {
     vcsConnector;
     logger;
     run;
+    subject = new Subject<{type: WorkerDataType; payload: unknown}>();
 
     constructor({
         config,
@@ -84,6 +87,7 @@ class WorkerEnv {
 
 async function init(props: TransformWorkerInitProps) {
     workerEnv = new WorkerEnv(props);
+    return Observable.from(workerEnv.subject);
 }
 
 export interface TransformWorkerProps {
@@ -146,6 +150,12 @@ async function run({pages}: TransformWorkerProps) {
                         vcsConnector,
                         tocIndex,
                         logger,
+                        indexPage: (path, props) => {
+                            workerEnv?.subject.next({
+                                type: WorkerDataType.Search,
+                                payload: {path, props},
+                            });
+                        },
                     },
                     pagePath,
                 );

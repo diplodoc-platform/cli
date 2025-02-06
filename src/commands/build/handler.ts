@@ -13,7 +13,7 @@ import fs from 'node:fs';
 import pMap from 'p-map';
 import {cachedMkdir} from '~/reCli/utils';
 import yaml from 'js-yaml';
-import {CONCURRENCY, WORKER_COUNT} from '~/reCli/constants';
+import {CONCURRENCY, WORKER_COUNT, WorkerDataType} from '~/reCli/constants';
 import {FileMetaMap} from '~/reCli/types';
 import {SinglePageResult} from '~/models';
 // @ts-ignore
@@ -28,6 +28,7 @@ import {getMapFile} from '~/reCli/components/toc/mapFile';
 import {BuildConfig} from '~/commands/build/index';
 
 import {legacyConfig as legacyConfigFn} from './legacy-config';
+import {DocInnerProps} from '@diplodoc/client';
 
 export async function handler(run: Run) {
     try {
@@ -168,7 +169,7 @@ export async function handler(run: Run) {
                             configClone[key] = run.config[key as keyof BuildConfig];
                         }
 
-                        await worker.init({
+                        const subj = await worker.init({
                             config: configClone as BuildConfig,
                             presetIndex,
                             tmpSource,
@@ -177,6 +178,18 @@ export async function handler(run: Run) {
                             fileMetaMap,
                             connectorData,
                             tocIndex,
+                        });
+                        // @ts-ignore
+                        subj.subscribe(({type, payload}) => {
+                            switch (type) {
+                                case WorkerDataType.Search: {
+                                    const {path, props} = payload as {
+                                        path: string;
+                                        props: DocInnerProps;
+                                    };
+                                    SearchService.add(path, props);
+                                }
+                            }
                         });
                     }
 
@@ -290,6 +303,8 @@ export async function handler(run: Run) {
             pages,
             logger,
         });
+
+        await SearchService.release();
 
         await processChangelogs();
     } catch (error) {

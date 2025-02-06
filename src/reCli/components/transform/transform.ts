@@ -30,12 +30,13 @@ export interface TransformPageProps {
     tocIndex: TocIndexMap;
     logger: LogCollector;
     singlePageTocPagesMap: null | Map<string, SinglePageResult[]>;
+    indexPage: (page: string, props: DocInnerProps) => void;
 }
 
 export async function transformPage(props: TransformPageProps, pagePath: string) {
-    const {targetCwd, cwd, singlePageTocPagesMap, tocIndex, run} = props;
+    const {targetCwd, cwd, singlePageTocPagesMap, tocIndex, run, indexPage} = props;
     const legacyConfig = legacyConfigFn(run);
-    const {resolveConditions, outputFormat, allowCustomResources, resources, singlePage} =
+    const {resolveConditions, outputFormat, allowCustomResources, resources, singlePage, search} =
         legacyConfig;
     const ext = path.extname(pagePath);
 
@@ -75,6 +76,11 @@ export async function transformPage(props: TransformPageProps, pagePath: string)
                 case '.md':
                 case '.yaml': {
                     const pageProps = await pageToHtml(props, pagePath);
+
+                    if (search) {
+                        indexPage(pagePath, pageProps);
+                    }
+
                     if (singlePageTocPagesMap && singlePage) {
                         savePageResultForSinglePage({
                             singlePageTocPagesMap,

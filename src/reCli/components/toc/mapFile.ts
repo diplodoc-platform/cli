@@ -1,5 +1,5 @@
 import path from 'node:path';
-import {normalizePath} from "~/core/utils";
+import {normalizePath} from '~/core/utils';
 
 export function getMapFile(pages: string[]) {
     const navigationPathsWithoutExtensions = pages.map((pagePath) => {

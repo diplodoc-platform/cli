@@ -38,6 +38,7 @@ type BaseConfig = {
     resources: Resources;
     // TODO: explicitly handle
     analytics: DocAnalytics;
+    hashIncludes: boolean;
 };
 
 export type BuildArgs = ProgramArgs &

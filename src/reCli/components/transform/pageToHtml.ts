@@ -23,6 +23,7 @@ import {generateStaticMarkup} from '~/reCli/components/render/document';
 import {LogCollector} from '~/reCli/utils/logger';
 import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 import {isExternalHref} from '~/core/utils';
+import {SearchService} from '~/services';
 
 /*eslint-disable no-console*/
 
@@ -70,7 +71,7 @@ export async function pageToHtml(props: PageToHtmlProps, pagePath: string) {
 }
 
 async function getFileProps(props: PageToHtmlProps, pagePath: string) {
-    const {lang: configLang, langs: configLangs = []} = props.options;
+    const {lang: configLang, langs: configLangs = [], search, analytics} = props.options;
 
     const data = await getFileData(props, pagePath);
 
@@ -97,6 +98,8 @@ async function getFileProps(props: PageToHtmlProps, pagePath: string) {
         },
         lang,
         langs,
+        search: search.enabled ? SearchService.config(lang) : undefined,
+        analytics,
     };
 }
 
