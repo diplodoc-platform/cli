@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.10](https://github.com/diplodoc-platform/cli/compare/v4.53.9...v4.53.10) (2025-02-06)
+
+
+### Bug Fixes
+
+* Temporary mute error behevior on missed assets ([86ddbc5](https://github.com/diplodoc-platform/cli/commit/86ddbc5bd0fd04e673febdbb60d4851317f3b82a))
+
 ## [4.53.9](https://github.com/diplodoc-platform/cli/compare/v4.53.8...v4.53.9) (2025-02-06)
 
 
