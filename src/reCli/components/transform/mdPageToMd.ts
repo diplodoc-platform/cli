@@ -15,7 +15,6 @@ import {legacyConfig as legacyConfigFn} from '~/commands/build/legacy-config';
 import {Preset} from '~/core/vars';
 import transform from '@diplodoc/transform';
 import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
-import {getVarsPerRelativeFile} from '~/utils';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {MD2MD_PARSER_PLUGINS} from '~/constants';
 
@@ -150,7 +149,8 @@ interface TransformMdLoopOptions extends TransformPageProps {
 }
 
 function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath: string) {
-    const {cwd, targetCwd, combinedVars, writeConflicts, includedPaths, logger, run} = props;
+    const {cwd, targetCwd, combinedVars, writeConflicts, includedPaths, logger, run, presetIndex} =
+        props;
     const legacyConfig = legacyConfigFn(run);
     const {
         resolveConditions,
@@ -160,6 +160,10 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
         disableLiquid,
         changelogs,
         hashIncludes,
+        vars,
+        lang,
+        allowHTML,
+        needToSanitizeHtml,
     } = legacyConfig;
 
     let output;
@@ -241,13 +245,22 @@ function transformMdLoop(input: string, props: TransformMdLoopOptions, pagePath:
 
     output = transform.collect(output, {
         mdItInitOptions: {
+            conditionsInCode,
+            disableLiquid,
+            needToSanitizeHtml,
+            allowHTML,
+            log: logger,
+            lang,
             isLiquided: true,
             plugins: getPlugins() as MarkdownItPluginCb[],
             vars: combinedVars as YfmPreset,
             root: cwd,
             path: path.join(cwd, safePath(pagePath)),
             assetsPublicPath: './',
-            getVarsPerFile: getVarsPerRelativeFile,
+            getVarsPerFile: (absPagePathLocal: string) => {
+                const subFilepath = path.relative(cwd, absPagePathLocal);
+                return getFilePresets(presetIndex, vars, subFilepath);
+            },
             getPublicPath,
             extractTitle: true,
         },
