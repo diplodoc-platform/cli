@@ -32,7 +32,12 @@ async function processAssetsMdRun(run: Run) {
 
     if (resources && allowCustomResources) {
         for (const file of [...(resources.script || []), ...(resources.style || [])]) {
-            await run.copy(join(run.input, file), join(run.output, file));
+            try {
+                await run.copy(join(run.input, file), join(run.output, file));
+            } catch (error) {
+                // TODO: Move to error strategy
+                run.logger.warn(`Unable to copy resource asset ${file}.`, error);
+            }
         }
     }
 
@@ -58,6 +63,11 @@ async function processAssetsMdRun(run: Run) {
     }
 
     for (const link of mediaLinks) {
-        await run.copy(join(run.input, link), join(run.output, link));
+        try {
+            await run.copy(join(run.input, link), join(run.output, link));
+        } catch (error) {
+            // TODO: Move to error strategy
+            run.logger.warn(`Unable to copy resource asset ${link}.`, error);
+        }
     }
 }
