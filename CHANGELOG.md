@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.11](https://github.com/diplodoc-platform/cli/compare/v4.53.10...v4.53.11) (2025-02-07)
+
+
+### Bug Fixes
+
+* Normalize case when toc items is an object instead of array ([33bb645](https://github.com/diplodoc-platform/cli/commit/33bb645735ac49aa12cc61162789d0cd9321c39c))
+
 ## [4.53.10](https://github.com/diplodoc-platform/cli/compare/v4.53.9...v4.53.10) (2025-02-06)
 
 
