@@ -193,8 +193,15 @@ export class TocService {
         }
 
         for (const result of results) {
-            if (own(result, 'items') && result.items?.length) {
-                result.items = await this.walkItems(result.items, actor);
+            if (own(result, 'items')) {
+                // Sometime users defines items as object (one item) instead of array of one item.
+                if (!Array.isArray(result.items) && result.items) {
+                    result.items = ([] as T[]).concat(result.items);
+                }
+
+                if (result.items?.length) {
+                    result.items = await this.walkItems(result.items, actor);
+                }
             }
         }
 

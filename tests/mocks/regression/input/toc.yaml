@@ -10,3 +10,4 @@ items:
   - name: Item with empty href
     href:
   - include: {path: toc-i.yaml}
+  - include: {path: sub/toc.yaml, mode: link}
