@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.13](https://github.com/diplodoc-platform/cli/compare/v4.53.12...v4.53.13) (2025-02-10)
+
+
+### Bug Fixes
+
+* Revert md2md tokenStream feature ([425598b](https://github.com/diplodoc-platform/cli/commit/425598bb12d5de0da09ffcd3c4ff8cd7ce1fe387))
+
 ## [4.53.12](https://github.com/diplodoc-platform/cli/compare/v4.53.11...v4.53.12) (2025-02-10)
 
 
