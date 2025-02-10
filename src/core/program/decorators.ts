@@ -17,7 +17,7 @@ export function getConfigDefaults<TConfig extends BaseConfig>(
 export function withConfigDefaults<C extends () => object>(config: C) {
     return function <T extends ClassType>(Class: T, {kind}: ClassDecoratorContext): T | void {
         if (kind !== 'class') {
-            return;
+            throw new TypeError(`Decorator 'withConfigDefaults' is not applicable to '${kind}'.`);
         }
 
         return class extends Class {
@@ -44,7 +44,7 @@ export function getConfigScope(target: InstanceType<ClassType>): Scope {
 export function withConfigScope(scope: string, options?: {strict: boolean}) {
     return function <T extends ClassType>(Class: T, {kind}: ClassDecoratorContext): T | void {
         if (kind !== 'class') {
-            return;
+            throw new TypeError(`Decorator 'withConfigScope' is not applicable to '${kind}'.`);
         }
 
         return class extends Class {

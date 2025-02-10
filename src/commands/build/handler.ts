@@ -11,7 +11,7 @@ export async function handler(run: Run) {
         ArgvService.init(legacyConfig(run));
         PresetService.init(run.vars);
 
-        const {addMapFile} = ArgvService.getConfig();
+        const {addMapFile} = run.config;
 
         if (addMapFile) {
             await prepareMapFile(run);

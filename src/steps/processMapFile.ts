@@ -1,6 +1,6 @@
 import type {Run} from '~/commands/build';
 
-import {extname, join} from 'path';
+import {extname, join} from 'node:path';
 
 type TocItem = {
     name: string;

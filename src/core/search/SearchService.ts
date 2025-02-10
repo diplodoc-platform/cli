@@ -79,7 +79,7 @@ export class SearchService implements SearchProvider<RelativePath> {
 
         const file = normalizePath(path);
 
-        return this.provider.add(file, lang, info);
+        await this.provider.add(file, lang, info);
     }
 
     @bounded async release() {
@@ -87,7 +87,7 @@ export class SearchService implements SearchProvider<RelativePath> {
             return;
         }
 
-        return this.provider.release();
+        await this.provider.release();
     }
 
     @bounded async page(lang: string) {

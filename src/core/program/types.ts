@@ -53,15 +53,6 @@ export interface IExtension<Program extends IBaseProgram = IBaseProgram> {
     apply(program: Program): void;
 }
 
-/**
- * Limited IProgram interface for access from sub programs.
- */
-export interface IParent {
-    command: Command;
-
-    logger: Logger;
-}
-
 export type BaseArgs = {
     input: AbsolutePath;
     config: AbsolutePath;
@@ -79,5 +70,5 @@ export type BaseConfig = {
 
 export type ExtensionInfo = {
     path: string;
-    options: Record<string, any>;
+    options: Hash;
 };

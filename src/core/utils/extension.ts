@@ -9,7 +9,7 @@ export function generateHooksAccess<THooks>(name: string, hooks: () => THooks) {
 
     function withHooks<T extends ClassType>(Target: T, {kind}: ClassDecoratorContext): T | void {
         if (kind !== 'class') {
-            return;
+            throw new TypeError(`Decorator 'withHooks' is not applicable to '${kind}'.`);
         }
 
         return class extends Target {
