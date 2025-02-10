@@ -7,14 +7,11 @@ import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
 
 import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, getVarsPerRelativeFile, logger} from '../utils';
+import {getVarsPerFile, logger} from '../utils';
 import {PluginOptions, ResolveMd2MdOptions} from '../models';
-import {MD2MD_PARSER_PLUGINS, PROCESSING_FINISHED} from '../constants';
+import {PROCESSING_FINISHED} from '../constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
 import {enrichWithFrontMatter} from '../services/metadata';
-import transform from '@diplodoc/transform';
-import {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 
 export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Promise<void> {
     const {inputPath, outputPath, metadata: metadataOptions} = options;
@@ -109,49 +106,27 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 }
 
 function transformMd2Md(input: string, options: PluginOptions) {
-    const {
-        disableLiquid,
-        input: inputDir,
-        changelogs: changelogsSetting,
-        ...mdOptions
-    } = ArgvService.getConfig();
-    const plugins = PluginService.getPlugins();
+    const {disableLiquid, changelogs: changelogsSetting} = ArgvService.getConfig();
     const {vars = {}, path, log: pluginLog} = options;
 
-    const root = resolve(inputDir);
-    const changelogs: ChangelogItem[] = [];
-
     let output = input;
+    const collectOfPlugins = PluginService.getCollectOfPlugins();
+    const changelogs: ChangelogItem[] = [];
 
     if (!disableLiquid) {
         const liquidResult = liquidMd2Md(input, vars, path);
-
         output = liquidResult.output;
     }
 
-    output = transform.collect(output, {
-        mdItInitOptions: {
-            ...mdOptions,
-            isLiquided: true,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            plugins: plugins as MarkdownItPluginCb<any>[],
-            vars,
-            root,
-            path,
-            assetsPublicPath: './',
-            getVarsPerFile: getVarsPerRelativeFile,
-            getPublicPath,
-            extractTitle: true,
-        },
-        pluginCollectOptions: {
+    if (collectOfPlugins) {
+        output = collectOfPlugins(output, {
             ...options,
             vars,
             path,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
-        },
-        parserPluginsOverride: MD2MD_PARSER_PLUGINS,
-    });
+        });
+    }
 
     return {
         result: output,
