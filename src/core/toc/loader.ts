@@ -35,14 +35,22 @@ export enum IncludeMode {
     Link = 'link',
 }
 
-export function isLinkMode(mode: IncludeMode | undefined): mode is IncludeMode.Link {
-    return IncludeMode.Link === mode;
+type MergeIncludeInfo = IncludeInfo & {
+    mode: IncludeMode.RootMerge | IncludeMode.Merge;
+    base: RelativePath;
+};
+
+type LinkIncludeInfo = IncludeInfo & {
+    mode: IncludeMode.Link;
+    base?: undefined;
+};
+
+export function isLinkMode(include: IncludeInfo | LoaderContext): include is LinkIncludeInfo {
+    return IncludeMode.Link === include.mode;
 }
 
-export function isMergeMode(
-    mode: IncludeMode | undefined,
-): mode is IncludeMode.Merge | IncludeMode.RootMerge {
-    return IncludeMode.RootMerge === mode || IncludeMode.Merge === mode;
+export function isMergeMode(include: IncludeInfo | LoaderContext): include is MergeIncludeInfo {
+    return IncludeMode.RootMerge === include.mode || IncludeMode.Merge === include.mode;
 }
 
 // Designed to be isolated loaders in future
@@ -210,8 +218,8 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 mode: include.mode,
             } as IncludeInfo;
 
-            if (isMergeMode(includeInfo.mode)) {
-                includeInfo.base = this.base || dirname(this.path);
+            if (isMergeMode(includeInfo)) {
+                includeInfo.base = this.base || this.path;
             }
 
             toc = (await this.toc.load(include.path, includeInfo)) as RawToc;
@@ -257,10 +265,10 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
             return item;
         }
 
-        if (isLinkMode(this.mode)) {
+        if (isLinkMode(this)) {
             item.include.path = join(dirname(this.path), item.include.path);
         } else {
-            item.include.path = join(this.base || dirname(this.path), item.include.path);
+            item.include.path = join(dirname(this.base || this.path), item.include.path);
         }
 
         return item;
@@ -278,7 +286,7 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const rebaseHrefs = (item: RawTocItem | RawToc) => {
         if (own<AnyPath>(item, 'href') && isRelative(item.href)) {
             const absBase = dirname(this.from);
-            const absPath = join(this.base || dirname(this.path), item.href);
+            const absPath = join(dirname(this.base || this.path), item.href);
 
             item.href = relative(absBase, absPath);
         }
@@ -286,7 +294,7 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         return item;
     };
 
-    if (isLinkMode(this.mode)) {
+    if (isLinkMode(this)) {
         await this.toc.walkItems([toc], rebaseHrefs);
     }
 

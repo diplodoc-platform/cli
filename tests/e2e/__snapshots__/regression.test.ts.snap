@@ -108,6 +108,9 @@ exports[`Regression internal: filelist 1`] = `
   "1.md",
   "included-item.md",
   "index.yaml",
+  "merge/merge.md",
+  "merge/merged.md",
+  "merge/toc.yaml",
   "sub/folder/item-1.md",
   "toc.yaml"
 ]"
@@ -158,6 +161,9 @@ exports[`Regression internal: filelist 2`] = `
   "_bundle/search-css-1",
   "included-item.html",
   "index.html",
+  "merge/merge.html",
+  "merge/merged.html",
+  "merge/toc.js",
   "sub/folder/item-1.html",
   "toc.js"
 ]"
@@ -288,6 +294,153 @@ exports[`Regression internal: index.yaml 1`] = `
   - name: Link 2
     href: ./1
 title: ''
+"
+`;
+
+exports[`Regression internal: merge/merge.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Should use merged item
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
+      <p>
+      <a href=\\"merge/merged.html\\">merged
+      </a>
+      </p>/n","leading":false},"router":{"pathname":"merge/merge","depth":2},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="merge/toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: merge/merge.md 1`] = `
+"# Should use merged item
+
+[merged](./merged.md)
+"
+`;
+
+exports[`Regression internal: merge/merged.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <meta name="sourcePath"
+          content="merge-source/merged.md"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Merged item
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"sourcePath":"merge-source/merged.md","metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
+      <p>Should be linked in toc.yaml
+      </p>/n","leading":false},"router":{"pathname":"merge/merged","depth":2},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="merge/toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: merge/merged.md 1`] = `
+"---
+sourcePath: merge-source/merged.md
+---
+# Merged item
+
+Should be linked in toc.yaml
+"
+`;
+
+exports[`Regression internal: merge/toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"id":"UUID"};"`;
+
+exports[`Regression internal: merge/toc.yaml 1`] = `
+"items:
+  - name: Use merged
+    href: merge.md
+  - name: Merged item
+    href: merged.md
 "
 `;
 

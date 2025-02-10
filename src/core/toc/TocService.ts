@@ -122,12 +122,13 @@ export class TocService {
             return undefined;
         }
 
-        if (include && isMergeMode(include.mode)) {
+        if (include && isMergeMode(include)) {
             const from = normalizePath(dirname(path));
-            const to = normalizePath(include.base as RelativePath);
+            const to = normalizePath(dirname(include.base));
 
+            context.vars = await this.vars.load(include.base);
             context.path = context.path.replace(from, to) as RelativePath;
-            context.from = include?.from || context.path;
+            context.from = include.from;
 
             await this.run.copy(join(this.run.input, from), join(this.run.input, to), {
                 sourcePath: (file: string) => file.endsWith('.md'),

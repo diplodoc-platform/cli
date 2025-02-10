@@ -1,5 +1,6 @@
 import type {IncludeMode} from './loader';
 
+// TODO: move to global types
 export type YfmString = string & {
     __interpolable: true;
 };
@@ -70,16 +71,8 @@ export type IncludeInfo = {
     from: RelativePath;
     mode: IncludeMode;
     content?: RawToc;
-} & (
-    | {
-          mode: IncludeMode.RootMerge | IncludeMode.Merge;
-          base: RelativePath;
-      }
-    | {
-          mode: IncludeMode.Link;
-          base?: undefined;
-      }
-);
+    base?: RelativePath | undefined;
+};
 
 export type Toc = {
     id: string;

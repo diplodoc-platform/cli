@@ -1,0 +1,4 @@
+items:
+  - name: Merged item
+    href: merged.md
+    when: product == 'merge'

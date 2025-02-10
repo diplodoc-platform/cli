@@ -1,6 +1,7 @@
 default:
   default-var: default-var-value
   not-var: not-var-value
+  product: root
 
 internal:
   default-var: default-var-internal-value

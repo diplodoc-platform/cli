@@ -1,0 +1,4 @@
+items:
+  - name: Use merged
+    href: ./merge.md
+  - include: {path: ../merge-source/toc-m.yaml, mode: merge}
