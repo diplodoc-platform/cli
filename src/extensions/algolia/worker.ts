@@ -68,6 +68,8 @@ self.api = {
     },
 } as ISearchWorkerApi;
 
+const TRIM_WORDS = 10;
+
 async function search(config: WorkerConfig, query: string): Promise<SearchResult> {
     const {appId, searchKey, indexName, querySettings, mark} = config;
 
@@ -89,8 +91,6 @@ async function search(config: WorkerConfig, query: string): Promise<SearchResult
 
     return response.json();
 }
-
-const TRIM_WORDS = 10;
 
 function format(config: WorkerConfig, result: SearchResult) {
     const {base} = config;

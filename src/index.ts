@@ -2,7 +2,7 @@ import type {HookMeta} from '~/core/utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
 import {NAME, Program, parse} from '~/commands';
-import {own} from '~/core/utils';
+import {errorMessage, own} from '~/core/utils';
 
 export {Program} from '~/commands';
 
@@ -25,7 +25,7 @@ if (require.main === module) {
             const program = new Program();
             await program.init(args);
             await program.parse(process.argv);
-        } catch (error: any) {
+        } catch (error: unknown) {
             exitCode = 1;
 
             if (own<HookMeta, 'hook'>(error, 'hook')) {
@@ -36,10 +36,10 @@ if (require.main === module) {
                 );
             }
 
-            const message = error?.message || error;
+            const message = errorMessage(error);
             if (message) {
                 // eslint-disable-next-line no-console
-                console.error(error.message || error);
+                console.error(message);
             }
         }
 

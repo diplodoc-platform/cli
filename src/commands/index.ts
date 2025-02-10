@@ -23,7 +23,7 @@ export class Program extends BaseProgram implements IProgram {
         .helpOption(true)
         .allowUnknownOption(false)
         .version(
-            typeof VERSION !== 'undefined' ? VERSION : '',
+            typeof VERSION === 'undefined' ? '' : VERSION,
             '--version',
             'Output the version number',
         )
