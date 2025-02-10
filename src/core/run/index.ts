@@ -149,6 +149,10 @@ export class Run<TConfig = BaseConfig> {
             this._copyMap[to] = from;
         };
 
+        if (from === to) {
+            return;
+        }
+
         if (isFile) {
             await this.fs.mkdir(dirname(to), {recursive: true});
             await hardlink(from, to);
@@ -170,10 +174,6 @@ export class Run<TConfig = BaseConfig> {
             }
 
             // this.logger.copy(join(from, file), join(to, file));
-
-            if (from === to) {
-                return;
-            }
 
             if (sourcePath && sourcePath(file)) {
                 const content = await this.read(join(from, file));
