@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.14](https://github.com/diplodoc-platform/cli/compare/v4.53.13...v4.53.14) (2025-02-10)
+
+
+### Bug Fixes
+
+* Fix assets processing for leading pages with PC ([43d68b4](https://github.com/diplodoc-platform/cli/commit/43d68b4eddf56732fc937b6b65e3505b05a7fb6d))
+
 ## [4.53.13](https://github.com/diplodoc-platform/cli/compare/v4.53.12...v4.53.13) (2025-02-10)
 
 
