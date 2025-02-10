@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.15](https://github.com/diplodoc-platform/cli/compare/v4.53.14...v4.53.15) (2025-02-10)
+
+
+### Bug Fixes
+
+* Fix async race confition on md files write ([f0593c5](https://github.com/diplodoc-platform/cli/commit/f0593c5488b89b0976f7fa98c815d36fc710454f))
+
 ## [4.53.14](https://github.com/diplodoc-platform/cli/compare/v4.53.13...v4.53.14) (2025-02-10)
 
 
