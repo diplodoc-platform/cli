@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.53.12](https://github.com/diplodoc-platform/cli/compare/v4.53.11...v4.53.12) (2025-02-10)
+
+
+### Bug Fixes
+
+* Fix presets resolving for root merged toc fragments ([5042076](https://github.com/diplodoc-platform/cli/commit/50420760862e40c949d2c2f3e7d6795505cc5af2))
+
 ## [4.53.11](https://github.com/diplodoc-platform/cli/compare/v4.53.10...v4.53.11) (2025-02-07)
 
 
