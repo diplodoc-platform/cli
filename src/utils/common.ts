@@ -29,7 +29,7 @@ export function modifyValuesByKeys(
             return modifyFn(value);
         }
 
-        return value;
+        return undefined;
     });
 }
 

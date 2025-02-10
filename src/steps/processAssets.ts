@@ -47,7 +47,7 @@ async function processAssetsMdRun(run: Run) {
         const content = load(await run.read(join(run.input, yamlFile)));
 
         if (!own(content, 'blocks')) {
-            return;
+            continue;
         }
 
         const contentLinks = findAllValuesByKeys(content, LINK_KEYS);
