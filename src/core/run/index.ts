@@ -177,7 +177,7 @@ export class Run<TConfig = BaseConfig> {
 
             if (sourcePath && sourcePath(file)) {
                 const content = await this.read(join(from, file));
-                this.write(
+                await this.write(
                     join(to, file),
                     addSourcePath(content, relative(this.input, join(from, file))),
                 );
