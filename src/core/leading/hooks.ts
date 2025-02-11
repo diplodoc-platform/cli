@@ -15,7 +15,7 @@ export function hooks(name: string) {
             `${name}.Asset`,
         ),
         Plugins: new AsyncSeriesWaterfallHook<[Plugin[]]>(['plugins'], `${name}.Plugins`),
-        Resolved: new AsyncSeriesHook<[LeadingPage, RelativePath]>(
+        Resolved: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, RelativePath]>(
             ['leading', 'path'],
             `${name}.Resolved`,
         ),

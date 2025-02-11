@@ -24,7 +24,7 @@ export function hooks(name: string) {
                     `${name}.Includer(${type})`,
                 ),
         ),
-        Resolved: new AsyncParallelHook<[Toc, RelativePath]>(
+        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
             ['Toc', 'TocPath'],
             `${name}.Resolved`,
         ),

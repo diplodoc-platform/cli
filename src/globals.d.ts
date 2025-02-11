@@ -13,6 +13,10 @@ type DeepPartial<T> = {
     [P in keyof T]?: T[P] extends {} ? DeepPartial<T[P]> : T[P];
 };
 
+type DeepFrozen<T> = {
+    readonly [P in keyof T]: T[P] extends {} ? DeepFrozen<T[P]> : T[P];
+};
+
 type UnresolvedPath = string & {
     __type: 'path';
     __mode: 'unresolved';

@@ -19,7 +19,7 @@ export function hooks(name: string) {
          * Called after vars was resolved on any level.<br>
          * Vars data is sealed here.
          */
-        Resolved: new AsyncParallelHook<[Preset, RelativePath]>(
+        Resolved: new AsyncParallelHook<[DeepFrozen<Preset>, RelativePath]>(
             ['vars', 'path'],
             `${name}.Resolved`,
         ),
