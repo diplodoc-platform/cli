@@ -3,7 +3,7 @@ import {isObject} from 'lodash';
 export function own<V = unknown, T extends string = string>(
     box: unknown,
     field: T,
-): box is {[P in T]: V} {
+): box is Record<T, V> {
     return (
         Boolean(box && typeof box === 'object') && Object.prototype.hasOwnProperty.call(box, field)
     );

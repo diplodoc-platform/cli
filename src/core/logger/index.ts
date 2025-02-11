@@ -21,9 +21,7 @@ interface LogConsumer {
     [ERROR]: Writer;
 }
 
-type LogBuffer = {
-    [prop in LogLevels]: string[];
-};
+type LogBuffer = Record<LogLevels, string[]>;
 
 type LoggerOptions = Readonly<{
     colors: boolean;

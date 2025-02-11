@@ -1,4 +1,4 @@
-import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
 import type {
     IncluderOptions,
@@ -38,8 +38,8 @@ const INCLUDER = 'generic';
 // TODO: implement autotitle after md refactoring
 // TODO: implement sort
 export class Extension implements IExtension {
-    apply(program: IBaseProgram) {
-        getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
+    apply(program: BaseProgram) {
+        getBaseHooks<Run>(program).BeforeAnyRun.tap(EXTENSION, (run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (toc, options: Options, path) => {

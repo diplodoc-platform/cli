@@ -1,4 +1,4 @@
-import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
+import type {BaseArgs} from '~/core/program';
 
 import {ok} from 'assert';
 
@@ -43,10 +43,7 @@ export type PublishConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     region: 'eu-central-1',
     prefix: '',
 }))
-export class Publish
-    extends BaseProgram<PublishConfig, PublishArgs>
-    implements IProgram<PublishArgs>
-{
+export class Publish extends BaseProgram<PublishConfig, PublishArgs> {
     readonly name = 'Publish';
 
     readonly command = new Command('publish').description(
@@ -65,7 +62,7 @@ export class Publish
         options.hidden,
     ];
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).RawConfig.tap('Publish', (config) => {

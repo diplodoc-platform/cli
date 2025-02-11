@@ -1,11 +1,9 @@
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 import {IProvider, TranslateConfig} from '~/commands/translate/index';
-import {generateHooksAccess, intercept} from '~/core/utils';
+import {generateHooksAccess} from '~/core/utils';
 
-const name = 'Translate';
-
-export function hooks() {
-    return intercept(name, {
+export function hooks(name: string) {
+    return {
         Provider: new HookMap(
             (provider: string) =>
                 new AsyncSeriesWaterfallHook<[IProvider | undefined, TranslateConfig]>(
@@ -13,9 +11,9 @@ export function hooks() {
                     `${name}.Provider.${provider}`,
                 ),
         ),
-    });
+    };
 }
 
-const [getHooks, withHooks] = generateHooksAccess(name, hooks);
+const [getHooks, withHooks] = generateHooksAccess('Translate', hooks);
 
 export {getHooks, withHooks};

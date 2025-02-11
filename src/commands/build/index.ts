@@ -1,4 +1,3 @@
-import type {IBaseProgram, IProgram} from '~/core/program';
 import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
@@ -65,7 +64,7 @@ const command = 'Build';
             lint: {enabled: true, config: {'log-levels': {}}},
         }) as Partial<BuildConfig>,
 )
-export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgram<BuildArgs> {
+export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly name = command;
 
     readonly templating = new Templating();
@@ -125,7 +124,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> implements IProgr
         new AlgoliaSearchExtension(),
     ];
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];

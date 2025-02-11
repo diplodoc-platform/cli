@@ -1,50 +1,81 @@
+import type {BaseProgram} from '~/core/program';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 import type {Run} from '~/core/run';
-import type {BaseArgs, BaseConfig, IBaseProgram} from './types';
+import type {BaseArgs, BaseConfig} from './types';
 
-import {intercept} from '~/core/utils';
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook, SyncHook} from 'tapable';
 
-export function hooks<TConfig extends BaseConfig, TArgs extends BaseArgs>(name: string) {
-    return intercept(name, {
+import {generateHooksAccess} from '~/core/utils';
+
+type TConfig<TProgram extends BaseProgram> =
+    TProgram extends BaseProgram<infer T> ? Config<T> : BaseConfig;
+
+type TArgs<TProgram extends BaseProgram> =
+    TProgram extends BaseProgram<BaseConfig, infer T> ? T : BaseArgs;
+
+export function hooks<TRun extends Run, TConfig extends BaseConfig, TArgs extends BaseArgs>(
+    name: string,
+) {
+    return {
         Command: new SyncHook<[Command, ExtendedOption[]]>(
             ['command', 'options'],
             `${name}.Command`,
         ),
         /**
-         * Called on resolved config, before it will be merged with args.
-         * Best place to validate that config doesn't store some secret data.
-         * Config can't be modified here.
+         * Async series hook which runs when current program config
+         * was completely resolved but not merged with args.<br/>
+         * **Config can't be modified here.**
+         *
+         * @usage Best place to validate that config doesn't store any secret data.
+         *
+         * @prop config - completely built config specified for current program.
+         * @prop args - program call args.
          */
-        RawConfig: new AsyncSeriesHook<[Config<TConfig>, TArgs]>(
+        RawConfig: new AsyncSeriesHook<[DeepFrozen<TConfig>, TArgs]>(
             ['config', 'args'],
             `${name}.Config`,
         ),
         /**
-         * Called on resolved config, after it was merged with args.
-         * Best place to normalize final config data.
-         * Config can be modified here.
+         * Async series **waterfall** hook which runs when current program config
+         * was completely resolved and merged with args.<br/>
+         * **Config can be modified here.**
+         *
+         * @usage Best place to normalize final config data.<br/>
+         *
+         * @prop config - completely built config specified for current program.
+         * @prop args - previously merged to config program call args.
          */
-        Config: new AsyncSeriesWaterfallHook<[Config<TConfig>, TArgs]>(
+        Config: new AsyncSeriesWaterfallHook<[TConfig, TArgs]>(
             ['config', 'args'],
             `${name}.Config`,
         ),
         /**
-         * Async series hook which runs before start of any Run type.<br/><br/>
-         * Args:
-         * - run - [Build.Run](./Run.ts) constructed context.<br/>
-         * Best place to subscribe on Run services hooks.
+         * Async series hook which runs before start of any Run type.<br/>
+         *
+         * @usage Best place to subscribe on Run services hooks.
+         *
+         * @prop run - [Run](../run) constructed context.
          */
-        BeforeAnyRun: new AsyncSeriesHook<Run<TConfig>>(['run'], `${name}.BeforeAnyRun`),
-        // TODO: decompose handler and describe this hook
-        AfterAnyRun: new AsyncSeriesHook<Run<TConfig>>(['run'], `${name}.AfterAnyRun`),
-    });
+        BeforeAnyRun: new AsyncSeriesHook<[TRun]>(['run'], `${name}.BeforeAnyRun`),
+        /**
+         * Async series hook which runs after all entries processing.<br/>
+         *
+         * @usage Best place to emit additional assets on output fs.
+         *
+         * @prop run - [Run](../run) constructed context.
+         */
+        AfterAnyRun: new AsyncSeriesHook<[TRun]>(['run'], `${name}.AfterAnyRun`),
+    };
 }
 
-export const Hooks = Symbol(`BaseHooks`);
+const [getHooksInternal, withHooks] = generateHooksAccess('Base', hooks);
 
-export function getHooks<TConfig = BaseConfig, TArgs = BaseArgs>(
-    program: IBaseProgram<TConfig & BaseConfig, TArgs & BaseArgs> | undefined,
+function getHooks<TRun extends Run = Run, TProgram extends BaseProgram = BaseProgram>(
+    holder: TProgram,
 ) {
-    return (program && program[Hooks]) || hooks('Unknown');
+    return getHooksInternal(holder) as unknown as ReturnType<
+        typeof hooks<TRun, TConfig<TProgram>, TArgs<TProgram>>
+    >;
 }
+
+export {getHooks, withHooks};

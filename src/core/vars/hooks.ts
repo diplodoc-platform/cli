@@ -2,12 +2,10 @@ import type {Preset, Presets} from './types';
 
 import {AsyncParallelHook, AsyncSeriesWaterfallHook} from 'tapable';
 
-import {generateHooksAccess, intercept} from '~/core/utils';
+import {generateHooksAccess} from '~/core/utils';
 
-const name = 'Vars';
-
-export function hooks() {
-    return intercept(name, {
+export function hooks(name: string) {
+    return {
         /**
          * Async waterfall hook.<br>
          * Called after any presets.yaml was loaded.
@@ -25,9 +23,9 @@ export function hooks() {
             ['vars', 'path'],
             `${name}.Resolved`,
         ),
-    });
+    };
 }
 
-const [getHooks, withHooks] = generateHooksAccess(name, hooks);
+const [getHooks, withHooks] = generateHooksAccess('Vars', hooks);
 
 export {getHooks, withHooks};

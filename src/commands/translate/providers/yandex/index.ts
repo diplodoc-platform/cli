@@ -1,3 +1,4 @@
+import type {BaseProgram} from '~/core/program';
 import type {Translate, TranslateArgs, TranslateConfig} from '~/commands/translate';
 
 import {ok} from 'assert';
@@ -65,8 +66,11 @@ export class Extension {
                         .addOption(options.glossary);
                 });
 
-                getBaseHooks<TranslateConfig & Partial<Config>, TranslateArgs & Partial<Args>>(
-                    program,
+                getBaseHooks(
+                    program as BaseProgram<
+                        TranslateConfig & Partial<Config>,
+                        TranslateArgs & Partial<Args>
+                    >,
                 ).Config.tapPromise(ExtensionName, async (config, args) => {
                     ok(!config.auth, 'Do not store `authToken` in public config');
                     ok(args.auth, 'Required param auth is not configured');

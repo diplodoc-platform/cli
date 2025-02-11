@@ -1,4 +1,4 @@
-import type {BaseConfig, IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {BaseConfig, BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
 import type {VcsService} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './connector';
@@ -13,8 +13,8 @@ type Run = BaseRun<Config> & {
 };
 
 export class Extension implements IExtension {
-    apply(program: IBaseProgram<BaseConfig & Config>) {
-        getBaseHooks(program).BeforeAnyRun.tap('GithubVcsConnector', (run: Run) => {
+    apply(program: BaseProgram<BaseConfig & Config>) {
+        getBaseHooks<Run>(program).BeforeAnyRun.tap('GithubVcsConnector', (run) => {
             getVcsHooks(run.vcs)
                 .VcsConnector.for('github')
                 .tapPromise('GithubVcsConnector', async (_connector) => {

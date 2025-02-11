@@ -1,4 +1,4 @@
-import type {ExtensionInfo, IProgram} from '~/core/program';
+import type {ExtensionInfo} from '~/core/program';
 
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
@@ -16,7 +16,7 @@ export {parse} from './parser';
 @withConfigDefaults(() => ({
     extensions: [] as ExtensionInfo[],
 }))
-export class Program extends BaseProgram implements IProgram {
+export class Program extends BaseProgram {
     readonly name = 'Program';
 
     readonly command: Command = new Command(NAME)

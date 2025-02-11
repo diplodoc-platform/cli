@@ -2,7 +2,6 @@ import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {Resources} from '~/core/meta';
 import type {Config} from '~/core/config';
-import type {Lang} from '~/constants';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
@@ -15,9 +14,9 @@ import type {OutputFormat} from './config';
 type BaseArgs = {output: AbsolutePath};
 
 type BaseConfig = {
-    lang: `${Lang}`;
+    lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
-    langs: `${Lang}`[];
+    langs: string[];
     outputFormat: `${OutputFormat}`;
     varsPreset: string;
     vars: Hash;

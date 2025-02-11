@@ -1,4 +1,4 @@
-import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
+import type {BaseArgs} from '~/core/program';
 import type {ComposeOptions} from '@diplodoc/translation';
 
 import {extname, join} from 'node:path';
@@ -44,10 +44,7 @@ export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     useSource: false,
     useExperimentalParser: false,
 }))
-export class Compose
-    extends BaseProgram<ComposeConfig, ComposeArgs>
-    implements IProgram<ComposeArgs>
-{
+export class Compose extends BaseProgram<ComposeConfig, ComposeArgs> {
     readonly name = 'Translate.Compose';
 
     readonly command = new Command('compose');
@@ -64,43 +61,40 @@ export class Compose
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         super.apply(program);
 
-        getBaseHooks<ComposeConfig, ComposeArgs>(this).Config.tap(
-            'Translate.Compose',
-            (config, args) => {
-                const {input, output, quiet, strict} = pick(args, [
-                    'input',
-                    'output',
-                    'quiet',
-                    'strict',
-                ]) as ComposeArgs;
-                const include = defined('include', args, config) || [];
-                const exclude = defined('exclude', args, config) || [];
-                const [files, skipped] = resolveFiles(
-                    input,
-                    defined('files', args, config),
-                    include,
-                    exclude,
-                    null,
-                    ['.skl', '.xliff'],
-                );
+        getBaseHooks(this).Config.tap('Translate.Compose', (config, args) => {
+            const {input, output, quiet, strict} = pick(args, [
+                'input',
+                'output',
+                'quiet',
+                'strict',
+            ]) as ComposeArgs;
+            const include = defined('include', args, config) || [];
+            const exclude = defined('exclude', args, config) || [];
+            const [files, skipped] = resolveFiles(
+                input,
+                defined('files', args, config),
+                include,
+                exclude,
+                null,
+                ['.skl', '.xliff'],
+            );
 
-                return Object.assign(config, {
-                    input,
-                    output: output || input,
-                    quiet,
-                    strict,
-                    files,
-                    skipped,
-                    include,
-                    exclude,
-                    useSource: defined('useSource', args, config) || false,
-                    useExperimentalParser: defined('useExperimentalParser', args, config) || false,
-                });
-            },
-        );
+            return Object.assign(config, {
+                input,
+                output: output || input,
+                quiet,
+                strict,
+                files,
+                skipped,
+                include,
+                exclude,
+                useSource: defined('useSource', args, config) || false,
+                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+            });
+        });
     }
 
     async action() {

@@ -2,14 +2,12 @@ import type {Run} from './run';
 
 import {AsyncParallelHook, AsyncSeriesHook, HookMap} from 'tapable';
 
-import {generateHooksAccess, intercept} from '~/core/utils';
+import {generateHooksAccess} from '~/core/utils';
 
 import {OutputFormat} from './config';
 
-const name = 'Build';
-
-export function hooks() {
-    return intercept(name, {
+export function hooks(name: string) {
+    return {
         /**
          * Async series hook map which runs before start of target Run type.<br/><br/>
          * Args:
@@ -32,9 +30,9 @@ export function hooks() {
             (format: `${OutputFormat}`) =>
                 new AsyncSeriesHook<Run>(['run'], `${name}.${format}.AfterRun`),
         ),
-    });
+    };
 }
 
-const [getHooks, withHooks] = generateHooksAccess(name, hooks);
+const [getHooks, withHooks] = generateHooksAccess('Build', hooks);
 
 export {getHooks, withHooks};
