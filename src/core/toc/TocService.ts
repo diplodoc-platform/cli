@@ -42,6 +42,8 @@ type Run = BaseRun<TocServiceConfig> & {
 
 @withHooks
 export class TocService {
+    readonly name = 'Toc';
+
     get entries() {
         return [...this._entries];
     }

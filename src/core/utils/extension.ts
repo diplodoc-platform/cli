@@ -1,10 +1,16 @@
 import type {Hook, HookMap} from 'tapable';
 
-export function generateHooksAccess<THooks>(name: string, hooks: () => THooks) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Hooks = Hash<Hook<any, any> | HookMap<any>>;
+
+export function generateHooksAccess<THooks extends Hooks>(
+    name: string,
+    hooks: (name: string) => THooks,
+) {
     const Hooks = Symbol(`${name}Hooks`);
 
     function getHooks(program: object | undefined): THooks {
-        return (program && (program as {[Hooks]: THooks})[Hooks]) || hooks();
+        return (program && (program as {[Hooks]: THooks})[Hooks]) || hooks('Unknown');
     }
 
     function withHooks<T extends ClassType>(Target: T, {kind}: ClassDecoratorContext): T | void {
@@ -13,7 +19,7 @@ export function generateHooksAccess<THooks>(name: string, hooks: () => THooks) {
         }
 
         return class extends Target {
-            [Hooks] = hooks();
+            [Hooks] = intercept(this.name, hooks(this.name || name));
         };
     }
 
@@ -27,11 +33,7 @@ export type HookMeta = {
     type: string;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function intercept<T extends Hash<Hook<any, any> | HookMap<any>>>(
-    service: string,
-    hooks: T,
-): T {
+export function intercept<T extends Hooks>(service: string, hooks: T): T {
     for (const [hook, handler] of Object.entries(hooks)) {
         handler.intercept({
             register: (info) => {

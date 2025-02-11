@@ -2,12 +2,10 @@ import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './type
 
 import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
-import {generateHooksAccess, intercept} from '~/core/utils';
+import {generateHooksAccess} from '~/core/utils';
 
-const name = 'Toc';
-
-export function hooks() {
-    return intercept(name, {
+export function hooks(name: string) {
+    return {
         /**
          * Called before item data processing (but after data interpolation)
          */
@@ -35,9 +33,9 @@ export function hooks() {
             `${name}.Included`,
         ),
         Dump: new AsyncSeriesWaterfallHook<[Toc, NormalizedPath]>(['toc', 'path'], `${name}.Dump`),
-    });
+    };
 }
 
-const [getHooks, withHooks] = generateHooksAccess(name, hooks);
+const [getHooks, withHooks] = generateHooksAccess('Toc', hooks);
 
 export {getHooks, withHooks};

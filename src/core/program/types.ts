@@ -1,55 +1,10 @@
-import type {Command, ExtendedOption} from '~/core/config';
-import type {Logger} from '~/core/logger';
-import type {Hooks, hooks} from './hooks';
+import type {BaseProgram} from './';
 
 export interface ICallable {
-    apply(program?: IBaseProgram): void;
+    apply(program?: BaseProgram): void;
 }
 
-/**
- * Program should follow some simple rules:
- * 1. It is a base independent unit which can contain subprograms or do something by itself.
- *    (NOT BOTH)
- * 2. Required 'apply' method serves for: ```
- * - initial data binding
- * - subprograms initialisation
- * - hooks subscription
- * - error handling
- * ```
- *    In most cases hook **execution** here will be archtecture mistake.
- *
- * 3. Program can be subprogram. This can be detected by non empty param passed to `apply` method.
- *    But anyway program should be independent unit.
- * 4. Optional 'action' method - is a main place for hooks call.
- *    For compatibility with Commander.Command->action method result should be void.
- * 5. Complex hook calls should be designed as external private methods named as 'hookMethodName'
- *    (example: hookConfig)
- */
-export interface IProgram<Args extends BaseArgs = BaseArgs> {
-    action: (props: Args) => Promise<void> | void;
-
-    logger: Logger;
-}
-
-export interface IBaseProgram<TConfig = BaseConfig, TArgs = BaseArgs> extends ICallable {
-    name: string;
-
-    [Hooks]: ReturnType<typeof hooks<BaseConfig & TConfig, BaseArgs & TArgs>>;
-
-    command: Command;
-
-    args(args: Hash): Hash;
-
-    options: Readonly<ExtendedOption[]>;
-
-    init(args: BaseArgs, parent?: IBaseProgram): Promise<void>;
-
-    config: BaseConfig;
-
-    logger: Logger;
-}
-
-export interface IExtension<Program extends IBaseProgram = IBaseProgram> {
+export interface IExtension<Program extends BaseProgram = BaseProgram> {
     apply(program: Program): void;
 }
 

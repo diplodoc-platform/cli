@@ -1,4 +1,4 @@
-import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
 import type {RawToc, TocService} from '@diplodoc/cli/lib/toc';
 
@@ -17,7 +17,7 @@ const INCLUDER = 'openapi';
 
 // TODO: move to openapi-extension on major
 export class Extension implements IExtension {
-    apply(program: IBaseProgram) {
+    apply(program: BaseProgram) {
         getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)

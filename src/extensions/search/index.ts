@@ -1,4 +1,4 @@
-import type {IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {ProviderConfig, Run as ProviderRun} from './provider';
 
 import {join} from 'node:path';
@@ -12,7 +12,7 @@ const API_LINK = '_search/api.js';
 const SEARCH_API = require.resolve('@diplodoc/search-extension/worker');
 
 export class Extension implements IExtension {
-    apply(program: IBaseProgram) {
+    apply(program: BaseProgram) {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('LocalSearch', (run) => {

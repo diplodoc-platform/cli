@@ -12,13 +12,14 @@ import {getHooks, withHooks} from './hooks';
 export type VarsServiceConfig = {
     varsPreset: string;
     vars: Hash;
-    ignore: string[];
 };
 
 type Run = BaseRun<VarsServiceConfig>;
 
 @withHooks
 export class VarsService {
+    readonly name = 'Vars';
+
     get entries() {
         return [...Object.entries(this.cache)];
     }

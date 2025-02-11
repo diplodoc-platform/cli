@@ -1,4 +1,4 @@
-import type {BaseConfig, IBaseProgram, IExtension} from '@diplodoc/cli/lib/program';
+import type {BaseConfig, BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {SearchServiceConfig} from '@diplodoc/cli/lib/search/SearchService';
 import type {IndexSettings, SearchParamsObject} from 'algoliasearch';
 
@@ -24,7 +24,7 @@ export type AlgoliaSearchConfig = BaseConfig &
     };
 
 export class Extension implements IExtension {
-    apply(program: IBaseProgram<AlgoliaSearchConfig>) {
+    apply(program: BaseProgram<AlgoliaSearchConfig>) {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('AlgoliaSearch', (run) => {

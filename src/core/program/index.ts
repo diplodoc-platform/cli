@@ -1,4 +1,4 @@
-import type {BaseArgs, BaseConfig, ExtensionInfo, IBaseProgram, ICallable} from './types';
+import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
@@ -13,7 +13,7 @@ import {
 } from '~/core/config';
 import {Logger, stats} from '~/core/logger';
 
-import {Hooks, getHooks, hooks} from './hooks';
+import {getHooks, withHooks} from './hooks';
 import {HandledError} from './utils';
 import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
 
@@ -29,16 +29,34 @@ type Behavior = {
     isDefaultCommand?: boolean;
 };
 
+@withHooks
 @withConfigDefaults(() => ({
     strict: false,
     quiet: false,
 }))
-export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends BaseArgs = BaseArgs>
-    implements IBaseProgram<TConfig, TArgs>
-{
+/**
+ * Program should follow some simple rules:
+ * 1. It is a base independent unit which can contain subprograms or do something by itself.
+ *    (NOT BOTH)
+ * 2. Required 'apply' method serves for: ```
+ *   - initial data binding
+ *   - subprograms initialisation
+ *   - hooks subscription
+ *   - error handling
+ * ```
+ * 3. Program can be subprogram. This can be detected by non empty param passed to `apply` method.
+ *    But anyway program should be independent unit.
+ * 4. In most cases hook **execution** in 'apply' will be architecture mistake.
+ * 5. Optional 'action' method - is a main place for hooks **execution**.
+ *    For compatibility with Commander.Command->action method result should be void.
+ * 6. Complex hook calls should be designed as external private methods named as 'hookMethodName'
+ *    (example: hookConfig)
+ */
+export class BaseProgram<
+    TConfig extends BaseConfig = BaseConfig,
+    TArgs extends BaseArgs = BaseArgs,
+> {
     readonly name: string = 'Base';
-
-    readonly [Hooks] = hooks<TConfig, TArgs>('Base');
 
     readonly command!: Command;
 
@@ -52,7 +70,7 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
 
     protected extensions: (string | ExtensionInfo)[] = [];
 
-    private parent: IBaseProgram | null = null;
+    private parent: BaseProgram | null = null;
 
     private behavior: Behavior = {};
 
@@ -68,7 +86,7 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
         }
     }
 
-    async init(args: BaseArgs, parent?: IBaseProgram) {
+    async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
         // @ts-ignore
@@ -97,7 +115,7 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
         this.apply(parent);
     }
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         const isDefault = this.behavior.isDefaultCommand;
         // @ts-ignore
         this['parent'] = program;
@@ -107,12 +125,12 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
                 this.name,
                 once((command) => {
                     command.addCommand(this.command, {isDefault});
-                    this[Hooks].Command.call(this.command, this.options);
+                    getHooks(this).Command.call(this.command, this.options);
                 }),
             );
             this.logger.pipe(program.logger);
         } else {
-            this[Hooks].Command.call(this.command, this.options);
+            getHooks(this).Command.call(this.command, this.options);
         }
     }
 
@@ -124,13 +142,13 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
         throw new Error('Should be implemented');
     }
 
-    args(args: Hash) {
+    args(args: Hash): TArgs {
         const options = this.options.map((option) => option.attributeName());
 
         return {
             ...this.parent?.args(args),
             ...pick(args, options),
-        };
+        } as TArgs;
     }
 
     private async hookConfig(args: TArgs) {
@@ -150,11 +168,11 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
 
-        await this[Hooks].RawConfig.promise(config, args);
+        await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
         Object.assign(config, this.args(args));
 
-        return this[Hooks].Config.promise(config, args);
+        return getHooks(this as BaseProgram).Config.promise(config, args);
     }
 
     private async post() {
@@ -222,6 +240,8 @@ export class BaseProgram<TConfig extends BaseConfig = BaseConfig, TArgs extends 
     }
 }
 
-function isProgram<TArgs extends BaseArgs>(module: unknown): module is IBaseProgram<TArgs> {
-    return Boolean(module && typeof (module as IBaseProgram).init === 'function');
+function isProgram<TConfig extends BaseConfig, TArgs extends BaseArgs>(
+    module: unknown,
+): module is BaseProgram<TConfig, TArgs> {
+    return Boolean(module && typeof (module as BaseProgram).init === 'function');
 }

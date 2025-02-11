@@ -1,4 +1,4 @@
-import type {BaseArgs, IBaseProgram, IProgram} from '~/core/program';
+import type {BaseArgs} from '~/core/program';
 import type {ExtractOptions} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 
@@ -62,10 +62,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 @withConfigDefaults(() => ({
     useExperimentalParser: false,
 }))
-export class Extract
-    extends BaseProgram<ExtractConfig, ExtractArgs>
-    implements IProgram<ExtractArgs>
-{
+export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
     readonly name = 'Translate.Extract';
 
     readonly command = new Command('extract');
@@ -86,48 +83,45 @@ export class Extract
 
     readonly logger = new TranslateLogger();
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         super.apply(program);
 
-        getBaseHooks<ExtractConfig, ExtractArgs>(this).Config.tap(
-            'Translate.Extract',
-            (config, args) => {
-                const {input, output, quiet, strict} = pick(args, [
-                    'input',
-                    'output',
-                    'quiet',
-                    'strict',
-                ]) as ExtractArgs;
-                const source = resolveSource(config, args);
-                const target = resolveTargets(config, args);
-                const include = defined('include', args, config) || [];
-                const exclude = defined('exclude', args, config) || [];
-                const [files, skipped] = resolveFiles(
-                    input,
-                    defined('files', args, config),
-                    include,
-                    exclude,
-                    source.language,
-                    ['.md', '.yaml'],
-                );
-                const vars = resolveVars(config, args);
+        getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {
+            const {input, output, quiet, strict} = pick(args, [
+                'input',
+                'output',
+                'quiet',
+                'strict',
+            ]) as ExtractArgs;
+            const source = resolveSource(config, args);
+            const target = resolveTargets(config, args);
+            const include = defined('include', args, config) || [];
+            const exclude = defined('exclude', args, config) || [];
+            const [files, skipped] = resolveFiles(
+                input,
+                defined('files', args, config),
+                include,
+                exclude,
+                source.language,
+                ['.md', '.yaml'],
+            );
+            const vars = resolveVars(config, args);
 
-                return Object.assign(config, {
-                    input,
-                    output: output || input,
-                    quiet,
-                    strict,
-                    source,
-                    target,
-                    files,
-                    skipped,
-                    include,
-                    exclude,
-                    vars,
-                    useExperimentalParser: defined('useExperimentalParser', args, config) || false,
-                });
-            },
-        );
+            return Object.assign(config, {
+                input,
+                output: output || input,
+                quiet,
+                strict,
+                source,
+                target,
+                files,
+                skipped,
+                include,
+                exclude,
+                vars,
+                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+            });
+        });
     }
 
     async action() {

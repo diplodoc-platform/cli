@@ -1,4 +1,4 @@
-import type {BaseArgs, IBaseProgram, ICallable, IProgram} from '~/core/program';
+import type {BaseArgs, ICallable} from '~/core/program';
 import type {Locale} from './utils';
 
 import {ok} from 'assert';
@@ -55,10 +55,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 @withConfigDefaults(() => ({
     dryRun: false,
 }))
-export class Translate
-    extends BaseProgram<TranslateConfig, TranslateArgs>
-    implements IProgram<TranslateArgs>
-{
+export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     readonly name = 'Translate';
 
     readonly command = new Command(NAME)
@@ -88,7 +85,7 @@ export class Translate
 
     protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
 
-    apply(program?: IBaseProgram) {
+    apply(program?: BaseProgram) {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate', (config, args) => {
