@@ -10,7 +10,7 @@ import {cloneDeepWith, isString} from 'lodash';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {bounded, freezeJson, isRelativePath, normalizePath} from '~/core/utils';
+import {bounded, isRelativePath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
@@ -74,7 +74,7 @@ export class LeadingService {
 
         delete leading.meta;
 
-        await getHooks(this).Resolved.promise(freezeJson(leading), file);
+        await getHooks(this).Resolved.promise(leading, file);
 
         const assets = new Set<RelativePath>();
         this.walkLinks(leading, (link) => {

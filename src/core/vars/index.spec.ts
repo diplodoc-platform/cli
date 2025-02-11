@@ -229,36 +229,6 @@ describe('vars', () => {
                 expect(service.dump(result)).toMatchSnapshot();
             });
 
-            it('should reject content updating in Resolved hook', async () => {
-                const service = prepare(dedent`
-                    default:
-                      field1: value1
-                `);
-
-                getHooks(service).Resolved.tap('Test', (vars) => {
-                    vars.field1 = 'value2';
-                });
-
-                await expect(() =>
-                    service.load('presets.yaml' as NormalizedPath),
-                ).rejects.toThrow();
-            });
-
-            it('should reject content extending in Resolved hook', async () => {
-                const service = prepare(dedent`
-                    default:
-                      field1: value1
-                `);
-
-                getHooks(service).Resolved.tap('Test', (vars) => {
-                    vars.field2 = 'value2';
-                });
-
-                await expect(() =>
-                    service.load('presets.yaml' as NormalizedPath),
-                ).rejects.toThrow();
-            });
-
             it('should load content only once', async () => {
                 const service = prepare(dedent`
                     default:
