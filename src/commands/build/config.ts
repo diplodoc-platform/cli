@@ -119,6 +119,11 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const hashIncludes = option({
+    flags: '--hash-includes',
+    desc: 'Add hash to included files.',
+});
+
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -138,4 +143,5 @@ export const options = {
     ignore,
     ignoreStage,
     addSystemMeta,
+    hashIncludes,
 };
