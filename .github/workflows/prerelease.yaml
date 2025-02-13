@@ -16,6 +16,6 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-$(date "+%Y%m%d%H%M")
-      - run: npm publish --no-tag
+      - run: npm publish --tag $(git branch --show-current)
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}

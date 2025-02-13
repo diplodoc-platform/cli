@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/cli",
-  "version": "4.53.15",
+  "version": "4.54.0-alpha-5",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "keywords": [
     "markdown",
@@ -56,8 +56,7 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^3.1.9",
-    "@diplodoc/search-extension": "^1.2.0",
+    "@diplodoc/client": "^3.1.11",
     "@diplodoc/translation": "^1.6.0",
     "highlight.js": "^11.10.0",
     "katex": "^0.16.9",
@@ -68,13 +67,12 @@
     "@aws-sdk/client-s3": "^3.525.0",
     "@diplodoc/eslint-config": "^2.0.0",
     "@diplodoc/latex-extension": "^1.3.2",
-    "@diplodoc/mermaid-extension": "^1.3.2",
+    "@diplodoc/mermaid-extension": "^1.3.3",
     "@diplodoc/openapi-extension": "^2.7.0",
     "@diplodoc/prettier-config": "^2.0.0",
-    "@diplodoc/search-extension": "^1.1.5",
-    "@diplodoc/transform": "^4.45.5",
+    "@diplodoc/search-extension": "^1.2.2",
+    "@diplodoc/transform": "^4.47.0",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@gravity-ui/page-constructor": "^5.29.1",
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
