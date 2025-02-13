@@ -273,9 +273,7 @@ export interface PathData {
     outputFolderPath: string;
 }
 
-export type Resources = {
-    [key in Exclude<ResourceType, 'csp'>]?: string[];
-} & {
+export type Resources = Partial<Record<Exclude<ResourceType, 'csp'>, string[]>> & {
     csp?: Record<string, string[]>[];
 };
 

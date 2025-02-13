@@ -4,6 +4,7 @@ import {join, resolve} from 'node:path';
 
 import {configPath} from '~/core/config';
 import {
+    ASSETS_FOLDER,
     REDIRECTS_FILENAME,
     TMP_INPUT_FOLDER,
     TMP_OUTPUT_FOLDER,
@@ -42,7 +43,7 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     get assetsPath() {
-        return join(this.output, '_assets');
+        return join(ASSETS_FOLDER);
     }
 
     get redirectsPath() {

@@ -1,19 +1,12 @@
 import type {WorkerConfig} from '@diplodoc/search-extension/worker';
-import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
-import type {SearchProvider, SearchService} from '@diplodoc/cli/lib/search';
+import type {Run} from '@diplodoc/cli/commands/build';
+import type {SearchProvider} from '@diplodoc/cli/lib/search';
 import type {DocPageData} from '@diplodoc/client/ssr';
 
-import {dirname, extname, join} from 'node:path';
+import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {Indexer} from '@diplodoc/search-extension/indexer';
 import {langs} from '@diplodoc/search-extension/worker/langs';
-
-const SEARCH_LANGS = require.resolve('@diplodoc/search-extension/worker/langs');
-
-export type Run = BaseRun & {
-    output: AbsolutePath;
-    search: SearchService;
-};
 
 export type ProviderConfig = Pick<WorkerConfig, 'tolerance' | 'confidence'> & {
     api: string;
@@ -71,7 +64,7 @@ export class LocalSearchProvider implements SearchProvider {
 
             if (languageLink) {
                 await this.run.copy(
-                    join(dirname(SEARCH_LANGS), lang + '.js'),
+                    join(this.run.assetsPath, 'search-extension', 'langs', lang + '.js'),
                     join(this.run.output, languageLink),
                 );
             }

@@ -24,7 +24,7 @@ export async function processAssets(run: Run) {
 
 async function processAssetsHtmlRun(run: Run) {
     await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
-    await run.copy(ASSETS_FOLDER, run.bundlePath);
+    await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
 }
 
 async function processAssetsMdRun(run: Run) {
