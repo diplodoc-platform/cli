@@ -1,4 +1,12 @@
+import type {Toc} from '~/core/toc';
+import type {DocInnerProps, DocPageData} from '@diplodoc/client/ssr';
+
 import {join} from 'path';
+import {escape} from 'html-escaper';
+import {getCSP} from 'csp-header';
+import {render} from '@diplodoc/client/ssr';
+import manifest from '@diplodoc/client/manifest';
+
 import {copyJson} from '~/core/utils';
 
 import {
@@ -8,15 +16,9 @@ import {
     DEFAULT_CSP_SETTINGS,
     RTL_LANGS,
 } from '../constants';
-import {LeadingPage, Resources, TextItems, VarsMetadata, YfmToc} from '../models';
+import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
 import {ArgvService, PluginService} from '../services';
 import {getDepthPath} from '../utils';
-
-import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
-import manifest from '@diplodoc/client/manifest';
-
-import {escape} from 'html-escaper';
-import {getCSP} from 'csp-header';
 
 export interface TitleMeta {
     title?: string;
@@ -28,7 +30,7 @@ export type Meta = TitleMeta &
     };
 
 type TocInfo = {
-    content: YfmToc;
+    content: Toc;
     path: string;
 };
 
