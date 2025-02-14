@@ -1,6 +1,5 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
@@ -28,8 +27,6 @@ export type LegacyRawConfig = {
     allowHTML: boolean;
     needToSanitizeHtml: boolean;
     useLegacyConditions: boolean;
-
-    connector?: VCSConnectorConfig;
 };
 
 export type LegacyConfig = {
@@ -59,7 +56,6 @@ export class Legacy {
             const allowHTML = defined('allowHTML', args, config);
             const needToSanitizeHtml = defined('needToSanitizeHtml', args, config);
             const useLegacyConditions = defined('useLegacyConditions', args, config);
-            const vcsConnector = defined('connector', config);
 
             if (valuable(disableLiquid)) {
                 config.template.enabled = disableLiquid !== true;
@@ -90,10 +86,6 @@ export class Legacy {
                 config.sanitizeHtml = needToSanitizeHtml;
             }
 
-            if (valuable(vcsConnector)) {
-                config.vcs.connector = vcsConnector;
-            }
-
             config.useLegacyConditions = Boolean(useLegacyConditions);
 
             for (const prop of [
@@ -104,7 +96,6 @@ export class Legacy {
                 'lintDisabled',
                 'allowHTML',
                 'needToSanitizeHtml',
-                'connector',
             ]) {
                 // @ts-ignore
                 delete config[prop];
