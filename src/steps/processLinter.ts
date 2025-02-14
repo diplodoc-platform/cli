@@ -6,7 +6,6 @@ import {extname} from 'path';
 
 import {ArgvService, PluginService, PresetService} from '../services';
 import {ProcessLinterWorker} from '../workers/linter';
-import {logger} from '../utils';
 import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
 import {lintPage} from '../resolvers';
 import {splitOnChunks} from '../utils/worker';
@@ -26,7 +25,7 @@ export async function processLinter(run: Run): Promise<void> {
     const navigationPaths = run.toc.entries;
 
     if (!processLinterWorkers) {
-        lintPagesFallback(navigationPaths);
+        lintPagesFallback(run, navigationPaths);
 
         return;
     }
@@ -36,7 +35,7 @@ export async function processLinter(run: Run): Promise<void> {
     /* Subscribe on the linted page event */
     processLinterWorkers.forEach((worker) => {
         worker.getProcessedPages().subscribe((pathToFile) => {
-            logger.info(pathToFile as string, LINTING_FINISHED);
+            run.logger.info(pathToFile as string, LINTING_FINISHED);
         });
     });
 
@@ -94,7 +93,7 @@ function getChunkSize(arr: string[]) {
     return Math.ceil(arr.length / WORKERS_COUNT);
 }
 
-function lintPagesFallback(navigationPaths: string[]) {
+function lintPagesFallback(run: Run, navigationPaths: string[]) {
     PluginService.setPlugins();
 
     navigationPaths.forEach((pathToFile) => {
@@ -102,7 +101,7 @@ function lintPagesFallback(navigationPaths: string[]) {
             inputPath: pathToFile,
             fileExtension: extname(pathToFile),
             onFinish: () => {
-                logger.info(pathToFile, LINTING_FINISHED);
+                run.logger.info(pathToFile, LINTING_FINISHED);
             },
         });
     });
