@@ -73,7 +73,7 @@
     "@diplodoc/search-extension": "^1.2.2",
     "@diplodoc/transform": "^4.47.0",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@octokit/core": "4.2.4",
+    "@octokit/core": "6.1.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "^3.0.0",
