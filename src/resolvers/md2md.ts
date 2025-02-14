@@ -35,9 +35,9 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
         root: resolve(input),
         destRoot: resolve(output),
         vars: vars,
-        log,
         copyFile,
         included,
+        log: run.logger,
     });
 
     writeFileSync(outputPath, result);

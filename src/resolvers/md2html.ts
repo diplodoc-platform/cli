@@ -23,7 +23,6 @@ import {
     getLinksWithContentExtersion,
     getVarsPerFile,
     getVarsPerRelativeFile,
-    logger,
     modifyValuesByKeys,
 } from '../utils';
 import {isExternalHref} from '~/core/utils';
@@ -121,9 +120,9 @@ export async function resolveMd2HTML(run: Run, options: ResolverOptions): Promis
     };
     const outputFileContent = generateStaticMarkup(props, tocInfo, title);
     writeFileSync(outputPath, outputFileContent);
-    logger.info(inputPath, PROCESSING_FINISHED);
 
     return props;
+    run.logger.info(PROCESSING_FINISHED, path);
 }
 
 function getTitle(tocTitle: string, dataTitle: string) {
