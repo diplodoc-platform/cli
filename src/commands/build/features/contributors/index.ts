@@ -1,12 +1,15 @@
-import type {Build} from '~/commands/build';
+import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VcsServiceConfig} from '~/core/vcs';
 
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getLeadingHooks} from '~/core/leading';
 import {defined} from '~/core/config';
 import {options} from './config';
 
 export type ContributorsArgs = {
+    mtimes?: boolean;
+    authors?: boolean;
     contributors?: boolean;
     ignoreAuthorPatterns?: string[];
 };
@@ -23,11 +26,22 @@ export class Contributors {
         });
 
         getBaseHooks(program).Config.tap('Contributors', (config, args) => {
-            config.vcs = defined('vcs', config) || {};
+            config.vcs = defined('vcs', config) || {enabled: false};
+            config.mtimes = defined('mtimes', args, config) || false;
+            config.authors = defined('authors', args, config) || false;
             config.contributors = defined('contributors', args, config) || false;
             config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];
 
             return config;
+        });
+
+        getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
+            getLeadingHooks(run.leading).Resolved.tap(
+                'Contributors',
+                async (_leading, _meta, path) => {
+                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path)));
+                },
+            );
         });
     }
 }
