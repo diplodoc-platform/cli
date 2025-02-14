@@ -1,50 +1,49 @@
 import type {Run} from '~/commands/build';
+import type {ResolverResult} from '~/steps';
+import type {PluginOptions} from '~/models';
 
 import {readFileSync, writeFileSync} from 'fs';
-import {basename, dirname, extname, join, resolve} from 'path';
+import {basename, dirname, extname, join} from 'node:path';
+import {dump} from 'js-yaml';
 import shell from 'shelljs';
-import log from '@diplodoc/transform/lib/log';
 import liquid from '@diplodoc/transform/lib/liquid';
+import {composeFrontMatter} from '@diplodoc/transform/lib/frontmatter';
+
+import {mangleFrontMatter} from '~/utils';
 
 import {ArgvService, PluginService} from '../services';
-import {getVarsPerFile, logger} from '../utils';
-import {PluginOptions, ResolveMd2MdOptions} from '../models';
 import {PROCESSING_FINISHED} from '../constants';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
-import {enrichWithFrontMatter} from '../services/metadata';
 
-export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Promise<void> {
-    const {inputPath, outputPath, metadata: metadataOptions} = options;
-    const {input, output, changelogs: changelogsSetting, included} = ArgvService.getConfig();
-    const resolvedInputPath = resolve(input, inputPath);
+export async function resolveToMd(run: Run, path: RelativePath): Promise<ResolverResult> {
+    const extension = extname(path);
+    const vars = await run.vars.load(path);
 
-    const vars = getVarsPerFile(inputPath);
+    if (extension === '.yaml') {
+        return {
+            result: dump(await run.leading.dump(path)),
+            info: {},
+        };
+    }
 
-    const content = await enrichWithFrontMatter(run, {
-        fileContent: readFileSync(resolvedInputPath, 'utf8'),
-        metadataOptions,
-        resolvedFrontMatterVars: {
-            systemVars: vars.__system as unknown,
-            metadataVars: vars.__metadata,
-        },
-    });
+    const content = await mangleFrontMatter(run, path);
+    const input = join(run.input, path);
+    const output = join(run.output, path);
 
     const {result, changelogs} = transformMd2Md(content, {
-        path: resolvedInputPath,
-        destPath: outputPath,
-        root: resolve(input),
-        destRoot: resolve(output),
+        path: input,
+        destPath: output,
+        root: run.input,
+        destRoot: run.output,
         vars: vars,
-        copyFile,
-        included,
         log: run.logger,
+        copyFile: copyFile,
+        included: run.config.mergeIncludes,
     });
 
-    writeFileSync(outputPath, result);
-
-    if (changelogsSetting && changelogs?.length) {
-        const mdFilename = basename(outputPath, extname(outputPath));
-        const outputDir = dirname(outputPath);
+    if (run.config.changelogs && changelogs?.length) {
+        const mdFilename = basename(output, extname(output));
+        const outputDir = dirname(output);
         changelogs.forEach((changes, index) => {
             let changesName;
             const changesDate = changes.date as string | undefined;
@@ -74,9 +73,12 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
         });
     }
 
-    logger.info(inputPath, PROCESSING_FINISHED);
+    run.logger.info(PROCESSING_FINISHED, path);
 
-    return undefined;
+    return {
+        result: composeFrontMatter(await run.meta.dump(path), result),
+        info: {},
+    };
 }
 
 function copyFile(targetPath: string, targetDestPath: string, options?: PluginOptions) {
@@ -91,7 +93,7 @@ function copyFile(targetPath: string, targetDestPath: string, options?: PluginOp
     }
 }
 
-export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
+function liquidMd2Md(input: string, vars: Hash, path: AbsolutePath) {
     const {applyPresets, resolveConditions, conditionsInCode, useLegacyConditions} =
         ArgvService.getConfig();
 
@@ -107,22 +109,19 @@ export function liquidMd2Md(input: string, vars: Record<string, unknown>, path: 
 
 function transformMd2Md(input: string, options: PluginOptions) {
     const {disableLiquid, changelogs: changelogsSetting} = ArgvService.getConfig();
-    const {vars = {}, path, log: pluginLog} = options;
+    const {vars, path} = options;
 
     let output = input;
     const collectOfPlugins = PluginService.getCollectOfPlugins();
     const changelogs: ChangelogItem[] = [];
 
     if (!disableLiquid) {
-        const liquidResult = liquidMd2Md(input, vars, path);
-        output = liquidResult.output;
+        output = liquidMd2Md(output, vars, path).output;
     }
 
     if (collectOfPlugins) {
         output = collectOfPlugins(output, {
             ...options,
-            vars,
-            path,
             changelogs,
             extractChangelogs: Boolean(changelogsSetting),
         });
@@ -131,6 +130,5 @@ function transformMd2Md(input: string, options: PluginOptions) {
     return {
         result: output,
         changelogs,
-        logs: pluginLog.get(),
     };
 }
