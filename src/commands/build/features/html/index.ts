@@ -7,6 +7,7 @@ import {isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {ASSETS_FOLDER} from '~/constants';
 
 export class Html {
     apply(program: Build) {
@@ -43,6 +44,12 @@ export class Html {
 
                     await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
                 });
+
+        getBuildHooks(program)
+            .AfterRun.for('html')
+            .tapPromise('Html', async (run) => {
+                await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+                await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
             });
     }
 }
