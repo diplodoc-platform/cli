@@ -36,12 +36,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: filelist 
 ]"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product1/_includes/inc.md 1`] = `
-"---
-sourcePath: product1/core/_includes/inc.md
----
-This is the core include."
-`;
+exports[`Include toc Nested toc inclusions with mixed including modes: product1/_includes/inc.md 1`] = `"This is the core include."`;
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product1/article1.md 1`] = `
 "---
@@ -62,10 +57,7 @@ items:
 `;
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/_includes/inc.md 1`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -80,10 +72,7 @@ This is the overlay content of Article 1 for product 2.
 `;
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/_includes/inc.md 1`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -98,10 +87,7 @@ This is the overlay number #2  of Article 1 content for product 2.
 `;
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/_includes/inc.md 1`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -193,9 +179,9 @@ exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] 
 
 exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] = `
 "---
+sourcePath: folder/fileA.md
 title: File A
 description: YFM description
-sourcePath: folder/fileA.md
 ---
 # File A
 
@@ -281,8 +267,9 @@ exports[`Include toc Toc root merge on non root dir: ru/index.yaml 1`] = `
   - type: header-block
     title: Title
     description: Description
-title: ''
 links: []
+meta:
+  sourcePath: ru/sub/folder/index.yaml
 "
 `;
 
@@ -311,12 +298,12 @@ exports[`Include toc Toc with expressions: index.yaml 1`] = `
 "title: Title A
 description:
   - Desc A
-meta:
-  title: Meta A
 links:
   - title: A1
     description: A1 desc
     href: a1
+meta:
+  title: Meta A
 "
 `;
 
