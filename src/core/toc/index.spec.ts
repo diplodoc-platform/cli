@@ -52,7 +52,7 @@ function mockData(run: RunSpy, content: string, vars: Vars, files: Files, copy: 
     for (const [from, to] of copy) {
         when(run.copy)
             .calledWith(join(run.input, from), join(run.input, to), expect.anything())
-            .thenResolve();
+            .thenResolve([]);
     }
 }
 
