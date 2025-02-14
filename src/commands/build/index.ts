@@ -190,6 +190,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await run.vars.init();
         await run.toc.init();
+        await run.leading.init();
+        await run.vcs.init();
         await run.search.init();
 
         await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
