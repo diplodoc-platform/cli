@@ -5,7 +5,9 @@ declare const VERSION: string;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ClassType<T = any> = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     new (...args: any[]): T;
 };
 
