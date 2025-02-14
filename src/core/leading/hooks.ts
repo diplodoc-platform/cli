@@ -3,6 +3,7 @@ import type {LeadingPage, Plugin} from './types';
 import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
+import { Meta } from '~/core/meta';
 
 export function hooks(name: string) {
     return {
@@ -15,8 +16,8 @@ export function hooks(name: string) {
             `${name}.Asset`,
         ),
         Plugins: new AsyncSeriesWaterfallHook<[Plugin[]]>(['plugins'], `${name}.Plugins`),
-        Resolved: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, RelativePath]>(
-            ['leading', 'path'],
+        Resolved: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, DeepFrozen<Meta>, RelativePath]>(
+            ['leading', 'meta', 'path'],
             `${name}.Resolved`,
         ),
         Dump: new AsyncSeriesWaterfallHook<[LeadingPage, NormalizedPath]>(
