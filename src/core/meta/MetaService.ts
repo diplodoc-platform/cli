@@ -28,6 +28,17 @@ export class MetaService {
         this.config = run.config;
     }
 
+    /**
+     * Returns non normalized current readonly metadata for selected path.
+     */
+    get(path: RelativePath) {
+        const file = normalizePath(path);
+        return copyJson(this.meta.get(file)) || this.initialMeta();
+    }
+
+    /**
+     * Returns normalized merged metadata for selected path.
+     */
     async dump(path: RelativePath) {
         const file = normalizePath(path);
         const meta = copyJson(this.meta.get(file)) || this.initialMeta();
@@ -143,7 +154,6 @@ export class MetaService {
             style: [],
             script: [],
             csp: [],
-            __system: {},
         };
     }
 }
