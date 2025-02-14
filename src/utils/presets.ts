@@ -4,14 +4,7 @@ import {ArgvService, PresetService} from '../services';
 import {YfmPreset} from '../models';
 
 export function getVarsPerFile(filePath: string): YfmPreset {
-    const {vars: argVars} = ArgvService.getConfig();
-
-    const result = {
-        ...PresetService.get(dirname(filePath)),
-        ...argVars,
-    };
-
-    return result;
+    return PresetService.get(dirname(filePath));
 }
 
 export function getVarsPerRelativeFile(filePath: string): Record<string, string> {
