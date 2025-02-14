@@ -1,10 +1,11 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
+import type {MetaService} from '~/core/meta';
 import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {ok} from 'node:assert';
-import {basename, dirname, join} from 'node:path';
+import {basename, dirname, join, relative} from 'node:path';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
@@ -38,6 +39,7 @@ enum Stage {
 
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
+    meta: MetaService;
 };
 
 @withHooks
@@ -52,8 +54,6 @@ export class TocService {
 
     private logger: Run['logger'];
 
-    private vars: Run['vars'];
-
     private config: TocServiceConfig;
 
     private _entries: Set<NormalizedPath> = new Set();
@@ -62,10 +62,17 @@ export class TocService {
 
     private cache: Map<NormalizedPath, Toc | undefined> = new Map();
 
+    private get vars() {
+        return this.run.vars;
+    }
+
+    private get meta() {
+        return this.run.meta;
+    }
+
     constructor(run: Run) {
         this.run = run;
         this.logger = run.logger;
-        this.vars = run.vars;
         this.config = run.config;
     }
 
@@ -132,10 +139,17 @@ export class TocService {
             context.path = context.path.replace(from, to) as RelativePath;
             context.from = include.from;
 
-            await this.run.copy(join(this.run.input, from), join(this.run.input, to), {
-                sourcePath: (file: string) => file.endsWith('.md'),
-                ignore: [basename(file), '**/toc.yaml'],
-            });
+            const files = await this.run.copy(
+                join(this.run.input, from),
+                join(this.run.input, to),
+                [basename(file), '**/toc.yaml'],
+            );
+
+            for (const [from, to] of files) {
+                this.meta.add(relative(this.run.input, to), {
+                    sourcePath: relative(this.run.input, from),
+                });
+            }
         }
 
         const toc = (await loader.call(context, content)) as Toc;
