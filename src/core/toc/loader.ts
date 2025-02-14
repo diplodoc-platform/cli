@@ -207,7 +207,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 toc = await hook.promise(toc, options, this.path);
             }
 
-            toc = (await this.toc.load(tocPath, {
+            toc = (await this.toc.include(tocPath, {
                 from: this.path,
                 mode: IncludeMode.Link,
                 content: toc,
@@ -222,7 +222,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 includeInfo.base = this.base || this.path;
             }
 
-            toc = (await this.toc.load(include.path, includeInfo)) as RawToc;
+            toc = (await this.toc.include(include.path, includeInfo)) as RawToc;
         }
 
         item = omit(item, ['include']) as RawTocItem;
