@@ -3,13 +3,12 @@ import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
 import {ok} from 'node:assert';
-import {dirname, join, relative} from 'node:path';
+import {dirname, join} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
 import {bounded, normalizePath} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
-import {addSourcePath} from '~/core/meta';
 
 import {InsecureAccessError} from './errors';
 
@@ -18,11 +17,6 @@ import {fs} from './fs';
 type GlobOptions = {
     cwd?: AbsolutePath;
     ignore?: string[];
-};
-
-type CopyOptions = {
-    ignore?: string[];
-    sourcePath?: (path: string) => boolean;
 };
 
 export class RunLogger extends Logger {
@@ -124,16 +118,7 @@ export class Run<TConfig = BaseConfig> {
         return paths.map(normalizePath);
     }
 
-    @bounded async copy(
-        from: AbsolutePath,
-        to: AbsolutePath,
-        options: CopyOptions | CopyOptions['ignore'] = {},
-    ) {
-        if (Array.isArray(options)) {
-            options = {ignore: options};
-        }
-
-        const {ignore, sourcePath} = options;
+    @bounded async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
         const isFile = (await this.fs.stat(from)).isFile();
         const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
             // const realpath = this.realpath(from);
@@ -150,24 +135,21 @@ export class Run<TConfig = BaseConfig> {
         };
 
         if (from === to) {
-            return;
-        }
-
-        if (isFile) {
-            await this.fs.mkdir(dirname(to), {recursive: true});
-            await hardlink(from, to);
-
-            return;
+            return [];
         }
 
         const dirs = new Set();
-        const files = (await this.glob('**', {
-            cwd: from,
-            ignore,
-        })) as RelativePath[];
+        const files = isFile
+            ? [[from, to]]
+            : (
+                  await this.glob('**', {
+                      cwd: from,
+                      ignore,
+                  })
+              ).map((file) => [join(from, file), join(to, file)]);
 
-        for (const file of files) {
-            const dir = join(to, dirname(file));
+        for (const [from, to] of files) {
+            const dir = dirname(to);
             if (!dirs.has(dir)) {
                 await this.fs.mkdir(dir, {recursive: true});
                 dirs.add(dir);
@@ -175,16 +157,10 @@ export class Run<TConfig = BaseConfig> {
 
             // this.logger.copy(join(from, file), join(to, file));
 
-            if (sourcePath && sourcePath(file)) {
-                const content = await this.read(join(from, file));
-                await this.write(
-                    join(to, file),
-                    addSourcePath(content, relative(this.input, join(from, file))),
-                );
-            } else {
-                await hardlink(join(from, file), join(to, file));
-            }
+            await hardlink(from, to);
         }
+
+        return files;
     }
 
     /**
