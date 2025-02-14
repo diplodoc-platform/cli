@@ -9,7 +9,15 @@ import {basename, dirname, join, relative} from 'node:path';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
-import {bounded, copyJson, errorMessage, freezeJson, isExternalHref, normalizePath, own} from '~/core/utils';
+import {
+    bounded,
+    copyJson,
+    errorMessage,
+    freezeJson,
+    isExternalHref,
+    normalizePath,
+    own,
+} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';

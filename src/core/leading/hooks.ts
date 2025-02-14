@@ -3,7 +3,7 @@ import type {LeadingPage, Plugin} from './types';
 import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
-import { Meta } from '~/core/meta';
+import {Meta} from '~/core/meta';
 
 export function hooks(name: string) {
     return {
