@@ -1,5 +1,28 @@
 # Changelog
 
+## [4.54.0](https://github.com/diplodoc-platform/cli/compare/v4.53.15...v4.54.0) (2025-02-14)
+
+
+### Features
+
+* Attach new search engines ([8f2a1a6](https://github.com/diplodoc-platform/cli/commit/8f2a1a695a1a0e047272d8c2983c1ea78911a65d))
+* Implement new AlgoliaSearch extension ([13bf4f2](https://github.com/diplodoc-platform/cli/commit/13bf4f297588206e77ffde3b6b12f22d57f7cb0f))
+* Implement new Leading service ([6e5971d](https://github.com/diplodoc-platform/cli/commit/6e5971d9042c47eff0673e412dd8466b2c259b52))
+* Implement new Meta service ([0d6d425](https://github.com/diplodoc-platform/cli/commit/0d6d425f7f945dd990bb4ed6d34c900fdcd2024f))
+* Implement new Search service ([b08ba35](https://github.com/diplodoc-platform/cli/commit/b08ba35029b2608855701f6ecd8604f23d13e4c9))
+* Implement new VCS service and connector ([76b9d7c](https://github.com/diplodoc-platform/cli/commit/76b9d7c22b69aec3330c5f38c62eb6aca22f23e4))
+
+
+### Bug Fixes
+
+* Fix core based paths ([4e35b36](https://github.com/diplodoc-platform/cli/commit/4e35b36187b71078dc564f27b8d027707e98efb7))
+* Move external assets copy to postinstall step ([30ea78b](https://github.com/diplodoc-platform/cli/commit/30ea78bf8a003b3dba046716d7553c92b4ad9223))
+
+
+### Dependency update
+
+* Update core deps ([a2a1628](https://github.com/diplodoc-platform/cli/commit/a2a16282714dfd4688232282a4ccc0707e476dfc))
+
 ## [4.53.15](https://github.com/diplodoc-platform/cli/compare/v4.53.14...v4.53.15) (2025-02-10)
 
 
