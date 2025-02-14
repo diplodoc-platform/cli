@@ -43,3 +43,13 @@ export function errorMessage(error: unknown): string {
 
     return String(error);
 }
+
+const DEFAULT_CONCURRENCY = 500;
+
+export function concurrently<T, R>(
+    items: T[],
+    mapper: (item: T) => Promise<R | undefined>,
+    concurrency = DEFAULT_CONCURRENCY,
+): Promise<R[]> {
+    return pMap(items, mapper, {concurrency});
+}
