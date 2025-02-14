@@ -13,6 +13,7 @@ import {
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, configPath, defined, valuable} from '~/core/config';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getLeadingHooks} from '~/core/leading';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
@@ -166,6 +167,25 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                 getTocHooks(run.toc).Resolved.tapPromise('Build', async (_toc, path) => {
                     await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
+
+                const isMediaLink = (link: string) =>
+                    /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test(link);
+
+                getLeadingHooks(run.leading).Asset.tapPromise(
+                    'Build',
+                    async (asset: RelativePath) => {
+                        if (!isMediaLink(asset)) {
+                            return;
+                        }
+
+                        try {
+                            await run.copy(join(run.input, asset), join(run.output, asset));
+                        } catch (error) {
+                            // TODO: Move to error strategy
+                            run.logger.warn(`Unable to copy resource asset ${asset}.`, error);
+                        }
+                    },
+                );
             });
 
         getHooks(this)
@@ -193,10 +213,18 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
 
         await run.vars.init();
-        await run.toc.init();
         await run.leading.init();
         await run.vcs.init();
         await run.search.init();
+
+        const tocs = await run.glob('**/toc.yaml', {
+            cwd: run.input,
+            ignore: run.config.ignore,
+        });
+
+        for (const toc of tocs) {
+            await run.toc.load(toc);
+        }
 
         await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
 
