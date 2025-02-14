@@ -67,14 +67,17 @@ export class LeadingService {
         const context = await this.loaderContext(file);
         const leading = await loader.call(context, yaml);
 
-        this.run.meta.addMetadata(path, context.vars.__metadata);
-        this.run.meta.addSystemVars(path, context.vars.__system);
-        const meta = this.run.meta.add(file, leading.meta || {});
-        this.run.meta.add(path, await this.run.vcs.metadata(file, meta));
-
+        const meta = leading.meta || {};
         delete leading.meta;
 
-        await getHooks(this).Resolved.promise(leading, file);
+        this.run.meta.addMetadata(path, context.vars.__metadata);
+        // TODO: Move to SystemVars feature
+        this.run.meta.addSystemVars(path, context.vars.__system);
+        this.run.meta.add(file, meta);
+        // TODO: Move to Vcs feature
+        this.run.meta.add(path, await this.run.vcs.metadata(file, this.run.meta.get(file)));
+
+        await getHooks(this).Resolved.promise(leading, meta, file);
 
         const assets = new Set<RelativePath>();
         this.walkLinks(leading, (link) => {

@@ -24,6 +24,7 @@ import {Run} from './run';
 import {handler} from './handler';
 
 import {Templating} from './features/templating';
+import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
 import {Redirects} from './features/redirects';
@@ -69,6 +70,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly templating = new Templating();
 
+    readonly resources = new CustomResources();
+
     readonly contributors = new Contributors();
 
     readonly singlepage = new SinglePage();
@@ -110,6 +113,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly modules = [
         this.templating,
+        this.resources,
         this.contributors,
         this.singlepage,
         this.redirects,
