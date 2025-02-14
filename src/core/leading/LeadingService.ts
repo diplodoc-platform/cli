@@ -74,8 +74,6 @@ export class LeadingService {
         // TODO: Move to SystemVars feature
         this.run.meta.addSystemVars(path, context.vars.__system);
         this.run.meta.add(file, meta);
-        // TODO: Move to Vcs feature
-        this.run.meta.add(path, await this.run.vcs.metadata(file, this.run.meta.get(file)));
 
         await getHooks(this).Resolved.promise(leading, meta, file);
 
