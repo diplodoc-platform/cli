@@ -1,43 +1,77 @@
 import {resolve} from 'node:path';
-import type {Run} from '~/commands/build';
-import {THEME_CSS_PATH} from '~/constants';
+import {THEME_CONFIG_FILENAME} from '~/constants';
+import chroma from 'chroma-js';
 import {
-    BRAND_COLOR_KEYS,
     BRAND_COLOR_VARIABLE_PREFIX,
-    ColorsOptions,
+    COLOR_MAP,
     DEFAULT_BRAND_DEPEND_COLORS,
+    PRIVATE_SOLID_VARIABLES,
+    PRIVATE_VARIABLES,
     THEME_GRAVITY_VARIABLE_PREFIX,
     THEME_VARIANTS,
     THEME_YFM_VARIABLE_PREFIX,
+} from './constants';
+import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
+import {
+    BRAND_COLOR_KEYS,
+    ColorsOptions,
     Theme,
     ThemeConfig,
     ThemeOptions,
     ThemeVariant,
     YFMColorOptions,
     YFM_COLOR_KEYS,
-    generateBrandShades,
-    getThemeValidator,
-    loadFile,
-} from './themer';
-import {writeFileSync} from 'node:fs';
+} from './types';
 
-export async function processThemer(run: Run) {
-    try {
-        const configRaw = await loadFile(run.input);
-        const validate = getThemeValidator();
-        if (validate(configRaw)) {
-            const theme = createTheme(configRaw as ThemeConfig);
-            createCSS(theme, run.output);
-        } else {
-            throw Error(validate.errors ? validate.errors[0].message : 'validation error');
-        }
-    } catch (e) {
-        run.logger.warn('Theme config error');
-        run.logger.warn(e);
-    }
+export function isThemeExists(folderPath: AbsolutePath) {
+    return isFileExists(resolve(folderPath, THEME_CONFIG_FILENAME));
 }
 
-function createTheme(configData: ThemeConfig): Theme {
+export const generateBrandShades = ({
+    colorValue,
+    lightBg,
+    darkBg,
+}: {
+    colorValue: string;
+    lightBg: string;
+    darkBg: string;
+}) => {
+    const privateColors: Record<string, string> = {};
+
+    if (!chroma.valid(colorValue)) {
+        throw Error('Not valid color for chroma');
+    }
+
+    const pallete = Object.entries(COLOR_MAP).reduce(
+        (res, [key, {a, c}]) => {
+            const solidColor = chroma.mix(colorValue, c > 0 ? darkBg : lightBg, 1 - a, 'rgb').css();
+
+            const alphaColor = chroma(colorValue).alpha(a).css();
+
+            res[key] = [solidColor, alphaColor];
+
+            return res;
+        },
+        {} as Record<string, [string, string]>,
+    );
+
+    // Set 550 Solid Color
+    privateColors[`550-solid`] = chroma(colorValue).css();
+
+    // Set 50-1000 Solid Colors, except 550 Solid Color
+    PRIVATE_SOLID_VARIABLES.forEach((varName) => {
+        privateColors[`${varName}-solid`] = chroma(pallete[varName][0]).css();
+    });
+
+    // Set 50-500 Colors
+    PRIVATE_VARIABLES.forEach((varName) => {
+        privateColors[`${varName}`] = chroma(pallete[varName][1]).css();
+    });
+
+    return privateColors;
+};
+
+export function createTheme(configData: ThemeConfig): Theme {
     const theme: Theme = {};
 
     // if (configData['base-background']) {
@@ -126,13 +160,12 @@ function createBaseVariant(configData: ThemeConfig): ThemeOptions {
     };
 }
 
-function createCSS(theme: Theme, folderPath: AbsolutePath) {
-    const themePath = resolve(folderPath, THEME_CSS_PATH);
+export function createCSS(theme: Theme): string {
     let cssText = '';
     cssText += prepareThemeVariables('base', theme);
     cssText += prepareThemeVariables('light', theme);
     cssText += prepareThemeVariables('dark', theme);
-    writeFileSync(themePath, cssText);
+    return cssText;
 }
 
 function prepareThemeVariables(variant: ThemeVariant | 'base', theme: Theme) {
