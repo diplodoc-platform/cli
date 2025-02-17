@@ -6,7 +6,6 @@ import {getHooks as getBuildHooks} from '@diplodoc/cli/commands/build';
 import {getHooks as getSearchHooks} from '@diplodoc/cli/lib/search';
 
 import {AlgoliaSearchProvider} from './provider';
-import {join} from 'node:path';
 
 const API_LINK = '_search/api.js';
 
@@ -36,14 +35,6 @@ export class Extension implements IExtension {
                             api: API_LINK,
                         });
                     });
-            });
-
-        getBuildHooks(program)
-            .AfterRun.for('html')
-            .tapPromise('AlgoliaSearch', async (run) => {
-                if (run.search.enabled) {
-                    await run.copy(join(__dirname, 'algolia-api.js'), join(run.output, API_LINK));
-                }
             });
     }
 }

@@ -69,7 +69,10 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded config(lang: string) {
-        return this.provider.config(lang);
+        return {
+            enabled: this.enabled,
+            ...this.provider.config(lang),
+        };
     }
 
     @bounded async add(path: RelativePath, lang: string, info: DocPageData) {

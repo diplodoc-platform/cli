@@ -51,6 +51,7 @@ export class Search {
                 search.enabled = Boolean(args.search);
             }
 
+            search.enabled = search.enabled !== false && Boolean(search.provider);
             config.search = search;
 
             return config;

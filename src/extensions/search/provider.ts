@@ -21,6 +21,8 @@ export class LocalSearchProvider implements SearchProvider {
 
     private outputDir: string;
 
+    private apiLink: string;
+
     private nocache: string;
 
     constructor(run: Run, config: ProviderConfig) {
@@ -29,6 +31,7 @@ export class LocalSearchProvider implements SearchProvider {
         this.indexer = new Indexer();
 
         this.outputDir = '_search';
+        this.apiLink = config.api;
         this.nocache = String(Date.now());
     }
 
@@ -43,6 +46,11 @@ export class LocalSearchProvider implements SearchProvider {
     }
 
     async release() {
+        await this.run.copy(
+            join(this.run.assetsPath, 'search-extension', 'api.js'),
+            join(this.run.output, this.apiLink),
+        );
+
         for (const lang of this.indexer.langs) {
             const {index, registry} = await this.indexer.release(lang);
 

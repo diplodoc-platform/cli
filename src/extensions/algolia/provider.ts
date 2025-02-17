@@ -89,6 +89,8 @@ export class AlgoliaSearchProvider implements SearchProvider {
     }
 
     async release() {
+        await this.run.copy(join(__dirname, 'algolia-api.js'), join(this.run.output, this.apiLink));
+
         for (const lang of Object.keys(this.objects)) {
             const page = await this.run.search.page(lang);
             await this.run.write(join(this.run.output, pageLink(lang)), page);
