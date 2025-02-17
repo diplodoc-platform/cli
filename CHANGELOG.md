@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.54.1](https://github.com/diplodoc-platform/cli/compare/v4.54.0...v4.54.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* Fix search configuration ([aa70ecc](https://github.com/diplodoc-platform/cli/commit/aa70ecc94fe5077abd4d7a315620ad4e28d3df17))
+
 ## [4.54.0](https://github.com/diplodoc-platform/cli/compare/v4.53.15...v4.54.0) (2025-02-14)
 
 
