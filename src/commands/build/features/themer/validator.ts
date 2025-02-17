@@ -35,7 +35,6 @@ const colorsPropertiesSchema = {
     minProperties: 1,
 } as const;
 
-// Основная схема для ThemeConfig
 const themeSchema: JSONSchemaType<ThemeConfig> = {
     type: 'object',
     properties: {

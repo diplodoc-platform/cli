@@ -32,6 +32,7 @@ import {Changelogs} from './features/changelogs';
 import {Html} from './features/html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
+import {Themer} from './features/themer';
 
 export * from './types';
 
@@ -79,6 +80,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly changelogs = new Changelogs();
 
+    readonly themer = new Themer();
+
     readonly html = new Html();
 
     readonly search = new Search();
@@ -115,6 +118,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.redirects,
         this.linter,
         this.changelogs,
+        this.themer,
         this.search,
         this.html,
         this.legacy,
