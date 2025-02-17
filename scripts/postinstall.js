@@ -17,6 +17,7 @@ const assets = [
     ...clientManifest.search.async
 ];
 
+shell.rm('-rf', ASSETS_PATH);
 shell.mkdir('-p', ASSETS_PATH);
 shell.mkdir('-p', join(ASSETS_PATH, 'search-extension'));
 shell.mkdir('-p', join(ASSETS_PATH, 'search-extension/langs'));

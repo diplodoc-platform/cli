@@ -1,7 +1,7 @@
 import {compareDirectories, getTestPaths, runYfmDocs} from '../utils';
 
 describe('plugin corner cases:', () => {
-    it.skip('images in deflists — integrity check', () => {
+    it('images in deflists — integrity check', () => {
         const {inputPath, outputPath} = getTestPaths(
             'mocks/plugin-corner-cases/images-in-deflists',
         );
