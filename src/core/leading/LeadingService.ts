@@ -5,7 +5,7 @@ import type {VcsService} from '~/core/vcs';
 import type {LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {cloneDeepWith, isString} from 'lodash';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
@@ -88,7 +88,7 @@ export class LeadingService {
 
         // TODO: concurrently
         for (const asset of assets) {
-            await getHooks(this).Asset.promise(join(file, asset), file);
+            await getHooks(this).Asset.promise(join(dirname(file), asset), file);
         }
 
         this.cached[file] = leading;
