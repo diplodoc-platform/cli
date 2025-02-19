@@ -33,7 +33,7 @@ exports[`Regression internal: 1.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
       <p>Text {{not-var}} {{skip()}} default-var-value
       </p>/n
       <p>Text
@@ -182,7 +182,7 @@ exports[`Regression internal: included-item.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
       <p>Included item text
       </p>/n/n","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -247,7 +247,7 @@ exports[`Regression internal: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1"}],"title":""},"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{}},"meta":{},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -275,7 +275,7 @@ exports[`Regression internal: index.yaml 1`] = `
     href: ./1.md
   - name: Link 2
     href: ./1
-title: ''
+meta: {}
 "
 `;
 
@@ -312,7 +312,7 @@ exports[`Regression internal: merge/merge.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
       <p>
       <a href=\\"merge/merged.html\\">merged
       </a>
@@ -381,7 +381,7 @@ exports[`Regression internal: merge/merged.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"sourcePath":"merge-source/merged.md","metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"sourcePath":"merge-source/merged.md"},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
       <p>Should be linked in toc.yaml
       </p>/n","leading":false},"router":{"pathname":"merge/merged","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -459,7 +459,7 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":[],"script":[],"csp":[]},"assets":[],"headings":[],"title":"Item 1","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Item 1","includes":[],"html":"
       <p>Item 1 text
       </p>/n","leading":false},"router":{"pathname":"sub/folder/item-1","depth":3},"lang":"ru","langs":["ru"]};
     </script>
