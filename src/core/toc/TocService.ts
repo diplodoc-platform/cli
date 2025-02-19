@@ -171,6 +171,48 @@ export class TocService {
         return await getHooks(this).Dump.promise(toc, file);
     }
 
+    @bounded async getTocItemAccessMeta(path: string): Promise<Record<string, string>> {
+        const prop = 'restricted-access';
+        const tocPath = this.for(path as RelativePath);
+        const langBasePath = path.replace(/\\/g, '/').split('/')[0];
+        const fileName = path.replace(`${langBasePath}/`, '');
+        const toc = await this.dump(tocPath);
+
+        if (!toc?.items) {
+            return {};
+        }
+
+        const acc: Record<string, string> = {};
+
+        await this.walkItems(toc.items, (item: TocItem) => {
+            if (own(item, prop) && item.href === fileName) {
+                acc[prop] = item[prop] as keyof TocItem;
+                return;
+            }
+
+            if (own(item, prop) && item.items?.length) {
+                // eslint-disable-next-line consistent-return
+                return {
+                    ...item,
+                    items: item.items.reduce((res, nested) => {
+                        if (!own(nested, prop)) {
+                            res.push({
+                                ...nested,
+                                [prop]: item[prop],
+                            });
+                        }
+
+                        return res;
+                    }, [] as TocItem[]),
+                };
+            }
+
+            return;
+        });
+
+        return acc;
+    }
+
     /**
      * Visits all passed items. Applies actor to each item.
      * Then applies actor to each item in actor result.items.

@@ -9,6 +9,7 @@ import {composeFrontMatter, extractFrontMatter} from '@diplodoc/transform/lib/fr
 type FrontMatterVars = {
     metadataVars?: VarsMetadata;
     systemVars?: unknown;
+    tocMetadata?: Record<string, string>;
 };
 
 type EnrichWithFrontMatterOptions = {
@@ -29,7 +30,7 @@ export const enrichWithFrontMatter = async (
     run: Run,
     {fileContent, metadataOptions, resolvedFrontMatterVars}: EnrichWithFrontMatterOptions,
 ) => {
-    const {systemVars, metadataVars} = resolvedFrontMatterVars;
+    const {systemVars, metadataVars, tocMetadata} = resolvedFrontMatterVars;
     const {resources, addSystemMeta, shouldAlwaysAddVCSPath, pathData} = metadataOptions;
 
     const [frontMatter, strippedContent] = extractFrontMatter(fileContent, pathData.pathToFile);
@@ -50,6 +51,7 @@ export const enrichWithFrontMatter = async (
                     ? resolveVCSPath(frontMatter, pathData.pathToFile)
                     : undefined),
             ...vcsFrontMatter,
+            tocMetadata,
         },
     });
 
