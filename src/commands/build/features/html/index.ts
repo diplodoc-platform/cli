@@ -8,7 +8,7 @@ import {v4 as uuid} from 'uuid';
 import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
-import {isExternalHref, normalizePath, own} from '~/core/utils';
+import {fallbackLang, isExternalHref, normalizePath, own} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
@@ -62,7 +62,7 @@ export class Html {
 
                         return preprocess(
                             leading as ConfigData,
-                            {lang} as PreloadParams,
+                            {lang: fallbackLang(lang)} as PreloadParams,
                             (_lang, content) => {
                                 const {result} = transformMd(run, path, content, vars, lang);
                                 return result?.html;
