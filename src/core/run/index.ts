@@ -52,7 +52,13 @@ export class Run<TConfig = BaseConfig> {
         this.logger = new RunLogger(config, [
             (_level, message) => {
                 for (const [alias, scope] of this.scopes.entries()) {
-                    message = message.replace(new RegExp(scope, 'ig'), alias);
+                    const clean = message.replace(new RegExp(scope, 'ig'), alias);
+
+                    if (clean === alias) {
+                        return message;
+                    }
+
+                    message = clean;
                 }
 
                 return message;
@@ -194,8 +200,9 @@ export class Run<TConfig = BaseConfig> {
     }
 
     private async assertProjectScope(path: AbsolutePath) {
+        const scopes = [...this.scopes.values()];
         const realpath = await this.realpath(path);
-        const isInScope = [...this.scopes.values()].some((scope) => realpath[0].startsWith(scope));
-        ok(isInScope, new InsecureAccessError(path, realpath));
+        const isInScope = scopes.some((scope) => realpath[0].startsWith(scope));
+        ok(isInScope, new InsecureAccessError(path, realpath, scopes));
     }
 }
