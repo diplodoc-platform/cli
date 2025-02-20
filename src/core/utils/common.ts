@@ -43,3 +43,11 @@ export function errorMessage(error: unknown): string {
 
     return String(error);
 }
+
+export function fallbackLang(lang: string) {
+    if (['kz', 'ua', 'be', 'ru'].includes(lang)) {
+        return 'ru';
+    }
+
+    return 'en';
+}
