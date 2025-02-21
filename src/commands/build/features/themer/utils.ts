@@ -74,10 +74,6 @@ export const generateBrandShades = ({
 export function createTheme(configData: ThemeConfig): Theme {
     const theme: Theme = {};
 
-    // if (configData['base-background']) {
-    //     delete configData['base-background'];
-    // }
-
     for (const key of BRAND_COLOR_KEYS) {
         if (configData[key]) {
             configData.light = configData.light ?? {};
