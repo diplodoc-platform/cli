@@ -1,0 +1,8 @@
+base-brand: rgb(94 33 41)
+
+dark:
+  base-brand: yellow
+  note-info-background: blue
+
+light:
+  text-brand: rgb(0, 255, 0)
