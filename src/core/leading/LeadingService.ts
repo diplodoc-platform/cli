@@ -70,6 +70,8 @@ export class LeadingService {
         const meta = leading.meta || {};
         delete leading.meta;
 
+        await getHooks(this).Loaded.promise(leading, meta, file);
+
         this.run.meta.addMetadata(path, context.vars.__metadata);
         // TODO: Move to SystemVars feature
         this.run.meta.addSystemVars(path, context.vars.__system);
@@ -96,13 +98,12 @@ export class LeadingService {
         return leading;
     }
 
-    @bounded async dump<T extends object = object>(path: RelativePath): Promise<T> {
+    @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
         const file = normalizePath(path);
-        const leading = await this.load(file);
 
         leading.meta = await this.run.meta.dump(file);
 
-        return getHooks(this).Dump.promise(leading, file) as T;
+        return getHooks(this).Dump.promise(leading, file);
     }
 
     @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string) {

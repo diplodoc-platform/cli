@@ -16,6 +16,10 @@ export function hooks(name: string) {
             `${name}.Asset`,
         ),
         Plugins: new AsyncSeriesWaterfallHook<[Plugin[]]>(['plugins'], `${name}.Plugins`),
+        Loaded: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, DeepFrozen<Meta>, RelativePath]>(
+            ['leading', 'meta', 'path'],
+            `${name}.Loaded`,
+        ),
         Resolved: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, DeepFrozen<Meta>, RelativePath]>(
             ['leading', 'meta', 'path'],
             `${name}.Resolved`,
