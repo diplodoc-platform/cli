@@ -7,7 +7,7 @@ import {dirname, join} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
-import {bounded, normalizePath} from '~/core/utils';
+import {bounded, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
 import {InsecureAccessError} from './errors';
@@ -67,6 +67,20 @@ export class Run<TConfig = BaseConfig> {
     }
 
     /**
+     * This method is especially written in sync mode to use in run.write method.
+     */
+    @bounded exists(path: AbsolutePath) {
+        this.assertProjectScope(path);
+
+        try {
+            this.fs.statSync(path);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+
+    /**
      * Run.input bounded read helper
      *
      * Asserts file path is in project scope.
@@ -91,11 +105,21 @@ export class Run<TConfig = BaseConfig> {
      *
      * @param {AbsolutePath} path - unixlike absolute path to file
      * @param {string} content - file content
+     * @param {boolean} force - ignore file exists
      *
      * @returns {Promise<void>}
      */
-    @bounded async write(path: AbsolutePath, content: string) {
+    @bounded async write(path: AbsolutePath, content: string, force = false) {
         this.assertProjectScope(path);
+
+        // Move write to next task instead of process it in current microtask.
+        // This allow to detect already created files in parallel processing.
+        await wait(1);
+
+        // Sync exists check can detect created file as fast as possible.
+        if (this.exists(path) && !force) {
+            return;
+        }
 
         await this.fs.mkdir(dirname(path), {recursive: true});
         await this.fs.unlink(path).catch(() => {});
