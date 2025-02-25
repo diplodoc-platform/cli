@@ -15,7 +15,7 @@ import {getHooks as getLeadingHooks} from '~/core/leading';
 import {ASSETS_FOLDER} from '~/constants';
 import {transformMd} from '~/resolvers';
 
-export class Html {
+export class OutputHtml {
     apply(program: Build) {
         getBuildHooks(program)
             .BeforeRun.for('html')

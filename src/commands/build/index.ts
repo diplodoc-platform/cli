@@ -27,8 +27,8 @@ import {SinglePage} from './features/singlepage';
 import {Redirects} from './features/redirects';
 import {Lint} from './features/linter';
 import {Changelogs} from './features/changelogs';
-import {Html} from './features/html';
 import {OutputMd} from './features/output-md';
+import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
 
@@ -80,9 +80,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly changelogs = new Changelogs();
 
-    readonly html = new Html();
     readonly md = new OutputMd();
 
+    readonly html = new OutputHtml();
 
     readonly search = new Search();
 
