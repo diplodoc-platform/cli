@@ -10,3 +10,11 @@ export function normalizePath(path: string): NormalizedPath {
 export function isRelativePath(path: string): path is RelativePath {
     return !isExternalHref(path) && !isAbsolute(path);
 }
+
+export function langFromPath(path: string, config: {lang?: string; langs: string[]}) {
+    const {lang, langs} = config;
+    const pathBaseLang = normalizePath(path).split('/')[0];
+    const pathLang = langs.includes(pathBaseLang) && pathBaseLang;
+
+    return pathLang || lang || langs[0];
+}
