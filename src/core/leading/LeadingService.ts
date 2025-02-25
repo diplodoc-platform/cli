@@ -10,7 +10,7 @@ import {cloneDeepWith, isString} from 'lodash';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {bounded, isRelativePath, normalizePath} from '~/core/utils';
+import {bounded, isRelativePath, langFromPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
@@ -114,16 +114,12 @@ export class LeadingService {
     }
 
     private async loaderContext(path: NormalizedPath): Promise<LoaderContext> {
-        const {lang, langs} = this.config;
-        const pathBaseLang = path.split('/')[0];
-        const pathLang = langs.includes(pathBaseLang) && pathBaseLang;
-
         const vars = await this.run.vars.load(path);
 
         return {
             path,
             vars,
-            lang: pathLang || lang || langs[0],
+            lang: langFromPath(path, this.config),
             plugins: [...this.plugins],
             options: {
                 resolveConditions: this.config.template.features.conditions,
