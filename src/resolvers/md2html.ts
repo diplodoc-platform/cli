@@ -13,6 +13,7 @@ import {Lang, PROCESSING_FINISHED} from '~/constants';
 import {ArgvService, PluginService} from '~/services';
 import {getDepth, getVarsPerRelativeFile, mangleFrontMatter} from '~/utils';
 import {generateStaticMarkup} from '~/pages';
+import {langFromPath} from '~/core/utils';
 
 const getFileData = async (run: Run, path: NormalizedPath, lang: string) => {
     const extension = extname(path);
@@ -38,13 +39,9 @@ const getFileData = async (run: Run, path: NormalizedPath, lang: string) => {
 };
 
 const getFileProps = async (run: Run, path: NormalizedPath) => {
-    const {lang: configLang, langs, analytics, search} = run.config;
+    const {langs, analytics, search} = run.config;
     const pathname = path.replace(extname(path), '');
-
-    const tocBaseLang = path.split('/')[0];
-    const tocLang = langs.includes(tocBaseLang as Lang) && tocBaseLang;
-
-    const lang = tocLang || configLang || langs?.[0] || Lang.RU;
+    const lang = langFromPath(path, run.config);
 
     const data = await getFileData(run, path, lang);
 
