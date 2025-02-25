@@ -102,10 +102,7 @@ declare module 'node:path' {
 declare module 'node:fs/promises' {
     import {BufferEncoding, ObjectEncodingOptions} from 'node:fs';
 
-    export function readFile(
-        path: AbsolutePath,
-        options: ObjectEncodingOptions | BufferEncoding,
-    ): Promise<string>;
+    export function readFile(path: AbsolutePath, options: EncodingOption): Promise<string>;
 
     export function realpath(
         path: AbsolutePath,

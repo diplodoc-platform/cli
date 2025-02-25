@@ -1,8 +1,6 @@
 import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
-import {join} from 'node:path';
-import {dump} from 'js-yaml';
 
 import {
     BaseProgram,
@@ -11,9 +9,7 @@ import {
     withConfigScope,
 } from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, configPath, defined, valuable} from '~/core/config';
-import {getHooks as getTocHooks} from '~/core/toc';
-import {getHooks as getLeadingHooks} from '~/core/leading';
+import {Command, defined, valuable} from '~/core/config';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
@@ -32,6 +28,7 @@ import {Redirects} from './features/redirects';
 import {Lint} from './features/linter';
 import {Changelogs} from './features/changelogs';
 import {Html} from './features/html';
+import {OutputMd} from './features/output-md';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
 
@@ -84,6 +81,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly changelogs = new Changelogs();
 
     readonly html = new Html();
+    readonly md = new OutputMd();
+
 
     readonly search = new Search();
 
@@ -160,42 +159,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
             return config;
         });
-
-        getHooks(this)
-            .BeforeRun.for('md')
-            .tap('Build', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build', async (_toc, path) => {
-                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
-                });
-
-                const isMediaLink = (link: string) =>
-                    /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/.test(link);
-
-                getLeadingHooks(run.leading).Asset.tapPromise(
-                    'Build',
-                    async (asset: RelativePath) => {
-                        if (!isMediaLink(asset)) {
-                            return;
-                        }
-
-                        try {
-                            await run.copy(join(run.input, asset), join(run.output, asset));
-                        } catch (error) {
-                            // TODO: Move to error strategy
-                            run.logger.warn(`Unable to copy resource asset ${asset}.`, error);
-                        }
-                    },
-                );
-            });
-
-        getHooks(this)
-            .AfterRun.for('md')
-            .tapPromise('Build', async (run) => {
-                // TODO: save normalized config instead
-                if (run.config[configPath]) {
-                    await run.copy(run.config[configPath], join(run.output, '.yfm'));
-                }
-            });
 
         super.apply(program);
     }
