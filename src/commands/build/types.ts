@@ -1,6 +1,5 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
-import type {Resources} from '~/core/meta';
 import type {Config} from '~/core/config';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
@@ -9,6 +8,7 @@ import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
+import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {OutputFormat} from './config';
 
 type BaseArgs = {output: AbsolutePath};
@@ -32,9 +32,6 @@ type BaseConfig = {
     mergeIncludes: boolean;
     // TODO(major): use as default behavior
     staticContent: boolean;
-    // TODO: move to isolated feature?
-    allowCustomResources: boolean;
-    resources: Resources;
     // TODO: explicitly handle
     analytics: DocAnalytics;
 };
@@ -48,7 +45,8 @@ export type BuildArgs = ProgramArgs &
             LintArgs &
             ChangelogsArgs &
             SearchArgs &
-            LegacyArgs
+            LegacyArgs &
+            CustomResourcesArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -60,7 +58,8 @@ export type BuildRawConfig = BaseArgs &
     LintRawConfig &
     ChangelogsConfig &
     SearchRawConfig &
-    LegacyRawConfig;
+    LegacyRawConfig &
+    CustomResourcesConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -72,5 +71,6 @@ export type BuildConfig = Config<
         LintConfig &
         ChangelogsConfig &
         SearchConfig &
-        LegacyConfig
+        LegacyConfig &
+        CustomResourcesConfig
 >;
