@@ -19,7 +19,7 @@ export async function handler(run: Run) {
 
         await Promise.all([processLinter(run), processPages(run)]);
 
-        await processChangelogs();
+        await processChangelogs(run);
     } catch (error) {
         run.logger.error(error);
     } finally {
