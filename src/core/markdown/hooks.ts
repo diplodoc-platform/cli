@@ -1,4 +1,4 @@
-import type {LeadingPage, Plugin} from './types';
+import type {Plugin} from './types';
 
 import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
 
@@ -8,13 +8,9 @@ import {Meta} from '~/core/meta';
 export function hooks(name: string) {
     return {
         Plugins: new AsyncSeriesWaterfallHook<[Plugin[]]>(['plugins'], `${name}.Plugins`),
-        Loaded: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, DeepFrozen<Meta>, NormalizedPath]>(
-            ['leading', 'meta', 'path'],
+        Loaded: new AsyncSeriesHook<[string, DeepFrozen<Meta>, NormalizedPath]>(
+            ['markdown', 'meta', 'path'],
             `${name}.Loaded`,
-        ),
-        Resolved: new AsyncSeriesHook<[DeepFrozen<LeadingPage>, DeepFrozen<Meta>, NormalizedPath]>(
-            ['leading', 'meta', 'path'],
-            `${name}.Resolved`,
         ),
         /**
          * Emits relative to root asset path on each local link in Leading.
@@ -24,13 +20,17 @@ export function hooks(name: string) {
             ['asset', 'path'],
             `${name}.Asset`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[LeadingPage, NormalizedPath]>(
-            ['leading', 'path'],
+        Resolved: new AsyncSeriesHook<[string, DeepFrozen<Meta>, NormalizedPath]>(
+            ['markdown', 'meta', 'path'],
+            `${name}.Resolved`,
+        ),
+        Dump: new AsyncSeriesWaterfallHook<[string, NormalizedPath]>(
+            ['markdown', 'path'],
             `${name}.Dump`,
         ),
     };
 }
 
-const [getHooks, withHooks] = generateHooksAccess('Leading', hooks);
+const [getHooks, withHooks] = generateHooksAccess('Markdown', hooks);
 
 export {getHooks, withHooks};

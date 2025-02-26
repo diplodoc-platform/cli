@@ -1,9 +1,10 @@
 import type {DocInnerProps} from '@diplodoc/client';
 import type {Run} from '~/commands/build';
+
 import {join} from 'node:path';
 import {existsSync} from 'fs';
-import {asyncify, mapLimit} from 'async';
 import {bold} from 'chalk';
+import pmap from 'p-map';
 
 import {
     Lang,
@@ -28,10 +29,9 @@ export async function processPages(run: Run): Promise<void> {
 
     PluginService.setPlugins();
 
-    await mapLimit(
+    await pmap(
         run.toc.entries,
-        PAGE_PROCESS_CONCURRENCY,
-        asyncify(async (path: NormalizedPath) => {
+        async (path: NormalizedPath) => {
             run.logger.proc(path);
 
             const info = await preparingPagesByOutputFormat(run, path);
@@ -43,7 +43,8 @@ export async function processPages(run: Run): Promise<void> {
                     savePageResultForSinglePage(info, path, run.toc.dir(path));
                 }
             }
-        }),
+        },
+        {concurrency: PAGE_PROCESS_CONCURRENCY},
     );
 
     if (singlePage) {
@@ -97,7 +98,7 @@ async function saveSinglePages(run: Run) {
                 const singlePageDataFn = join(run.output, tocDir, SINGLE_PAGE_DATA_FILENAME);
                 const singlePageContent = generateStaticMarkup(
                     pageData,
-                    {path: join(relativeTocDir, 'single-page-toc'), content: toc},
+                    join(relativeTocDir, 'single-page-toc'),
                     (toc.title as string) || '',
                 );
 
@@ -148,24 +149,16 @@ function savePageResultForSinglePage(
     });
 }
 
-export type ResolverResult = {
-    result: string;
-    info: DocInnerProps;
-};
+export type ResolverResult = DocInnerProps;
 
 async function preparingPagesByOutputFormat(run: Run, path: RelativePath): Promise<DocInnerProps> {
     const {outputFormat} = run.config;
 
     const file = normalizePath(path);
     const resolver = outputFormat === 'html' ? resolveToHtml : resolveToMd;
-    const outputPath = outputFormat === 'html' ? path.replace(/\.(md|y?aml)$/i, '.html') : path;
 
     try {
-        const {result, info} = await resolver(run, file);
-
-        await run.write(join(run.output, outputPath), result);
-
-        return info;
+        return resolver(run, file);
     } catch (e) {
         const message = `No such file or has no access to ${bold(join(run.input, path))}`;
 

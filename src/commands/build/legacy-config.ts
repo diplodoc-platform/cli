@@ -6,16 +6,10 @@ export function legacyConfig(run: Run): YfmArgv {
 
     return {
         rootInput: run.originalInput,
-        input: run.input,
-        output: run.output,
-        staticContent: config.staticContent,
-        langs: config.langs,
-        lang: config.lang,
-        singlePage: config.singlePage,
-        outputFormat: config.outputFormat,
         allowHTML: config.allowHtml,
         needToSanitizeHtml: config.sanitizeHtml,
         useLegacyConditions: config.useLegacyConditions,
+        supportGithubAnchors: Boolean(config.supportGithubAnchors),
 
         applyPresets: config.template.features.substitutions,
         resolveConditions: config.template.features.conditions,
@@ -25,9 +19,5 @@ export function legacyConfig(run: Run): YfmArgv {
         lintDisabled: !config.lint.enabled,
         // @ts-ignore
         lintConfig: config.lint.config,
-
-        changelogs: config.changelogs,
-
-        included: config.mergeIncludes,
     };
 }

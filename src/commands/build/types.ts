@@ -37,6 +37,7 @@ type BaseConfig = {
     resources: Resources;
     // TODO: explicitly handle
     analytics: DocAnalytics;
+    supportGithubAnchors?: boolean;
 };
 
 export type BuildArgs = ProgramArgs &

@@ -52,6 +52,27 @@ export function fallbackLang(lang: string) {
     return 'en';
 }
 
+export class Defer<T = any> {
+    promise: Promise<T>;
+
+    resolve!: (result: T) => void;
+
+    reject!: (error: Error) => void;
+
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
+
+    dispose() {
+        this.resolve = () => {};
+        this.reject = () => {};
+        this.promise = Promise.reject('Defer is already disposed.');
+    }
+}
+
 export function wait(delay: number) {
     return new Promise((resolve) => {
         setTimeout(resolve, delay);

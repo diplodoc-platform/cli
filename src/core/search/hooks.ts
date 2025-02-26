@@ -22,8 +22,7 @@ const [getHooksInternal, withHooks, Hooks] = generateHooksAccess('Search', hooks
 function getHooks<TConfig = SearchServiceConfig['search']>(
     holder:
         | {
-              // @ts-ignore
-              [Hooks]: ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
+              [Hooks]?: ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
           }
         | undefined,
 ) {

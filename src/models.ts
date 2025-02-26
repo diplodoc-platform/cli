@@ -15,16 +15,11 @@ export type YfmPreset = Record<string, string> & {
 export type Metadata = Record<string, any>;
 
 interface YfmConfig {
-    outputFormat: string;
     allowHTML: boolean;
     applyPresets: boolean;
     resolveConditions: boolean;
     conditionsInCode: boolean;
     disableLiquid: boolean;
-    singlePage: boolean;
-    included: boolean;
-    lang?: string;
-    langs?: string[];
     lintDisabled: boolean;
     lintConfig: LintConfig;
     needToSanitizeHtml: boolean;
@@ -33,18 +28,12 @@ interface YfmConfig {
      * true -> extract changelogs
      * <URL> -> extract and push to s3
      */
-    changelogs: string | boolean;
     useLegacyConditions?: boolean;
+    supportGithubAnchors: boolean;
 }
 
 export interface YfmArgv extends YfmConfig {
     rootInput: string;
-    input: string;
-    output: string;
-    contributors: boolean;
-    ignoreAuthorPatterns: string[];
-    allowCustomResources: boolean;
-    staticContent: boolean;
 }
 
 export interface LeadingPage {
