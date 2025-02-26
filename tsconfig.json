@@ -13,6 +13,10 @@
       "@diplodoc/cli/commands/*": ["./src/commands/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "src/path.d.ts",
+    "src/globals.d.ts",
+    "src"
+  ],
   "types": ["node"]
 }
