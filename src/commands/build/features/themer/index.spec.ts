@@ -1,250 +1,218 @@
-import {compareDirectories} from './__tests__';
-import {getTestPaths, runYfmDocs} from '~/../tests/utils';
-import {describe, it, expect} from 'vitest';
-import {join} from 'node:path';
-import {createCSS, createTheme} from './utils';
-import {Theme, ThemeConfig} from './types';
-
-const generateMapTestTemplate = (
-    testTitle: string,
-    testRootPath: string,
-    {md2md = true, md2html = true, args = ''},
-) => {
-    it(testTitle, () => {
-        const {inputPath, outputPath} = getTestPaths(join(__dirname, testRootPath));
-        runYfmDocs(inputPath, outputPath, {md2md, md2html, args});
-        compareDirectories(outputPath);
-    });
-};
+import {describe, it, vi, expect, beforeEach, afterEach} from 'vitest';
+import {runBuild, setupBuild, testConfig as test} from '../../__tests__';
+import dedent from 'ts-dedent';
+import {resolve} from 'node:path';
+import * as utils from './utils';
+import {THEME_CSS_PATH} from '~/constants';
+import {DEFAULT_BRAND_DEPEND_COLORS} from './constants';
 
 describe('Build themer feature', () => {
-    describe('Apply theme', () => {
-        generateMapTestTemplate('md2md with theme yaml', '__tests__/mocks/md2md-with-theme-yaml', {
-            md2html: false,
+    describe('config', () => {
+        afterEach(() => {
+            vi.restoreAllMocks();
+        });
+        
+        test('should handle default', '', {
+            theme: false,
         });
 
-        generateMapTestTemplate(
-            'md2html with theme yaml',
-            '__tests__/mocks/md2html-with-theme-yaml',
-            {
-                md2md: false,
-            },
-        );
-    });
-
-    describe('Create theme', () => {
-        it('Light and dark themes', () => {
-            const config: ThemeConfig = {
-                light: {
-                    'text-brand': 'rgb(0, 255, 0)',
-                    'base-misc-light': '#F80000',
-                },
-                dark: {
-                    'note-info-background': 'rgb(0 0 255)',
-                    'note-tip-background': 'rgb(106,90,205)',
-                },
-            };
-            const theme = createTheme(config);
-
-            const expectedTheme: Theme = {
-                light: {
-                    colors: {'text-brand': 'rgb(0, 255, 0)', 'base-misc-light': '#F80000'},
-                },
-                dark: {
-                    colors: {
-                        'note-info-background': 'rgb(0 0 255)',
-                        'note-tip-background': 'rgb(106,90,205)',
-                    },
-                },
-            };
-            expect(theme).toEqual(expectedTheme);
-        });
-
-        it('Brand colors from general', () => {
-            const config: ThemeConfig = {
-                'base-brand': 'rgb(94 33 41)',
-            };
-            const theme = createTheme(config);
-
-            const expectedTheme: Theme = {
-                base: {colors: {'base-brand': 'rgb(94 33 41)'}},
-                light: {
-                    colors: {
-                        'base-brand': 'rgb(94 33 41)',
-                        'base-background': 'rgb(255,255,255)',
-                        'base-brand-hover': 'var(--g-color-private-brand-650-solid)',
-                        'base-selection': 'var(--g-color-private-brand-150)',
-                        'base-selection-hover': 'var(--g-color-private-brand-300)',
-                        'text-link': 'var(--g-color-private-brand-700-solid)',
-                        'text-link-hover': 'var(--g-color-private-brand-850-solid)',
-                        'text-brand': 'var(--g-color-private-brand-700-solid)',
-                        'text-brand-heavy': 'var(--g-color-private-brand-850-solid)',
-                        'line-brand': 'var(--g-color-private-brand-550-solid)',
-                    },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
-                        '150': 'rgb(94 33 41 / 0.2)',
-                        '200': 'rgb(94 33 41 / 0.3)',
-                        '250': 'rgb(94 33 41 / 0.4)',
-                        '300': 'rgb(94 33 41 / 0.5)',
-                        '350': 'rgb(94 33 41 / 0.6)',
-                        '400': 'rgb(94 33 41 / 0.7)',
-                        '450': 'rgb(94 33 41 / 0.8)',
-                        '500': 'rgb(94 33 41 / 0.9)',
-                        '550-solid': 'rgb(94 33 41)',
-                        '1000-solid': 'rgb(52 42 50)',
-                        '950-solid': 'rgb(55 42 49)',
-                        '900-solid': 'rgb(60 41 48)',
-                        '850-solid': 'rgb(65 40 47)',
-                        '800-solid': 'rgb(70 39 46)',
-                        '750-solid': 'rgb(74 37 45)',
-                        '700-solid': 'rgb(79 36 44)',
-                        '650-solid': 'rgb(84 35 43)',
-                        '600-solid': 'rgb(89 34 42)',
-                        '500-solid': 'rgb(89 34 42)',
-                        '450-solid': 'rgb(84 35 43)',
-                        '400-solid': 'rgb(79 36 44)',
-                        '350-solid': 'rgb(74 37 45)',
-                        '300-solid': 'rgb(70 39 46)',
-                        '250-solid': 'rgb(65 40 47)',
-                        '200-solid': 'rgb(60 41 48)',
-                        '150-solid': 'rgb(55 42 49)',
-                        '100-solid': 'rgb(52 42 50)',
-                        '50-solid': 'rgb(50 43 50)',
-                    },
-                },
-                dark: {
-                    colors: {
-                        'base-brand': 'rgb(94 33 41)',
-                        'base-background': 'rgb(45, 44, 51)',
-                        'base-brand-hover': 'var(--g-color-private-brand-650-solid)',
-                        'base-selection': 'var(--g-color-private-brand-150)',
-                        'base-selection-hover': 'var(--g-color-private-brand-300)',
-                        'text-link': 'var(--g-color-private-brand-600-solid)',
-                        'text-link-hover': 'var(--g-color-private-brand-850-solid)',
-                        'text-brand': 'var(--g-color-private-brand-600-solid)',
-                        'text-brand-heavy': 'var(--g-color-private-brand-850-solid)',
-                        'line-brand': 'var(--g-color-private-brand-550-solid)',
-                    },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
-                        '150': 'rgb(94 33 41 / 0.2)',
-                        '200': 'rgb(94 33 41 / 0.3)',
-                        '250': 'rgb(94 33 41 / 0.4)',
-                        '300': 'rgb(94 33 41 / 0.5)',
-                        '350': 'rgb(94 33 41 / 0.6)',
-                        '400': 'rgb(94 33 41 / 0.7)',
-                        '450': 'rgb(94 33 41 / 0.8)',
-                        '500': 'rgb(94 33 41 / 0.9)',
-                        '550-solid': 'rgb(94 33 41)',
-                        '1000-solid': 'rgb(231 222 223)',
-                        '950-solid': 'rgb(223 211 212)',
-                        '900-solid': 'rgb(207 188 191)',
-                        '850-solid': 'rgb(191 166 169)',
-                        '800-solid': 'rgb(175 144 148)',
-                        '750-solid': 'rgb(158 122 127)',
-                        '700-solid': 'rgb(142 100 105)',
-                        '650-solid': 'rgb(126 77 84)',
-                        '600-solid': 'rgb(110 55 62)',
-                        '500-solid': 'rgb(110 55 62)',
-                        '450-solid': 'rgb(126 77 84)',
-                        '400-solid': 'rgb(142 100 105)',
-                        '350-solid': 'rgb(158 122 127)',
-                        '300-solid': 'rgb(175 144 148)',
-                        '250-solid': 'rgb(191 166 169)',
-                        '200-solid': 'rgb(207 188 191)',
-                        '150-solid': 'rgb(223 211 212)',
-                        '100-solid': 'rgb(231 222 223)',
-                        '50-solid': 'rgb(239 233 234)',
-                    },
-                },
-            };
-            expect(theme).toEqual(expectedTheme);
+        test('should handle arg', "--theme 'note-info-background: rgb(40, 216, 105)'", {
+            theme: 'note-info-background: rgb(40, 216, 105)',
         });
     });
 
-    describe('create css', () => {
-        it('Create base css', () => {
-            const Theme: Theme = {
-                base: {
-                    colors: {
-                        'base-brand': 'rgb(94 33 41)',
-                        'note-tip-background': 'rgb(106, 90, 205)',
-                    },
-                },
-            };
-            expect(createCSS(Theme)).toMatchSnapshot();
+    describe('run', () => {
+        const args = (...args: string[]) =>
+            '-i /dev/null/input -o /dev/null/output ' + args.join(' ');
+
+        describe('no theme', () => {
+            it('should not create theme for html build', async () => {
+                const build = setupBuild();
+
+                await runBuild(args(), build);
+
+                expect(build.run.write).not.toHaveBeenCalled();
+            });
+
+            it('should not create theme for md build', async () => {
+                const build = setupBuild();
+
+                await runBuild(args('-f', 'md'), build);
+
+                expect(build.run.write).not.toHaveBeenCalled();
+            });
         });
 
-        it('Create light css', () => {
-            const Theme: Theme = {
-                light: {
-                    colors: {
-                        'base-brand': 'rgb(48, 149, 232)',
-                        'base-background': 'rgb(255,255,255)',
+        describe('from file', () => {
+            beforeEach(() => {
+                vi.spyOn(utils, 'isThemeFileExists').mockReturnValue(true);
+            });
+
+            afterEach(() => {
+                vi.restoreAllMocks();
+            });
+
+            it('should create theme for html', async () => {
+                const build = setupBuild({
+                    files: {
+                        'theme.yaml': dedent`
+                        base-misc-light: blue
+                    `,
                     },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
+                });
+
+                await runBuild(args(), build);
+
+                expect(build.run.write).toHaveBeenCalledWith(
+                    resolve(build.run.originalOutput, THEME_CSS_PATH),
+                    `.g-root {\n    --g-color-base-misc-light: blue;\n}`,
+                );
+            });
+
+            it('should create theme for md ', async () => {
+                const build = setupBuild({
+                    files: {
+                        'theme.yaml': dedent`
+                        base-misc-light: blue
+                    `,
                     },
-                },
-            };
-            expect(createCSS(Theme)).toMatchSnapshot();
+                });
+
+                await runBuild(args('-f', 'md'), build);
+
+                expect(build.run.write).toHaveBeenCalledWith(
+                    resolve(build.run.originalOutput, THEME_CSS_PATH),
+                    dedent`
+                .g-root {
+                    --g-color-base-misc-light: blue;
+                }`,
+                );
+            });
+
+            it('should create theme with base-brand', async () => {
+                const build = setupBuild({
+                    files: {
+                        'theme.yaml': dedent`
+                        base-brand: rgb(78, 231, 228)
+                        light:
+                    `,
+                    },
+                });
+
+                await runBuild(args(), build);
+
+                const expectedString = dedent`
+            .g-root {
+                --g-color-base-brand: rgb(78, 231, 228);
+            }
+
+            .g-root_theme_light {
+                --g-color-private-brand-50: rgb(78 231 228 / 0.1);
+                --g-color-private-brand-100: rgb(78 231 228 / 0.15);
+                --g-color-private-brand-150: rgb(78 231 228 / 0.2);
+                --g-color-private-brand-200: rgb(78 231 228 / 0.3);
+                --g-color-private-brand-250: rgb(78 231 228 / 0.4);
+                --g-color-private-brand-300: rgb(78 231 228 / 0.5);
+                --g-color-private-brand-350: rgb(78 231 228 / 0.6);
+                --g-color-private-brand-400: rgb(78 231 228 / 0.7);
+                --g-color-private-brand-450: rgb(78 231 228 / 0.8);
+                --g-color-private-brand-500: rgb(78 231 228 / 0.9);
+                --g-color-private-brand-550-solid: rgb(78 231 228);
+                --g-color-private-brand-1000-solid: rgb(50 72 78);
+                --g-color-private-brand-950-solid: rgb(52 81 86);
+                --g-color-private-brand-900-solid: rgb(55 100 104);
+                --g-color-private-brand-850-solid: rgb(58 119 122);
+                --g-color-private-brand-800-solid: rgb(62 138 140);
+                --g-color-private-brand-750-solid: rgb(65 156 157);
+                --g-color-private-brand-700-solid: rgb(68 175 175);
+                --g-color-private-brand-650-solid: rgb(71 194 193);
+                --g-color-private-brand-600-solid: rgb(75 212 210);
+                --g-color-private-brand-500-solid: rgb(75 212 210);
+                --g-color-private-brand-450-solid: rgb(71 194 193);
+                --g-color-private-brand-400-solid: rgb(68 175 175);
+                --g-color-private-brand-350-solid: rgb(65 156 157);
+                --g-color-private-brand-300-solid: rgb(62 138 140);
+                --g-color-private-brand-250-solid: rgb(58 119 122);
+                --g-color-private-brand-200-solid: rgb(55 100 104);
+                --g-color-private-brand-150-solid: rgb(52 81 86);
+                --g-color-private-brand-100-solid: rgb(50 72 78);
+                --g-color-private-brand-50-solid: rgb(48 63 69);
+                --g-color-base-brand: rgb(78, 231, 228);
+                --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-background']};
+                --g-color-base-brand-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-brand-hover']};
+                --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-selection']};
+                --g-color-base-selection-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-selection-hover']};
+                --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link']};
+                --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link-hover']};
+                --g-color-text-brand: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-brand']};
+                --g-color-text-brand-heavy: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-brand-heavy']};
+                --g-color-line-brand: ${DEFAULT_BRAND_DEPEND_COLORS.light['line-brand']};
+            }
+
+            .g-root_theme_dark {
+                --g-color-private-brand-50: rgb(78 231 228 / 0.1);
+                --g-color-private-brand-100: rgb(78 231 228 / 0.15);
+                --g-color-private-brand-150: rgb(78 231 228 / 0.2);
+                --g-color-private-brand-200: rgb(78 231 228 / 0.3);
+                --g-color-private-brand-250: rgb(78 231 228 / 0.4);
+                --g-color-private-brand-300: rgb(78 231 228 / 0.5);
+                --g-color-private-brand-350: rgb(78 231 228 / 0.6);
+                --g-color-private-brand-400: rgb(78 231 228 / 0.7);
+                --g-color-private-brand-450: rgb(78 231 228 / 0.8);
+                --g-color-private-brand-500: rgb(78 231 228 / 0.9);
+                --g-color-private-brand-550-solid: rgb(78 231 228);
+                --g-color-private-brand-1000-solid: rgb(228 251 251);
+                --g-color-private-brand-950-solid: rgb(220 250 250);
+                --g-color-private-brand-900-solid: rgb(202 248 247);
+                --g-color-private-brand-850-solid: rgb(184 245 244);
+                --g-color-private-brand-800-solid: rgb(167 243 242);
+                --g-color-private-brand-750-solid: rgb(149 241 239);
+                --g-color-private-brand-700-solid: rgb(131 238 236);
+                --g-color-private-brand-650-solid: rgb(113 236 233);
+                --g-color-private-brand-600-solid: rgb(96 233 231);
+                --g-color-private-brand-500-solid: rgb(96 233 231);
+                --g-color-private-brand-450-solid: rgb(113 236 233);
+                --g-color-private-brand-400-solid: rgb(131 238 236);
+                --g-color-private-brand-350-solid: rgb(149 241 239);
+                --g-color-private-brand-300-solid: rgb(167 243 242);
+                --g-color-private-brand-250-solid: rgb(184 245 244);
+                --g-color-private-brand-200-solid: rgb(202 248 247);
+                --g-color-private-brand-150-solid: rgb(220 250 250);
+                --g-color-private-brand-100-solid: rgb(228 251 251);
+                --g-color-private-brand-50-solid: rgb(237 253 252);
+                --g-color-base-brand: rgb(78, 231, 228);
+                --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-background']};
+                --g-color-base-brand-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-brand-hover']};
+                --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-selection']};
+                --g-color-base-selection-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-selection-hover']};
+                --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link']};
+                --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link-hover']};
+                --g-color-text-brand: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-brand']};
+                --g-color-text-brand-heavy: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-brand-heavy']};
+                --g-color-line-brand: ${DEFAULT_BRAND_DEPEND_COLORS.dark['line-brand']};
+            }`;
+
+                expect(build.run.write).toHaveBeenCalledWith(
+                    resolve(build.run.originalOutput, THEME_CSS_PATH),
+                    expectedString,
+                );
+            });
         });
 
-        it('Create dark css', () => {
-            const Theme: Theme = {
-                light: {
-                    colors: {
-                        'base-brand': 'rgb(220, 48, 232)',
-                        'base-background': 'rgb(255,255,255)',
-                    },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
-                    },
-                },
-            };
-            expect(createCSS(Theme)).toMatchSnapshot();
-        });
+        describe('from arg', () => {
+            it('should create theme from --theme arg', async () => {
+                const build = setupBuild();
 
-        it('Create full css', () => {
-            const Theme: Theme = {
-                base: {
-                    colors: {
-                        'base-brand': 'rgb(94 33 41)',
-                        'note-tip-background': 'rgb(106, 90, 205)',
-                    },
-                },
-                light: {
-                    colors: {
-                        'base-brand': 'rgb(48, 149, 232)',
-                        'base-background': 'rgb(255,255,255)',
-                    },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
-                    },
-                },
-                dark: {
-                    colors: {
-                        'base-brand': 'rgb(58, 228, 143)',
-                        'base-background': 'rgb(45, 44, 51)',
-                    },
-                    palette: {
-                        '50': 'rgb(94 33 41 / 0.1)',
-                        '100': 'rgb(94 33 41 / 0.15)',
-                    },
-                },
-            };
-            expect(createCSS(Theme)).toMatchSnapshot();
-        });
+                await runBuild(args('--theme', "'note-info-background: rgb(40, 216, 105)'"), build);
 
-        it('Create empty css', () => {
-            const Theme: Theme = {};
-            expect(createCSS(Theme)).toMatch('');
+                expect(build.run.write).toHaveBeenCalledWith(
+                    resolve(build.run.originalOutput, THEME_CSS_PATH),
+                    dedent`
+                .yfm {
+                    --yfm-color-note-info-background: rgb(40, 216, 105);
+                }`,
+                );
+            });
         });
     });
 });
