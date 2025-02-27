@@ -116,10 +116,18 @@ export function setupBuild(state?: BuildState): Build & {run: Run} {
     return build as Build & {run: Run};
 }
 
+function parseArgs(argv: string): string[] {
+    const regex = /(?:[^\s']+|'[^']*')+/g;
+    const matches = argv.match(regex)?.map((match) => {
+        return match.startsWith("'") && match.endsWith("'") ? match.slice(1, -1) : match;
+    });
+    return matches || [];
+}
+
 export async function runBuild(argv: string, build?: Build) {
     build = build || setupBuild();
 
-    const rawArgs = ['node', 'index'].concat(argv.split(' '));
+    const rawArgs = ['node', 'index'].concat(parseArgs(argv));
     const args = parse('build', rawArgs);
 
     await build.init(args);

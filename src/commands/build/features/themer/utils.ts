@@ -23,7 +23,7 @@ import {
     YFM_COLOR_KEYS,
 } from './types';
 
-export function isThemeExists(folderPath: AbsolutePath) {
+export function isThemeFileExists(folderPath: AbsolutePath) {
     return isFileExists(resolve(folderPath, THEME_CONFIG_FILENAME));
 }
 

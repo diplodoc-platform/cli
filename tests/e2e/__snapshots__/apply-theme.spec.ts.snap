@@ -1,0 +1,285 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Build themer feature Apply theme md2html with theme yaml: .yfm 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Build themer feature Apply theme md2html with theme yaml: filelist 1`] = `
+"[
+  ".yfm",
+  "_assets/style/_theme.css",
+  "_bundle/search-async-0",
+  "_bundle/app-css-1",
+  "_bundle/app-js-1",
+  "_bundle/search-css-2",
+  "_bundle/latex-extension.css",
+  "_bundle/latex-extension.js",
+  "_bundle/mermaid-extension.js",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-css-0",
+  "_bundle/search-js-2",
+  "_bundle/search-css-1",
+  "index.html",
+  "page.html",
+  "project/config.html",
+  "toc.js"
+]"
+`;
+
+exports[`Build themer feature Apply theme md2html with theme yaml: index.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="title"
+          content="Documentation"
+    >
+    <meta name="noIndex"
+          content="true"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation | Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/_theme.css"
+          id="custom-style"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/_theme.css"],"script":[],"csp":[]},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"title":"Documentation","noIndex":true,"metadata":[],"style":["_assets/style/_theme.css"],"script":[],"csp":[]},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Build themer feature Apply theme md2html with theme yaml: page.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="yfm"
+          content="builder"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/_theme.css"
+          id="custom-style"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"}],"style":["_assets/style/_theme.css"],"script":[],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Build themer feature Apply theme md2html with theme yaml: project/config.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Documentation
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/style/_theme.css"
+          id="custom-style"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[],"style":["_assets/style/_theme.css"],"script":[],"csp":[]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Lorem
+      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Build themer feature Apply theme md2html with theme yaml: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: .yfm 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: filelist 1`] = `
+"[
+  ".yfm",
+  "_assets/style/_theme.css",
+  "index.yaml",
+  "page.md",
+  "project/config.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: index.yaml 1`] = `
+"title: Documentation
+description: ''
+meta:
+  title: Documentation
+  noIndex: true
+links:
+  - title: Getting started with Documentation
+    description: This guide will show you the basics of working with Documentation
+    href: page.md
+"
+`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: page.md 1`] = `
+"---
+metadata:
+  - name: yfm
+    content: builder
+---
+
+Lorem
+"
+`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: project/config.md 1`] = `"Lorem"`;
+
+exports[`Build themer feature Apply theme md2md with theme yaml: toc.yaml 1`] = `
+"title: Documentation
+href: index.yaml
+items:
+  - name: Documentation
+    href: page.md
+  - name: Config
+    href: project/config.md
+"
+`;

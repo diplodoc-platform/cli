@@ -41,7 +41,7 @@ const FileTransformer: Record<string, Function> = {
 };
 
 const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions) => {
-    const {input, allowCustomResources} = ArgvService.getConfig();
+    const {input, allowCustomResources, theme} = ArgvService.getConfig();
 
     const resolvedPath: string = resolve(input, inputPath);
     const content: string = readFileSync(resolvedPath, 'utf8');
@@ -72,7 +72,9 @@ const getFileData = async ({fileExtension, metadata, inputPath}: ResolverOptions
         fileMeta.csp = [];
     }
 
-    fileMeta.style = [THEME_CSS_PATH].concat(fileMeta.style || []);
+    if (theme) {
+        fileMeta.style = [THEME_CSS_PATH].concat(fileMeta.style || []);
+    }
     return {...result, meta: fileMeta};
 };
 
