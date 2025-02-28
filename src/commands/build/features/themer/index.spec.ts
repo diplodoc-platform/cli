@@ -1,4 +1,4 @@
-import {describe, it, vi, expect, beforeEach, afterEach} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {runBuild, setupBuild, testConfig as test} from '../../__tests__';
 import dedent from 'ts-dedent';
 import {resolve} from 'node:path';
@@ -11,13 +11,13 @@ describe('Build themer feature', () => {
         afterEach(() => {
             vi.restoreAllMocks();
         });
-        
+
         test('should handle default', '', {
             theme: false,
         });
 
-        test('should handle arg', "--theme 'note-info-background: rgb(40, 216, 105)'", {
-            theme: 'note-info-background: rgb(40, 216, 105)',
+        test('should handle arg', '--theme blue', {
+            theme: 'blue',
         });
     });
 
@@ -94,7 +94,6 @@ describe('Build themer feature', () => {
                     files: {
                         'theme.yaml': dedent`
                         base-brand: rgb(78, 231, 228)
-                        light:
                     `,
                     },
                 });
@@ -203,14 +202,102 @@ describe('Build themer feature', () => {
             it('should create theme from --theme arg', async () => {
                 const build = setupBuild();
 
-                await runBuild(args('--theme', "'note-info-background: rgb(40, 216, 105)'"), build);
+                await runBuild(args('--theme', 'blue'), build);
+
+                const expectedString = dedent`
+                .g-root {
+                    --g-color-base-brand: blue;
+                }
+
+                .g-root_theme_light {
+                    --g-color-private-brand-50: rgb(0 0 255 / 0.1);
+                    --g-color-private-brand-100: rgb(0 0 255 / 0.15);
+                    --g-color-private-brand-150: rgb(0 0 255 / 0.2);
+                    --g-color-private-brand-200: rgb(0 0 255 / 0.3);
+                    --g-color-private-brand-250: rgb(0 0 255 / 0.4);
+                    --g-color-private-brand-300: rgb(0 0 255 / 0.5);
+                    --g-color-private-brand-350: rgb(0 0 255 / 0.6);
+                    --g-color-private-brand-400: rgb(0 0 255 / 0.7);
+                    --g-color-private-brand-450: rgb(0 0 255 / 0.8);
+                    --g-color-private-brand-500: rgb(0 0 255 / 0.9);
+                    --g-color-private-brand-550-solid: rgb(0 0 255);
+                    --g-color-private-brand-1000-solid: rgb(38 37 82);
+                    --g-color-private-brand-950-solid: rgb(36 35 92);
+                    --g-color-private-brand-900-solid: rgb(31 31 112);
+                    --g-color-private-brand-850-solid: rgb(27 26 133);
+                    --g-color-private-brand-800-solid: rgb(23 22 153);
+                    --g-color-private-brand-750-solid: rgb(18 18 173);
+                    --g-color-private-brand-700-solid: rgb(14 13 194);
+                    --g-color-private-brand-650-solid: rgb(9 9 214);
+                    --g-color-private-brand-600-solid: rgb(4 4 235);
+                    --g-color-private-brand-500-solid: rgb(4 4 235);
+                    --g-color-private-brand-450-solid: rgb(9 9 214);
+                    --g-color-private-brand-400-solid: rgb(14 13 194);
+                    --g-color-private-brand-350-solid: rgb(18 18 173);
+                    --g-color-private-brand-300-solid: rgb(23 22 153);
+                    --g-color-private-brand-250-solid: rgb(27 26 133);
+                    --g-color-private-brand-200-solid: rgb(31 31 112);
+                    --g-color-private-brand-150-solid: rgb(36 35 92);
+                    --g-color-private-brand-100-solid: rgb(38 37 82);
+                    --g-color-private-brand-50-solid: rgb(41 40 71);
+                    --g-color-base-brand: blue;
+                    --g-color-base-background: rgb(255,255,255);
+                    --g-color-base-brand-hover: var(--g-color-private-brand-650-solid);
+                    --g-color-base-selection: var(--g-color-private-brand-150);
+                    --g-color-base-selection-hover: var(--g-color-private-brand-300);
+                    --g-color-text-link: var(--g-color-private-brand-700-solid);
+                    --g-color-text-link-hover: var(--g-color-private-brand-850-solid);
+                    --g-color-text-brand: var(--g-color-private-brand-700-solid);
+                    --g-color-text-brand-heavy: var(--g-color-private-brand-850-solid);
+                    --g-color-line-brand: var(--g-color-private-brand-550-solid);
+                }
+
+                .g-root_theme_dark {
+                    --g-color-private-brand-50: rgb(0 0 255 / 0.1);
+                    --g-color-private-brand-100: rgb(0 0 255 / 0.15);
+                    --g-color-private-brand-150: rgb(0 0 255 / 0.2);
+                    --g-color-private-brand-200: rgb(0 0 255 / 0.3);
+                    --g-color-private-brand-250: rgb(0 0 255 / 0.4);
+                    --g-color-private-brand-300: rgb(0 0 255 / 0.5);
+                    --g-color-private-brand-350: rgb(0 0 255 / 0.6);
+                    --g-color-private-brand-400: rgb(0 0 255 / 0.7);
+                    --g-color-private-brand-450: rgb(0 0 255 / 0.8);
+                    --g-color-private-brand-500: rgb(0 0 255 / 0.9);
+                    --g-color-private-brand-550-solid: rgb(0 0 255);
+                    --g-color-private-brand-1000-solid: rgb(217 217 255);
+                    --g-color-private-brand-950-solid: rgb(204 204 255);
+                    --g-color-private-brand-900-solid: rgb(179 179 255);
+                    --g-color-private-brand-850-solid: rgb(153 153 255);
+                    --g-color-private-brand-800-solid: rgb(128 128 255);
+                    --g-color-private-brand-750-solid: rgb(102 102 255);
+                    --g-color-private-brand-700-solid: rgb(77 77 255);
+                    --g-color-private-brand-650-solid: rgb(51 51 255);
+                    --g-color-private-brand-600-solid: rgb(25 25 255);
+                    --g-color-private-brand-500-solid: rgb(25 25 255);
+                    --g-color-private-brand-450-solid: rgb(51 51 255);
+                    --g-color-private-brand-400-solid: rgb(77 77 255);
+                    --g-color-private-brand-350-solid: rgb(102 102 255);
+                    --g-color-private-brand-300-solid: rgb(128 128 255);
+                    --g-color-private-brand-250-solid: rgb(153 153 255);
+                    --g-color-private-brand-200-solid: rgb(179 179 255);
+                    --g-color-private-brand-150-solid: rgb(204 204 255);
+                    --g-color-private-brand-100-solid: rgb(217 217 255);
+                    --g-color-private-brand-50-solid: rgb(230 230 255);
+                    --g-color-base-brand: blue;
+                    --g-color-base-background: rgb(45, 44, 51);
+                    --g-color-base-brand-hover: var(--g-color-private-brand-650-solid);
+                    --g-color-base-selection: var(--g-color-private-brand-150);
+                    --g-color-base-selection-hover: var(--g-color-private-brand-300);
+                    --g-color-text-link: var(--g-color-private-brand-600-solid);
+                    --g-color-text-link-hover: var(--g-color-private-brand-850-solid);
+                    --g-color-text-brand: var(--g-color-private-brand-600-solid);
+                    --g-color-text-brand-heavy: var(--g-color-private-brand-850-solid);
+                    --g-color-line-brand: var(--g-color-private-brand-550-solid);
+                }`;
 
                 expect(build.run.write).toHaveBeenCalledWith(
                     resolve(build.run.originalOutput, THEME_CSS_PATH),
-                    dedent`
-                .yfm {
-                    --yfm-color-note-info-background: rgb(40, 216, 105);
-                }`,
+                    expectedString,
                 );
             });
         });

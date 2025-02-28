@@ -3,7 +3,7 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {resolve} from 'node:path';
 import {THEME_CONFIG_FILENAME, THEME_CSS_PATH} from '~/constants';
-import * as yaml from 'js-yaml';
+import {load} from 'js-yaml';
 import {getThemeValidator} from './validator';
 import {ThemeConfig} from './types';
 import {createCSS, createTheme, isThemeFileExists} from './utils';
@@ -35,9 +35,9 @@ export class Themer {
             try {
                 const themeConfigRaw = isThemeFileExists(run.originalInput)
                     ? await run.read(resolve(run.input, THEME_CONFIG_FILENAME))
-                    : run.config.theme.toString();
+                    : 'base-brand: ' + run.config.theme.toString();
 
-                const ThemeConfig = yaml.load(themeConfigRaw);
+                const ThemeConfig = load(themeConfigRaw);
 
                 const validate = getThemeValidator();
 
