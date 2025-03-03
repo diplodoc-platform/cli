@@ -2,9 +2,13 @@ import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VcsServiceConfig} from '~/core/vcs';
 
+import {uniq} from 'lodash';
+
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {defined} from '~/core/config';
+
 import {options} from './config';
 
 export type ContributorsArgs = {
@@ -38,8 +42,18 @@ export class Contributors {
         getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
             getLeadingHooks(run.leading).Resolved.tap(
                 'Contributors',
-                async (_leading, _meta, path) => {
+                async (_content, _meta, path) => {
                     run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path)));
+                },
+            );
+
+            getMarkdownHooks(run.markdown).Resolved.tap(
+                'Contributors',
+                async (_content, _meta, path) => {
+                    const rawDeps = await run.markdown.deps(path);
+                    const deps = uniq(rawDeps.map(({path}) => path));
+
+                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path), deps));
                 },
             );
         });
