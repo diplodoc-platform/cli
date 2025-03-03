@@ -71,7 +71,7 @@ export class LeadingService {
         const leading = await loader.call(context, yaml);
 
         const meta = leading.meta || {};
-        delete leading.meta;
+        leading.meta = undefined;
 
         await getHooks(this).Loaded.promise(leading, meta, file);
 
@@ -79,6 +79,8 @@ export class LeadingService {
         // TODO: Move to SystemVars feature
         this.run.meta.addSystemVars(path, context.vars.__system);
         this.run.meta.add(file, meta);
+        // leading.meta is filled by plugins, so we can safely add it to resources
+        this.run.meta.addResources(file, leading.meta);
 
         await getHooks(this).Resolved.promise(leading, meta, file);
 

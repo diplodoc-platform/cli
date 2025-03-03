@@ -11,6 +11,7 @@ import type {
 } from './types';
 
 import {join} from 'node:path';
+import {merge} from 'lodash';
 import transform from '@diplodoc/transform';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {extractFrontMatter, liquidJson, liquidSnippet} from '@diplodoc/liquid';
@@ -254,19 +255,28 @@ function getTransformer(context: LoaderContext) {
                     log: context.logger,
                 });
 
-                const {title, headings} = result;
+                const {title, headings, meta} = result;
 
-                context.markdown.setInfo(context.path, {title, headings});
+                context.markdown.setInfo(context.path, {title, headings, meta});
 
                 return result.html;
             };
         case TransformMode.Md:
             return async (content: string) => {
+                let meta = {};
                 context.markdown.setInfo(context.path, {title: '', headings: []});
 
                 for (const plugin of context.plugins) {
-                    const result = await plugin.call(context, content);
-                    content = result === undefined ? content : result;
+                    let result = await plugin.call(context, content);
+
+                    if (Array.isArray(result)) {
+                        meta = merge(meta, result[1] || {});
+                        result = result[0] as string;
+                    }
+
+                    if (result !== undefined) {
+                        content = result as string;
+                    }
                 }
 
                 return content;

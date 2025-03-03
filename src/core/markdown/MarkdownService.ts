@@ -105,18 +105,21 @@ export class MarkdownService {
 
         // At this point all internal states are fully resolved.
         // So we don't expect Defer here.
+        const info = this.pathToInfo.get(file) as AdditionalInfo;
         const meta = this.pathToMeta.get(file) as Meta;
         const assets = this.pathToAssets.get(file) as AssetInfo[];
 
-        this.run.meta.addMetadata(path, vars.__metadata);
-        this.run.meta.addSystemVars(path, vars.__system);
-        this.run.meta.add(file, meta);
-
         await getHooks(this).Loaded.promise(raw, meta, file);
+
+        this.run.meta.addMetadata(file, vars.__metadata);
+        this.run.meta.addSystemVars(file, vars.__system);
+        this.run.meta.add(file, meta);
+        // info.meta is filled by plugins, so we can safely add it to resources
+        this.run.meta.addResources(file, info.meta);
 
         defer.resolve(content);
 
-        await getHooks(this).Resolved.promise(raw, meta, file);
+        await getHooks(this).Resolved.promise(raw, info.meta, file);
 
         await pmap(assets, (asset) => getHooks(this).Asset.promise(file, asset.path));
 

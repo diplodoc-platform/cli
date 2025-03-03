@@ -292,7 +292,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}],"meta":{"title":"Documentation","noIndex":true}},"meta":{"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]};
     </script>
     <script src="en/toc.js"
             type="application/javascript"

@@ -312,12 +312,12 @@ exports[`Include toc Toc with expressions: index.yaml 1`] = `
 "title: Title A
 description:
   - Desc A
+meta:
+  title: Meta A
 links:
   - title: A1
     description: A1 desc
     href: a1
-meta:
-  title: Meta A
 "
 `;
 
