@@ -13,7 +13,13 @@ vi.mock('~/core/logger');
 
 function loaderContext(
     raw: string,
-    {mode = 'html', vars = {}, options = {}, settings = {}, plugins = []} = {},
+    {
+        mode = 'html',
+        vars = {},
+        options = {},
+        settings = {},
+        plugins = [],
+    }: DeepPartial<LoaderContext> = {},
 ) {
     return {
         root: __dirname,
@@ -23,7 +29,7 @@ function loaderContext(
         vars,
         logger: new Logger(),
         emitFile: vi.fn(),
-        emitAsset: vi.fn(),
+        readFile: vi.fn(),
         markdown: {
             setDependencies: vi.fn(),
             setAssets: vi.fn(),

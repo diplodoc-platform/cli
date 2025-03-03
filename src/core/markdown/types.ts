@@ -7,6 +7,8 @@ import type {LoaderContext} from './loader';
 export type CollectPlugin = (
     this: LoaderContext,
     content: string,
+    // TODO: rewrite old collect to do not use this object
+    options: object,
 ) => string | [string | undefined, Meta | undefined];
 
 export type TransformPlugin = MarkdownItPluginCb<any>;

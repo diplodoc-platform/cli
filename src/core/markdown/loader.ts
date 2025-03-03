@@ -16,9 +16,7 @@ import transform from '@diplodoc/transform';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {extractFrontMatter, liquidJson, liquidSnippet} from '@diplodoc/liquid';
 
-import {isMediaLink, parseLocalUrl} from '~/core/utils';
-
-import {rebasePath} from './utils';
+import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
 
 export enum TransformMode {
     Html = 'html',
@@ -32,7 +30,7 @@ type LoaderContextBase = LiquidContext & {
     lang: string;
     logger: Logger;
     emitFile(path: NormalizedPath, content: string): Promise<void>;
-    emitAsset(path: NormalizedPath): Promise<void>;
+    readFile(path: NormalizedPath): Promise<string>;
     markdown: {
         setDependencies(path: NormalizedPath, deps: IncludeInfo[]): void;
         setAssets(path: NormalizedPath, assets: AssetInfo[]): void;
@@ -58,11 +56,11 @@ type LoaderContextBase = LiquidContext & {
 export type LoaderContext = LoaderContextBase &
     (
         | {
-              mode: TransformMode.Md;
+              mode: `${TransformMode.Md}`;
               plugins: CollectPlugin[];
           }
         | {
-              mode: TransformMode.Html;
+              mode: `${TransformMode.Html}`;
               plugins: TransformPlugin[];
           }
     );
@@ -179,14 +177,15 @@ function resolveAssets(this: LoaderContext, content: string) {
 
     // This is not significant which type of content (image or link) we will match.
     // Anyway we need to copy linked local media content.
-    const ASSETS_CONTENTS = /]\(\s*[^\s)]+\s*\)/g;
+    const ASSETS_CONTENTS = /]\(\s*[^)]+\s*\)/g;
     // Backward search is payful syntax. So we can't use it on large texts.
-    const ASSET_LINK = /(?<=]\(\s*)[^\s)]+(?=\s*\))/;
+    const ASSET_LINK = /(?<=]\(\s*)[^\s)]+(?=.*?\))/;
 
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = ASSETS_CONTENTS.exec(content))) {
-        const asset = parseLocalUrl<AssetInfo>(match[0].match(ASSET_LINK)![0]);
+        const link = match[0].match(ASSET_LINK)![0];
+        const asset = parseLocalUrl<AssetInfo>(link);
         if (asset && isMediaLink(asset.path)) {
             asset.path = rebasePath(this.path, asset.path);
             asset.location = this.sourcemap.location(match.index, ASSETS_CONTENTS.lastIndex, lines);
@@ -255,16 +254,15 @@ function getTransformer(context: LoaderContext) {
                     log: context.logger,
                 });
 
-                const {title, headings, meta} = result;
+                const {title, headings, meta = {}} = result;
 
-                context.markdown.setInfo(context.path, {title, headings, meta});
+                context.markdown.setInfo(context.path, {title, headings, meta: meta as Meta});
 
                 return result.html;
             };
         case TransformMode.Md:
             return async (content: string) => {
                 let meta = {};
-                context.markdown.setInfo(context.path, {title: '', headings: []});
 
                 for (const plugin of context.plugins) {
                     let result = await plugin.call(context, content, {});
@@ -279,7 +277,11 @@ function getTransformer(context: LoaderContext) {
                     }
                 }
 
+                context.markdown.setInfo(context.path, {title: '', headings: [], meta});
+
                 return content;
             };
     }
+
+    throw new TypeError('Unknown loader mode ' + context.mode);
 }
