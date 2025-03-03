@@ -1,16 +1,14 @@
 import type {Run} from '~/core/run';
 import type {Meta, Resources} from './types';
 
-import {omit, pick, uniq} from 'lodash';
+import {omit, uniq} from 'lodash';
 
 import {copyJson, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
 type Config = {
-    allowCustomResources: boolean;
     addSystemMeta: boolean;
-    resources: Resources;
 };
 
 @withHooks
@@ -70,7 +68,7 @@ export class MetaService {
         return getHooks(this).Dump.promise(meta, file);
     }
 
-    add(path: RelativePath, record: Hash, safe = false) {
+    add(path: RelativePath, record: Hash) {
         const file = normalizePath(path);
 
         const meta = this.meta.get(file) || this.initialMeta();
@@ -81,17 +79,16 @@ export class MetaService {
 
         this.meta.set(file, result);
 
-        this.addResources(path, pick(record, ['script', 'style', 'csp']), safe);
         this.addMetadata(path, record.metadata);
         this.addSystemVars(path, record.__system);
 
         return meta;
     }
 
-    addResources(path: RelativePath, resources: Resources | undefined, safe = false) {
+    addResources(path: RelativePath, resources: Resources | undefined) {
         const file = normalizePath(path);
 
-        if (!(this.config.allowCustomResources || safe) || !resources) {
+        if (!resources) {
             return;
         }
 

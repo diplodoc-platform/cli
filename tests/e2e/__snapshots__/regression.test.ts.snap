@@ -103,17 +103,9 @@ default-var-value
 "
 `;
 
-exports[`Regression internal: commented-include.md 1`] = `
-"![](./missed-asset.png)
-
-[](./missed-link.md)
-"
-`;
-
 exports[`Regression internal: filelist 1`] = `
 "[
   "1.md",
-  "commented-include.md",
   "included-item.md",
   "index.yaml",
   "merge/merge.md",
@@ -184,7 +176,7 @@ exports[`Regression internal: included-item.html 1`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
       <p>Included item text
-      </p>/n/n","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
+      </p>/n","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -211,7 +203,6 @@ exports[`Regression internal: included-item.md 1`] = `
 
 Included item text
 
-<!-- :   {% include [rec-off](./commented-include.md) %} -->
 "
 `;
 

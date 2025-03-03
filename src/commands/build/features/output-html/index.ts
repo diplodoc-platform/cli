@@ -12,8 +12,11 @@ import {fallbackLang, isExternalHref, normalizePath, own} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {ASSETS_FOLDER} from '~/constants';
 import {transformMd} from '~/resolvers';
+
+import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
 export class OutputHtml {
     apply(program: Build) {
@@ -69,6 +72,10 @@ export class OutputHtml {
                             },
                         ) as LeadingPage;
                     });
+                });
+
+                getMarkdownHooks(run.markdown).Plugins.tap('Html', (plugins) => {
+                    return plugins.concat(getBaseMdItPlugins()).concat(getCustomMdItPlugins());
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Html', async (leading, path) => {
