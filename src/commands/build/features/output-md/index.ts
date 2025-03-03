@@ -9,7 +9,6 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {isMediaLink} from '~/core/utils';
 import {configPath} from '~/core/config';
 
 import {getCustomCollectPlugins} from '~/commands/build/features/output-md/utils';
@@ -78,11 +77,7 @@ export class OutputMd {
     }
 
     private copyAssets(run: Run) {
-        return async (_path: NormalizedPath, asset: NormalizedPath) => {
-            if (!isMediaLink(asset)) {
-                return;
-            }
-
+        return async (asset: NormalizedPath) => {
             try {
                 await run.copy(join(run.input, asset), join(run.output, asset));
             } catch (error) {

@@ -4,16 +4,15 @@ import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
 import type {AdditionalInfo, AssetInfo, HeadingInfo, IncludeInfo, Plugin} from './types';
 
-import {dirname, join} from 'node:path';
+import {join} from 'node:path';
 import {uniq} from 'lodash';
 import pmap from 'p-map';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Defer, bounded, langFromPath, memoize, normalizePath} from '~/core/utils';
+import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {TransformMode, loader} from './loader';
-import {Demand} from './utils';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
@@ -100,7 +99,7 @@ export class MarkdownService {
         const raw = await this.run.read(join(this.run.input, file));
         const vars = await this.run.vars.load(file);
 
-        const context = this.loaderContext(this.run, file, raw, vars);
+        const context = this.loaderContext(file, raw, vars);
         const content = await loader.call(context, raw);
 
         // At this point all internal states are fully resolved.
@@ -121,7 +120,7 @@ export class MarkdownService {
 
         await getHooks(this).Resolved.promise(raw, info.meta, file);
 
-        await pmap(assets, (asset) => getHooks(this).Asset.promise(file, asset.path));
+        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
 
         return content;
     }
@@ -202,11 +201,11 @@ export class MarkdownService {
         return pmap(deps, map);
     }
 
-    private loaderContext(run: Run, path: NormalizedPath, raw: string, vars: Hash): LoaderContext {
+    private loaderContext(path: NormalizedPath, raw: string, vars: Hash): LoaderContext {
         return {
-            root: run.input,
+            root: this.run.input,
             path,
-            mode: run.config.outputFormat,
+            mode: this.run.config.outputFormat,
             lang: langFromPath(path, this.config),
             vars,
             logger: this.logger,
@@ -224,33 +223,26 @@ export class MarkdownService {
                 setHeadings: this.pathToHeadings.set,
                 setInfo: this.pathToInfo.set,
             },
+            // @ts-ignore
             plugins: this.plugins,
             sourcemap: new SourceMap(raw),
             settings: {
-                substitutions: run.config.template.features.substitutions,
-                conditions: run.config.template.features.conditions,
-                conditionsInCode: run.config.template.scopes.code,
-                keepNotVar: run.config.outputFormat === 'md',
+                substitutions: this.run.config.template.features.substitutions,
+                conditions: this.run.config.template.features.conditions,
+                conditionsInCode: this.run.config.template.scopes.code,
+                keepNotVar: this.run.config.outputFormat === 'md',
             },
             options: {
-                rootInput: run.originalInput,
-                allowHTML: run.config.allowHtml,
-                needToSanitizeHtml: run.config.sanitizeHtml,
-                supportGithubAnchors: Boolean(run.config.supportGithubAnchors),
+                rootInput: this.run.originalInput,
+                allowHTML: this.run.config.allowHtml,
+                needToSanitizeHtml: this.run.config.sanitizeHtml,
+                supportGithubAnchors: Boolean(this.run.config.supportGithubAnchors),
 
-                disableLiquid: !run.config.template.enabled,
+                disableLiquid: !this.run.config.template.enabled,
 
-                lintDisabled: !run.config.lint.enabled,
-                lintConfig: run.config.lint.config,
+                lintDisabled: !this.run.config.lint.enabled,
+                lintConfig: this.run.config.lint.config,
             },
         };
-    }
-}
-
-function fullPath(path: AbsolutePath | NormalizedPath, root: NormalizedPath): NormalizedPath {
-    if (path.match(/^(\/|\\)/)) {
-        return normalizePath(path.slice(1));
-    } else {
-        return normalizePath(join(dirname(root), path));
     }
 }
