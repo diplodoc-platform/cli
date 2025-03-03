@@ -14,7 +14,6 @@ export type LegacyArgs = {
     lintDisabled?: boolean;
     allowHTML?: boolean;
     needToSanitizeHtml?: boolean;
-    useLegacyConditions?: boolean;
 };
 
 export type LegacyRawConfig = {
@@ -26,12 +25,9 @@ export type LegacyRawConfig = {
     lintDisabled: boolean;
     allowHTML: boolean;
     needToSanitizeHtml: boolean;
-    useLegacyConditions: boolean;
 };
 
-export type LegacyConfig = {
-    useLegacyConditions: boolean;
-};
+export type LegacyConfig = {};
 
 export class Legacy {
     apply(program: Build) {
@@ -43,8 +39,7 @@ export class Legacy {
                 .addOption(options.conditionsInCode)
                 .addOption(options.lintDisabled)
                 .addOption(options.allowHTML)
-                .addOption(options.needToSanitizeHtml)
-                .addOption(options.useLegacyConditions);
+                .addOption(options.needToSanitizeHtml);
         });
 
         getBaseHooks(program).Config.tap('Legacy', (config, args) => {
@@ -55,7 +50,6 @@ export class Legacy {
             const lintDisabled = defined('lintDisabled', args, config);
             const allowHTML = defined('allowHTML', args, config);
             const needToSanitizeHtml = defined('needToSanitizeHtml', args, config);
-            const useLegacyConditions = defined('useLegacyConditions', args, config);
 
             if (valuable(disableLiquid)) {
                 config.template.enabled = disableLiquid !== true;
@@ -85,8 +79,6 @@ export class Legacy {
             if (valuable(needToSanitizeHtml)) {
                 config.sanitizeHtml = needToSanitizeHtml;
             }
-
-            config.useLegacyConditions = Boolean(useLegacyConditions);
 
             for (const prop of [
                 'disableLiquid',

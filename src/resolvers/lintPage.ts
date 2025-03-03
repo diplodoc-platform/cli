@@ -149,8 +149,7 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
 }
 
 function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {applyPresets, resolveConditions, conditionsInCode, useLegacyConditions} =
-        ArgvService.getConfig();
+    const {applyPresets, resolveConditions, conditionsInCode} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditions: resolveConditions,
@@ -158,16 +157,14 @@ function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string)
         conditionsInCode,
         withSourceMap: true,
         keepNotVar: true,
-        useLegacyConditions,
     });
 }
 
 function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
-    const {conditionsInCode, useLegacyConditions} = ArgvService.getConfig();
+    const {conditionsInCode} = ArgvService.getConfig();
 
     return liquid(input, vars, path, {
         conditionsInCode,
         withSourceMap: true,
-        useLegacyConditions,
     });
 }

@@ -45,9 +45,12 @@ export class LeadingService {
 
     private plugins: Plugin[] = [];
 
+    private logger: Run['logger'];
+
     constructor(run: Run) {
         this.run = run;
         this.config = run.config;
+        this.logger = run.logger;
     }
 
     @bounded async init() {
@@ -122,9 +125,10 @@ export class LeadingService {
             vars,
             lang: langFromPath(path, this.config),
             plugins: [...this.plugins],
-            options: {
-                resolveConditions: this.config.template.features.conditions,
-                resolveSubstitutions: this.config.template.features.substitutions,
+            logger: this.logger,
+            settings: {
+                substitutions: this.config.template.features.conditions,
+                conditions: this.config.template.features.substitutions,
             },
         };
     }
