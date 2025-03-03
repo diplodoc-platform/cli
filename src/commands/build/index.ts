@@ -116,6 +116,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.linter,
         this.changelogs,
         this.search,
+        this.md,
         this.html,
         this.legacy,
         new GenericIncluderExtension(),
@@ -173,6 +174,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await run.vars.init();
         await run.leading.init();
+        await run.markdown.init();
         await run.vcs.init();
         await run.search.init();
 

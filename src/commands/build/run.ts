@@ -16,6 +16,7 @@ import {MetaService} from '~/core/meta';
 import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
+import {MarkdownService} from '~/core/markdown';
 import {SearchService} from '~/core/search';
 
 /**
@@ -40,6 +41,8 @@ export class Run extends BaseRun<BuildConfig> {
     readonly vcs: VcsService;
 
     readonly leading: LeadingService;
+
+    readonly markdown: MarkdownService;
 
     readonly search: SearchService;
 
@@ -80,6 +83,7 @@ export class Run extends BaseRun<BuildConfig> {
         this.toc = new TocService(this);
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
+        this.markdown = new MarkdownService(this);
         this.search = new SearchService(this);
     }
 }
