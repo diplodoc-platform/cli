@@ -1,19 +1,15 @@
 import type {Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} from './types';
+import type {LiquidContext} from '@diplodoc/liquid';
 
 import {get, set} from 'lodash';
-import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
-import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
+import {evaluate, liquidSnippet} from '@diplodoc/liquid';
 
-export type LoaderContext = {
+export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
     path: RelativePath;
     lang: string;
     vars: Hash;
     plugins: Plugin[];
-    options: {
-        resolveConditions: boolean;
-        resolveSubstitutions: boolean;
-    };
 };
 
 export async function loader(this: LoaderContext, yaml: RawLeadingPage) {
@@ -45,21 +41,16 @@ async function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
 }
 
 async function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
-    const {resolveConditions, resolveSubstitutions} = this.options;
+    const {conditions, substitutions} = this.settings;
     const interpolate = (value: unknown) => {
         if (typeof value !== 'string') {
             return value;
         }
 
-        return liquidSnippet(value, this.vars, this.path, {
-            substitutions: resolveSubstitutions,
-            conditions: resolveConditions,
-            keepNotVar: true,
-            withSourceMap: false,
-        });
+        return liquidSnippet.call(this, value, this.vars);
     };
 
-    if (!resolveConditions && !resolveSubstitutions) {
+    if (!conditions && !substitutions) {
         return yaml;
     }
 
@@ -142,7 +133,7 @@ function normalizeItems<T extends Filter | string>(items: T[] | T, vars: Hash) {
         }
 
         if (typeof item.when === 'string') {
-            item.when = evalExp(item.when, vars);
+            item.when = Boolean(evaluate(item.when, vars));
         }
 
         return item;
