@@ -1,9 +1,13 @@
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
-import type {LoaderContext} from './loader';
 import type {Output} from '@diplodoc/transform';
 import type {UrlWithStringQuery} from 'url';
+import type {Meta} from '~/core/meta';
+import type {LoaderContext} from './loader';
 
-export type CollectPlugin = (this: LoaderContext, content: string) => string;
+export type CollectPlugin = (
+    this: LoaderContext,
+    content: string,
+) => string | [string | undefined, Meta | undefined];
 
 export type TransformPlugin = MarkdownItPluginCb<any>;
 
@@ -32,4 +36,5 @@ export type HeadingInfo = {
 export type AdditionalInfo = Readonly<{
     title: string | undefined;
     headings: Output['result']['headings'];
+    meta: Meta;
 }>;
