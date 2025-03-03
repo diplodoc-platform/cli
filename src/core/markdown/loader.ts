@@ -267,7 +267,7 @@ function getTransformer(context: LoaderContext) {
                 context.markdown.setInfo(context.path, {title: '', headings: []});
 
                 for (const plugin of context.plugins) {
-                    let result = await plugin.call(context, content);
+                    let result = await plugin.call(context, content, {});
 
                     if (Array.isArray(result)) {
                         meta = merge(meta, result[1] || {});
