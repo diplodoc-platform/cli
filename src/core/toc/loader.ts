@@ -1,18 +1,18 @@
+import type {LiquidContext} from '@diplodoc/liquid';
 import type {TocService} from './TocService';
 import type {IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
 import {omit} from 'lodash';
-import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
-import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
+import {evaluate, liquidSnippet} from '@diplodoc/liquid';
 
 import {isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks} from './hooks';
 import {getFirstValuable, isRelative} from './utils';
 
-export type LoaderContext = {
+export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
     path: RelativePath;
     /** Path of last include level */
@@ -22,8 +22,6 @@ export type LoaderContext = {
     mode: IncludeMode | undefined;
     vars: Hash;
     options: {
-        resolveConditions: boolean;
-        resolveSubstitutions: boolean;
         removeHiddenItems: boolean;
     };
     toc: TocService;
@@ -100,22 +98,17 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
  * Applies liquid substitutions for some toc fields
  */
 async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    const {resolveConditions, resolveSubstitutions} = this.options;
+    const {conditions, substitutions} = this.settings;
     const interpolate = (box: Hash, field: string) => {
         const value = box[field];
         if (typeof value !== 'string') {
             return;
         }
 
-        box[field] = liquidSnippet(value, this.vars, this.path, {
-            substitutions: resolveSubstitutions,
-            conditions: resolveConditions,
-            keepNotVar: true,
-            withSourceMap: false,
-        });
+        box[field] = liquidSnippet.call(this, value, this.vars);
     };
 
-    if (!resolveConditions && !resolveSubstitutions) {
+    if (!conditions && !substitutions) {
         return toc;
     }
 
@@ -139,18 +132,21 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
  * Also drops hidden items if needed.
  */
 async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    const {removeHiddenItems, resolveConditions} = this.options;
+    const {removeHiddenItems} = this.options;
+    const {conditions, substitutions} = this.settings;
 
-    if (!removeHiddenItems && !resolveConditions) {
+    if (!conditions && !substitutions) {
         return toc;
     }
 
     toc.items = await this.toc.walkItems(toc.items, (item: RawTocItem) => {
         let when = true;
 
-        if (resolveConditions) {
+        if (conditions) {
             when =
-                typeof item.when === 'string' ? evalExp(item.when, this.vars) : item.when !== false;
+                typeof item.when === 'string'
+                    ? Boolean(evaluate(item.when, this.vars))
+                    : item.when !== false;
             delete item.when;
         }
 

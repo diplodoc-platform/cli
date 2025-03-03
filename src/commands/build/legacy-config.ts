@@ -15,7 +15,6 @@ export function legacyConfig(run: Run): YfmArgv {
         outputFormat: config.outputFormat,
         allowHTML: config.allowHtml,
         needToSanitizeHtml: config.sanitizeHtml,
-        useLegacyConditions: config.useLegacyConditions,
 
         applyPresets: config.template.features.substitutions,
         resolveConditions: config.template.features.conditions,

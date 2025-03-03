@@ -279,9 +279,12 @@ export class TocService {
             base,
             vars: await this.vars.load(path),
             toc: this,
+            logger: this.logger,
+            settings: {
+                conditions: this.config.template.features.conditions,
+                substitutions: this.config.template.features.substitutions,
+            },
             options: {
-                resolveConditions: this.config.template.features.conditions,
-                resolveSubstitutions: this.config.template.features.substitutions,
                 removeHiddenItems: this.config.removeHiddenTocItems,
             },
         };
