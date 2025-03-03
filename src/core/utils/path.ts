@@ -1,4 +1,4 @@
-import {isAbsolute, normalize} from 'node:path';
+import {dirname, isAbsolute, join, normalize} from 'node:path';
 import _normalizePath from 'normalize-path';
 
 import {isExternalHref} from '~/core/utils/url';
@@ -17,4 +17,19 @@ export function langFromPath(path: string, config: {lang?: string; langs: string
     const pathLang = langs.includes(pathBaseLang) && pathBaseLang;
 
     return pathLang || lang || langs[0];
+}
+
+export function rebasePath(root: RelativePath, path: RelativePath) {
+    return normalizePath(join(dirname(root), path));
+}
+
+export function fullPath(
+    path: AbsolutePath | NormalizedPath,
+    root: NormalizedPath,
+): NormalizedPath {
+    if (path.match(/^(\/|\\)/)) {
+        return normalizePath(path.slice(1));
+    } else {
+        return normalizePath(join(dirname(root), path));
+    }
 }

@@ -1,19 +1,21 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
-import type {MetaService} from '~/core/meta';
+import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
-import type {LeadingPage, Plugin, RawLeadingPage} from './types';
+
+import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
-import {dirname, join} from 'node:path';
-import {cloneDeepWith, isString} from 'lodash';
+import {join} from 'node:path';
+import pmap from 'p-map';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {bounded, isRelativePath, langFromPath, normalizePath} from '~/core/utils';
+import {Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
+import {modifyValuesByKeys} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;
@@ -37,6 +39,10 @@ export type LeadingServiceConfig = {
 export class LeadingService {
     readonly name = 'Leading';
 
+    get logger() {
+        return this.run.logger;
+    }
+
     private run: Run;
 
     private config: LeadingServiceConfig;
@@ -45,12 +51,15 @@ export class LeadingService {
 
     private plugins: Plugin[] = [];
 
-    private logger: Run['logger'];
+    private pathToMeta = new Demand<Meta>(this.load);
+
+    private pathToDeps = new Demand<never[]>(this.load);
+
+    private pathToAssets = new Demand<AssetInfo[]>(this.load);
 
     constructor(run: Run) {
         this.run = run;
         this.config = run.config;
-        this.logger = run.logger;
     }
 
     @bounded async init() {
@@ -65,38 +74,27 @@ export class LeadingService {
         }
 
         const raw = await this.run.read(join(this.run.input, file));
+        const vars = await this.run.vars.load(path);
         const yaml = load(raw) as RawLeadingPage;
 
-        const context = await this.loaderContext(file);
+        const context = await this.loaderContext(file, raw, vars);
         const leading = await loader.call(context, yaml);
 
-        const meta = leading.meta || {};
-        leading.meta = undefined;
+        const meta = this.pathToMeta.get(file);
+        const assets = this.pathToAssets.get(file);
 
         await getHooks(this).Loaded.promise(leading, meta, file);
 
-        this.run.meta.addMetadata(path, context.vars.__metadata);
+        this.run.meta.addMetadata(path, vars.__metadata);
         // TODO: Move to SystemVars feature
-        this.run.meta.addSystemVars(path, context.vars.__system);
+        this.run.meta.addSystemVars(path, vars.__system);
         this.run.meta.add(file, meta);
         // leading.meta is filled by plugins, so we can safely add it to resources
         this.run.meta.addResources(file, leading.meta);
 
         await getHooks(this).Resolved.promise(leading, meta, file);
 
-        const assets = new Set<RelativePath>();
-        this.walkLinks(leading, (link) => {
-            if (link && isRelativePath(link)) {
-                assets.add(link);
-            }
-
-            return link;
-        });
-
-        // TODO: concurrently
-        for (const asset of assets) {
-            await getHooks(this).Asset.promise(join(dirname(file), asset), file);
-        }
+        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
 
         this.cached[file] = leading;
 
@@ -119,30 +117,50 @@ export class LeadingService {
         return modifyValuesByKeys(leading, LINK_KEYS, walker);
     }
 
-    private async loaderContext(path: NormalizedPath): Promise<LoaderContext> {
-        const vars = await this.run.vars.load(path);
+    @memoize('path')
+    async deps(path: RelativePath) {
+        const file = normalizePath(path);
 
+        return this.pathToDeps.get(file);
+    }
+
+    @memoize('path')
+    async assets(path: RelativePath) {
+        const file = normalizePath(path);
+
+        return this.pathToAssets.get(file);
+    }
+
+    private async loaderContext(
+        path: NormalizedPath,
+        _raw: string,
+        vars: Hash,
+    ): Promise<LoaderContext> {
         return {
             path,
             vars,
             lang: langFromPath(path, this.config),
+            readFile: (path: RelativePath) => {
+                return this.run.read(join(this.run.input, path));
+            },
+            emitFile: async (file: NormalizedPath, content: string) => {
+                const rootPath = fullPath(file, path);
+                await this.run.write(join(this.run.input, rootPath), content);
+            },
             plugins: [...this.plugins],
             logger: this.logger,
+            leading: {
+                setDependencies: this.pathToDeps.set,
+                setAssets: this.pathToAssets.set,
+                setMeta: this.pathToMeta.set,
+            },
+            options: {
+                disableLiquid: !this.run.config.template.enabled,
+            },
             settings: {
                 substitutions: this.config.template.features.conditions,
                 conditions: this.config.template.features.substitutions,
             },
         };
     }
-}
-
-function modifyValuesByKeys(object: object, keys: string[], modify: (value: string) => string) {
-    // Clone the object deeply with a customizer function that modifies matching keys
-    return cloneDeepWith(object, (value: unknown, key) => {
-        if (keys.includes(key as string) && isString(value)) {
-            return modify(value);
-        }
-
-        return undefined;
-    });
 }
