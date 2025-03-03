@@ -9,7 +9,9 @@ export function own<V = unknown, T extends string = string>(
     );
 }
 
-export function copyJson<T extends object>(json: T | undefined): T {
+export function copyJson<T extends object>(
+    json: T | undefined,
+): T extends DeepFrozen<infer R> ? R : T {
     return json ? JSON.parse(JSON.stringify(json)) : json;
 }
 
@@ -50,6 +52,21 @@ export function fallbackLang(lang: string) {
     }
 
     return 'en';
+}
+
+export class Defer<T = any> {
+    promise: Promise<T>;
+
+    resolve!: (result: T) => void;
+
+    reject!: (error: Error) => void;
+
+    constructor() {
+        this.promise = new Promise((resolve, reject) => {
+            this.resolve = resolve;
+            this.reject = reject;
+        });
+    }
 }
 
 export function wait(delay: number) {

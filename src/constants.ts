@@ -23,10 +23,6 @@ const mermaid = require('@diplodoc/mermaid-extension');
 const latex = require('@diplodoc/latex-extension');
 const openapi = require('@diplodoc/openapi-extension');
 
-includes.collect = require('@diplodoc/transform/lib/plugins/includes/collect');
-images.collect = require('@diplodoc/transform/lib/plugins/images/collect');
-changelog.collect = require('@diplodoc/transform/lib/plugins/changelog/collect');
-
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
 export const TMP_INPUT_FOLDER = '.tmp_input';
