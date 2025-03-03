@@ -19,6 +19,7 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
     const resolvedInputPath = resolve(input, inputPath);
 
     const vars = getVarsPerFile(inputPath);
+    const tocMetadata = await run.toc.getTocItemAccessMeta(inputPath);
 
     const content = await enrichWithFrontMatter(run, {
         fileContent: readFileSync(resolvedInputPath, 'utf8'),
@@ -26,6 +27,7 @@ export async function resolveMd2Md(run: Run, options: ResolveMd2MdOptions): Prom
         resolvedFrontMatterVars: {
             systemVars: vars.__system as unknown,
             metadataVars: vars.__metadata,
+            ...(Object.keys(tocMetadata).length > 0 ? {tocMetadata} : {}),
         },
     });
 

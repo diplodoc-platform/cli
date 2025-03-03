@@ -84,7 +84,7 @@ export type Toc = {
     items?: TocItem[];
 };
 
-export type TocItem = NamedTocItem & {hidden?: boolean} & {
+export type TocItem = NamedTocItem & {hidden?: boolean} & {'restricted-access'?: string} & {
     id: string;
     items?: TocItem[];
 };
