@@ -15,10 +15,7 @@ export type TransformPlugin = MarkdownItPluginCb<any>;
 
 export type Plugin = CollectPlugin | TransformPlugin;
 
-export type Location = {
-    start: number;
-    end: number;
-};
+export type Location = [number, number];
 
 export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;

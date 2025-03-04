@@ -2,7 +2,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {AdditionalInfo, AssetInfo, HeadingInfo, IncludeInfo, Plugin} from './types';
+import type {AdditionalInfo, AssetInfo, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
 
 import {join} from 'node:path';
 import {uniq} from 'lodash';
@@ -37,6 +37,10 @@ type MarkdownServiceConfig = {
     };
 };
 
+type Located = {
+    location: Location;
+};
+
 type Run = BaseRun<MarkdownServiceConfig> & {
     meta: MetaService;
     vars: VarsService;
@@ -57,6 +61,8 @@ export class MarkdownService {
     private plugins: Plugin[] = [];
 
     private pathToMeta = new Demand<Meta>(this.load);
+
+    private pathToComments = new Demand<[number, number][]>(this.load);
 
     private pathToDeps = new Demand<IncludeInfo[]>(this.load);
 
@@ -84,7 +90,7 @@ export class MarkdownService {
             throw new Error('Circular dependency detected:\n\t->' + from.join('\n\t->'));
         }
 
-        if (this.cache[file]) {
+        if (file in this.cache) {
             return this.cache[file];
         }
 
@@ -97,7 +103,7 @@ export class MarkdownService {
         });
 
         const raw = await this.run.read(join(this.run.input, file));
-        const vars = await this.run.vars.load(file);
+        const vars = await this.run.vars.load(from[0] || file);
 
         const context = this.loaderContext(file, raw, vars);
         const content = await loader.call(context, raw);
@@ -143,12 +149,13 @@ export class MarkdownService {
         const file = normalizePath(path);
 
         return this.pathToDeps.onDemand(file, from, async (deps: IncludeInfo[]) => {
-            const internals: IncludeInfo[][] = await pmap(deps, async ({path, location}) => {
+            const active = await this.filterCommented(file, from, deps);
+            const internals: IncludeInfo[][] = await pmap(active, async ({path, location}) => {
                 const deps = await this.deps(path, [...from, file]);
                 return deps.map((dep) => ({...dep, location}));
             });
 
-            return deps.concat(...internals);
+            return active.concat(...internals);
         });
     }
 
@@ -157,11 +164,12 @@ export class MarkdownService {
         const file = normalizePath(path);
 
         return this.pathToAssets.onDemand(file, from, async (assets: AssetInfo[]) => {
+            const active = await this.filterCommented(file, from, assets);
             const internals: AssetInfo[][] = await this.mapdeps(file, from, ({path}) => {
                 return this.assets(path, [...from, file]);
             });
 
-            return uniq(assets.concat(...internals));
+            return uniq(active.concat(...internals));
         });
     }
 
@@ -170,8 +178,8 @@ export class MarkdownService {
         const file = normalizePath(path);
 
         return this.pathToHeadings.onDemand(file, from, async (headings: HeadingInfo[]) => {
-            const byLocation = (a: HeadingInfo, b: HeadingInfo) =>
-                a.location.start - b.location.start;
+            const active = await this.filterCommented(file, from, headings);
+            const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
             const internals: HeadingInfo[][] = await this.mapdeps(
                 file,
                 from,
@@ -181,7 +189,7 @@ export class MarkdownService {
                 },
             );
 
-            return headings.concat(...internals).sort(byLocation);
+            return active.concat(...internals).sort(byLocation);
         });
     }
 
@@ -190,6 +198,21 @@ export class MarkdownService {
         const file = normalizePath(path);
 
         return this.pathToInfo.onDemand(file, from);
+    }
+
+    private async filterCommented<T extends Located>(
+        path: NormalizedPath,
+        from: NormalizedPath[],
+        items: T[],
+    ): Promise<T[]> {
+        const comments = await this.pathToComments.onDemand(path, from);
+        const contains = (place: Location, point: Location) => {
+            return place[0] <= point[0] && place[1] >= point[1];
+        };
+
+        return items.filter((item) => {
+            return !comments.some((comment) => contains(comment, item.location));
+        });
     }
 
     private async mapdeps<R>(
@@ -217,6 +240,7 @@ export class MarkdownService {
                 await this.run.write(join(this.run.input, rootPath), content);
             },
             markdown: {
+                setComments: this.pathToComments.set,
                 setDependencies: this.pathToDeps.set,
                 setAssets: this.pathToAssets.set,
                 setMeta: this.pathToMeta.set,

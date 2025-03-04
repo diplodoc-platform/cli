@@ -5,7 +5,7 @@ import {dirname, join} from 'node:path';
 import {merge} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {normalizePath, own} from '~/core/utils';
+import {Defer, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -48,7 +48,7 @@ export class VarsService {
         }
     }
 
-    async load(path: RelativePath) {
+    async load(path: RelativePath): Promise<Hash> {
         path = normalizePath(path);
 
         const varsPreset = this.config.varsPreset || 'default';
@@ -57,6 +57,14 @@ export class VarsService {
         if (this.cache[file]) {
             return this.cache[file];
         }
+
+        const defer = new Defer();
+
+        this.cache[file] = defer.promise;
+
+        defer.promise.then((result) => {
+            this.cache[file] = result;
+        });
 
         this.logger.proc(file);
 
@@ -85,11 +93,13 @@ export class VarsService {
 
         scopes.push(this.config.vars);
 
-        this.cache[file] = merge({}, ...scopes);
+        const vars = merge({}, ...scopes);
 
-        await getHooks(this).Resolved.promise(this.cache[file], file);
+        defer.resolve(vars);
 
-        return this.cache[file];
+        await getHooks(this).Resolved.promise(vars, file);
+
+        return vars;
     }
 
     dump(presets: Hash): string {

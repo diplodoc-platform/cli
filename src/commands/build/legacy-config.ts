@@ -8,6 +8,7 @@ export function legacyConfig(run: Run): YfmArgv {
         rootInput: run.originalInput,
         input: run.input,
         output: run.output,
+        outputFormat: run.config.outputFormat,
         allowHTML: config.allowHtml,
         needToSanitizeHtml: config.sanitizeHtml,
         supportGithubAnchors: Boolean(config.supportGithubAnchors),

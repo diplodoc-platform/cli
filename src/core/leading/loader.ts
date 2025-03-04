@@ -123,7 +123,7 @@ function resolveAssets(this: LoaderContext, yaml: RawLeadingPage) {
     yaml = modifyValuesByKeys(yaml, LINK_KEYS, (link) => {
         const asset = parseLocalUrl(link);
         if (asset && isMediaLink(asset.path)) {
-            asset.path = rebasePath(this.path, asset.path);
+            asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
             assets.push(asset);
         }
 

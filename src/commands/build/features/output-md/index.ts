@@ -2,8 +2,6 @@ import type {Build, Run} from '~/commands/build';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
-import {dedent} from 'ts-dedent';
-import pmap from 'p-map';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
@@ -42,28 +40,6 @@ export class OutputMd {
                         return `---\n${dumped}\n---\n${markdown}`;
                     },
                 );
-
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, path) => {
-                        if (!run.config.mergeIncludes) {
-                            return markdown;
-                        }
-
-                        const deps = await run.markdown.deps(path);
-                        const contents = await pmap(deps, async ({path}) => {
-                            const content = await run.markdown.load(path);
-
-                            return dedent`
-                                {% filepart (${path}) %}
-                                ${content}
-                                {% endfilepart %}
-                            `;
-                        });
-
-                        return markdown + '\n\n' + contents;
-                    },
-                );
             });
 
         getBuildHooks(program)
@@ -79,6 +55,7 @@ export class OutputMd {
     private copyAssets(run: Run) {
         return async (asset: NormalizedPath) => {
             try {
+                run.logger.copy(join(run.input, asset), join(run.output, asset));
                 await run.copy(join(run.input, asset), join(run.output, asset));
             } catch (error) {
                 // TODO: Move to error strategy
