@@ -1,7 +1,7 @@
 export interface VcsConnector {
     getUserByLogin(login: string): Promise<Contributor | null>;
     getAuthorByPath(path: RelativePath): Promise<Contributor | null>;
-    getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributors>;
+    getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]>;
     getModifiedTimeByPath(path: RelativePath): Promise<number | null>;
 }
 
@@ -18,8 +18,4 @@ export interface Contributor {
     login: string;
     name: string;
     url: string;
-}
-
-export interface Contributors {
-    [email: string]: Contributor;
 }
