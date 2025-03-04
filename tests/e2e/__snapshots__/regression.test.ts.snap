@@ -180,7 +180,13 @@ exports[`Regression internal: included-item.html 1`] = `
       window.STATIC_CONTENT = false
                    window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
       <p>Included item text
-      </p>/n","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
+      </p>/n
+      <div class=\\"yfm-note yfm-accent-alert\\" note-type=\\"alert\\">
+      <p class=\\"yfm-note-title\\">Alert!
+      </p>/n
+      <div class=\\"yfm-note-content\\">
+      </div>
+      </div>","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -207,6 +213,11 @@ exports[`Regression internal: included-item.md 1`] = `
 
 Included item text
 
+
+{% note alert "Alert!" %}
+
+  
+{% endnote %}
 "
 `;
 
