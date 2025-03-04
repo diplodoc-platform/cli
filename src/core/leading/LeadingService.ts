@@ -11,7 +11,7 @@ import pmap from 'p-map';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
+import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
@@ -47,7 +47,7 @@ export class LeadingService {
 
     private config: LeadingServiceConfig;
 
-    private cached: Hash<LeadingPage> = {};
+    private cache: Hash<Promise<LeadingPage> | LeadingPage> = {};
 
     private plugins: Plugin[] = [];
 
@@ -69,15 +69,23 @@ export class LeadingService {
     @bounded async load(path: RelativePath): Promise<LeadingPage> {
         const file = normalizePath(path);
 
-        if (this.cached[file]) {
-            return this.cached[file];
+        if (file in this.cache) {
+            return this.cache[file];
         }
+
+        const defer = new Defer();
+
+        this.cache[file] = defer.promise;
+
+        defer.promise.then((result) => {
+            this.cache[file] = result;
+        });
 
         const raw = await this.run.read(join(this.run.input, file));
         const vars = await this.run.vars.load(path);
         const yaml = load(raw) as RawLeadingPage;
 
-        const context = await this.loaderContext(file, raw, vars);
+        const context = this.loaderContext(file, raw, vars);
         const leading = await loader.call(context, yaml);
 
         const meta = this.pathToMeta.get(file);
@@ -92,11 +100,11 @@ export class LeadingService {
         // leading.meta is filled by plugins, so we can safely add it to resources
         this.run.meta.addResources(file, leading.meta);
 
+        defer.resolve(leading);
+
         await getHooks(this).Resolved.promise(leading, meta, file);
 
         await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
-
-        this.cached[file] = leading;
 
         return leading;
     }
@@ -131,11 +139,7 @@ export class LeadingService {
         return this.pathToAssets.get(file);
     }
 
-    private async loaderContext(
-        path: NormalizedPath,
-        _raw: string,
-        vars: Hash,
-    ): Promise<LoaderContext> {
+    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
         return {
             path,
             vars,

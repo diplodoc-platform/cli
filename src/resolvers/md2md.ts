@@ -6,25 +6,27 @@ import {uniq} from 'lodash';
 import {dump} from 'js-yaml';
 import pmap from 'p-map';
 import {PROCESSING_FINISHED} from '../constants';
+import {normalizePath} from '~/core/utils';
 
 export async function resolveToMd(run: Run, path: RelativePath): Promise<ResolverResult> {
+    const file = normalizePath(path);
     const extension = extname(path);
 
     if (extension === '.yaml') {
-        const content = await run.leading.load(path);
-        const result = dump(await run.leading.dump(path, content));
+        const content = await run.leading.load(file);
+        const result = dump(await run.leading.dump(file, content));
 
-        await run.write(join(run.output, path), result);
+        await run.write(join(run.output, file), result);
     } else if (extension === '.md') {
-        const content = await run.markdown.load(path);
-        const result = await run.markdown.dump(path, content);
+        const content = await run.markdown.load(file);
+        const result = await run.markdown.dump(file, content);
 
-        await run.write(join(run.output, path), result);
+        await run.write(join(run.output, file), result);
 
-        const deps = uniq((await run.markdown.deps(path)).map(({path}) => path));
+        const deps = uniq((await run.markdown.deps(file)).map(({path}) => path));
 
         await pmap(deps, async (path) => {
-            const markdown = await run.markdown.load(path);
+            const markdown = await run.markdown.load(path, [file]);
             const result = await run.markdown.dump(path, markdown);
             await run.write(join(run.output, path), result);
         });
