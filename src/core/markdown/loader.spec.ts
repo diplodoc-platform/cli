@@ -293,7 +293,9 @@ describe('Markdown loader', () => {
         it('should detect dependencies', async () => {
             const content = dedent`
                 Simple text
-                {% include [](./include.md) %}
+                {% include [](./include1.md) %}
+
+                {% include [some text (with) braces](./include2.md) %}
 
                     {% include [](./deep/include.md) %}
 
@@ -305,8 +307,9 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.markdown.setDependencies).toBeCalledWith('file.md', [
-                {path: 'include.md', location: {start: 2, end: 2}, hash: null, search: null},
-                {path: 'deep/include.md', location: {start: 4, end: 4}, hash: null, search: null},
+                {path: 'include1.md', location: {start: 2, end: 2}, hash: null, search: null},
+                {path: 'include2.md', location: {start: 4, end: 4}, hash: null, search: null},
+                {path: 'deep/include.md', location: {start: 6, end: 6}, hash: null, search: null},
             ]);
             expect(result).toEqual(content);
         });
@@ -317,6 +320,7 @@ describe('Markdown loader', () => {
             const content = dedent`
                 Simple text
                 ![img](./some.png)
+                ![img](\\_images/authorization\\_3.png)
             `;
             const context = loaderContext(content, {
                 mode: 'md',
@@ -325,6 +329,12 @@ describe('Markdown loader', () => {
             const result = await loader.call(context, content);
             expect(context.markdown.setAssets).toBeCalledWith('file.md', [
                 {path: 'some.png', location: {start: 2, end: 2}, hash: null, search: null},
+                {
+                    path: '_images/authorization_3.png',
+                    location: {start: 3, end: 3},
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -390,6 +400,80 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.markdown.setAssets).toBeCalledWith('file.md', []);
+            expect(result).toEqual(content);
+        });
+
+        it('should work with sized images', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png =100x100)
+                ![img](./some2.png =x100)
+                ![img](./some3.png =100x)
+            `;
+            const context = loaderContext(content, {
+                mode: 'md',
+            });
+
+            const result = await loader.call(context, content);
+            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
+                {path: 'some1.png', location: {start: 2, end: 2}, hash: null, search: null},
+                {path: 'some2.png', location: {start: 3, end: 3}, hash: null, search: null},
+                {path: 'some3.png', location: {start: 4, end: 4}, hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should work with spaced images', async () => {
+            const content = dedent`
+                Simple text
+                ![img]( ./some1.png)
+                ![img](./some2.png )
+                ![img]( ./some3.png )
+            `;
+            const context = loaderContext(content, {
+                mode: 'md',
+            });
+
+            const result = await loader.call(context, content);
+            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
+                {path: 'some1.png', location: {start: 2, end: 2}, hash: null, search: null},
+                {path: 'some2.png', location: {start: 3, end: 3}, hash: null, search: null},
+                {path: 'some3.png', location: {start: 4, end: 4}, hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should work with case sensitive images', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.PNG)
+                ![img](./some2.pnG)
+            `;
+            const context = loaderContext(content, {
+                mode: 'md',
+            });
+
+            const result = await loader.call(context, content);
+            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
+                {path: 'some1.PNG', location: {start: 2, end: 2}, hash: null, search: null},
+                {path: 'some2.pnG', location: {start: 3, end: 3}, hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should work with references', async () => {
+            const content = dedent`
+                Simple text
+                [img]: ./some1.png
+            `;
+            const context = loaderContext(content, {
+                mode: 'md',
+            });
+
+            const result = await loader.call(context, content);
+            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
+                {path: 'some1.png', location: {start: 2, end: 2}, hash: null, search: null},
+            ]);
             expect(result).toEqual(content);
         });
 

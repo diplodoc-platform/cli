@@ -18,6 +18,8 @@ import {extractFrontMatter, liquidJson, liquidSnippet} from '@diplodoc/liquid';
 
 import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
 
+import {findDefs, findLinks} from './utils';
+
 export enum TransformMode {
     Html = 'html',
     Md = 'md',
@@ -111,6 +113,10 @@ function stripComments(this: LoaderContext, content: string) {
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = COMMENTS_CONTENTS.exec(content))) {
+        if (match[0].startsWith('<!-- markdownlint-disable-file -->')) {
+            continue;
+        }
+
         points.push(this.sourcemap.location(match.index, COMMENTS_CONTENTS.lastIndex, lines));
         comments.push([match.index, COMMENTS_CONTENTS.lastIndex]);
     }
@@ -144,15 +150,13 @@ function resolveDependencies(this: LoaderContext, content: string) {
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)
     const INCLUDE_CONTENTS = /{%\s*include\s.+?%}/g;
-    // Include example: [createfolder](create-folder.md)
-    // Regexp result: create-folder.md
-    const INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/;
 
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = INCLUDE_CONTENTS.exec(content))) {
+        const link = findLinks(match[0])[0];
         // TODO: warn about non local urls
-        const include = parseLocalUrl<IncludeInfo>(match[0].match(INCLUDE_FILE_PATH)?.[0]);
+        const include = parseLocalUrl<IncludeInfo>(link as string);
 
         if (include) {
             include.path = rebasePath(this.path, include.path as RelativePath);
@@ -175,20 +179,14 @@ function resolveAssets(this: LoaderContext, content: string) {
     const assets = [];
     const lines = this.sourcemap.lines(content);
 
-    // This is not significant which type of content (image or link) we will match.
-    // Anyway we need to copy linked local media content.
-    const ASSETS_CONTENTS = /]\(\s*[^)]+\s*\)/g;
-    // Backward search is payful syntax. So we can't use it on large texts.
-    const ASSET_LINK = /(?<=]\(\s*)[^\s)]+(?=.*?\))/;
+    const defs = findDefs(content, true);
+    const links = findLinks(content, true);
 
-    let match;
-    // eslint-disable-next-line no-cond-assign
-    while ((match = ASSETS_CONTENTS.exec(content))) {
-        const link = match[0].match(ASSET_LINK)![0];
+    for (const [link, position] of [...defs, ...links]) {
         const asset = parseLocalUrl<AssetInfo>(link);
         if (asset && isMediaLink(asset.path)) {
             asset.path = rebasePath(this.path, asset.path);
-            asset.location = this.sourcemap.location(match.index, ASSETS_CONTENTS.lastIndex, lines);
+            asset.location = this.sourcemap.location(...position, lines);
             assets.push(asset);
         }
     }
