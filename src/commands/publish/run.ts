@@ -1,9 +1,11 @@
-import type {PublishConfig} from './index';
-import {Logger} from '~/core/logger';
-import {PutObjectCommand, S3Client} from '@aws-sdk/client-s3';
-import {normalizePath} from '~/core/utils';
 import {join, resolve} from 'path';
 import {createReadStream} from 'fs';
+import {Upload} from '@aws-sdk/lib-storage';
+import {S3Client} from '@aws-sdk/client-s3';
+
+import type {PublishConfig} from './index';
+import {Logger} from '~/core/logger';
+import {normalizePath} from '~/core/utils';
 
 /**
  * This is transferable context for publish command.
@@ -38,13 +40,16 @@ export class Run {
     async send(file: string, type?: string | boolean) {
         const {prefix, bucket} = this.config;
 
-        await this.s3.send(
-            new PutObjectCommand({
+        const upload = new Upload({
+            client: this.s3,
+            params: {
                 ContentType: typeof type === 'string' ? type : undefined,
                 Bucket: bucket,
                 Key: normalizePath(join(prefix, file)),
                 Body: createReadStream(resolve(this.root, file)),
-            }),
-        );
+            },
+        });
+
+        await upload.done();
     }
 }
