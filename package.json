@@ -54,6 +54,7 @@
     ]
   },
   "dependencies": {
+    "@aws-sdk/lib-storage": "^3.758.0",
     "@diplodoc/client": "^3.1.8",
     "@diplodoc/translation": "^1.5.0",
     "katex": "^0.16.9",
