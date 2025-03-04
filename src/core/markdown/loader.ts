@@ -7,6 +7,7 @@ import type {
     CollectPlugin,
     HeadingInfo,
     IncludeInfo,
+    Location,
     TransformPlugin,
 } from './types';
 
@@ -17,6 +18,8 @@ import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {extractFrontMatter, liquidJson, liquidSnippet} from '@diplodoc/liquid';
 
 import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
+
+import {findDefs, findLinks} from './utils';
 
 export enum TransformMode {
     Html = 'html',
@@ -32,6 +35,7 @@ type LoaderContextBase = LiquidContext & {
     emitFile(path: NormalizedPath, content: string): Promise<void>;
     readFile(path: NormalizedPath): Promise<string>;
     markdown: {
+        setComments(path: NormalizedPath, info: [number, number][]): void;
         setDependencies(path: NormalizedPath, deps: IncludeInfo[]): void;
         setAssets(path: NormalizedPath, assets: AssetInfo[]): void;
         setMeta(path: NormalizedPath, meta: Meta): void;
@@ -67,22 +71,30 @@ export type LoaderContext = LoaderContextBase &
 
 export async function loader(this: LoaderContext, content: string) {
     content = mangleFrontMatter.call(this, content);
-    content = stripComments.call(this, content);
     content = templateContent.call(this, content);
-    content = await applyPlugins.call(this, content);
+    content = findComments.call(this, content);
+    if (this.mode === TransformMode.Md) {
+        content = await applyPlugins.call(this, content);
+    }
     content = resolveDependencies.call(this, content);
     content = resolveAssets.call(this, content);
     content = resolveHeadings.call(this, content);
-    // content = await replaceTitleRefs.call(this, content);
+    if (this.mode === TransformMode.Html) {
+        content = await applyPlugins.call(this, content);
+    }
 
     return content;
+}
+
+function safeExtractFrontmatter(this: LoaderContext, content: string) {
+    return extractFrontMatter(content, {json: true});
 }
 
 function mangleFrontMatter(this: LoaderContext, rawContent: string) {
     const {path, vars, options} = this;
     const {disableLiquid} = options;
 
-    const [frontmatter, content, rawFrontmatter] = extractFrontMatter(rawContent);
+    const [frontmatter, content, rawFrontmatter] = safeExtractFrontmatter.call(this, rawContent);
 
     if (!rawFrontmatter) {
         this.markdown.setMeta(path, {});
@@ -100,28 +112,19 @@ function mangleFrontMatter(this: LoaderContext, rawContent: string) {
     return content;
 }
 
-function stripComments(this: LoaderContext, content: string) {
-    const lines = this.sourcemap.lines(content);
-
-    const COMMENTS_CONTENTS = /<!-{2,}[\s\S]*?-{2,}>\r?\n?/g;
-
-    const points = [];
+function findComments(this: LoaderContext, content: string) {
+    const COMMENTS_CONTENTS = /<!-{2,}[\s\S]*?-{2,}>/g;
     const comments = [];
 
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = COMMENTS_CONTENTS.exec(content))) {
-        points.push(this.sourcemap.location(match.index, COMMENTS_CONTENTS.lastIndex, lines));
-        comments.push([match.index, COMMENTS_CONTENTS.lastIndex]);
+        comments.push([match.index, COMMENTS_CONTENTS.lastIndex] as [number, number]);
     }
 
-    this.sourcemap.patch({
-        delete: points,
-    });
+    this.markdown.setComments(this.path, comments);
 
-    return comments.reduceRight((content, [start, end]) => {
-        return content.slice(0, start) + content.slice(end);
-    }, content);
+    return content;
 }
 
 function templateContent(this: LoaderContext, content: string) {
@@ -139,28 +142,21 @@ function templateContent(this: LoaderContext, content: string) {
 
 function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
-    const lines = this.sourcemap.lines(content);
 
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)
     const INCLUDE_CONTENTS = /{%\s*include\s.+?%}/g;
-    // Include example: [createfolder](create-folder.md)
-    // Regexp result: create-folder.md
-    const INCLUDE_FILE_PATH = /(?<=[(]).+(?=[)])/;
 
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = INCLUDE_CONTENTS.exec(content))) {
+        const link = findLinks(match[0])[0];
         // TODO: warn about non local urls
-        const include = parseLocalUrl<IncludeInfo>(match[0].match(INCLUDE_FILE_PATH)?.[0]);
+        const include = parseLocalUrl<IncludeInfo>(link as string);
 
         if (include) {
             include.path = rebasePath(this.path, include.path as RelativePath);
-            include.location = this.sourcemap.location(
-                match.index,
-                INCLUDE_CONTENTS.lastIndex,
-                lines,
-            );
+            include.location = [match.index, INCLUDE_CONTENTS.lastIndex];
 
             includes.push(include);
         }
@@ -173,22 +169,15 @@ function resolveDependencies(this: LoaderContext, content: string) {
 
 function resolveAssets(this: LoaderContext, content: string) {
     const assets = [];
-    const lines = this.sourcemap.lines(content);
 
-    // This is not significant which type of content (image or link) we will match.
-    // Anyway we need to copy linked local media content.
-    const ASSETS_CONTENTS = /]\(\s*[^)]+\s*\)/g;
-    // Backward search is payful syntax. So we can't use it on large texts.
-    const ASSET_LINK = /(?<=]\(\s*)[^\s)]+(?=.*?\))/;
+    const defs = findDefs(content, true);
+    const links = findLinks(content, true);
 
-    let match;
-    // eslint-disable-next-line no-cond-assign
-    while ((match = ASSETS_CONTENTS.exec(content))) {
-        const link = match[0].match(ASSET_LINK)![0];
+    for (const [link, location] of [...defs, ...links]) {
         const asset = parseLocalUrl<AssetInfo>(link);
         if (asset && isMediaLink(asset.path)) {
-            asset.path = rebasePath(this.path, asset.path);
-            asset.location = this.sourcemap.location(match.index, ASSETS_CONTENTS.lastIndex, lines);
+            asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
+            asset.location = location;
             assets.push(asset);
         }
     }
@@ -200,7 +189,6 @@ function resolveAssets(this: LoaderContext, content: string) {
 
 function resolveHeadings(this: LoaderContext, content: string) {
     const headings = [];
-    const lines = this.sourcemap.lines(content);
 
     const commonRx = '((^|\\n)(?<common>(#{1,6}\\s*).*?))(?=\\n|$)';
     const alternateRx = '(?:^(\\r?\\n)*|(\\r?\\n){2,})(?<alternate>[\\s\\S]+?\\n(-+|=+))(?=\\n|$)';
@@ -214,7 +202,7 @@ function resolveHeadings(this: LoaderContext, content: string) {
 
         headings.push({
             content: heading,
-            location: this.sourcemap.location(rx.lastIndex - heading.length, rx.lastIndex, lines),
+            location: [rx.lastIndex - heading.length, rx.lastIndex] as Location,
         });
     }
 
