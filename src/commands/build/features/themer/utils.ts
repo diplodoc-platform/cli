@@ -23,8 +23,8 @@ import {
     ThemeOptions,
     ThemeVariant,
     YFMColorOptions,
-    YFM_COLOR_KEYS,
     YFM_BORDER_KEYS,
+    YFM_COLOR_KEYS,
 } from './types';
 
 export function isThemeFileExists(folderPath: AbsolutePath) {

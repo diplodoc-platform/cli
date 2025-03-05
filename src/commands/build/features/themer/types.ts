@@ -35,7 +35,7 @@ export const YFM_COLOR_KEYS = [
     'code',
     'code-background',
     'inline-code',
-    'inline-code-background'
+    'inline-code-background',
 ] as const;
 
 export const YFM_BORDER_KEYS = [
@@ -82,7 +82,8 @@ export const DC_COLOR_KEYS = [
 
 export type DCColorOptions = {
     [K in (typeof DC_COLOR_KEYS)[number]]?: string;
-}
+};
+
 export type Theme = {
     base?: ThemeOptions;
     light?: ThemeOptions;
