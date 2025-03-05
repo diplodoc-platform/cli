@@ -1,19 +1,21 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
-import type {MetaService} from '~/core/meta';
+import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
-import type {LeadingPage, Plugin, RawLeadingPage} from './types';
+
+import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
-import {cloneDeepWith, isString} from 'lodash';
+import pmap from 'p-map';
 import {load} from 'js-yaml';
 import {LINK_KEYS} from '@diplodoc/client/ssr';
 
-import {bounded, isRelativePath, normalizePath} from '~/core/utils';
+import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
+import {modifyValuesByKeys} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;
@@ -37,13 +39,23 @@ export type LeadingServiceConfig = {
 export class LeadingService {
     readonly name = 'Leading';
 
+    get logger() {
+        return this.run.logger;
+    }
+
     private run: Run;
 
     private config: LeadingServiceConfig;
 
-    private cached: Hash<LeadingPage> = {};
+    private cache: Hash<Promise<LeadingPage> | LeadingPage> = {};
 
     private plugins: Plugin[] = [];
+
+    private pathToMeta = new Demand<Meta>(this.load);
+
+    private pathToDeps = new Demand<never[]>(this.load);
+
+    private pathToAssets = new Demand<AssetInfo[]>(this.load);
 
     constructor(run: Run) {
         this.run = run;
@@ -57,51 +69,52 @@ export class LeadingService {
     @bounded async load(path: RelativePath): Promise<LeadingPage> {
         const file = normalizePath(path);
 
-        if (this.cached[file]) {
-            return this.cached[file];
+        if (this.cache[file]) {
+            return this.cache[file];
         }
 
-        const raw = await this.run.read(join(this.run.input, file));
-        const yaml = load(raw) as RawLeadingPage;
+        const defer = new Defer();
 
-        const context = await this.loaderContext(file);
-        const leading = await loader.call(context, yaml);
+        this.cache[file] = defer.promise;
 
-        this.run.meta.addMetadata(path, context.vars.__metadata);
-        this.run.meta.addSystemVars(path, context.vars.__system);
-        const meta = this.run.meta.add(file, leading.meta || {});
-        this.run.meta.add(path, await this.run.vcs.metadata(file, meta));
-
-        delete leading.meta;
-
-        await getHooks(this).Resolved.promise(leading, file);
-
-        const assets = new Set<RelativePath>();
-        this.walkLinks(leading, (link) => {
-            if (link && isRelativePath(link)) {
-                assets.add(link);
-            }
-
-            return link;
+        defer.promise.then((result) => {
+            this.cache[file] = result;
         });
 
-        // TODO: concurrently
-        for (const asset of assets) {
-            await getHooks(this).Asset.promise(join(file, asset), file);
-        }
+        const raw = await this.run.read(join(this.run.input, file));
+        const vars = await this.run.vars.load(path);
+        const yaml = load(raw) as RawLeadingPage;
 
-        this.cached[file] = leading;
+        const context = this.loaderContext(file, raw, vars);
+        const leading = await loader.call(context, yaml);
+
+        const meta = this.pathToMeta.get(file);
+        const assets = this.pathToAssets.get(file);
+
+        await getHooks(this).Loaded.promise(leading, meta, file);
+
+        this.run.meta.addMetadata(path, vars.__metadata);
+        // TODO: Move to SystemVars feature
+        this.run.meta.addSystemVars(path, vars.__system);
+        this.run.meta.add(file, meta);
+        // leading.meta is filled by plugins, so we can safely add it to resources
+        this.run.meta.addResources(file, leading.meta);
+
+        defer.resolve(leading);
+
+        await getHooks(this).Resolved.promise(leading, meta, file);
+
+        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
 
         return leading;
     }
 
-    @bounded async dump<T extends object = object>(path: RelativePath): Promise<T> {
+    @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
         const file = normalizePath(path);
-        const leading = await this.load(file);
 
         leading.meta = await this.run.meta.dump(file);
 
-        return getHooks(this).Dump.promise(leading, file) as T;
+        return getHooks(this).Dump.promise(leading, file);
     }
 
     @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string) {
@@ -112,33 +125,46 @@ export class LeadingService {
         return modifyValuesByKeys(leading, LINK_KEYS, walker);
     }
 
-    private async loaderContext(path: NormalizedPath): Promise<LoaderContext> {
-        const {lang, langs} = this.config;
-        const pathBaseLang = path.split('/')[0];
-        const pathLang = langs.includes(pathBaseLang) && pathBaseLang;
+    @memoize('path')
+    async deps(path: RelativePath) {
+        const file = normalizePath(path);
 
-        const vars = await this.run.vars.load(path);
+        return this.pathToDeps.get(file);
+    }
 
+    @memoize('path')
+    async assets(path: RelativePath) {
+        const file = normalizePath(path);
+
+        return this.pathToAssets.get(file);
+    }
+
+    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
         return {
             path,
             vars,
-            lang: pathLang || lang || langs[0],
+            lang: langFromPath(path, this.config),
+            readFile: (path: RelativePath) => {
+                return this.run.read(join(this.run.input, path));
+            },
+            emitFile: async (file: NormalizedPath, content: string) => {
+                const rootPath = fullPath(file, path);
+                await this.run.write(join(this.run.input, rootPath), content);
+            },
             plugins: [...this.plugins],
+            logger: this.logger,
+            leading: {
+                setDependencies: this.pathToDeps.set,
+                setAssets: this.pathToAssets.set,
+                setMeta: this.pathToMeta.set,
+            },
             options: {
-                resolveConditions: this.config.template.features.conditions,
-                resolveSubstitutions: this.config.template.features.substitutions,
+                disableLiquid: !this.run.config.template.enabled,
+            },
+            settings: {
+                substitutions: this.config.template.features.conditions,
+                conditions: this.config.template.features.substitutions,
             },
         };
     }
-}
-
-function modifyValuesByKeys(object: object, keys: string[], modify: (value: string) => string) {
-    // Clone the object deeply with a customizer function that modifies matching keys
-    return cloneDeepWith(object, (value: unknown, key) => {
-        if (keys.includes(key as string) && isString(value)) {
-            return modify(value);
-        }
-
-        return undefined;
-    });
 }

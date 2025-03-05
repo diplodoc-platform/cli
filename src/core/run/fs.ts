@@ -1,5 +1,4 @@
 import {
-    access,
     copyFile,
     link,
     mkdir,
@@ -11,9 +10,11 @@ import {
     writeFile,
 } from 'node:fs/promises';
 
+import {statSync} from 'node:fs';
+
 export type FileSystem = {
-    access: typeof access;
     stat: typeof stat;
+    statSync: typeof statSync;
     realpath: typeof realpath;
     link: typeof link;
     unlink: typeof unlink;
@@ -25,8 +26,8 @@ export type FileSystem = {
 };
 
 export const fs = {
-    access,
     stat,
+    statSync,
     realpath,
     rm,
     link,

@@ -1,6 +1,5 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {VCSConnectorConfig} from '~/vcs-connector/connector-models';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
@@ -15,7 +14,6 @@ export type LegacyArgs = {
     lintDisabled?: boolean;
     allowHTML?: boolean;
     needToSanitizeHtml?: boolean;
-    useLegacyConditions?: boolean;
 };
 
 export type LegacyRawConfig = {
@@ -27,14 +25,9 @@ export type LegacyRawConfig = {
     lintDisabled: boolean;
     allowHTML: boolean;
     needToSanitizeHtml: boolean;
-    useLegacyConditions: boolean;
-
-    connector?: VCSConnectorConfig;
 };
 
-export type LegacyConfig = {
-    useLegacyConditions: boolean;
-};
+export type LegacyConfig = {};
 
 export class Legacy {
     apply(program: Build) {
@@ -46,8 +39,7 @@ export class Legacy {
                 .addOption(options.conditionsInCode)
                 .addOption(options.lintDisabled)
                 .addOption(options.allowHTML)
-                .addOption(options.needToSanitizeHtml)
-                .addOption(options.useLegacyConditions);
+                .addOption(options.needToSanitizeHtml);
         });
 
         getBaseHooks(program).Config.tap('Legacy', (config, args) => {
@@ -58,8 +50,6 @@ export class Legacy {
             const lintDisabled = defined('lintDisabled', args, config);
             const allowHTML = defined('allowHTML', args, config);
             const needToSanitizeHtml = defined('needToSanitizeHtml', args, config);
-            const useLegacyConditions = defined('useLegacyConditions', args, config);
-            const vcsConnector = defined('connector', config);
 
             if (valuable(disableLiquid)) {
                 config.template.enabled = disableLiquid !== true;
@@ -90,12 +80,6 @@ export class Legacy {
                 config.sanitizeHtml = needToSanitizeHtml;
             }
 
-            if (valuable(vcsConnector)) {
-                config.vcs.connector = vcsConnector;
-            }
-
-            config.useLegacyConditions = Boolean(useLegacyConditions);
-
             for (const prop of [
                 'disableLiquid',
                 'applyPresets',
@@ -104,7 +88,6 @@ export class Legacy {
                 'lintDisabled',
                 'allowHTML',
                 'needToSanitizeHtml',
-                'connector',
             ]) {
                 // @ts-ignore
                 delete config[prop];
