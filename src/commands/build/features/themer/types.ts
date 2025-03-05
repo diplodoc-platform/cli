@@ -3,7 +3,7 @@ import Record from '@diplodoc/client/manifest';
 export type ThemeVariant = 'light' | 'dark';
 
 export type ThemeConfig = {
-    [K in keyof ColorsOptions]?: string;
+    [_K in keyof ColorsOptions]?: string;
 } & {
     light?: ColorsOptions;
     dark?: ColorsOptions;
@@ -46,7 +46,7 @@ export const YFM_BORDER_KEYS = [
 ];
 
 export type YFMColorOptions = {
-    [K in (typeof YFM_COLOR_KEYS)[number]]?: string;
+    [_K in (typeof YFM_COLOR_KEYS)[number]]?: string;
 };
 
 export type GravityColorsOptions = BrandDependColorOptions & {
@@ -69,7 +69,7 @@ export const BRAND_COLOR_KEYS = [
 ] as const;
 
 export type BrandDependColorOptions = {
-    [K in (typeof BRAND_COLOR_KEYS)[number]]?: string;
+    [_K in (typeof BRAND_COLOR_KEYS)[number]]?: string;
 };
 
 export const DC_COLOR_KEYS = [
@@ -81,7 +81,7 @@ export const DC_COLOR_KEYS = [
 ] as const;
 
 export type DCColorOptions = {
-    [K in (typeof DC_COLOR_KEYS)[number]]?: string;
+    [_K in (typeof DC_COLOR_KEYS)[number]]?: string;
 };
 
 export type Theme = {
