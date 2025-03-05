@@ -56,7 +56,7 @@ describe('Build themer feature', () => {
                 const build = setupBuild({
                     files: {
                         'theme.yaml': dedent`
-                        base-misc-light: blue
+                        text-secondary: blue
                     `,
                     },
                 });
@@ -65,7 +65,7 @@ describe('Build themer feature', () => {
 
                 expect(build.run.write).toHaveBeenCalledWith(
                     resolve(build.run.originalOutput, THEME_CSS_PATH),
-                    `.g-root {\n    --g-color-base-misc-light: blue;\n}`,
+                    `.g-root {\n    --g-color-text-secondary: blue;\n}`,
                 );
             });
 
@@ -73,7 +73,7 @@ describe('Build themer feature', () => {
                 const build = setupBuild({
                     files: {
                         'theme.yaml': dedent`
-                        base-misc-light: blue
+                        text-secondary: blue
                     `,
                     },
                 });
@@ -84,7 +84,7 @@ describe('Build themer feature', () => {
                     resolve(build.run.originalOutput, THEME_CSS_PATH),
                     dedent`
                 .g-root {
-                    --g-color-base-misc-light: blue;
+                    --g-color-text-secondary: blue;
                 }`,
                 );
             });
@@ -138,14 +138,9 @@ describe('Build themer feature', () => {
                 --g-color-private-brand-50-solid: rgb(48 63 69);
                 --g-color-base-brand: rgb(78, 231, 228);
                 --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-background']};
-                --g-color-base-brand-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-brand-hover']};
                 --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-selection']};
-                --g-color-base-selection-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-selection-hover']};
                 --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link']};
                 --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link-hover']};
-                --g-color-text-brand: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-brand']};
-                --g-color-text-brand-heavy: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-brand-heavy']};
-                --g-color-line-brand: ${DEFAULT_BRAND_DEPEND_COLORS.light['line-brand']};
             }
 
             .g-root_theme_dark {
@@ -181,14 +176,9 @@ describe('Build themer feature', () => {
                 --g-color-private-brand-50-solid: rgb(237 253 252);
                 --g-color-base-brand: rgb(78, 231, 228);
                 --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-background']};
-                --g-color-base-brand-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-brand-hover']};
                 --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-selection']};
-                --g-color-base-selection-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-selection-hover']};
                 --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link']};
                 --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link-hover']};
-                --g-color-text-brand: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-brand']};
-                --g-color-text-brand-heavy: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-brand-heavy']};
-                --g-color-line-brand: ${DEFAULT_BRAND_DEPEND_COLORS.dark['line-brand']};
             }`;
 
                 expect(build.run.write).toHaveBeenCalledWith(
@@ -241,15 +231,10 @@ describe('Build themer feature', () => {
                     --g-color-private-brand-100-solid: rgb(38 37 82);
                     --g-color-private-brand-50-solid: rgb(41 40 71);
                     --g-color-base-brand: blue;
-                    --g-color-base-background: rgb(255,255,255);
-                    --g-color-base-brand-hover: var(--g-color-private-brand-650-solid);
-                    --g-color-base-selection: var(--g-color-private-brand-150);
-                    --g-color-base-selection-hover: var(--g-color-private-brand-300);
-                    --g-color-text-link: var(--g-color-private-brand-700-solid);
-                    --g-color-text-link-hover: var(--g-color-private-brand-850-solid);
-                    --g-color-text-brand: var(--g-color-private-brand-700-solid);
-                    --g-color-text-brand-heavy: var(--g-color-private-brand-850-solid);
-                    --g-color-line-brand: var(--g-color-private-brand-550-solid);
+                    --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-background']};
+                    --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.light['base-selection']};
+                    --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link']};
+                    --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.light['text-link-hover']};
                 }
 
                 .g-root_theme_dark {
@@ -284,15 +269,10 @@ describe('Build themer feature', () => {
                     --g-color-private-brand-100-solid: rgb(217 217 255);
                     --g-color-private-brand-50-solid: rgb(230 230 255);
                     --g-color-base-brand: blue;
-                    --g-color-base-background: rgb(45, 44, 51);
-                    --g-color-base-brand-hover: var(--g-color-private-brand-650-solid);
-                    --g-color-base-selection: var(--g-color-private-brand-150);
-                    --g-color-base-selection-hover: var(--g-color-private-brand-300);
-                    --g-color-text-link: var(--g-color-private-brand-600-solid);
-                    --g-color-text-link-hover: var(--g-color-private-brand-850-solid);
-                    --g-color-text-brand: var(--g-color-private-brand-600-solid);
-                    --g-color-text-brand-heavy: var(--g-color-private-brand-850-solid);
-                    --g-color-line-brand: var(--g-color-private-brand-550-solid);
+                    --g-color-base-background: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-background']};
+                    --g-color-base-selection: ${DEFAULT_BRAND_DEPEND_COLORS.dark['base-selection']};
+                    --g-color-text-link: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link']};
+                    --g-color-text-link-hover: ${DEFAULT_BRAND_DEPEND_COLORS.dark['text-link-hover']};
                 }`;
 
                 expect(build.run.write).toHaveBeenCalledWith(
