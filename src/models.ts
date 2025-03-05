@@ -82,6 +82,7 @@ interface YfmConfig {
      * <URL> -> extract and push to s3
      */
     changelogs: string | boolean;
+    theme: string | boolean;
     analytics?: DocAnalytics;
     useLegacyConditions?: boolean;
     search: {

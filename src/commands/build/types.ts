@@ -7,6 +7,7 @@ import type {ContributorsArgs, ContributorsConfig} from './features/contributors
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
+import type {ThemerArgs, ThemerConfig} from './features/themer';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {OutputFormat} from './config';
@@ -47,6 +48,7 @@ export type BuildArgs = ProgramArgs &
             SinglePageArgs &
             LintArgs &
             ChangelogsArgs &
+            ThemerArgs &
             SearchArgs &
             LegacyArgs
     >;
@@ -59,6 +61,7 @@ export type BuildRawConfig = BaseArgs &
     SinglePageConfig &
     LintRawConfig &
     ChangelogsConfig &
+    ThemerConfig &
     SearchRawConfig &
     LegacyRawConfig;
 
@@ -71,6 +74,7 @@ export type BuildConfig = Config<
         SinglePageConfig &
         LintConfig &
         ChangelogsConfig &
+        ThemerConfig &
         SearchConfig &
         LegacyConfig
 >;

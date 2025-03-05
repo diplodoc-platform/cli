@@ -45,6 +45,7 @@ export function legacyConfig(run: Run): YfmArgv {
         ignoreAuthorPatterns: config.ignoreAuthorPatterns,
 
         changelogs: config.changelogs,
+        theme: config.theme,
         search: config.search,
 
         included: config.mergeIncludes,
