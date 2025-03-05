@@ -9,14 +9,41 @@ export type ThemeConfig = {
     dark?: ColorsOptions;
 };
 
-export type ColorsOptions = GravityColorsOptions & YFMColorOptions;
+export type ColorsOptions = GravityColorsOptions & YFMColorOptions & DCColorOptions;
 
 export const YFM_COLOR_KEYS = [
+    'note-info',
+    'note-tip',
+    'note-warning',
+    'note-important',
     'note-info-background',
     'note-tip-background',
     'note-warning-background',
     'note-important-background',
+    'note-info-border',
+    'note-tip-border',
+    'note-warning-border',
+    'note-important-border',
+    'quote',
+    'tab',
+    'tab-hover',
+    'table',
+    'table-background',
+    'table-row-background',
+    'table-outer-border',
+    'table-inner-border',
+    'code',
+    'code-background',
+    'inline-code',
+    'inline-code-background'
 ] as const;
+
+export const YFM_BORDER_KEYS = [
+    'note-info-border',
+    'note-tip-border',
+    'note-warning-border',
+    'note-important-border',
+];
 
 export type YFMColorOptions = {
     [K in (typeof YFM_COLOR_KEYS)[number]]?: string;
@@ -31,26 +58,31 @@ export type GravityColorsOptions = BrandDependColorOptions & {
     'text-secondary'?: string;
     'text-complementary'?: string;
     'text-hint'?: string;
-    'text-misc'?: string;
 };
 
 export const BRAND_COLOR_KEYS = [
     'base-brand',
     'base-background',
-    'base-brand-hover',
     'base-selection',
-    'base-selection-hover',
     'text-link',
     'text-link-hover',
-    'text-brand',
-    'text-brand-heavy',
-    'line-brand',
 ] as const;
 
 export type BrandDependColorOptions = {
     [K in (typeof BRAND_COLOR_KEYS)[number]]?: string;
 };
 
+export const DC_COLOR_KEYS = [
+    'mini-toc-border',
+    'mini-toc',
+    'mini-toc-hover',
+    'mini-toc-active',
+    'mini-toc-active-border',
+] as const;
+
+export type DCColorOptions = {
+    [K in (typeof DC_COLOR_KEYS)[number]]?: string;
+}
 export type Theme = {
     base?: ThemeOptions;
     light?: ThemeOptions;

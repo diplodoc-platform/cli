@@ -6,6 +6,8 @@ export const THEME_GRAVITY_VARIABLE_PREFIX = '--g-color';
 
 export const THEME_YFM_VARIABLE_PREFIX = '--yfm-color';
 
+export const THEME_DC_VARIABLE_PREFIX = '--dc-color';
+
 export const BRAND_COLOR_VARIABLE_PREFIX = `${THEME_GRAVITY_VARIABLE_PREFIX}-private-brand`;
 
 export const DEFAULT_BRAND_DEPEND_COLORS: Record<
@@ -15,26 +17,16 @@ export const DEFAULT_BRAND_DEPEND_COLORS: Record<
     light: {
         'base-brand': 'rgb(82, 130, 255)',
         'base-background': 'rgb(255,255,255)',
-        'base-brand-hover': 'var(--g-color-private-brand-650-solid)',
         'base-selection': 'var(--g-color-private-brand-150)',
-        'base-selection-hover': 'var(--g-color-private-brand-300)',
         'text-link': 'var(--g-color-private-brand-700-solid)',
         'text-link-hover': 'var(--g-color-private-brand-850-solid)',
-        'text-brand': 'var(--g-color-private-brand-700-solid)',
-        'text-brand-heavy': 'var(--g-color-private-brand-850-solid)',
-        'line-brand': 'var(--g-color-private-brand-550-solid)',
     },
     dark: {
         'base-brand': 'rgb(82, 130, 255)',
         'base-background': 'rgb(45, 44, 51)',
-        'base-brand-hover': 'var(--g-color-private-brand-650-solid)',
         'base-selection': 'var(--g-color-private-brand-150)',
-        'base-selection-hover': 'var(--g-color-private-brand-300)',
-        'text-link': 'var(--g-color-private-brand-600-solid)',
+        'text-link': 'var(--g-color-private-brand-700-solid)',
         'text-link-hover': 'var(--g-color-private-brand-850-solid)',
-        'text-brand': 'var(--g-color-private-brand-600-solid)',
-        'text-brand-heavy': 'var(--g-color-private-brand-850-solid)',
-        'line-brand': 'var(--g-color-private-brand-550-solid)',
     },
 };
 

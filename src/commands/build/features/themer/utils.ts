@@ -7,6 +7,7 @@ import {
     DEFAULT_BRAND_DEPEND_COLORS,
     PRIVATE_SOLID_VARIABLES,
     PRIVATE_VARIABLES,
+    THEME_DC_VARIABLE_PREFIX,
     THEME_GRAVITY_VARIABLE_PREFIX,
     THEME_VARIANTS,
     THEME_YFM_VARIABLE_PREFIX,
@@ -15,12 +16,15 @@ import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 import {
     BRAND_COLOR_KEYS,
     ColorsOptions,
+    DCColorOptions,
+    DC_COLOR_KEYS,
     Theme,
     ThemeConfig,
     ThemeOptions,
     ThemeVariant,
     YFMColorOptions,
     YFM_COLOR_KEYS,
+    YFM_BORDER_KEYS,
 } from './types';
 
 export function isThemeFileExists(folderPath: AbsolutePath) {
@@ -169,23 +173,27 @@ function prepareThemeVariables(variant: ThemeVariant | 'base', theme: Theme) {
 
     let css = '';
     if (variant === 'base') {
-        const gravityColors = getGravityCSSColors(theme[variant].colors);
-        const yfmCssVariables = getYFMCSSColors(theme[variant].colors);
+        const gravityCssVars = getGravityCSSColors(theme[variant].colors);
+        const yfmCssVars = getYFMCSSColors(theme[variant].colors);
+        const dcCssVars = getDCCSSColors(theme[variant].colors);
 
-        css += gravityColors ? `.g-root {\n${gravityColors}\n}\n\n` : '';
-        css += yfmCssVariables ? `.yfm {\n${yfmCssVariables}\n}\n\n` : '';
+        css += gravityCssVars ? `.g-root {\n${gravityCssVars}\n}\n\n` : '';
+        css += yfmCssVars ? `.g-root .yfm {\n${yfmCssVars}\n}\n\n` : '';
+        css += dcCssVars ? `.g-root .dc-doc-page {\n${dcCssVars}\n}\n\n` : '';
     } else {
         let palette = '';
         if (theme[variant].palette) {
             palette = getPaletteCSSColors(theme[variant].palette);
         }
-        const gravityColors = getGravityCSSColors(theme[variant].colors);
-        const yfmCssVariables = getYFMCSSColors(theme[variant].colors);
+        const gravityCssVars = getGravityCSSColors(theme[variant].colors);
+        const yfmCssVars = getYFMCSSColors(theme[variant].colors);
+        const dcCssVars = getDCCSSColors(theme[variant].colors);
 
-        if (palette !== '' || gravityColors) {
-            css += `.g-root_theme_${variant} {\n${palette}\n${gravityColors}\n}\n\n`;
+        if (palette !== '' || gravityCssVars) {
+            css += `.g-root_theme_${variant} {\n${palette}\n${gravityCssVars}\n}\n\n`;
         }
-        css += yfmCssVariables ? `.g-root_theme_${variant} .yfm {\n${yfmCssVariables}\n}\n\n` : '';
+        css += yfmCssVars ? `.g-root_theme_${variant} .yfm {\n${yfmCssVars}\n}\n\n` : '';
+        css += dcCssVars ? `.g-root_theme_${variant} .dc-doc-page {\n${dcCssVars}\n}\n\n` : '';
     }
     return css;
 }
@@ -195,6 +203,7 @@ function getGravityCSSColors(colors: ColorsOptions): string | undefined {
 
     const css = Object.entries(colors)
         .filter(([key]) => !YFM_COLOR_KEYS.includes(key as keyof YFMColorOptions))
+        .filter(([key]) => !DC_COLOR_KEYS.includes(key as keyof DCColorOptions))
         .map(([key, value]) => `    ${THEME_GRAVITY_VARIABLE_PREFIX}-${key}: ${value};`)
         .join('\n');
 
@@ -206,7 +215,24 @@ function getYFMCSSColors(colors: ColorsOptions): string | undefined {
 
     const css = Object.entries(colors)
         .filter(([key]) => YFM_COLOR_KEYS.includes(key as keyof YFMColorOptions))
-        .map(([key, value]) => `    ${THEME_YFM_VARIABLE_PREFIX}-${key}: ${value};`)
+        .map(([key, value]) => {
+            let result = `    ${THEME_YFM_VARIABLE_PREFIX}-${key}: ${value};`;
+            if (YFM_BORDER_KEYS.includes(key as keyof YFMColorOptions)) {
+                result += `\n    --yfm-${key}-thickness: 1px;`;
+            }
+            return result;
+        })
+        .join('\n');
+
+    return css;
+}
+
+function getDCCSSColors(colors: ColorsOptions): string | undefined {
+    if (!colors) return;
+
+    const css = Object.entries(colors)
+        .filter(([key]) => DC_COLOR_KEYS.includes(key as keyof DCColorOptions))
+        .map(([key, value]) => `    ${THEME_DC_VARIABLE_PREFIX}-${key}: ${value};`)
         .join('\n');
 
     return css;
