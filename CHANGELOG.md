@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.55.0](https://github.com/diplodoc-platform/cli/compare/v4.54.6...v4.55.0) (2025-03-05)
+
+
+### Features
+
+* replace PutObjectCommand with lib-storage ([#1047](https://github.com/diplodoc-platform/cli/issues/1047)) ([ff0c898](https://github.com/diplodoc-platform/cli/commit/ff0c8982a73a74366b2f899bb13c93a1e4f7b362))
+
 ## [4.54.6](https://github.com/diplodoc-platform/cli/compare/v4.54.5...v4.54.6) (2025-03-03)
 
 
