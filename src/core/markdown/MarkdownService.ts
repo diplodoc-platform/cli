@@ -103,7 +103,7 @@ export class MarkdownService {
         });
 
         const raw = await this.run.read(join(this.run.input, file));
-        const vars = await this.run.vars.load(from[0] || file);
+        const vars = this.run.vars.for(from[0] || file);
 
         const context = this.loaderContext(file, raw, vars);
         const content = await loader.call(context, raw);

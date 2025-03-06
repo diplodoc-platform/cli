@@ -4,7 +4,7 @@ import log from '@diplodoc/transform/lib/log';
 import {Thread, Worker, spawn} from 'threads';
 import {extname} from 'path';
 
-import {ArgvService, PluginService, PresetService} from '../services';
+import {ArgvService, PluginService} from '../services';
 import {ProcessLinterWorker} from '../workers/linter';
 import {LINTING_FINISHED, MIN_CHUNK_SIZE, WORKERS_COUNT} from '../constants';
 import {lintPage} from '../resolvers';
@@ -23,14 +23,13 @@ export async function processLinter(run: Run): Promise<void> {
     const argvConfig = ArgvService.getConfig();
 
     const navigationPaths = run.toc.entries;
+    const presetStorage = run.vars.entries;
 
     if (!processLinterWorkers) {
         lintPagesFallback(run, navigationPaths);
 
         return;
     }
-
-    const presetStorage = PresetService.getPresetStorage();
 
     /* Subscribe on the linted page event */
     processLinterWorkers.forEach((worker) => {

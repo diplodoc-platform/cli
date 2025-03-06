@@ -1,11 +1,11 @@
 import type {Run as BaseRun} from '~/core/run';
-import type {Presets} from './types';
+import {Preset, Presets} from './types';
 
 import {dirname, join} from 'node:path';
-import {merge} from 'lodash';
+import {uniq} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {Defer, normalizePath, own} from '~/core/utils';
+import {memoize, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -21,7 +21,7 @@ export class VarsService {
     readonly name = 'Vars';
 
     get entries() {
-        return [...Object.entries(this.cache)];
+        return this.presets;
     }
 
     private run: Run;
@@ -30,7 +30,7 @@ export class VarsService {
 
     private config: VarsServiceConfig;
 
-    private cache: Record<NormalizedPath, Hash> = {};
+    private presets: Record<NormalizedPath, Hash> = {};
 
     constructor(run: Run) {
         this.run = run;
@@ -44,67 +44,94 @@ export class VarsService {
         });
 
         for (const preset of presets) {
-            await this.load(preset);
+            const dir = normalizePath(dirname(preset));
+            this.presets[dir] = await this.load(preset);
         }
     }
 
-    async load(path: RelativePath): Promise<Hash> {
-        path = normalizePath(path);
+    for(path: RelativePath): Preset {
+        const scopes = this.scopes(dirname(path));
 
-        const varsPreset = this.config.varsPreset || 'default';
-        const file = normalizePath(join(dirname(path), 'presets.yaml'));
+        return new Proxy(
+            {},
+            {
+                has(_target, prop: string) {
+                    for (const scope of scopes) {
+                        if (own(scope, prop)) {
+                            return true;
+                        }
+                    }
 
-        if (this.cache[file]) {
-            return this.cache[file];
-        }
+                    return false;
+                },
 
-        const defer = new Defer();
+                get(_target, prop: string) {
+                    for (const scope of scopes) {
+                        if (own(scope, prop)) {
+                            return scope[prop];
+                        }
+                    }
 
-        this.cache[file] = defer.promise;
+                    return undefined;
+                },
 
-        defer.promise.then((result) => {
-            this.cache[file] = result;
-        });
+                getOwnPropertyDescriptor(_target, prop: string) {
+                    for (const scope of scopes) {
+                        if (own(scope, prop)) {
+                            return {configurable: true, enumerable: true, value: scope[prop]};
+                        }
+                    }
 
-        this.logger.proc(file);
+                    return undefined;
+                },
 
-        const scopes = [];
+                ownKeys() {
+                    const keys = [];
 
-        if (dirname(path) !== '.') {
-            scopes.push(await this.load(dirname(path)));
-        }
+                    for (const scope of scopes) {
+                        keys.push(...Object.keys(scope));
+                    }
 
-        try {
-            const presets = await getHooks(this).PresetsLoaded.promise(
-                load(await this.run.read(join(this.run.input, file))) as Presets,
-                file,
-            );
-
-            scopes.push(presets['default']);
-
-            if (varsPreset && varsPreset !== 'default') {
-                scopes.push(presets[varsPreset] || {});
-            }
-        } catch (error) {
-            if (!own(error, 'code') || error.code !== 'ENOENT') {
-                throw error;
-            }
-        }
-
-        scopes.push(this.config.vars);
-
-        const vars = merge({}, ...scopes);
-
-        defer.resolve(vars);
-
-        await getHooks(this).Resolved.promise(vars, file);
-
-        return vars;
+                    return uniq(keys);
+                },
+            },
+        );
     }
 
     dump(presets: Hash): string {
         return dump(presets, {
             lineWidth: 120,
         });
+    }
+
+    private async load(path: RelativePath): Promise<Hash> {
+        const file = normalizePath(path);
+
+        this.logger.proc(file);
+
+        return getHooks(this).PresetsLoaded.promise(
+            load(await this.run.read(join(this.run.input, file))) as Presets,
+            file,
+        );
+    }
+
+    @memoize('path')
+    private scopes(path: RelativePath) {
+        const varsPreset = this.config.varsPreset || 'default';
+        const presets = [this.config.vars];
+
+        let dir = normalizePath(path);
+        do {
+            if (this.presets[dir]) {
+                presets.push(this.presets[dir][varsPreset]);
+                if (varsPreset !== 'default') {
+                    presets.push(this.presets[dir]['default']);
+                }
+            }
+
+            dir = normalizePath(dirname(dir));
+        } while (dir && dir !== '.');
+
+        return presets;
     }
 }

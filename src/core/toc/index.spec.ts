@@ -37,9 +37,9 @@ function setupService(options: Options = {}) {
 }
 
 function mockData(run: RunSpy, content: string, vars: Vars, files: Files, copy: Copy) {
-    when(run.vars.load)
+    when(run.vars.for)
         .calledWith('toc.yaml' as NormalizedPath)
-        .thenResolve(vars);
+        .thenReturn(vars);
 
     when(run.read).calledWith(join(run.input, './toc.yaml')).thenResolve(content);
 

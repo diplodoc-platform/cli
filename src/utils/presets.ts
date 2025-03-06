@@ -1,16 +1,15 @@
-import {dirname, relative, resolve} from 'path';
+import {relative} from 'path';
 
 import {ArgvService, PresetService} from '../services';
 import {YfmPreset} from '../models';
 
-export function getVarsPerFile(filePath: string): YfmPreset {
-    return PresetService.get(dirname(filePath));
+export function getVarsPerFile(filePath: RelativePath): YfmPreset {
+    return PresetService.get(filePath);
 }
 
 export function getVarsPerRelativeFile(filePath: string): Record<string, string> {
     const {input} = ArgvService.getConfig();
-    const root = resolve(input);
-    const relativeFilePath = relative(root, filePath);
+    const relativeFilePath = relative(input, filePath);
 
     return getVarsPerFile(relativeFilePath);
 }
