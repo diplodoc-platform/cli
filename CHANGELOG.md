@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.55.1](https://github.com/diplodoc-platform/cli/compare/v4.55.0...v4.55.1) (2025-03-06)
+
+
+### Bug Fixes
+
+* move lib-storage to dependencies ([#1049](https://github.com/diplodoc-platform/cli/issues/1049)) ([7453ac9](https://github.com/diplodoc-platform/cli/commit/7453ac9bddc5d29d4e32df93140e87cb0f0b9b8d))
+
 ## [4.55.0](https://github.com/diplodoc-platform/cli/compare/v4.54.6...v4.55.0) (2025-03-05)
 
 
