@@ -178,9 +178,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await run.vcs.init();
         await run.search.init();
 
+        const ignore = run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
         const tocs = await run.glob('**/toc.yaml', {
             cwd: run.input,
-            ignore: run.config.ignore,
+            ignore: ignore,
         });
 
         for (const toc of tocs) {
