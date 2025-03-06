@@ -6,6 +6,7 @@ import {ok} from 'node:assert';
 import {dirname, join} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
+import pmap from 'p-map';
 
 import {bounded, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
@@ -178,17 +179,15 @@ export class Run<TConfig = BaseConfig> {
                   })
               ).map((file) => [join(from, file), join(to, file)]);
 
-        for (const [from, to] of files) {
+        await pmap(files, async ([from, to]) => {
             const dir = dirname(to);
             if (!dirs.has(dir)) {
                 await this.fs.mkdir(dir, {recursive: true});
                 dirs.add(dir);
             }
 
-            // this.logger.copy(join(from, file), join(to, file));
-
             await hardlink(from, to);
-        }
+        });
 
         return files;
     }

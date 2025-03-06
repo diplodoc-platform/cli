@@ -9,7 +9,7 @@ import {legacyConfig} from './legacy-config';
 export async function handler(run: Run) {
     try {
         ArgvService.init(legacyConfig(run));
-        PresetService.init(run.vars);
+        PresetService.init(run.vars.entries);
 
         const {addMapFile} = run.config;
 

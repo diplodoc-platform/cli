@@ -107,7 +107,10 @@ export class Templating {
                                 varsPreset !== 'default' &&
                                     presets[varsPreset] && {[varsPreset]: presets[varsPreset]},
                             ].filter(Boolean) as Preset[];
-                            const result = merge({}, ...scopes);
+                            const result = scopes.reduce(
+                                (result, scope) => Object.assign(result, scope),
+                                {},
+                            );
 
                             await run.write(
                                 join(run.output, path),

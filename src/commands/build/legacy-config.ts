@@ -8,6 +8,8 @@ export function legacyConfig(run: Run): YfmArgv {
         rootInput: run.originalInput,
         input: run.input,
         output: run.output,
+        vars: run.config.vars,
+        varsPreset: run.config.varsPreset,
         outputFormat: run.config.outputFormat,
         allowHTML: config.allowHtml,
         needToSanitizeHtml: config.sanitizeHtml,
