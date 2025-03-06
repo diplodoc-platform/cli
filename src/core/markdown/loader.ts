@@ -145,7 +145,7 @@ function resolveDependencies(this: LoaderContext, content: string) {
 
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)
-    const INCLUDE_CONTENTS = /{%\s*include\s.+?%}/g;
+    const INCLUDE_CONTENTS = /{%\s*include\s*.+?%}/g;
 
     let match;
     // eslint-disable-next-line no-cond-assign
