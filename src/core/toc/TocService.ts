@@ -10,6 +10,7 @@ import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {
+    Defer,
     bounded,
     copyJson,
     errorMessage,
@@ -68,7 +69,7 @@ export class TocService {
 
     private processed: Hash<boolean> = {};
 
-    private cache: Map<NormalizedPath, Toc | undefined> = new Map();
+    private cache: Map<NormalizedPath, Toc | Promise<Toc>> = new Map();
 
     private get vars() {
         return this.run.vars;
@@ -108,7 +109,15 @@ export class TocService {
 
         this.logger.proc(file);
 
-        const context: LoaderContext = await this.loaderContext(file);
+        const defer = new Defer<Toc>();
+
+        this.cache.set(file, defer.promise);
+
+        defer.promise.then((result) => {
+            this.cache.set(file, result);
+        });
+
+        const context: LoaderContext = this.loaderContext(file);
 
         const content = await read(this.run, file);
 
@@ -118,7 +127,7 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        this.cache.set(file, toc);
+        defer.resolve(toc);
 
         await this.walkItems([toc], (item: TocItem | Toc) => {
             if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
@@ -152,7 +161,7 @@ export class TocService {
             const from = normalizePath(dirname(file));
             const to = normalizePath(dirname(include.base));
 
-            context.vars = await this.vars.load(include.base);
+            context.vars = this.vars.for(include.base);
             context.path = context.path.replace(from, to) as RelativePath;
             context.from = include.from;
 
@@ -163,6 +172,7 @@ export class TocService {
             );
 
             for (const [from, to] of files) {
+                this.logger.copy(from, to);
                 this.meta.add(relative(this.run.input, to), {
                     sourcePath: relative(this.run.input, from),
                 });
@@ -268,16 +278,13 @@ export class TocService {
         return false;
     }
 
-    private async loaderContext(
-        path: NormalizedPath,
-        {from, mode, base}: Partial<IncludeInfo> = {},
-    ) {
+    private loaderContext(path: NormalizedPath, {from, mode, base}: Partial<IncludeInfo> = {}) {
         return {
             path,
             from: from || path,
             mode,
             base,
-            vars: await this.vars.load(path),
+            vars: this.vars.for(path),
             toc: this,
             logger: this.logger,
             settings: {
