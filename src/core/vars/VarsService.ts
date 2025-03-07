@@ -119,9 +119,11 @@ export class VarsService {
     private scopes(path: RelativePath) {
         const varsPreset = this.config.varsPreset || 'default';
         const presets = [this.config.vars];
+        const dirs = [normalizePath(path)];
 
-        let dir = normalizePath(path);
-        do {
+        while (dirs.length) {
+            const dir = dirs.pop() as NormalizedPath;
+
             if (this.presets[dir]) {
                 presets.push(this.presets[dir][varsPreset]);
                 if (varsPreset !== 'default') {
@@ -129,8 +131,11 @@ export class VarsService {
                 }
             }
 
-            dir = normalizePath(dirname(dir));
-        } while (dir && dir !== '.');
+            const next = normalizePath(dirname(dir));
+            if (dir !== next) {
+                dirs.push(next);
+            }
+        }
 
         return presets;
     }

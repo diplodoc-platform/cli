@@ -1,6 +1,8 @@
 /external
 /build
 /assets
+/lib
+/commands
 !tests/**/input
 schemas/page-constructor-schema.json
 
