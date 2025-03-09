@@ -7,4 +7,4 @@ export type Presets = {
 export type Preset = {
     __system?: Hash;
     __metadata?: Hash;
-} & Hash<string | string[] | Hash>;
+} & Hash<number | string | (number | string)[] | Hash>;

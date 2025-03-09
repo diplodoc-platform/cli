@@ -1,13 +1,10 @@
 import type {HookMeta} from '~/core/utils';
 
 import {MAIN_TIMER_ID} from '~/constants';
-import {NAME, Program, parse} from '~/commands';
+import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
 
-export {Program} from '~/commands';
-
-export type {Config, OptionInfo} from '~/core/config';
-export {Command, option} from '~/core/config';
+export * from '~/commands';
 
 if (require.main === module) {
     (async () => {
@@ -21,7 +18,7 @@ if (require.main === module) {
 
         let exitCode = 0;
         try {
-            const args = parse(NAME, process.argv);
+            const args = parse(process.argv);
             const program = new Program();
             await program.init(args);
             await program.parse(process.argv);

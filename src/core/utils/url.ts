@@ -1,5 +1,5 @@
 import {pick} from 'lodash';
-import {type UrlWithStringQuery, parse} from 'url';
+import {type UrlWithStringQuery, parse} from 'node:url';
 
 export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href);

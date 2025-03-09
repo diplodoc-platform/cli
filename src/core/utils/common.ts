@@ -1,5 +1,5 @@
 import {isObject} from 'lodash';
-import {bounded} from '~/core/utils/decorators';
+import {bounded} from './decorators';
 
 export function own<V = unknown, T extends string = string>(
     box: unknown,
@@ -12,7 +12,7 @@ export function own<V = unknown, T extends string = string>(
 
 export function copyJson<T extends object>(
     json: T | undefined,
-): T extends DeepFrozen<infer R> ? R : T {
+): T extends DeepFrozen<infer R> ? R : T | undefined {
     return json ? JSON.parse(JSON.stringify(json)) : json;
 }
 

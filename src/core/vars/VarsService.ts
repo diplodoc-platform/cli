@@ -133,7 +133,10 @@ export class VarsService {
             const dir = dirs.pop() as NormalizedPath;
 
             if (this.presets[dir]) {
-                presets.push(this.presets[dir][varsPreset]);
+                if (this.presets[dir][varsPreset]) {
+                    presets.push(this.presets[dir][varsPreset]);
+                }
+
                 if (varsPreset !== 'default') {
                     presets.push(this.presets[dir]['default']);
                 }

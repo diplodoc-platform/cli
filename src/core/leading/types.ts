@@ -1,4 +1,4 @@
-import type {UrlWithStringQuery} from 'url';
+import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';
 
