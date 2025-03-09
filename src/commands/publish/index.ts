@@ -11,9 +11,12 @@ import {
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
 
+import {getHooks, withHooks} from './hooks';
 import {options} from './config';
 import {upload} from './upload';
 import {Run} from './run';
+
+export {getHooks};
 
 export {upload, Run};
 
@@ -37,6 +40,7 @@ export type PublishConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     hidden: string[];
 };
 
+@withHooks
 @withConfigScope('publish', {strict: true})
 @withConfigDefaults(() => ({
     endpoint: 'https://s3.amazonaws.com',

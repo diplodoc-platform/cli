@@ -23,7 +23,7 @@ vi.mock('~/core/config', async (importOriginal) => {
 export async function runTranslate(argv: string) {
     const translate = new Translate();
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
-    const args = parse('translate', rawArgs);
+    const args = parse(rawArgs, 'translate');
 
     await translate.init(args);
     await translate.parse(rawArgs);

@@ -4,10 +4,9 @@ import type {AssetInfo, Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} f
 
 import {get, set, uniq} from 'lodash';
 import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
-import {LINK_KEYS} from '@diplodoc/client/ssr';
 import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
 
-import {modifyValuesByKeys} from './utils';
+import {walkLinks} from './utils';
 
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
@@ -120,7 +119,7 @@ function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
 function resolveAssets(this: LoaderContext, yaml: RawLeadingPage) {
     const assets: AssetInfo[] = [];
 
-    yaml = modifyValuesByKeys(yaml, LINK_KEYS, (link) => {
+    yaml = walkLinks(yaml, (link) => {
         const asset = parseLocalUrl(link);
         if (asset && isMediaLink(asset.path)) {
             asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);

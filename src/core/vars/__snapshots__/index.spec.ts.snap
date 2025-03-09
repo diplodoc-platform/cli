@@ -18,6 +18,15 @@ override4: value2
 "
 `;
 
+exports[`vars > service > load > should load presets file target empty scope 1`] = `
+"field1: value1
+override1: value2
+override2: value2
+override3: value2
+override4: value2
+"
+`;
+
 exports[`vars > service > load > should load presets file target scope 1`] = `
 "field2: value1
 override1: value1

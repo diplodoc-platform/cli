@@ -3,6 +3,7 @@
   "compilerOptions": {
     "lib": ["ES2019"],
     "target": "ES2019",
+    "rootDir": ".",
     "outDir": "build",
     "module": "es2022",
     "moduleResolution": "bundler",
@@ -10,7 +11,7 @@
     "paths": {
       "~/*": ["./src/*"],
       "@diplodoc/cli/lib/*": ["./src/core/*"],
-      "@diplodoc/cli/commands/*": ["./src/commands/*"]
+      "@diplodoc/cli": ["./src"]
     }
   },
   "include": [

@@ -34,9 +34,7 @@ import {Legacy} from './features/legacy';
 
 export * from './types';
 
-export {getHooks};
-
-export type {Run};
+export {Run, getHooks};
 
 const command = 'Build';
 

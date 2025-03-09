@@ -87,13 +87,23 @@ describe('vars', () => {
 
             test('should load presets file target scope', 'test.md', {varsPreset: 'internal'});
 
-            test('should override default presets with vars', 'test.md', {vars: {field1: 'value6'}});
+            test('should load presets file target empty scope', 'test.md', {varsPreset: 'external'});
 
-            test('should override target presets with vars', 'test.md', {varsPreset: 'internal', vars: {field1: 'value6'}});
+            test('should override default presets with vars', 'test.md', {
+                vars: {field1: 'value6'},
+            });
+
+            test('should override target presets with vars', 'test.md', {
+                varsPreset: 'internal',
+                vars: {field1: 'value6'},
+            });
 
             test('should merge deep presets 1', './subfolder/subfolder/subfolder/test.md');
 
-            test('should merge deep presets 2', './subfolder/subfolder/subfolder/subfolder/test.md');
+            test(
+                'should merge deep presets 2',
+                './subfolder/subfolder/subfolder/subfolder/test.md',
+            );
 
             test('should not merge presets on lower levels', './subfolder/subfolder/test.md');
 

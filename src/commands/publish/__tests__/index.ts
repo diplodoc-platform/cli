@@ -27,7 +27,7 @@ vi.mock('~/core/config', async (importOriginal) => {
 export async function runPublish(argv: string) {
     const publish = new Publish();
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
-    const args = parse('publish', rawArgs);
+    const args = parse(rawArgs, 'publish');
 
     await publish.init(args);
     await publish.parse(rawArgs);

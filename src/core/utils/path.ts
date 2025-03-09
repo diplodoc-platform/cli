@@ -1,7 +1,7 @@
 import {dirname, isAbsolute, join, normalize} from 'node:path';
 import _normalizePath from 'normalize-path';
 
-import {isExternalHref} from '~/core/utils/url';
+import {isExternalHref} from '~/core/utils';
 
 export function normalizePath(path: string): NormalizedPath {
     return _normalizePath(normalize(_normalizePath(path, false)), false);

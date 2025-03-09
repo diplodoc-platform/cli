@@ -9,13 +9,12 @@ import type {LoaderContext} from './loader';
 import {join} from 'node:path';
 import pmap from 'p-map';
 import {load} from 'js-yaml';
-import {LINK_KEYS} from '@diplodoc/client/ssr';
 
 import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
-import {modifyValuesByKeys} from './utils';
+import {walkLinks} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;
@@ -122,7 +121,7 @@ export class LeadingService {
             return undefined;
         }
 
-        return modifyValuesByKeys(leading, LINK_KEYS, walker);
+        return walkLinks(leading, walker);
     }
 
     @memoize('path')
