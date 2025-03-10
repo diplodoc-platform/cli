@@ -122,7 +122,7 @@
     "slugify": "^1.6.5",
     "typescript": "^5.4.5",
     "uuid": "^11.0.4",
-    "vite-tsconfig-paths": "^4.2.3",
+    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^2.1.8",
     "vitest-when": "^0.5.0",
     "walk-sync": "^3.0.0"
