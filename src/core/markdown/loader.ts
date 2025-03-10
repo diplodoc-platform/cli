@@ -194,9 +194,10 @@ function resolveHeadings(this: LoaderContext, content: string) {
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = heading.exec(content))) {
-        const [result, location] = match[1] === '#'
-            ? findCommonHeading(match.index, content)
-            : findAlternateHeading(match.index, content);
+        const [result, location] =
+            match[1] === '#'
+                ? findCommonHeading(match.index, content)
+                : findAlternateHeading(match.index, content);
 
         if (result) {
             headings.push({content: result, location});
