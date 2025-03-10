@@ -87,7 +87,9 @@ describe('vars', () => {
 
             test('should load presets file target scope', 'test.md', {varsPreset: 'internal'});
 
-            test('should load presets file target empty scope', 'test.md', {varsPreset: 'external'});
+            test('should load presets file target empty scope', 'test.md', {
+                varsPreset: 'external',
+            });
 
             test('should override default presets with vars', 'test.md', {
                 vars: {field1: 'value6'},
