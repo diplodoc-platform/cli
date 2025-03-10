@@ -1,5 +1,51 @@
 # Changelog
 
+## [4.56.0](https://github.com/diplodoc-platform/cli/compare/v4.55.1...v4.56.0) (2025-03-10)
+
+
+### Features
+
+* Drop old logger support ([9b5abed](https://github.com/diplodoc-platform/cli/commit/9b5abed7272d0851b0bf9de488805f31a72af200))
+* Enable new Vcs feature ([c962314](https://github.com/diplodoc-platform/cli/commit/c962314d28713c290816a5e6d6343d39f0272eea))
+* Expose public Extension API ([a004f7a](https://github.com/diplodoc-platform/cli/commit/a004f7aeadda4572e943fb45fdfd6e2b9b00b8b4))
+* Implement custom-resources feature ([1ff4e9e](https://github.com/diplodoc-platform/cli/commit/1ff4e9e643280cdfca4d4eb42ae32962b7c5fc11))
+* Integrate external liquid package ([8c5dd44](https://github.com/diplodoc-platform/cli/commit/8c5dd44c094ac5c7c8eac55177c26cf38b0eebba))
+* Protect Run.write from concurrent write ([3b35b56](https://github.com/diplodoc-platform/cli/commit/3b35b564b80c54dfc8d7753e1c21ec94d26dc507))
+* Remove `sourcePath` option from core.Run.load ([0fa4aac](https://github.com/diplodoc-platform/cli/commit/0fa4aace7fd2f9d774769272ca8e85d898a29c8c))
+* Remove processAssets step ([37cb50d](https://github.com/diplodoc-platform/cli/commit/37cb50d4e8f6b79dda47d7289b32da090e887c14))
+* Use new Markdown service in processPages ([270aaf0](https://github.com/diplodoc-platform/cli/commit/270aaf0ca666f38505109030725282381fa68449))
+* Use new services in page processing ([3d827e3](https://github.com/diplodoc-platform/cli/commit/3d827e31025038236bf3ec48444772485753077c))
+* Use reimplemented changelogs plugin ([eb3a382](https://github.com/diplodoc-platform/cli/commit/eb3a3826809c343d7469aa097bc82e121be79c07))
+
+
+### Bug Fixes
+
+* Allow incorrect include syntax ([05393bb](https://github.com/diplodoc-platform/cli/commit/05393bb5d35a017645613333c4647830cae52bca))
+* Copy leading page assets ([1100bfe](https://github.com/diplodoc-platform/cli/commit/1100bfe91763517e976a4e71dc094d0c09929a70))
+* Extend out of scope logging ([d80088d](https://github.com/diplodoc-platform/cli/commit/d80088d5dbf17a4bc0c9a8b805d6d7c43e277438))
+* Fix assets resolution ([32296b2](https://github.com/diplodoc-platform/cli/commit/32296b2da99791c32a8d16c42ffadf4d0bd2922d))
+* Fix extension resolving ([7ab0025](https://github.com/diplodoc-platform/cli/commit/7ab0025fc230447039576329e724ceb157d06f00))
+* Fix hidden directory filtering ([1a60921](https://github.com/diplodoc-platform/cli/commit/1a609216a072491df3ed264e1d3bcbc484696501))
+* Fix Latex and Mermaid processing ([edc671c](https://github.com/diplodoc-platform/cli/commit/edc671cc1b28f4585840e2545639db457ba058b9))
+* Fix leading assets copy ([0d5ef8f](https://github.com/diplodoc-platform/cli/commit/0d5ef8f5f22e367ac575c10a8a0096cedc94884f))
+* Fix legacy presets resolving ([9f647f3](https://github.com/diplodoc-platform/cli/commit/9f647f3cb9dd4a9daed02ab136f40f26b83b7fa6))
+* Fix PC preprocessing langs ([0e03175](https://github.com/diplodoc-platform/cli/commit/0e03175aa33258ce4bc016a6247bddeccdee1fc3))
+* Fix search provider varning ([83fbcb1](https://github.com/diplodoc-platform/cli/commit/83fbcb1afb9a3cf2004ffbd3a23d07d22728a46d))
+* Fixes for smoke tests ([00d6b50](https://github.com/diplodoc-platform/cli/commit/00d6b50fc7af102e0478712036b6c23c19d8c7ef))
+* Handle root presets.yaml ([b9dff73](https://github.com/diplodoc-platform/cli/commit/b9dff7396ae6f12b1f43180b06c6cb483f236f2c))
+* Improve VarsService memory consumption ([99f83f6](https://github.com/diplodoc-platform/cli/commit/99f83f68ac2a4b4c2fb3688fc04f72b688b4833a))
+* Trim legacy config ([0ba54a3](https://github.com/diplodoc-platform/cli/commit/0ba54a3015ac52cd83b1b41ffe512207417b9886))
+
+
+### Performance Improvements
+
+* Improve heading match performance ([2ec51b2](https://github.com/diplodoc-platform/cli/commit/2ec51b20cda3ba90b8ee33b84678d1efc2dabb84))
+
+
+### Dependency update
+
+* Update mermaid, latex, translation ([5cad013](https://github.com/diplodoc-platform/cli/commit/5cad013c79a81fa2adf09910ffbdba56713bda7c))
+
 ## [4.55.1](https://github.com/diplodoc-platform/cli/compare/v4.55.0...v4.55.1) (2025-03-06)
 
 
