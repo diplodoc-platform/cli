@@ -1,9 +1,10 @@
-const {join, resolve, dirname} = require("path");
-const shell = require("shelljs");
+const {join, resolve, dirname} = require('node:path');
+const {rmSync, mkdirSync, copyFileSync} = require('node:fs');
+const {sync: glob} = require('glob')
 const clientManifest = require('@diplodoc/client/manifest');
-const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
-const ASSETS_PATH = resolve(__dirname, '..', 'assets');
 
+const ASSETS_PATH = resolve(__dirname, '..', 'assets');
+const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
 const MERMAID_PATH = dirname(require.resolve('@diplodoc/mermaid-extension/runtime'));
 const LATEX_PATH = dirname(require.resolve('@diplodoc/latex-extension/runtime'));
 const SEARCH_PATH = dirname(require.resolve('@diplodoc/search-extension/worker'));
@@ -17,17 +18,22 @@ const assets = [
     ...clientManifest.search.async
 ];
 
-shell.rm('-rf', ASSETS_PATH);
-shell.mkdir('-p', ASSETS_PATH);
-shell.mkdir('-p', join(ASSETS_PATH, 'search-extension'));
-shell.mkdir('-p', join(ASSETS_PATH, 'search-extension/langs'));
+const langs = glob('langs/*.js', {cwd: SEARCH_PATH});
 
-shell.cp('-f', join(MERMAID_PATH, 'index-node.js'), join(ASSETS_PATH, 'mermaid-extension.js'));
-shell.cp('-f', join(LATEX_PATH, 'index.js'), join(ASSETS_PATH, 'latex-extension.js'));
-shell.cp('-f', join(LATEX_PATH, 'index.css'), join(ASSETS_PATH, 'latex-extension.css'));
-shell.cp('-f', join(SEARCH_PATH, 'index.js'), join(ASSETS_PATH, 'search-extension/api.js'));
-shell.cp('-f', join(SEARCH_PATH, 'langs/*.js'), join(ASSETS_PATH, 'search-extension/langs'));
+rmSync(ASSETS_PATH, {recursive: true, force: true});
+mkdirSync(ASSETS_PATH, {recursive: true});
+mkdirSync(join(ASSETS_PATH, 'search-extension'), {recursive: true});
+mkdirSync(join(ASSETS_PATH, 'search-extension/langs'), {recursive: true});
+
+copyFileSync(join(MERMAID_PATH, 'index-node.js'), join(ASSETS_PATH, 'mermaid-extension.js'));
+copyFileSync(join(LATEX_PATH, 'index.js'), join(ASSETS_PATH, 'latex-extension.js'));
+copyFileSync(join(LATEX_PATH, 'index.css'), join(ASSETS_PATH, 'latex-extension.css'));
+copyFileSync(join(SEARCH_PATH, 'index.js'), join(ASSETS_PATH, 'search-extension/api.js'));
+
+for (const lang of langs) {
+    copyFileSync(join(SEARCH_PATH, lang), join(ASSETS_PATH, 'search-extension', lang));
+}
 
 for (const file of assets) {
-    shell.cp('-f', join(CLIENT_PATH, file), join(ASSETS_PATH, file));
+    copyFileSync(join(CLIENT_PATH, file), join(ASSETS_PATH, file));
 }
