@@ -65,18 +65,26 @@ function get(path: RelativePath): YfmPreset {
 function _scopes(path: RelativePath) {
     const {vars, varsPreset} = ArgvService.getConfig();
     const presets = [vars];
+    const dirs = [normalizePath(path)];
 
-    let dir = normalizePath(path);
-    do {
+    while (dirs.length) {
+        const dir = dirs.pop() as NormalizedPath;
+
         if (presetStorage[dir]) {
-            presets.push(presetStorage[dir][varsPreset]);
+            if (presetStorage[dir][varsPreset]) {
+                presets.push(presetStorage[dir][varsPreset]);
+            }
+
             if (varsPreset !== 'default') {
                 presets.push(presetStorage[dir]['default']);
             }
         }
 
-        dir = normalizePath(dirname(dir));
-    } while (dir && dir !== '.');
+        const next = normalizePath(dirname(dir));
+        if (dir !== next) {
+            dirs.push(next);
+        }
+    }
 
     return presets;
 }
