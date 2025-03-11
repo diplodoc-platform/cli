@@ -230,7 +230,7 @@ export class BaseProgram<
             path: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = require(path);
+            const ExtensionModule = await import(path);
             const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
             return new Extension(options);

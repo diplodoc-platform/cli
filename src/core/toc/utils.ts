@@ -1,6 +1,6 @@
 import type {TextFilter} from './types';
 
-import {evaluate} from '@diplodoc/liquid';
+import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 
 export function isRelative(path: AnyPath): path is RelativePath {
     return /^\.{1,2}\//.test(path) || !/^(\w{0,7}:)?\/\//.test(path);
@@ -24,7 +24,7 @@ export function getFirstValuable<T>(
         delete item.when;
 
         if (typeof when === 'string') {
-            when = Boolean(evaluate(when, vars));
+            when = evalExp(when, vars);
         }
 
         if (when) {

@@ -3,11 +3,10 @@ export class InsecureAccessError extends Error {
 
     readonly realstack: AbsolutePath[];
 
-    constructor(file: AbsolutePath, stack?: AbsolutePath[], scopes?: AbsolutePath[]) {
+    constructor(file: AbsolutePath, stack?: AbsolutePath[]) {
         const message = [
             `Requested file '${file}' is out of project scope.`,
             stack && 'File resolution stack:\n\t' + stack.join('\n\t'),
-            scopes && 'Allowed scopes:\n\t' + scopes.join('\n\t'),
         ]
             .filter(Boolean)
             .join('\n');

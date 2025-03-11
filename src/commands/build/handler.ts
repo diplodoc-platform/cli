@@ -1,7 +1,7 @@
 import type {Run} from './run';
 
 import {ArgvService, PresetService} from '~/services';
-import {processChangelogs, processLinter, processLogs, processPages} from '~/steps';
+import {processAssets, processChangelogs, processLinter, processLogs, processPages} from '~/steps';
 import {prepareMapFile} from '~/steps/processMapFile';
 
 import {legacyConfig} from './legacy-config';
@@ -9,7 +9,7 @@ import {legacyConfig} from './legacy-config';
 export async function handler(run: Run) {
     try {
         ArgvService.init(legacyConfig(run));
-        PresetService.init(run.vars.entries);
+        PresetService.init(run.vars);
 
         const {addMapFile} = run.config;
 
@@ -19,7 +19,10 @@ export async function handler(run: Run) {
 
         await Promise.all([processLinter(run), processPages(run)]);
 
-        await processChangelogs(run);
+        // process additional files
+        await processAssets(run);
+
+        await processChangelogs();
     } catch (error) {
         run.logger.error(error);
     } finally {

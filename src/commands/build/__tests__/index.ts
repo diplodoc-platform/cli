@@ -6,7 +6,7 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {Build} from '..';
 import {Run} from '../run';
-import {parse} from '~/commands';
+import {parse} from '~/commands/parser';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
@@ -120,7 +120,7 @@ export async function runBuild(argv: string, build?: Build) {
     build = build || setupBuild();
 
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
-    const args = parse(rawArgs, 'build');
+    const args = parse('build', rawArgs);
 
     await build.init(args);
     await build.parse(rawArgs);

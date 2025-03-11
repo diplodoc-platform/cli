@@ -1,9 +1,8 @@
-import type {Run} from '~/commands/build';
-
-import {dirname, join} from 'node:path';
+import {glob} from 'glob';
+import {dirname, join, normalize, resolve} from 'node:path';
+import {ArgvService} from '../services';
+import {copyFile, mkdir, readFile, writeFile} from 'node:fs/promises';
 import {groupBy} from 'lodash';
-import pmap from 'p-map';
-
 import {isExternalHref} from '~/core/utils';
 
 export const CHANGELOG_LIMIT = 50;
@@ -14,8 +13,8 @@ type FileItem = {
     lang: string;
     service: string;
     name: string;
-    filepath: AbsolutePath;
-    index: number | undefined;
+    filepath: string;
+    index?: number;
 };
 
 type ChangelogItem = {
@@ -31,13 +30,15 @@ type ChangelogItem = {
     [x: string]: unknown;
 };
 
-export async function processChangelogs(run: Run) {
-    if (!run.config.changelogs) {
+export async function processChangelogs() {
+    const {output: outputFolderPath, changelogs} = ArgvService.getConfig();
+
+    if (!changelogs) {
         return;
     }
 
-    const files = await run.glob('**/**/__changes-*.json', {
-        cwd: run.output,
+    const files = await glob('**/**/__changes-*.json', {
+        cwd: outputFolderPath,
     });
 
     if (!files.length) {
@@ -47,13 +48,13 @@ export async function processChangelogs(run: Run) {
     const changeFileItems: FileItem[] = [];
 
     files.forEach((relPath) => {
-        const filepath = join(run.output, relPath);
-        const match = relPath.match(LANG_SERVICE_RE);
-        if (!match) {
+        const filepath = join(outputFolderPath, relPath);
+        const m = relPath.match(LANG_SERVICE_RE);
+        if (!m) {
             return;
         }
 
-        const {lang, service, name} = match.groups as {lang: string; service: string; name: string};
+        const {lang, service, name} = m.groups as {lang: string; service: string; name: string};
         let index;
         if (/^\d+$/.test(name)) {
             index = Number(name);
@@ -83,50 +84,64 @@ export async function processChangelogs(run: Run) {
         usedFileItems.push(fileItems);
     });
 
-    const images = new Map<AbsolutePath, AbsolutePath>();
+    const processed = await Promise.all(
+        usedFileItems.map(async (items) => {
+            const {lang, service} = items[0];
 
-    const processed = await pmap(usedFileItems, async (items) => {
-        const {lang, service} = items[0];
+            const basePath = join(outputFolderPath, lang, service);
 
-        const basePath = join(lang, service);
+            const changelogs: ChangelogItem[] = await Promise.all(
+                items.map(async ({filepath}) => readFile(filepath, 'utf8').then(JSON.parse)),
+            );
 
-        const changelogs: ChangelogItem[] = await pmap(items, ({filepath}) =>
-            run.read(filepath).then(JSON.parse),
-        );
+            changelogs.forEach((changelog) => {
+                const {source: sourceName} = changelog as {source?: string};
+                if (sourceName) {
+                    // eslint-disable-next-line no-param-reassign
+                    changelog.link = `/${service}/changelogs/${
+                        sourceName === 'index' ? '' : sourceName
+                    }`;
+                }
+            });
 
-        changelogs.forEach((changelog) => {
-            const {source: sourceName} = changelog as {source?: string};
-            if (sourceName) {
-                // eslint-disable-next-line no-param-reassign
-                changelog.link = `/${service}/changelogs/${
-                    sourceName === 'index' ? '' : sourceName
-                }`;
-            }
-        });
+            const imgSet = new Set();
 
-        await pmap(changelogs, async ({image}, idx) => {
-            if (!image || isExternalHref(image.src)) {
-                return;
-            }
+            await Promise.all(
+                changelogs.map(async ({image}, idx) => {
+                    if (!image) {
+                        return undefined;
+                    }
 
-            const {filepath} = items[idx];
-            const imgPath = join(dirname(filepath), image.src);
-            const newImagePath = join(basePath, '_changelogs', image.src);
+                    const {filepath} = items[idx];
+                    const {src} = image;
 
-            images.set(imgPath, join(run.output, newImagePath));
+                    if (isExternalHref(src)) {
+                        return undefined;
+                    }
 
-            image.src = newImagePath;
-        });
+                    const imgPath = resolve(dirname(filepath), src);
+                    const normSrc = normalize(`/${src}`);
+                    const newImagePath = join(basePath, '_changelogs', normSrc);
 
-        return [service, changelogs];
-    });
+                    if (!imgSet.has(newImagePath)) {
+                        imgSet.add(newImagePath);
 
-    for (const [from, to] of images.entries()) {
-        await run.copy(from, to);
-    }
+                        await mkdir(dirname(newImagePath), {recursive: true});
+                        await copyFile(imgPath, newImagePath);
+                    }
 
-    await run.write(
-        join(run.output, 'changelogs.minified.json'),
+                    image.src = join(lang, service, '_changelogs', normSrc);
+
+                    return image;
+                }),
+            );
+
+            return [service, changelogs];
+        }),
+    );
+
+    await writeFile(
+        join(outputFolderPath, 'changelogs.minified.json'),
         JSON.stringify(Object.fromEntries(processed), null, 4),
     );
 }

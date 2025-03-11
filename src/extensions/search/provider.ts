@@ -1,5 +1,5 @@
 import type {WorkerConfig} from '@diplodoc/search-extension/worker';
-import type {BuildRun} from '@diplodoc/cli';
+import type {Run} from '@diplodoc/cli/commands/build';
 import type {SearchProvider} from '@diplodoc/cli/lib/search';
 import type {DocPageData} from '@diplodoc/client/ssr';
 
@@ -13,7 +13,7 @@ export type ProviderConfig = Pick<WorkerConfig, 'tolerance' | 'confidence'> & {
 };
 
 export class LocalSearchProvider implements SearchProvider {
-    private run: BuildRun;
+    private run: Run;
 
     private _config: ProviderConfig;
 
@@ -25,7 +25,7 @@ export class LocalSearchProvider implements SearchProvider {
 
     private nocache: string;
 
-    constructor(run: BuildRun, config: ProviderConfig) {
+    constructor(run: Run, config: ProviderConfig) {
         this.run = run;
         this._config = config;
         this.indexer = new Indexer();

@@ -13,7 +13,7 @@ export function generateHooksAccess<THooks extends Hooks>(
         return (program && (program as {[Hooks]: THooks})[Hooks]) || hooks('Unknown');
     }
 
-    function withHooks<T extends ClassType>(Target: T, {kind}: ClassDecoratorContext): T {
+    function withHooks<T extends ClassType>(Target: T, {kind}: ClassDecoratorContext): T | void {
         if (kind !== 'class') {
             throw new TypeError(`Decorator 'withHooks' is not applicable to '${kind}'.`);
         }

@@ -1,95 +1,57 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`vars > service > load > should handle empty preset 1`] = `
+exports[`vars > service > load > should allow content extending in PresetsLoaded hook 1`] = `
 "field1: value1
-override1: value2
-override2: value2
-override3: value2
-override4: value2
+field2: value2
+"
+`;
+
+exports[`vars > service > load > should allow content updating in PresetsLoaded hook 1`] = `
+"field1: value2
 "
 `;
 
 exports[`vars > service > load > should load presets file default scope 1`] = `
 "field1: value1
-override1: value2
-override2: value2
-override3: value2
-override4: value2
-"
-`;
-
-exports[`vars > service > load > should load presets file target empty scope 1`] = `
-"field1: value1
-override1: value2
-override2: value2
-override3: value2
-override4: value2
+field2: value2
 "
 `;
 
 exports[`vars > service > load > should load presets file target scope 1`] = `
-"field2: value1
+"field1: value3
+field2: value2
+"
+`;
+
+exports[`vars > service > load > should load super layers 1`] = `
+"field1: value1
 override1: value1
-field1: value1
-override2: value2
-override3: value2
-override4: value2
-"
-`;
-
-exports[`vars > service > load > should merge deep presets 1 1`] = `
-"subsub1: value2
-override4: value2
-override5: value1
+override2: value1
+override3: value1
+override4: value1
+field2: value1
 sub1: value1
-sub2: value2
-override2: value1
-field1: value1
-override1: value2
-override3: value2
-"
-`;
-
-exports[`vars > service > load > should merge deep presets 2 1`] = `
-"subsub1: value2
-override4: value2
+sub2: value1
 override5: value1
-sub1: value1
-sub2: value2
-override2: value1
-field1: value1
-override1: value2
-override3: value2
-"
-`;
-
-exports[`vars > service > load > should not merge presets on lower levels 1`] = `
-"sub1: value1
-sub2: value2
-override2: value1
-override5: value2
-field1: value1
-override1: value2
-override3: value2
-override4: value2
+override6: value1
+subsub1: value1
+subsub2: value1
 "
 `;
 
 exports[`vars > service > load > should override default presets with vars 1`] = `
 "field1: value6
-override1: value2
-override2: value2
-override3: value2
-override4: value2
+field2: value2
 "
 `;
 
 exports[`vars > service > load > should override target presets with vars 1`] = `
 "field1: value6
-field2: value1
-override1: value1
-override2: value2
-override3: value2
-override4: value2
+field2: value2
+"
+`;
+
+exports[`vars > service > load > should use vars if presets not found 1`] = `
+"field1: value6
 "
 `;

@@ -1,5 +1,5 @@
 import type {Run} from '@diplodoc/cli/lib/run';
-import type {Contributor, VcsConnector} from '@diplodoc/cli/lib/vcs';
+import type {Contributor, Contributors, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {join} from 'node:path';
@@ -81,15 +81,15 @@ export class GithubVcsConnector implements VcsConnector {
     }
 
     @bounded
-    async getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]> {
-        const result: Hash<Contributor> = {};
+    async getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributors> {
+        const result: Contributors = {};
 
         Object.assign(result, this.contributorsByPath[normalizePath(path)]);
         for (const dep of deps) {
             Object.assign(result, this.contributorsByPath[normalizePath(dep)]);
         }
 
-        return Object.values(result);
+        return result;
     }
 
     @bounded

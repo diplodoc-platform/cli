@@ -1,48 +1,33 @@
-import type {LiquidContext} from '@diplodoc/liquid';
-import type {Meta} from '~/core/meta';
-import type {AssetInfo, Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} from './types';
+import type {Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} from './types';
 
-import {get, set, uniq} from 'lodash';
-import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
-import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
+import {get, set} from 'lodash';
+import {liquidSnippet} from '@diplodoc/transform/lib/liquid';
+import evalExp from '@diplodoc/transform/lib/liquid/evaluation';
 
-import {walkLinks} from './utils';
-
-export type LoaderContext = LiquidContext & {
+export type LoaderContext = {
     /** Relative to run.input path to current processing toc */
-    path: NormalizedPath;
+    path: RelativePath;
     lang: string;
     vars: Hash;
     plugins: Plugin[];
-    emitFile(path: NormalizedPath, content: string): Promise<void>;
-    readFile(path: NormalizedPath): Promise<string>;
-    leading: {
-        setDependencies(path: NormalizedPath, deps: never[]): void;
-        setAssets(path: NormalizedPath, assets: AssetInfo[]): void;
-        setMeta(path: NormalizedPath, meta: Meta): void;
-    };
     options: {
-        disableLiquid: boolean;
+        resolveConditions: boolean;
+        resolveSubstitutions: boolean;
     };
 };
 
 export async function loader(this: LoaderContext, yaml: RawLeadingPage) {
-    yaml = resolveFields.call(this, yaml);
-    yaml = mangleFrontMatter.call(this, yaml);
-    yaml = templateFields.call(this, yaml);
+    yaml = await resolveFields.call(this, yaml);
+    yaml = await templateFields.call(this, yaml);
 
     for (const plugin of this.plugins) {
         yaml = (await plugin.call(this, yaml as LeadingPage)) as RawLeadingPage;
     }
 
-    yaml = resolveAssets.call(this, yaml);
-
-    this.leading.setDependencies(this.path, []);
-
     return yaml as LeadingPage;
 }
 
-function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
+async function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
     for (const field of ['title', 'nav.title', 'meta.title', 'meta.description'] as const) {
         const value = get(yaml, field);
         if (value) {
@@ -59,42 +44,32 @@ function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
     return yaml;
 }
 
-function mangleFrontMatter(this: LoaderContext, yaml: RawLeadingPage) {
-    const {path, vars, options} = this;
-    const {disableLiquid} = options;
-
-    if (!yaml.meta) {
-        this.leading.setMeta(path, {});
-        return yaml;
-    }
-
-    const frontmatter = yaml.meta;
-    yaml.meta = undefined;
-
-    if (!disableLiquid) {
-        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
-    } else {
-        this.leading.setMeta(path, frontmatter);
-    }
-
-    return yaml;
-}
-
-function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
-    const {conditions, substitutions} = this.settings;
+async function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
+    const {resolveConditions, resolveSubstitutions} = this.options;
     const interpolate = (value: unknown) => {
         if (typeof value !== 'string') {
             return value;
         }
 
-        return liquidSnippet.call(this, value, this.vars);
+        return liquidSnippet(value, this.vars, this.path, {
+            substitutions: resolveSubstitutions,
+            conditions: resolveConditions,
+            keepNotVar: true,
+            withSourceMap: false,
+        });
     };
 
-    if (!conditions && !substitutions) {
+    if (!resolveConditions && !resolveSubstitutions) {
         return yaml;
     }
 
-    for (const field of ['title', 'description', 'nav.title'] as const) {
+    for (const field of [
+        'title',
+        'description',
+        'nav.title',
+        'meta.title',
+        'meta.description',
+    ] as const) {
         const value = get(yaml, field);
 
         if (Array.isArray(value)) {
@@ -112,24 +87,6 @@ function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
             }
         }
     }
-
-    return yaml;
-}
-
-function resolveAssets(this: LoaderContext, yaml: RawLeadingPage) {
-    const assets: AssetInfo[] = [];
-
-    yaml = walkLinks(yaml, (link) => {
-        const asset = parseLocalUrl(link);
-        if (asset && isMediaLink(asset.path)) {
-            asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
-            assets.push(asset);
-        }
-
-        return link;
-    });
-
-    this.leading.setAssets(this.path, uniq(assets));
 
     return yaml;
 }
@@ -185,7 +142,7 @@ function normalizeItems<T extends Filter | string>(items: T[] | T, vars: Hash) {
         }
 
         if (typeof item.when === 'string') {
-            item.when = Boolean(evaluate(item.when, vars));
+            item.when = evalExp(item.when, vars);
         }
 
         return item;

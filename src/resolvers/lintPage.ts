@@ -21,8 +21,9 @@ import {
     getVarsPerFile,
     getVarsPerRelativeFile,
 } from '../utils';
+import {liquidMd2Html} from './md2html';
+import {liquidMd2Md} from './md2md';
 import {LeadingPage} from '~/models';
-import liquid from '@diplodoc/transform/lib/liquid';
 
 interface FileTransformOptions {
     path: string;
@@ -145,26 +146,5 @@ function MdFileLinter(content: string, lintOptions: FileTransformOptions): void 
         input: preparedContent,
         path,
         sourceMap,
-    });
-}
-
-function liquidMd2Md(input: string, vars: Record<string, unknown>, path: string) {
-    const {applyPresets, resolveConditions, conditionsInCode} = ArgvService.getConfig();
-
-    return liquid(input, vars, path, {
-        conditions: resolveConditions,
-        substitutions: applyPresets,
-        conditionsInCode,
-        withSourceMap: true,
-        keepNotVar: true,
-    });
-}
-
-function liquidMd2Html(input: string, vars: Record<string, unknown>, path: string) {
-    const {conditionsInCode} = ArgvService.getConfig();
-
-    return liquid(input, vars, path, {
-        conditionsInCode,
-        withSourceMap: true,
     });
 }

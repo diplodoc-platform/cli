@@ -3,7 +3,6 @@
   "compilerOptions": {
     "lib": ["ES2019"],
     "target": "ES2019",
-    "rootDir": ".",
     "outDir": "build",
     "module": "es2022",
     "moduleResolution": "bundler",
@@ -11,13 +10,9 @@
     "paths": {
       "~/*": ["./src/*"],
       "@diplodoc/cli/lib/*": ["./src/core/*"],
-      "@diplodoc/cli": ["./src"]
+      "@diplodoc/cli/commands/*": ["./src/commands/*"]
     }
   },
-  "include": [
-    "src/path.d.ts",
-    "src/globals.d.ts",
-    "src"
-  ],
+  "include": ["src"],
   "types": ["node"]
 }

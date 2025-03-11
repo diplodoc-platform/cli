@@ -1,6 +1,7 @@
 import type {Run} from '~/core/run';
-import type {Contributor, VcsConnector, VcsMetadata} from './types';
+import type {Contributor, Contributors, VcsConnector, VcsMetadata} from './types';
 
+import {ok} from 'node:assert';
 import {join, relative} from 'node:path';
 
 import {memoize, normalizePath} from '~/core/utils';
@@ -9,11 +10,8 @@ import {getHooks, withHooks} from './hooks';
 import {DefaultVcsConnector} from './connector';
 
 export type VcsServiceConfig = {
-    mtimes: boolean;
-    authors: boolean;
     contributors: boolean;
     vcs: {
-        enabled: boolean;
         type: string;
         /**
          * Externally accessible base URI for a resource where a particular documentation
@@ -52,7 +50,8 @@ export class VcsService implements VcsConnector {
     private connector: VcsConnector = new DefaultVcsConnector();
 
     get connected() {
-        return Boolean(this.connector && !(this.connector instanceof DefaultVcsConnector));
+        // TODO: instanceof DefaultVcsConnector
+        return this.config.contributors && this.connector;
     }
 
     constructor(run: Run<VcsServiceConfig>) {
@@ -61,14 +60,13 @@ export class VcsService implements VcsConnector {
     }
 
     async init() {
-        if (!this.config.vcs.enabled) {
-            return;
-        }
-
         const type = this.config.vcs.type;
         if (!type) {
             return;
         }
+
+        const hook = getHooks(this).VcsConnector.get(type);
+        ok(hook, `VCS connector for '${type}' is not registered.`);
 
         this.connector = await getHooks(this).VcsConnector.for(type).promise(this.connector);
     }
@@ -79,7 +77,6 @@ export class VcsService implements VcsConnector {
 
         const result: VcsMetadata = {};
 
-        // TODO: resolve meta.vcsPath || meta.sourcePath on server side
         if (addVCSPath) {
             result.vcsPath = normalizePath(meta.vcsPath || meta.sourcePath || file);
         }
@@ -89,9 +86,9 @@ export class VcsService implements VcsConnector {
         }
 
         const [author, contributors, updatedAt] = await Promise.all([
-            this.config.authors ? this.getAuthor(file, meta?.author) : undefined,
-            this.config.contributors ? this.getContributors(file, deps) : [],
-            this.config.mtimes ? this.getMTime(file, deps) : undefined,
+            this.getAuthor(file, meta?.author),
+            this.getContributors(file, deps),
+            this.getMTime(file, deps),
         ]);
 
         result.author = author || undefined;
@@ -104,7 +101,7 @@ export class VcsService implements VcsConnector {
     async getContributorsByPath(
         path: RelativePath,
         deps: RelativePath[] = [],
-    ): Promise<Contributor[]> {
+    ): Promise<Contributors> {
         return this.connector.getContributorsByPath(this.run.normalize(path), deps);
     }
 

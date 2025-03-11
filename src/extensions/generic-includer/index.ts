@@ -42,8 +42,10 @@ export class Extension implements IExtension {
         getBaseHooks<Run>(program).BeforeAnyRun.tap(EXTENSION, (run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
-                .tapPromise(EXTENSION, async (toc, options: Options) => {
-                    const input = dirname(options.path);
+                .tapPromise(EXTENSION, async (toc, options: Options, path) => {
+                    const input = options.input
+                        ? join(dirname(path), options.input)
+                        : dirname(options.path);
                     const files = await run.glob('**/*.md', {
                         cwd: join(run.input, input),
                     });

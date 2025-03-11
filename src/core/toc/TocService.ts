@@ -1,24 +1,14 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
-import type {MetaService} from '~/core/meta';
 import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {ok} from 'node:assert';
-import {basename, dirname, join, relative} from 'node:path';
+import {basename, dirname, join} from 'node:path';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
-import {
-    Defer,
-    bounded,
-    copyJson,
-    errorMessage,
-    freezeJson,
-    isExternalHref,
-    normalizePath,
-    own,
-} from '~/core/utils';
+import {bounded, errorMessage, freezeJson, isExternalHref, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
@@ -48,7 +38,6 @@ enum Stage {
 
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
-    meta: MetaService;
 };
 
 @withHooks
@@ -63,25 +52,20 @@ export class TocService {
 
     private logger: Run['logger'];
 
+    private vars: Run['vars'];
+
     private config: TocServiceConfig;
 
     private _entries: Set<NormalizedPath> = new Set();
 
     private processed: Hash<boolean> = {};
 
-    private cache: Map<NormalizedPath, Toc | Promise<Toc>> = new Map();
-
-    private get vars() {
-        return this.run.vars;
-    }
-
-    private get meta() {
-        return this.run.meta;
-    }
+    private cache: Map<NormalizedPath, Toc | undefined> = new Map();
 
     constructor(run: Run) {
         this.run = run;
         this.logger = run.logger;
+        this.vars = run.vars;
         this.config = run.config;
     }
 
@@ -96,38 +80,74 @@ export class TocService {
         }
     }
 
-    @bounded async load(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
+    @bounded async load(path: RelativePath, include?: IncludeInfo): Promise<Toc | undefined> {
+        path = normalizePath(path);
 
         // There is no error. We really skip toc processing, if it was processed previously in any way.
         // For example toc can be processed as include of some other toc.
-        if (this.processed[file]) {
-            return this.cache.get(file);
+        if (!include && this.processed[path]) {
+            return this.cache.get(path as NormalizedPath);
         }
 
-        this.processed[file] = true;
+        this.processed[path] = true;
 
-        this.logger.proc(file);
+        this.logger.proc(path);
 
-        const defer = new Defer<Toc>();
+        const file = join(this.run.input, path);
 
-        this.cache.set(file, defer.promise);
+        ok(file.startsWith(this.run.input), `Requested toc '${file}' is out of project scope.`);
 
-        defer.promise.then((result) => {
-            this.cache.set(file, result);
-        });
+        const context: LoaderContext = {
+            mode: include?.mode,
+            from: include?.from || path,
+            path,
+            base: include?.base,
+            vars: await this.vars.load(path),
+            toc: this,
+            options: {
+                resolveConditions: this.config.template.features.conditions,
+                resolveSubstitutions: this.config.template.features.substitutions,
+                removeHiddenItems: this.config.removeHiddenTocItems,
+            },
+        };
 
-        const context: LoaderContext = this.loaderContext(file);
+        const content = include?.content || (await read(this.run, path, include?.from));
 
-        const content = await read(this.run, file);
-
-        if (this.shouldSkip(content)) {
+        // Should ignore included toc with tech-preview stage.
+        // TODO(major): remove this
+        if (content && content.stage === Stage.TECH_PREVIEW) {
             return undefined;
+        }
+
+        const {ignoreStage} = this.config;
+        if (content.stage && ignoreStage.length && ignoreStage.includes(content.stage)) {
+            return undefined;
+        }
+
+        if (include && isMergeMode(include)) {
+            const from = normalizePath(dirname(path));
+            const to = normalizePath(dirname(include.base));
+
+            context.vars = await this.vars.load(include.base);
+            context.path = context.path.replace(from, to) as RelativePath;
+            context.from = include.from;
+
+            await this.run.copy(join(this.run.input, from), join(this.run.input, to), {
+                sourcePath: (file: string) => file.endsWith('.md'),
+                ignore: [basename(file), '**/toc.yaml'],
+            });
         }
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        defer.resolve(toc);
+        // If this is a part of other toc.yaml
+        if (include) {
+            await getHooks(this).Included.promise(toc, path, include);
+
+            return toc;
+        }
+
+        this.cache.set(path as NormalizedPath, toc);
 
         await this.walkItems([toc], (item: TocItem | Toc) => {
             if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
@@ -137,51 +157,7 @@ export class TocService {
             return item;
         });
 
-        await getHooks(this).Resolved.promise(freezeJson(toc), file);
-
-        return toc;
-    }
-
-    @bounded async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-
-        this.processed[file] = true;
-
-        this.logger.proc(file);
-
-        const context: LoaderContext = await this.loaderContext(file, include);
-
-        const content = include.content || (await read(this.run, file, include.from));
-
-        if (this.shouldSkip(content)) {
-            return undefined;
-        }
-
-        if (isMergeMode(include)) {
-            const from = normalizePath(dirname(file));
-            const to = normalizePath(dirname(include.base));
-
-            context.vars = this.vars.for(include.base);
-            context.path = context.path.replace(from, to) as RelativePath;
-            context.from = include.from;
-
-            const files = await this.run.copy(
-                join(this.run.input, from),
-                join(this.run.input, to),
-                [basename(file), '**/toc.yaml'],
-            );
-
-            for (const [from, to] of files) {
-                this.logger.copy(from, to);
-                this.meta.add(relative(this.run.input, to), {
-                    sourcePath: relative(this.run.input, from),
-                });
-            }
-        }
-
-        const toc = (await loader.call(context, content)) as Toc;
-
-        await getHooks(this).Included.promise(toc, file, include);
+        await getHooks(this).Resolved.promise(freezeJson(toc), path);
 
         return toc;
     }
@@ -192,7 +168,7 @@ export class TocService {
 
         ok(toc, `Toc for path ${file} is not resolved.`);
 
-        return await getHooks(this).Dump.promise(copyJson(toc), file);
+        return await getHooks(this).Dump.promise(toc, file);
     }
 
     /**
@@ -262,43 +238,9 @@ export class TocService {
 
         return normalizePath(dirname(tocPath));
     }
-
-    private shouldSkip(toc: RawToc) {
-        // Should ignore included toc with tech-preview stage.
-        // TODO(major): remove this
-        if (toc && toc.stage === Stage.TECH_PREVIEW) {
-            return true;
-        }
-
-        const {ignoreStage} = this.config;
-        if (toc.stage && ignoreStage.length && ignoreStage.includes(toc.stage)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private loaderContext(path: NormalizedPath, {from, mode, base}: Partial<IncludeInfo> = {}) {
-        return {
-            path,
-            from: from || path,
-            mode,
-            base,
-            vars: this.vars.for(path),
-            toc: this,
-            logger: this.logger,
-            settings: {
-                conditions: this.config.template.features.conditions,
-                substitutions: this.config.template.features.substitutions,
-            },
-            options: {
-                removeHiddenItems: this.config.removeHiddenTocItems,
-            },
-        };
-    }
 }
 
-async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc> {
+async function read(run: Run, path: RelativePath, from: string | undefined): Promise<RawToc> {
     try {
         return load(await run.read(join(run.input, path))) as RawToc;
     } catch (error) {

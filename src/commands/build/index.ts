@@ -1,6 +1,8 @@
 import type {BuildArgs, BuildConfig} from './types';
 
 import {ok} from 'node:assert';
+import {join} from 'node:path';
+import {dump} from 'js-yaml';
 
 import {
     BaseProgram,
@@ -9,7 +11,8 @@ import {
     withConfigScope,
 } from '~/core/program';
 import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, defined, valuable} from '~/core/config';
+import {Command, configPath, defined, valuable} from '~/core/config';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
@@ -21,20 +24,20 @@ import {Run} from './run';
 import {handler} from './handler';
 
 import {Templating} from './features/templating';
-import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
 import {Redirects} from './features/redirects';
 import {Lint} from './features/linter';
 import {Changelogs} from './features/changelogs';
-import {OutputMd} from './features/output-md';
-import {OutputHtml} from './features/output-html';
+import {Html} from './features/html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
 
 export * from './types';
 
-export {Run, getHooks};
+export {getHooks};
+
+export type {Run};
 
 const command = 'Build';
 
@@ -53,6 +56,8 @@ const command = 'Build';
             addMapFile: false,
             removeHiddenTocItems: false,
             mergeIncludes: false,
+            resources: {},
+            allowCustomResources: false,
             staticContent: false,
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
@@ -64,8 +69,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly templating = new Templating();
 
-    readonly resources = new CustomResources();
-
     readonly contributors = new Contributors();
 
     readonly singlepage = new SinglePage();
@@ -76,9 +79,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly changelogs = new Changelogs();
 
-    readonly md = new OutputMd();
-
-    readonly html = new OutputHtml();
+    readonly html = new Html();
 
     readonly search = new Search();
 
@@ -98,6 +99,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.addMapFile,
         options.removeHiddenTocItems,
         options.mergeIncludes,
+        options.resources,
+        options.allowCustomResources,
         options.staticContent,
         options.addSystemMeta,
         options.ignore,
@@ -107,14 +110,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly modules = [
         this.templating,
-        this.resources,
         this.contributors,
         this.singlepage,
         this.redirects,
         this.linter,
         this.changelogs,
         this.search,
-        this.md,
         this.html,
         this.legacy,
         new GenericIncluderExtension(),
@@ -155,6 +156,23 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             return config;
         });
 
+        getHooks(this)
+            .BeforeRun.for('md')
+            .tap('Build', (run) => {
+                getTocHooks(run.toc).Resolved.tapPromise('Build', async (_toc, path) => {
+                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
+                });
+            });
+
+        getHooks(this)
+            .AfterRun.for('md')
+            .tapPromise('Build', async (run) => {
+                // TODO: save normalized config instead
+                if (run.config[configPath]) {
+                    await run.copy(run.config[configPath], join(run.output, '.yfm'));
+                }
+            });
+
         super.apply(program);
     }
 
@@ -171,20 +189,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
 
         await run.vars.init();
-        await run.leading.init();
-        await run.markdown.init();
-        await run.vcs.init();
+        await run.toc.init();
         await run.search.init();
-
-        const ignore = run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
-        const tocs = await run.glob('**/toc.yaml', {
-            cwd: run.input,
-            ignore: ignore,
-        });
-
-        for (const toc of tocs) {
-            await run.toc.load(toc);
-        }
 
         await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
 

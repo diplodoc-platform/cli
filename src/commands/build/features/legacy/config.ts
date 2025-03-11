@@ -50,6 +50,12 @@ const needToSanitizeHtml = option({
     deprecated: `Use ${bold('--sanitize-html')} instead.`,
 });
 
+const useLegacyConditions = option({
+    flags: '--use-legacy-conditions',
+    desc: 'Temporal backward compatibility flag.',
+    defaultInfo: false,
+});
+
 export const options = {
     disableLiquid,
     applyPresets,
@@ -58,4 +64,5 @@ export const options = {
     lintDisabled,
     allowHTML,
     needToSanitizeHtml,
+    useLegacyConditions,
 };

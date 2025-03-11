@@ -4,7 +4,7 @@ import type {
     SearchParamsObject,
     SupportedLanguage,
 } from 'algoliasearch';
-import type {Run} from '@diplodoc/cli';
+import type {Run} from '@diplodoc/cli/commands/build';
 import type {SearchProvider} from '@diplodoc/cli/lib/search';
 import type {DocPageData} from '@diplodoc/client/ssr';
 import type {AlgoliaSearchConfig} from './index';

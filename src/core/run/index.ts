@@ -3,13 +3,13 @@ import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
 import {ok} from 'node:assert';
-import {dirname, join} from 'node:path';
+import {dirname, join, relative} from 'node:path';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
-import pmap from 'p-map';
 
-import {bounded, normalizePath, wait} from '~/core/utils';
+import {bounded, normalizePath} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
+import {addSourcePath} from '~/core/meta';
 
 import {InsecureAccessError} from './errors';
 
@@ -18,6 +18,11 @@ import {fs} from './fs';
 type GlobOptions = {
     cwd?: AbsolutePath;
     ignore?: string[];
+};
+
+type CopyOptions = {
+    ignore?: string[];
+    sourcePath?: (path: string) => boolean;
 };
 
 export class RunLogger extends Logger {
@@ -53,32 +58,12 @@ export class Run<TConfig = BaseConfig> {
         this.logger = new RunLogger(config, [
             (_level, message) => {
                 for (const [alias, scope] of this.scopes.entries()) {
-                    const clean = message.replace(new RegExp(scope, 'ig'), alias);
-
-                    if (clean === alias) {
-                        return message;
-                    }
-
-                    message = clean;
+                    message = message.replace(new RegExp(scope, 'ig'), alias);
                 }
 
                 return message;
             },
         ]);
-    }
-
-    /**
-     * This method is especially written in sync mode to use in run.write method.
-     */
-    @bounded exists(path: AbsolutePath) {
-        this.assertProjectScope(path);
-
-        try {
-            this.fs.statSync(path);
-            return true;
-        } catch {
-            return false;
-        }
     }
 
     /**
@@ -106,21 +91,11 @@ export class Run<TConfig = BaseConfig> {
      *
      * @param {AbsolutePath} path - unixlike absolute path to file
      * @param {string} content - file content
-     * @param {boolean} force - ignore file exists
      *
      * @returns {Promise<void>}
      */
-    @bounded async write(path: AbsolutePath, content: string, force = false) {
+    @bounded async write(path: AbsolutePath, content: string) {
         this.assertProjectScope(path);
-
-        // Move write to next task instead of process it in current microtask.
-        // This allow to detect already created files in parallel processing.
-        await wait(1);
-
-        // Sync exists check can detect created file as fast as possible.
-        if (this.exists(path) && !force) {
-            return;
-        }
 
         await this.fs.mkdir(dirname(path), {recursive: true});
         await this.fs.unlink(path).catch(() => {});
@@ -149,7 +124,16 @@ export class Run<TConfig = BaseConfig> {
         return paths.map(normalizePath);
     }
 
-    @bounded async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
+    @bounded async copy(
+        from: AbsolutePath,
+        to: AbsolutePath,
+        options: CopyOptions | CopyOptions['ignore'] = {},
+    ) {
+        if (Array.isArray(options)) {
+            options = {ignore: options};
+        }
+
+        const {ignore, sourcePath} = options;
         const isFile = (await this.fs.stat(from)).isFile();
         const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
             // const realpath = this.realpath(from);
@@ -166,30 +150,41 @@ export class Run<TConfig = BaseConfig> {
         };
 
         if (from === to) {
-            return [];
+            return;
+        }
+
+        if (isFile) {
+            await this.fs.mkdir(dirname(to), {recursive: true});
+            await hardlink(from, to);
+
+            return;
         }
 
         const dirs = new Set();
-        const files = isFile
-            ? [[from, to]]
-            : (
-                  await this.glob('**', {
-                      cwd: from,
-                      ignore,
-                  })
-              ).map((file) => [join(from, file), join(to, file)]);
+        const files = (await this.glob('**', {
+            cwd: from,
+            ignore,
+        })) as RelativePath[];
 
-        await pmap(files, async ([from, to]) => {
-            const dir = dirname(to);
+        for (const file of files) {
+            const dir = join(to, dirname(file));
             if (!dirs.has(dir)) {
                 await this.fs.mkdir(dir, {recursive: true});
                 dirs.add(dir);
             }
 
-            await hardlink(from, to);
-        });
+            // this.logger.copy(join(from, file), join(to, file));
 
-        return files;
+            if (sourcePath && sourcePath(file)) {
+                const content = await this.read(join(from, file));
+                await this.write(
+                    join(to, file),
+                    addSourcePath(content, relative(this.input, join(from, file))),
+                );
+            } else {
+                await hardlink(join(from, file), join(to, file));
+            }
+        }
     }
 
     /**
@@ -223,9 +218,8 @@ export class Run<TConfig = BaseConfig> {
     }
 
     private async assertProjectScope(path: AbsolutePath) {
-        const scopes = [...this.scopes.values()];
         const realpath = await this.realpath(path);
-        const isInScope = scopes.some((scope) => realpath[0].startsWith(scope));
-        ok(isInScope, new InsecureAccessError(path, realpath, scopes));
+        const isInScope = [...this.scopes.values()].some((scope) => realpath[0].startsWith(scope));
+        ok(isInScope, new InsecureAccessError(path, realpath));
     }
 }

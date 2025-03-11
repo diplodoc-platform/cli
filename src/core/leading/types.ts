@@ -1,4 +1,3 @@
-import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';
 
@@ -59,7 +58,3 @@ export type Plugin = (
     this: LoaderContext,
     leading: LeadingPage,
 ) => LeadingPage | Promise<LeadingPage>;
-
-export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
-    path: NormalizedPath;
-};

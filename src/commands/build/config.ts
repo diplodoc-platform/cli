@@ -92,6 +92,17 @@ const mergeIncludes = option({
     desc: 'Merge includes syntax during md to md processing.',
 });
 
+const resources = option({
+    flags: '--resource, --resources <value...>',
+    desc: 'Allow loading custom resources into statically generated pages.',
+    // parser: toArray,
+});
+
+const allowCustomResources = option({
+    flags: '--allow-custom-resources',
+    desc: 'Allow loading custom resources into statically generated pages.',
+});
+
 const staticContent = option({
     flags: '--static-content',
     desc: 'Allow loading custom resources into statically generated pages.',
@@ -121,6 +132,8 @@ export const options = {
     addMapFile,
     removeHiddenTocItems,
     mergeIncludes,
+    resources,
+    allowCustomResources,
     staticContent,
     ignore,
     ignoreStage,

@@ -2,7 +2,7 @@ import {VcsConnector} from './types';
 
 export class DefaultVcsConnector implements VcsConnector {
     async getContributorsByPath() {
-        return [];
+        return {};
     }
 
     async getModifiedTimeByPath() {

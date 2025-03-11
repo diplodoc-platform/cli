@@ -1,100 +1,43 @@
-import {dirname} from 'node:path';
+import {dirname, normalize} from 'path';
 
 import {YfmPreset} from '../models';
-import {normalizePath, own} from '~/core/utils';
-import {uniq} from 'lodash';
-import {ArgvService} from '~/services/index';
+import {VarsService} from '~/core/vars';
 
-export type PresetStorage = Record<string, YfmPreset>;
+export type PresetStorage = Map<string, YfmPreset>;
 
-let presetStorage: PresetStorage = {};
+let presetStorage: PresetStorage = new Map();
 
-function init(presets: PresetStorage) {
-    presetStorage = presets;
+function init(vars: VarsService) {
+    for (const [path, values] of vars.entries) {
+        presetStorage.set(dirname(path), values);
+    }
 }
 
-function get(path: RelativePath): YfmPreset {
-    const scopes = _scopes(dirname(path));
+function get(path: string): YfmPreset {
+    let vars = presetStorage.get(normalize(path));
+    while (!vars) {
+        path = dirname(path);
+        vars = presetStorage.get(normalize(path));
 
-    return new Proxy(
-        {},
-        {
-            has(_target, prop: string) {
-                for (const scope of scopes) {
-                    if (own(scope, prop)) {
-                        return true;
-                    }
-                }
-
-                return false;
-            },
-
-            get(_target, prop: string) {
-                for (const scope of scopes) {
-                    if (own(scope, prop)) {
-                        return scope[prop];
-                    }
-                }
-
-                return undefined;
-            },
-
-            getOwnPropertyDescriptor(_target, prop: string) {
-                for (const scope of scopes) {
-                    if (own(scope, prop)) {
-                        return {configurable: true, enumerable: true, value: scope[prop]};
-                    }
-                }
-
-                return undefined;
-            },
-
-            ownKeys() {
-                const keys = [];
-
-                for (const scope of scopes) {
-                    keys.push(...Object.keys(scope));
-                }
-
-                return uniq(keys);
-            },
-        },
-    );
-}
-
-function _scopes(path: RelativePath) {
-    const {vars, varsPreset} = ArgvService.getConfig();
-    const presets = [vars];
-    const dirs = [normalizePath(path)];
-
-    while (dirs.length) {
-        const dir = dirs.pop() as NormalizedPath;
-
-        if (presetStorage[dir]) {
-            if (presetStorage[dir][varsPreset]) {
-                presets.push(presetStorage[dir][varsPreset]);
-            }
-
-            if (varsPreset !== 'default') {
-                presets.push(presetStorage[dir]['default']);
-            }
-        }
-
-        const next = normalizePath(dirname(dir));
-        if (dir !== next) {
-            dirs.push(next);
+        if (path === '.') {
+            break;
         }
     }
 
-    return presets;
+    return vars || {};
 }
 
-function setPresetStorage(preset: Record<string, YfmPreset>): void {
+function getPresetStorage(): Map<string, YfmPreset> {
+    return presetStorage;
+}
+
+function setPresetStorage(preset: Map<string, YfmPreset>): void {
     presetStorage = preset;
 }
 
 export default {
     init,
     get,
+    getPresetStorage,
     setPresetStorage,
 };

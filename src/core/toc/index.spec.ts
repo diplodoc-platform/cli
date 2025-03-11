@@ -11,7 +11,6 @@ import {setupRun} from '~/commands/build/__tests__';
 
 import {TocService, TocServiceConfig} from './TocService';
 import {getHooks} from './hooks';
-import {Preset} from '~/core/vars';
 
 type Options = DeepPartial<TocServiceConfig>;
 
@@ -37,10 +36,10 @@ function setupService(options: Options = {}) {
     return {run, toc};
 }
 
-function mockData(run: RunSpy, content: string, vars: Preset, files: Files, copy: Copy) {
-    when(run.vars.for)
+function mockData(run: RunSpy, content: string, vars: Vars, files: Files, copy: Copy) {
+    when(run.vars.load)
         .calledWith('toc.yaml' as NormalizedPath)
-        .thenReturn(vars);
+        .thenResolve(vars);
 
     when(run.read).calledWith(join(run.input, './toc.yaml')).thenResolve(content);
 
@@ -53,16 +52,17 @@ function mockData(run: RunSpy, content: string, vars: Preset, files: Files, copy
     for (const [from, to] of copy) {
         when(run.copy)
             .calledWith(join(run.input, from), join(run.input, to), expect.anything())
-            .thenResolve([]);
+            .thenResolve();
     }
 }
 
+type Vars = Hash<string | number>;
 type Files = Hash<string>;
 type Copy = [RelativePath, RelativePath][];
 function test(
     content: string,
     options: Options = {},
-    vars: Preset = {},
+    vars: Vars = {},
     files: Files = {},
     copy: Copy = [],
 ) {

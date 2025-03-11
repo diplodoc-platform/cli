@@ -1,75 +1,32 @@
-const {basename, dirname} = require("node:path");
 const esbuild = require('esbuild');
-const deps = require('./deps');
-const alias = require('./alias');
-const {sync: glob} = require('glob');
+const tsPaths = require('./ts-paths');
 
-const {version, dependencies = {}} = require('../package.json');
+const {version, dependencies = {}, peerDependencies = {}} = require('../package.json');
 
-const baseConfig = {
+const commonConfig = {
     tsconfig: './tsconfig.json',
     platform: 'node',
-    target: 'node18',
-    sourcemap: true,
+    target: 'ES6',
+    format: 'cjs',
     bundle: true,
+    sourcemap: true,
+    loader: {
+        '.map': 'empty',
+    },
+    plugins:[
+        tsPaths()
+    ],
     define: {
         VERSION: JSON.stringify(version),
     },
 };
 
-const externals = new Set();
-const lib = (entry, format) => esbuild.build({
-    ...baseConfig,
-    format,
-    outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
-    entryPoints: [entry],
-    packages: 'external',
-    plugins:[
-        deps(externals),
-        alias({
-            '~/core': ['@diplodoc/cli/lib', true],
-        }),
-    ]
-});
-const build = (entry, outfile, format) => {
-    const config = {
-        ...baseConfig,
-        format,
-        plugins: [
-            alias({
-                '~/core': ['@diplodoc/cli/lib', true],
-                // '@diplodoc/cli/lib': ['../lib', true],
-                '@diplodoc/cli$': ['../build', true],
-            }),
-        ],
-        banner: {
-            js: '#!/usr/bin/env node',
-        },
-        entryPoints: [entry],
-        outfile: `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`,
-    };
-
-    config.external = [
-        ...Object.keys(dependencies),
-        '@diplodoc/cli/lib',
-        '@diplodoc/cli/package',
-    ];
-
-    return esbuild.build(config);
-};
-
 const builds = [
-    ['src/index.ts', 'index'],
-    ['src/workers/linter/index.ts', 'linter'],
+    [['src/index.ts'], 'build/index.js'],
+    [['src/workers/linter/index.ts'], 'build/linter.js'],
 ];
 
-const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
-
 Promise.all([
-    ...libs.map((entry) => lib(entry, 'esm')),
-    ...libs.map((entry) => lib(entry, 'cjs')),
-    ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
-    ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
     esbuild.build({
         tsconfig: './tsconfig.json',
         bundle: true,
@@ -77,11 +34,26 @@ Promise.all([
         platform: 'browser',
         outfile: 'build/algolia-api.js',
         entryPoints: ['src/extensions/algolia/worker.ts'],
-    }),
-]).then(() => {
-    for (const dep of externals) {
-        if (!dependencies[dep]) {
-            throw new Error(`Dependency '${dep}' should be described in prod dependencies.`);
-        }
+    })
+].concat(builds.map(([entries, outfile, config]) => {
+    const currentConfig = {
+        ...commonConfig,
+        ...config,
+        entryPoints: entries,
+        outfile,
+    };
+
+    if (outfile.endsWith('index.js')) {
+        currentConfig.banner = {
+            js: '#!/usr/bin/env node',
+        };
     }
-});
+
+    currentConfig.external = [
+        ...Object.keys(dependencies),
+        ...Object.keys(peerDependencies),
+        '@diplodoc/cli/package',
+    ];
+
+    return esbuild.build(currentConfig);
+})));

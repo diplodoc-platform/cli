@@ -193,9 +193,9 @@ exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] 
 
 exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] = `
 "---
-sourcePath: folder/fileA.md
 title: File A
 description: YFM description
+sourcePath: folder/fileA.md
 ---
 # File A
 
@@ -281,9 +281,8 @@ exports[`Include toc Toc root merge on non root dir: ru/index.yaml 1`] = `
   - type: header-block
     title: Title
     description: Description
+title: ''
 links: []
-meta:
-  sourcePath: ru/sub/folder/index.yaml
 "
 `;
 

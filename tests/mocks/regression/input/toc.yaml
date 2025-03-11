@@ -11,7 +11,3 @@ items:
     href:
   - include: {path: toc-i.yaml}
   - include: {path: sub/toc.yaml, mode: link}
-  - name: Mermaid
-    href: ./mermaid
-  - name: Latex
-    href: ./latex

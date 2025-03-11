@@ -51,9 +51,8 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     async init() {
-        const enabled = this.run.config.search.enabled;
         const type = this.run.config.search.provider;
-        if (!type || !enabled) {
+        if (!type) {
             return;
         }
 

@@ -1,10 +1,5 @@
-import type {DocInnerProps, DocPageData} from '@diplodoc/client/ssr';
-
 import {join} from 'path';
-import {escape} from 'html-escaper';
-import {getCSP} from 'csp-header';
-import {render} from '@diplodoc/client/ssr';
-import manifest from '@diplodoc/client/manifest';
+import {copyJson} from '~/core/utils';
 
 import {
     BUNDLE_FOLDER,
@@ -13,9 +8,15 @@ import {
     DEFAULT_CSP_SETTINGS,
     RTL_LANGS,
 } from '../constants';
-import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
-import {PluginService} from '../services';
+import {LeadingPage, Resources, TextItems, VarsMetadata, YfmToc} from '../models';
+import {ArgvService, PluginService} from '../services';
 import {getDepthPath} from '../utils';
+
+import {DocInnerProps, DocPageData, render} from '@diplodoc/client/ssr';
+import manifest from '@diplodoc/client/manifest';
+
+import {escape} from 'html-escaper';
+import {getCSP} from 'csp-header';
 
 export interface TitleMeta {
     title?: string;
@@ -26,16 +27,27 @@ export type Meta = TitleMeta &
         metadata: VarsMetadata;
     };
 
+type TocInfo = {
+    content: YfmToc;
+    path: string;
+};
+
 export function generateStaticMarkup(
     props: DocInnerProps<DocPageData>,
-    toc: NormalizedPath,
+    toc: TocInfo,
     title: string,
 ): string {
     const {search} = props;
     /* @todo replace rest operator with proper unpacking */
     const {style, script, csp, metadata, ...restYamlConfigMeta} = (props.data.meta as Meta) || {};
     const resources = getResources({style, script});
-    const staticContent = Boolean(props.data.toc);
+
+    const {staticContent} = ArgvService.getConfig();
+    if (staticContent) {
+        // TODO: there shoul be two different types YfmToc and YfmProcessedToc
+        // @ts-ignore
+        props.data.toc = copyJson(toc.content);
+    }
 
     const depth = props.router.depth;
     const html = staticContent ? render(props) : '';
@@ -71,7 +83,7 @@ export function generateStaticMarkup(
                    window.STATIC_CONTENT = ${staticContent}
                    window.__DATA__ = ${JSON.stringify(props)};
                 </script>
-                <script src="${toc + '.js'}" type="application/javascript"></script>
+                <script src="${toc.path + '.js'}" type="application/javascript"></script>
                 ${search?.resources ? `<script src="${search.resources}" type="application/javascript"></script>` : ''}
                 ${manifest.app.js
                     .map((url: string) => join(BUNDLE_FOLDER, url))
