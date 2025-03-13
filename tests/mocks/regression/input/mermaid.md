@@ -7,3 +7,7 @@
             Alice ->> Bob:
         end
   ```
+
+## Mermaid info {#info}
+
+Some mermaid info

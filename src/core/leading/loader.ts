@@ -71,10 +71,10 @@ function mangleFrontMatter(this: LoaderContext, yaml: RawLeadingPage) {
     const frontmatter = yaml.meta;
     yaml.meta = undefined;
 
-    if (!disableLiquid) {
-        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
-    } else {
+    if (disableLiquid) {
         this.leading.setMeta(path, frontmatter);
+    } else {
+        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
     }
 
     return yaml;

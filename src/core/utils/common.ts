@@ -1,6 +1,13 @@
 import {isObject} from 'lodash';
 import {bounded} from './decorators';
 
+export function zip<T = unknown>(keys: string[], values: T[]) {
+    return keys.reduce((acc, key, index) => {
+        acc[key] = values[index];
+        return acc;
+    }, {} as Hash<T>);
+}
+
 export function own<V = unknown, T extends string = string>(
     box: unknown,
     field: T,
@@ -55,6 +62,7 @@ export function fallbackLang(lang: string) {
     return 'en';
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Defer<T = any> {
     promise: Promise<T>;
 
@@ -80,6 +88,22 @@ type OnDemandResolver = (file: NormalizedPath, from: NormalizedPath[]) => Promis
 
 type OnDemandMap<T> = Map<NormalizedPath, Defer<T> | T>;
 
+export type Bucket<T> = {
+    get(): T;
+    set(value: T): void;
+};
+
+export function bucket<T>() {
+    let _value: T;
+
+    return {
+        get: () => _value,
+        set: (value: T) => {
+            _value = value;
+        },
+    };
+}
+
 export class Demand<T> {
     private scope: OnDemandMap<T> = new Map();
 
@@ -89,21 +113,24 @@ export class Demand<T> {
         this.ondemand = ondemand;
     }
 
-    async onDemand<R>(
-        file: NormalizedPath,
-        from: NormalizedPath[],
-        map: (value: R) => Promise<T> = async (value: R) => value as unknown as T,
-    ): Promise<T> {
+    async onDemand(file: NormalizedPath, from: NormalizedPath[]): Promise<T> {
         if (!this.scope.has(file)) {
             const wait = new Defer();
-            this.scope.set(file, wait as Defer);
+            this.scope.set(file, wait);
             this.ondemand(file, from).catch(wait.reject);
         }
 
         const data = this.scope.get(file);
-        const result = data instanceof Defer ? await data.promise : data;
 
-        return map(result as R);
+        return data instanceof Defer ? await data.promise : (data as T);
+    }
+
+    @bounded
+    proxy(file: NormalizedPath) {
+        return {
+            get: () => this.get(file),
+            set: (value: T) => this.set(file, value),
+        };
     }
 
     @bounded
@@ -120,6 +147,7 @@ export class Demand<T> {
         this.scope.set(file, value);
     }
 
+    @bounded
     get(file: NormalizedPath): T {
         return this.scope.get(file) as T;
     }

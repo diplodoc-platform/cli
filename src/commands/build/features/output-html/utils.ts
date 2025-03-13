@@ -8,9 +8,6 @@ import meta from '@diplodoc/transform/lib/plugins/meta';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import tabs from '@diplodoc/transform/lib/plugins/tabs';
 import video from '@diplodoc/transform/lib/plugins/video';
-import includes from '@diplodoc/transform/lib/plugins/includes';
-import links from '@diplodoc/transform/lib/plugins/links';
-import images from '@diplodoc/transform/lib/plugins/images';
 import monospace from '@diplodoc/transform/lib/plugins/monospace';
 import table from '@diplodoc/transform/lib/plugins/table';
 import term from '@diplodoc/transform/lib/plugins/term';
@@ -18,6 +15,10 @@ import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
+
+import includes from './plugins/includes';
+import links from './plugins/links';
+import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [

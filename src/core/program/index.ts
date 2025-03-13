@@ -3,7 +3,6 @@ import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
 import {once, pick} from 'lodash';
-import log from '@diplodoc/transform/lib/log';
 
 import {
     resolveConfig,
@@ -178,11 +177,6 @@ export class BaseProgram<
     private async post() {
         const stat = stats(this.logger);
         if (stat.error || (this.config.strict && stat.warn)) {
-            throw new HandledError('There is some processing errors.');
-        }
-
-        const {error, warn} = log.get();
-        if (error.length || (this.config.strict && warn.length)) {
             throw new HandledError('There is some processing errors.');
         }
     }

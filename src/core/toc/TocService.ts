@@ -129,13 +129,17 @@ export class TocService {
 
         defer.resolve(toc);
 
-        await this.walkItems([toc], (item: TocItem | Toc) => {
-            if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                this._entries.add(normalizePath(join(dirname(path), item.href)));
-            }
+        // This looks how small optimization, but there was cases when toc is an array...
+        // This is not that we expect.
+        if (toc.href || toc.items?.length) {
+            await this.walkItems([toc], (item: TocItem | Toc) => {
+                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
+                    this._entries.add(normalizePath(join(dirname(path), item.href)));
+                }
 
-            return item;
-        });
+                return item;
+            });
+        }
 
         await getHooks(this).Resolved.promise(freezeJson(toc), file);
 
