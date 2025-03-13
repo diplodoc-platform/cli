@@ -1,16 +1,10 @@
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/plugins/typings';
-import type {Output} from '@diplodoc/transform';
 import type {Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
 import type {ResolverResult} from '~/steps';
 
 import {dirname, extname, join} from 'node:path';
-import transform from '@diplodoc/transform';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 
-import {PROCESSING_FINISHED} from '~/constants';
-import {ArgvService, PluginService} from '~/services';
-import {getDepth, getVarsPerRelativeFile} from '~/utils';
+import {getDepth} from '~/utils';
 import {generateStaticMarkup} from '~/pages';
 import {copyJson, langFromPath} from '~/core/utils';
 
@@ -24,10 +18,11 @@ const getFileData = async (run: Run, path: NormalizedPath) => {
 
         return {data, meta};
     } else {
-        const html = await run.markdown.dump(path, await run.markdown.load(path));
-        const {title, headings} = await run.markdown.info(path);
+        const [html, {title, headings}] = await run.markdown.dump(
+            path,
+            await run.markdown.load(path),
+        );
         const meta = await run.meta.dump(path);
-
         // TODO: remove useless fields after snapshotting
         return {meta, assets: [], headings, title, includes: [], html};
     }
@@ -72,7 +67,7 @@ export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<Res
 
     await run.write(join(run.output, outputPath), result);
 
-    run.logger.info(PROCESSING_FINISHED, path);
+    run.logger.info('Processing finished:', path);
 
     return props;
 }
@@ -83,29 +78,4 @@ function getTitle(tocTitle: string, dataTitle: string) {
     }
 
     return tocTitle || dataTitle || '';
-}
-
-export function transformMd(
-    run: Run,
-    path: RelativePath,
-    content: string,
-    vars: Hash,
-    lang: string,
-): Output {
-    const options = ArgvService.getConfig();
-    const plugins = PluginService.getPlugins();
-
-    return transform(content, {
-        ...options,
-        plugins: plugins as MarkdownItPluginCb<unknown>[],
-        vars,
-        root: run.input,
-        path: join(run.input, path),
-        lang,
-        assetsPublicPath: './',
-        getVarsPerFile: getVarsPerRelativeFile,
-        getPublicPath,
-        extractTitle: true,
-        log: run.logger,
-    });
 }

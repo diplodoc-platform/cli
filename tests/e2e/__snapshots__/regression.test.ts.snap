@@ -63,7 +63,23 @@ exports[`Regression internal: 1.html 1`] = `
       </path>/n
       </svg>/n
       </button>/n
-      </div>/n","leading":false},"router":{"pathname":"1","depth":1},"lang":"ru","langs":["ru"]};
+      </div>/n
+      <p>
+      <code>[not a link](./path/to/relative/file.md)
+      </code>
+      </p>/n
+      <p>
+      <a href=\\"mermaid.html\\">Mermaid usage
+      </a>
+      </p>/n
+      <p>
+      <a href=\\"mermaid.html#info\\">Mermaid info
+      </a>
+      </p>/n
+      <p>
+      <a href=\\"latex.html\\">Latex usage
+      </a>
+      </p>/n","leading":false},"router":{"pathname":"1","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -100,6 +116,15 @@ not_var{{skip()}}
 
 default-var-value
 \`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+[{#T}](./mermaid.md)
+
+[{#T}](./mermaid.md#info)
+
+[](./latex.md)
 "
 `;
 
@@ -549,9 +574,17 @@ exports[`Regression internal: mermaid.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[],"title":"Mermaid usage","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[{"title":"Mermaid info","href":"#info","level":2}],"title":"Mermaid usage","includes":[],"html":"
       <div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\">
-      </div>","leading":false},"router":{"pathname":"mermaid","depth":1},"lang":"ru","langs":["ru"]};
+      </div>
+      <h2 id=\\"info\\">
+      <a href=\\"#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Mermaid info
+      </span>
+      </a>Mermaid info
+      </h2>/n
+      <p>Some mermaid info
+      </p>/n","leading":false},"router":{"pathname":"mermaid","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -583,6 +616,10 @@ exports[`Regression internal: mermaid.md 1`] = `
             Alice ->> Bob:
         end
   \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
 "
 `;
 

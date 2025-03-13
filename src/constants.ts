@@ -1,6 +1,5 @@
 import {resolve} from 'node:path';
 import {platform} from 'process';
-const os = require('os');
 
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
@@ -69,9 +68,4 @@ export enum ResourceType {
 
 export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
-export const PROCESSING_FINISHED = 'Processing finished:';
-export const LINTING_FINISHED = 'Linting finished:';
-
-export const MIN_CHUNK_SIZE = Number(process.env.MIN_CHUNK_SIZE) || 1000;
-export const WORKERS_COUNT = Number(process.env.WORKERS_COUNT) || os.cpus().length - 1;
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 500;
