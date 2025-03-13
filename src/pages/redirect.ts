@@ -1,6 +1,5 @@
 import {join} from 'path';
 import {BUNDLE_FOLDER, RTL_LANGS} from '../constants';
-import {PluginService} from '../services';
 
 import manifest from '@diplodoc/client/manifest';
 
@@ -25,7 +24,6 @@ export function generateStaticRedirect(lang: string, link: string): string {
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
-                ${PluginService.getHeadContent()}
                 <script type="text/javascript">
                     window.location.replace("${link}");
                 </script>

@@ -60,7 +60,6 @@ const build = (entry, outfile, format) => {
 
 const builds = [
     ['src/index.ts', 'index'],
-    ['src/workers/linter/index.ts', 'linter'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});

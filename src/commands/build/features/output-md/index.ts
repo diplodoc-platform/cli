@@ -10,6 +10,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath} from '~/core/config';
 
 import {getCustomCollectPlugins} from '~/commands/build/features/output-md/utils';
+import {isMediaLink} from '~/core/utils';
 
 export class OutputMd {
     apply(program: Build) {
@@ -20,7 +21,7 @@ export class OutputMd {
                     await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
 
-                getMarkdownHooks(run.markdown).Plugins.tap('Changelogs', (plugins) => {
+                getMarkdownHooks(run.markdown).Collects.tap('Changelogs', (plugins) => {
                     return plugins.concat(getCustomCollectPlugins());
                 });
 
@@ -54,6 +55,10 @@ export class OutputMd {
 
     private copyAssets(run: Run) {
         return async (asset: NormalizedPath) => {
+            if (!isMediaLink(asset)) {
+                return;
+            }
+
             try {
                 run.logger.copy(join(run.input, asset), join(run.output, asset));
                 await run.copy(join(run.input, asset), join(run.output, asset));

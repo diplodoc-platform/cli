@@ -1,14 +1,14 @@
-import type {CollectPlugin} from '~/core/markdown';
+import type {Collect} from '~/core/markdown';
 
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 
 type Plugin = {
-    collect?: CollectPlugin;
+    collect?: Collect;
 };
 
 // TODO(major): Deprecate
-export function getCustomCollectPlugins(): CollectPlugin[] {
+export function getCustomCollectPlugins(): Collect[] {
     try {
         const plugins: Plugin[] = require(require.resolve('./plugins'));
 
@@ -30,7 +30,7 @@ export function getCustomCollectPlugins(): CollectPlugin[] {
             .concat(plugins || [])
             .map((plugin) => plugin.collect);
 
-        return collects.filter(Boolean) as CollectPlugin[];
+        return collects.filter(Boolean) as Collect[];
     } catch (e) {
         return [];
     }

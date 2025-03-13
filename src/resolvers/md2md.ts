@@ -5,7 +5,6 @@ import {extname, join} from 'node:path';
 import {uniq} from 'lodash';
 import {dump} from 'js-yaml';
 import pmap from 'p-map';
-import {PROCESSING_FINISHED} from '../constants';
 import {normalizePath} from '~/core/utils';
 
 export async function resolveToMd(run: Run, path: RelativePath): Promise<ResolverResult> {
@@ -19,7 +18,7 @@ export async function resolveToMd(run: Run, path: RelativePath): Promise<Resolve
         await run.write(join(run.output, file), result);
     } else if (extension === '.md') {
         const content = await run.markdown.load(file);
-        const result = await run.markdown.dump(file, content);
+        const [result] = await run.markdown.dump(file, content);
 
         await run.write(join(run.output, file), result);
 
@@ -27,12 +26,12 @@ export async function resolveToMd(run: Run, path: RelativePath): Promise<Resolve
 
         await pmap(deps, async (path) => {
             const markdown = await run.markdown.load(path, [file]);
-            const result = await run.markdown.dump(path, markdown);
+            const [result] = await run.markdown.dump(path, markdown);
             await run.write(join(run.output, path), result);
         });
     }
 
-    run.logger.info(PROCESSING_FINISHED, path);
+    run.logger.info('Processing finished:', path);
 
     return {};
 }
