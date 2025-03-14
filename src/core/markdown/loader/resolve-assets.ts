@@ -18,10 +18,13 @@ export function resolveAssets(this: LoaderContext, content: string) {
 
     for (const {link, location} of [...defs, ...links]) {
         const asset = parseLocalUrl<AssetInfo>(link);
+
         if (asset) {
-            asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
-            asset.location = location;
-            assets.push(asset);
+            try {
+                asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
+                asset.location = location;
+                assets.push(asset);
+            } catch {}
         }
     }
 
