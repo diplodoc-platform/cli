@@ -5,7 +5,7 @@ import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {optimize} from 'svgo';
 
-import {isExternalHref, normalizePath} from '~/core/utils';
+import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
 
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;
@@ -44,29 +44,25 @@ export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         const tokens = state.tokens;
 
-        for (let i = 0; i < tokens.length; i++) {
-            if (tokens[i].type !== 'inline') {
-                continue;
+        filterTokens(tokens, 'inline', (inline, {commented}) => {
+            if (commented || !inline.children) {
+                return;
             }
 
-            const childrenTokens = tokens[i].children || [];
+            const childrenTokens = inline.children || [];
 
-            for (let j = 0; j < childrenTokens.length; j++) {
-                if (childrenTokens[j].type !== 'image') {
-                    continue;
+            filterTokens(childrenTokens, 'image', (image, {commented, index}) => {
+                const didPatch = image.attrGet('yfm_patched') || false;
+
+                if (didPatch || commented) {
+                    return;
                 }
 
-                const didPatch = childrenTokens[j].attrGet('yfm_patched') || false;
-
-                if (didPatch) {
-                    continue;
-                }
-
-                const imgSrc = childrenTokens[j].attrGet('src') || '';
+                const imgSrc = image.attrGet('src') || '';
                 const shouldInlineSvg = opts.inlineSvg !== false;
 
                 if (isExternalHref(imgSrc)) {
-                    continue;
+                    return;
                 }
 
                 const root = state.env.path || path;
@@ -74,18 +70,17 @@ export default ((md, opts) => {
 
                 if (!assets[file]) {
                     log.error(`Asset not found: ${bold(file)} in ${bold(root)}`);
-                    continue;
+                    return;
                 }
 
                 if (imgSrc.endsWith('.svg') && shouldInlineSvg) {
-                    childrenTokens[j] = convertSvg(file, state, opts);
+                    childrenTokens[index] = convertSvg(file, state, opts);
                 } else {
-                    childrenTokens[j].attrSet('src', file);
+                    image.attrSet('src', file);
+                    image.attrSet('yfm_patched', '1');
                 }
-
-                childrenTokens[j].attrSet('yfm_patched', '1');
-            }
-        }
+            });
+        });
     };
 
     try {

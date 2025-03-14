@@ -152,8 +152,8 @@ export function filterRanges<T extends {location: Location}>(
     const contains = (exclude: Location, point: Location) => {
         return (
             (exclude[1] >= point[0] && exclude[1] <= point[1]) ||
-            (exclude[0] >= point[0] && exclude[0] <= point[1]) ||
-            (exclude[0] <= point[0] && exclude[1] >= point[1])
+            (exclude[0] >= point[0] && exclude[0] < point[1]) ||
+            (exclude[0] < point[0] && exclude[1] >= point[1])
         );
     };
 

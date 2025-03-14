@@ -15,3 +15,5 @@ items:
     href: ./mermaid
   - name: Latex
     href: ./latex
+  - name: Images
+    href: ./images

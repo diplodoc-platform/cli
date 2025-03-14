@@ -5,7 +5,7 @@ import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 
-import {normalizePath} from '~/core/utils';
+import {filterTokens, normalizePath} from '~/core/utils';
 
 const INCLUDE_REGEXP = /^{%\s*include\s*(notitle)?\s*\[(.+?)]\((.+?)\)\s*%}$/;
 
@@ -54,21 +54,18 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
     const {log, files} = options;
     const {tokens, md, env} = state;
 
-    let i = 0;
-    while (i < tokens.length) {
-        const openToken = tokens[i];
-        const contentToken = tokens[i + 1];
-        const closeToken = tokens[i + 2];
+    // @ts-ignore
+    filterTokens(tokens, 'paragraph_open', (_openToken, {index}) => {
+        const contentToken = tokens[index + 1];
+        const closeToken = tokens[index + 2];
 
-        let match;
-        if (
-            openToken.type !== 'paragraph_open' ||
-            contentToken.type !== 'inline' ||
-            !(match = contentToken.content.match(INCLUDE_REGEXP)) ||
-            closeToken.type !== 'paragraph_close'
-        ) {
-            i++;
-            continue;
+        if (contentToken.type !== 'inline' || closeToken.type !== 'paragraph_close') {
+            return;
+        }
+
+        const match = contentToken.content.match(INCLUDE_REGEXP);
+        if (!match) {
+            return;
         }
 
         try {
@@ -79,8 +76,7 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
 
             if (typeof includeContent !== 'string') {
                 log.error(`Include skipped. Include source for ${bold(includeFullPath)} not found`);
-                i++;
-                continue;
+                return;
             }
 
             const fileTokens = md.parse(includeContent, {
@@ -100,18 +96,16 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
                 stripTitleTokens(includedTokens);
             }
 
-            tokens.splice(i, 3, ...includedTokens);
+            tokens.splice(index, 3, ...includedTokens);
 
-            i += includedTokens.length;
+            return {skip: includedTokens.length};
         } catch (e) {
             // @ts-ignore for some reason typescript fails here
             const errPath = e.path;
 
             log.error(`Include skipped. Skip reason: ${e} in ${errPath}`);
-
-            i++;
         }
-    }
+    });
 }
 
 function findBlockTokens(tokens: Token[], id: string) {
