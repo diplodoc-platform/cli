@@ -79,6 +79,8 @@ exports[`Regression internal: 1.html 1`] = `
       <p>
       <a href=\\"latex.html\\">Latex usage
       </a>
+      </p>/n
+      <p>Bob
       </p>/n","leading":false},"router":{"pathname":"1","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
@@ -125,6 +127,8 @@ default-var-value
 [{#T}](./mermaid.md#info)
 
 [](./latex.md)
+
+{% include [user](includes/user.md) %}
 "
 `;
 
@@ -133,6 +137,7 @@ exports[`Regression internal: filelist 1`] = `
   "1.md",
   "_assets/empty.pdf",
   "included-item.md",
+  "includes/user.md",
   "index.yaml",
   "latex.md",
   "merge/merge.md",
@@ -252,6 +257,11 @@ Included item text
 {% endnote %}
 
 ![pdf](_assets/empty.pdf)
+"
+`;
+
+exports[`Regression internal: includes/user.md 1`] = `
+"Bob
 "
 `;
 
