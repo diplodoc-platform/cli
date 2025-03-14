@@ -1,3 +1,5 @@
+import Token from 'markdown-it/lib/token';
+
 export function parseHeading(content: string) {
     const anchors = [];
     const commonHeading = content.match(/^#+/);
@@ -26,4 +28,33 @@ export function parseHeading(content: string) {
     const title = content.trim();
 
     return {anchors, title, level};
+}
+
+type TokenWalker = (token: Token, state: {commented: boolean}) => void;
+
+export function filterTokens(tokens: Token[], type: string, handler: TokenWalker) {
+    let commented = false;
+
+    if (!tokens || !tokens.length) {
+        return;
+    }
+
+    for (const token of tokens) {
+        if (token.type === 'html_block') {
+            const commentStart = token.content.match('<!--');
+            const commentEnd = token.content.match('-->');
+
+            if (commentStart && !commentEnd) {
+                commented = true;
+            }
+
+            if (!commentStart && commentEnd) {
+                commented = false;
+            }
+        }
+
+        if (token.type === type) {
+            handler(token, {commented});
+        }
+    }
 }

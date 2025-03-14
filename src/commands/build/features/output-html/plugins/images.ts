@@ -5,7 +5,7 @@ import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {optimize} from 'svgo';
 
-import {isExternalHref, normalizePath} from '~/core/utils';
+import {isExternalHref, normalizePath, filterTokens} from '~/core/utils';
 
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;
@@ -44,29 +44,23 @@ export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         const tokens = state.tokens;
 
-        for (let i = 0; i < tokens.length; i++) {
-            if (tokens[i].type !== 'inline') {
-                continue;
+        filterTokens(tokens, 'inline', (inline, {commented}) => {
+            if (commented) {
+                return;
             }
 
-            const childrenTokens = tokens[i].children || [];
+            filterTokens(inline.children, 'image', (image, {commented}) => {
+                const didPatch = image.attrGet('yfm_patched') || false;
 
-            for (let j = 0; j < childrenTokens.length; j++) {
-                if (childrenTokens[j].type !== 'image') {
-                    continue;
+                if (didPatch || commented) {
+                    return;
                 }
 
-                const didPatch = childrenTokens[j].attrGet('yfm_patched') || false;
-
-                if (didPatch) {
-                    continue;
-                }
-
-                const imgSrc = childrenTokens[j].attrGet('src') || '';
+                const imgSrc = image.attrGet('src') || '';
                 const shouldInlineSvg = opts.inlineSvg !== false;
 
                 if (isExternalHref(imgSrc)) {
-                    continue;
+                    return;
                 }
 
                 const root = state.env.path || path;
@@ -74,18 +68,18 @@ export default ((md, opts) => {
 
                 if (!assets[file]) {
                     log.error(`Asset not found: ${bold(file)} in ${bold(root)}`);
-                    continue;
+                    return;
                 }
 
                 if (imgSrc.endsWith('.svg') && shouldInlineSvg) {
-                    childrenTokens[j] = convertSvg(file, state, opts);
+                    image = convertSvg(file, state, opts);
                 } else {
-                    childrenTokens[j].attrSet('src', file);
+                    image.attrSet('src', file);
                 }
 
-                childrenTokens[j].attrSet('yfm_patched', '1');
-            }
-        }
+                image.attrSet('yfm_patched', '1');
+            });
+        });
     };
 
     try {
@@ -100,3 +94,4 @@ export default ((md, opts) => {
         return token.attrGet('content') || '';
     };
 }) as MarkdownItPluginCb<Options>;
+
