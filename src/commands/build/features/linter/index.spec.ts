@@ -1,4 +1,5 @@
 import {describe, vi} from 'vitest';
+import {LogLevels} from '@diplodoc/yfmlint';
 import {testConfig as test} from '../../__tests__';
 
 vi.mock('~/cmd/publish/upload');
@@ -10,9 +11,7 @@ describe('Build linter feature', () => {
                 lint: {
                     enabled: true,
                     config: {
-                        'log-levels': {
-                            MD033: 'disabled',
-                        },
+                        MD033: LogLevels.DISABLED,
                     },
                 },
             });
@@ -53,9 +52,7 @@ describe('Build linter feature', () => {
                     lint: {
                         enabled: true,
                         config: {
-                            'log-levels': {
-                                MD033: 'disabled',
-                            },
+                            MD033: LogLevels.DISABLED,
                         },
                     },
                 },
@@ -71,9 +68,7 @@ describe('Build linter feature', () => {
                     lint: {
                         enabled: true,
                         config: {
-                            'log-levels': {
-                                MD033: 'error',
-                            },
+                            MD033: LogLevels.ERROR,
                         },
                     },
                 },

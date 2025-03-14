@@ -14,7 +14,6 @@ import {
     RTL_LANGS,
 } from '../constants';
 import {LeadingPage, Resources, TextItems, VarsMetadata} from '../models';
-import {PluginService} from '../services';
 import {getDepthPath} from '../utils';
 
 export interface TitleMeta {
@@ -62,7 +61,6 @@ export function generateStaticMarkup(
                     .map((url: string) => join(BUNDLE_FOLDER, url))
                     .map((src: string) => `<link type="text/css" rel="stylesheet" href="${src}" />`)
                     .join('\n')}
-                ${PluginService.getHeadContent()}
                 ${resources}
             </head>
             <body class="g-root g-root_theme_light">

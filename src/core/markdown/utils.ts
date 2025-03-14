@@ -1,4 +1,6 @@
-type LinkInfo = [string, [number, number]];
+import type {Location} from './types';
+
+type LinkInfo = {link: string; location: Location};
 
 export function findLinks<T extends boolean>(
     content: string,
@@ -46,7 +48,8 @@ function find<T extends boolean>(
 
         // replace is related to parseLinkDestination from markdown-it
         const link = result.replace(/\\/g, '');
-        const info = withPosition ? ([link, [match.index, matcher.lastIndex]] as LinkInfo) : link;
+        const location = [match.index, matcher.lastIndex];
+        const info = withPosition ? ({link, location} as LinkInfo) : link;
         if (link) {
             links.push(info);
         }
@@ -140,4 +143,21 @@ function parseSimpleLink(str: string, start: number) {
 
     // no closing '>'
     return null;
+}
+
+export function filterRanges<T extends {location: Location}>(
+    excludes: Location[],
+    infos: T[],
+): T[] {
+    const contains = (exclude: Location, point: Location) => {
+        return (
+            (exclude[1] >= point[0] && exclude[1] <= point[1]) ||
+            (exclude[0] >= point[0] && exclude[0] <= point[1]) ||
+            (exclude[0] <= point[0] && exclude[1] >= point[1])
+        );
+    };
+
+    return infos.filter((item) => {
+        return !excludes.some((exclude) => contains(exclude, item.location));
+    });
 }

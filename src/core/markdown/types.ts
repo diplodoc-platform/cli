@@ -4,16 +4,14 @@ import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';
 
-export type CollectPlugin = (
+export type Collect = (
     this: LoaderContext,
     content: string,
     // TODO: rewrite old collect to do not use this object
     options: object,
 ) => string | [string | undefined, Meta | undefined];
 
-export type TransformPlugin = MarkdownItPluginCb<any>;
-
-export type Plugin = CollectPlugin | TransformPlugin;
+export type Plugin = MarkdownItPluginCb<any>;
 
 export type Location = [number, number];
 
@@ -35,5 +33,4 @@ export type HeadingInfo = {
 export type AdditionalInfo = Readonly<{
     title: string | undefined;
     headings: Output['result']['headings'];
-    meta: Meta;
 }>;

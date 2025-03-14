@@ -1,6 +1,5 @@
 import {Logger} from '@diplodoc/transform/lib/log';
 import {ChangelogItem} from '@diplodoc/transform/lib/plugins/changelog/types';
-import {LintConfig} from '@diplodoc/transform/lib/yfmlint';
 
 import {ResourceType} from './constants';
 
@@ -13,22 +12,6 @@ export type YfmPreset = Record<string, string> & {
 };
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Metadata = Record<string, any>;
-
-interface YfmConfig {
-    allowHTML: boolean;
-    applyPresets: boolean;
-    resolveConditions: boolean;
-    conditionsInCode: boolean;
-    disableLiquid: boolean;
-    lintDisabled: boolean;
-    lintConfig: LintConfig;
-    needToSanitizeHtml: boolean;
-    supportGithubAnchors: boolean;
-}
-
-export interface YfmArgv extends YfmConfig {
-    rootInput: string;
-}
 
 export interface LeadingPage {
     title: TextItems;

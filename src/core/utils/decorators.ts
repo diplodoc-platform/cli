@@ -25,15 +25,7 @@ export function memoize(...props: string[]) {
 
                 const key = props.map((prop, index) => `${prop}=${mem[index]}`).join('&');
                 if (!cache.has(key)) {
-                    const result = method.call(this, ...args);
-                    cache.set(key, result);
-
-                    // Drop extra closures
-                    if (result instanceof Promise) {
-                        result.then((result) => {
-                            cache.set(key, result);
-                        });
-                    }
+                    cache.set(key, method.call(this, ...args));
                 }
 
                 return cache.get(key);

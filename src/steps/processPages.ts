@@ -14,7 +14,6 @@ import {
 } from '../constants';
 import {SinglePageResult} from '../models';
 import {resolveToHtml, resolveToMd} from '../resolvers';
-import {PluginService} from '../services';
 import {generateStaticMarkup} from '~/pages/document';
 import {generateStaticRedirect} from '~/pages/redirect';
 import {getDepth, getDepthPath, joinSinglePageResults} from '../utils';
@@ -26,8 +25,6 @@ const singlePagePaths: Record<string, Set<string>> = {};
 // Processes files of documentation (like index.yaml, *.md)
 export async function processPages(run: Run): Promise<void> {
     const {outputFormat, singlePage} = run.config;
-
-    PluginService.setPlugins();
 
     await pmap(
         run.toc.entries,

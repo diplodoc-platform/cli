@@ -2,6 +2,7 @@ default:
   default-var: default-var-value
   not-var: not-var-value
   product: root
+  user: Bob
 
 internal:
   default-var: default-var-internal-value
