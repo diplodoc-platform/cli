@@ -33,13 +33,13 @@ function processLink(state: StateCore, tokens: Token[], idx: number, opts: Optio
         return;
     }
 
-    const {pathname, hash} = url.parse(href);
-
     if (isExternalHref(href)) {
         linkToken.attrSet('target', '_blank');
         linkToken.attrSet('rel', 'noreferrer noopener');
         return;
     }
+
+    const {pathname, hash} = url.parse(href);
 
     if (!pathname && !href) {
         return;

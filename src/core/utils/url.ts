@@ -2,7 +2,7 @@ import {pick} from 'lodash';
 import {type UrlWithStringQuery, parse} from 'node:url';
 
 export function isExternalHref(href: string) {
-    return /^(\w{1,10}:)?\/\//.test(href);
+    return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
 const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
