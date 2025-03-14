@@ -135,7 +135,11 @@ default-var-value
 exports[`Regression internal: filelist 1`] = `
 "[
   "1.md",
+  "_assets/1.png",
+  "_assets/2.png",
+  "_assets/3.png",
   "_assets/empty.pdf",
+  "images.md",
   "included-item.md",
   "includes/user.md",
   "index.yaml",
@@ -152,6 +156,9 @@ exports[`Regression internal: filelist 1`] = `
 exports[`Regression internal: filelist 2`] = `
 "[
   "1.html",
+  "_assets/1.png",
+  "_assets/2.png",
+  "_assets/3.png",
   "_assets/empty.pdf",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
@@ -165,6 +172,7 @@ exports[`Regression internal: filelist 2`] = `
   "_bundle/search-css-0",
   "_bundle/search-js-2",
   "_bundle/search-css-1",
+  "images.html",
   "included-item.html",
   "index.html",
   "latex.html",
@@ -175,6 +183,80 @@ exports[`Regression internal: filelist 2`] = `
   "sub/folder/item-1.html",
   "toc.js"
 ]"
+`;
+
+exports[`Regression internal: images.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Images
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Images","includes":[],"html":"
+      <p>
+      <img src=\\"_assets/1.png\\" alt=\\"simple image\\" />
+      </p>/n![with leading comment](_assets/2.png)/n
+      <p>
+      <img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" />
+      </p>/n/n","leading":false},"router":{"pathname":"images","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: images.md 1`] = `
+"# Images
+
+![simple image](_assets/1.png)
+
+<!-- comment -->![with leading comment](_assets/2.png)
+
+![with trailing comment](_assets/3.png)<!-- comment -->
+
+<!-- ![commented](_assets/4.png) -->
+"
 `;
 
 exports[`Regression internal: included-item.html 1`] = `
@@ -697,7 +779,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression internal: toc.yaml 1`] = `
 "items:
@@ -720,5 +802,7 @@ exports[`Regression internal: toc.yaml 1`] = `
     href: mermaid.md
   - name: Latex
     href: latex.md
+  - name: Images
+    href: images.md
 "
 `;

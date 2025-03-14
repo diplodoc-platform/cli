@@ -7,7 +7,7 @@ import url from 'url';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
-import {isExternalHref} from '~/core/utils';
+import {filterTokens, isExternalHref} from '~/core/utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 
@@ -76,23 +76,20 @@ export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         const tokens = state.tokens;
 
-        for (let i = 0; i < tokens.length; i++) {
-            if (tokens[i].type === 'inline') {
-                const childrenTokens = tokens[i].children || [];
+        filterTokens(tokens, 'inline', (inline) => {
+            const childrenTokens = inline.children || [];
 
-                for (let j = 0; j < childrenTokens.length; j++) {
-                    const isLinkOpenToken = childrenTokens[j].type === 'link_open';
-                    const tokenClass = childrenTokens[j].attrGet('class');
+            filterTokens(childrenTokens, 'link_open', (link, {index}) => {
+                const tokenClass = link.attrGet('class');
 
-                    /*  Don't process anchor links */
-                    const isYfmAnchor = tokenClass ? tokenClass.includes('yfm-anchor') : false;
+                /*  Don't process anchor links */
+                const isYfmAnchor = tokenClass ? tokenClass.includes('yfm-anchor') : false;
 
-                    if (isLinkOpenToken && !isYfmAnchor) {
-                        processLink(state, childrenTokens, j, opts);
-                    }
+                if (!isYfmAnchor) {
+                    processLink(state, childrenTokens, index, opts);
                 }
-            }
-        }
+            });
+        });
     };
 
     try {
