@@ -4,7 +4,6 @@ import code from '@diplodoc/transform/lib/plugins/code';
 import cut from '@diplodoc/transform/lib/plugins/cut';
 import deflist from '@diplodoc/transform/lib/plugins/deflist';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
-import meta from '@diplodoc/transform/lib/plugins/meta';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import tabs from '@diplodoc/transform/lib/plugins/tabs';
 import video from '@diplodoc/transform/lib/plugins/video';
@@ -22,7 +21,6 @@ import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [
-        meta,
         deflist,
         includes,
         cut,
