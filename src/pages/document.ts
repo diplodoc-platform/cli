@@ -105,7 +105,7 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
     // Add generator meta tag with versions
     addMetaTagsFromObject({
         name: 'generator',
-        content: `Diplodoc Platform v${VERSION} (Transform v${VERSION_TRANSFORM})`,
+        content: `Diplodoc Platform v${VERSION}`,
     });
 
     if (restMeta) {

@@ -5,7 +5,6 @@ const alias = require('./alias');
 const {sync: glob} = require('glob');
 
 const {version, dependencies = {}} = require('../package.json');
-const version_transform = require('../../transform/package.json').version;
 
 const baseConfig = {
     tsconfig: './tsconfig.json',
@@ -15,7 +14,6 @@ const baseConfig = {
     bundle: true,
     define: {
         VERSION: JSON.stringify(version),
-        VERSION_TRANSFORM: JSON.stringify(version_transform),
     },
 };
 
