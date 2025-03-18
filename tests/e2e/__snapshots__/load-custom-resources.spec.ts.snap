@@ -44,6 +44,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="title"
           content="Documentation"
     >
@@ -115,6 +118,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <meta name="yfm"
           content="builder"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -179,6 +185,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -243,6 +252,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -349,6 +361,9 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="title"
           content="Documentation"
     >
@@ -420,6 +435,9 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     <meta name="yfm"
           content="builder"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -484,6 +502,9 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >

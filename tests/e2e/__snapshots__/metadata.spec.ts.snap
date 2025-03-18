@@ -35,6 +35,9 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
     <meta name="yfm-config"
           content="config test"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="title"
           content="Documentation"
     >
@@ -105,6 +108,9 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
     <meta name="yfm-config"
           content="config test"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -170,6 +176,9 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
     >
     <meta name="yfm-config"
           content="config test"
+    >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"

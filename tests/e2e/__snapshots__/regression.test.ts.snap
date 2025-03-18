@@ -8,6 +8,9 @@ exports[`Regression internal: 1.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -155,6 +158,9 @@ exports[`Regression internal: included-item.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -238,6 +244,9 @@ exports[`Regression internal: index.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -302,6 +311,9 @@ exports[`Regression internal: latex.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -375,6 +387,9 @@ exports[`Regression internal: merge/merge.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -441,6 +456,9 @@ exports[`Regression internal: merge/merged.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="sourcePath"
           content="merge-source/merged.md"
     >
@@ -522,6 +540,9 @@ exports[`Regression internal: mermaid.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -594,6 +615,9 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >

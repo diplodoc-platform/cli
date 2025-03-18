@@ -31,6 +31,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -86,6 +89,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -147,6 +153,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -202,6 +211,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -261,6 +273,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="title"
           content="Documentation"
     >
@@ -324,6 +339,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <base href="../">
     <meta name="yfm"
           content="builder"
+    >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
