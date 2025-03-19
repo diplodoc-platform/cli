@@ -15,6 +15,7 @@ export async function handler(run: Run) {
 
         await processChangelogs(run);
     } catch (error) {
+        console.error(error);
         run.logger.error(error);
     }
 }
