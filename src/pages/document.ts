@@ -102,12 +102,6 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
         metadata.forEach(addMetaTagsFromObject);
     }
 
-    // Add generator meta tag with versions
-    addMetaTagsFromObject({
-        name: 'generator',
-        content: `Diplodoc Platform v${VERSION}`,
-    });
-
     if (restMeta) {
         Object.entries(restMeta)
             .map(([name, value]) => {

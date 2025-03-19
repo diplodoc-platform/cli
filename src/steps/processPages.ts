@@ -34,6 +34,13 @@ export async function processPages(run: Run): Promise<void> {
         async (path: NormalizedPath) => {
             run.logger.proc(path);
 
+            // Add generator meta tag with versions
+            run.meta.add(path, {
+                metadata: {
+                    generator: `Diplodoc Platform v${VERSION}`,
+                },
+            });
+
             const info = await preparingPagesByOutputFormat(run, path);
 
             if (outputFormat === 'html') {
