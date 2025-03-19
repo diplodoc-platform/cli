@@ -69,7 +69,7 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -136,7 +136,7 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -205,7 +205,7 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -249,6 +249,8 @@ meta:
       content: inline test
     - name: yfm-config
       content: config test
+    - name: generator
+      content: Diplodoc Platform v4.56.0
   title: Documentation
   noIndex: true
 links:
@@ -267,6 +269,8 @@ metadata:
     content: inline test
   - name: yfm-config
     content: config test
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 ---
 
 Lorem"
@@ -281,6 +285,8 @@ metadata:
     content: inline test
   - name: yfm-config
     content: config test
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 ---
 
 Lorem"

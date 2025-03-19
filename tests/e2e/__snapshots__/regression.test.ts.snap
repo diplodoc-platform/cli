@@ -11,6 +11,9 @@ exports[`Regression internal: 1.html 1`] = `
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -36,7 +39,7 @@ exports[`Regression internal: 1.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
       <p>Text {{not-var}} {{skip()}} default-var-value
       </p>/n
       <p>Text
@@ -89,7 +92,12 @@ exports[`Regression internal: 1.html 1`] = `
 `;
 
 exports[`Regression internal: 1.md 1`] = `
-"# Title
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Title
 
 Text not_var{{not-var}} not_var{{skip()}} default-var-value
 
@@ -161,6 +169,9 @@ exports[`Regression internal: included-item.html 1`] = `
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -186,7 +197,7 @@ exports[`Regression internal: included-item.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
       <p>Included item text
       </p>/n/n
       <div class=\\"yfm-note yfm-accent-alert\\" note-type=\\"alert\\">
@@ -220,7 +231,12 @@ exports[`Regression internal: included-item.html 1`] = `
 `;
 
 exports[`Regression internal: included-item.md 1`] = `
-"# Included item
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Included item
 
 Included item text
 
@@ -244,6 +260,9 @@ exports[`Regression internal: index.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
@@ -271,7 +290,7 @@ exports[`Regression internal: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{}},"meta":{},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -299,7 +318,10 @@ exports[`Regression internal: index.yaml 1`] = `
     href: ./1.md
   - name: Link 2
     href: ./1
-meta: {}
+meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform v4.56.0
 "
 `;
 
@@ -311,6 +333,9 @@ exports[`Regression internal: latex.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
@@ -346,7 +371,7 @@ exports[`Regression internal: latex.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"]},"assets":[],"headings":[],"title":"Latex usage","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"]},"assets":[],"headings":[],"title":"Latex usage","includes":[],"html":"
       <p>
       <span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22displayMode%22%3Afalse%7D\\">
       </span>
@@ -373,7 +398,12 @@ exports[`Regression internal: latex.html 1`] = `
 `;
 
 exports[`Regression internal: latex.md 1`] = `
-"# Latex usage
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Latex usage
 
 $/sqrt{3x-1}+(1+x)^2$
 "
@@ -387,6 +417,9 @@ exports[`Regression internal: merge/merge.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
@@ -415,7 +448,7 @@ exports[`Regression internal: merge/merge.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
       <p>
       <a href=\\"merge/merged.html\\">merged
       </a>
@@ -442,7 +475,12 @@ exports[`Regression internal: merge/merge.html 1`] = `
 `;
 
 exports[`Regression internal: merge/merge.md 1`] = `
-"# Should use merged item
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Should use merged item
 
 [merged](./merged.md)
 "
@@ -456,6 +494,9 @@ exports[`Regression internal: merge/merged.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
@@ -487,7 +528,7 @@ exports[`Regression internal: merge/merged.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"sourcePath":"merge-source/merged.md"},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"sourcePath":"merge-source/merged.md"},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
       <p>Should be linked in toc.yaml
       </p>/n","leading":false},"router":{"pathname":"merge/merged","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -513,6 +554,9 @@ exports[`Regression internal: merge/merged.html 1`] = `
 
 exports[`Regression internal: merge/merged.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: merge-source/merged.md
 ---
 # Merged item
@@ -543,6 +587,9 @@ exports[`Regression internal: mermaid.html 1`] = `
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -570,7 +617,7 @@ exports[`Regression internal: mermaid.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[],"title":"Mermaid usage","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[],"title":"Mermaid usage","includes":[],"html":"
       <div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\">
       </div>","leading":false},"router":{"pathname":"mermaid","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -595,7 +642,12 @@ exports[`Regression internal: mermaid.html 1`] = `
 `;
 
 exports[`Regression internal: mermaid.md 1`] = `
-"# Mermaid usage
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Mermaid usage
 
 \`\`\`mermaid
 
@@ -615,6 +667,9 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="../../">
+    <meta name="generator"
+          content="Diplodoc Platform v4.56.0"
+    >
     <meta name="generator"
           content="Diplodoc Platform v4.56.0"
     >
@@ -643,7 +698,7 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Item 1","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform v4.56.0"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"Item 1","includes":[],"html":"
       <p>Item 1 text
       </p>/n","leading":false},"router":{"pathname":"sub/folder/item-1","depth":3},"lang":"ru","langs":["ru"]};
     </script>
@@ -668,7 +723,12 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
 `;
 
 exports[`Regression internal: sub/folder/item-1.md 1`] = `
-"# Item 1
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# Item 1
 
 Item 1 text
 "

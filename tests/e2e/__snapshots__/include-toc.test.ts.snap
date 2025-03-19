@@ -45,6 +45,9 @@ This is the core include."
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product1/article1.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: product1/core/article1.md
 ---
 This is the core content of Article 1.
@@ -71,6 +74,9 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/article1.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
@@ -89,6 +95,9 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/article1.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
@@ -107,6 +116,9 @@ This is the core include.
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/article1.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: product2/core/article1.md
 ---
 This is the core content of Article 1.
@@ -116,7 +128,12 @@ This is the core content of Article 1.
 `;
 
 exports[`Include toc Nested toc inclusions with mixed including modes: product2/p2.md 1`] = `
-"This is the product 2 specific article.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+This is the product 2 specific article.
 
 Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
@@ -143,7 +160,12 @@ items:
 `;
 
 exports[`Include toc Toc is included in link mode: a1.md 1`] = `
-"This is the /a1.md file content.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+This is the /a1.md file content.
 "
 `;
 
@@ -157,12 +179,22 @@ exports[`Include toc Toc is included in link mode: filelist 1`] = `
 `;
 
 exports[`Include toc Toc is included in link mode: folder1/a1.md 1`] = `
-"This is the /folder1/a1.md file content.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+This is the /folder1/a1.md file content.
 "
 `;
 
 exports[`Include toc Toc is included in link mode: folder1/folder2/a1.md 1`] = `
-"This is the /folder1/folder1/a1.md file content.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+This is the /folder1/folder1/a1.md file content.
 "
 `;
 
@@ -187,12 +219,20 @@ exports[`Include toc Toc is included inline, not as a new section: .yfm 1`] = `
 `;
 
 exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] = `
-"# File 1
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# File 1
 "
 `;
 
 exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: folder/fileA.md
 title: File A
 description: YFM description
@@ -209,6 +249,9 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 
 exports[`Include toc Toc is included inline, not as a new section: fileB.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: folder/fileB.md
 ---
 # File B
@@ -225,6 +268,9 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 
 exports[`Include toc Toc is included inline, not as a new section: fileC.md 1`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
 sourcePath: folder/folder/fileC.md
 ---
 # File C
@@ -232,7 +278,12 @@ sourcePath: folder/folder/fileC.md
 `;
 
 exports[`Include toc Toc is included inline, not as a new section: fileX.md 1`] = `
-"# File X
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# File X
 "
 `;
 
@@ -283,6 +334,9 @@ exports[`Include toc Toc root merge on non root dir: ru/index.yaml 1`] = `
     description: Description
 links: []
 meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform v4.56.0
   sourcePath: ru/sub/folder/index.yaml
 "
 `;
@@ -296,7 +350,12 @@ items:
 `;
 
 exports[`Include toc Toc with expressions: a1.md 1`] = `
-"This is the /a1.md file content.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+This is the /a1.md file content.
 "
 `;
 
@@ -313,6 +372,9 @@ exports[`Include toc Toc with expressions: index.yaml 1`] = `
 description:
   - Desc A
 meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform v4.56.0
   title: Meta A
 links:
   - title: A1
@@ -342,17 +404,34 @@ exports[`Include toc Toc with generic includer: filelist 1`] = `
 `;
 
 exports[`Include toc Toc with generic includer: test/index.md 1`] = `
-"# H1
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# H1
 
 [same level link](./test.md)
 [inner link](./sub/sub-1.md)
 "
 `;
 
-exports[`Include toc Toc with generic includer: test/sub/sub/sub-3.md 1`] = `"# H1"`;
+exports[`Include toc Toc with generic includer: test/sub/sub/sub-3.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# H1"
+`;
 
 exports[`Include toc Toc with generic includer: test/sub/sub-1.md 1`] = `
-"# H1
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# H1
 
 [same level link](./sub-2.md)
 [outer link](../test.md)
@@ -360,9 +439,23 @@ exports[`Include toc Toc with generic includer: test/sub/sub-1.md 1`] = `
 "
 `;
 
-exports[`Include toc Toc with generic includer: test/sub/sub-2.md 1`] = `"# H1"`;
+exports[`Include toc Toc with generic includer: test/sub/sub-2.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# H1"
+`;
 
-exports[`Include toc Toc with generic includer: test/test.md 1`] = `"# H1"`;
+exports[`Include toc Toc with generic includer: test/test.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform v4.56.0
+---
+# H1"
+`;
 
 exports[`Include toc Toc with generic includer: toc.yaml 1`] = `
 "title: main

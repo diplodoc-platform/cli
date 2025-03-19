@@ -49,8 +49,8 @@ export function compareDirectories(outputPath: string) {
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath))
                 // Replace version for meta tag
-                .replace(/^(\s+content="Diplodoc.*? )v\d+\.\d+\.\d+"$/g, `$1v${version}"`);
-            expect(content).toMatchSnapshot(filePath);
+                .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1v${version}`);
+                expect(content).toMatchSnapshot(filePath);
         });
 }
 
