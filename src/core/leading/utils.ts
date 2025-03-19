@@ -22,7 +22,7 @@ export const LINK_KEYS = [
     ...new Set([...LINK_KEYS_LEADING_CONFIG, ...LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG]),
 ];
 
-export function walkLinks(object: object, modify: (value: string) => string) {
+export function walkLinks(object: object, modify: (value: string) => string | void) {
     // Clone the object deeply with a customizer function that modifies matching keys
     return cloneDeepWith(object, (value: unknown, key) => {
         if (LINK_KEYS.includes(key as string) && isString(value)) {

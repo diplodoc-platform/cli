@@ -2,14 +2,20 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {AdditionalInfo, AssetInfo, Collect, HeadingInfo, IncludeInfo, Plugin} from './types';
+import type {
+    AdditionalInfo,
+    AssetInfo,
+    Collect,
+    HeadingInfo,
+    IncludeInfo,
+    Location,
+    Plugin,
+} from './types';
 
 import {join} from 'node:path';
-import {uniq} from 'lodash';
-import pmap from 'p-map';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Defer, Demand, bounded, fullPath, memoize, normalizePath} from '~/core/utils';
+import {Buckets, Defer, all, bounded, fullPath, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
@@ -38,6 +44,14 @@ type Run = BaseRun<MarkdownServiceConfig> & {
     vars: VarsService;
 };
 
+function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
+    const {outputFormat} = this.config;
+
+    return `${path}+${from[0] || ''}`;
+}
+
+const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
+
 @withHooks
 export class MarkdownService {
     readonly name = 'Markdown';
@@ -54,31 +68,34 @@ export class MarkdownService {
         return this._collects.slice();
     }
 
-    private run: Run;
+    get config() {
+        return this.run.config;
+    }
 
-    private config: MarkdownServiceConfig;
+    private run: Run;
 
     private _collects: Collect[] = [];
 
     private _plugins: Plugin[] = [];
 
-    private pathToMeta = new Demand<Meta>(this.load);
+    private pathToMeta = new Buckets<Meta>();
 
-    private pathToComments = new Demand<[number, number][]>(this.load);
+    private pathToComments = new Buckets<Location[]>();
 
-    private pathToDeps = new Demand<IncludeInfo[]>(this.load);
+    private pathToDeps = new Buckets<IncludeInfo[]>();
 
-    private pathToAssets = new Demand<AssetInfo[]>(this.load);
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
-    private pathToHeadings = new Demand<HeadingInfo[]>(this.load);
+    private pathToHeadings = new Buckets<HeadingInfo[]>();
 
-    private pathToSourcemap = new Demand<Record<number | string, string>>(this.load);
+    private pathToSourcemap = new Buckets<Record<number | string, string>>();
 
     private cache: Hash<Promise<string> | string> = {};
 
+    private hash = hash;
+
     constructor(run: Run) {
         this.run = run;
-        this.config = run.config;
     }
 
     @bounded async init() {
@@ -88,47 +105,44 @@ export class MarkdownService {
 
     @bounded async load(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        if (from.includes(file)) {
-            throw new Error('Circular dependency detected:\n\t->' + from.join('\n\t->'));
-        }
-
-        if (file in this.cache) {
-            return this.cache[file];
+        if (key in this.cache) {
+            return this.cache[key];
         }
 
         const defer = new Defer();
 
-        this.cache[file] = defer.promise;
+        this.cache[key] = defer.promise;
 
-        defer.promise.then((result) => {
-            this.cache[file] = result;
-        });
+        try {
+            const raw = await this.run.read(join(this.run.input, file));
+            const vars = this.run.vars.for(from[0] || file);
 
-        const raw = await this.run.read(join(this.run.input, file));
-        const vars = this.run.vars.for(from[0] || file);
+            const context = this.loaderContext(file, raw, vars, this.proxy(key));
+            const content = await loader.call(context, raw);
 
-        const context = this.loaderContext(file, raw, vars);
-        const content = await loader.call(context, raw);
+            // At this point all internal states are fully resolved.
+            // So we don't expect Defer here.
+            const meta = context.api.meta.get() as Meta;
 
-        // At this point all internal states are fully resolved.
-        // So we don't expect Defer here.
-        const meta = this.pathToMeta.get(file) as Meta;
-        const assets = this.pathToAssets.get(file) as AssetInfo[];
+            await getHooks(this).Loaded.promise(raw, meta, file, from);
 
-        await getHooks(this).Loaded.promise(raw, meta, file);
+            this.run.meta.addMetadata(file, vars.__metadata);
+            this.run.meta.addSystemVars(file, vars.__system);
+            this.run.meta.add(file, meta);
 
-        this.run.meta.addMetadata(file, vars.__metadata);
-        this.run.meta.addSystemVars(file, vars.__system);
-        this.run.meta.add(file, meta);
+            this.cache[key] = content;
+            defer.resolve(content);
 
-        defer.resolve(content);
+            // TODO: this may trigger uncaught exceptions
+            // But if we move this two lines above, then program exits unexpectedly
+            await getHooks(this).Resolved.promise(raw, file, from);
+        } catch (error) {
+            defer.reject(error);
+        }
 
-        await getHooks(this).Resolved.promise(raw, file);
-
-        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
-
-        return content;
+        return defer.promise;
     }
 
     @bounded async dump(path: RelativePath, markdown: string) {
@@ -140,51 +154,68 @@ export class MarkdownService {
         return [result, info] as const;
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async meta(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        return this.pathToMeta.onDemand(file, from);
+        await this.load(path, from);
+
+        return this.pathToMeta.get(key);
     }
 
-    @memoize('path')
+    // This is very buggy!
+    // @memoize(hash)
     async deps(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        const deps = await this.pathToDeps.onDemand(file, from);
-        const internals: IncludeInfo[][] = await pmap(deps, async ({path, location}) => {
-            const deps = await this.deps(path, [...from, file]);
-            return deps.map((dep) => ({...dep, location}));
-        });
+        await this.load(path, from);
+
+        const deps = this.pathToDeps.get(key) || [];
+        const internals: IncludeInfo[][] = await all(
+            deps.map(async ({path, location}) => {
+                const deps = await this.deps(path, [...from, file]);
+
+                return deps.map((dep) => ({...dep, location}));
+            }),
+        );
 
         return deps.concat(...internals);
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async assets(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        const assets = await this.pathToAssets.onDemand(file, from);
-        const internals: AssetInfo[][] = await this.mapdeps(file, from, ({path}) => {
-            return this.assets(path, [...from, file]);
-        });
+        await this.load(path, from);
 
-        return uniq(assets.concat(...internals));
+        const assets = this.pathToAssets.get(key) || [];
+        const deps = (await this.deps(file, from)) || [];
+        const internals: AssetInfo[][] = await all(
+            deps.map(async ({path}) => {
+                return this.assets(path, [...from, file]);
+            }),
+        );
+
+        return assets.concat(...internals);
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async headings(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
-        const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
+        const key = this.hash(file, from);
 
-        const headings = await this.pathToHeadings.onDemand(file, from);
-        const internals: HeadingInfo[][] = await this.mapdeps(
-            file,
-            from,
-            async ({path, location}) => {
+        await this.load(path, from);
+
+        const headings = this.pathToHeadings.get(key) || [];
+        const deps = (await this.deps(file, from)) || [];
+        const internals: HeadingInfo[][] = await all(
+            deps.map(async ({path, location}) => {
                 const headings = await this.headings(path, [...from, file]);
                 return headings.map((heading) => ({...heading, location}));
-            },
+            }),
         );
 
         return headings.concat(...internals).sort(byLocation);
@@ -213,13 +244,15 @@ export class MarkdownService {
         return Number(sourcemap[line]) || line;
     }
 
-    private async mapdeps<R>(
-        file: NormalizedPath,
-        from: NormalizedPath[] = [],
-        map: (dep: IncludeInfo) => Promise<R>,
-    ): Promise<R[]> {
-        const deps = await this.deps(file, from);
-        return pmap(deps, map);
+    private proxy(key: string) {
+        return {
+            deps: this.pathToDeps.bind(key),
+            assets: this.pathToAssets.bind(key),
+            meta: this.pathToMeta.bind(key),
+            comments: this.pathToComments.bind(key),
+            headings: this.pathToHeadings.bind(key),
+            sourcemap: this.pathToSourcemap.bind(key),
+        };
     }
 
     private loaderContext(
@@ -239,16 +272,7 @@ export class MarkdownService {
                 const rootPath = fullPath(file, path);
                 await this.run.write(join(this.run.input, rootPath), content);
             },
-            api: new LoaderAPI(
-                api || {
-                    deps: this.pathToDeps.proxy(path),
-                    assets: this.pathToAssets.proxy(path),
-                    meta: this.pathToMeta.proxy(path),
-                    comments: this.pathToComments.proxy(path),
-                    headings: this.pathToHeadings.proxy(path),
-                    sourcemap: this.pathToSourcemap.proxy(path),
-                },
-            ),
+            api: new LoaderAPI(api),
             collects: this.collects,
             sourcemap: new SourceMap(raw),
             settings: {

@@ -49,8 +49,8 @@ export class Contributors {
 
             getMarkdownHooks(run.markdown).Resolved.tapPromise(
                 'Contributors',
-                async (_content, path) => {
-                    const rawDeps = await run.markdown.deps(path);
+                async (_content, path, from) => {
+                    const rawDeps = await run.markdown.deps(path, from);
                     const deps = uniq(rawDeps.map(({path}) => path));
 
                     run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path), deps));

@@ -6,6 +6,7 @@ import {filterRanges, findLinks} from '../utils';
 
 export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
+    const exclude = [...this.api.comments.get()];
 
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)
@@ -26,8 +27,7 @@ export function resolveDependencies(this: LoaderContext, content: string) {
         }
     }
 
-    const comments = this.api.comments.get();
-    this.api.deps.set(filterRanges(comments, includes));
+    this.api.deps.set(filterRanges(exclude, includes));
 
     return content;
 }

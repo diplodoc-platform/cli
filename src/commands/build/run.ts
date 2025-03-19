@@ -2,7 +2,6 @@ import type {BuildConfig} from '.';
 
 import {join, resolve} from 'node:path';
 import {uniq} from 'lodash';
-import pmap from 'p-map';
 import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
 
@@ -22,7 +21,7 @@ import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {AssetInfo, IncludeInfo, MarkdownService} from '~/core/markdown';
 import {SearchService} from '~/core/search';
-import {bounded, langFromPath, parseHeading, zip} from '~/core/utils';
+import {all, bounded, langFromPath, parseHeading, zip} from '~/core/utils';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -97,13 +96,13 @@ export class Run extends BaseRun<BuildConfig> {
         this.search = new SearchService(this);
     }
 
-    async transform(path: NormalizedPath, markdown: string, options: TransformOptions) {
+    async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
         const {parse, compile, env} = transformer({
-            ...this.transformConfig(path),
-            files: await remap(deps, this.files),
-            titles: await remap(assets, this.titles),
+            ...this.transformConfig(file),
+            files: await remap(deps, (path) => this.files(path, [file])),
+            titles: await remap(assets, (path) => this.titles(path, [file])),
             assets: await remap(assets, async (path) => {
                 if (path.endsWith('.svg')) {
                     return this.read(join(this.input, path));
@@ -119,16 +118,16 @@ export class Run extends BaseRun<BuildConfig> {
         return [result, env] as const;
     }
 
-    async lint(path: NormalizedPath, markdown: string, options: TransformOptions) {
+    async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
         const pluginOptions = {
-            ...this.transformConfig(path),
-            files: await remap(deps, this.files),
-            titles: await remap(assets, this.titles),
+            ...this.transformConfig(file),
+            files: await remap(deps, (path) => this.files(path, [file])),
+            titles: await remap(assets, (path) => this.titles(path, [file])),
             assets: await remap(assets),
         };
 
-        return yfmlint(markdown, path, {
+        return yfmlint(markdown, file, {
             lintConfig: this.config.lint.config,
             pluginOptions,
             plugins: pluginOptions.plugins,
@@ -150,12 +149,12 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     @bounded
-    private async files(path: NormalizedPath) {
-        return this.markdown.load(path);
+    private async files(path: NormalizedPath, from: NormalizedPath[]) {
+        return this.markdown.load(path, from);
     }
 
     @bounded
-    private async titles(path: NormalizedPath) {
+    private async titles(path: NormalizedPath, from: NormalizedPath[]) {
         if (!path.endsWith('.md')) {
             return true;
         }
@@ -163,7 +162,7 @@ export class Run extends BaseRun<BuildConfig> {
         const titles: Hash<string> = {};
 
         try {
-            const headings = await this.markdown.headings(path);
+            const headings = await this.markdown.headings(path, from);
             const contents = headings.map(({content}) => content);
 
             for (const content of contents) {
@@ -196,7 +195,8 @@ async function remap<T>(
     map?: (path: NormalizedPath) => T,
 ): Promise<Record<NormalizedPath, T>> {
     const keys = uniq(infos.map(({path}) => path));
-    const values = map ? await pmap(keys, map) : new Array(keys.length).fill(true);
+
+    const values = map ? await all(keys.map(map)) : new Array(keys.length).fill(true);
 
     return zip<T>(keys, values);
 }
