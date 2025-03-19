@@ -1,3 +1,4 @@
+import type {RawLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
@@ -25,16 +26,18 @@ export type LintRawConfig = {
         | boolean
         | {
               enabled: boolean;
-              config: string;
+              config:
+                  | string
+                  | (Hash<Hash<unknown | LogLevels> | LogLevels | false> & {
+                        'log-levels'?: Hash<LogLevels>;
+                    });
           };
 };
 
 export type LintConfig = {
     lint: {
         enabled: boolean;
-        config: Hash<Hash<unknown | LogLevels> | LogLevels | false> & {
-            'log-levels'?: Hash<LogLevels>;
-        };
+        config: RawLintConfig;
     };
 };
 
