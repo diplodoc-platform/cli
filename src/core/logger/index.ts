@@ -152,6 +152,10 @@ export class Logger implements LogConsumer {
 
             topic.count++;
 
+            if (this.options.quiet && [INFO].includes(channel)) {
+                return;
+            }
+
             _writer((this.options.colors ? _color(prefix) : prefix) + ' ' + message);
         };
 
@@ -179,10 +183,6 @@ export class Logger implements LogConsumer {
     }
 
     [Write](level: LogLevels, message: string) {
-        if (this.options.quiet) {
-            return;
-        }
-
         if (this.consumer) {
             this.consumer[Symbol.for(level) as keyof LogConsumer](message);
         } else {
