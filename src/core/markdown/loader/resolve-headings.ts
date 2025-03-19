@@ -5,6 +5,8 @@ import {filterRanges} from '../utils';
 
 export function resolveHeadings(this: LoaderContext, content: string) {
     const headings = [];
+    const exclude = [...this.api.comments.get()];
+
     const heading = /(?<=^|\n)([#=-])/g;
 
     let match;
@@ -21,8 +23,7 @@ export function resolveHeadings(this: LoaderContext, content: string) {
         }
     }
 
-    const comments = this.api.comments.get();
-    this.api.headings.set(filterRanges(comments, headings));
+    this.api.headings.set(filterRanges(exclude, headings));
 
     return content;
 }

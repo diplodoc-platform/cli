@@ -27,9 +27,7 @@ function loaderContext(
     {vars = {}, options = {}, settings = {}, collects = []}: DeepPartial<LoaderContext> = {},
 ) {
     return {
-        root: __dirname,
         path: 'file.md' as NormalizedPath,
-        lang: 'ru',
         vars,
         logger: new Logger(),
         emitFile: vi.fn(),
@@ -48,9 +46,6 @@ function loaderContext(
         settings,
         options: {
             disableLiquid: false,
-
-            lintDisabled: false,
-            lintConfig: {},
             ...options,
         },
     } as LoaderContext;
@@ -261,6 +256,50 @@ describe('Markdown loader', () => {
             ]);
             expect(result).toEqual(content);
         });
+
+        it('should filter commented dependencies', async () => {
+            const content = dedent`
+                Simple text
+                {% include [](./include1.md) %}
+
+                {% include [some text (with) braces](./include2.md) %}
+
+                    <!-- {% include [](./deep/include.md) %} -->
+
+                text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.deps.set).toBeCalledWith([
+                {path: 'include1.md', location: [12, 43], hash: null, search: null},
+                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it.skip('should filter in code dependencies', async () => {
+            const content = dedent`
+                Simple text
+                {% include [](./include1.md) %}
+
+                {% include [some text (with) braces](./include2.md) %}
+
+                \`\`\`
+                {% include [](./deep/include.md) %}
+                \`\`\`
+
+                text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.deps.set).toBeCalledWith([
+                {path: 'include1.md', location: [12, 43], hash: null, search: null},
+                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
     });
 
     describe('resolveAssets', () => {
@@ -305,6 +344,40 @@ describe('Markdown loader', () => {
             const content = dedent`
                 Simple text
                 [![img](./some.png)](./some-big.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.assets.set).toBeCalledWith([
+                {path: 'some.png', location: [18, 31], hash: null, search: null},
+                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should skip commented content', async () => {
+            const content = dedent`
+                Simple text
+                [![img](./some.png)](./some-big.png)
+                <!-- [link](./some1.png) -->
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.assets.set).toBeCalledWith([
+                {path: 'some.png', location: [18, 31], hash: null, search: null},
+                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it.skip('should skip in code content', async () => {
+            const content = dedent`
+                Simple text
+                [![img](./some.png)](./some-big.png)
+                \`\`\`
+                [link](./some1.png)
+                \`\`\`
             `;
             const context = loaderContext(content, {});
 

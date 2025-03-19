@@ -7,10 +7,17 @@ import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
-import pmap from 'p-map';
 import {load} from 'js-yaml';
 
-import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
+import {
+    Buckets,
+    Defer,
+    bounded,
+    fullPath,
+    langFromPath,
+    memoize,
+    normalizePath,
+} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {loader} from './loader';
@@ -50,11 +57,11 @@ export class LeadingService {
 
     private plugins: Plugin[] = [];
 
-    private pathToMeta = new Demand<Meta>(this.load);
+    private pathToMeta = new Buckets<Meta>();
 
-    private pathToDeps = new Demand<never[]>(this.load);
+    private pathToDeps = new Buckets<never[]>();
 
-    private pathToAssets = new Demand<AssetInfo[]>(this.load);
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
     constructor(run: Run) {
         this.run = run;
@@ -76,36 +83,34 @@ export class LeadingService {
 
         this.cache[file] = defer.promise;
 
-        defer.promise.then((result) => {
-            this.cache[file] = result;
-        });
+        try {
+            const raw = await this.run.read(join(this.run.input, file));
+            const vars = this.run.vars.for(path);
+            const yaml = load(raw) as RawLeadingPage;
 
-        const raw = await this.run.read(join(this.run.input, file));
-        const vars = this.run.vars.for(path);
-        const yaml = load(raw) as RawLeadingPage;
+            const context = this.loaderContext(file, raw, vars);
+            const leading = await loader.call(context, yaml);
 
-        const context = this.loaderContext(file, raw, vars);
-        const leading = await loader.call(context, yaml);
+            const meta = this.pathToMeta.get(file);
 
-        const meta = this.pathToMeta.get(file);
-        const assets = this.pathToAssets.get(file);
+            await getHooks(this).Loaded.promise(leading, meta, file);
 
-        await getHooks(this).Loaded.promise(leading, meta, file);
+            this.run.meta.addMetadata(path, vars.__metadata);
+            // TODO: Move to SystemVars feature
+            this.run.meta.addSystemVars(path, vars.__system);
+            this.run.meta.add(file, meta);
+            // leading.meta is filled by plugins, so we can safely add it to resources
+            this.run.meta.addResources(file, leading.meta);
 
-        this.run.meta.addMetadata(path, vars.__metadata);
-        // TODO: Move to SystemVars feature
-        this.run.meta.addSystemVars(path, vars.__system);
-        this.run.meta.add(file, meta);
-        // leading.meta is filled by plugins, so we can safely add it to resources
-        this.run.meta.addResources(file, leading.meta);
+            this.cache[file] = leading;
+            defer.resolve(leading);
 
-        defer.resolve(leading);
+            await getHooks(this).Resolved.promise(leading, meta, file);
+        } catch (error) {
+            defer.reject(error);
+        }
 
-        await getHooks(this).Resolved.promise(leading, meta, file);
-
-        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
-
-        return leading;
+        return defer.promise;
     }
 
     @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
@@ -116,7 +121,7 @@ export class LeadingService {
         return getHooks(this).Dump.promise(leading, file);
     }
 
-    @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string) {
+    @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string | void) {
         if (!leading) {
             return undefined;
         }

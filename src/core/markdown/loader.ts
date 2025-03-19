@@ -2,7 +2,7 @@ import type {LiquidContext, SourceMap} from '@diplodoc/liquid';
 import type {Meta} from '~/core/meta';
 import type {Logger} from '~/core/logger';
 import type {Bucket} from '~/core/utils';
-import type {AssetInfo, Collect, HeadingInfo, IncludeInfo} from './types';
+import type {AssetInfo, Collect, HeadingInfo, IncludeInfo, Location} from './types';
 
 import {merge} from 'lodash';
 
@@ -21,7 +21,7 @@ export enum TransformMode {
 }
 
 export class LoaderAPI {
-    comments: Bucket<[number, number][]>;
+    comments: Bucket<Location[]>;
     deps: Bucket<IncludeInfo[]>;
     assets: Bucket<AssetInfo[]>;
     meta: Bucket<Meta>;
