@@ -47,7 +47,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: product1/
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product1/core/article1.md
 ---
 This is the core content of Article 1.
@@ -76,7 +76,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: product2/
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
@@ -97,7 +97,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: product2/
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
@@ -118,7 +118,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: product2/
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/core/article1.md
 ---
 This is the core content of Article 1.
@@ -131,7 +131,7 @@ exports[`Include toc Nested toc inclusions with mixed including modes: product2/
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 This is the product 2 specific article.
 
@@ -163,7 +163,7 @@ exports[`Include toc Toc is included in link mode: a1.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 This is the /a1.md file content.
 "
@@ -182,7 +182,7 @@ exports[`Include toc Toc is included in link mode: folder1/a1.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 This is the /folder1/a1.md file content.
 "
@@ -192,7 +192,7 @@ exports[`Include toc Toc is included in link mode: folder1/folder2/a1.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -222,7 +222,7 @@ exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] 
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # File 1
 "
@@ -232,7 +232,7 @@ exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] 
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/fileA.md
 title: File A
 description: YFM description
@@ -251,7 +251,7 @@ exports[`Include toc Toc is included inline, not as a new section: fileB.md 1`] 
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/fileB.md
 ---
 # File B
@@ -270,7 +270,7 @@ exports[`Include toc Toc is included inline, not as a new section: fileC.md 1`] 
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/folder/fileC.md
 ---
 # File C
@@ -281,7 +281,7 @@ exports[`Include toc Toc is included inline, not as a new section: fileX.md 1`] 
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # File X
 "
@@ -336,7 +336,7 @@ links: []
 meta:
   metadata:
     - name: generator
-      content: Diplodoc Platform v4.56.0
+      content: Diplodoc Platform vDIPLODOC-VERSION
   sourcePath: ru/sub/folder/index.yaml
 "
 `;
@@ -353,7 +353,7 @@ exports[`Include toc Toc with expressions: a1.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 This is the /a1.md file content.
 "
@@ -374,7 +374,7 @@ description:
 meta:
   metadata:
     - name: generator
-      content: Diplodoc Platform v4.56.0
+      content: Diplodoc Platform vDIPLODOC-VERSION
   title: Meta A
 links:
   - title: A1
@@ -407,7 +407,7 @@ exports[`Include toc Toc with generic includer: test/index.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # H1
 
@@ -420,7 +420,7 @@ exports[`Include toc Toc with generic includer: test/sub/sub/sub-3.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # H1"
 `;
@@ -429,7 +429,7 @@ exports[`Include toc Toc with generic includer: test/sub/sub-1.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # H1
 
@@ -443,7 +443,7 @@ exports[`Include toc Toc with generic includer: test/sub/sub-2.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # H1"
 `;
@@ -452,7 +452,7 @@ exports[`Include toc Toc with generic includer: test/test.md 1`] = `
 "---
 metadata:
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 # H1"
 `;

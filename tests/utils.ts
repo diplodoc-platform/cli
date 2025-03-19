@@ -5,7 +5,6 @@ import walkSync from 'walk-sync';
 
 const yfmDocsPath = require.resolve('../build');
 const assets = require('@diplodoc/client/manifest');
-const {version} = require('../package.json');
 
 export function platformless(text: string) {
     return text
@@ -49,7 +48,7 @@ export function compareDirectories(outputPath: string) {
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath))
                 // Replace version for meta tag
-                .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1v${version}`);
+                .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`);
                 expect(content).toMatchSnapshot(filePath);
         });
 }

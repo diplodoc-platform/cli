@@ -36,7 +36,7 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
           content="config test"
     >
     <meta name="generator"
-          content="Diplodoc Platform v4.56.0"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
     >
     <meta name="title"
           content="Documentation"
@@ -69,7 +69,7 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -109,7 +109,7 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
           content="config test"
     >
     <meta name="generator"
-          content="Diplodoc Platform v4.56.0"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -136,7 +136,7 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -178,7 +178,7 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
           content="config test"
     >
     <meta name="generator"
-          content="Diplodoc Platform v4.56.0"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -205,7 +205,7 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform v4.56.0"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -250,7 +250,7 @@ meta:
     - name: yfm-config
       content: config test
     - name: generator
-      content: Diplodoc Platform v4.56.0
+      content: Diplodoc Platform vDIPLODOC-VERSION
   title: Documentation
   noIndex: true
 links:
@@ -270,7 +270,7 @@ metadata:
   - name: yfm-config
     content: config test
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 
 Lorem"
@@ -286,7 +286,7 @@ metadata:
   - name: yfm-config
     content: config test
   - name: generator
-    content: Diplodoc Platform v4.56.0
+    content: Diplodoc Platform vDIPLODOC-VERSION
 ---
 
 Lorem"
