@@ -1,6 +1,8 @@
 import {isObject} from 'lodash';
 import {bounded} from './decorators';
 
+export const all = Promise.all.bind(Promise);
+
 export function zip<T = unknown>(keys: string[], values: T[]) {
     return keys.reduce((acc, key, index) => {
         acc[key] = values[index];
@@ -68,7 +70,7 @@ export class Defer<T = any> {
 
     resolve!: (result: T) => void;
 
-    reject!: (error: Error) => void;
+    reject!: (error: unknown) => void;
 
     constructor() {
         this.promise = new Promise((resolve, reject) => {
