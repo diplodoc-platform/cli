@@ -23,11 +23,15 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
         return null;
     }
 
-    const parsed = parse(url);
+    try {
+        const parsed = parse(url);
 
-    if (parsed.host || parsed.protocol) {
+        if (parsed.host || parsed.protocol) {
+            return null;
+        }
+
+        return pick(parsed, ['path', 'search', 'hash']) as T;
+    } catch {
         return null;
     }
-
-    return pick(parsed, ['path', 'search', 'hash']) as T;
 }

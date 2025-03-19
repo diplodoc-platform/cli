@@ -12,7 +12,8 @@ export function findLinks<T extends boolean>(
         (_, rx) => {
             const link = parseLinkDestination(content, rx.lastIndex);
 
-            if (!link) {
+            // TODO: add more precise filter for unix compatible paths
+            if (!link || link.match(/[${}]/)) {
                 return undefined;
             }
 
