@@ -337,11 +337,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta name="yfm"
-          content="builder"
-    >
     <meta name="generator"
           content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="yfm"
+          content="builder"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -368,7 +368,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]};
     </script>

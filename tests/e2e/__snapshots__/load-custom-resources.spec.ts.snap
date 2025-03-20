@@ -115,11 +115,11 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <head>
     <meta charset="utf-8">
     <base href="./">
-    <meta name="yfm"
-          content="builder"
-    >
     <meta name="generator"
           content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="yfm"
+          content="builder"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -153,7 +153,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -429,11 +429,11 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
   <head>
     <meta charset="utf-8">
     <base href="./">
-    <meta name="yfm"
-          content="builder"
-    >
     <meta name="generator"
           content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="yfm"
+          content="builder"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -467,7 +467,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","content":"builder"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -604,10 +604,10 @@ links:
 exports[`Allow load custom resources md2md with custom resources: page.md 1`] = `
 "---
 metadata:
-  - name: yfm
-    content: builder
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+  - name: yfm
+    content: builder
 style:
   - _assets/style/test.css
 script:

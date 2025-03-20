@@ -127,7 +127,18 @@ export class MetaService {
         }
 
         const meta = this.meta.get(file) || this.initialMeta();
-        meta.metadata = metadata.concat(meta.metadata || []);
+        meta.metadata = meta.metadata || [];
+        // Add without dublicates
+        metadata.forEach((item: Hash<any>) => {
+            if (
+                !meta.metadata?.find(
+                    (metaItem: Hash<any>) =>
+                        metaItem.name === item.name && metaItem.content === item.content,
+                )
+            ) {
+                meta.metadata?.push(item);
+            }
+        });
 
         this.meta.set(file, meta);
     }
