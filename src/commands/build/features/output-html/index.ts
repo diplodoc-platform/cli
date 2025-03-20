@@ -86,7 +86,10 @@ export class OutputHtml {
                                     vars,
                                 );
 
-                                return run.transform(path, content, {deps, assets});
+                                return run.transform(path, content, {
+                                    deps: deps.map(({path}) => path),
+                                    assets,
+                                });
                             }),
                         );
                         const compose = (_lang: string, string: string) =>
@@ -109,7 +112,10 @@ export class OutputHtml {
                     async (markdown, path, info) => {
                         const deps = await run.markdown.deps(path);
                         const assets = await run.markdown.assets(path);
-                        const [result, env] = await run.transform(path, markdown, {deps, assets});
+                        const [result, env] = await run.transform(path, markdown, {
+                            deps: deps.map(({path}) => path),
+                            assets,
+                        });
 
                         run.meta.addResources(path, env.meta);
 

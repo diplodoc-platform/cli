@@ -314,14 +314,9 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some.png', location: [17, 30], hash: null, search: null},
-                {
-                    path: '_images/auth_3.png',
-                    location: [36, 59],
-                    hash: null,
-                    search: null,
-                },
-                {path: 'link.png', location: [65, 76], hash: null, search: null},
+                'some.png',
+                '_images/auth_3.png',
+                'link.png',
             ]);
             expect(result).toEqual(content);
         });
@@ -334,9 +329,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some.png', location: [17, 30], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png']);
             expect(result).toEqual(content);
         });
 
@@ -348,10 +341,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some.png', location: [18, 31], hash: null, search: null},
-                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
             expect(result).toEqual(content);
         });
 
@@ -364,10 +354,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some.png', location: [18, 31], hash: null, search: null},
-                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
             expect(result).toEqual(content);
         });
 
@@ -382,10 +369,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some.png', location: [18, 31], hash: null, search: null},
-                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
             expect(result).toEqual(content);
         });
 
@@ -412,11 +396,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some1.png', location: [17, 31], hash: null, search: null},
-                {path: 'some2.png', location: [46, 60], hash: null, search: null},
-                {path: 'some3.png', location: [72, 86], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
             expect(result).toEqual(content);
         });
 
@@ -430,11 +410,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some1.png', location: [17, 32], hash: null, search: null},
-                {path: 'some2.png', location: [38, 52], hash: null, search: null},
-                {path: 'some3.png', location: [59, 74], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
             expect(result).toEqual(content);
         });
 
@@ -447,10 +423,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some1.PNG', location: [17, 31], hash: null, search: null},
-                {path: 'some2.pnG', location: [37, 51], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.PNG', 'some2.pnG']);
             expect(result).toEqual(content);
         });
 
@@ -462,9 +435,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'some1.png', location: [12, 30], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png']);
             expect(result).toEqual(content);
         });
 
@@ -480,9 +451,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                {path: 'image.jpeg', location: [36, 49], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['image.jpeg']);
             expect(result).toEqual(content);
         });
     });

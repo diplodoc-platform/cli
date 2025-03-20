@@ -46,9 +46,11 @@ export class OutputMd {
                     async (markdown, file) => {
                         const deps = uniq((await run.markdown.deps(file)).map(({path}) => path));
 
-                        await all(deps.map(async (path) => {
-                            await this.copyDependency(run, path, [file]);
-                        }));
+                        await all(
+                            deps.map(async (path) => {
+                                await this.copyDependency(run, path, [file]);
+                            }),
+                        );
 
                         return markdown;
                     },
@@ -87,20 +89,22 @@ export class OutputMd {
 
     private copyAssets<T>(run: Run, service: Run['leading'] | Run['markdown']) {
         return async (content: T, file: NormalizedPath): Promise<T> => {
-            const assets = uniq(await service.assets(file)).map(({path}) => path);
+            const assets = await service.assets(file);
 
-            await all(assets.map(async (path) => {
-                if (!isMediaLink(path)) {
-                    return;
-                }
+            await all(
+                assets.map(async (path) => {
+                    if (!isMediaLink(path)) {
+                        return;
+                    }
 
-                try {
-                    run.logger.copy(join(run.input, path), join(run.output, path));
-                    await run.copy(join(run.input, path), join(run.output, path));
-                } catch (error) {
-                    run.logger.warn(`Unable to copy resource asset ${path}.`, error);
-                }
-            }));
+                    try {
+                        run.logger.copy(join(run.input, path), join(run.output, path));
+                        await run.copy(join(run.input, path), join(run.output, path));
+                    } catch (error) {
+                        run.logger.warn(`Unable to copy resource asset ${path}.`, error);
+                    }
+                }),
+            );
 
             return content;
         };
