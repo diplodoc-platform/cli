@@ -71,8 +71,6 @@ export class Run<TConfig = BaseConfig> {
      * This method is especially written in sync mode to use in run.write method.
      */
     @bounded exists(path: AbsolutePath) {
-        this.assertProjectScope(path);
-
         try {
             this.fs.statSync(path);
             return true;
@@ -92,7 +90,7 @@ export class Run<TConfig = BaseConfig> {
      * @returns {Promise<string>}
      */
     @bounded async read(path: AbsolutePath) {
-        this.assertProjectScope(path);
+        await this.assertProjectScope(path);
 
         return this.fs.readFile(path, 'utf8');
     }
@@ -111,7 +109,7 @@ export class Run<TConfig = BaseConfig> {
      * @returns {Promise<void>}
      */
     @bounded async write(path: AbsolutePath, content: string, force = false) {
-        this.assertProjectScope(path);
+        await this.assertProjectScope(path);
 
         // Move write to next task instead of process it in current microtask.
         // This allow to detect already created files in parallel processing.
