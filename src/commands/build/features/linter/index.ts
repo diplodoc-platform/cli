@@ -110,7 +110,10 @@ export class Lint {
 
                     const deps = await run.markdown.deps(path);
                     const assets = await run.markdown.assets(path);
-                    const errors = await run.lint(path, markdown, {deps, assets});
+                    const errors = await run.lint(path, markdown, {
+                        deps: deps.map(({path}) => path),
+                        assets,
+                    });
 
                     if (errors) {
                         for (const error of errors) {

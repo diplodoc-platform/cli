@@ -19,13 +19,13 @@ import {MetaService} from '~/core/meta';
 import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
-import {AssetInfo, IncludeInfo, MarkdownService} from '~/core/markdown';
+import {MarkdownService} from '~/core/markdown';
 import {SearchService} from '~/core/search';
-import {all, bounded, langFromPath, parseHeading, zip} from '~/core/utils';
+import {all, bounded, langFromPath, normalizePath, parseHeading, zip} from '~/core/utils';
 
 type TransformOptions = {
-    deps: IncludeInfo[];
-    assets: AssetInfo[];
+    deps: NormalizedPath[];
+    assets: NormalizedPath[];
 };
 
 /**
@@ -101,8 +101,8 @@ export class Run extends BaseRun<BuildConfig> {
 
         const {parse, compile, env} = transformer({
             ...this.transformConfig(file),
-            files: await remap(deps, (path) => this.files(path, [file])),
-            titles: await remap(assets, (path) => this.titles(path, [file])),
+            files: await remap(deps, this.files),
+            titles: await remap(assets, this.titles),
             assets: await remap(assets, async (path) => {
                 if (path.endsWith('.svg')) {
                     return this.read(join(this.input, path));
@@ -122,8 +122,8 @@ export class Run extends BaseRun<BuildConfig> {
         const {deps, assets} = options;
         const pluginOptions = {
             ...this.transformConfig(file),
-            files: await remap(deps, (path) => this.files(path, [file])),
-            titles: await remap(assets, (path) => this.titles(path, [file])),
+            files: await remap(deps, this.files),
+            titles: await remap(assets, this.titles),
             assets: await remap(assets),
         };
 
@@ -149,20 +149,32 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     @bounded
-    private async files(path: NormalizedPath, from: NormalizedPath[]) {
-        return this.markdown.load(path, from);
+    private async files(path: NormalizedPath) {
+        return this.markdown.load(path);
     }
 
     @bounded
-    private async titles(path: NormalizedPath, from: NormalizedPath[]) {
-        if (!path.endsWith('.md')) {
-            return true;
+    private async titles(path: NormalizedPath) {
+        if (path.endsWith('/')) {
+            path = this.exists(join(this.input, path, 'index.yaml'))
+                ? join(path, 'index.yaml')
+                : join(path, 'index.md');
         }
+
+        if (path.match(/\/[^.]+?$/)) {
+            path = normalizePath(path + '.md');
+        }
+
+        if (!path.endsWith('.md')) {
+            return {};
+        }
+
+        path = normalizePath(path);
 
         const titles: Hash<string> = {};
 
         try {
-            const headings = await this.markdown.headings(path, from);
+            const headings = await this.markdown.headings(path);
             const contents = headings.map(({content}) => content);
 
             for (const content of contents) {
@@ -176,9 +188,7 @@ export class Run extends BaseRun<BuildConfig> {
                     titles[anchor] = title;
                 }
             }
-
-            return titles;
-        } catch {
+        } catch (error) {
             // This is acceptable.
             // If this is a real file and someone depends on his titles,
             // then we throw exception in md plugin.
@@ -188,14 +198,11 @@ export class Run extends BaseRun<BuildConfig> {
     }
 }
 
-type Info = {path: NormalizedPath};
-
 async function remap<T>(
-    infos: Info[],
+    infos: NormalizedPath[],
     map?: (path: NormalizedPath) => T,
 ): Promise<Record<NormalizedPath, T>> {
-    const keys = uniq(infos.map(({path}) => path));
-
+    const keys = uniq(infos);
     const values = map ? await all(keys.map(map)) : new Array(keys.length).fill(true);
 
     return zip<T>(keys, values);

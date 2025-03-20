@@ -19,7 +19,7 @@ type LocalUrlInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
 };
 
 export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
-    if (!url || isExternalHref(url)) {
+    if (!url || isExternalHref(url) || url.startsWith('/')) {
         return null;
     }
 

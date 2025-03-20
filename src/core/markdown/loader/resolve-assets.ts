@@ -6,7 +6,7 @@ import {parseLocalUrl, rebasePath} from '~/core/utils';
 import {filterRanges, findDefs, findLinks} from '../utils';
 
 export function resolveAssets(this: LoaderContext, content: string) {
-    const assets = [];
+    const assets = new Set<NormalizedPath>();
 
     const exclude = [
         ...this.api.deps.get().map(({location}) => location),
@@ -16,19 +16,18 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const defs = filterRanges(exclude, findDefs(content, true));
     const links = filterRanges(exclude, findLinks(content, true));
 
-    for (const {link, location} of [...defs, ...links]) {
+    for (const {link} of [...defs, ...links]) {
         const asset = parseLocalUrl<AssetInfo>(link);
 
-        if (asset) {
+        if (asset && asset.path) {
             try {
-                asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
-                asset.location = location;
-                assets.push(asset);
+                const path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
+                assets.add(path);
             } catch {}
         }
     }
 
-    this.api.assets.set(assets);
+    this.api.assets.set([...assets]);
 
     return content;
 }

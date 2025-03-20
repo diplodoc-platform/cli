@@ -70,6 +70,7 @@ export class Changelogs {
                 getMarkdownHooks(run.markdown).Resolved.tapPromise(
                     'Changelogs',
                     async (_content, path) => {
+                        // TODO: why we handle all changelogs?
                         if (!changelogs.length) {
                             return;
                         }

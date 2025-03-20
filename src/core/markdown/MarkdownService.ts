@@ -2,20 +2,13 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {
-    AdditionalInfo,
-    AssetInfo,
-    Collect,
-    HeadingInfo,
-    IncludeInfo,
-    Location,
-    Plugin,
-} from './types';
+import type {AdditionalInfo, Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
 
 import {join} from 'node:path';
+import {uniq} from 'lodash';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Buckets, Defer, all, bounded, fullPath, memoize, normalizePath} from '~/core/utils';
+import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
@@ -45,8 +38,6 @@ type Run = BaseRun<MarkdownServiceConfig> & {
 };
 
 function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
-    const {outputFormat} = this.config;
-
     return `${path}+${from[0] || ''}`;
 }
 
@@ -84,7 +75,7 @@ export class MarkdownService {
 
     private pathToDeps = new Buckets<IncludeInfo[]>();
 
-    private pathToAssets = new Buckets<AssetInfo[]>();
+    private pathToAssets = new Buckets<NormalizedPath[]>();
 
     private pathToHeadings = new Buckets<HeadingInfo[]>();
 
@@ -191,15 +182,15 @@ export class MarkdownService {
 
         await this.load(path, from);
 
-        const assets = this.pathToAssets.get(key) || [];
+        const assets = this.pathToAssets.get(key) || new Set();
         const deps = (await this.deps(file, from)) || [];
-        const internals: AssetInfo[][] = await all(
+        const internals: NormalizedPath[][] = await all(
             deps.map(async ({path}) => {
                 return this.assets(path, [...from, file]);
             }),
         );
 
-        return assets.concat(...internals);
+        return uniq([...assets].concat(...internals));
     }
 
     // @memoize(hash)
@@ -228,7 +219,7 @@ export class MarkdownService {
         const content = await loader.call(context, raw);
 
         const deps = api.deps.get();
-        const assets = api.assets.get();
+        const assets = [...api.assets.get()];
 
         return {content, deps, assets};
     }

@@ -3,7 +3,7 @@ import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
 
-import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
@@ -61,7 +61,7 @@ export class LeadingService {
 
     private pathToDeps = new Buckets<never[]>();
 
-    private pathToAssets = new Buckets<AssetInfo[]>();
+    private pathToAssets = new Buckets<Set<NormalizedPath>>();
 
     constructor(run: Run) {
         this.run = run;
@@ -140,7 +140,7 @@ export class LeadingService {
     async assets(path: RelativePath) {
         const file = normalizePath(path);
 
-        return this.pathToAssets.get(file);
+        return [...this.pathToAssets.get(file)];
     }
 
     private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
