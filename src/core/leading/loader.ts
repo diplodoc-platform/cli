@@ -2,9 +2,9 @@ import type {LiquidContext} from '@diplodoc/liquid';
 import type {Meta} from '~/core/meta';
 import type {AssetInfo, Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} from './types';
 
-import {get, set, uniq} from 'lodash';
+import {get, set} from 'lodash';
 import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
-import {isMediaLink, parseLocalUrl, rebasePath} from '~/core/utils';
+import {parseLocalUrl, rebasePath} from '~/core/utils';
 
 import {walkLinks} from './utils';
 
@@ -18,7 +18,7 @@ export type LoaderContext = LiquidContext & {
     readFile(path: NormalizedPath): Promise<string>;
     leading: {
         setDependencies(path: NormalizedPath, deps: never[]): void;
-        setAssets(path: NormalizedPath, assets: AssetInfo[]): void;
+        setAssets(path: NormalizedPath, assets: Set<NormalizedPath>): void;
         setMeta(path: NormalizedPath, meta: Meta): void;
     };
     options: {
@@ -71,10 +71,10 @@ function mangleFrontMatter(this: LoaderContext, yaml: RawLeadingPage) {
     const frontmatter = yaml.meta;
     yaml.meta = undefined;
 
-    if (!disableLiquid) {
-        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
-    } else {
+    if (disableLiquid) {
         this.leading.setMeta(path, frontmatter);
+    } else {
+        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
     }
 
     return yaml;
@@ -117,19 +117,22 @@ function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
 }
 
 function resolveAssets(this: LoaderContext, yaml: RawLeadingPage) {
-    const assets: AssetInfo[] = [];
+    const assets: Set<NormalizedPath> = new Set();
 
     yaml = walkLinks(yaml, (link) => {
-        const asset = parseLocalUrl(link);
-        if (asset && isMediaLink(asset.path)) {
-            asset.path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
-            assets.push(asset);
+        const asset = parseLocalUrl<AssetInfo>(link);
+
+        if (asset) {
+            try {
+                const path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
+                assets.add(path);
+            } catch {}
         }
 
         return link;
     });
 
-    this.leading.setAssets(this.path, uniq(assets));
+    this.leading.setAssets(this.path, assets);
 
     return yaml;
 }

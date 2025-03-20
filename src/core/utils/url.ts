@@ -2,7 +2,7 @@ import {pick} from 'lodash';
 import {type UrlWithStringQuery, parse} from 'node:url';
 
 export function isExternalHref(href: string) {
-    return /^(\w{1,10}:)?\/\//.test(href);
+    return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
 const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
@@ -19,15 +19,19 @@ type LocalUrlInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
 };
 
 export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
-    if (!url || isExternalHref(url)) {
+    if (!url || isExternalHref(url) || url.startsWith('/')) {
         return null;
     }
 
-    const parsed = parse(url);
+    try {
+        const parsed = parse(url);
 
-    if (parsed.host || parsed.protocol) {
+        if (parsed.host || parsed.protocol) {
+            return null;
+        }
+
+        return pick(parsed, ['path', 'search', 'hash']) as T;
+    } catch {
         return null;
     }
-
-    return pick(parsed, ['path', 'search', 'hash']) as T;
 }

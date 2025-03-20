@@ -1,14 +1,21 @@
+import type {RawLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
-import {join} from 'node:path';
-import {LogLevels} from '@diplodoc/transform/lib/log';
+import {dirname, join} from 'node:path';
+import {bold} from 'chalk';
+import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getLeadingHooks} from '~/core/leading';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
+import {isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
+
+const EXTENSIONS = /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/;
 
 export type LintArgs = {
     lint: boolean;
@@ -19,22 +26,21 @@ export type LintRawConfig = {
         | boolean
         | {
               enabled: boolean;
-              config: string;
+              config:
+                  | string
+                  | (Hash<Hash<unknown | LogLevels> | LogLevels | false> & {
+                        'log-levels'?: Hash<LogLevels>;
+                    });
           };
 };
 
 export type LintConfig = {
     lint: {
         enabled: boolean;
-        config: LogLevelConfig;
+        config: RawLintConfig;
     };
 };
 
-type LogLevelConfig = {
-    'log-levels': Record<string, LogLevels | `${LogLevels}`>;
-};
-
-// TODO(major): move to separated 'lint' command
 export class Lint {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Lint', (command: Command) => {
@@ -46,7 +52,7 @@ export class Lint {
         getBaseHooks(program).Config.tapPromise('Lint', async (config, args) => {
             let lint: LintConfig['lint'] | boolean = {
                 enabled: true,
-                config: {'log-levels': {}},
+                config: {},
             };
 
             if (valuable(config.lint)) {
@@ -56,7 +62,7 @@ export class Lint {
             if (typeof lint === 'boolean') {
                 lint = {
                     enabled: lint,
-                    config: {'log-levels': {}},
+                    config: {},
                 };
             }
 
@@ -72,22 +78,80 @@ export class Lint {
                         ? config.resolve(config.lint.config as string)
                         : join(args.input, LINT_CONFIG_FILENAME);
 
-                const lintConfig = await resolveConfig<Partial<LogLevelConfig>>(configFilename, {
-                    fallback: {'log-levels': {}},
+                const lintConfig = await resolveConfig<Hash>(configFilename, {
+                    fallback: {},
                 });
 
-                config.lint.config = lintConfig as LogLevelConfig;
+                config.lint.config = lintConfig;
                 resolvedPath = lintConfig[configPath];
             }
 
-            config.lint.config = config.lint.config || {'log-levels': {}};
-            config.lint.config['log-levels'] = config.lint.config['log-levels'] || {};
-            config.lint.config['log-levels']['MD033'] = config.allowHtml
-                ? LogLevels.DISABLED
-                : LogLevels.ERROR;
+            config.lint.config = config.lint.config || {};
+
+            if ('log-levels' in config.lint.config) {
+                const levels = config.lint.config['log-levels'] as Hash<LogLevels>;
+                delete config.lint.config['log-levels'];
+
+                config.lint.config = normalizeConfig(levels, config.lint.config);
+            }
+
+            config.lint.config['MD033'] = config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR;
 
             return config;
         });
+
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('Lint', (run) => {
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (markdown, path) => {
+                    if (!run.config.lint.enabled) {
+                        return markdown;
+                    }
+
+                    const deps = await run.markdown.deps(path);
+                    const assets = await run.markdown.assets(path);
+                    const errors = await run.lint(path, markdown, {
+                        deps: deps.map(({path}) => path),
+                        assets,
+                    });
+
+                    if (errors) {
+                        for (const error of errors) {
+                            error.lineNumber = run.markdown.remap(path, error.lineNumber);
+                        }
+
+                        log(errors, run.logger);
+                    }
+
+                    return markdown;
+                });
+
+                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (leading, path) => {
+                    if (!run.config.lint.enabled) {
+                        return leading;
+                    }
+
+                    const logLevel = getLogLevel(run.config.lint.config, ['YAML001']);
+
+                    if (logLevel === LogLevels.DISABLED) {
+                        return leading;
+                    }
+
+                    run.leading.walkLinks(leading, (link: string) => {
+                        if (isExternalHref(link) || !EXTENSIONS.test(link)) {
+                            return;
+                        }
+
+                        if (!run.exists(join(run.input, dirname(path), link))) {
+                            run.logger[logLevel](
+                                `Link is unreachable: ${bold(link)} in ${bold(path)}`,
+                            );
+                        }
+                    });
+
+                    return leading;
+                });
+            });
 
         getBuildHooks(program)
             .AfterRun.for('md')

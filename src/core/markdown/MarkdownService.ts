@@ -2,17 +2,16 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {AdditionalInfo, AssetInfo, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
+import type {AdditionalInfo, Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
 
 import {join} from 'node:path';
 import {uniq} from 'lodash';
-import pmap from 'p-map';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Defer, Demand, bounded, fullPath, langFromPath, memoize, normalizePath} from '~/core/utils';
+import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {TransformMode, loader} from './loader';
+import {LoaderAPI, TransformMode, loader} from './loader';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
@@ -31,20 +30,18 @@ type MarkdownServiceConfig = {
             code: boolean;
         };
     };
-    lint: {
-        enabled: boolean;
-        config: Hash;
-    };
-};
-
-type Located = {
-    location: Location;
 };
 
 type Run = BaseRun<MarkdownServiceConfig> & {
     meta: MetaService;
     vars: VarsService;
 };
+
+function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
+    return `${path}+${from[0] || ''}`;
+}
+
+const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
 
 @withHooks
 export class MarkdownService {
@@ -54,182 +51,209 @@ export class MarkdownService {
         return this.run.logger;
     }
 
+    get plugins() {
+        return this._plugins.slice();
+    }
+
+    get collects() {
+        return this._collects.slice();
+    }
+
+    get config() {
+        return this.run.config;
+    }
+
     private run: Run;
 
-    private config: MarkdownServiceConfig;
+    private _collects: Collect[] = [];
 
-    private plugins: Plugin[] = [];
+    private _plugins: Plugin[] = [];
 
-    private pathToMeta = new Demand<Meta>(this.load);
+    private pathToMeta = new Buckets<Meta>();
 
-    private pathToComments = new Demand<[number, number][]>(this.load);
+    private pathToComments = new Buckets<Location[]>();
 
-    private pathToDeps = new Demand<IncludeInfo[]>(this.load);
+    private pathToDeps = new Buckets<IncludeInfo[]>();
 
-    private pathToAssets = new Demand<AssetInfo[]>(this.load);
+    private pathToAssets = new Buckets<NormalizedPath[]>();
 
-    private pathToHeadings = new Demand<HeadingInfo[]>(this.load);
+    private pathToHeadings = new Buckets<HeadingInfo[]>();
 
-    private pathToInfo = new Demand<AdditionalInfo>(this.load);
+    private pathToSourcemap = new Buckets<Record<number | string, string>>();
 
     private cache: Hash<Promise<string> | string> = {};
 
+    private hash = hash;
+
     constructor(run: Run) {
         this.run = run;
-        this.config = run.config;
     }
 
     @bounded async init() {
-        this.plugins = await getHooks(this).Plugins.promise(this.plugins);
+        this._collects = await getHooks(this).Collects.promise(this._collects);
+        this._plugins = await getHooks(this).Plugins.promise(this._plugins);
     }
 
     @bounded async load(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        if (from.includes(file)) {
-            throw new Error('Circular dependency detected:\n\t->' + from.join('\n\t->'));
-        }
-
-        if (file in this.cache) {
-            return this.cache[file];
+        if (key in this.cache) {
+            return this.cache[key];
         }
 
         const defer = new Defer();
 
-        this.cache[file] = defer.promise;
+        this.cache[key] = defer.promise;
 
-        defer.promise.then((result) => {
-            this.cache[file] = result;
-        });
+        try {
+            const raw = await this.run.read(join(this.run.input, file));
+            const vars = this.run.vars.for(from[0] || file);
 
-        const raw = await this.run.read(join(this.run.input, file));
-        const vars = this.run.vars.for(from[0] || file);
+            const context = this.loaderContext(file, raw, vars, this.proxy(key));
+            const content = await loader.call(context, raw);
 
-        const context = this.loaderContext(file, raw, vars);
-        const content = await loader.call(context, raw);
+            // At this point all internal states are fully resolved.
+            // So we don't expect Defer here.
+            const meta = context.api.meta.get() as Meta;
 
-        // At this point all internal states are fully resolved.
-        // So we don't expect Defer here.
-        const info = this.pathToInfo.get(file) as AdditionalInfo;
-        const meta = this.pathToMeta.get(file) as Meta;
-        const assets = this.pathToAssets.get(file) as AssetInfo[];
+            await getHooks(this).Loaded.promise(raw, meta, file, from);
 
-        await getHooks(this).Loaded.promise(raw, meta, file);
+            this.run.meta.addMetadata(file, vars.__metadata);
+            this.run.meta.addSystemVars(file, vars.__system);
+            this.run.meta.add(file, meta);
 
-        this.run.meta.addMetadata(file, vars.__metadata);
-        this.run.meta.addSystemVars(file, vars.__system);
-        this.run.meta.add(file, meta);
-        // info.meta is filled by plugins, so we can safely add it to resources
-        this.run.meta.addResources(file, info.meta);
+            this.cache[key] = content;
+            defer.resolve(content);
 
-        defer.resolve(content);
+            // TODO: this may trigger uncaught exceptions
+            // But if we move this two lines above, then program exits unexpectedly
+            await getHooks(this).Resolved.promise(raw, file, from);
+        } catch (error) {
+            defer.reject(error);
+        }
 
-        await getHooks(this).Resolved.promise(raw, info.meta, file);
-
-        await pmap(assets, (asset) => getHooks(this).Asset.promise(asset.path, file));
-
-        return content;
+        return defer.promise;
     }
 
     @bounded async dump(path: RelativePath, markdown: string) {
         const file = normalizePath(path);
 
-        return getHooks(this).Dump.promise(markdown, file);
+        const info: AdditionalInfo = {title: '', headings: []};
+        const result = await getHooks(this).Dump.promise(markdown, file, info);
+
+        return [result, info] as const;
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async meta(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        return this.pathToMeta.onDemand(file, from);
+        await this.load(path, from);
+
+        return this.pathToMeta.get(key);
     }
 
-    @memoize('path')
+    // This is very buggy!
+    // @memoize(hash)
     async deps(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        return this.pathToDeps.onDemand(file, from, async (deps: IncludeInfo[]) => {
-            const active = await this.filterCommented(file, from, deps);
-            const internals: IncludeInfo[][] = await pmap(active, async ({path, location}) => {
+        await this.load(path, from);
+
+        const deps = this.pathToDeps.get(key) || [];
+        const internals: IncludeInfo[][] = await all(
+            deps.map(async ({path, location}) => {
                 const deps = await this.deps(path, [...from, file]);
-                return deps.map((dep) => ({...dep, location}));
-            });
 
-            return active.concat(...internals);
-        });
+                return deps.map((dep) => ({...dep, location}));
+            }),
+        );
+
+        return deps.concat(...internals);
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async assets(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        return this.pathToAssets.onDemand(file, from, async (assets: AssetInfo[]) => {
-            const active = await this.filterCommented(file, from, assets);
-            const internals: AssetInfo[][] = await this.mapdeps(file, from, ({path}) => {
+        await this.load(path, from);
+
+        const assets = this.pathToAssets.get(key) || new Set();
+        const deps = (await this.deps(file, from)) || [];
+        const internals: NormalizedPath[][] = await all(
+            deps.map(async ({path}) => {
                 return this.assets(path, [...from, file]);
-            });
+            }),
+        );
 
-            return uniq(active.concat(...internals));
-        });
+        return uniq([...assets].concat(...internals));
     }
 
-    @memoize('path')
+    // @memoize(hash)
     async headings(path: RelativePath, from: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const key = this.hash(file, from);
 
-        return this.pathToHeadings.onDemand(file, from, async (headings: HeadingInfo[]) => {
-            const active = await this.filterCommented(file, from, headings);
-            const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
-            const internals: HeadingInfo[][] = await this.mapdeps(
-                file,
-                from,
-                async ({path, location}) => {
-                    const headings = await this.headings(path, [...from, file]);
-                    return headings.map((heading) => ({...heading, location}));
-                },
-            );
+        await this.load(path, from);
 
-            return active.concat(...internals).sort(byLocation);
-        });
+        const headings = this.pathToHeadings.get(key) || [];
+        const deps = (await this.deps(file, from)) || [];
+        const internals: HeadingInfo[][] = await all(
+            deps.map(async ({path, location}) => {
+                const headings = await this.headings(path, [...from, file]);
+                return headings.map((heading) => ({...heading, location}));
+            }),
+        );
+
+        return headings.concat(...internals).sort(byLocation);
     }
 
-    @memoize('path')
-    async info(path: RelativePath, from: NormalizedPath[] = []) {
+    @bounded async analyze(path: RelativePath, raw: string, vars: Hash) {
         const file = normalizePath(path);
+        const api = new LoaderAPI();
+        const context = this.loaderContext(file, raw, vars, api);
+        const content = await loader.call(context, raw);
 
-        return this.pathToInfo.onDemand(file, from);
+        const deps = api.deps.get();
+        const assets = [...api.assets.get()];
+
+        return {content, deps, assets};
     }
 
-    private async filterCommented<T extends Located>(
-        path: NormalizedPath,
-        from: NormalizedPath[],
-        items: T[],
-    ): Promise<T[]> {
-        const comments = await this.pathToComments.onDemand(path, from);
-        const contains = (place: Location, point: Location) => {
-            return place[0] <= point[0] && place[1] >= point[1];
-        };
+    remap(path: RelativePath, line: number): number {
+        const file = normalizePath(path);
+        const sourcemap = this.pathToSourcemap.get(file);
 
-        return items.filter((item) => {
-            return !comments.some((comment) => contains(comment, item.location));
-        });
+        if (!sourcemap) {
+            return line;
+        }
+
+        return Number(sourcemap[line]) || line;
     }
 
-    private async mapdeps<R>(
-        file: NormalizedPath,
-        from: NormalizedPath[] = [],
-        map: (dep: IncludeInfo) => Promise<R>,
-    ): Promise<R[]> {
-        const deps = await this.deps(file, from);
-        return pmap(deps, map);
-    }
-
-    private loaderContext(path: NormalizedPath, raw: string, vars: Hash): LoaderContext {
+    private proxy(key: string) {
         return {
-            root: this.run.input,
+            deps: this.pathToDeps.bind(key),
+            assets: this.pathToAssets.bind(key),
+            meta: this.pathToMeta.bind(key),
+            comments: this.pathToComments.bind(key),
+            headings: this.pathToHeadings.bind(key),
+            sourcemap: this.pathToSourcemap.bind(key),
+        };
+    }
+
+    private loaderContext(
+        path: NormalizedPath,
+        raw: string,
+        vars: Hash,
+        api?: Partial<LoaderAPI>,
+    ): LoaderContext {
+        return {
             path,
-            mode: this.run.config.outputFormat,
-            lang: langFromPath(path, this.config),
             vars,
             logger: this.logger,
             readFile: (path: RelativePath) => {
@@ -239,33 +263,17 @@ export class MarkdownService {
                 const rootPath = fullPath(file, path);
                 await this.run.write(join(this.run.input, rootPath), content);
             },
-            markdown: {
-                setComments: this.pathToComments.set,
-                setDependencies: this.pathToDeps.set,
-                setAssets: this.pathToAssets.set,
-                setMeta: this.pathToMeta.set,
-                setHeadings: this.pathToHeadings.set,
-                setInfo: this.pathToInfo.set,
-            },
-            // @ts-ignore
-            plugins: this.plugins,
+            api: new LoaderAPI(api),
+            collects: this.collects,
             sourcemap: new SourceMap(raw),
             settings: {
-                substitutions: this.run.config.template.features.substitutions,
-                conditions: this.run.config.template.features.conditions,
-                conditionsInCode: this.run.config.template.scopes.code,
-                keepNotVar: this.run.config.outputFormat === 'md',
+                substitutions: this.config.template.features.substitutions,
+                conditions: this.config.template.features.conditions,
+                conditionsInCode: this.config.template.scopes.code,
+                keepNotVar: this.config.outputFormat === 'md',
             },
             options: {
-                rootInput: this.run.originalInput,
-                allowHTML: this.run.config.allowHtml,
-                needToSanitizeHtml: this.run.config.sanitizeHtml,
-                supportGithubAnchors: Boolean(this.run.config.supportGithubAnchors),
-
-                disableLiquid: !this.run.config.template.enabled,
-
-                lintDisabled: !this.run.config.lint.enabled,
-                lintConfig: this.run.config.lint.config,
+                disableLiquid: !this.config.template.enabled,
             },
         };
     }

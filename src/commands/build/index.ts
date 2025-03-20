@@ -56,7 +56,7 @@ const command = 'Build';
             staticContent: false,
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
-            lint: {enabled: true, config: {'log-levels': {}}},
+            lint: {enabled: true, config: {}},
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {

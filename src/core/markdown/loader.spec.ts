@@ -1,5 +1,5 @@
-import type {Plugin} from './types';
-import type {LoaderContext, TransformMode} from './loader';
+import type {Collect} from './types';
+import type {LoaderContext} from './loader';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -11,46 +11,41 @@ import {loader} from './loader';
 
 vi.mock('~/core/logger');
 
+function bucket() {
+    let _value: unknown;
+
+    return {
+        get: vi.fn(() => _value),
+        set: vi.fn((value) => {
+            _value = value;
+        }),
+    };
+}
+
 function loaderContext(
     raw: string,
-    {
-        mode = 'html',
-        vars = {},
-        options = {},
-        settings = {},
-        plugins = [],
-    }: DeepPartial<LoaderContext> = {},
+    {vars = {}, options = {}, settings = {}, collects = []}: DeepPartial<LoaderContext> = {},
 ) {
     return {
-        root: __dirname,
         path: 'file.md' as NormalizedPath,
-        mode: mode as TransformMode,
-        lang: 'ru',
         vars,
         logger: new Logger(),
         emitFile: vi.fn(),
         readFile: vi.fn(),
-        markdown: {
-            setComments: vi.fn(),
-            setDependencies: vi.fn(),
-            setAssets: vi.fn(),
-            setMeta: vi.fn(),
-            setHeadings: vi.fn(),
-            setInfo: vi.fn(),
+        api: {
+            deps: bucket(),
+            assets: bucket(),
+            meta: bucket(),
+            info: bucket(),
+            headings: bucket(),
+            comments: bucket(),
+            sourcemap: bucket(),
         },
-        plugins: plugins as Plugin[],
+        collects: collects as Collect[],
         sourcemap: new SourceMap(raw),
         settings,
         options: {
-            rootInput: __dirname,
-            allowHTML: true,
-            needToSanitizeHtml: true,
-            supportGithubAnchors: true,
-
             disableLiquid: false,
-
-            lintDisabled: false,
-            lintConfig: {},
             ...options,
         },
     } as LoaderContext;
@@ -61,7 +56,7 @@ describe('Markdown loader', () => {
         const content = dedent`
             Simple text
         `;
-        const context = loaderContext(content, {mode: 'md'});
+        const context = loaderContext(content);
 
         const result = await loader.call(context, content);
 
@@ -76,11 +71,11 @@ describe('Markdown loader', () => {
                 ---
                 Simple text
             `;
-            const context = loaderContext(content, {mode: 'md'});
+            const context = loaderContext(content);
 
             const result = await loader.call(context, content);
 
-            expect(context.markdown.setMeta).toBeCalledWith('file.md', {prop: 'value'});
+            expect(context.api.meta.set).toBeCalledWith({prop: 'value'});
             expect(result).toEqual('Simple text');
         });
 
@@ -92,13 +87,12 @@ describe('Markdown loader', () => {
                 Simple text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {text: 'text'},
             });
 
             const result = await loader.call(context, content);
 
-            expect(context.markdown.setMeta).toBeCalledWith('file.md', {prop: 'text'});
+            expect(context.api.meta.set).toBeCalledWith({prop: 'text'});
             expect(result).toEqual('Simple text');
         });
 
@@ -110,14 +104,13 @@ describe('Markdown loader', () => {
                 Simple text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {text: 'text'},
                 options: {disableLiquid: true},
             });
 
             const result = await loader.call(context, content);
 
-            expect(context.markdown.setMeta).toBeCalledWith('file.md', {prop: '{{text}}'});
+            expect(context.api.meta.set).toBeCalledWith({prop: '{{text}}'});
             expect(result).toEqual('Simple text');
         });
     });
@@ -131,11 +124,11 @@ describe('Markdown loader', () => {
 
                 end of text
             `;
-            const context = loaderContext(content, {mode: 'md', vars: {text: 'text'}});
+            const context = loaderContext(content, {vars: {text: 'text'}});
 
             await loader.call(context, content);
 
-            expect(context.markdown.setComments).toHaveBeenCalledWith('file.md', [[13, 39]]);
+            expect(context.api.comments.set).toHaveBeenCalledWith([[13, 39]]);
         });
     });
 
@@ -144,7 +137,7 @@ describe('Markdown loader', () => {
             const content = dedent`
                 Simple {{text}}
             `;
-            const context = loaderContext(content, {mode: 'md', vars: {text: 'text'}});
+            const context = loaderContext(content, {vars: {text: 'text'}});
 
             const result = await loader.call(context, content);
 
@@ -156,7 +149,6 @@ describe('Markdown loader', () => {
                 Simple {{text}}
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {text: 'text'},
                 options: {disableLiquid: true},
             });
@@ -171,7 +163,6 @@ describe('Markdown loader', () => {
                 Simple {{text}}
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {text: 'text'},
                 settings: {substitutions: false},
             });
@@ -188,7 +179,6 @@ describe('Markdown loader', () => {
                 Simple text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {locale: 'ru'},
             });
 
@@ -204,7 +194,6 @@ describe('Markdown loader', () => {
                 Simple text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {locale: 'ru'},
                 options: {disableLiquid: true},
             });
@@ -221,7 +210,6 @@ describe('Markdown loader', () => {
                 Simple text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
                 vars: {locale: 'ru'},
                 settings: {conditions: false},
             });
@@ -238,12 +226,10 @@ describe('Markdown loader', () => {
                 Simple text
                 {% include [](./include.md) %}
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setDependencies).toBeCalledWith('file.md', [
+            expect(context.api.deps.set).toBeCalledWith([
                 {path: 'include.md', location: [12, 42], hash: null, search: null},
             ]);
             expect(result).toEqual(content);
@@ -260,15 +246,57 @@ describe('Markdown loader', () => {
 
                 text
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setDependencies).toBeCalledWith('file.md', [
+            expect(context.api.deps.set).toBeCalledWith([
                 {path: 'include1.md', location: [12, 43], hash: null, search: null},
                 {path: 'include2.md', location: [45, 99], hash: null, search: null},
                 {path: 'deep/include.md', location: [105, 140], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should filter commented dependencies', async () => {
+            const content = dedent`
+                Simple text
+                {% include [](./include1.md) %}
+
+                {% include [some text (with) braces](./include2.md) %}
+
+                    <!-- {% include [](./deep/include.md) %} -->
+
+                text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.deps.set).toBeCalledWith([
+                {path: 'include1.md', location: [12, 43], hash: null, search: null},
+                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it.skip('should filter in code dependencies', async () => {
+            const content = dedent`
+                Simple text
+                {% include [](./include1.md) %}
+
+                {% include [some text (with) braces](./include2.md) %}
+
+                \`\`\`
+                {% include [](./deep/include.md) %}
+                \`\`\`
+
+                text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.deps.set).toBeCalledWith([
+                {path: 'include1.md', location: [12, 43], hash: null, search: null},
+                {path: 'include2.md', location: [45, 99], hash: null, search: null},
             ]);
             expect(result).toEqual(content);
         });
@@ -282,20 +310,13 @@ describe('Markdown loader', () => {
                 ![img](\\_images/auth\\_3.png)
                 ![img](<link.png>)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some.png', location: [17, 30], hash: null, search: null},
-                {
-                    path: '_images/auth_3.png',
-                    location: [36, 59],
-                    hash: null,
-                    search: null,
-                },
-                {path: 'link.png', location: [65, 76], hash: null, search: null},
+            expect(context.api.assets.set).toBeCalledWith([
+                'some.png',
+                '_images/auth_3.png',
+                'link.png',
             ]);
             expect(result).toEqual(content);
         });
@@ -305,14 +326,10 @@ describe('Markdown loader', () => {
                 Simple text
                 [link](./some.png)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some.png', location: [17, 30], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png']);
             expect(result).toEqual(content);
         });
 
@@ -321,31 +338,38 @@ describe('Markdown loader', () => {
                 Simple text
                 [![img](./some.png)](./some-big.png)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some.png', location: [18, 31], hash: null, search: null},
-                {path: 'some-big.png', location: [31, 48], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
             expect(result).toEqual(content);
         });
 
-        it('should skip no media content', async () => {
+        it('should skip commented content', async () => {
             const content = dedent`
                 Simple text
-                [link1](./some.tx)
-                [link2](./some.doc)
-                @[video](./some.webm)
+                [![img](./some.png)](./some-big.png)
+                <!-- [link](./some1.png) -->
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', []);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
+            expect(result).toEqual(content);
+        });
+
+        it.skip('should skip in code content', async () => {
+            const content = dedent`
+                Simple text
+                [![img](./some.png)](./some-big.png)
+                \`\`\`
+                [link](./some1.png)
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
             expect(result).toEqual(content);
         });
 
@@ -355,12 +379,10 @@ describe('Markdown loader', () => {
                 [link1](//example.com/some.png)
                 [link2](https://example.com/some.png)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', []);
+            expect(context.api.assets.set).toBeCalledWith([]);
             expect(result).toEqual(content);
         });
 
@@ -371,16 +393,10 @@ describe('Markdown loader', () => {
                 ![img](./some2.png =x100)
                 ![img](./some3.png =100x)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some1.png', location: [17, 31], hash: null, search: null},
-                {path: 'some2.png', location: [46, 60], hash: null, search: null},
-                {path: 'some3.png', location: [72, 86], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
             expect(result).toEqual(content);
         });
 
@@ -391,16 +407,10 @@ describe('Markdown loader', () => {
                 ![img](./some2.png )
                 ![img]( ./some3.png )
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some1.png', location: [17, 32], hash: null, search: null},
-                {path: 'some2.png', location: [38, 52], hash: null, search: null},
-                {path: 'some3.png', location: [59, 74], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
             expect(result).toEqual(content);
         });
 
@@ -410,15 +420,10 @@ describe('Markdown loader', () => {
                 ![img](./some1.PNG)
                 ![img](./some2.pnG)
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some1.PNG', location: [17, 31], hash: null, search: null},
-                {path: 'some2.pnG', location: [37, 51], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.PNG', 'some2.pnG']);
             expect(result).toEqual(content);
         });
 
@@ -427,14 +432,10 @@ describe('Markdown loader', () => {
                 Simple text
                 [img]: ./some1.png
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'some1.png', location: [12, 30], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['some1.png']);
             expect(result).toEqual(content);
         });
 
@@ -447,14 +448,10 @@ describe('Markdown loader', () => {
                     ![](image.jpeg)
 
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setAssets).toBeCalledWith('file.md', [
-                {path: 'image.jpeg', location: [36, 49], hash: null, search: null},
-            ]);
+            expect(context.api.assets.set).toBeCalledWith(['image.jpeg']);
             expect(result).toEqual(content);
         });
     });
@@ -466,12 +463,10 @@ describe('Markdown loader', () => {
 
                 Text
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setHeadings).toBeCalledWith('file.md', [
+            expect(context.api.headings.set).toBeCalledWith([
                 {content: '# Heading 1', location: [0, 11]},
             ]);
             expect(result).toEqual(content);
@@ -485,12 +480,10 @@ describe('Markdown loader', () => {
 
                 Text
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setHeadings).toBeCalledWith('file.md', [
+            expect(context.api.headings.set).toBeCalledWith([
                 {content: 'Heading 1\nMultiline\n=========', location: [0, 29]},
             ]);
             expect(result).toEqual(content);
@@ -508,12 +501,10 @@ describe('Markdown loader', () => {
 
                 Text
             `;
-            const context = loaderContext(content, {
-                mode: 'md',
-            });
+            const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.markdown.setHeadings).toBeCalledWith('file.md', [
+            expect(context.api.headings.set).toBeCalledWith([
                 {content: '# Heading 1', location: [0, 11]},
                 {content: 'Heading 2\nMultiline\n=========', location: [13, 42]},
                 {content: '# Heading 3', location: [44, 55]},
@@ -528,8 +519,7 @@ describe('Markdown loader', () => {
                 Text
             `;
             const context = loaderContext(content, {
-                mode: 'md',
-                plugins: [
+                collects: [
                     async function (input: string) {
                         return input + '\nPlugin 1';
                     },

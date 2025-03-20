@@ -63,13 +63,14 @@ export class Changelogs {
 
                 const changelogs: ChangelogItem[] = [];
 
-                getMarkdownHooks(run.markdown).Plugins.tap('Changelogs', (plugins) => {
+                getMarkdownHooks(run.markdown).Collects.tap('Changelogs', (plugins) => {
                     return plugins.concat(collect(changelogs));
                 });
 
                 getMarkdownHooks(run.markdown).Resolved.tapPromise(
                     'Changelogs',
-                    async (_content, _meta, path) => {
+                    async (_content, path) => {
+                        // TODO: why we handle all changelogs?
                         if (!changelogs.length) {
                             return;
                         }

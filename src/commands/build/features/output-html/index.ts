@@ -5,16 +5,16 @@ import type {LeadingPage} from '~/core/leading';
 
 import {basename, dirname, extname, join} from 'node:path';
 import {v4 as uuid} from 'uuid';
+import pmap from 'p-map';
 import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
-import {fallbackLang, isExternalHref, normalizePath, own} from '~/core/utils';
+import {fallbackLang, isExternalHref, normalizePath, own, zip} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {ASSETS_FOLDER} from '~/constants';
-import {transformMd} from '~/resolvers';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
@@ -56,21 +56,46 @@ export class OutputHtml {
 
                 // Transform Page Constructor yfm blocks
                 getLeadingHooks(run.leading).Plugins.tap('Html', (plugins) => {
-                    return plugins.concat(function (leading) {
+                    return plugins.concat(async function (leading) {
                         if (!leading.blocks) {
                             return leading;
                         }
 
                         const {path, lang, vars} = this;
+                        const options = {lang: fallbackLang(lang)} as PreloadParams;
 
-                        return preprocess(
-                            leading as ConfigData,
-                            {lang: fallbackLang(lang)} as PreloadParams,
-                            (_lang, content) => {
-                                const {result} = transformMd(run, path, content, vars, lang);
-                                return result?.html;
-                            },
-                        ) as LeadingPage;
+                        const strings = new Set<string>();
+                        const extract = (_lang: string, string: string) => {
+                            strings.add(string);
+                            return string;
+                        };
+
+                        preprocess(leading as ConfigData, options, extract);
+
+                        const keys = [...strings];
+                        if (!keys.length) {
+                            return leading;
+                        }
+
+                        const values = zip(
+                            keys,
+                            await pmap(keys, async (string) => {
+                                const {content, deps, assets} = await run.markdown.analyze(
+                                    path,
+                                    string,
+                                    vars,
+                                );
+
+                                return run.transform(path, content, {
+                                    deps: deps.map(({path}) => path),
+                                    assets,
+                                });
+                            }),
+                        );
+                        const compose = (_lang: string, string: string) =>
+                            values[string][0] as string;
+
+                        return preprocess(leading as ConfigData, options, compose) as LeadingPage;
                     });
                 });
 
@@ -81,6 +106,24 @@ export class OutputHtml {
                 getLeadingHooks(run.leading).Dump.tapPromise('Html', async (leading, path) => {
                     return run.leading.walkLinks(leading, getHref(run.input, path));
                 });
+
+                getMarkdownHooks(run.markdown).Dump.tapPromise(
+                    'Html',
+                    async (markdown, path, info) => {
+                        const deps = await run.markdown.deps(path);
+                        const assets = await run.markdown.assets(path);
+                        const [result, env] = await run.transform(path, markdown, {
+                            deps: deps.map(({path}) => path),
+                            assets,
+                        });
+
+                        run.meta.addResources(path, env.meta);
+
+                        Object.assign(info, env);
+
+                        return result;
+                    },
+                );
             });
 
         getBuildHooks(program)
