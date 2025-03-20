@@ -113,7 +113,7 @@
     "async": "^3.2.4",
     "axios": "^1.7.8",
     "csp-header": "^5.2.1",
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.25.1",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
     "lint-staged": "^12.5.0",
