@@ -12,6 +12,13 @@ export async function processEntry(run: Run, entry: NormalizedPath): Promise<Ent
 
     const resolver = outputFormat === 'html' ? resolveToHtml : resolveToMd;
 
+    // Add generator meta tag with versions
+    run.meta.add(entry, {
+        metadata: {
+            generator: `Diplodoc Platform v${VERSION}`,
+        },
+    });
+
     try {
         return resolver(run, entry);
     } catch (error) {
