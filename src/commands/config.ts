@@ -32,6 +32,21 @@ const strict = option({
     default: false,
 });
 
+const jobs = option({
+    flags: '-j, --jobs [number]>',
+    desc: `
+        Run program in <number> parallel threads.
+        This can speedup CPU bound operations.
+
+        If number not passed, program will run cpus - 1 thread.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build -j 4
+            {{PROGRAM}} build -i . -o ../build -j
+    `,
+    default: 0,
+});
+
 const extensions = option({
     flags: '-e, --extensions <string>',
     desc: `
@@ -93,6 +108,7 @@ const config = (defaultConfig: string) =>
 export const options = {
     quiet,
     strict,
+    jobs,
     extensions,
     config,
     input,

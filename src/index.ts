@@ -1,5 +1,8 @@
 import type {HookMeta} from '~/core/utils';
 
+import {isMainThread} from 'node:worker_threads';
+import * as threads from '~/commands/threads';
+
 import {MAIN_TIMER_ID} from '~/constants';
 import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
@@ -18,6 +21,7 @@ export const run = async (argv: string[]) => {
     try {
         const args = parse(argv);
         const program = new Program();
+        await threads.init(program, args);
         await program.init(args);
         await program.parse(argv);
     } catch (error: unknown) {
@@ -36,10 +40,12 @@ export const run = async (argv: string[]) => {
         }
     }
 
+    await threads.terminate(true);
+
     return exitCode;
 };
 
-if (require.main === module) {
+if (isMainThread && require.main === module) {
     (async () => {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
