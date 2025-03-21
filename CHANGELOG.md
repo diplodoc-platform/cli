@@ -1,5 +1,35 @@
 # Changelog
 
+## [4.57.0](https://github.com/diplodoc-platform/cli/compare/v4.56.0...v4.57.0) (2025-03-21)
+
+
+### Features
+
+* Reimplement linter to be compatible with new arch ([dade3d2](https://github.com/diplodoc-platform/cli/commit/dade3d25d35cd1590c33cb6ecdf527375bf8a589))
+
+
+### Bug Fixes
+
+* Copy all related files in one place ([00bcf72](https://github.com/diplodoc-platform/cli/commit/00bcf72d0988cc40ff8e8a3bd6bc12f42f8ab434))
+* Do not handle images inside commented blocks ([e5a0ff1](https://github.com/diplodoc-platform/cli/commit/e5a0ff171dff3e7065ba1e73673336c261c707e8))
+* Do not use legacy meta plugin ([2d6761c](https://github.com/diplodoc-platform/cli/commit/2d6761cb42ff5a962a8206de4617a73b6239a5d7))
+* Fix external link processing ([ce7fcc4](https://github.com/diplodoc-platform/cli/commit/ce7fcc496afdb8990e54f5623a649c3f29222e4a))
+* Fix uncaught exceptions ([08f93ba](https://github.com/diplodoc-platform/cli/commit/08f93ba17844e70c0cf224b57984e59faf73e3c4))
+* Ignore incorrect assets ([757c5be](https://github.com/diplodoc-platform/cli/commit/757c5becc5556806f3c97fee173014d7f1641fc7))
+* Safely parse urls in markdown ([05af25a](https://github.com/diplodoc-platform/cli/commit/05af25a3216a545e62388825402eccdb9a3257f7))
+* Show warnings and errors in quiet mode ([31e0b3a](https://github.com/diplodoc-platform/cli/commit/31e0b3aede4ccfa1ef553c29866673ff6c8c6620))
+* Simplify async code in loaders ([af203ca](https://github.com/diplodoc-platform/cli/commit/af203cae4c02e136a702b455d8dcb51eddd6cf97))
+
+
+### Performance Improvements
+
+* Reduce memory consumption for assets ([3de3961](https://github.com/diplodoc-platform/cli/commit/3de3961a657641e2a974a64318d96c94bb9ec242))
+
+
+### Dependency update
+
+* Update yfmlint ([993ac7f](https://github.com/diplodoc-platform/cli/commit/993ac7f910a5bca52b6725015423f2e15d5abc40))
+
 ## [4.56.0](https://github.com/diplodoc-platform/cli/compare/v4.55.1...v4.56.0) (2025-03-10)
 
 
