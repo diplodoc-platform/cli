@@ -4,9 +4,7 @@ import type {
     SearchParamsObject,
     SupportedLanguage,
 } from 'algoliasearch';
-import type {Run} from '@diplodoc/cli';
-import type {SearchProvider} from '@diplodoc/cli/lib/search';
-import type {DocPageData} from '@diplodoc/client/ssr';
+import type {BuildRun, EntryInfo, SearchProvider} from '@diplodoc/cli';
 import type {AlgoliaSearchConfig} from './index';
 
 import {extname, join} from 'node:path';
@@ -32,7 +30,7 @@ class IndexLogger extends Logger {
 }
 
 export class AlgoliaSearchProvider implements SearchProvider {
-    private run: Run;
+    private run: BuildRun;
 
     private apiLink: string;
 
@@ -56,7 +54,7 @@ export class AlgoliaSearchProvider implements SearchProvider {
 
     private logger = new IndexLogger();
 
-    constructor(run: Run, config: ProviderConfig) {
+    constructor(run: BuildRun, config: ProviderConfig) {
         this.run = run;
 
         this.index = config.index !== false;
@@ -73,7 +71,7 @@ export class AlgoliaSearchProvider implements SearchProvider {
         this.logger.pipe(run.logger);
     }
 
-    async add(path: NormalizedPath, lang: string, info: DocPageData) {
+    async add(path: NormalizedPath, lang: string, info: EntryInfo) {
         if (!info.html) {
             return;
         }

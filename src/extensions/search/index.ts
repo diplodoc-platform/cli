@@ -1,8 +1,7 @@
 import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {ProviderConfig} from './provider';
 
-import {getBuildHooks} from '@diplodoc/cli';
-import {getHooks as getSearchHooks} from '@diplodoc/cli/lib/search';
+import {getBuildHooks, getSearchHooks} from '@diplodoc/cli';
 
 import {LocalSearchProvider} from './provider';
 

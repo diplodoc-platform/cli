@@ -1,6 +1,6 @@
-import type {DocPageData} from '@diplodoc/client/ssr';
 import type {BaseConfig} from '~/core/program';
 import type {Run as BaseRun} from '~/core/run';
+import type {EntryInfo} from '../../types';
 import type {SearchProvider} from './types';
 
 import {join} from 'node:path';
@@ -76,7 +76,7 @@ export class SearchService implements SearchProvider<RelativePath> {
         };
     }
 
-    @bounded async add(path: RelativePath, lang: string, info: DocPageData) {
+    @bounded async add(path: RelativePath, lang: string, info: EntryInfo) {
         if (!this.enabled) {
             return;
         }

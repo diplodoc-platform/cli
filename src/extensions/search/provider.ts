@@ -1,7 +1,5 @@
 import type {WorkerConfig} from '@diplodoc/search-extension/worker';
-import type {BuildRun} from '@diplodoc/cli';
-import type {SearchProvider} from '@diplodoc/cli/lib/search';
-import type {DocPageData} from '@diplodoc/client/ssr';
+import type {BuildRun, EntryInfo, SearchProvider} from '@diplodoc/cli';
 
 import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -35,7 +33,7 @@ export class LocalSearchProvider implements SearchProvider {
         this.nocache = String(Date.now());
     }
 
-    async add(path: NormalizedPath, lang: string, info: DocPageData) {
+    async add(path: NormalizedPath, lang: string, info: EntryInfo) {
         if (!info.html) {
             return;
         }

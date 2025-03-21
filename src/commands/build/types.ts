@@ -1,6 +1,8 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {Config} from '~/core/config';
+import type {LeadingPage} from '~/core/leading';
+import type {Meta} from '~/core/meta';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
@@ -75,3 +77,12 @@ export type BuildConfig = Config<
         LegacyConfig &
         CustomResourcesConfig
 >;
+
+export type EntryInfo = {
+    lang: string;
+    html?: string;
+    data?: LeadingPage;
+    meta: Meta;
+    title: string;
+    headings?: any;
+};

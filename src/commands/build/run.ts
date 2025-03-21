@@ -20,8 +20,9 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {SearchService} from '~/core/search';
 import {all, bounded, langFromPath, normalizePath, parseHeading, zip} from '~/core/utils';
+
+import {SearchService} from './services/search';
 
 type TransformOptions = {
     deps: NormalizedPath[];

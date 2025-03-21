@@ -9,8 +9,10 @@ import {BaseProgram, withConfigDefaults} from '~/core/program';
 
 import {NAME, USAGE, options} from './config';
 
+export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
+
 export {parse} from './parser';
-export {Build, Run as BuildRun, getHooks as getBuildHooks} from './build';
+export {Build, Run as BuildRun, getHooks as getBuildHooks, getSearchHooks} from './build';
 export {Publish, Run as PublishRun, getHooks as getPublishHooks} from './publish';
 export {Translate, getHooks as getTranslateHooks} from './translate';
 
