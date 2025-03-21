@@ -63,7 +63,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
             );
         };
 
-    for (const method of ['glob', 'copy', 'read', 'write'] as string[]) {
+    for (const method of ['glob', 'copy', 'read', 'write', 'remove'] as string[]) {
         // @ts-ignore
         vi.spyOn(run, method).mockImplementation(impl(method));
     }
@@ -78,16 +78,19 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
     return run as RunSpy;
 }
 
+export function run(build: Build) {
+    // @ts-ignore
+    return build.run;
+}
+
 type BuildState = {
     globs?: Hash<NormalizedPath[]>;
     files?: Hash<string>;
 };
-export function setupBuild(state?: BuildState): Build & {run: Run} {
+export function setupBuild(state?: BuildState): Build {
     const build = new Build();
 
     getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
-        (build as Build & {run: Run}).run = run as Run;
-
         if (!(run as RunSpy)[Mocked]) {
             setupRun({}, run as Run);
         }
@@ -97,6 +100,7 @@ export function setupBuild(state?: BuildState): Build & {run: Run} {
             .calledWith(expect.anything(), expect.anything(), expect.anything())
             .thenResolve();
         when(run.write).calledWith(expect.anything(), expect.anything()).thenResolve();
+        when(run.remove).calledWith(expect.anything()).thenResolve();
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
 
@@ -113,7 +117,7 @@ export function setupBuild(state?: BuildState): Build & {run: Run} {
         }
     });
 
-    return build as Build & {run: Run};
+    return build;
 }
 
 export async function runBuild(argv: string, build?: Build) {

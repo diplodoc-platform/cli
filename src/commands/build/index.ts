@@ -1,6 +1,7 @@
-import type {BuildArgs, BuildConfig} from './types';
+import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
+import pmap from 'p-map';
 
 import {
     BaseProgram,
@@ -8,8 +9,9 @@ import {
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
-import {Lang, Stage, YFM_CONFIG_FILENAME} from '~/constants';
+import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
+import {bounded, langFromPath} from '~/core/utils';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
@@ -31,10 +33,14 @@ import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
+import {processEntry} from './entry';
 
-export * from './types';
+export type * from './types';
+export type {SearchProvider, SearchServiceConfig} from './services/search';
 
 export {Run, getHooks};
+
+export {getHooks as getSearchHooks} from './services/search';
 
 const command = 'Build';
 
@@ -123,6 +129,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         new AlgoliaSearchExtension(),
     ];
 
+    /**
+     * IMPORTANT:
+     * Run should always be private.
+     * This is a main principe of build process isolation.
+     * Any access to run should be defined with help of hooks.
+     */
+    private run!: Run;
+
     apply(program?: BaseProgram) {
         getBaseHooks(this).Config.tap('Build', (config, args) => {
             const ignoreStage = defined('ignoreStage', args, config) || [];
@@ -159,47 +173,96 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     async action() {
-        const run = new Run(this.config);
+        const {outputFormat} = this.config;
 
-        run.logger.pipe(this.logger);
+        this.run = new Run(this.config);
 
-        await cleanup(run);
+        this.run.logger.pipe(this.logger);
 
-        await getBaseHooks(this).BeforeAnyRun.promise(run);
-        await getHooks(this).BeforeRun.for(this.config.outputFormat).promise(run);
+        await getBaseHooks(this).BeforeAnyRun.promise(this.run);
+        await getHooks(this).BeforeRun.for(outputFormat).promise(this.run);
 
-        await run.copy(run.originalInput, run.input, ['node_modules/**', '*/node_modules/**']);
+        await this.prepareInput();
+        await this.prepareRun();
 
-        await run.vars.init();
-        await run.leading.init();
-        await run.markdown.init();
-        await run.vcs.init();
-        await run.search.init();
-
-        const ignore = run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
-        const tocs = await run.glob('**/toc.yaml', {
-            cwd: run.input,
-            ignore: ignore,
+        const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
+        const tocs = await this.run.glob('**/toc.yaml', {
+            cwd: this.run.input,
+            ignore,
         });
 
         for (const toc of tocs) {
-            await run.toc.load(toc);
+            await this.run.toc.load(toc);
         }
 
-        await Promise.all([handler(run), getHooks(this).Run.promise(run)]);
+        await pmap(
+            this.run.toc.entries,
+            async (entry) => {
+                try {
+                    this.run.logger.proc(entry);
 
-        await run.search.release();
+                    const info = await this.process(entry);
+                    const tocDir = this.run.toc.dir(entry);
 
-        await getHooks(this).AfterRun.for(this.config.outputFormat).promise(run);
-        await getBaseHooks(this).AfterAnyRun.promise(run);
+                    await getHooks(this).Entry.for(outputFormat).promise(entry, info, tocDir);
 
-        await run.copy(run.output, run.originalOutput);
+                    if (outputFormat === 'html') {
+                        const lang = langFromPath(entry, this.run.config);
+                        await this.run.search.add(entry, lang, info);
+                    }
 
-        await cleanup(run);
+                    this.run.logger.info('Processing finished:', entry);
+                } catch (error) {
+                    console.error(error);
+                    this.run.logger.error(error);
+                }
+            },
+            {
+                concurrency: PAGE_PROCESS_CONCURRENCY,
+            },
+        );
+
+        await handler(this.run);
+
+        await this.releaseRun();
+
+        await getHooks(this).AfterRun.for(outputFormat).promise(this.run);
+        await getBaseHooks(this).AfterAnyRun.promise(this.run);
+
+        await this.releaseOutput();
     }
-}
 
-async function cleanup(run: Run) {
-    await run.remove(run.input);
-    await run.remove(run.output);
+    @bounded
+    async process(entry: NormalizedPath): Promise<EntryInfo> {
+        return processEntry(this.run, entry);
+    }
+
+    private async prepareInput() {
+        const {originalInput, input} = this.run;
+        await this.cleanup();
+        await this.run.copy(originalInput, input, ['node_modules/**', '*/node_modules/**']);
+    }
+
+    private async releaseOutput() {
+        const {output, originalOutput} = this.run;
+        await this.run.copy(output, originalOutput);
+        await this.cleanup();
+    }
+
+    private async prepareRun() {
+        await this.run.vars.init();
+        await this.run.leading.init();
+        await this.run.markdown.init();
+        await this.run.vcs.init();
+        await this.run.search.init();
+    }
+
+    private async releaseRun() {
+        await this.run.search.release();
+    }
+
+    private async cleanup() {
+        await this.run.remove(this.run.input);
+        await this.run.remove(this.run.output);
+    }
 }

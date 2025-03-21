@@ -9,8 +9,6 @@ export const MAIN_TIMER_ID = 'Build time';
 export const YFM_CONFIG_FILENAME = '.yfm';
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
-export const SINGLE_PAGE_FILENAME = 'single-page.html';
-export const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 export const CUSTOM_STYLE = 'custom-style';
 export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
     'default-src': ["'self'"],

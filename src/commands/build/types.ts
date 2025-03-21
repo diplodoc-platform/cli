@@ -79,10 +79,9 @@ export type BuildConfig = Config<
 >;
 
 export type EntryInfo = {
-    lang: string;
     html?: string;
     data?: LeadingPage;
-    meta: Meta;
-    title: string;
+    meta?: Meta;
+    title?: string;
     headings?: any;
 };

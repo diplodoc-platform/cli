@@ -1,6 +1,5 @@
-import type {Run} from '~/commands/build';
+import type {EntryInfo, Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
-import type {ResolverResult} from '~/steps';
 
 import {dirname, extname, join} from 'node:path';
 
@@ -53,7 +52,7 @@ const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
     };
 };
 
-export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<ResolverResult> {
+export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<EntryInfo> {
     const tocPath = run.toc.for(path);
     const toc = await run.toc.dump(tocPath);
     const props = await getFileProps(run, path, toc);
@@ -67,9 +66,7 @@ export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<Res
 
     await run.write(join(run.output, outputPath), result);
 
-    run.logger.info('Processing finished:', path);
-
-    return props;
+    return props.data;
 }
 
 function getTitle(tocTitle: string, dataTitle: string) {

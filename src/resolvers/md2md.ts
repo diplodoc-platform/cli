@@ -1,11 +1,11 @@
-import type {Run} from '~/commands/build';
-import type {ResolverResult} from '~/steps';
+import type {EntryInfo, Run} from '~/commands/build';
 
 import {extname, join} from 'node:path';
 import {dump} from 'js-yaml';
+
 import {normalizePath} from '~/core/utils';
 
-export async function resolveToMd(run: Run, path: RelativePath): Promise<ResolverResult> {
+export async function resolveToMd(run: Run, path: RelativePath): Promise<EntryInfo> {
     const file = normalizePath(path);
     const extension = extname(path);
 
@@ -20,8 +20,6 @@ export async function resolveToMd(run: Run, path: RelativePath): Promise<Resolve
 
         await run.write(join(run.output, file), result);
     }
-
-    run.logger.info('Processing finished:', path);
 
     return {};
 }
