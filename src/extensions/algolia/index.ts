@@ -1,9 +1,8 @@
 import type {BaseConfig, BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
-import type {SearchServiceConfig} from '@diplodoc/cli/lib/search';
+import type {SearchServiceConfig} from '@diplodoc/cli';
 import type {IndexSettings, SearchParamsObject} from 'algoliasearch';
 
-import {getBuildHooks} from '@diplodoc/cli';
-import {getHooks as getSearchHooks} from '@diplodoc/cli/lib/search';
+import {getBuildHooks, getSearchHooks} from '@diplodoc/cli';
 
 import {AlgoliaSearchProvider} from './provider';
 
