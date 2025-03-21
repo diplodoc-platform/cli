@@ -201,6 +201,9 @@ exports[`Regression internal: images.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
     >
@@ -226,7 +229,7 @@ exports[`Regression internal: images.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{},"assets":[],"headings":[],"title":"Images","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Images","includes":[],"html":"
       <p>
       <img src=\\"_assets/1.png\\" alt=\\"simple image\\" />
       </p>/n![with leading comment](_assets/2.png)/n
@@ -255,7 +258,12 @@ exports[`Regression internal: images.html 1`] = `
 `;
 
 exports[`Regression internal: images.md 1`] = `
-"# Images
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Images
 
 ![simple image](_assets/1.png)
 

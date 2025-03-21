@@ -10,6 +10,10 @@ import {getHooks, withHooks} from './hooks';
 type Config = {
     addSystemMeta: boolean;
 };
+type MetaItem = {
+    name: string;
+    content: string;
+};
 
 @withHooks
 export class MetaService {
@@ -129,10 +133,10 @@ export class MetaService {
         const meta = this.meta.get(file) || this.initialMeta();
         meta.metadata = meta.metadata || [];
         // Add without dublicates
-        metadata.forEach((item: Hash<any>) => {
+        metadata.forEach((item: Hash<MetaItem>) => {
             if (
                 !meta.metadata?.find(
-                    (metaItem: Hash<any>) =>
+                    (metaItem: Hash<MetaItem>) =>
                         metaItem.name === item.name && metaItem.content === item.content,
                 )
             ) {
