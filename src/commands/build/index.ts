@@ -1,8 +1,9 @@
-import type {EntryTocItem} from '~/core/toc';
+import type {EntryTocItem, Toc} from '~/core/toc';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join} from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
 import {
@@ -20,6 +21,7 @@ import {Extension as GenericIncluderExtension} from '~/extensions/generic-includ
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
 import {Extension as AlgoliaSearchExtension} from '~/extensions/algolia';
+import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -183,8 +185,17 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.for(outputFormat).promise(this.run);
 
-        await this.prepareInput();
+        if (isMainThread) {
+            await this.prepareInput();
+        }
+
         await this.prepareRun();
+
+        if (!isMainThread) {
+            return;
+        }
+
+        await threads.setup();
 
         const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
         const tocs = await this.run.glob('**/toc.yaml', {
@@ -218,14 +229,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                 try {
                     this.run.logger.proc(entry);
 
-                    // Add generator meta tag with versions
-                    this.run.meta.add(entry, {
-                        metadata: {
-                            generator: `Diplodoc Platform v${VERSION}`,
-                        },
-                    });
+                    const toc = await this.run.toc.load(this.run.toc.for(entry));
+                    const info = await this.process(entry, toc as Toc);
 
-                    const info = await this.process(entry);
                     const tocDir = this.run.toc.dir(entry);
 
                     await getHooks(this)
@@ -240,7 +246,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     this.run.logger.info('Processing finished:', entry);
                 } catch (error) {
                     console.error(error);
-                    this.run.logger.error(entry, error);
+                    this.run.logger.error(`${entry}: ${error}`);
                 }
             },
             {
@@ -259,7 +265,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @bounded
-    async process(entry: NormalizedPath): Promise<EntryInfo> {
+    @threads.threaded('build.process')
+    async process(entry: NormalizedPath, toc: Toc): Promise<EntryInfo> {
+        this.run.toc.set(entry, toc);
         return processEntry(this.run, entry);
     }
 
