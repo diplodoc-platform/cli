@@ -7,6 +7,8 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {REDIRECTS_FILENAME} from '~/constants';
 import {configPath, resolveConfig} from '~/core/config';
 
+import {redirect} from './redirect';
+
 interface Redirect {
     from: string;
     to: string;
@@ -17,6 +19,7 @@ interface RedirectsConfig {
     [lang: string]: Redirect[];
 }
 
+// TODO: should be service, not a feature
 export class Redirects {
     apply(program: Build) {
         let resolvedPath: AbsolutePath | null = null;
@@ -47,6 +50,19 @@ export class Redirects {
             .tapPromise('Redirects', async (run) => {
                 if (resolvedPath) {
                     await run.copy(resolvedPath, join(run.output, REDIRECTS_FILENAME));
+                }
+            });
+
+        getBuildHooks(program)
+            .AfterRun.for('html')
+            .tapPromise('Redirects', async (run) => {
+                const langRelativePath = `./${run.config.lang}/index.html`;
+                const langPath = join(run.output, langRelativePath);
+                const pagePath = join(run.output, 'index.html');
+
+                if (!run.exists(pagePath) && run.exists(langPath)) {
+                    const content = redirect(run.config.lang, langRelativePath);
+                    await run.write(pagePath, content);
                 }
             });
     }

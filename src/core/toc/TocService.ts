@@ -4,7 +4,6 @@ import type {MetaService} from '~/core/meta';
 import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
-import {ok} from 'node:assert';
 import {basename, dirname, join, relative} from 'node:path';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
@@ -69,7 +68,7 @@ export class TocService {
 
     private processed: Hash<boolean> = {};
 
-    private cache: Map<NormalizedPath, Toc | Promise<Toc>> = new Map();
+    private cache: Map<NormalizedPath, Toc | Promise<Toc | undefined> | undefined> = new Map();
 
     private get vars() {
         return this.run.vars;
@@ -85,17 +84,6 @@ export class TocService {
         this.config = run.config;
     }
 
-    async init() {
-        const tocs = await this.run.glob('**/toc.yaml', {
-            cwd: this.run.input,
-            ignore: this.config.ignore,
-        });
-
-        for (const toc of tocs) {
-            await this.load(toc);
-        }
-    }
-
     @bounded async load(path: RelativePath): Promise<Toc | undefined> {
         const file = normalizePath(path);
 
@@ -109,7 +97,7 @@ export class TocService {
 
         this.logger.proc(file);
 
-        const defer = new Defer<Toc>();
+        const defer = new Defer<Toc | undefined>();
 
         this.cache.set(file, defer.promise);
 
@@ -122,12 +110,12 @@ export class TocService {
         const content = await read(this.run, file);
 
         if (this.shouldSkip(content)) {
+            this.cache.delete(file);
+            defer.resolve(undefined);
             return undefined;
         }
 
         const toc = (await loader.call(context, content)) as Toc;
-
-        defer.resolve(toc);
 
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
@@ -141,9 +129,11 @@ export class TocService {
             });
         }
 
+        defer.resolve(toc);
+
         await getHooks(this).Resolved.promise(freezeJson(toc), file);
 
-        return toc;
+        return defer.promise;
     }
 
     @bounded async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
@@ -190,11 +180,13 @@ export class TocService {
         return toc;
     }
 
-    @bounded async dump(path: RelativePath): Promise<Toc> {
+    @bounded async dump(path: RelativePath): Promise<Toc | undefined> {
         const file = normalizePath(path);
         const toc = await this.load(path);
 
-        ok(toc, `Toc for path ${file} is not resolved.`);
+        if (!toc) {
+            return;
+        }
 
         return await getHooks(this).Dump.promise(copyJson(toc), file);
     }
@@ -237,6 +229,10 @@ export class TocService {
         }
 
         return results;
+    }
+
+    set(path: NormalizedPath, toc: Toc) {
+        this.cache.set(path, toc);
     }
 
     /**
