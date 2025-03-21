@@ -29,6 +29,9 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
     <meta name="test-yfm"
           content="inline test"
     >
@@ -66,7 +69,7 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -96,14 +99,17 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
   <head>
     <meta charset="utf-8">
     <base href="./">
-    <meta name="yfm"
-          value="builder in page"
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
     >
     <meta name="test-yfm"
           content="inline test"
     >
     <meta name="yfm-config"
           content="config test"
+    >
+    <meta name="yfm"
+          value="builder in page"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -130,7 +136,7 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in page"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in page"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
     </script>
@@ -162,14 +168,17 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
   <head>
     <meta charset="utf-8">
     <base href="../">
-    <meta name="yfm"
-          value="builder in config"
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
     >
     <meta name="test-yfm"
           content="inline test"
     >
     <meta name="yfm-config"
           content="config test"
+    >
+    <meta name="yfm"
+          value="builder in config"
     >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
@@ -196,7 +205,7 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"yfm","value":"builder in config"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
       <p>Lorem
       </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
     </script>
@@ -236,6 +245,8 @@ exports[`Allow load custom resources md2md with metadata: index.yaml 1`] = `
 description: ''
 meta:
   metadata:
+    - name: generator
+      content: Diplodoc Platform vDIPLODOC-VERSION
     - name: test-yfm
       content: inline test
     - name: yfm-config
@@ -252,12 +263,14 @@ links:
 exports[`Allow load custom resources md2md with metadata: page.md 1`] = `
 "---
 metadata:
-  - name: yfm
-    content: builder in page
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
   - name: test-yfm
     content: inline test
   - name: yfm-config
     content: config test
+  - name: yfm
+    content: builder in page
 ---
 
 Lorem"
@@ -266,12 +279,14 @@ Lorem"
 exports[`Allow load custom resources md2md with metadata: project/config.md 1`] = `
 "---
 metadata:
-  - name: yfm
-    value: builder in config
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
   - name: test-yfm
     content: inline test
   - name: yfm-config
     content: config test
+  - name: yfm
+    value: builder in config
 ---
 
 Lorem"
