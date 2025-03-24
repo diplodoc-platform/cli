@@ -10,6 +10,8 @@ export function platformless(text: string) {
     return text
         .replace(/\r\n/g, '\n')
         .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
+        // Replace version for meta tag
+        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`)
         .replace(/(\\(?![\/"'])){1,2}/g, '/');
 }
 
@@ -47,8 +49,6 @@ export function compareDirectories(outputPath: string) {
         .filter(uselessFile)
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath))
-                // Replace version for meta tag
-                .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`);
                 expect(content).toMatchSnapshot(filePath);
         });
 }
