@@ -16,11 +16,6 @@ import {parseHeading} from './utils';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
-    lang: string;
-    langs: string[];
-    allowHtml: boolean;
-    sanitizeHtml: boolean;
-    supportGithubAnchors?: boolean;
     template: {
         enabled: boolean;
         features: {
