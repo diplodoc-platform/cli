@@ -122,4 +122,9 @@ export class Buckets<T> {
     get(key: string): T {
         return this.scope.get(key) as T;
     }
+
+    @bounded
+    delete(key: string) {
+        this.scope.delete(key);
+    }
 }

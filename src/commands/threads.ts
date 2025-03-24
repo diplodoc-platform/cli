@@ -33,7 +33,7 @@ if (!isMainThread) {
         },
         async call(call: string, args: unknown[]) {
             const method = get(program, call);
-            return method(...args);
+            return method(...unpack(args));
         },
     });
 }
@@ -51,13 +51,16 @@ export async function init(_program: Program, {jobs}: BaseArgs) {
 
     if (isMainThread) {
         // eslint-disable-next-line new-cap
-        pool = Pool(async () => {
-            const thread = await spawn<ThreadAPI>(new Worker('./index'));
+        pool = Pool(
+            async () => {
+                const thread = await spawn<ThreadAPI>(new Worker('./index'));
 
-            threads.push(thread);
+                threads.push(thread);
 
-            return thread;
-        }, jobs);
+                return thread;
+            },
+            {size: jobs, concurrency: 50},
+        );
     }
 }
 
@@ -85,7 +88,7 @@ export function threaded(call: string) {
                 this[methodName] = function (...args: unknown[]) {
                     if (pool) {
                         return pool.queue((thread: ThreadAPI) => {
-                            return thread.call(call, args);
+                            return thread.call(call, pack(thread, args));
                         });
                     } else {
                         return method.call(this, ...args);
@@ -96,4 +99,44 @@ export function threaded(call: string) {
             }
         });
     };
+}
+
+type CountedMap = Map<string, unknown> & {idx: number};
+type CountedWeakMap = WeakMap<object, number> & {idx: number};
+
+const mems = new Map() as Map<unknown, CountedWeakMap>;
+const refs = new Map() as CountedMap;
+refs.idx = 1;
+
+function pack(thread: ThreadAPI, args: unknown[]) {
+    const mem = mems.get(thread) || (new WeakMap() as CountedWeakMap);
+
+    mems.set(thread, mem);
+    mem.idx = mem.idx || 1;
+
+    return args.map((arg) => {
+        if (arg && typeof arg === 'object' && mem.has(arg)) {
+            if (mem.has(arg)) {
+                return '#@&__' + mem.get(arg);
+            } else {
+                mem.set(arg, mem.idx++);
+                return arg;
+            }
+        } else {
+            return arg;
+        }
+    });
+}
+
+function unpack(args: unknown[]) {
+    return args.map((arg) => {
+        if (typeof arg === 'string' && arg.match(/^#@&__/)) {
+            return refs.get(arg);
+        } else if (arg && typeof arg === 'object') {
+            refs.set('#@&__' + refs.idx++, arg);
+            return arg;
+        } else {
+            return arg;
+        }
+    });
 }
