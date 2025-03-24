@@ -24,6 +24,7 @@ export type RawToc = {
     href?: YfmString & (RelativePath | URIString);
     navigation?: boolean | YfmString | Navigation;
     items?: RawTocItem[];
+    'restricted-access'?: string;
 };
 
 // TODO: add precise types
@@ -38,6 +39,7 @@ export type Navigation = {
 export type RawTocItem = Filter & {
     hidden?: boolean;
     items?: RawTocItem[];
+    'restricted-access'?: string;
 } & (RawNamedTocItem | RawIncludeTocItem);
 
 type RawNamedTocItem = {
@@ -82,11 +84,13 @@ export type Toc = {
     href?: NormalizedPath;
     navigation?: boolean | Navigation;
     items?: TocItem[];
+    'restricted-access'?: string;
 };
 
 export type TocItem = NamedTocItem & {hidden?: boolean} & {
     id: string;
     items?: TocItem[];
+    'restricted-access'?: string;
 };
 
 export type NamedTocItem = {
