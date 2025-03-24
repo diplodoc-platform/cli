@@ -23,6 +23,8 @@ const getFileData = async (run: Run, path: NormalizedPath) => {
         );
         const meta = await run.meta.dump(path);
 
+        run.markdown.release(path);
+
         return {meta, headings, title, html};
     }
 };
