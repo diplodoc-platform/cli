@@ -229,8 +229,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                 try {
                     this.run.logger.proc(entry);
 
-                    const toc = await this.run.toc.load(this.run.toc.for(entry));
-                    const info = await this.process(entry, toc as Toc);
+                    const tocPath = this.run.toc.for(entry);
+                    const toc = await this.run.toc.load(tocPath);
+                    const info = await this.process(entry, toc as Toc, tocPath);
 
                     const tocDir = this.run.toc.dir(entry);
 
@@ -266,8 +267,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @bounded
     @threads.threaded('build.process')
-    async process(entry: NormalizedPath, toc: Toc): Promise<EntryInfo> {
-        this.run.toc.set(entry, toc);
+    async process(entry: NormalizedPath, toc: Toc, tocPath: NormalizedPath): Promise<EntryInfo> {
+        this.run.toc.set(tocPath, toc);
         return processEntry(this.run, entry);
     }
 
