@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.1](https://github.com/diplodoc-platform/cli/compare/v4.57.0...v4.57.1) (2025-03-24)
+
+
+### Bug Fixes
+
+* Force write generated openapi files ([d60d064](https://github.com/diplodoc-platform/cli/commit/d60d064222ac542f1fad43854344a178750206e2))
+
 ## [4.57.0](https://github.com/diplodoc-platform/cli/compare/v4.56.0...v4.57.0) (2025-03-24)
 
 
