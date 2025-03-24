@@ -15,6 +15,12 @@ export function resolveDependencies(this: LoaderContext, content: string) {
     let match;
     // eslint-disable-next-line no-cond-assign
     while ((match = INCLUDE_CONTENTS.exec(content))) {
+        // Ugly workaround for include examples
+        // TODO: rewrite all inspect code on markdown-it parsing with minimal set of plugins
+        if (content[match.index - 1] === '`') {
+            continue;
+        }
+
         const link = findLinks(match[0])[0];
         // TODO: warn about non local urls
         const include = parseLocalUrl<IncludeInfo>(link as string);
