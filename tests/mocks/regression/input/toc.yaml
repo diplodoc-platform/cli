@@ -17,3 +17,10 @@ items:
     href: ./latex
   - name: Images
     href: ./images
+  - name: openapi
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+

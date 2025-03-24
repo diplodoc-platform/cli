@@ -156,6 +156,9 @@ exports[`Regression internal: filelist 1`] = `
   "merge/merged.md",
   "merge/toc.yaml",
   "mermaid.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
   "sub/folder/item-1.md",
   "toc.yaml"
 ]"
@@ -188,6 +191,9 @@ exports[`Regression internal: filelist 2`] = `
   "merge/merged.html",
   "merge/toc.js",
   "mermaid.html",
+  "openapi/index.html",
+  "openapi/test-controller/getWithPayloadResponse.html",
+  "openapi/test-controller/index.html",
   "sub/folder/item-1.html",
   "toc.js"
 ]"
@@ -775,6 +781,583 @@ Some mermaid info
 "
 `;
 
+exports[`Regression internal: openapi/index.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      OpenAPI definition
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/cut-extension.css"
+          id="custom-style"
+    >
+    <script src="_assets/cut-extension.js">
+    </script>
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Sections","href":"#sections","level":2},{"title":"Specification","href":"#specification","level":2}],"title":"OpenAPI definition","includes":[],"html":"
+      <p>
+      <samp>version: v0
+      </samp>
+      </p>/n
+      <h2 id=\\"sections\\">
+      <a href=\\"#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Sections
+      </span>
+      </a>Sections
+      </h2>/n
+      <ul>/n
+      <li>
+      <a href=\\"openapi/test-controller/index.html\\">test-controller
+      </a>
+      </li>/n
+      </ul>/n
+      <h2 id=\\"specification\\">
+      <a href=\\"#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Specification
+      </span>
+      </a>Specification
+      </h2>/n
+      <details class=\\"yfm-cut\\">
+      <summary class=\\"yfm-cut-title\\">Open API
+      </summary>
+      <div class=\\"yfm-cut-content\\">/n
+      <div class=\\"yfm-clipboard\\">/n
+      <pre>
+      <code class=\\"hljs text\\">{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n
+      </code>
+      </pre>/n/n
+      <button class=\\"yfm-clipboard-button\\">/n
+      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"21\\">/n
+      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
+      </path>/n
+      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
+      <animate id=\\"visibileAnimation-21\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
+      </animate>/n
+      <animate id=\\"hideAnimation-21\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-21.end+1\\" fill=\\"freeze\\">
+      </animate>/n
+      </path>/n
+      </svg>/n
+      </button>/n
+      </div>/n
+      </div>
+      </details>","leading":false},"router":{"pathname":"openapi/index","depth":2},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: openapi/index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+
+{% endcut %}
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../../">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+    <link rel="stylesheet"
+          type="text/css"
+          href="_assets/cut-extension.css"
+          id="custom-style"
+    >
+    <script src="_assets/cut-extension.js">
+    </script>
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Request","href":"#request","level":2},{"title":"Responses","href":"#responses","level":2},{"title":"200 OK","href":"#200-ok","level":2,"items":[{"title":"Body","href":"#body","level":3}]}],"title":"","includes":[],"html":"
+      <div class=\\"openapi\\">/n
+      <h1>Simple get operation. тест новой верстки 3
+      </h1>/n
+      <p>Defines a simple get operation with no inputs and a complex
+      </p>/n
+      <h2 id=\\"request\\">
+      <a href=\\"#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Request
+      </span>
+      </a>Request
+      </h2>/n
+      <div class=\\"openapi__requests\\">/n
+      <div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\">/n
+      <div class=\\"openapi__request\\">/n
+      <p class=\\"openapi__method\\">GET
+      </p>/n/n
+      <div class=\\"yfm-clipboard\\">/n
+      <pre>
+      <code class=\\"hljs text\\">http://localhost:8080/test/n
+      </code>
+      </pre>/n/n
+      <button class=\\"yfm-clipboard-button\\">/n
+      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"16\\">/n
+      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
+      </path>/n
+      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
+      <animate id=\\"visibileAnimation-16\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
+      </animate>/n
+      <animate id=\\"hideAnimation-16\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-16.end+1\\" fill=\\"freeze\\">
+      </animate>/n
+      </path>/n
+      </svg>/n
+      </button>/n
+      </div>/n
+      </div>/n
+      <p>Generated server url
+      </p>/n
+      </div>/n
+      </div>/n
+      <h2 id=\\"responses\\">
+      <a href=\\"#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Responses
+      </span>
+      </a>Responses
+      </h2>/n
+      <div class=\\"openapi__response__code__200\\">/n
+      <h2 id=\\"200-ok\\">
+      <a href=\\"#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">200 OK
+      </span>
+      </a>200 OK
+      </h2>/n
+      <p>200!!!!
+      </p>/n
+      <div class=\\"openapi-entity\\">/n
+      <h3 id=\\"body\\">
+      <a href=\\"#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Body
+      </span>
+      </a>Body
+      </h3>/n
+      <details class=\\"yfm-cut\\">
+      <summary class=\\"yfm-cut-title\\">application/json
+      </summary>
+      <div class=\\"yfm-cut-content\\">/n
+      <div class=\\"yfm-clipboard\\">/n
+      <pre>
+      <code class=\\"hljs json\\">
+      <span class=\\"hljs-punctuation\\">{
+      </span>/n
+      <span class=\\"hljs-attr\\">\\"A\\"
+      </span>
+      <span class=\\"hljs-punctuation\\">:
+      </span>
+      <span class=\\"hljs-string\\">\\"string\\"
+      </span>/n
+      <span class=\\"hljs-punctuation\\">}
+      </span>/n
+      </code>
+      </pre>/n/n
+      <button class=\\"yfm-clipboard-button\\">/n
+      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"42\\">/n
+      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
+      </path>/n
+      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
+      <animate id=\\"visibileAnimation-42\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
+      </animate>/n
+      <animate id=\\"hideAnimation-42\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-42.end+1\\" fill=\\"freeze\\">
+      </animate>/n
+      </path>/n
+      </svg>/n
+      </button>/n
+      </div>/n
+      </div>
+      </details>
+      <table>/n
+      <tbody>/n
+      <tr>/n
+      <td>/n
+      <p>
+      <strong>Name
+      </strong>
+      </p>/n
+      </td>/n
+      <td>/n
+      <p>
+      <strong>Description
+      </strong>
+      </p>/n
+      </td>/n
+      </tr>/n
+      <tr>/n
+      <td class=\\"openapi-table-parameter-name\\">/n
+      <p>A
+      </p>/n
+      </td>/n
+      <td>/n
+      <p>
+      <strong>Type:
+      </strong> string
+      </p>/n
+      </td>/n
+      </tr>/n
+      </tbody>/n
+      </table>/n
+      </div>/n
+      </div>/n/n
+      </div>/n
+      <template id=\\":Deprecated_template\\" label=\\"Deprecated\\">
+      <dfn class=\\"yfm yfm-term_dfn\\" id=\\":Deprecated_element\\" role=\\"dialog\\">
+      <p>No longer supported, please use an alternative and newer version.
+      </p>/n
+      </dfn>
+      </template>","leading":false},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+Defines a simple get operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method} 
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+
+\`\`\`json translate=no
+{
+    "A": "string"
+}
+\`\`\`
+
+
+{% endcut %}
+
+
+#|||
+ **Name** 
+|
+ **Description** 
+||
+
+||
+ A {.openapi-table-parameter-name} 
+|
+ **Type:** string 
+|||#
+
+</div>
+
+</div>
+<!-- markdownlint-disable-file -->
+
+</div>
+
+
+
+[*Deprecated]: No longer supported, please use an alternative and newer version."
+`;
+
+exports[`Regression internal: openapi/test-controller/index.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="../../">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      test-controller
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Endpoints","href":"#endpoints","level":2}],"title":"test-controller","includes":[],"html":"
+      <h2 id=\\"endpoints\\">
+      <a href=\\"#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Endpoints
+      </span>
+      </a>Endpoints
+      </h2>/n
+      <ul>/n
+      <li>
+      <a href=\\"openapi/test-controller/getWithPayloadResponse.html\\">Simple get operation. тест новой верстки 3
+      </a>
+      </li>/n
+      </ul>/n","leading":false},"router":{"pathname":"openapi/test-controller/index","depth":3},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: openapi/test-controller/index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# test-controller
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+
+<!-- markdownlint-disable-file -->"
+`;
+
 exports[`Regression internal: sub/folder/item-1.html 1`] = `
 <!DOCTYPE html>
 <html lang="ru"
@@ -847,7 +1430,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression internal: toc.yaml 1`] = `
 "items:
@@ -872,5 +1455,15 @@ exports[`Regression internal: toc.yaml 1`] = `
     href: latex.md
   - name: Images
     href: images.md
+  - name: openapi
+    items:
+      - name: Overview
+        href: openapi/index.md
+      - name: test-controller
+        items:
+          - name: Overview
+            href: openapi/test-controller/index.md
+          - href: openapi/test-controller/getWithPayloadResponse.md
+            name: Simple get operation. тест новой верстки 3
 "
 `;
