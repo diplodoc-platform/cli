@@ -27,7 +27,7 @@ export class Extension implements IExtension {
 
                     const root = join(run.input, dirname(options.path));
                     for (const {path, content} of files) {
-                        await run.write(join(root, path), content);
+                        await run.write(join(root, path), content, true);
                     }
 
                     // @ts-ignore
