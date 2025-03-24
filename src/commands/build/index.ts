@@ -201,6 +201,13 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                 try {
                     this.run.logger.proc(entry);
 
+                    // Add generator meta tag with versions
+                    this.run.meta.add(entry, {
+                        metadata: {
+                            generator: `Diplodoc Platform v${VERSION}`,
+                        },
+                    });
+
                     const info = await this.process(entry);
                     const tocDir = this.run.toc.dir(entry);
 
