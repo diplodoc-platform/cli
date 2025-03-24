@@ -86,7 +86,7 @@ export class LeadingService {
         try {
             const raw = await this.run.read(join(this.run.input, file));
             const vars = this.run.vars.for(path);
-            const yaml = load(raw) as RawLeadingPage;
+            const yaml = load(raw || '{}') as RawLeadingPage;
 
             const context = this.loaderContext(file, raw, vars);
             const leading = await loader.call(context, yaml);

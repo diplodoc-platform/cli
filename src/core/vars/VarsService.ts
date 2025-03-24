@@ -118,7 +118,7 @@ export class VarsService {
         this.logger.proc(file);
 
         return getHooks(this).PresetsLoaded.promise(
-            load(await this.run.read(join(this.run.input, file))) as Presets,
+            load((await this.run.read(join(this.run.input, file))) || '{}') as Presets,
             file,
         );
     }

@@ -300,7 +300,7 @@ export class TocService {
 
 async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc> {
     try {
-        return load(await run.read(join(run.input, path))) as RawToc;
+        return load((await run.read(join(run.input, path))) || '{}') as RawToc;
     } catch (error) {
         throw new Error(dedent`
             Unable to resolve ${path}${from ? ' from ' + from : ''}.
