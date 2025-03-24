@@ -12,10 +12,12 @@ import {bounded, normalizePath} from '~/core/utils';
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
 import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
+import {OutputFormat} from '~/commands/build/config';
 
 const SEARCH_PAGE_DEPTH = 2;
 
 export type SearchServiceConfig = {
+    outputFormat: OutputFormat;
     search: {
         enabled: boolean;
         provider: string;
@@ -35,7 +37,7 @@ export class SearchService implements SearchProvider<RelativePath> {
     private provider: SearchProvider;
 
     get enabled() {
-        return this.run.config.search.enabled !== false;
+        return this.run.config.outputFormat === 'html' && this.run.config.search.enabled !== false;
     }
 
     get connected() {
