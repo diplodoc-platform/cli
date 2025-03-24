@@ -17,9 +17,6 @@ type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
     lang: string;
     langs: string[];
-    allowHtml: boolean;
-    sanitizeHtml: boolean;
-    supportGithubAnchors?: boolean;
     template: {
         enabled: boolean;
         features: {
@@ -222,6 +219,24 @@ export class MarkdownService {
         const assets = [...api.assets.get()];
 
         return {content, deps, assets};
+    }
+
+    @bounded release(path: RelativePath, from: NormalizedPath[] = []) {
+        const file = normalizePath(path);
+        const key = this.hash(file, from);
+        const deps = this.pathToDeps.get(key) || [];
+
+        this.pathToMeta.delete(key);
+        this.pathToComments.delete(key);
+        this.pathToDeps.delete(key);
+        this.pathToAssets.delete(key);
+        this.pathToHeadings.delete(key);
+        this.pathToSourcemap.delete(key);
+        delete this.cache[key];
+
+        for (const dep of deps) {
+            this.release(dep.path, [...from, file]);
+        }
     }
 
     remap(path: RelativePath, line: number): number {
