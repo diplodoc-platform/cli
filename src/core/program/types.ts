@@ -21,6 +21,7 @@ export type BaseConfig = {
     input: AbsolutePath;
     quiet?: boolean;
     strict?: boolean;
+    jobs?: number;
     extensions?: (string | ExtensionInfo)[];
 };
 
