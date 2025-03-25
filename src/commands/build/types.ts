@@ -85,3 +85,12 @@ export type EntryInfo = {
     title?: string;
     headings?: any;
 };
+
+export type PositionedEntryInfo = {
+    position: number;
+    html?: string;
+    data?: LeadingPage;
+    meta?: Meta;
+    title?: string;
+    headings?: any;
+};

@@ -46,7 +46,7 @@ export class SinglePage {
             return config;
         });
 
-        const results: Record<NormalizedPath, Set<PageInfo>> = {};
+        const results: Record<NormalizedPath, PageInfo[]> = {};
 
         getBuildHooks(program)
             .BeforeRun.for('html')
@@ -63,12 +63,12 @@ export class SinglePage {
                         }
 
                         results[tocDir] = results[tocDir] || new Set();
-                        results[tocDir].add({
+                        results[tocDir][info.position] = {
                             path: entry,
                             content: info.html,
                             title: info.title || '',
                             // TODO: handle file resources
-                        });
+                        };
                     });
 
                 getTocHooks(run.toc).Resolved.tapPromise('SinglePage', async (toc, path) => {
@@ -95,13 +95,13 @@ export class SinglePage {
                 }
 
                 for (const [tocDir, result] of Object.entries(results)) {
-                    if (!result.size) {
+                    if (!result.length) {
                         return;
                     }
 
                     try {
                         const singlePageBody = joinSinglePageResults(
-                            [...result],
+                            result.filter(Boolean),
                             tocDir as NormalizedPath,
                         );
 
