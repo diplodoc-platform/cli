@@ -93,7 +93,7 @@
     "@diplodoc/openapi-extension": "^2.7.0",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/search-extension": "^1.2.2",
-    "@diplodoc/transform": "^4.49.0",
+    "@diplodoc/transform": "^4.50.2",
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.1",
     "@octokit/core": "4.2.4",
