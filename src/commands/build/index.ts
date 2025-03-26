@@ -197,7 +197,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await pmap(
             this.run.toc.entries,
-            async (entry, position) => {
+            async (entry) => {
                 try {
                     this.run.logger.proc(entry);
 
@@ -211,7 +211,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     const info = await this.process(entry);
                     const tocDir = this.run.toc.dir(entry);
 
-                    await getHooks(this).Entry.for(outputFormat).promise(entry, {...info, position}, tocDir);
+                    await getHooks(this).Entry.for(outputFormat).promise(entry, info, tocDir);
 
                     if (outputFormat === 'html') {
                         const lang = langFromPath(entry, this.run.config);
