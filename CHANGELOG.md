@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.4](https://github.com/diplodoc-platform/cli/compare/v4.57.3...v4.57.4) (2025-03-26)
+
+
+### Bug Fixes
+
+* restore broken anchors ([c193a1d](https://github.com/diplodoc-platform/cli/commit/c193a1df8452cb7638c8d0849510ab7b57c5b031))
+
 ## [4.57.3](https://github.com/diplodoc-platform/cli/compare/v4.57.2...v4.57.3) (2025-03-26)
 
 
