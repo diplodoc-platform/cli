@@ -23,6 +23,7 @@ import {MarkdownService} from '~/core/markdown';
 import {all, bounded, langFromPath, normalizePath, parseHeading, zip} from '~/core/utils';
 
 import {SearchService} from './services/search';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 
 type TransformOptions = {
     deps: NormalizedPath[];
@@ -144,6 +145,7 @@ export class Run extends BaseRun<BuildConfig> {
             plugins: this.markdown.plugins,
             path,
             lang: langFromPath(path, this.config),
+            getPublicPath,
             extractTitle: true,
             log: this.logger,
         };

@@ -727,11 +727,11 @@ exports[`Regression internal: mermaid.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[{"title":"Mermaid info","href":"#info","level":2}],"title":"Mermaid usage","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[{"title":"Mermaid info","href":"mermaid.html#info","level":2}],"title":"Mermaid usage","includes":[],"html":"
       <div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\">
       </div>
       <h2 id=\\"info\\">
-      <a href=\\"#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"mermaid.html#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Mermaid info
       </span>
       </a>Mermaid info
@@ -824,13 +824,13 @@ exports[`Regression internal: openapi/index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Sections","href":"#sections","level":2},{"title":"Specification","href":"#specification","level":2}],"title":"OpenAPI definition","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":"OpenAPI definition","includes":[],"html":"
       <p>
       <samp>version: v0
       </samp>
       </p>/n
       <h2 id=\\"sections\\">
-      <a href=\\"#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Sections
       </span>
       </a>Sections
@@ -842,7 +842,7 @@ exports[`Regression internal: openapi/index.html 1`] = `
       </li>/n
       </ul>/n
       <h2 id=\\"specification\\">
-      <a href=\\"#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Specification
       </span>
       </a>Specification
@@ -1033,14 +1033,14 @@ exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.htm
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Request","href":"#request","level":2},{"title":"Responses","href":"#responses","level":2},{"title":"200 OK","href":"#200-ok","level":2,"items":[{"title":"Body","href":"#body","level":3}]}],"title":"","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":"","includes":[],"html":"
       <div class=\\"openapi\\">/n
       <h1>Simple get operation. тест новой верстки 3
       </h1>/n
       <p>Defines a simple get operation with no inputs and a complex
       </p>/n
       <h2 id=\\"request\\">
-      <a href=\\"#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Request
       </span>
       </a>Request
@@ -1074,14 +1074,14 @@ exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.htm
       </div>/n
       </div>/n
       <h2 id=\\"responses\\">
-      <a href=\\"#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Responses
       </span>
       </a>Responses
       </h2>/n
       <div class=\\"openapi__response__code__200\\">/n
       <h2 id=\\"200-ok\\">
-      <a href=\\"#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">200 OK
       </span>
       </a>200 OK
@@ -1090,7 +1090,7 @@ exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.htm
       </p>/n
       <div class=\\"openapi-entity\\">/n
       <h3 id=\\"body\\">
-      <a href=\\"#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Body
       </span>
       </a>Body
@@ -1309,9 +1309,9 @@ exports[`Regression internal: openapi/test-controller/index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Endpoints","href":"#endpoints","level":2}],"title":"test-controller","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Endpoints","href":"openapi/test-controller/index.html#endpoints","level":2}],"title":"test-controller","includes":[],"html":"
       <h2 id=\\"endpoints\\">
-      <a href=\\"#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <a href=\\"openapi/test-controller/index.html#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
       <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Endpoints
       </span>
       </a>Endpoints
