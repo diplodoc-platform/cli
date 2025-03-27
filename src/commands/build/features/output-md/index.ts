@@ -41,6 +41,8 @@ export class OutputMd {
                     },
                 );
 
+                const copied = new Set();
+
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Build.Md',
                     async (markdown, file) => {
@@ -48,6 +50,12 @@ export class OutputMd {
 
                         await all(
                             deps.map(async (path) => {
+                                if (copied.has(path)) {
+                                    return;
+                                }
+
+                                copied.add(path);
+
                                 await this.copyDependency(run, path, [file]);
                             }),
                         );
