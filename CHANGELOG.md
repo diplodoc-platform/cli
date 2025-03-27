@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.6](https://github.com/diplodoc-platform/cli/compare/v4.57.5...v4.57.6) (2025-03-27)
+
+
+### Bug Fixes
+
+* Fix sequential includes ([cddae07](https://github.com/diplodoc-platform/cli/commit/cddae07f8fcf0358bf0eb0bb5e50ccae7468baeb))
+
 ## [4.57.5](https://github.com/diplodoc-platform/cli/compare/v4.57.4...v4.57.5) (2025-03-27)
 
 
