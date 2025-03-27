@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.5](https://github.com/diplodoc-platform/cli/compare/v4.57.4...v4.57.5) (2025-03-27)
+
+
+### Bug Fixes
+
+* Fix singlepage files race condition ([b4bcc4d](https://github.com/diplodoc-platform/cli/commit/b4bcc4d995f6484387844cc6cd85d25f345be17e))
+
 ## [4.57.4](https://github.com/diplodoc-platform/cli/compare/v4.57.3...v4.57.4) (2025-03-26)
 
 
