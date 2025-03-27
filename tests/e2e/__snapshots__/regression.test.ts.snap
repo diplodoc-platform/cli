@@ -149,6 +149,8 @@ exports[`Regression internal: filelist 1`] = `
   "_assets/empty.pdf",
   "images.md",
   "included-item.md",
+  "includes.md",
+  "includes/test.md",
   "includes/user.md",
   "index.yaml",
   "latex.md",
@@ -185,6 +187,7 @@ exports[`Regression internal: filelist 2`] = `
   "_bundle/search-css-1",
   "images.html",
   "included-item.html",
+  "includes.html",
   "index.html",
   "latex.html",
   "merge/merge.html",
@@ -369,6 +372,88 @@ Included item text
 {% endnote %}
 
 ![pdf](_assets/empty.pdf)
+"
+`;
+
+exports[`Regression internal: includes.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
+      <p>Text
+      </p>/n
+      <p>Bob
+      </p>/n
+      <p>Test
+      </p>/n","leading":false},"router":{"pathname":"includes","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: includes.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+Text
+
+{% include [user](includes/user.md) %}
+
+{% include [test](includes/test.md) %}
+"
+`;
+
+exports[`Regression internal: includes/test.md 1`] = `
+"Test
 "
 `;
 
@@ -1430,7 +1515,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression internal: toc.yaml 1`] = `
 "items:
@@ -1455,6 +1540,8 @@ exports[`Regression internal: toc.yaml 1`] = `
     href: latex.md
   - name: Images
     href: images.md
+  - name: includes
+    href: includes.md
   - name: openapi
     items:
       - name: Overview

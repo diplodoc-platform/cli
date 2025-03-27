@@ -17,6 +17,8 @@ items:
     href: ./latex
   - name: Images
     href: ./images
+  - name: includes
+    href: ./includes
   - name: openapi
     include:
       path: openapi
