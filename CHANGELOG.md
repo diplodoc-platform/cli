@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.7](https://github.com/diplodoc-platform/cli/compare/v4.57.6...v4.57.7) (2025-03-27)
+
+
+### Bug Fixes
+
+* Write file race condition ([22f3dd9](https://github.com/diplodoc-platform/cli/commit/22f3dd92b2e1f70aadb08aa7a5aca887c2ecff02))
+
 ## [4.57.6](https://github.com/diplodoc-platform/cli/compare/v4.57.5...v4.57.6) (2025-03-27)
 
 
