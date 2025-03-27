@@ -1,5 +1,5 @@
 import type {Run} from './run';
-import type {EntryInfo} from './types';
+import type {PositionedEntryInfo} from './types';
 
 import {AsyncSeriesHook, HookMap} from 'tapable';
 
@@ -31,10 +31,9 @@ export function hooks(name: string) {
          */
         Entry: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<[NormalizedPath, DeepFrozen<EntryInfo>, NormalizedPath]>(
-                    ['entry', 'info', 'tocDir'],
-                    `${name}.${format}.Entry`,
-                ),
+                new AsyncSeriesHook<
+                    [NormalizedPath, DeepFrozen<PositionedEntryInfo>, NormalizedPath]
+                >(['entry', 'info', 'tocDir'], `${name}.${format}.Entry`),
         ),
         /**
          * Async series hook map (md|html) which runs after build.<br/><br/>
