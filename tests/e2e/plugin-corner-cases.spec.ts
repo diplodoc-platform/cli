@@ -1,12 +1,14 @@
-import {compareDirectories, getTestPaths, runYfmDocs} from '../utils';
+import {createRunner, getTestPaths, compareDirectories} from '../fixtures';
 
 describe('plugin corner cases:', () => {
-    it('images in deflists — integrity check', () => {
+    const runner = createRunner();
+
+    it('images in deflists — integrity check', async () => {
         const {inputPath, outputPath} = getTestPaths(
             'mocks/plugin-corner-cases/images-in-deflists',
         );
 
-        runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
+        await runner.runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
         compareDirectories(outputPath);
     });
 });

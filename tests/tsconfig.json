@@ -1,20 +1,15 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
+    "target": "es2018",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "strict": true,
     "esModuleInterop": true,
-    "paths": {
-      "*": ["../src/*"],
-      "~/*": ["../src/*"]
-    },
-    "types": ["node", "jest"]
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "./fixtures"
   },
-  "include": [
-    "../src",
-    "."
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["fixtures/**/*"],
+  "exclude": ["dist", "**/*.test.ts", "**/*.spec.ts"]
 }
