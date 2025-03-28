@@ -1,52 +1,54 @@
-import {compareDirectories, runYfmDocs, getTestPaths} from '../utils';
+import {createRunner, getTestPaths, compareDirectories} from '../fixtures';
 
 describe('Include toc', () => {
-    test('Toc is included in link mode', () => {
+    const runner = createRunner();
+
+    test('Toc is included in link mode', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test1');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 
-    test('Toc is included inline, not as a new section', () => {
+    test('Toc is included inline, not as a new section', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test2');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 
-    test('Nested toc inclusions with mixed including modes', () => {
+    test('Nested toc inclusions with mixed including modes', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test3');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 
-    test('Nested toc inclusions with mixed including modes 2', () => {
+    test('Nested toc inclusions with mixed including modes 2', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test5');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 
-    test('Toc with expressions', () => {
+    test('Toc with expressions', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test4');
         const vars = {
             type: 'a',
             a: 'A',
             b: 'B',
         };
-        runYfmDocs(inputPath, outputPath, {
+        await runner.runYfmDocs(inputPath, outputPath, {
             args: `--vars="${JSON.stringify(vars).replace(/(")/g, '\\$1')}"`,
         });
         compareDirectories(outputPath);
     });
 
-    test('Toc with generic includer', () => {
+    test('Toc with generic includer', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test6');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 
-    test('Toc root merge on non root dir', () => {
+    test('Toc root merge on non root dir', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test7');
-        runYfmDocs(inputPath, outputPath);
+        await runner.runYfmDocs(inputPath, outputPath);
         compareDirectories(outputPath);
     });
 });

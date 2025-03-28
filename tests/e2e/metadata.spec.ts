@@ -1,9 +1,11 @@
-import {getTestPaths, runYfmDocs, compareDirectories} from '../utils';
+import {createRunner, getTestPaths, compareDirectories} from '../fixtures';
 
 const generateMapTestTemplate = (testTitle: string, testRootPath: string, {md2md = true, md2html = true}) => {
-    test(testTitle, () => {
+    const runner = createRunner();
+
+    test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        runYfmDocs(inputPath, outputPath, {md2md, md2html});
+        await runner.runYfmDocs(inputPath, outputPath, {md2md, md2html});
         compareDirectories(outputPath);
     });
 }
