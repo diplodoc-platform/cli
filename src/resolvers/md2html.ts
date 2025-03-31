@@ -28,15 +28,25 @@ const getFileData = async (run: Run, path: NormalizedPath) => {
 };
 
 const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
-    const {langs, analytics, search, staticContent} = run.config;
+    const {
+        langs,
+        analytics,
+        search,
+        staticContent,
+        resources: {csp},
+    } = run.config;
     const pathname = path.replace(extname(path), '');
     const lang = langFromPath(path, run.config);
 
     const data = await getFileData(run, path);
+    const updatedWitchCSPMeta = {
+        ...data,
+        meta: {...data.meta, csp},
+    };
 
     return {
         data: {
-            ...data,
+            ...updatedWitchCSPMeta,
             toc: staticContent ? copyJson(toc) : undefined,
             title: data.title || data.meta.title || '',
             leading: path.endsWith('.yaml'),
@@ -49,6 +59,7 @@ const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
         langs,
         search: search.enabled ? run.search.config(lang) : undefined,
         analytics,
+        csp,
     };
 };
 
@@ -56,7 +67,6 @@ export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<Ent
     const tocPath = run.toc.for(path);
     const toc = await run.toc.dump(tocPath);
     const props = await getFileProps(run, path, toc);
-
     const tocDir = dirname(tocPath);
 
     const title = getTitle(toc.title as string, props.data.title);

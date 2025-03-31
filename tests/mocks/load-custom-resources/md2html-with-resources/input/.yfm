@@ -3,3 +3,6 @@ resources:
     - _assets/style/test.css
   script:
     - _assets/script/test1.js
+  csp:
+    - script-src-elem:
+        - https://test.ru
