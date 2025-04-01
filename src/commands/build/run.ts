@@ -104,7 +104,7 @@ export class Run extends BaseRun<BuildConfig> {
         const {parse, compile, env} = transformer({
             ...this.transformConfig(file),
             files: await remap(deps, this.files),
-            titles: await remap(assets, this.titles),
+            titles: await remap([file].concat(assets), this.titles),
             assets: await remap(assets, async (path) => {
                 if (path.endsWith('.svg')) {
                     return this.read(join(this.input, path));
@@ -125,7 +125,7 @@ export class Run extends BaseRun<BuildConfig> {
         const pluginOptions = {
             ...this.transformConfig(file),
             files: await remap(deps, this.files),
-            titles: await remap(assets, this.titles),
+            titles: await remap([file].concat(assets), this.titles),
             assets: await remap(assets),
         };
 

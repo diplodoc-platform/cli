@@ -36,7 +36,7 @@ exports[`Regression internal: 1.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Title","includes":[],"html":"
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title","includes":[],"html":"
       <p>Text {{not-var}} {{skip()}} default-var-value
       </p>/n
       <p>Text
@@ -71,6 +71,12 @@ exports[`Regression internal: 1.html 1`] = `
       <code>[not a link](./path/to/relative/file.md)
       </code>
       </p>/n
+      <h2 id=\\"subtitle\\">
+      <a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Subtitle
+      </span>
+      </a>Subtitle
+      </h2>/n
       <p>
       <a href=\\"mermaid.html\\">Mermaid usage
       </a>
@@ -130,6 +136,8 @@ default-var-value
 
 \`[not a link](./path/to/relative/file.md)\`
 
+## Subtitle {#subtitle}
+
 [{#T}](./mermaid.md)
 
 [{#T}](./mermaid.md#info)
@@ -140,6 +148,134 @@ default-var-value
 "
 `;
 
+exports[`Regression internal: autotitle.html 1`] = `
+<!DOCTYPE html>
+<html lang="ru"
+      dir="ltr"
+>
+  <head>
+    <meta charset="utf-8">
+    <base href="./">
+    <meta name="generator"
+          content="Diplodoc Platform vDIPLODOC-VERSION"
+    >
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0"
+    >
+    <title>
+      Autotitles
+    </title>
+    <style type="text/css">
+      body {
+                        height: 100vh;
+                    }
+    </style>
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/search-css-0"
+    >
+    <link type="text/css"
+          rel="stylesheet"
+          href="_bundle/app-css-1"
+    >
+  </head>
+  <body class="g-root g-root_theme_light">
+    <div id="root">
+    </div>
+    <script type="application/javascript">
+      window.STATIC_CONTENT = false
+                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles","includes":[],"html":"
+      <p>Empty title
+      <br />/n
+      <a href=\\"1.html\\">Title
+      </a>
+      </p>/n
+      <p>Empty subtitle
+      <br />/n
+      <a href=\\"1.html#subtitle\\">Subtitle
+      </a>
+      </p>/n
+      <p>Special title
+      <br />/n
+      <a href=\\"1.html\\">Title
+      </a>
+      </p>/n
+      <p>Special subtitle
+      <br />/n
+      <a href=\\"1.html#subtitle\\">Subtitle
+      </a>
+      </p>/n
+      <p>Empty local title
+      <br />/n
+      <a href=\\"autotitle.html#header\\">Header
+      </a>
+      </p>/n
+      <p>Special local title
+      <br />/n
+      <a href=\\"autotitle.html#header\\">Header
+      </a>
+      </p>/n
+      <h2 id=\\"header\\">
+      <a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
+      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Header
+      </span>
+      </a>Header
+      </h2>/n
+      <p>Content
+      </p>/n","leading":false},"router":{"pathname":"autotitle","depth":1},"lang":"ru","langs":["ru"]};
+    </script>
+    <script src="toc.js"
+            type="application/javascript"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-0"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/app-js-1"
+    >
+    </script>
+    <script type="application/javascript"
+            src="_bundle/search-js-2"
+    >
+    </script>
+  </body>
+</html>
+`;
+
+exports[`Regression internal: autotitle.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Autotitles
+
+Empty title
+[](./1.md)
+
+Empty subtitle
+[](./1.md#subtitle)
+
+Special title
+[{#T}](./1.md)
+
+Special subtitle
+[{#T}](./1.md#subtitle)
+
+Empty local title
+[](#header)
+
+Special local title
+[{#T}](#header)
+
+## Header {#header}
+
+Content
+"
+`;
+
 exports[`Regression internal: filelist 1`] = `
 "[
   "1.md",
@@ -147,6 +283,7 @@ exports[`Regression internal: filelist 1`] = `
   "_assets/2.png",
   "_assets/3.png",
   "_assets/empty.pdf",
+  "autotitle.md",
   "images.md",
   "included-item.md",
   "includes.md",
@@ -185,6 +322,7 @@ exports[`Regression internal: filelist 2`] = `
   "_bundle/search-css-0",
   "_bundle/search-js-2",
   "_bundle/search-css-1",
+  "autotitle.html",
   "images.html",
   "included-item.html",
   "includes.html",
@@ -1515,7 +1653,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression internal: toc.yaml 1`] = `
 "items:
@@ -1540,6 +1678,8 @@ exports[`Regression internal: toc.yaml 1`] = `
     href: latex.md
   - name: Images
     href: images.md
+  - name: Autotitle
+    href: autotitle.md
   - name: includes
     href: includes.md
   - name: openapi

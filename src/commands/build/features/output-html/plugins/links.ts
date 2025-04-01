@@ -41,7 +41,7 @@ function processLink(state: StateCore, tokens: Token[], idx: number, opts: Optio
 
     const {pathname, hash} = url.parse(href);
 
-    if (!pathname && !href) {
+    if (!pathname && !hash) {
         return;
     }
 
@@ -66,7 +66,9 @@ function processLink(state: StateCore, tokens: Token[], idx: number, opts: Optio
             url.format({
                 ...url.parse(href),
                 pathname:
-                    pathname && join(dirname(path), pathname.replace(PAGE_LINK_REGEXP, '.html')),
+                    pathname
+                        ? join(dirname(path), pathname.replace(PAGE_LINK_REGEXP, '.html'))
+                        : path.replace(PAGE_LINK_REGEXP, '.html'),
             }),
         );
     }
