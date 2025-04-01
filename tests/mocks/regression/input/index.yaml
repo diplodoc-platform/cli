@@ -1,3 +1,7 @@
+description:
+  - text:
+  - >-
+    Some text
 links:
   - name: Link 1
     href: ./1.md

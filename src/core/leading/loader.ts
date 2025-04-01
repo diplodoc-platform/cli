@@ -219,7 +219,7 @@ function toTextArray(items: (TextItem | string)[]): string[] {
             result.push(item);
         } else if (typeof item.text === 'string') {
             result.push(item.text);
-        } else {
+        } else if (Array.isArray(item.text)) {
             result.push(...item.text);
         }
     }

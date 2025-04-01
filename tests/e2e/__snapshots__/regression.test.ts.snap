@@ -635,7 +635,7 @@ exports[`Regression internal: index.html 1`] = `
     </div>
     <script type="application/javascript">
       window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+                   window.__DATA__ = {"data":{"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -658,7 +658,9 @@ exports[`Regression internal: index.html 1`] = `
 `;
 
 exports[`Regression internal: index.yaml 1`] = `
-"links:
+"description:
+  - Some text
+links:
   - name: Link 1
     href: ./1.md
   - name: Link 2
