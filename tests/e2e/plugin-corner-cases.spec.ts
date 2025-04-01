@@ -1,4 +1,4 @@
-import {createRunner, getTestPaths, compareDirectories} from '../fixtures';
+import {compareDirectories, createRunner, getTestPaths} from '../fixtures';
 
 describe('plugin corner cases:', () => {
     const runner = createRunner();

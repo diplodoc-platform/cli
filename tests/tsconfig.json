@@ -4,12 +4,13 @@
     "module": "commonjs",
     "declaration": true,
     "outDir": "./dist",
+    "resolveJsonModule": true,
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "rootDir": "./fixtures"
+    "rootDir": "."
   },
-  "include": ["fixtures/**/*"],
-  "exclude": ["dist", "**/*.test.ts", "**/*.spec.ts"]
+  "include": ["fixtures/**/*", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["dist"]
 }

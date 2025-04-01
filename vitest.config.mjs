@@ -1,20 +1,18 @@
-import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import {defineConfig} from 'vite';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-    plugins: [tsconfigPaths({
-        root: './'
-    })],
+    plugins: [
+        tsconfigPaths({
+            root: './',
+        }),
+    ],
     test: {
         exclude: ['node_modules', 'tests', 'external'],
         coverage: {
             enabled: true,
             provider: 'v8',
-            include: [
-                'src/commands',
-                'src/core',
-                'src/extensions',
-            ],
+            include: ['src/commands', 'src/core', 'src/extensions'],
             exclude: [
                 'assets/**',
                 'tests/**',
@@ -32,7 +30,7 @@ export default defineConfig({
                 '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
                 '**/vitest.{workspace,projects}.[jt]s?(on)',
                 '**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
-            ]
-        }
+            ],
+        },
     },
-})
+});

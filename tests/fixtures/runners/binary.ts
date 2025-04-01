@@ -1,6 +1,5 @@
 import {exec} from 'child_process';
 import {promisify} from 'util';
-import {resolve} from 'path';
 
 const execAsync = promisify(exec);
 
@@ -17,9 +16,17 @@ export interface RunYfmDocsArgs {
 }
 
 export class BinaryRunner {
-    constructor(private readonly binaryPath: string) {}
+    private readonly binaryPath: string;
 
-    async runYfmDocs(inputPath: string, outputPath: string, {md2md = true, md2html = true, args = ''}: RunYfmDocsArgs = {}): Promise<void> {
+    constructor(binaryPath: string) {
+        this.binaryPath = binaryPath;
+    }
+
+    async runYfmDocs(
+        inputPath: string,
+        outputPath: string,
+        {md2md = true, md2html = true, args = ''}: RunYfmDocsArgs = {},
+    ): Promise<void> {
         const defaults = ' --quiet --allowHTML';
         const baseCommand = `${this.binaryPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
 
@@ -32,4 +39,4 @@ export class BinaryRunner {
             await execAsync(`${baseCommand} --output ${outputPath} ${args}`);
         }
     }
-} 
+}

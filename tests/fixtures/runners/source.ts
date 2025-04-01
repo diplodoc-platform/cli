@@ -1,6 +1,5 @@
 import {exec} from 'child_process';
 import {promisify} from 'util';
-import {resolve} from 'path';
 
 const execAsync = promisify(exec);
 
@@ -24,7 +23,11 @@ export class SourceRunner {
         this.cliPath = process.env.DIPLODOC_CLI_PATH || require.resolve('../../../build');
     }
 
-    async runYfmDocs(inputPath: string, outputPath: string, {md2md = true, md2html = true, args = ''}: RunYfmDocsArgs = {}): Promise<void> {
+    async runYfmDocs(
+        inputPath: string,
+        outputPath: string,
+        {md2md = true, md2html = true, args = ''}: RunYfmDocsArgs = {},
+    ): Promise<void> {
         const defaults = ' --quiet --allowHTML';
         const baseCommand = `node ${this.cliPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
 
@@ -37,4 +40,4 @@ export class SourceRunner {
             await execAsync(`${baseCommand} --output ${outputPath} ${args}`);
         }
     }
-} 
+}

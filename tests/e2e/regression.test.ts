@@ -1,13 +1,11 @@
 import {dedent} from 'ts-dedent';
-import {createRunner, getTestPaths, compareDirectories} from '../fixtures';
+import {compareDirectories, createRunner, getTestPaths} from '../fixtures';
 
 function test(_description: string) {
     const runner = createRunner();
 
     it('internal', async () => {
-        const {inputPath, outputPath} = getTestPaths(
-            'mocks/regression',
-        );
+        const {inputPath, outputPath} = getTestPaths('mocks/regression');
 
         await runner.runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
         await runner.runYfmDocs(outputPath, outputPath + '-html', {

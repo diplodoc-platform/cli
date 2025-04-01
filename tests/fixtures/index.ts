@@ -4,4 +4,4 @@ export * from './utils/test';
 
 // Re-export types
 export type {Runner, BuildResult, RunYfmDocsArgs} from './runners';
-export type {TestPaths} from './utils/file'; 
+export type {TestPaths} from './utils/file';
