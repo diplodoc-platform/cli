@@ -1,5 +1,5 @@
 import {readFileSync} from 'fs';
-import {resolve, join} from 'path';
+import {join, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {bundleless, platformless} from './test';
 
@@ -31,7 +31,7 @@ export interface TestPaths {
 
 export function getTestPaths(testRootPath: string): TestPaths {
     return {
-        inputPath: resolve(join(testRootPath, 'input')),
-        outputPath: resolve(join(testRootPath, 'output')),
+        inputPath: resolve(__dirname, '../../', join(testRootPath, 'input')),
+        outputPath: resolve(__dirname, '../../', join(testRootPath, 'output')),
     };
 }

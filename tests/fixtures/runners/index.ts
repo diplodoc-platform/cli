@@ -1,4 +1,4 @@
-import {SourceRunner, RunYfmDocsArgs} from './source';
+import {RunYfmDocsArgs, SourceRunner} from './source';
 import {BinaryRunner} from './binary';
 
 export type {BuildResult, RunYfmDocsArgs} from './source';
@@ -9,10 +9,10 @@ export interface Runner {
 
 export function createRunner(): Runner {
     const binaryPath = process.env.DIPLODOC_BINARY_PATH;
-    
+
     if (binaryPath) {
         return new BinaryRunner(binaryPath);
     }
-    
+
     return new SourceRunner();
-} 
+}
