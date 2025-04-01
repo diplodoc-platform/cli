@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.57.8](https://github.com/diplodoc-platform/cli/compare/v4.57.7...v4.57.8) (2025-04-01)
+
+
+### Bug Fixes
+
+* Fix local link rebasing and resolving ([8c41f6c](https://github.com/diplodoc-platform/cli/commit/8c41f6ceb0436a06f643a8d5de3fe9b7b166b34c))
+* Handle only known leading description formats ([6e3f8cd](https://github.com/diplodoc-platform/cli/commit/6e3f8cd2f8fba7b19530b53e921f5e92969c3a08))
+
+
+### Dependency update
+
+* Update @diplodoc/translation to 1.7.6 ([246d6bd](https://github.com/diplodoc-platform/cli/commit/246d6bdcabc6d8947200dfaed85c14ebdb162e2d))
+
 ## [4.57.7](https://github.com/diplodoc-platform/cli/compare/v4.57.6...v4.57.7) (2025-03-27)
 
 
