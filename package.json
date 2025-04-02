@@ -52,7 +52,8 @@
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
     "postinstall": "node scripts/postinstall.js || true",
     "start": "node build/index.js",
-    "test": "vitest --run",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js"
@@ -108,7 +109,6 @@
     "@types/mime-types": "2.1.4",
     "@types/node": "^18.19.4",
     "@types/shelljs": "0.8.15",
-    "@vitest/coverage-v8": "^2.1.8",
     "ajv": "^8.11.0",
     "algoliasearch": "^5.20.0",
     "async": "^3.2.4",
@@ -129,8 +129,9 @@
     "typescript-transform-paths": "^3.5.5",
     "uuid": "^11.0.4",
     "vite-tsconfig-paths": "^4.2.3",
-    "vitest": "^2.1.8",
-    "vitest-when": "^0.5.0",
+    "@vitest/coverage-v8": "^3.1.1",
+    "vitest": "^3.1.1",
+    "vitest-when": "^0.6.0",
     "walk-sync": "^3.0.0"
   },
   "overrides": {
