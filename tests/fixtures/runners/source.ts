@@ -1,8 +1,3 @@
-import {exec} from 'child_process';
-import {promisify} from 'util';
-
-const execAsync = promisify(exec);
-
 export interface BuildResult {
     stdout: string;
     stderr: string;
@@ -20,7 +15,7 @@ export class SourceRunner {
 
     constructor() {
         // Allow overriding the CLI path via environment variable, otherwise use local build
-        this.cliPath = process.env.DIPLODOC_CLI_PATH || require.resolve('../../../build');
+        this.cliPath = process.env.DIPLODOC_CLI_BUILD_PATH || require.resolve('../../../build');
     }
 
     async runYfmDocs(
@@ -28,16 +23,19 @@ export class SourceRunner {
         outputPath: string,
         {md2md = true, md2html = true, args = ''}: RunYfmDocsArgs = {},
     ): Promise<void> {
-        const defaults = ' --quiet --allowHTML';
-        const baseCommand = `node ${this.cliPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
+        const {run} = await import(this.cliPath);
+        
+        const defaultArgs = ['--quiet', '--allowHTML'];
+        const baseArgs = ['node', this.cliPath, '--input', inputPath, '--output', outputPath, ...defaultArgs];
+        const extraArgs = args.split(' ').filter(Boolean);
 
         if (md2md && md2html) {
-            await execAsync(`${baseCommand} --output ${outputPath} -f md ${args}`);
-            await execAsync(`${baseCommand} --output ${outputPath}-html ${args}`);
+            await run([...baseArgs, '--output', outputPath, '-f', 'md', ...extraArgs]);
+            await run([...baseArgs, '--output', `${outputPath}-html`, ...extraArgs]);
         } else if (md2md) {
-            await execAsync(`${baseCommand} --output ${outputPath} -f md ${args}`);
+            await run([...baseArgs, '--output', outputPath, '-f', 'md', ...extraArgs]);
         } else {
-            await execAsync(`${baseCommand} --output ${outputPath} ${args}`);
+            await run([...baseArgs, '--output', outputPath, ...extraArgs]);
         }
     }
 }

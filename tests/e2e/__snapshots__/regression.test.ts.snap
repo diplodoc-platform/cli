@@ -1,24 +1,19 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Regression internal: 1.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Title
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > 1.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Title</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -69,7 +64,7 @@ exports[`Regression internal: 1.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: 1.md 1`] = `
+exports[`Regression > internal > 1.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -206,7 +201,7 @@ Content
 "
 `;
 
-exports[`Regression internal: filelist 1`] = `
+exports[`Regression > internal > filelist 1`] = `
 "[
   "1.md",
   "_assets/1.png",
@@ -233,7 +228,7 @@ exports[`Regression internal: filelist 1`] = `
 ]"
 `;
 
-exports[`Regression internal: filelist 2`] = `
+exports[`Regression > internal > filelist 2`] = `
 "[
   "1.html",
   "_assets/1.png",
@@ -270,25 +265,20 @@ exports[`Regression internal: filelist 2`] = `
 ]"
 `;
 
-exports[`Regression internal: images.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Images
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > images.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Images</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -339,7 +329,7 @@ exports[`Regression internal: images.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: images.md 1`] = `
+exports[`Regression > internal > images.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -357,25 +347,20 @@ metadata:
 "
 `;
 
-exports[`Regression internal: included-item.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Included item
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > included-item.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Included item</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -426,7 +411,7 @@ exports[`Regression internal: included-item.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: included-item.md 1`] = `
+exports[`Regression > internal > included-item.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -448,24 +433,20 @@ Included item text
 "
 `;
 
-exports[`Regression internal: includes.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > includes.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title></title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -516,7 +497,7 @@ exports[`Regression internal: includes.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: includes.md 1`] = `
+exports[`Regression > internal > includes.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -530,34 +511,30 @@ Text
 "
 `;
 
-exports[`Regression internal: includes/test.md 1`] = `
+exports[`Regression > internal > includes/test.md 1`] = `
 "Test
 "
 `;
 
-exports[`Regression internal: includes/user.md 1`] = `
+exports[`Regression > internal > includes/user.md 1`] = `
 "Bob
 "
 `;
 
-exports[`Regression internal: index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title></title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -608,10 +585,8 @@ exports[`Regression internal: index.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: index.yaml 1`] = `
-"description:
-  - Some text
-links:
+exports[`Regression > internal > index.yaml 1`] = `
+"links:
   - name: Link 1
     href: ./1.md
   - name: Link 2
@@ -623,25 +598,20 @@ meta:
 "
 `;
 
-exports[`Regression internal: latex.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Latex usage
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > latex.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Latex usage</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -699,7 +669,7 @@ exports[`Regression internal: latex.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: latex.md 1`] = `
+exports[`Regression > internal > latex.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -711,25 +681,20 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Regression internal: merge/merge.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Should use merged item
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > merge/merge.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Should use merged item</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -780,7 +745,7 @@ exports[`Regression internal: merge/merge.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: merge/merge.md 1`] = `
+exports[`Regression > internal > merge/merge.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -792,28 +757,21 @@ metadata:
 "
 `;
 
-exports[`Regression internal: merge/merged.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="sourcePath"
-          content="merge-source/merged.md"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Merged item
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > merge/merged.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="sourcePath" content="merge-source/merged.md"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Merged item</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -864,7 +822,7 @@ exports[`Regression internal: merge/merged.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: merge/merged.md 1`] = `
+exports[`Regression > internal > merge/merged.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -877,9 +835,9 @@ Should be linked in toc.yaml
 "
 `;
 
-exports[`Regression internal: merge/toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression > internal > merge/toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Regression internal: merge/toc.yaml 1`] = `
+exports[`Regression > internal > merge/toc.yaml 1`] = `
 "items:
   - name: Use merged
     href: merge.md
@@ -888,25 +846,20 @@ exports[`Regression internal: merge/toc.yaml 1`] = `
 "
 `;
 
-exports[`Regression internal: mermaid.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Mermaid usage
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > mermaid.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Mermaid usage</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -959,7 +912,7 @@ exports[`Regression internal: mermaid.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: mermaid.md 1`] = `
+exports[`Regression > internal > mermaid.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -981,25 +934,20 @@ Some mermaid info
 "
 `;
 
-exports[`Regression internal: openapi/index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      OpenAPI definition
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > openapi/index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>OpenAPI definition</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -1057,7 +1005,7 @@ exports[`Regression internal: openapi/index.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: openapi/index.md 1`] = `
+exports[`Regression > internal > openapi/index.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -1156,24 +1104,20 @@ metadata:
 <!-- markdownlint-disable-file -->"
 `;
 
-exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > openapi/test-controller/getWithPayloadResponse.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title></title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -1231,7 +1175,7 @@ exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.htm
 </html>
 `;
 
-exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.md 1`] = `
+exports[`Regression > internal > openapi/test-controller/getWithPayloadResponse.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -1315,25 +1259,20 @@ Generated server url
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression internal: openapi/test-controller/index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      test-controller
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > openapi/test-controller/index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>test-controller</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -1384,7 +1323,7 @@ exports[`Regression internal: openapi/test-controller/index.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: openapi/test-controller/index.md 1`] = `
+exports[`Regression > internal > openapi/test-controller/index.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -1399,25 +1338,20 @@ metadata:
 <!-- markdownlint-disable-file -->"
 `;
 
-exports[`Regression internal: sub/folder/item-1.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Item 1
-    </title>
-    <style type="text/css">
-      body {
+exports[`Regression > internal > sub/folder/item-1.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Item 1</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -1468,7 +1402,7 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
 </html>
 `;
 
-exports[`Regression internal: sub/folder/item-1.md 1`] = `
+exports[`Regression > internal > sub/folder/item-1.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -1480,9 +1414,9 @@ Item 1 text
 "
 `;
 
-exports[`Regression internal: toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression > internal > toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"name":"Mermaid","href":"mermaid.html","id":"UUID"},{"name":"Latex","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Regression internal: toc.yaml 1`] = `
+exports[`Regression > internal > toc.yaml 1`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml

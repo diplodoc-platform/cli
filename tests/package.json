@@ -1,39 +1,39 @@
 {
   "name": "@diplodoc/cli-tests",
-  "version": "1.0.0",
+  "version": "4.57.7",
   "bin": {
-    "diplodoc-cli-test": "./bin.js"
+    "diplodoc-cli-test": "./bin.mjs"
   },
   "exports": {
     "./fixtures/*": "./fixtures/*"
   },
   "files": [
-    "jest.config.js",
+    "vitest.config.ts",
     "tsconfig.json",
-    "bin.js",
+    "bin.mjs",
     "fixtures",
     "mocks",
     "e2e"
   ],
   "scripts": {
     "build": "false",
-    "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test": "vitest run"
   },
   "dependencies": {
     "@diplodoc/client": "^3.3.1",
-    "@types/jest": "^29.5.11",
-    "@types/node": "^16.11.7",
+    "@types/node": "18.x",
     "@types/shelljs": "^0.8.15",
+    "@vitest/coverage-istanbul": "^3.1.1",
+    "@vitest/coverage-v8": "^3.1.1",
     "commander": "^13.1.0",
-    "jest": "^29.7.0",
-    "jest-serializer-html": "^7.1.0",
     "js-yaml": "^4.1.0",
     "shelljs": "^0.9.1",
     "ts-dedent": "^2.2.0",
-    "ts-jest": "^29.1.1",
     "ts-node": "^10.4.0",
     "typescript": "^5.3.3",
     "walk-sync": "^3.0.0"
+  },
+  "peerDependencies": {
+    "vitest": "^3.1.1"
   }
 }

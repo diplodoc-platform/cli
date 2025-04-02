@@ -1,3 +1,4 @@
+import {describe, test} from 'vitest';
 import {compareDirectories, createRunner, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (

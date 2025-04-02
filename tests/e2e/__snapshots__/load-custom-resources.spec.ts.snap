@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Allow load custom resources md2html single page with custom resources: .yfm 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources > .yfm 1`] = `
 "resources:
   style:
     - _assets/style/test.css
@@ -9,7 +9,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 "
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: filelist 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources > filelist 1`] = `
 "[
   ".yfm",
   "_assets/script/test1.js",
@@ -36,31 +36,22 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 ]"
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="title"
-          content="Documentation"
-    >
-    <meta name="noIndex"
-          content="true"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation | Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html single page with custom resources > index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="title" content="Documentation"  />
+<meta name="noIndex" content="true"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation | Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -118,28 +109,21 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: page.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="yfm"
-          content="builder"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html single page with custom resources > page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="yfm" content="builder"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -197,25 +181,20 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: project/config.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html single page with custom resources > project/config.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -273,22 +252,19 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html single page with custom resources > single-page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -346,13 +322,13 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 </html>
 `;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources > md2html single page with custom resources > single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}]};"`;
+exports[`Allow load custom resources > md2html single page with custom resources > single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}]};"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Allow load custom resources > md2html single page with custom resources > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Allow load custom resources md2html with custom resources: .yfm 1`] = `
+exports[`Allow load custom resources > md2html with custom resources > .yfm 1`] = `
 "resources:
   style:
     - _assets/style/test.css
@@ -361,7 +337,7 @@ exports[`Allow load custom resources md2html with custom resources: .yfm 1`] = `
 "
 `;
 
-exports[`Allow load custom resources md2html with custom resources: filelist 1`] = `
+exports[`Allow load custom resources > md2html with custom resources > filelist 1`] = `
 "[
   ".yfm",
   "_assets/script/test1.js",
@@ -385,31 +361,22 @@ exports[`Allow load custom resources md2html with custom resources: filelist 1`]
 ]"
 `;
 
-exports[`Allow load custom resources md2html with custom resources: index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="title"
-          content="Documentation"
-    >
-    <meta name="noIndex"
-          content="true"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation | Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html with custom resources > index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="title" content="Documentation"  />
+<meta name="noIndex" content="true"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation | Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -467,28 +434,21 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources: page.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="yfm"
-          content="builder"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html with custom resources > page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="yfm" content="builder"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -546,25 +506,20 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources: project/config.html 1`] = `
-<!DOCTYPE html>
-<html lang="ru"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Allow load custom resources > md2html with custom resources > project/config.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
     </style>
@@ -622,9 +577,9 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Allow load custom resources > md2html with custom resources > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Allow load custom resources md2md with custom resources: .yfm 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > .yfm 1`] = `
 "resources:
   style:
     - _assets/style/test.css
@@ -633,7 +588,7 @@ exports[`Allow load custom resources md2md with custom resources: .yfm 1`] = `
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources: filelist 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > filelist 1`] = `
 "[
   ".yfm",
   "_assets/script/test1.js",
@@ -645,7 +600,7 @@ exports[`Allow load custom resources md2md with custom resources: filelist 1`] =
 ]"
 `;
 
-exports[`Allow load custom resources md2md with custom resources: index.yaml 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > index.yaml 1`] = `
 "title: Documentation
 description: ''
 meta:
@@ -665,7 +620,7 @@ links:
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources: page.md 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > page.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -682,7 +637,7 @@ Lorem
 "
 `;
 
-exports[`Allow load custom resources md2md with custom resources: project/config.md 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > project/config.md 1`] = `
 "---
 metadata:
   - name: generator
@@ -695,7 +650,7 @@ script:
 Lorem"
 `;
 
-exports[`Allow load custom resources md2md with custom resources: toc.yaml 1`] = `
+exports[`Allow load custom resources > md2md with custom resources > toc.yaml 1`] = `
 "title: Documentation
 href: index.yaml
 items:

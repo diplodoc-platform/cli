@@ -11,6 +11,6 @@
     "forceConsistentCasingInFileNames": true,
     "rootDir": "."
   },
-  "include": ["fixtures/**/*", "**/*.test.ts", "**/*.spec.ts"],
+  "include": ["fixtures/**/*", "**/*.test.ts", "**/*.spec.ts", "vitest.config.ts"],
   "exclude": ["dist"]
 }

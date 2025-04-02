@@ -2,6 +2,7 @@ import {readFileSync} from 'fs';
 import {join, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {bundleless, platformless} from './test';
+import {expect} from 'vitest';
 
 export function getFileContent(filePath: string) {
     return bundleless(platformless(readFileSync(filePath, 'utf8')));

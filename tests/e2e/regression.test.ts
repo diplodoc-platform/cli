@@ -1,3 +1,4 @@
+import {describe, it} from 'vitest';
 import {dedent} from 'ts-dedent';
 import {compareDirectories, createRunner, getTestPaths} from '../fixtures';
 

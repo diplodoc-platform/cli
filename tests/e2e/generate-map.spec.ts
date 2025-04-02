@@ -1,3 +1,4 @@
+import {describe, expect, test} from 'vitest';
 import {bundleless, createRunner, getFileContent, getTestPaths} from '../fixtures';
 import {join} from 'path';
 
