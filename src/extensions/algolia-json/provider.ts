@@ -39,7 +39,7 @@ export class AlgoliaJsonSearchProvider implements SearchProvider {
 
         // Extract headings from HTML content
         const headings = this.extractHeadings(info.html || '');
-        
+
         // Convert HTML to plain text for search
         const content = html2text(info.html || '');
 
@@ -68,7 +68,7 @@ export class AlgoliaJsonSearchProvider implements SearchProvider {
         }
     }
 
-    config(lang: string) {
+    config(_lang: string) {
         return {
             enabled: false,
             resources: '',
@@ -78,17 +78,18 @@ export class AlgoliaJsonSearchProvider implements SearchProvider {
     private extractHeadings(html: string): string[] {
         const $ = load(html);
         const headings: string[] = [];
-        
+
         // Select all h1-h6 elements and extract their text
         $('h1, h2, h3, h4, h5, h6').each((_, element) => {
             // Get text content using contents() to handle nested elements properly
-            const textPieces = $(element).contents()
+            const textPieces = $(element)
+                .contents()
                 .map((_, el) => $(el).text())
                 .get();
-            
+
             // Use Set to ensure uniqueness
             const uniqueText = [...new Set(textPieces)].join('').trim();
-                
+
             if (uniqueText) {
                 headings.push(uniqueText);
             }
@@ -96,4 +97,4 @@ export class AlgoliaJsonSearchProvider implements SearchProvider {
 
         return headings;
     }
-} 
+}
