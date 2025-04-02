@@ -34,63 +34,20 @@ exports[`Regression internal: 1.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Subtitle&quot;,&quot;href&quot;:&quot;1.html#subtitle&quot;,&quot;level&quot;:2}],&quot;title&quot;:&quot;Title&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Text {{not-var}} {{skip()}} default-var-value&lt;&#x2F;p&gt;/n&lt;p&gt;Text &lt;code&gt;{{not-var}}&lt;&#x2F;code&gt; &lt;code&gt;{{skip()}}&lt;&#x2F;code&gt; &lt;code&gt;default-var-value&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Text&lt;&#x2F;p&gt;/n/n    &lt;div class=/&quot;yfm-clipboard/&quot;&gt;/n        &lt;pre&gt;&lt;code class=/&quot;hljs/&quot;&gt;{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;/n/n        &lt;button class=/&quot;yfm-clipboard-button/&quot;&gt;/n            &lt;svg width=/&quot;16/&quot; height=/&quot;16/&quot; viewBox=/&quot;0 0 24 24/&quot; class=/&quot;yfm-clipboard-icon/&quot; data-animation=/&quot;9/&quot;&gt;/n                &lt;path fill=/&quot;currentColor/&quot; d=/&quot;M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z/&quot;&gt;&lt;&#x2F;path&gt;/n                &lt;path stroke=/&quot;currentColor/&quot; fill=/&quot;transparent/&quot; stroke-width=/&quot;1.5/&quot; d=/&quot;M9.5 13l3 3l5 -5/&quot; visibility=/&quot;hidden/&quot;&gt;/n                    &lt;animate id=/&quot;visibileAnimation-9/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;hidden/&quot; to=/&quot;visible/&quot; dur=/&quot;0.2s/&quot; fill=/&quot;freeze/&quot; begin&gt;&lt;&#x2F;animate&gt;/n                    &lt;animate id=/&quot;hideAnimation-9/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;visible/&quot; to=/&quot;hidden/&quot; dur=/&quot;1s/&quot; begin=/&quot;visibileAnimation-9.end+1/&quot; fill=/&quot;freeze/&quot;&gt;&lt;&#x2F;animate&gt;/n                &lt;&#x2F;path&gt;/n            &lt;&#x2F;svg&gt;/n        &lt;&#x2F;button&gt;/n    &lt;&#x2F;div&gt;/n&lt;p&gt;&lt;code&gt;[not a link](.&#x2F;path&#x2F;to&#x2F;relative&#x2F;file.md)&lt;&#x2F;code&gt;&lt;&#x2F;p&gt;/n&lt;h2 id=/&quot;subtitle/&quot;&gt;&lt;a href=/&quot;1.html#subtitle/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Subtitle&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Subtitle&lt;&#x2F;h2&gt;/n&lt;p&gt;&lt;a href=/&quot;mermaid.html/&quot;&gt;Mermaid usage&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;&lt;a href=/&quot;mermaid.html#info/&quot;&gt;Mermaid info&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;&lt;a href=/&quot;latex.html/&quot;&gt;Latex usage&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Bob&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;1&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title","includes":[],"html":"
-      <p>Text {{not-var}} {{skip()}} default-var-value
-      </p>/n
-      <p>Text
-      <code>{{not-var}}
-      </code>
-      <code>{{skip()}}
-      </code>
-      <code>default-var-value
-      </code>
-      </p>/n
-      <p>Text
-      </p>/n/n
-      <div class=\\"yfm-clipboard\\">/n
-      <pre>
-      <code class=\\"hljs\\">{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n
-      </code>
-      </pre>/n/n
-      <button class=\\"yfm-clipboard-button\\">/n
-      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\">/n
-      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
-      </path>/n
-      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
-      <animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
-      </animate>/n
-      <animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\">
-      </animate>/n
-      </path>/n
-      </svg>/n
-      </button>/n
-      </div>/n
-      <p>
-      <code>[not a link](./path/to/relative/file.md)
-      </code>
-      </p>/n
-      <h2 id=\\"subtitle\\">
-      <a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Subtitle
-      </span>
-      </a>Subtitle
-      </h2>/n
-      <p>
-      <a href=\\"mermaid.html\\">Mermaid usage
-      </a>
-      </p>/n
-      <p>
-      <a href=\\"mermaid.html#info\\">Mermaid info
-      </a>
-      </p>/n
-      <p>
-      <a href=\\"latex.html\\">Latex usage
-      </a>
-      </p>/n
-      <p>Bob
-      </p>/n","leading":false},"router":{"pathname":"1","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -182,47 +139,20 @@ exports[`Regression internal: autotitle.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Header&quot;,&quot;href&quot;:&quot;autotitle.html#header&quot;,&quot;level&quot;:2}],&quot;title&quot;:&quot;Autotitles&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Empty title&lt;br &#x2F;&gt;/n&lt;a href=/&quot;1.html/&quot;&gt;Title&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Empty subtitle&lt;br &#x2F;&gt;/n&lt;a href=/&quot;1.html#subtitle/&quot;&gt;Subtitle&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Special title&lt;br &#x2F;&gt;/n&lt;a href=/&quot;1.html/&quot;&gt;Title&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Special subtitle&lt;br &#x2F;&gt;/n&lt;a href=/&quot;1.html#subtitle/&quot;&gt;Subtitle&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Empty local title&lt;br &#x2F;&gt;/n&lt;a href=/&quot;autotitle.html#header/&quot;&gt;Header&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;p&gt;Special local title&lt;br &#x2F;&gt;/n&lt;a href=/&quot;autotitle.html#header/&quot;&gt;Header&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&lt;h2 id=/&quot;header/&quot;&gt;&lt;a href=/&quot;autotitle.html#header/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Header&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Header&lt;&#x2F;h2&gt;/n&lt;p&gt;Content&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;autotitle&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles","includes":[],"html":"
-      <p>Empty title
-      <br />/n
-      <a href=\\"1.html\\">Title
-      </a>
-      </p>/n
-      <p>Empty subtitle
-      <br />/n
-      <a href=\\"1.html#subtitle\\">Subtitle
-      </a>
-      </p>/n
-      <p>Special title
-      <br />/n
-      <a href=\\"1.html\\">Title
-      </a>
-      </p>/n
-      <p>Special subtitle
-      <br />/n
-      <a href=\\"1.html#subtitle\\">Subtitle
-      </a>
-      </p>/n
-      <p>Empty local title
-      <br />/n
-      <a href=\\"autotitle.html#header\\">Header
-      </a>
-      </p>/n
-      <p>Special local title
-      <br />/n
-      <a href=\\"autotitle.html#header\\">Header
-      </a>
-      </p>/n
-      <h2 id=\\"header\\">
-      <a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Header
-      </span>
-      </a>Header
-      </h2>/n
-      <p>Content
-      </p>/n","leading":false},"router":{"pathname":"autotitle","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -374,15 +304,20 @@ exports[`Regression internal: images.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Images&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;&lt;img src=/&quot;_assets&#x2F;1.png/&quot; alt=/&quot;simple image/&quot; &#x2F;&gt;&lt;&#x2F;p&gt;/n![with leading comment](_assets&#x2F;2.png)/n&lt;p&gt;&lt;img src=/&quot;_assets&#x2F;3.png/&quot; alt=/&quot;with trailing comment/&quot; &#x2F;&gt;&lt;&#x2F;p&gt;/n/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;images&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Images","includes":[],"html":"
-      <p>
-      <img src=\\"_assets/1.png\\" alt=\\"simple image\\" />
-      </p>/n![with leading comment](_assets/2.png)/n
-      <p>
-      <img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" />
-      </p>/n/n","leading":false},"router":{"pathname":"images","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -456,20 +391,20 @@ exports[`Regression internal: included-item.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Included item&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Included item text&lt;&#x2F;p&gt;/n/n&lt;div class=/&quot;yfm-note yfm-accent-alert/&quot; note-type=/&quot;alert/&quot;&gt;&lt;p class=/&quot;yfm-note-title/&quot;&gt;Alert!&lt;&#x2F;p&gt;/n&lt;div class=/&quot;yfm-note-content/&quot;&gt;  /n&lt;&#x2F;div&gt;&lt;&#x2F;div&gt;&lt;p&gt;&lt;img src=/&quot;_assets&#x2F;empty.pdf/&quot; alt=/&quot;pdf/&quot; &#x2F;&gt;&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;included-item&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Included item","includes":[],"html":"
-      <p>Included item text
-      </p>/n/n
-      <div class=\\"yfm-note yfm-accent-alert\\" note-type=\\"alert\\">
-      <p class=\\"yfm-note-title\\">Alert!
-      </p>/n
-      <div class=\\"yfm-note-content\\">  /n
-      </div>
-      </div>
-      <p>
-      <img src=\\"_assets/empty.pdf\\" alt=\\"pdf\\" />
-      </p>/n","leading":false},"router":{"pathname":"included-item","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -546,15 +481,20 @@ exports[`Regression internal: includes.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Text&lt;&#x2F;p&gt;/n&lt;p&gt;Bob&lt;&#x2F;p&gt;/n&lt;p&gt;Test&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;includes&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"
-      <p>Text
-      </p>/n
-      <p>Bob
-      </p>/n
-      <p>Test
-      </p>/n","leading":false},"router":{"pathname":"includes","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -633,9 +573,20 @@ exports[`Regression internal: index.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;data&quot;:{&quot;description&quot;:[&quot;Some text&quot;],&quot;links&quot;:[{&quot;name&quot;:&quot;Link 1&quot;,&quot;href&quot;:&quot;1.html&quot;},{&quot;name&quot;:&quot;Link 2&quot;,&quot;href&quot;:&quot;1&#x2F;index.html&quot;}],&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]}},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;title&quot;:&quot;&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;index&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -713,13 +664,20 @@ exports[`Regression internal: latex.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_bundle&#x2F;latex-extension.css&quot;],&quot;script&quot;:[&quot;_bundle&#x2F;latex-extension.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Latex usage&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;&lt;span class=/&quot;yfm-latex/&quot; data-content=/&quot;%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2/&quot; data-options=/&quot;%7B%22displayMode%22%3Afalse%7D/&quot;&gt;&lt;&#x2F;span&gt;&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;latex&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"]},"assets":[],"headings":[],"title":"Latex usage","includes":[],"html":"
-      <p>
-      <span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22displayMode%22%3Afalse%7D\\">
-      </span>
-      </p>/n","leading":false},"router":{"pathname":"latex","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -787,13 +745,20 @@ exports[`Regression internal: merge/merge.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Should use merged item&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;&lt;a href=/&quot;merge&#x2F;merged.html/&quot;&gt;merged&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;merge&#x2F;merge&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Should use merged item","includes":[],"html":"
-      <p>
-      <a href=\\"merge/merged.html\\">merged
-      </a>
-      </p>/n","leading":false},"router":{"pathname":"merge/merge","depth":2},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="merge/toc.js"
             type="application/javascript"
@@ -864,11 +829,20 @@ exports[`Regression internal: merge/merged.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;sourcePath&quot;:&quot;merge-source&#x2F;merged.md&quot;},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Merged item&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Should be linked in toc.yaml&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;merge&#x2F;merged&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md"},"assets":[],"headings":[],"title":"Merged item","includes":[],"html":"
-      <p>Should be linked in toc.yaml
-      </p>/n","leading":false},"router":{"pathname":"merge/merged","depth":2},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="merge/toc.js"
             type="application/javascript"
@@ -950,19 +924,20 @@ exports[`Regression internal: mermaid.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;script&quot;:[&quot;_bundle&#x2F;mermaid-extension.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Mermaid info&quot;,&quot;href&quot;:&quot;mermaid.html#info&quot;,&quot;level&quot;:2}],&quot;title&quot;:&quot;Mermaid usage&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;div class=/&quot;mermaid/&quot; data-content=/&quot;sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A/&quot;&gt;&lt;&#x2F;div&gt;&lt;h2 id=/&quot;info/&quot;&gt;&lt;a href=/&quot;mermaid.html#info/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Mermaid info&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Mermaid info&lt;&#x2F;h2&gt;/n&lt;p&gt;Some mermaid info&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;mermaid&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"script":["_bundle/mermaid-extension.js"]},"assets":[],"headings":[{"title":"Mermaid info","href":"mermaid.html#info","level":2}],"title":"Mermaid usage","includes":[],"html":"
-      <div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\">
-      </div>
-      <h2 id=\\"info\\">
-      <a href=\\"mermaid.html#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Mermaid info
-      </span>
-      </a>Mermaid info
-      </h2>/n
-      <p>Some mermaid info
-      </p>/n","leading":false},"router":{"pathname":"mermaid","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -1047,55 +1022,20 @@ exports[`Regression internal: openapi/index.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;cut-extension.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;cut-extension.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Sections&quot;,&quot;href&quot;:&quot;openapi&#x2F;index.html#sections&quot;,&quot;level&quot;:2},{&quot;title&quot;:&quot;Specification&quot;,&quot;href&quot;:&quot;openapi&#x2F;index.html#specification&quot;,&quot;level&quot;:2}],&quot;title&quot;:&quot;OpenAPI definition&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;&lt;samp&gt;version: v0&lt;&#x2F;samp&gt;&lt;&#x2F;p&gt;/n&lt;h2 id=/&quot;sections/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;index.html#sections/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Sections&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Sections&lt;&#x2F;h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;index.html/&quot;&gt;test-controller&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;/n&lt;&#x2F;ul&gt;/n&lt;h2 id=/&quot;specification/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;index.html#specification/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Specification&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Specification&lt;&#x2F;h2&gt;/n&lt;details class=/&quot;yfm-cut/&quot;&gt;&lt;summary class=/&quot;yfm-cut-title/&quot;&gt;Open API&lt;&#x2F;summary&gt;&lt;div class=/&quot;yfm-cut-content/&quot;&gt;/n    &lt;div class=/&quot;yfm-clipboard/&quot;&gt;/n        &lt;pre&gt;&lt;code class=/&quot;hljs text/&quot;&gt;{/n    /&quot;openapi/&quot;: /&quot;3.0.1/&quot;,/n    /&quot;info/&quot;: {/n        /&quot;title/&quot;: /&quot;OpenAPI definition/&quot;,/n        /&quot;version/&quot;: /&quot;v0/&quot;/n    },/n    /&quot;servers/&quot;: [/n        {/n            /&quot;url/&quot;: /&quot;http:&#x2F;&#x2F;localhost:8080/&quot;,/n            /&quot;description/&quot;: /&quot;Generated server url/&quot;/n        }/n    ],/n    /&quot;paths/&quot;: {/n        /&quot;&#x2F;test/&quot;: {/n            /&quot;get/&quot;: {/n                /&quot;tags/&quot;: [/n                    /&quot;test-controller/&quot;/n                ],/n                /&quot;summary/&quot;: /&quot;Simple get operation. тест новой верстки 3/&quot;,/n                /&quot;description/&quot;: /&quot;Defines a simple get operation with no inputs and a complex/&quot;,/n                /&quot;operationId/&quot;: /&quot;getWithPayloadResponse/&quot;,/n                /&quot;responses/&quot;: {/n                    /&quot;200/&quot;: {/n                        /&quot;description/&quot;: /&quot;200!!!!/&quot;,/n                        /&quot;content/&quot;: {/n                            /&quot;application&#x2F;json/&quot;: {/n                                /&quot;schema/&quot;: {/n                                    /&quot;type/&quot;: /&quot;object/&quot;,/n                                    /&quot;properties/&quot;: {/n                                        /&quot;A/&quot;: {/n                                            /&quot;type/&quot;: /&quot;string/&quot;/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    /&quot;components/&quot;: {/n        /&quot;schemas/&quot;: {/n            /&quot;RecurceTop/&quot;: {/n                /&quot;type/&quot;: /&quot;object/&quot;,/n                /&quot;properties/&quot;: {/n                    /&quot;A/&quot;: {/n                        /&quot;type/&quot;: /&quot;string/&quot;/n                    }/n                }/n            },/n            /&quot;RecurceMiddle/&quot;: {/n                /&quot;type/&quot;: /&quot;object/&quot;,/n                /&quot;properties/&quot;: {/n                    /&quot;B/&quot;: {/n                        /&quot;type/&quot;: /&quot;array/&quot;,/n                        /&quot;items/&quot;: {/n                            /&quot;type/&quot;: /&quot;object/&quot;,/n                            /&quot;properties/&quot;: {/n                                /&quot;A/&quot;: {/n                                    /&quot;type/&quot;: /&quot;string/&quot;/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;/n/n        &lt;button class=/&quot;yfm-clipboard-button/&quot;&gt;/n            &lt;svg width=/&quot;16/&quot; height=/&quot;16/&quot; viewBox=/&quot;0 0 24 24/&quot; class=/&quot;yfm-clipboard-icon/&quot; data-animation=/&quot;21/&quot;&gt;/n                &lt;path fill=/&quot;currentColor/&quot; d=/&quot;M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z/&quot;&gt;&lt;&#x2F;path&gt;/n                &lt;path stroke=/&quot;currentColor/&quot; fill=/&quot;transparent/&quot; stroke-width=/&quot;1.5/&quot; d=/&quot;M9.5 13l3 3l5 -5/&quot; visibility=/&quot;hidden/&quot;&gt;/n                    &lt;animate id=/&quot;visibileAnimation-21/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;hidden/&quot; to=/&quot;visible/&quot; dur=/&quot;0.2s/&quot; fill=/&quot;freeze/&quot; begin&gt;&lt;&#x2F;animate&gt;/n                    &lt;animate id=/&quot;hideAnimation-21/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;visible/&quot; to=/&quot;hidden/&quot; dur=/&quot;1s/&quot; begin=/&quot;visibileAnimation-21.end+1/&quot; fill=/&quot;freeze/&quot;&gt;&lt;&#x2F;animate&gt;/n                &lt;&#x2F;path&gt;/n            &lt;&#x2F;svg&gt;/n        &lt;&#x2F;button&gt;/n    &lt;&#x2F;div&gt;/n&lt;&#x2F;div&gt;&lt;&#x2F;details&gt;&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;openapi&#x2F;index&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":"OpenAPI definition","includes":[],"html":"
-      <p>
-      <samp>version: v0
-      </samp>
-      </p>/n
-      <h2 id=\\"sections\\">
-      <a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Sections
-      </span>
-      </a>Sections
-      </h2>/n
-      <ul>/n
-      <li>
-      <a href=\\"openapi/test-controller/index.html\\">test-controller
-      </a>
-      </li>/n
-      </ul>/n
-      <h2 id=\\"specification\\">
-      <a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Specification
-      </span>
-      </a>Specification
-      </h2>/n
-      <details class=\\"yfm-cut\\">
-      <summary class=\\"yfm-cut-title\\">Open API
-      </summary>
-      <div class=\\"yfm-cut-content\\">/n
-      <div class=\\"yfm-clipboard\\">/n
-      <pre>
-      <code class=\\"hljs text\\">{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n
-      </code>
-      </pre>/n/n
-      <button class=\\"yfm-clipboard-button\\">/n
-      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"21\\">/n
-      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
-      </path>/n
-      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
-      <animate id=\\"visibileAnimation-21\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
-      </animate>/n
-      <animate id=\\"hideAnimation-21\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-21.end+1\\" fill=\\"freeze\\">
-      </animate>/n
-      </path>/n
-      </svg>/n
-      </button>/n
-      </div>/n
-      </div>
-      </details>","leading":false},"router":{"pathname":"openapi/index","depth":2},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -1256,143 +1196,20 @@ exports[`Regression internal: openapi/test-controller/getWithPayloadResponse.htm
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;cut-extension.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;cut-extension.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Request&quot;,&quot;href&quot;:&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#request&quot;,&quot;level&quot;:2},{&quot;title&quot;:&quot;Responses&quot;,&quot;href&quot;:&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#responses&quot;,&quot;level&quot;:2},{&quot;title&quot;:&quot;200 OK&quot;,&quot;href&quot;:&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#200-ok&quot;,&quot;level&quot;:2,&quot;items&quot;:[{&quot;title&quot;:&quot;Body&quot;,&quot;href&quot;:&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#body&quot;,&quot;level&quot;:3}]}],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;div class=/&quot;openapi/&quot;&gt;/n&lt;h1&gt;Simple get operation. тест новой верстки 3&lt;&#x2F;h1&gt;/n&lt;p&gt;Defines a simple get operation with no inputs and a complex&lt;&#x2F;p&gt;/n&lt;h2 id=/&quot;request/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#request/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Request&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Request&lt;&#x2F;h2&gt;/n&lt;div class=/&quot;openapi__requests/&quot;&gt;/n&lt;div class=/&quot;openapi__request__wrapper/&quot; style=/&quot;--method:var(--dc-openapi-methods-get);margin-bottom:12px/&quot;&gt;/n&lt;div class=/&quot;openapi__request/&quot;&gt;/n&lt;p class=/&quot;openapi__method/&quot;&gt;GET&lt;&#x2F;p&gt;/n/n    &lt;div class=/&quot;yfm-clipboard/&quot;&gt;/n        &lt;pre&gt;&lt;code class=/&quot;hljs text/&quot;&gt;http:&#x2F;&#x2F;localhost:8080&#x2F;test/n&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;/n/n        &lt;button class=/&quot;yfm-clipboard-button/&quot;&gt;/n            &lt;svg width=/&quot;16/&quot; height=/&quot;16/&quot; viewBox=/&quot;0 0 24 24/&quot; class=/&quot;yfm-clipboard-icon/&quot; data-animation=/&quot;16/&quot;&gt;/n                &lt;path fill=/&quot;currentColor/&quot; d=/&quot;M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z/&quot;&gt;&lt;&#x2F;path&gt;/n                &lt;path stroke=/&quot;currentColor/&quot; fill=/&quot;transparent/&quot; stroke-width=/&quot;1.5/&quot; d=/&quot;M9.5 13l3 3l5 -5/&quot; visibility=/&quot;hidden/&quot;&gt;/n                    &lt;animate id=/&quot;visibileAnimation-16/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;hidden/&quot; to=/&quot;visible/&quot; dur=/&quot;0.2s/&quot; fill=/&quot;freeze/&quot; begin&gt;&lt;&#x2F;animate&gt;/n                    &lt;animate id=/&quot;hideAnimation-16/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;visible/&quot; to=/&quot;hidden/&quot; dur=/&quot;1s/&quot; begin=/&quot;visibileAnimation-16.end+1/&quot; fill=/&quot;freeze/&quot;&gt;&lt;&#x2F;animate&gt;/n                &lt;&#x2F;path&gt;/n            &lt;&#x2F;svg&gt;/n        &lt;&#x2F;button&gt;/n    &lt;&#x2F;div&gt;/n&lt;&#x2F;div&gt;/n&lt;p&gt;Generated server url&lt;&#x2F;p&gt;/n&lt;&#x2F;div&gt;/n&lt;&#x2F;div&gt;/n&lt;h2 id=/&quot;responses/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#responses/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Responses&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Responses&lt;&#x2F;h2&gt;/n&lt;div class=/&quot;openapi__response__code__200/&quot;&gt;/n&lt;h2 id=/&quot;200-ok/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#200-ok/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;200 OK&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;200 OK&lt;&#x2F;h2&gt;/n&lt;p&gt;200!!!!&lt;&#x2F;p&gt;/n&lt;div class=/&quot;openapi-entity/&quot;&gt;/n&lt;h3 id=/&quot;body/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html#body/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Body&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Body&lt;&#x2F;h3&gt;/n&lt;details class=/&quot;yfm-cut/&quot;&gt;&lt;summary class=/&quot;yfm-cut-title/&quot;&gt;application&#x2F;json&lt;&#x2F;summary&gt;&lt;div class=/&quot;yfm-cut-content/&quot;&gt;/n    &lt;div class=/&quot;yfm-clipboard/&quot;&gt;/n        &lt;pre&gt;&lt;code class=/&quot;hljs json/&quot;&gt;&lt;span class=/&quot;hljs-punctuation/&quot;&gt;{&lt;&#x2F;span&gt;/n    &lt;span class=/&quot;hljs-attr/&quot;&gt;/&quot;A/&quot;&lt;&#x2F;span&gt;&lt;span class=/&quot;hljs-punctuation/&quot;&gt;:&lt;&#x2F;span&gt; &lt;span class=/&quot;hljs-string/&quot;&gt;/&quot;string/&quot;&lt;&#x2F;span&gt;/n&lt;span class=/&quot;hljs-punctuation/&quot;&gt;}&lt;&#x2F;span&gt;/n&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;/n/n        &lt;button class=/&quot;yfm-clipboard-button/&quot;&gt;/n            &lt;svg width=/&quot;16/&quot; height=/&quot;16/&quot; viewBox=/&quot;0 0 24 24/&quot; class=/&quot;yfm-clipboard-icon/&quot; data-animation=/&quot;42/&quot;&gt;/n                &lt;path fill=/&quot;currentColor/&quot; d=/&quot;M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z/&quot;&gt;&lt;&#x2F;path&gt;/n                &lt;path stroke=/&quot;currentColor/&quot; fill=/&quot;transparent/&quot; stroke-width=/&quot;1.5/&quot; d=/&quot;M9.5 13l3 3l5 -5/&quot; visibility=/&quot;hidden/&quot;&gt;/n                    &lt;animate id=/&quot;visibileAnimation-42/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;hidden/&quot; to=/&quot;visible/&quot; dur=/&quot;0.2s/&quot; fill=/&quot;freeze/&quot; begin&gt;&lt;&#x2F;animate&gt;/n                    &lt;animate id=/&quot;hideAnimation-42/&quot; attributeName=/&quot;visibility/&quot; from=/&quot;visible/&quot; to=/&quot;hidden/&quot; dur=/&quot;1s/&quot; begin=/&quot;visibileAnimation-42.end+1/&quot; fill=/&quot;freeze/&quot;&gt;&lt;&#x2F;animate&gt;/n                &lt;&#x2F;path&gt;/n            &lt;&#x2F;svg&gt;/n        &lt;&#x2F;button&gt;/n    &lt;&#x2F;div&gt;/n&lt;&#x2F;div&gt;&lt;&#x2F;details&gt;&lt;table&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;/n&lt;&#x2F;td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;/n&lt;&#x2F;td&gt;/n&lt;&#x2F;tr&gt;/n&lt;tr&gt;/n&lt;td class=/&quot;openapi-table-parameter-name/&quot;&gt;/n&lt;p&gt;A&lt;&#x2F;p&gt;/n&lt;&#x2F;td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Type:&lt;&#x2F;strong&gt; string&lt;&#x2F;p&gt;/n&lt;&#x2F;td&gt;/n&lt;&#x2F;tr&gt;/n&lt;&#x2F;tbody&gt;/n&lt;&#x2F;table&gt;/n&lt;&#x2F;div&gt;/n&lt;&#x2F;div&gt;/n/n&lt;&#x2F;div&gt;/n&lt;template id=/&quot;:Deprecated_template/&quot; label=/&quot;Deprecated/&quot;&gt;&lt;dfn class=/&quot;yfm yfm-term_dfn/&quot; id=/&quot;:Deprecated_element/&quot; role=/&quot;dialog/&quot;&gt;&lt;p&gt;No longer supported, please use an alternative and newer version.&lt;&#x2F;p&gt;/n&lt;&#x2F;dfn&gt;&lt;&#x2F;template&gt;&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse&quot;,&quot;depth&quot;:3},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"assets":[],"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":"","includes":[],"html":"
-      <div class=\\"openapi\\">/n
-      <h1>Simple get operation. тест новой верстки 3
-      </h1>/n
-      <p>Defines a simple get operation with no inputs and a complex
-      </p>/n
-      <h2 id=\\"request\\">
-      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Request
-      </span>
-      </a>Request
-      </h2>/n
-      <div class=\\"openapi__requests\\">/n
-      <div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\">/n
-      <div class=\\"openapi__request\\">/n
-      <p class=\\"openapi__method\\">GET
-      </p>/n/n
-      <div class=\\"yfm-clipboard\\">/n
-      <pre>
-      <code class=\\"hljs text\\">http://localhost:8080/test/n
-      </code>
-      </pre>/n/n
-      <button class=\\"yfm-clipboard-button\\">/n
-      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"16\\">/n
-      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
-      </path>/n
-      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
-      <animate id=\\"visibileAnimation-16\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
-      </animate>/n
-      <animate id=\\"hideAnimation-16\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-16.end+1\\" fill=\\"freeze\\">
-      </animate>/n
-      </path>/n
-      </svg>/n
-      </button>/n
-      </div>/n
-      </div>/n
-      <p>Generated server url
-      </p>/n
-      </div>/n
-      </div>/n
-      <h2 id=\\"responses\\">
-      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Responses
-      </span>
-      </a>Responses
-      </h2>/n
-      <div class=\\"openapi__response__code__200\\">/n
-      <h2 id=\\"200-ok\\">
-      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">200 OK
-      </span>
-      </a>200 OK
-      </h2>/n
-      <p>200!!!!
-      </p>/n
-      <div class=\\"openapi-entity\\">/n
-      <h3 id=\\"body\\">
-      <a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Body
-      </span>
-      </a>Body
-      </h3>/n
-      <details class=\\"yfm-cut\\">
-      <summary class=\\"yfm-cut-title\\">application/json
-      </summary>
-      <div class=\\"yfm-cut-content\\">/n
-      <div class=\\"yfm-clipboard\\">/n
-      <pre>
-      <code class=\\"hljs json\\">
-      <span class=\\"hljs-punctuation\\">{
-      </span>/n
-      <span class=\\"hljs-attr\\">\\"A\\"
-      </span>
-      <span class=\\"hljs-punctuation\\">:
-      </span>
-      <span class=\\"hljs-string\\">\\"string\\"
-      </span>/n
-      <span class=\\"hljs-punctuation\\">}
-      </span>/n
-      </code>
-      </pre>/n/n
-      <button class=\\"yfm-clipboard-button\\">/n
-      <svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"42\\">/n
-      <path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\">
-      </path>/n
-      <path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\">/n
-      <animate id=\\"visibileAnimation-42\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin>
-      </animate>/n
-      <animate id=\\"hideAnimation-42\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-42.end+1\\" fill=\\"freeze\\">
-      </animate>/n
-      </path>/n
-      </svg>/n
-      </button>/n
-      </div>/n
-      </div>
-      </details>
-      <table>/n
-      <tbody>/n
-      <tr>/n
-      <td>/n
-      <p>
-      <strong>Name
-      </strong>
-      </p>/n
-      </td>/n
-      <td>/n
-      <p>
-      <strong>Description
-      </strong>
-      </p>/n
-      </td>/n
-      </tr>/n
-      <tr>/n
-      <td class=\\"openapi-table-parameter-name\\">/n
-      <p>A
-      </p>/n
-      </td>/n
-      <td>/n
-      <p>
-      <strong>Type:
-      </strong> string
-      </p>/n
-      </td>/n
-      </tr>/n
-      </tbody>/n
-      </table>/n
-      </div>/n
-      </div>/n/n
-      </div>/n
-      <template id=\\":Deprecated_template\\" label=\\"Deprecated\\">
-      <dfn class=\\"yfm yfm-term_dfn\\" id=\\":Deprecated_element\\" role=\\"dialog\\">
-      <p>No longer supported, please use an alternative and newer version.
-      </p>/n
-      </dfn>
-      </template>","leading":false},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -1532,21 +1349,20 @@ exports[`Regression internal: openapi/test-controller/index.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[{&quot;title&quot;:&quot;Endpoints&quot;,&quot;href&quot;:&quot;openapi&#x2F;test-controller&#x2F;index.html#endpoints&quot;,&quot;level&quot;:2}],&quot;title&quot;:&quot;test-controller&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;h2 id=/&quot;endpoints/&quot;&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;index.html#endpoints/&quot; class=/&quot;yfm-anchor/&quot; aria-hidden=/&quot;true/&quot;&gt;&lt;span class=/&quot;visually-hidden/&quot; data-no-index=/&quot;true/&quot;&gt;Endpoints&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;Endpoints&lt;&#x2F;h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=/&quot;openapi&#x2F;test-controller&#x2F;getWithPayloadResponse.html/&quot;&gt;Simple get operation. тест новой верстки 3&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;/n&lt;&#x2F;ul&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;openapi&#x2F;test-controller&#x2F;index&quot;,&quot;depth&quot;:3},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[{"title":"Endpoints","href":"openapi/test-controller/index.html#endpoints","level":2}],"title":"test-controller","includes":[],"html":"
-      <h2 id=\\"endpoints\\">
-      <a href=\\"openapi/test-controller/index.html#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\">
-      <span class=\\"visually-hidden\\" data-no-index=\\"true\\">Endpoints
-      </span>
-      </a>Endpoints
-      </h2>/n
-      <ul>/n
-      <li>
-      <a href=\\"openapi/test-controller/getWithPayloadResponse.html\\">Simple get operation. тест новой верстки 3
-      </a>
-      </li>/n
-      </ul>/n","leading":false},"router":{"pathname":"openapi/test-controller/index","depth":3},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -1617,11 +1433,20 @@ exports[`Regression internal: sub/folder/item-1.html 1`] = `
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;Item 1&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Item 1 text&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;sub&#x2F;folder&#x2F;item-1&quot;,&quot;depth&quot;:3},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"Item 1","includes":[],"html":"
-      <p>Item 1 text
-      </p>/n","leading":false},"router":{"pathname":"sub/folder/item-1","depth":3},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
