@@ -22,9 +22,10 @@ export class Extension implements IExtension {
                     .Provider.for('algolia-json')
                     .tap('AlgoliaJsonSearch', (_connector, config) => {
                         return new AlgoliaJsonSearchProvider(run, {
+                            api: 'algolia-json',
                             ...config,
                         });
                     });
             });
     }
-} 
+}
