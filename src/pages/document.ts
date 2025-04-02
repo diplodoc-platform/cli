@@ -65,9 +65,14 @@ export function generateStaticMarkup(
             </head>
             <body class="g-root g-root_theme_light">
                 <div id="root">${html}</div>
+                <script type="application/json" id="state">
+                    ${escapeJsonForHtml(props)}
+                </script>
                 <script type="application/javascript">
-                   window.STATIC_CONTENT = ${staticContent}
-                   window.__DATA__ = ${JSON.stringify(props)};
+                   ${unescapeJsonFromHtml.toString()}
+                   const data = document.querySelector('script#state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = ${staticContent};
                 </script>
                 <script src="${toc + '.js'}" type="application/javascript"></script>
                 ${search?.resources ? `<script src="${search.resources}" type="application/javascript"></script>` : ''}
@@ -109,6 +114,28 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
     }
 
     return result;
+}
+
+function escapeJsonForHtml(json: unknown): string {
+    return JSON.stringify(json)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/\//g, '&#x2F;');
+}
+
+function unescapeJsonFromHtml(escaped: string): unknown {
+    const unescaped = escaped
+        .replace(/&#x2F;/g, '/')
+        .replace(/&#x27;/g, "'")
+        .replace(/&quot;/g, '"')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&amp;/g, '&');
+
+    return JSON.parse(unescaped);
 }
 
 function generateCSP(csp?: Record<string, string[]>[]) {
