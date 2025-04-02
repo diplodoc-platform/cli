@@ -65,12 +65,12 @@ export function generateStaticMarkup(
             </head>
             <body class="g-root g-root_theme_light">
                 <div id="root">${html}</div>
-                <script type="application/json" id="state">
+                <script type="application/json" id="diplodoc-state">
                     ${escapeJsonForHtml(props)}
                 </script>
                 <script type="application/javascript">
                    ${unescapeJsonFromHtml.toString()}
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = ${staticContent};
                 </script>
