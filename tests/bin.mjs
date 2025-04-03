@@ -18,6 +18,10 @@ const vitest = spawn(
     ],
     {
         stdio: 'inherit',
+        env: {
+            ...process.env,
+            NODE_ENV: 'test',
+        },
     },
 );
 

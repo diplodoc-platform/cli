@@ -1,6 +1,7 @@
 import {describe, expect, test} from 'vitest';
-import {bundleless, createRunner, getFileContent, getTestPaths} from '../fixtures';
+import {bundleless, getFileContent, getTestPaths} from '../fixtures';
 import {join} from 'path';
+import {CliTestAdapter} from '../fixtures/cliAdapter';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -8,12 +9,12 @@ const generateMapTestTemplate = (
     md2md = true,
     md2html = true,
 ) => {
-    const runner = createRunner();
+    const cliTestAdapter = new CliTestAdapter();
 
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
-        await runner.runYfmDocs(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
+        await cliTestAdapter.testPass(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
 
         const content = getFileContent(join(outputPath, 'files.json'));
 

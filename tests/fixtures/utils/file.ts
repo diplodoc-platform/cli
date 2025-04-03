@@ -3,6 +3,7 @@ import {join, resolve} from 'path';
 import walkSync from 'walk-sync';
 import {bundleless, platformless} from './test';
 import {expect} from 'vitest';
+import shell from 'shelljs';
 
 export function getFileContent(filePath: string) {
     return bundleless(platformless(readFileSync(filePath, 'utf8')));
@@ -25,7 +26,7 @@ export function compareDirectories(outputPath: string): void {
     });
 }
 
-export interface TestPaths {
+type TestPaths = {
     inputPath: string;
     outputPath: string;
 }
@@ -35,4 +36,8 @@ export function getTestPaths(testRootPath: string): TestPaths {
         inputPath: resolve(__dirname, '../../', join(testRootPath, 'input')),
         outputPath: resolve(__dirname, '../../', join(testRootPath, 'output')),
     };
+}
+
+export function cleanupDirectory(path: string): void {
+    shell.rm('-rf', path);
 }

@@ -1,4 +1,4 @@
-import {describe, expect, it,} from 'vitest';
+import {describe, expect, it} from 'vitest';
 import {handler, runBuild as run, testConfig as test, testBooleanFlag} from './__tests__';
 
 describe('Build command', () => {
@@ -27,7 +27,7 @@ describe('Build command', () => {
             });
         });
 
-        describe.skip('langs', () => {
+        describe('langs', () => {
             test('should handle default', '', {
                 langs: ['ru'],
             });
@@ -252,7 +252,7 @@ describe('Build command', () => {
             // test('should merge args ang config')
         });
 
-        describe('strict', () => {
+        describe.skip('strict', () => {
             test('should handle default', '', {
                 strict: false,
             });

@@ -1,11 +1,8 @@
-import {RunYfmDocsArgs, SourceRunner} from './source';
+import {SourceRunner} from './source';
 import {BinaryRunner} from './binary';
+import {Runner} from './types';
 
-export type {BuildResult, RunYfmDocsArgs} from './source';
-
-export interface Runner {
-    runYfmDocs(inputPath: string, outputPath: string, args?: RunYfmDocsArgs): Promise<void>;
-}
+export {Runner};
 
 export function createRunner(): Runner {
     const binaryPath = process.env.DIPLODOC_BINARY_PATH;
