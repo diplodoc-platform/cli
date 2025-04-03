@@ -117,21 +117,11 @@ function getMetadata(metadata: VarsMetadata | undefined, restMeta: LeadingPage['
 }
 
 function escapeJsonForHtml(json: unknown): string {
-    return JSON.stringify(json)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;');
+    return JSON.stringify(json).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function unescapeJsonFromHtml(escaped: string): unknown {
-    const unescaped = escaped
-        .replace(/&#x27;/g, "'")
-        .replace(/&quot;/g, '"')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&');
+    const unescaped = escaped.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
 
     return JSON.parse(unescaped);
 }
