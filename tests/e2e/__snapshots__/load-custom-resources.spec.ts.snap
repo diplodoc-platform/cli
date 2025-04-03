@@ -84,7 +84,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;index&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -94,7 +94,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -163,7 +163,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -173,7 +173,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -239,7 +239,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project&#x2F;config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -249,7 +249,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -312,7 +312,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;leading&quot;:false,&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&lt;hr class=/&quot;yfm-page__delimeter/&quot;&gt;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;headings&quot;:[],&quot;meta&quot;:{&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;]},&quot;title&quot;:&quot;Documentation&quot;},&quot;router&quot;:{&quot;pathname&quot;:&quot;single-page.html&quot;,&quot;depth&quot;:2,&quot;base&quot;:&quot;..&#x2F;&quot;},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -322,7 +322,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -433,7 +433,7 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;index&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -443,7 +443,7 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -512,7 +512,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -522,7 +522,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
@@ -588,7 +588,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
     <div id="root">
     </div>
     <script type="application/json"
-            id="state"
+            id="diplodoc-state"
     >
       {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets&#x2F;style&#x2F;test.css&quot;],&quot;script&quot;:[&quot;_assets&#x2F;script&#x2F;test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project&#x2F;config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
@@ -598,7 +598,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
-                   const data = document.querySelector('script#state');
+                   const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
     </script>
