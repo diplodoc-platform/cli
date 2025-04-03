@@ -79,6 +79,7 @@
     "katex": "^0.16.9",
     "lodash": "4.17.21",
     "normalize-path": "^3.0.0",
+    "openapi": "^1.0.1",
     "p-map": "^4.0.0",
     "tapable": "^2.2.1",
     "threads": "1.7.0",
