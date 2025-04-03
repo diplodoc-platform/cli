@@ -83,9 +83,20 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;index&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -151,11 +162,20 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
-      <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -218,11 +238,20 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project/config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
-      <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -282,14 +311,20 @@ exports[`Allow load custom resources md2html single page with custom resources: 
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;leading&quot;:false,&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&lt;hr class=/&quot;yfm-page__delimeter/&quot;&gt;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;headings&quot;:[],&quot;meta&quot;:{&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;]},&quot;title&quot;:&quot;Documentation&quot;},&quot;router&quot;:{&quot;pathname&quot;:&quot;single-page.html&quot;,&quot;depth&quot;:2,&quot;base&quot;:&quot;../&quot;},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"leading":false,"html":"
-      <p>Lorem
-      </p>/n
-      <hr class=\\"yfm-page__delimeter\\">
-      <p>Lorem
-      </p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="single-page-toc.js"
             type="application/javascript"
@@ -397,9 +432,20 @@ exports[`Allow load custom resources md2html with custom resources: index.html 1
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;index&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -465,11 +511,20 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
-      <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
@@ -532,11 +587,20 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
   <body class="g-root g-root_theme_light">
     <div id="root">
     </div>
+    <script type="application/json"
+            id="diplodoc-state"
+    >
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;style&quot;:[&quot;_assets/style/test.css&quot;],&quot;script&quot;:[&quot;_assets/script/test1.js&quot;]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project/config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+    </script>
     <script type="application/javascript">
-      window.STATIC_CONTENT = false
-                   window.__DATA__ = {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"
-      <p>Lorem
-      </p>/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]};
+      function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
     </script>
     <script src="toc.js"
             type="application/javascript"
