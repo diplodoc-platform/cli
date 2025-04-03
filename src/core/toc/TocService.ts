@@ -41,6 +41,8 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
+type WalkStepContext = Hash<unknown>;
+
 enum Stage {
     TECH_PREVIEW = 'tech-preview',
 }
@@ -198,18 +200,22 @@ export class TocService {
      */
     async walkItems<T extends WithItems<T>>(
         items: T[] | undefined,
-        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
     ): Promise<T[] | undefined> {
         if (!items || !items.length) {
             return items;
         }
 
+        const context = {};
         const results: T[] = [];
         const queue = [...items];
         while (queue.length) {
             const item = queue.shift() as T;
 
-            const result = await actor(item);
+            const result = await actor(item, {...context});
             if (result) {
                 results.push(...([] as T[]).concat(result));
             }
