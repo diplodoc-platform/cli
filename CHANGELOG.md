@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.10](https://github.com/diplodoc-platform/cli/compare/v4.57.9...v4.57.10) (2025-04-03)
+
+
+### Dependency update
+
+* Update @diplodoc/openapi-extension to 2.7.1 ([a763308](https://github.com/diplodoc-platform/cli/commit/a763308796b6175b99e70e69d8de1942567a155b))
+
 ## [4.57.9](https://github.com/diplodoc-platform/cli/compare/v4.57.8...v4.57.9) (2025-04-03)
 
 
