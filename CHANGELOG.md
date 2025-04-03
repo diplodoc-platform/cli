@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.57.9](https://github.com/diplodoc-platform/cli/compare/v4.57.8...v4.57.9) (2025-04-03)
+
+
+### Bug Fixes
+
+* downgrade escaping ([3339eb3](https://github.com/diplodoc-platform/cli/commit/3339eb3d01c92f0072742082f2f99c500b3e415f))
+* XSS expluatation in static-content mode ([#1092](https://github.com/diplodoc-platform/cli/issues/1092)) ([c652a0d](https://github.com/diplodoc-platform/cli/commit/c652a0d62ec964d13e91a8ca50f88de4aeb90e96))
+
 ## [4.57.8](https://github.com/diplodoc-platform/cli/compare/v4.57.7...v4.57.8) (2025-04-01)
 
 
