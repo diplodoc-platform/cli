@@ -123,7 +123,8 @@ function escapeJsonForHtml(json: unknown): string {
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#x27;')
-        .replace(/\//g, '&#x2F;');
+        // .replace(/\//g, '&#x2F;');
+        .split('/').join('&#x2F;')
 }
 
 function unescapeJsonFromHtml(escaped: string): unknown {
