@@ -1,0 +1,47 @@
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'tests/**'
+
+name: tests-release
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        working-directory: tests
+        run: npm ci
+        shell: bash
+      - name: Get package info
+        id: package-info
+        working-directory: tests
+        run: |
+          echo "name=$(node -p "require('./package.json').name")" >> $GITHUB_OUTPUT
+        shell: bash
+      - uses: GoogleCloudPlatform/release-please-action@v3
+        id: release
+        with:
+          token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
+          release-type: node
+          package-name: ${{steps.package-info.outputs.name}}
+          path: tests
+          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false},{"type":"deps","section":"Dependency update","hidden":false}]'
+          bump-minor-pre-major: true
+      - name: Publish to NPM
+        if: ${{ steps.release.outputs.release_created }}
+        working-directory: tests
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
+        shell: bash 

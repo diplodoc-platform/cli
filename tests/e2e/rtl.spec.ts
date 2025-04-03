@@ -1,16 +1,17 @@
 import {describe, test} from 'vitest';
-import {compareDirectories, createRunner, getTestPaths} from '../fixtures';
+import {compareDirectories, getTestPaths} from '../fixtures';
+import {CliTestAdapter} from '../fixtures/cliAdapter';
 
 const generateMapTestTemplate = (
     testTitle: string,
     testRootPath: string,
     {md2md = true, md2html = true, args = '--allow-custom-resources'},
 ) => {
-    const runner = createRunner();
+    const cliTestAdapter = new CliTestAdapter();
 
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        await runner.runYfmDocs(inputPath, outputPath, {md2md, md2html, args});
+        await cliTestAdapter.testPass(inputPath, outputPath, {md2md, md2html, args});
         compareDirectories(outputPath);
     });
 };

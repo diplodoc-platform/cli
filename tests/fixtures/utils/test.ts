@@ -1,5 +1,4 @@
 import {readFileSync} from 'fs';
-import shell from 'shelljs';
 
 export function platformless(text: string): string {
     return text
@@ -29,8 +28,4 @@ export function bundleless(text: string): string {
 
 export function getNormalizedContent(filePath: string): string {
     return bundleless(platformless(readFileSync(filePath, 'utf8')));
-}
-
-export function cleanupDirectory(path: string): void {
-    shell.rm('-rf', path);
 }
