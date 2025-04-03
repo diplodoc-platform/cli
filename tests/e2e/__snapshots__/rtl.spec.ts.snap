@@ -64,7 +64,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -129,11 +129,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;תיעוד&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;he&quot;,&quot;langs&quot;:[&quot;he&quot;]}
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;תיעוד&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;he&quot;,&quot;langs&quot;:[&quot;he&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -202,11 +202,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;links&quot;:[{&quot;title&quot;:&quot;Documentation&quot;,&quot;href&quot;:&quot;ar&#x2F;page.html&quot;}],&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]}},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;title&quot;:&quot;&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;ar&#x2F;index&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ar&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
+      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;links&quot;:[{&quot;title&quot;:&quot;Documentation&quot;,&quot;href&quot;:&quot;ar/page.html&quot;}],&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]}},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;title&quot;:&quot;&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;ar/index&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ar&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -271,11 +271,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;توثيق&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;ar&#x2F;page&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ar&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;توثيق&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;ar/page&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ar&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -348,11 +348,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;en&#x2F;page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;en&#x2F;index&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;en&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
+      {&quot;data&quot;:{&quot;data&quot;:{&quot;title&quot;:&quot;Documentation&quot;,&quot;description&quot;:&quot;&quot;,&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;links&quot;:[{&quot;title&quot;:&quot;Getting started with Documentation&quot;,&quot;description&quot;:&quot;This guide will show you the basics of working with Documentation&quot;,&quot;href&quot;:&quot;en/page.html&quot;}]},&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;}],&quot;title&quot;:&quot;Documentation&quot;,&quot;noIndex&quot;:true},&quot;title&quot;:&quot;Documentation&quot;,&quot;leading&quot;:true},&quot;router&quot;:{&quot;pathname&quot;:&quot;en/index&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;en&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -420,11 +420,11 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;en&#x2F;page&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;en&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;content&quot;:&quot;builder&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;en/page&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;en&quot;,&quot;langs&quot;:[&quot;ar&quot;,&quot;en&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }

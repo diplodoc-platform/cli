@@ -122,14 +122,11 @@ function escapeJsonForHtml(json: unknown): string {
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#x27;')
-        // .replace(/\//g, '&#x2F;');
-        .split('/').join('&#x2F;')
+        .replace(/'/g, '&#x27;');
 }
 
 function unescapeJsonFromHtml(escaped: string): unknown {
     const unescaped = escaped
-        .replace(/&#x2F;/g, '/')
         .replace(/&#x27;/g, "'")
         .replace(/&quot;/g, '"')
         .replace(/&lt;/g, '<')

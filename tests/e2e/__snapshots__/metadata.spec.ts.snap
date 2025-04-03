@@ -74,7 +74,7 @@ exports[`Allow load custom resources md2html with metadata: index.html 1`] = `
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -148,11 +148,11 @@ exports[`Allow load custom resources md2html with metadata: page.html 1`] = `
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;test-yfm&quot;,&quot;content&quot;:&quot;inline test&quot;},{&quot;name&quot;:&quot;yfm-config&quot;,&quot;content&quot;:&quot;config test&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;value&quot;:&quot;builder in page&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;test-yfm&quot;,&quot;content&quot;:&quot;inline test&quot;},{&quot;name&quot;:&quot;yfm-config&quot;,&quot;content&quot;:&quot;config test&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;value&quot;:&quot;builder in page&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;page&quot;,&quot;depth&quot;:1},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
@@ -226,11 +226,11 @@ exports[`Allow load custom resources md2html with metadata: project/config.html 
     <script type="application/json"
             id="diplodoc-state"
     >
-      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;test-yfm&quot;,&quot;content&quot;:&quot;inline test&quot;},{&quot;name&quot;:&quot;yfm-config&quot;,&quot;content&quot;:&quot;config test&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;value&quot;:&quot;builder in config&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;&#x2F;p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project&#x2F;config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
+      {&quot;data&quot;:{&quot;meta&quot;:{&quot;metadata&quot;:[{&quot;name&quot;:&quot;generator&quot;,&quot;content&quot;:&quot;Diplodoc Platform v4.57.8&quot;},{&quot;name&quot;:&quot;test-yfm&quot;,&quot;content&quot;:&quot;inline test&quot;},{&quot;name&quot;:&quot;yfm-config&quot;,&quot;content&quot;:&quot;config test&quot;},{&quot;name&quot;:&quot;yfm&quot;,&quot;value&quot;:&quot;builder in config&quot;}]},&quot;assets&quot;:[],&quot;headings&quot;:[],&quot;title&quot;:&quot;&quot;,&quot;includes&quot;:[],&quot;html&quot;:&quot;&lt;p&gt;Lorem&lt;/p&gt;/n&quot;,&quot;leading&quot;:false},&quot;router&quot;:{&quot;pathname&quot;:&quot;project/config&quot;,&quot;depth&quot;:2},&quot;lang&quot;:&quot;ru&quot;,&quot;langs&quot;:[&quot;ru&quot;]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&#x2F;/g, "/").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
+  const unescaped = escaped.replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "
       <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
