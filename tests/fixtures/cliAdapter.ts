@@ -1,19 +1,26 @@
 import {Runner, createRunner} from './runners';
 import {cleanupDirectory} from './utils/file';
 
-export interface TestRunArgs {
+export interface BuildRunArgs {
     md2md?: boolean;
     md2html?: boolean;
     args?: string;
 }
 
+export interface TranslateRunArgs {
+    subcommand: 'extract';
+    source: string;
+    target: string;
+    additionalArgs?: string;
+}
+
 export class CliTestAdapter {
     private readonly runner: Runner = createRunner();
 
-    async testPass(
+    async testBuildPass(
         inputPath: string,
         outputPath: string,
-        {md2md = true, md2html = true, args = ''}: TestRunArgs = {},
+        {md2md = true, md2html = true, args = ''}: BuildRunArgs = {},
     ): Promise<void> {
         cleanupDirectory(outputPath);
 
@@ -29,11 +36,42 @@ export class CliTestAdapter {
             cleanupDirectory(`${outputPath}-html`);
 
             await this.runner.runYfmDocs([...baseArgs, '--output', outputPath, '-f', 'md']);
-            await this.runner.runYfmDocs([...baseArgs, '--output', `${outputPath}-html`, '-f', 'html']);
+            await this.runner.runYfmDocs([
+                ...baseArgs,
+                '--output',
+                `${outputPath}-html`,
+                '-f',
+                'html',
+            ]);
         } else if (md2md) {
             await this.runner.runYfmDocs([...baseArgs, '--output', outputPath, '-f', 'md']);
         } else {
             await this.runner.runYfmDocs([...baseArgs, '--output', outputPath]);
         }
+    }
+
+    async testTranslatePass(
+        inputPath: string,
+        outputPath: string,
+        {subcommand, source, target, additionalArgs = ''}: TranslateRunArgs,
+    ): Promise<void> {
+        cleanupDirectory(outputPath);
+
+        const baseArgs = [
+            'translate',
+            subcommand,
+            '--quiet',
+            '--input',
+            inputPath,
+            '--output',
+            outputPath,
+            '--source',
+            source,
+            '--target',
+            target,
+            ...additionalArgs.split(' ').filter(Boolean),
+        ];
+
+        await this.runner.runYfmDocs(baseArgs);
     }
 }

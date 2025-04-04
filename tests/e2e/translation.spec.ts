@@ -1,25 +1,60 @@
-import {getTestPaths, runYfmDocs, compareDirectories} from '../utils';
+import {describe, test} from 'vitest';
+import {CliTestAdapter, TranslateRunArgs} from '../fixtures/cliAdapter';
+import {compareDirectories, getTestPaths} from '../fixtures';
 
-const generateMapTestTemplate = (testTitle: string, testRootPath: string, extendedCommand: string) => {
-    test(testTitle, () => {
+const generateMapTestTemplate = (
+    testTitle: string,
+    testRootPath: string,
+    args: TranslateRunArgs,
+) => {
+    const cliTestAdapter = new CliTestAdapter();
+
+    test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        runYfmDocs(inputPath, outputPath, {md2html: false, md2md: false, skipDefaults: true}, extendedCommand);
+
+        await cliTestAdapter.testTranslatePass(inputPath, outputPath, args);
+
         compareDirectories(outputPath, true);
     });
-}
+};
 
-const generateFilesYamlTestTemplate = (testTitle: string, testRootPath: string, extendedCommand: string) => {
-    test(testTitle, () => {
+const generateFilesYamlTestTemplate = (
+    testTitle: string,
+    testRootPath: string,
+    args: TranslateRunArgs,
+) => {
+    const cliTestAdapter = new CliTestAdapter();
+
+    test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        runYfmDocs(inputPath, outputPath, {md2html: false, md2md: false, skipDefaults: true}, extendedCommand);
+
+        await cliTestAdapter.testTranslatePass(inputPath, outputPath, args);
+
         compareDirectories(outputPath);
     });
-}
+};
 
 describe('Translate command', () => {
-    generateMapTestTemplate('filter files on extract', 'mocks/translation/dir-files', 'translate extract translate extract --source ru-RU --target es-ES')
+    generateMapTestTemplate('filter files on extract', 'mocks/translation/dir-files', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
 
-    generateMapTestTemplate('filter files on extract with extra exclude option', 'mocks/translation/dir-files', 'translate extract --source ru-RU --target es-ES --exclude ru/_no-translate/*.md')
+    generateMapTestTemplate(
+        'filter files on extract with extra exclude option',
+        'mocks/translation/dir-files',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: '--exclude ru/_no-translate/*.md',
+        },
+    );
 
-    generateFilesYamlTestTemplate('extract yaml scheme files', 'mocks/translation/yaml-scheme', 'translate extract --source ru-RU --target en-US')
+    generateFilesYamlTestTemplate('extract yaml scheme files', 'mocks/translation/yaml-scheme', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'en-US',
+    });
 });

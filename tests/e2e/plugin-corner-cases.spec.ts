@@ -10,7 +10,7 @@ describe('plugin corner cases:', () => {
             'mocks/plugin-corner-cases/images-in-deflists',
         );
 
-        await cliTestAdapter.testPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
         compareDirectories(outputPath);
     });
 });

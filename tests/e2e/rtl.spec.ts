@@ -11,7 +11,7 @@ const generateMapTestTemplate = (
 
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        await cliTestAdapter.testPass(inputPath, outputPath, {md2md, md2html, args});
+        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args});
         compareDirectories(outputPath);
     });
 };

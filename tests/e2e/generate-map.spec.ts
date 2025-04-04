@@ -14,7 +14,7 @@ const generateMapTestTemplate = (
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
-        await cliTestAdapter.testPass(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
+        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
 
         const content = getFileContent(join(outputPath, 'files.json'));
 

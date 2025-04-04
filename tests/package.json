@@ -1,8 +1,8 @@
 {
   "name": "@diplodoc/cli-tests",
-  "version": "4.57.7",
+  "version": "4.57.22",
   "bin": {
-    "diplodoc-cli-test": "./bin.mjs"
+    "diplodoc-cli-test": "bin.mjs"
   },
   "exports": {
     "./fixtures/*": "./fixtures/*"
@@ -18,6 +18,9 @@
   "scripts": {
     "build": "false",
     "test": "vitest run"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@diplodoc/client": "^3.3.1",

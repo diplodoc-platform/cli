@@ -110,7 +110,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -156,7 +156,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -335,7 +335,7 @@ exports[`Allow load custom resources > md2html with custom resources > page.html
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -381,7 +381,7 @@ exports[`Allow load custom resources > md2html with custom resources > project/c
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {

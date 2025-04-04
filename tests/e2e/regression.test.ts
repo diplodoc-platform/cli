@@ -9,12 +9,12 @@ function test(_description: string) {
     it('internal', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/regression');
 
-        await cliTestAdapter.testPass(inputPath, outputPath, {md2md: true, md2html: false});
-        await cliTestAdapter.testPass(outputPath, outputPath + '-html', {
+        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await cliTestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
         });
-        await cliTestAdapter.testPass(outputPath, outputPath + '-static-html', {
+        await cliTestAdapter.testBuildPass(outputPath, outputPath + '-static-html', {
             md2md: false,
             md2html: true,
             args: '--static-content',

@@ -12,7 +12,7 @@ export function getFileContent(filePath: string) {
 const uselessFile = (file: string) =>
     !['_bundle/', '_assets/', '_search/'].some((part) => file.includes(part));
 
-export function compareDirectories(outputPath: string): void {
+export function compareDirectories(outputPath: string, ignoreFileContent = false): void {
     const filesFromOutput = walkSync(outputPath, {
         directories: false,
         includeBasePath: false,
@@ -20,16 +20,18 @@ export function compareDirectories(outputPath: string): void {
 
     expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
-    filesFromOutput.filter(uselessFile).forEach((filePath) => {
-        const content = getFileContent(resolve(outputPath, filePath));
-        expect(content).toMatchSnapshot(filePath);
-    });
+    if (!ignoreFileContent) {
+        filesFromOutput.filter(uselessFile).forEach((filePath) => {
+            const content = getFileContent(resolve(outputPath, filePath));
+            expect(content).toMatchSnapshot(filePath);
+        });
+    }
 }
 
 type TestPaths = {
     inputPath: string;
     outputPath: string;
-}
+};
 
 export function getTestPaths(testRootPath: string): TestPaths {
     return {
