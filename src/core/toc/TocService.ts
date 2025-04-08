@@ -125,6 +125,12 @@ export class TocService {
                 if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                     this._entries.add(normalizePath(join(dirname(path), item.href)));
                 }
+                if (own<string>(item, 'restricted-access')) {
+                    this.run.toc.meta.add(normalizePath(join(dirname(path), item.href)), {
+                        'restricted-access': item['restricted-access'],
+                        }
+                    );
+                }
 
                 return item;
             });
