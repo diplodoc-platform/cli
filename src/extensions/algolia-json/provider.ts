@@ -17,6 +17,7 @@ export type AlgoliaJsonRecord = {
     keywords: string[];
     url: string;
     lang: string;
+    section?: string;
 };
 
 export class AlgoliaJsonSearchProvider implements SearchProvider {
@@ -37,27 +38,72 @@ export class AlgoliaJsonSearchProvider implements SearchProvider {
             return;
         }
 
-        // Extract headings from HTML content
-        const headings = this.extractHeadings(info.html || '');
+        const $ = load(info.html || '');
+        const sections: {heading: string; content: string}[] = [];
+        let currentSection = {heading: '', content: ''};
 
-        // Convert HTML to plain text for search
-        const content = html2text(info.html || '');
+        // Process all elements to split into sections
+        $('body').children().each((_, element) => {
+            const $el = $(element);
+            
+            // If it's a heading, start a new section
+            if ($el.is('h1, h2, h3, h4, h5, h6')) {
+                // Save previous section if it has content
+                if (currentSection.content.trim()) {
+                    sections.push({...currentSection});
+                }
+                currentSection = {
+                    heading: $el.text().trim(),
+                    content: ''
+                };
+            } else {
+                // Add content to current section
+                currentSection.content += $el.text().trim() + ' ';
+            }
+        });
 
-        const record: AlgoliaJsonRecord = {
-            objectID: `${lang}-${path}`,
-            title,
-            content,
-            headings,
-            keywords: meta.keywords || [],
-            url: path,
-            lang,
-        };
-
-        if (!this.records[lang]) {
-            this.records[lang] = [];
+        // Add the last section if it has content
+        if (currentSection.content.trim()) {
+            sections.push({...currentSection});
         }
 
-        this.records[lang].push(record);
+        // If no sections were found, create a single record
+        if (sections.length === 0) {
+            const record: AlgoliaJsonRecord = {
+                objectID: `${lang}-${path}`,
+                title,
+                content: html2text(info.html || ''),
+                headings: this.extractHeadings(info.html || ''),
+                keywords: meta.keywords || [],
+                url: path,
+                lang,
+            };
+
+            if (!this.records[lang]) {
+                this.records[lang] = [];
+            }
+            this.records[lang].push(record);
+            return;
+        }
+
+        // Create records for each section
+        sections.forEach((section, index) => {
+            const record: AlgoliaJsonRecord = {
+                objectID: `${lang}-${path}-${index}`,
+                title,
+                content: section.content.trim(),
+                headings: [section.heading],
+                keywords: meta.keywords || [],
+                url: path,
+                lang,
+                section: section.heading || undefined,
+            };
+
+            if (!this.records[lang]) {
+                this.records[lang] = [];
+            }
+            this.records[lang].push(record);
+        });
     }
 
     async release() {
