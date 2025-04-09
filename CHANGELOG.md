@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.11](https://github.com/diplodoc-platform/cli/compare/v4.57.10...v4.57.11) (2025-04-09)
+
+
+### Bug Fixes
+
+* add toc dump memoize ([59895ae](https://github.com/diplodoc-platform/cli/commit/59895aed36f7ff1833ee06c9885ed9c543878dae))
+
 ## [4.57.10](https://github.com/diplodoc-platform/cli/compare/v4.57.9...v4.57.10) (2025-04-03)
 
 
