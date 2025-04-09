@@ -3,6 +3,7 @@ import type {Contributor, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {join} from 'node:path';
+import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {bounded, memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
@@ -34,6 +35,7 @@ export class GithubVcsConnector implements VcsConnector {
     }
 
     async init() {
+        const {mtimes, authors, contributors} = this.config;
         const masterDir = '_yfm-master' as RelativePath;
         const cleanup = await this.git.createMasterWorktree(
             this.run.originalInput,
@@ -42,9 +44,13 @@ export class GithubVcsConnector implements VcsConnector {
         );
 
         try {
-            await this.fillMTimes(this.run.originalInput);
-            await this.fillContributors(join(this.run.originalInput, masterDir));
-            await this.fillAuthors(join(this.run.originalInput, masterDir));
+            await Promise.all(
+                [
+                    mtimes && this.fillMTimes(this.run.originalInput),
+                    authors && this.fillAuthors(join(this.run.originalInput, masterDir)),
+                    contributors && this.fillContributors(join(this.run.originalInput, masterDir)),
+                ].filter(Boolean),
+            );
         } finally {
             await cleanup();
         }
@@ -82,14 +88,15 @@ export class GithubVcsConnector implements VcsConnector {
 
     @bounded
     async getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]> {
-        const result: Hash<Contributor> = {};
+        const author = await this.getAuthorByPath(path);
+        const result: Contributor[] = [];
 
-        Object.assign(result, this.contributorsByPath[normalizePath(path)]);
+        result.push(...this.contributorsByPath[normalizePath(path)]);
         for (const dep of deps) {
-            Object.assign(result, this.contributorsByPath[normalizePath(dep)]);
+            result.push(...this.contributorsByPath[normalizePath(dep)]);
         }
 
-        return Object.values(result);
+        return uniqBy(result, ({login}) => login).filter(({login}) => login !== author?.login);
     }
 
     @bounded
@@ -101,17 +108,13 @@ export class GithubVcsConnector implements VcsConnector {
         this.run.logger.info('Contributors: Getting all contributors.');
 
         const contributors = await this.git.getContributors(normalizePath(baseDir) as AbsolutePath);
+        const infos = Object.values(contributors).reduce((a, b) => a.concat(b), []);
+        const users = await this.getUsersByCommits(infos);
 
-        for (const [path, commits] of Object.entries(contributors)) {
-            for (const commit of commits) {
-                const contributor = await this.getUserByCommit(commit);
-
-                if (contributor) {
-                    this.contributorsByPath[path as NormalizedPath] = (
-                        this.contributorsByPath[path as NormalizedPath] || []
-                    ).concat(contributor);
-                }
-            }
+        for (const [path, infos] of Object.entries(contributors)) {
+            this.contributorsByPath[path as NormalizedPath] = (
+                this.contributorsByPath[path as NormalizedPath] || []
+            ).concat(infos.map(({commit}) => users[commit]));
         }
 
         this.run.logger.info('Contributors: All contributors received.');
@@ -121,12 +124,11 @@ export class GithubVcsConnector implements VcsConnector {
         this.run.logger.info('Contributors: Getting all authors.');
 
         const authors = await this.git.getAuthors(normalizePath(baseDir) as AbsolutePath);
+        const users = await this.getUsersByCommits(Object.values(authors));
 
-        for (const [path, commit] of Object.entries(authors)) {
-            const author = await this.getUserByCommit(commit);
-
-            if (author) {
-                this.authorByPath[path as NormalizedPath] = author;
+        for (const [path, {commit}] of Object.entries(authors)) {
+            if (users[commit]) {
+                this.authorByPath[path as NormalizedPath] = users[commit];
             }
         }
 
@@ -141,31 +143,29 @@ export class GithubVcsConnector implements VcsConnector {
         this.run.logger.info('Contributors: All mtimes received.');
     }
 
-    @memoize('sha')
-    private async getUserByCommit(sha: string): Promise<Contributor | null> {
-        try {
-            const commitInfo = await this.github.getCommitInfo(sha);
-            const {author, commit} = commitInfo;
+    private async getUsersByCommits(infos: {email: string; commit: string}[]) {
+        const emails: Hash<string> = {};
+        const aliases: Hash<string[]> = {};
+        const requests: string[] = [];
 
-            if (!author || !commit.author) {
-                return null;
+        for (const {email, commit} of infos) {
+            if (emails[email]) {
+                aliases[emails[email]].push(commit);
+            } else {
+                emails[email] = commit;
+                aliases[commit] = [commit];
+                requests.push(commit);
+            }
+        }
+
+        const commitsInfo = await this.github.getCommitsInfo(requests);
+
+        return commitsInfo.reduce((result, info) => {
+            for (const commit of aliases[info.oid]) {
+                result[commit] = info.author.user;
             }
 
-            return {
-                login: author.login,
-                url: author.html_url,
-                avatar: author.avatar_url,
-                email: commit.author.email || '',
-                name: commit.author.name || '',
-            };
-        } catch (error) {
-            this.run.logger.warn(dedent`
-                Getting commit by sha has been failed for GitHub.
-                SHA: ${sha}
-                Error: ${error}
-            `);
-
-            return null;
-        }
+            return result;
+        }, {} as Hash<Contributor>);
     }
 }

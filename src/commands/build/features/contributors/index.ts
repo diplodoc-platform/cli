@@ -7,34 +7,38 @@ import {uniq} from 'lodash';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {defined} from '~/core/config';
+import {defined, toggleable} from '~/core/config';
 
 import {options} from './config';
 
 export type ContributorsArgs = {
-    mtimes?: boolean;
-    authors?: boolean;
-    contributors?: boolean;
-    ignoreAuthorPatterns?: string[];
+    mtimes?: {enabled: boolean};
+    authors?: {enabled: boolean; ignore: string[]};
+    contributors?: {enabled: boolean; ignore: string[]};
+    ignoreAuthor?: string[];
 };
 
-export type ContributorsConfig = VcsServiceConfig & {
-    ignoreAuthorPatterns: string[];
-};
+export type ContributorsConfig = VcsServiceConfig;
 
 export class Contributors {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Contributors', (command: Command) => {
+            command.addOption(options.mtimes);
+            command.addOption(options.authors);
             command.addOption(options.contributors);
-            command.addOption(options.ignoreAuthorPatterns);
+            command.addOption(options.ignoreAuthor);
         });
 
         getBaseHooks(program).Config.tap('Contributors', (config, args) => {
             config.vcs = defined('vcs', config) || {enabled: false};
-            config.mtimes = defined('mtimes', args, config) || false;
-            config.authors = defined('authors', args, config) || false;
-            config.contributors = defined('contributors', args, config) || false;
-            config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];
+            config.mtimes = toggleable('mtimes', args, config);
+            config.authors = toggleable('authors', args, config);
+            config.contributors = toggleable('contributors', args, config);
+
+            if (defined('ignoreAuthor', args)) {
+                config.authors.ignore = args.ignoreAuthor as string[];
+                config.contributors.ignore = args.ignoreAuthor as string[];
+            }
 
             return config;
         });

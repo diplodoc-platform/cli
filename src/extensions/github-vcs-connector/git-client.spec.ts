@@ -44,7 +44,7 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(mtimes);
 
-        git = new GitClient({ignoreAuthorPatterns: [], vcs: {initialCommit: ''}});
+        git = new GitClient({vcs: {initialCommit: ''}});
 
         const result = await git.getMTimes(baseDir);
 
@@ -65,27 +65,53 @@ describe('GitClient', () => {
         const args = [
             'log',
             `sha-1..HEAD`,
-            '--diff-filter=A',
+            '--reverse',
+            '--diff-filter=ADR',
             '--pretty=format:%ae;%an;%H',
-            '--name-only',
+            '--name-status',
         ];
 
         when(raw)
             .calledWith(...args)
             .thenResolve(authors);
 
-        git = new GitClient({ignoreAuthorPatterns: [], vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
 
         const result = await git.getAuthors(baseDir);
 
         expect(result).toEqual({
-            'md1.md': 'sha-1',
-            'md2.md': 'sha-2',
-            'md3.md': 'sha-3',
-            'md4.md': 'sha-4',
-            'md5.md': 'sha-5',
-            'index.yaml': 'sha-3',
-            'test.yaml': 'sha-4',
+            'md1.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md2.md': {
+                commit: 'sha-2',
+                email: 'user2@email.net',
+            },
+            'md3.md': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'md4.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md5.md': {
+                commit: 'sha-5',
+                email: '',
+            },
+            'md7.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'index.yaml': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'test.yaml': {
+                commit: 'sha-4',
+                email: 'user1@email.net',
+            },
         });
     });
 
@@ -93,9 +119,10 @@ describe('GitClient', () => {
         const args = [
             'log',
             `sha-1..HEAD`,
-            '--diff-filter=A',
+            '--reverse',
+            '--diff-filter=ADR',
             '--pretty=format:%ae;%an;%H',
-            '--name-only',
+            '--name-status',
         ];
 
         when(raw)
@@ -103,19 +130,42 @@ describe('GitClient', () => {
             .thenResolve(authors);
 
         git = new GitClient({
-            ignoreAuthorPatterns: ['user2'],
+            authors: {ignore: ['user2']},
+            contributors: {ignore: []},
             vcs: {initialCommit: 'sha-1'},
         });
 
         const result = await git.getAuthors(baseDir);
 
         expect(result).toEqual({
-            'md1.md': 'sha-1',
-            'md3.md': 'sha-3',
-            'md4.md': 'sha-4',
-            'md5.md': 'sha-5',
-            'index.yaml': 'sha-3',
-            'test.yaml': 'sha-4',
+            'md1.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md3.md': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'md4.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md5.md': {
+                commit: 'sha-5',
+                email: '',
+            },
+            'md7.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'index.yaml': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'test.yaml': {
+                commit: 'sha-4',
+                email: 'user1@email.net',
+            },
         });
     });
 
@@ -123,9 +173,10 @@ describe('GitClient', () => {
         const args = [
             'log',
             `sha-1..HEAD`,
-            '--diff-filter=A',
+            '--reverse',
+            '--diff-filter=ADR',
             '--pretty=format:%ae;%an;%H',
-            '--name-only',
+            '--name-status',
         ];
 
         when(raw)
@@ -133,84 +184,222 @@ describe('GitClient', () => {
             .thenResolve(authors);
 
         git = new GitClient({
-            ignoreAuthorPatterns: ['user2@email.net'],
+            authors: {ignore: ['user2@email.net']},
+            contributors: {ignore: []},
             vcs: {initialCommit: 'sha-1'},
         });
 
         const result = await git.getAuthors(baseDir);
 
         expect(result).toEqual({
-            'md1.md': 'sha-1',
-            'md3.md': 'sha-3',
-            'md4.md': 'sha-4',
-            'md5.md': 'sha-5',
-            'index.yaml': 'sha-3',
-            'test.yaml': 'sha-4',
+            'md1.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md3.md': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'md4.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'md5.md': {
+                commit: 'sha-5',
+                email: '',
+            },
+            'md7.md': {
+                commit: 'sha-1',
+                email: 'user1@email.net',
+            },
+            'index.yaml': {
+                commit: 'sha-3',
+                email: 'user1@email.net',
+            },
+            'test.yaml': {
+                commit: 'sha-4',
+                email: 'user1@email.net',
+            },
         });
     });
 
     it('should fill contributors', async () => {
-        const args = ['log', `sha-1..HEAD`, '--pretty=format:%ae;%an;%H', '--name-only'];
+        const args = [
+            'log',
+            `sha-1..HEAD`,
+            '--reverse',
+            '--diff-filter=ADMR',
+            '--pretty=format:%ae;%an;%H',
+            '--name-status',
+        ];
 
         when(raw)
             .calledWith(...args)
             .thenResolve(contributors);
 
-        git = new GitClient({ignoreAuthorPatterns: [], vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
 
         const result = await git.getContributors(baseDir);
 
         expect(result).toEqual({
-            'md1.md': ['sha-1'],
-            'md2.md': ['sha-2'],
-            'md3.md': ['sha-3'],
-            'md4.md': ['sha-1', 'sha-4'],
-            'md5.md': ['sha-5'],
-            'index.yaml': ['sha-3'],
-            'test.yaml': ['sha-4'],
+            'md1.md': [
+                {
+                    commit: 'sha-1',
+                    email: 'user2@email.net',
+                },
+            ],
+            'md2.md': [
+                {
+                    commit: 'sha-2',
+                    email: 'user2@email.net',
+                },
+            ],
+            'md3.md': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md4.md': [
+                {
+                    commit: 'sha-1',
+                    email: 'user2@email.net',
+                },
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md5.md': [
+                {
+                    commit: 'sha-5',
+                    email: '',
+                },
+            ],
+            'index.yaml': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'test.yaml': [
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
         });
     });
 
     it('should filter contributors by name', async () => {
-        const args = ['log', `sha-1..HEAD`, '--pretty=format:%ae;%an;%H', '--name-only'];
-
-        when(raw)
-            .calledWith(...args)
-            .thenResolve(contributors);
-
-        git = new GitClient({ignoreAuthorPatterns: ['user2'], vcs: {initialCommit: 'sha-1'}});
-
-        const result = await git.getContributors(baseDir);
-
-        expect(result).toEqual({
-            'md3.md': ['sha-3'],
-            'md4.md': ['sha-4'],
-            'md5.md': ['sha-5'],
-            'index.yaml': ['sha-3'],
-            'test.yaml': ['sha-4'],
-        });
-    });
-
-    it('should filter contributors by email', async () => {
-        const args = ['log', `sha-1..HEAD`, '--pretty=format:%ae;%an;%H', '--name-only'];
+        const args = [
+            'log',
+            `sha-1..HEAD`,
+            '--reverse',
+            '--diff-filter=ADMR',
+            '--pretty=format:%ae;%an;%H',
+            '--name-status',
+        ];
 
         when(raw)
             .calledWith(...args)
             .thenResolve(contributors);
 
         git = new GitClient({
-            ignoreAuthorPatterns: ['user2@email.net'],
+            authors: {ignore: []},
+            contributors: {ignore: ['user2']},
             vcs: {initialCommit: 'sha-1'},
         });
 
         const result = await git.getContributors(baseDir);
 
         expect(result).toEqual({
-            'md3.md': ['sha-3'],
-            'md4.md': ['sha-4'],
-            'md5.md': ['sha-5'],
-            'index.yaml': ['sha-3'],
-            'test.yaml': ['sha-4'],
+            'md3.md': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md4.md': [
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md5.md': [
+                {
+                    commit: 'sha-5',
+                    email: '',
+                },
+            ],
+            'index.yaml': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'test.yaml': [
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
+        });
+    });
+
+    it('should filter contributors by email', async () => {
+        const args = [
+            'log',
+            `sha-1..HEAD`,
+            '--reverse',
+            '--diff-filter=ADMR',
+            '--pretty=format:%ae;%an;%H',
+            '--name-status',
+        ];
+
+        when(raw)
+            .calledWith(...args)
+            .thenResolve(contributors);
+
+        git = new GitClient({
+            authors: {ignore: []},
+            contributors: {ignore: ['user2@email.net']},
+            vcs: {initialCommit: 'sha-1'},
+        });
+
+        const result = await git.getContributors(baseDir);
+
+        expect(result).toEqual({
+            'md3.md': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md4.md': [
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
+            'md5.md': [
+                {
+                    commit: 'sha-5',
+                    email: '',
+                },
+            ],
+            'index.yaml': [
+                {
+                    commit: 'sha-3',
+                    email: 'user1@email.net',
+                },
+            ],
+            'test.yaml': [
+                {
+                    commit: 'sha-4',
+                    email: 'user1@email.net',
+                },
+            ],
         });
     });
 
@@ -218,18 +407,11 @@ describe('GitClient', () => {
         const branch = 'test-branch';
         const dir = 'test-dir' as RelativePath;
 
-        git = new GitClient({ignoreAuthorPatterns: [], vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
 
         const cleanup = await git.createMasterWorktree(baseDir, dir, branch);
 
-        expect(raw).toBeCalledWith(
-            'worktree',
-            'add',
-            '-b',
-            'test-branch',
-            'test-dir',
-            'origin/master',
-        );
+        expect(raw).toBeCalledWith('worktree', 'add', '-b', 'test-branch', 'test-dir', 'master');
 
         await cleanup();
 
