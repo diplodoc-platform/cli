@@ -1,12 +1,25 @@
+import type {Run} from '~/core/run';
+import type {VcsServiceConfig} from '~/core/vcs/VcsService';
+
+import {join} from 'node:path';
+
 import {VcsConnector} from './types';
 
 export class DefaultVcsConnector implements VcsConnector {
+    private run: Run<VcsServiceConfig>;
+
+    constructor(run: Run<VcsServiceConfig>) {
+        this.run = run;
+    }
+
     async getContributorsByPath() {
         return [];
     }
 
-    async getModifiedTimeByPath() {
-        return null;
+    async getModifiedTimeByPath(path: RelativePath) {
+        const stat = await this.run.fs.stat(join(this.run.originalInput, path));
+
+        return Math.round(stat.mtimeMs / 1000);
     }
 
     async getAuthorByPath() {
