@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {Command as BaseCommand, Help as BaseHelp, Option} from 'commander';
-import {identity} from 'lodash';
+import {identity, isObject} from 'lodash';
 import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
@@ -89,6 +89,22 @@ export const defined = (option: string, ...scopes: Hash[]) => {
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export const valuable = (...values: any[]) =>
     values.some((value) => value !== null && value !== undefined);
+
+export const toggleable = <C extends Hash<unknown>>(
+    field: string,
+    args: Hash<unknown>,
+    config: C,
+) => {
+    const result = isObject(config[field]) ? {...(config[field] as Hash)} : {enabled: false};
+    // eslint-disable-next-line no-nested-ternary
+    result.enabled = defined(field, args)
+        ? Boolean(args[field])
+        : isObject(config[field])
+          ? defined('enabled', config[field] as Hash, {enabled: true})
+          : defined(field, config, {[field]: false});
+
+    return result as C & {enabled: boolean};
+};
 
 const OptionSource = Symbol('OptionSource');
 
