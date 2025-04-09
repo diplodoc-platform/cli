@@ -1,6 +1,6 @@
 {
   "name": "@diplodoc/cli",
-  "version": "4.57.10",
+  "version": "4.58.0",
   "description": "Make documentation using yfm-docs in Markdown and HTML formats",
   "keywords": [
     "markdown",
