@@ -1,19 +1,19 @@
 user2@email.net;user2;sha-1
-md1.md
-md4.md
-noise1.txt
+A	md1.md
+A	md4.md
+A	noise1.txt
 
 user2@email.net;user2;sha-2
-md2.md
+A	md2.md
 
 user1@email.net;user1;sha-3
-md3.md
-index.yaml
-noise2.txt
+A	md3.md
+A	index.yaml
+A	noise2.txt
 
 user1@email.net;user1;sha-4
-md4.md
-test.yaml
+A	md4.md
+A	test.yaml
 
 ;;sha-5
-md5.md
+A	md5.md
