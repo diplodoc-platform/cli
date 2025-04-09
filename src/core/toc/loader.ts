@@ -241,8 +241,8 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 }
 
 /**
- * Rebuses items includes path.
- * For link moda path should be always relative to original toc source.
+ * Rebases items includes path.
+ * For link mode path should be always relative to original toc source.
  * For merge modes path should be relative to merge base, which can be inherited from parent->parent->toc.
  */
 async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc> {
