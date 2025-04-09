@@ -19,6 +19,7 @@ import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {resolveFiles, resolveSource, resolveTargets, resolveVars} from './utils';
+import { Run } from './run';
 
 export {getHooks};
 
@@ -53,8 +54,31 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 @withHooks
 @withConfigScope(NAME, {strict: true})
 @withConfigDefaults(() => ({
-    dryRun: false,
-}))
+    varsPreset: 'default',
+    ignore: [],
+    ignoreStage: [],
+    vars: {},
+    meta: {},
+    addSystemMeta: false,
+    template: {
+        enabled: false,
+        features: {
+            conditions: false,
+            substitutions: false,
+        },
+        scopes: {
+            code: false,
+            text: false,
+        }
+    },
+    removeHiddenTocItems: false,
+    allowHtml: true,
+    sanitizeHtml: true,
+    outputFormat: 'md',
+    mergeIncludes: false,
+    staticContent: false,
+    addMapFile: false
+} as Partial<TranslateConfig>))
 export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     readonly name = 'Translate';
 
@@ -84,6 +108,8 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     readonly compose = new Compose();
 
     protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
+
+    private run!: Run;
 
     apply(program?: BaseProgram) {
         super.apply(program);
@@ -128,6 +154,10 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     }
 
     async action() {
+        this.run = new Run(this.config);
+
+        await this.run.init();
+
         if (this.provider) {
             await this.provider.skip(this.config.skipped, this.config);
 

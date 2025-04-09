@@ -32,6 +32,8 @@ import {
     resolveTargets,
     resolveVars,
 } from '../utils';
+import { Run } from '../run';
+import { TranslateConfig } from '../types';
 
 const MAX_CONCURRENCY = 50;
 
@@ -61,7 +63,31 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 @withConfigScope('translate.extract', {strict: true})
 @withConfigDefaults(() => ({
     useExperimentalParser: false,
-}))
+    varsPreset: 'default',
+    ignore: [],
+    ignoreStage: [],
+    vars: {},
+    meta: {},
+    addSystemMeta: false,
+    template: {
+        enabled: false,
+        features: {
+            conditions: false,
+            substitutions: false,
+        },
+        scopes: {
+            code: false,
+            text: false,
+        }
+    },
+    removeHiddenTocItems: false,
+    allowHtml: true,
+    sanitizeHtml: true,
+    outputFormat: 'md',
+    mergeIncludes: false,
+    staticContent: false,
+    addMapFile: false
+} as Partial<TranslateConfig>))
 export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
     readonly name = 'Translate.Extract';
 
@@ -83,6 +109,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
 
     readonly logger = new TranslateLogger();
 
+    private run!: Run;
+    
     apply(program?: BaseProgram) {
         super.apply(program);
 
@@ -138,6 +166,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         } = this.config;
 
         this.logger.setup(this.config);
+
+        // this.run = new Run(this.config);
 
         for (const target of targets) {
             ok(source.language && source.locale, 'Invalid source language-locale config');

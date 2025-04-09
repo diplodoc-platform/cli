@@ -13,7 +13,7 @@ import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/util
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
 
-type MarkdownServiceConfig = {
+export type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
     lang: string;
     langs: string[];
