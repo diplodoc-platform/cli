@@ -1,3 +1,5 @@
+import type {Contributor} from '@diplodoc/cli/lib/vcs';
+
 import {Octokit} from '@octokit/core';
 
 export type GithubConfig = {
@@ -9,18 +11,13 @@ export type GithubConfig = {
     };
 };
 
-type CommitInfo = {
-    commit: {
+type CommitsInfo = {
+    repository: Hash<{
+        oid: string;
         author: {
-            name: string;
-            email: string;
-        } | null;
-    };
-    author: {
-        login: string;
-        html_url: string;
-        avatar_url: string;
-    } | null;
+            user: Contributor;
+        };
+    }>;
 };
 
 export class GithubClient {
@@ -44,14 +41,30 @@ export class GithubClient {
         return user.data;
     }
 
-    async getCommitInfo(ref: string) {
-        const {owner, repo} = this.config.vcs;
-        const commit = await this.octokit.request('GET /repos/{owner}/{repo}/commits/{ref}', {
-            owner,
-            repo,
-            ref,
-        });
+    async getCommitsInfo(refs: string[]) {
+        if (!refs.length) {
+            return [];
+        }
 
-        return commit.data as CommitInfo;
+        const {owner, repo} = this.config.vcs;
+        const fields = 'oid, author {user {login,name,url,avatar: avatarUrl}}';
+        const queries = refs.map(
+            (ref) => `sha${ref}: object(expression: "${ref}") {... on Commit {${fields}}}`,
+        );
+        const request = `
+            query getCommits($owner: String!, $repo: String!) {
+              repository(owner: $owner, name: $repo) {
+                ${queries.join('\n')}
+              }
+            }
+        `;
+
+        try {
+            const result: CommitsInfo = await this.octokit.graphql(request, {owner, repo});
+
+            return Object.values(result.repository);
+        } catch {
+            return [];
+        }
     }
 }
