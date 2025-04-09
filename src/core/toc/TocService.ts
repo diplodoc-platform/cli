@@ -15,6 +15,7 @@ import {
     errorMessage,
     freezeJson,
     isExternalHref,
+    memoize,
     normalizePath,
     own,
 } from '~/core/utils';
@@ -180,7 +181,9 @@ export class TocService {
         return toc;
     }
 
-    @bounded async dump(path: RelativePath): Promise<Toc | undefined> {
+    @bounded
+    @memoize('path')
+    async dump(path: RelativePath): Promise<Toc | undefined> {
         const file = normalizePath(path);
         const toc = await this.load(path);
 
