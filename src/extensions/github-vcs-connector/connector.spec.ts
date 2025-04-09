@@ -1,5 +1,6 @@
 import type {Mock, Mocked} from 'vitest';
 import type {Run} from '@diplodoc/cli/lib/run';
+import type {Contributor} from '@diplodoc/cli/lib/vcs';
 import type {Config as GithubVcsConfig} from './types';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
@@ -15,23 +16,20 @@ vi.mock('./github-client');
 
 type VcsRun = Run<GithubVcsConfig>;
 
-const commit = (name?: string, login?: string) => ({
-    commit: {
-        author: name
-            ? {
-                  name,
-                  email: `${login}@email.net`,
-              }
-            : null,
+const commit = (name?: string, login?: string) => [
+    {
+        oid: 'sha-1',
+        author: {
+            user: {
+                login: login || '',
+                name: name || '',
+                email: `${login}@email.net`,
+                avatar: `https://avatar.github.com/${login}`,
+                url: `https://github.com/${login}`,
+            },
+        },
     },
-    author: login
-        ? {
-              login,
-              avatar_url: `https://avatar.github.com/${login}`,
-              html_url: `https://github.com/${login}`,
-          }
-        : null,
-});
+];
 
 describe('GithubVcsConnector', () => {
     let run: VcsRun;
@@ -51,7 +49,9 @@ describe('GithubVcsConnector', () => {
         });
 
         const config: GithubVcsConfig = {
-            ignoreAuthorPatterns: [],
+            mtimes: {enabled: true},
+            authors: {enabled: true, ignore: []},
+            contributors: {enabled: true, ignore: []},
             vcs: {
                 owner: 'diplodoc-platform',
                 repo: 'cli',
@@ -69,7 +69,7 @@ describe('GithubVcsConnector', () => {
         git.getMTimes.mockResolvedValue({});
         git.getAuthors.mockResolvedValue({});
         git.getContributors.mockResolvedValue({});
-        github.getCommitInfo.mockResolvedValue(commit());
+        github.getCommitsInfo.mockResolvedValue([]);
     });
 
     afterEach(() => {
@@ -82,8 +82,10 @@ describe('GithubVcsConnector', () => {
 
             when(git.getAuthors)
                 .calledWith('/dev/null/input/_yfm-master')
-                .thenResolve({[path]: 'sha-1'});
-            when(github.getCommitInfo).calledWith('sha-1').thenResolve(commit('Test User', 'user'));
+                .thenResolve({[path]: {email: 'user@email.net', commit: 'sha-1'}});
+            when(github.getCommitsInfo)
+                .calledWith(['sha-1'])
+                .thenResolve(commit('Test User', 'user'));
 
             await connector.init();
 
@@ -103,12 +105,14 @@ describe('GithubVcsConnector', () => {
 
             when(git.getAuthors)
                 .calledWith('/dev/null/input/_yfm-master')
-                .thenResolve({[path]: 'sha-1'});
-            when(github.getCommitInfo).calledWith('sha-1').thenResolve(commit('Test User', 'user'));
+                .thenResolve({[path]: {email: 'user@email.net', commit: 'sha-1'}});
+            when(github.getCommitsInfo)
+                .calledWith(['sha-1'])
+                .thenResolve(commit('Test User', 'user'));
 
             await connector.init();
 
-            const author = await connector.getAuthorByPath(`./${path}`);
+            const author = (await connector.getAuthorByPath(`./${path}`)) as Contributor;
 
             expect(author).toEqual({
                 avatar: `https://avatar.github.com/user`,
@@ -124,31 +128,14 @@ describe('GithubVcsConnector', () => {
 
             when(git.getAuthors)
                 .calledWith('/dev/null/input/_yfm-master')
-                .thenResolve({[path]: 'sha-1'});
-            when(github.getCommitInfo).calledWith('sha-1').thenReject(new Error('test'));
+                .thenResolve({[path]: {email: 'user@email.net', commit: 'sha-1'}});
+            when(github.getCommitsInfo).calledWith(['sha-1']).thenResolve([]);
 
             await connector.init();
 
             const author = await connector.getAuthorByPath(path);
 
             expect(author).toBe(null);
-        });
-
-        it('should memoize github calls', async () => {
-            const path1 = 'some/path1.md' as RelativePath;
-            const path2 = 'some/path2.md' as RelativePath;
-
-            when(git.getAuthors)
-                .calledWith('/dev/null/input/_yfm-master')
-                .thenResolve({
-                    [path1]: 'sha-1',
-                    [path2]: 'sha-1',
-                });
-            when(github.getCommitInfo).calledWith('sha-1').thenReject(commit('Test User', 'user'));
-
-            await connector.init();
-
-            expect(github.getCommitInfo).toBeCalledTimes(1);
         });
     });
 

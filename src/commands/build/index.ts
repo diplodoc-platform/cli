@@ -12,6 +12,7 @@ import {
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
 import {bounded, langFromPath} from '~/core/utils';
+import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
@@ -123,6 +124,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.md,
         this.html,
         this.legacy,
+        new GithubVcsConnector(),
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
