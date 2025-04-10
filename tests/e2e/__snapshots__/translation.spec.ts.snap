@@ -1,0 +1,45 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Translate command filter files on extract with extra exclude option: filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff"
+]"
+`;
+
+exports[`Translate command filter files on extract: filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff"
+]"
+`;

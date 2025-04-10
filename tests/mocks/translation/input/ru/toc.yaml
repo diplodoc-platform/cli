@@ -1,0 +1,7 @@
+title: Test123
+href: index.md
+items:
+  - name: Aboba
+    href: aboba.md
+  - name: Не переводить
+    href: _no-translate/exclude.md
