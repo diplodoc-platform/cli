@@ -129,7 +129,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -271,7 +271,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;توثيق&lt;/p&gt;/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;توثيق&lt;/p&gt;/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -420,7 +420,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {

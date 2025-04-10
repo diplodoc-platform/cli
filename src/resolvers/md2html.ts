@@ -22,8 +22,8 @@ const getFileData = async (run: Run, path: NormalizedPath) => {
             await run.markdown.load(path),
         );
         const meta = await run.meta.dump(path);
-        // TODO: remove useless fields after snapshotting
-        return {meta, assets: [], headings, title, includes: [], html};
+
+        return {meta, headings, title, html};
     }
 };
 
