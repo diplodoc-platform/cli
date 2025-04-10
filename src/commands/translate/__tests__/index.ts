@@ -4,6 +4,7 @@ import type {TranslateConfig} from '..';
 import {expect, it, vi} from 'vitest';
 import {parse} from '~/commands/parser';
 import {Translate} from '..';
+import {Run} from '../run';
 
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
@@ -22,6 +23,7 @@ vi.mock('~/core/config', async (importOriginal) => {
 
 export async function runTranslate(argv: string) {
     const translate = new Translate();
+    vi.spyOn(Run.prototype, 'prepareRun').mockImplementation(async () => undefined);
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
     const args = parse(rawArgs, 'translate');
 

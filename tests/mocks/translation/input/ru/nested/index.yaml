@@ -1,0 +1,24 @@
+title: Diplodoc
+description: Diplodoc - платформа работы с документацией в парадигме Documentation as a Code. 
+meta:
+  title: Метаданные
+  noIndex: true
+links:
+- title: API Yandex Cloud
+  description: Архитектура API Yandex Cloud (урезанная)
+  href: api-design-guide
+- title: API Yandex Cloud Абсолют
+  description: Архитектура API Yandex Cloud (урезанная) с абсолютным путем
+  href: /api-design-guide
+- title: Обзор системы
+  description: Описание платформы, ее основные возможности, особенности и преимущества.
+  href: about.md
+- title: Как попробовать
+  description: С чего начать работу
+  href: how-it-work.md
+- title: Yandex Flavored Markdown
+  description: Описание языка Yandex Flavored Markdown.
+  href: index-yfm.md
+
+   
+  
