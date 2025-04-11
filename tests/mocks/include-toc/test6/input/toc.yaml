@@ -4,4 +4,5 @@ items:
       path: test
       includers:
         - name: generic
+          autotitle: false
           input: test
