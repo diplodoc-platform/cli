@@ -1,6 +1,8 @@
+import type {EntryTocItem} from '~/core/toc';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
+import {dirname, join} from 'node:path';
 import pmap from 'p-map';
 
 import {
@@ -9,9 +11,10 @@ import {
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
-import {bounded, langFromPath} from '~/core/utils';
+import {bounded, langFromPath, normalizePath} from '~/core/utils';
 import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -189,6 +192,22 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             ignore,
         });
 
+        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
+            await this.run.toc.walkEntries(
+                toc?.items as EntryTocItem[],
+                async (item: EntryTocItem) => {
+                    if (!item.name || item.name === '{#T}') {
+                        const entry = normalizePath(join(dirname(path), item.href));
+                        const titles = await this.run.markdown.titles(entry);
+
+                        item.name = titles['#'];
+                    }
+
+                    return item;
+                },
+            );
+        });
+
         for (const toc of tocs) {
             await this.run.toc.load(toc);
         }
@@ -221,7 +240,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     this.run.logger.info('Processing finished:', entry);
                 } catch (error) {
                     console.error(error);
-                    this.run.logger.error(error);
+                    this.run.logger.error(entry, error);
                 }
             },
             {
