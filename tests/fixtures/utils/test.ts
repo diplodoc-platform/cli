@@ -4,7 +4,7 @@ export function platformless(text: string): string {
     return text
         .replace(/\r\n/g, '\n')
         .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
-        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`)
+        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+)?/g, `$1vDIPLODOC-VERSION`)
         .replace(/(\\(?![/"'])){1,2}/g, '/');
 }
 

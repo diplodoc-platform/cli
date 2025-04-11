@@ -20,6 +20,11 @@ items:
     href: ./autotitle
   - name: includes
     href: ./includes
+  - name: generic
+    include:
+      path: generic
+      includers:
+        - name: generic
   - name: openapi
     include:
       path: openapi
