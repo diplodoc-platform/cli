@@ -13,12 +13,6 @@ import {
 import {Command} from '~/core/config';
 import {options as globalOptions} from '~/commands/config';
 
-interface AlgoliaClient {
-    initIndex(indexName: string): {
-        saveObjects(objects: any[]): Promise<void>;
-    };
-}
-
 interface AlgoliaConfig {
     appId: string;
     apiKey: string;
@@ -57,9 +51,7 @@ export class Index extends BaseProgram<IndexConfig, IndexArgs> {
         .helpOption(false)
         .allowUnknownOption(true);
 
-    readonly options = [
-        globalOptions.input('./'),
-    ];
+    readonly options = [globalOptions.input('./')];
 
     protected readonly modules: ICallable[] = [];
 
@@ -85,24 +77,32 @@ export class Index extends BaseProgram<IndexConfig, IndexArgs> {
         }
 
         if (!algolia.appId) {
-            throw new Error('Algolia Application ID is required. Set ALGOLIA_APP_ID environment variable or configure it in the config file.');
+            throw new Error(
+                'Algolia Application ID is required. Set ALGOLIA_APP_ID environment variable or configure it in the config file.',
+            );
         }
 
         if (!algolia.apiKey) {
-            throw new Error('Algolia API Key is required. Set ALGOLIA_API_KEY environment variable or configure it in the config file.');
+            throw new Error(
+                'Algolia API Key is required. Set ALGOLIA_API_KEY environment variable or configure it in the config file.',
+            );
         }
 
         if (!algolia.indexName) {
-            throw new Error('Algolia Index Name is required. Set ALGOLIA_INDEX_NAME environment variable or configure it in the config file.');
+            throw new Error(
+                'Algolia Index Name is required. Set ALGOLIA_INDEX_NAME environment variable or configure it in the config file.',
+            );
         }
 
         try {
             const client = algoliasearch(algolia.appId, algolia.apiKey);
 
             const files = glob.sync(join(inputPath, '_search/*-algolia.json'));
-            
+
             if (files.length === 0) {
-                throw new Error(`No Algolia index files found in ${join(inputPath, '_search')}. Expected files matching pattern *-algolia.json`);
+                throw new Error(
+                    `No Algolia index files found in ${join(inputPath, '_search')}. Expected files matching pattern *-algolia.json`,
+                );
             }
 
             const languages = files.map((file: string) => basename(file, '-algolia.json'));
@@ -116,22 +116,26 @@ export class Index extends BaseProgram<IndexConfig, IndexArgs> {
 
                     client.setSettings({
                         indexName: `${algolia.indexName}_${lang}`,
-                        indexSettings: { distinct: true },
-                    })
-                    
+                        indexSettings: {distinct: true},
+                    });
+
                     await client.saveObjects({
                         objects: data,
                         waitForTasks: true,
                         indexName: `${algolia.indexName}_${lang}`,
                     });
 
-                    console.log(`Uploaded ${data.length} objects to Algolia index ${algolia.indexName}_${lang}`);
+                    this.logger.info(
+                        `Uploaded ${data.length} objects to Algolia index ${algolia.indexName}_${lang}`,
+                    );
                 } catch (error) {
-                    throw new Error(`Error uploading objects to Algolia index ${algolia.indexName}_${lang}: ${error}`);
+                    throw new Error(
+                        `Error uploading objects to Algolia index ${algolia.indexName}_${lang}: ${error}`,
+                    );
                 }
             }
         } catch (error) {
             throw new Error(`Error processing Algolia upload: ${error}`);
         }
     }
-} 
+}

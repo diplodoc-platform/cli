@@ -16,4 +16,4 @@ export function hooks(name: string) {
 
 const [getHooks, withHooks] = generateHooksAccess('Algolia', hooks);
 
-export {getHooks, withHooks}; 
+export {getHooks, withHooks};

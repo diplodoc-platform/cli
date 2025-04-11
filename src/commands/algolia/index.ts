@@ -33,7 +33,7 @@ export class Algolia extends BaseProgram<AlgoliaCommandConfig, AlgoliaArgs> {
 
     readonly index = new Index();
 
-    readonly options = []
+    readonly options = [];
 
     protected readonly modules: ICallable[] = [this.index];
 
@@ -52,9 +52,9 @@ export class Algolia extends BaseProgram<AlgoliaCommandConfig, AlgoliaArgs> {
     }
 
     async action() {
-        console.log('Algolia command initialized');
+        this.logger.info('Algolia command initialized');
         // The actual indexing action is handled by the Index subcommand
         // This is just a parent command that sets up shared configuration
         // and delegates to subcommands
     }
-} 
+}

@@ -31,4 +31,4 @@ export const options = {
     appId,
     apiKey,
     indexName,
-}; 
+};
