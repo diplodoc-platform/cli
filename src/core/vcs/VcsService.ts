@@ -9,9 +9,9 @@ import {getHooks, withHooks} from './hooks';
 import {DefaultVcsConnector} from './connector';
 
 export type VcsServiceConfig = {
-    mtimes: boolean;
-    authors: boolean;
-    contributors: boolean;
+    mtimes: {enabled: boolean};
+    authors: {enabled: boolean; ignore: string[]};
+    contributors: {enabled: boolean; ignore: string[]};
     vcs: {
         enabled: boolean;
         type: string;
@@ -49,14 +49,11 @@ export class VcsService implements VcsConnector {
 
     readonly config: VcsServiceConfig;
 
-    private connector: VcsConnector = new DefaultVcsConnector();
-
-    get connected() {
-        return Boolean(this.connector && !(this.connector instanceof DefaultVcsConnector));
-    }
+    private connector: VcsConnector;
 
     constructor(run: Run<VcsServiceConfig>) {
         this.run = run;
+        this.connector = new DefaultVcsConnector(run);
         this.config = run.config;
     }
 
@@ -84,14 +81,10 @@ export class VcsService implements VcsConnector {
             result.vcsPath = normalizePath(meta.vcsPath || meta.sourcePath || file);
         }
 
-        if (!this.connected) {
-            return result;
-        }
-
         const [author, contributors, updatedAt] = await Promise.all([
-            this.config.authors ? this.getAuthor(file, meta?.author) : undefined,
-            this.config.contributors ? this.getContributors(file, deps) : [],
-            this.config.mtimes ? this.getMTime(file, deps) : undefined,
+            this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
+            this.config.contributors.enabled ? this.getContributors(file, deps) : [],
+            this.config.mtimes.enabled ? this.getMTime(file, deps) : undefined,
         ]);
 
         result.author = author || undefined;
