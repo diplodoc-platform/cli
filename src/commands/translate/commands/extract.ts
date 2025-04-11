@@ -26,12 +26,14 @@ import {
     SkipTranslation,
     TranslateError,
     extract,
-    resolveFiles,
     resolveSchemas,
     resolveSource,
     resolveTargets,
     resolveVars,
 } from '../utils';
+import {Run} from '../run';
+import {configDefaults} from '../utils/config';
+import {normalizePath} from '~/core/utils';
 
 const MAX_CONCURRENCY = 50;
 
@@ -61,6 +63,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 @withConfigScope('translate.extract', {strict: true})
 @withConfigDefaults(() => ({
     useExperimentalParser: false,
+    ...configDefaults(),
 }))
 export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
     readonly name = 'Translate.Extract';
@@ -83,6 +86,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
 
     readonly logger = new TranslateLogger();
 
+    private run!: Run;
+
     apply(program?: BaseProgram) {
         super.apply(program);
 
@@ -97,14 +102,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
-            const [files, skipped] = resolveFiles(
-                input,
-                defined('files', args, config),
-                include,
-                exclude,
-                source.language,
-                ['.md', '.yaml'],
-            );
+            const files = defined('files', args, config) || [];
+
             const vars = resolveVars(config, args);
 
             return Object.assign(config, {
@@ -115,7 +114,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 source,
                 target,
                 files,
-                skipped,
                 include,
                 exclude,
                 vars,
@@ -128,8 +126,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         const {
             input,
             output,
-            files,
-            skipped,
             source,
             target: targets,
             vars,
@@ -138,6 +134,12 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         } = this.config;
 
         this.logger.setup(this.config);
+
+        this.run = new Run(this.config);
+
+        await this.run.prepareRun();
+
+        const [files, skipped] = await this.run.getFiles();
 
         for (const target of targets) {
             ok(source.language && source.locale, 'Invalid source language-locale config');
@@ -156,7 +158,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
             this.logger.skipped(skipped);
 
             await eachLimit(
-                files,
+                Array.from(files),
                 MAX_CONCURRENCY,
                 asyncify(async (file: string) => {
                     try {
@@ -203,13 +205,15 @@ function pipeline(params: PipelineParameters) {
     return async (path: string) => {
         const inputPath = join(inputRoot, path);
         const content = new FileLoader(inputPath);
-        const output = (path: string) =>
-            join(
-                outputRoot,
-                path
-                    .replace(inputRoot, '')
-                    .replace('/' + source.language + '/', '/' + target.language + '/'),
-            );
+        const output = (path: string) => {
+            const normalizedPath = normalizePath(path);
+            const normalizedInputRoot = normalizePath(inputRoot);
+
+            const relativePath = normalizedPath.replace(normalizedInputRoot, '');
+            const targetPath = relativePath.replace(`/${source.language}/`, `/${target.language}/`);
+
+            return join(outputRoot, targetPath);
+        };
 
         await content.load();
 

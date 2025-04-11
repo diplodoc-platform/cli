@@ -98,13 +98,14 @@ export function resolveFiles(
     exclude: string[],
     lang: string | null,
     exts: string[],
+    tocEntries?: string[],
 ) {
     let result: string[];
     let skipped: [string, string][] = [];
 
     const extmatch = '**/*@(' + exts.map((ext) => '*' + ext).join('|') + ')';
 
-    if (files) {
+    if (files && files.length > 0) {
         if (typeof files === 'string') {
             files = [files];
         }
@@ -117,11 +118,13 @@ export function resolveFiles(
             return acc.concat(path);
         }, [] as string[]);
     } else {
-        result = globSync(extmatch, {
-            cwd: input,
-            nodir: true,
-            ignore: ['node_modules/**', '*/node_modules/**'],
-        });
+        result = tocEntries
+            ? tocEntries
+            : globSync(extmatch, {
+                  cwd: input,
+                  nodir: true,
+                  ignore: ['node_modules/**', '*/node_modules/**'],
+              });
 
         if (exclude.length) {
             [result, skipped] = skip(result, skipped, exclude, 'exclude');
@@ -178,4 +181,27 @@ function skip(
         },
         [[], skipped] as [string[], [string, string][]],
     );
+}
+
+export function configDefaults() {
+    return {
+        dryRun: false,
+        varsPreset: 'default',
+        ignore: [],
+        ignoreStage: [],
+        vars: {},
+        meta: {},
+        addSystemMeta: false,
+        template: {
+            enabled: false,
+            features: {
+                conditions: false,
+                substitutions: false,
+            },
+            scopes: {
+                code: false,
+                text: false,
+            },
+        },
+    };
 }

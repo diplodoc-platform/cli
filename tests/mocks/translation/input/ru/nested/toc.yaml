@@ -1,0 +1,17 @@
+title: Diplodoc
+href: index.yaml
+items:
+  - name: API Yandex Cloud
+    href: index.yaml
+  - name: Yandex Flavored Markdown
+    href: index-yfm.md
+    items:
+      - name: Синтаксис
+        items:
+          - name: Обзор
+            href: syntax/index.md
+          - name: Базовая разметка
+            href: syntax/base.md
+          - name: Списки
+            href: syntax/lists.md
+          - name: Таблицы

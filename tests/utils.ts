@@ -37,7 +37,7 @@ export function getFileContent(filePath: string) {
 
 const uselessFile = (file) => !['_bundle/', '_assets/', '_search/'].some(part => file.includes(part));
 
-export function compareDirectories(outputPath: string) {
+export function compareDirectories(outputPath: string, onlyDir = false) {
     const filesFromOutput = walkSync(outputPath, {
         directories: false,
         includeBasePath: false,
@@ -45,25 +45,28 @@ export function compareDirectories(outputPath: string) {
 
     expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
-    filesFromOutput
+    if (!onlyDir) {
+        filesFromOutput
         .filter(uselessFile)
         .forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath))
                 expect(content).toMatchSnapshot(filePath);
         });
+    }
 }
 
 interface RunYfmDocsArgs {
     md2md?: boolean;
     md2html?: boolean;
     args?: string
+    skipDefaults?: boolean;
 }
 
-export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = ''}: RunYfmDocsArgs = {}): void {
+export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = '', skipDefaults = false}: RunYfmDocsArgs = {}, extendedCommand = ''): void {
     shell.rm('-rf', outputPath);
 
-    const defaults = ` --quiet --allowHTML`;
-    const run = `node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
+    const defaults = skipDefaults ? `` : ` --quiet --allowHTML`;
+    const run = `node ${yfmDocsPath} ${extendedCommand} --input ${inputPath} --output ${outputPath} ${defaults}`;
 
     if (md2md && md2html) {
         shell.rm('-rf', `${outputPath}-html`);

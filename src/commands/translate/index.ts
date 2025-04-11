@@ -18,7 +18,9 @@ import {DESCRIPTION, NAME, options} from './config';
 import {Extract} from './commands/extract';
 import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
-import {resolveFiles, resolveSource, resolveTargets, resolveVars} from './utils';
+import {resolveSource, resolveTargets, resolveVars} from './utils';
+import {Run} from './run';
+import {configDefaults} from './utils/config';
 
 export {getHooks};
 
@@ -52,9 +54,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
 
 @withHooks
 @withConfigScope(NAME, {strict: true})
-@withConfigDefaults(() => ({
-    dryRun: false,
-}))
+@withConfigDefaults(configDefaults)
 export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     readonly name = 'Translate';
 
@@ -85,6 +85,8 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
 
+    private run!: Run;
+
     apply(program?: BaseProgram) {
         super.apply(program);
 
@@ -99,14 +101,7 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
-            const [files, skipped] = resolveFiles(
-                input,
-                defined('files', args, config),
-                include,
-                exclude,
-                source.language,
-                ['.md', '.yaml'],
-            );
+            const files = defined('files', args, config);
             const vars = resolveVars(config, args);
 
             return Object.assign(config, {
@@ -115,9 +110,8 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
                 quiet,
                 strict,
                 source,
-                target,
                 files,
-                skipped,
+                target,
                 include,
                 exclude,
                 vars,
@@ -128,10 +122,15 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
     }
 
     async action() {
-        if (this.provider) {
-            await this.provider.skip(this.config.skipped, this.config);
+        this.run = new Run(this.config);
 
-            return this.provider.translate(this.config.files, this.config);
+        await this.run.prepareRun();
+        const [files, skipped] = await this.run.getFiles();
+
+        if (this.provider) {
+            await this.provider.skip(skipped, this.config);
+
+            return this.provider.translate(files, this.config);
         }
 
         // @ts-ignore
