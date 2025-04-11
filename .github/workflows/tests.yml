@@ -26,14 +26,7 @@ jobs:
           cache: 'npm'
       - name: Install packages for project
         run: npm ci
-      - name: Run unit tests
-        run: npm run test
-      - run: npm run build
-      - name: Install packages for tests
-        run: |
-          cd tests
-          npm ci
-      - name: Run integration tests
-        run: |
-          cd tests
-          npm run test
+      - name: Build project
+        run: npm run build
+      - name: Run all tests
+        run: npm run test:coverage

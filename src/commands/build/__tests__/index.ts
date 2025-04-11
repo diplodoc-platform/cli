@@ -174,7 +174,7 @@ export function testConfig(name: string, args: string, config: any, result?: any
         if (result instanceof Error) {
             await expect(() =>
                 runBuild('--input ./input --output ./output ' + args),
-            ).rejects.toThrow(result);
+            ).rejects.toThrow(expect.objectContaining(result));
         } else {
             await runBuild('--input ./input --output ./output ' + args);
 

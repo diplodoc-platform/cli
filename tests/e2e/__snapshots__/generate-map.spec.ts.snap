@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Generate map for project with external links in toc 1`] = `
+exports[`Generate map for > project with external links in toc 1`] = `
 "{
 	"files": [
 		"ru/",
@@ -13,7 +13,7 @@ exports[`Generate map for project with external links in toc 1`] = `
 }"
 `;
 
-exports[`Generate map for project with multiple language 1`] = `
+exports[`Generate map for > project with multiple language 1`] = `
 "{
 	"files": [
 		"en/",
@@ -32,7 +32,7 @@ exports[`Generate map for project with multiple language 1`] = `
 }"
 `;
 
-exports[`Generate map for project with single language and toc include - only md2html 1`] = `
+exports[`Generate map for > project with single language and toc include - only md2html 1`] = `
 "{
 	"files": [
 		"ru/",
@@ -47,7 +47,7 @@ exports[`Generate map for project with single language and toc include - only md
 }"
 `;
 
-exports[`Generate map for project with single language and toc include 1`] = `
+exports[`Generate map for > project with single language and toc include 1`] = `
 "{
 	"files": [
 		"ru/",

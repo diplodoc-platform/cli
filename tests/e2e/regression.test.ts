@@ -1,18 +1,20 @@
+import {describe, it} from 'vitest';
 import {dedent} from 'ts-dedent';
-import {compareDirectories, getTestPaths, runYfmDocs} from '../utils';
+import {compareDirectories, getTestPaths} from '../fixtures';
+import {CliTestAdapter} from '../fixtures/cliAdapter';
 
 function test(_description: string) {
-    it('internal', () => {
-        const {inputPath, outputPath} = getTestPaths(
-            'mocks/regression',
-        );
+    const cliTestAdapter = new CliTestAdapter();
 
-        runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
-        runYfmDocs(outputPath, outputPath + '-html', {
+    it('internal', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/regression');
+
+        await cliTestAdapter.testPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await cliTestAdapter.testPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
         });
-        runYfmDocs(outputPath, outputPath + '-static-html', {
+        await cliTestAdapter.testPass(outputPath, outputPath + '-static-html', {
             md2md: false,
             md2html: true,
             args: '--static-content',
