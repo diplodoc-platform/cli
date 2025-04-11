@@ -17,7 +17,7 @@ import {OutputFormat} from '~/commands/build/config';
 const SEARCH_PAGE_DEPTH = 2;
 
 export type SearchServiceConfig = {
-    outputFormat: OutputFormat;
+    outputFormat: `${OutputFormat}`;
     search: {
         enabled: boolean;
         provider: string;
