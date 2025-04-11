@@ -12,6 +12,7 @@ import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/util
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
+import {parseHeading} from './utils';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
@@ -117,7 +118,7 @@ export class MarkdownService {
             // So we don't expect Defer here.
             const meta = context.api.meta.get() as Meta;
 
-            await getHooks(this).Loaded.promise(raw, meta, file, from);
+            await getHooks(this).Loaded.promise(raw, meta, file);
 
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
@@ -128,7 +129,7 @@ export class MarkdownService {
 
             // TODO: this may trigger uncaught exceptions
             // But if we move this two lines above, then program exits unexpectedly
-            await getHooks(this).Resolved.promise(raw, file, from);
+            await getHooks(this).Resolved.promise(raw, file);
         } catch (error) {
             defer.reject(error);
         }
@@ -146,70 +147,53 @@ export class MarkdownService {
     }
 
     // @memoize(hash)
-    async meta(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        return this.pathToMeta.get(key);
+    async meta(path: RelativePath) {
+        return this._meta(normalizePath(path));
     }
 
-    // This is very buggy!
+    // This is very buggy! Do not use memoize here.
     // @memoize(hash)
-    async deps(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        const deps = this.pathToDeps.get(key) || [];
-        const internals: IncludeInfo[][] = await all(
-            deps.map(async ({path, location}) => {
-                const deps = await this.deps(path, [...from, file]);
-
-                return deps.map((dep) => ({...dep, location}));
-            }),
-        );
-
-        return deps.concat(...internals);
+    async deps(path: RelativePath) {
+        return this._deps(normalizePath(path));
     }
 
     // @memoize(hash)
-    async assets(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        const assets = this.pathToAssets.get(key) || new Set();
-        const deps = (await this.deps(file, from)) || [];
-        const internals: NormalizedPath[][] = await all(
-            deps.map(async ({path}) => {
-                return this.assets(path, [...from, file]);
-            }),
-        );
-
-        return uniq([...assets].concat(...internals));
+    async assets(path: RelativePath) {
+        return this._assets(normalizePath(path));
     }
 
     // @memoize(hash)
-    async headings(path: RelativePath, from: NormalizedPath[] = []) {
+    async headings(path: RelativePath) {
+        return this._headings(normalizePath(path));
+    }
+
+    async titles(path: RelativePath) {
         const file = normalizePath(path);
-        const key = this.hash(file, from);
 
-        await this.load(path, from);
+        const titles: Hash<string> = {};
 
-        const headings = this.pathToHeadings.get(key) || [];
-        const deps = (await this.deps(file, from)) || [];
-        const internals: HeadingInfo[][] = await all(
-            deps.map(async ({path, location}) => {
-                const headings = await this.headings(path, [...from, file]);
-                return headings.map((heading) => ({...heading, location}));
-            }),
-        );
+        try {
+            const headings = await this.headings(file);
+            const contents = headings.map(({content}) => content);
 
-        return headings.concat(...internals).sort(byLocation);
+            for (const content of contents) {
+                const {level, title, anchors} = parseHeading(content);
+
+                if (level === 1 && !titles['#']) {
+                    titles['#'] = title;
+                }
+
+                for (const anchor of anchors) {
+                    titles[anchor] = title;
+                }
+            }
+        } catch (error) {
+            // This is acceptable.
+            // If this is a real file and someone depends on his titles,
+            // then we throw exception in md plugin.
+        }
+
+        return titles;
     }
 
     @bounded async analyze(path: RelativePath, raw: string, vars: Hash) {
@@ -233,6 +217,65 @@ export class MarkdownService {
         }
 
         return Number(sourcemap[line]) || line;
+    }
+
+    private async _meta(file: NormalizedPath, from: NormalizedPath[] = []) {
+        const key = this.hash(file, from);
+
+        await this.load(file, from);
+
+        return this.pathToMeta.get(key);
+    }
+
+    private async _deps(path: NormalizedPath, from: NormalizedPath[] = []) {
+        const file = normalizePath(path);
+        const key = this.hash(file, from);
+
+        await this.load(path, from);
+
+        const deps = this.pathToDeps.get(key) || [];
+        const internals: IncludeInfo[][] = await all(
+            deps.map(async ({path, location}) => {
+                const deps = await this._deps(path, [...from, file]);
+
+                return deps.map((dep) => ({...dep, location}));
+            }),
+        );
+
+        return deps.concat(...internals);
+    }
+
+    private async _assets(file: NormalizedPath, from: NormalizedPath[] = []) {
+        const key = this.hash(file, from);
+
+        await this.load(file, from);
+
+        const assets = this.pathToAssets.get(key) || new Set();
+        const deps = (await this._deps(file, from)) || [];
+        const internals: NormalizedPath[][] = await all(
+            deps.map(async ({path}) => {
+                return this._assets(path, [...from, file]);
+            }),
+        );
+
+        return uniq([...assets].concat(...internals));
+    }
+
+    private async _headings(file: NormalizedPath, from: NormalizedPath[] = []) {
+        const key = this.hash(file, from);
+
+        await this.load(file, from);
+
+        const headings = this.pathToHeadings.get(key) || [];
+        const deps = (await this._deps(file, from)) || [];
+        const internals: HeadingInfo[][] = await all(
+            deps.map(async ({path, location}) => {
+                const headings = await this._headings(path, [...from, file]);
+                return headings.map((heading) => ({...heading, location}));
+            }),
+        );
+
+        return headings.concat(...internals).sort(byLocation);
     }
 
     private proxy(key: string) {
