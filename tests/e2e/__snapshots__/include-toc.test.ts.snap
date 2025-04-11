@@ -448,7 +448,7 @@ exports[`Include toc > Toc with generic includer > toc.yaml 1`] = `
 items:
   - name: test
     href: test/test.md
-  - name: Overview
+  - name: index
     href: test/index.md
   - name: sub
     items:
