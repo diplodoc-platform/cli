@@ -13,15 +13,9 @@ import {dirname, extname, join} from 'node:path';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 
-// const AUTOTITLE = '{$T}';
-
 type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
-    leadingPage?: {
-        autotitle?: boolean;
-        name?: string;
-    };
 }>;
 
 type Graph = {
@@ -35,7 +29,6 @@ type Run = BaseRun & {
 const EXTENSION = 'GenericIncluder';
 const INCLUDER = 'generic';
 
-// TODO: implement autotitle after md refactoring
 // TODO: implement sort
 export class Extension implements IExtension {
     apply(program: BaseProgram) {
@@ -77,16 +70,10 @@ function graph(paths: NormalizedPath[]): Graph {
 }
 
 function pageName(key: string, options: Options) {
-    if (key === 'index') {
-        // if (options?.leadingPage?.autotitle) {
-        //     return AUTOTITLE;
-        // }
-
-        // TODO: i18n
-        return (options?.leadingPage?.name ?? 'Overview') as YfmString;
+    if (options.autotitle !== false) {
+        return undefined;
     }
 
-    // return options.autotitle ? AUTOTITLE : key;
     return key as YfmString;
 }
 
@@ -98,7 +85,7 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             return {name, href: value};
         }
 
-        return {name, items: Object.entries(value).map(item)};
+        return {name: key as YfmString, items: Object.entries(value).map(item)};
     }
 
     toc.items = Object.entries(graph).map(item);
