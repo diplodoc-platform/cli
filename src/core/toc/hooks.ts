@@ -24,6 +24,10 @@ export function hooks(name: string) {
                     `${name}.Includer(${type})`,
                 ),
         ),
+        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
+            ['Toc', 'TocPath'],
+            `${name}.Loaded`,
+        ),
         Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
             ['Toc', 'TocPath'],
             `${name}.Resolved`,

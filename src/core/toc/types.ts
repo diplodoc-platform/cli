@@ -38,9 +38,14 @@ export type Navigation = {
 export type RawTocItem = Filter & {
     hidden?: boolean;
     items?: RawTocItem[];
-} & (RawNamedTocItem | RawIncludeTocItem);
+} & (RawEntryTocItem | RawNamedTocItem | RawIncludeTocItem);
 
-type RawNamedTocItem = {
+export type RawEntryTocItem = {
+    name?: string;
+    href: YfmString & (RelativePath | URIString);
+};
+
+export type RawNamedTocItem = {
     name: YfmString;
     href?: YfmString & (RelativePath | URIString);
 };
@@ -84,9 +89,14 @@ export type Toc = {
     items?: TocItem[];
 };
 
-export type TocItem = NamedTocItem & {hidden?: boolean} & {
+export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean} & {
     id: string;
     items?: TocItem[];
+};
+
+export type EntryTocItem = {
+    name?: string;
+    href: NormalizedPath;
 };
 
 export type NamedTocItem = {
