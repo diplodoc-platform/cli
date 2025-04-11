@@ -117,7 +117,7 @@
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
     "lint-staged": "^12.5.0",
-    "mime-types": "2.1.35",
+    "mime-types": "3.0.1",
     "minimatch": "^9.0.3",
     "node-html-parser": "^6.1.5",
     "simple-git": "3.22.0",
