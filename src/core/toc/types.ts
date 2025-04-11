@@ -41,7 +41,7 @@ export type RawTocItem = Filter & {
 } & (RawEntryTocItem | RawNamedTocItem | RawIncludeTocItem);
 
 export type RawEntryTocItem = {
-    name?: string;
+    name?: YfmString;
     href: YfmString & (RelativePath | URIString);
 };
 
