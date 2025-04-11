@@ -166,6 +166,10 @@ exports[`Regression > internal > filelist 1`] = `
   "_assets/3.png",
   "_assets/empty.pdf",
   "autotitle.md",
+  "generic/1.md",
+  "generic/2.md",
+  "generic/Sub notes/1.md",
+  "generic/Sub notes/2.md",
   "images.md",
   "included-item.md",
   "includes.md",
@@ -205,6 +209,10 @@ exports[`Regression > internal > filelist 2`] = `
   "_bundle/search-js-2",
   "_bundle/search-css-1",
   "autotitle.html",
+  "generic/1.html",
+  "generic/2.html",
+  "generic/Sub notes/1.html",
+  "generic/Sub notes/2.html",
   "images.html",
   "included-item.html",
   "includes.html",
@@ -220,6 +228,234 @@ exports[`Regression > internal > filelist 2`] = `
   "sub/folder/item-1.html",
   "toc.js"
 ]"
+`;
+
+exports[`Regression > internal > generic/1.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Note 1</title>
+                <style type="text/css">
+                    body {
+                        height: 100vh;
+                    }
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Note 1","html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","leading":false},"router":{"pathname":"generic/1","depth":2},"lang":"ru","langs":["ru"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
+`;
+
+exports[`Regression > internal > generic/1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Note 1
+
+Note content 1
+"
+`;
+
+exports[`Regression > internal > generic/2.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Note 1</title>
+                <style type="text/css">
+                    body {
+                        height: 100vh;
+                    }
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Note 1","html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","leading":false},"router":{"pathname":"generic/2","depth":2},"lang":"ru","langs":["ru"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
+`;
+
+exports[`Regression > internal > generic/2.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Note 1
+
+Note content 1
+"
+`;
+
+exports[`Regression > internal > generic/Sub notes/1.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Sub note 1</title>
+                <style type="text/css">
+                    body {
+                        height: 100vh;
+                    }
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Sub note 1","html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","leading":false},"router":{"pathname":"generic/Sub notes/1","depth":3},"lang":"ru","langs":["ru"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
+`;
+
+exports[`Regression > internal > generic/Sub notes/1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Sub note 1
+
+Note content 1
+"
+`;
+
+exports[`Regression > internal > generic/Sub notes/2.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ru" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Sub note 2</title>
+                <style type="text/css">
+                    body {
+                        height: 100vh;
+                    }
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Sub note 2","html":"&lt;p&gt;Note content 2&lt;/p&gt;/n","leading":false},"router":{"pathname":"generic/Sub notes/2","depth":3},"lang":"ru","langs":["ru"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+  return JSON.parse(unescaped);
+}
+                   const data = document.querySelector('script#diplodoc-state');
+                   window.__DATA__ = unescapeJsonFromHtml(data.innerText);
+                   window.STATIC_CONTENT = false;
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
+`;
+
+exports[`Regression > internal > generic/Sub notes/2.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Sub note 2
+
+Note content 2
+"
 `;
 
 exports[`Regression > internal > images.html 1`] = `
@@ -1125,7 +1361,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal > toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
+exports[`Regression > internal > toc.js 1`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"id":"UUID"};"`;
 
 exports[`Regression > internal > toc.yaml 1`] = `
 "items:
@@ -1154,6 +1390,18 @@ exports[`Regression > internal > toc.yaml 1`] = `
     href: autotitle.md
   - name: includes
     href: includes.md
+  - name: generic
+    items:
+      - name: Note 1
+        href: generic/1.md
+      - name: Note 1
+        href: generic/2.md
+      - name: Sub notes
+        items:
+          - name: Sub note 1
+            href: generic/Sub notes/1.md
+          - name: Sub note 2
+            href: generic/Sub notes/2.md
   - name: openapi
     items:
       - name: Overview
