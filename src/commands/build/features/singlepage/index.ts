@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/core/config';
-import {copyJson} from '~/core/utils';
+import {copyJson, normalizePath} from '~/core/utils';
 import {getDepth, getDepthPath} from '~/utils';
 import {Lang} from '~/constants';
 import {generateStaticMarkup} from '~/pages';
@@ -57,10 +57,12 @@ export class SinglePage {
 
                 getBuildHooks(program)
                     .Entry.for('html')
-                    .tap('SinglePage', (entry, info, tocDir) => {
+                    .tap('SinglePage', (entry, info) => {
                         if (!info.html) {
                             return;
                         }
+
+                        const tocDir = normalizePath(dirname(run.toc.for(entry)));
 
                         results[tocDir] = results[tocDir] || [];
                         results[tocDir][info.position] = {

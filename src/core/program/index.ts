@@ -92,7 +92,7 @@ export class BaseProgram<
     async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
-        const config = await this.resolveConfig(args as TArgs);
+        const config = parent?.config || await this.resolveConfig(args as TArgs);
         const extensions = await this.resolveExtensions(config, args);
 
         // @ts-ignore

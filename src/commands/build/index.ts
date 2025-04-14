@@ -1,4 +1,5 @@
 import type {EntryTocItem, Toc} from '~/core/toc';
+import type {Meta} from '~/core/meta';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
@@ -229,15 +230,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                 try {
                     this.run.logger.proc(entry);
 
+                    const meta = this.run.meta.get(entry);
                     const tocPath = this.run.toc.for(entry);
                     const toc = await this.run.toc.load(tocPath);
-                    const info = await this.process(entry, toc as Toc, tocPath);
-
-                    const tocDir = this.run.toc.dir(entry);
+                    const info = await this.process(entry, toc as Toc, meta);
 
                     await getHooks(this)
                         .Entry.for(outputFormat)
-                        .promise(entry, {...info, position}, tocDir);
+                        .promise(entry, {...info, position});
 
                     if (outputFormat === 'html') {
                         const lang = langFromPath(entry, this.run.config);
@@ -267,8 +267,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @bounded
     @threads.threaded('build.process')
-    async process(entry: NormalizedPath, toc: Toc, tocPath: NormalizedPath): Promise<EntryInfo> {
-        this.run.toc.set(tocPath, toc);
+    async process(entry: NormalizedPath, toc: Toc, meta: Meta): Promise<EntryInfo> {
+        this.run.toc.set(toc.path, toc);
+        this.run.meta.set(entry, meta);
         return processEntry(this.run, entry);
     }
 
