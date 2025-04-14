@@ -21,7 +21,7 @@ export const run = async (argv: string[]) => {
     try {
         const args = parse(argv);
         const program = new Program();
-        await threads.init(program, args);
+        await threads.init(program, argv);
         await program.init(args);
         await program.parse(argv);
     } catch (error: unknown) {
