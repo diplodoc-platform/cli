@@ -1,3 +1,4 @@
+import type {SearchService} from '.';
 import type {SearchProvider} from './types';
 import type {SearchServiceConfig} from './SearchService';
 
@@ -17,16 +18,9 @@ export function hooks<TConfig extends SearchServiceConfig['search']>(name: strin
     };
 }
 
-const [getHooksInternal, withHooks, Hooks] = generateHooksAccess('Search', hooks);
+const [getHooksInternal, withHooks] = generateHooksAccess('Search', hooks);
 
-function getHooks<TConfig = SearchServiceConfig['search']>(
-    holder:
-        | {
-              // @ts-ignore
-              [Hooks]: ReturnType<typeof hooks<TConfig & SearchServiceConfig['search']>>;
-          }
-        | undefined,
-) {
+function getHooks<TConfig = SearchServiceConfig['search']>(holder: SearchService | undefined) {
     return getHooksInternal(holder) as unknown as ReturnType<
         typeof hooks<TConfig & SearchServiceConfig['search']>
     >;

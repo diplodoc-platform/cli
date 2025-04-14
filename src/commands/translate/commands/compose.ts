@@ -4,6 +4,7 @@ import type {ComposeOptions} from '@diplodoc/translation';
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
+// @ts-ignore
 import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
 import {
