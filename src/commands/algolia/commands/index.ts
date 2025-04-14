@@ -3,6 +3,7 @@ import {readFileSync} from 'fs';
 import {basename, join} from 'path';
 import {algoliasearch} from 'algoliasearch';
 import {glob} from 'glob';
+import {ok} from 'assert';
 
 import {
     BaseProgram,
@@ -58,8 +59,17 @@ export class Index extends BaseProgram<IndexConfig, IndexArgs> {
     apply(program?: BaseProgram) {
         super.apply(program);
 
+        getBaseHooks(this).RawConfig.tap('Index', (config) => {
+            ok(!config.algolia?.apiKey, 'Do not store `apiKey` in public config');
+        });
+
         getBaseHooks(this).Config.tap('Index', (config, args) => {
             const {input, quiet, strict} = args;
+            const {algolia} = config;
+
+            ok(algolia.appId, 'Required `appId` prop is not specified or empty');
+            ok(algolia.apiKey, 'Required `apiKey` prop is not specified or empty');
+            ok(algolia.indexName, 'Required `indexName` prop is not specified or empty');
 
             return Object.assign(config, {
                 input,
@@ -74,24 +84,6 @@ export class Index extends BaseProgram<IndexConfig, IndexArgs> {
 
         if (!inputPath) {
             throw new Error('Input path is required');
-        }
-
-        if (!algolia.appId) {
-            throw new Error(
-                'Algolia Application ID is required. Set ALGOLIA_APP_ID environment variable or configure it in the config file.',
-            );
-        }
-
-        if (!algolia.apiKey) {
-            throw new Error(
-                'Algolia API Key is required. Set ALGOLIA_API_KEY environment variable or configure it in the config file.',
-            );
-        }
-
-        if (!algolia.indexName) {
-            throw new Error(
-                'Algolia Index Name is required. Set ALGOLIA_INDEX_NAME environment variable or configure it in the config file.',
-            );
         }
 
         try {
