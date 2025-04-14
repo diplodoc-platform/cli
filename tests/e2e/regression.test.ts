@@ -6,15 +6,20 @@ function test(_description: string) {
     it('internal', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/regression');
 
-        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '-j2',
+        });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
+            args: '-j2',
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-static-html', {
             md2md: false,
             md2html: true,
-            args: '--static-content',
+            args: '-j2 --static-content',
         });
         await compareDirectories(outputPath);
         await compareDirectories(outputPath + '-html');
