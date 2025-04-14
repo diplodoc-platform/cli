@@ -113,7 +113,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > .yfm 1`] = `"langs: ['ar', 'en']"`;
 
@@ -207,7 +207,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"path":"ar/toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/index.html 1`] = `
 "
@@ -302,7 +302,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > filelist 1`] = `
 "[

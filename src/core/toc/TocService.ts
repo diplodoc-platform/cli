@@ -107,7 +107,9 @@ export class TocService {
         this.cache.set(file, defer.promise);
 
         defer.promise.then((result) => {
-            this.cache.set(file, result);
+            if (this.cache.has(file)) {
+                this.cache.set(file, result);
+            }
         });
 
         const context: LoaderContext = this.loaderContext(file);
@@ -121,6 +123,8 @@ export class TocService {
         }
 
         const toc = (await loader.call(context, content)) as Toc;
+
+        toc.path = file;
 
         await getHooks(this).Loaded.promise(toc, file);
 
@@ -264,6 +268,7 @@ export class TocService {
      * Sets data for target toc path.
      */
     set(path: NormalizedPath, toc: Toc) {
+        this.processed[path] = true;
         this.cache.set(path, toc);
     }
 
@@ -287,12 +292,6 @@ export class TocService {
         }
 
         return this.for(nextPath);
-    }
-
-    dir(path: RelativePath): NormalizedPath {
-        const tocPath = this.for(path);
-
-        return normalizePath(dirname(tocPath));
     }
 
     private shouldSkip(toc: RawToc) {

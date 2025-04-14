@@ -33,9 +33,19 @@ export class MetaService {
     /**
      * Returns non normalized current readonly metadata for selected path.
      */
-    get(path: RelativePath) {
+    get(path: RelativePath): DeepFrozen<Meta> {
         const file = normalizePath(path);
-        return copyJson(this.meta.get(file)) || this.initialMeta();
+
+        if (!this.meta.has(file)) {
+            this.meta.set(file, this.initialMeta());
+        }
+
+        return this.meta.get(file) as DeepFrozen<Meta>;
+    }
+
+    set(path: RelativePath, meta: Meta) {
+        const file = normalizePath(path);
+        this.meta.set(file, meta);
     }
 
     /**

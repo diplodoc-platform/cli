@@ -36,6 +36,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes > produc
 items:
   - name: Article1
     href: article1.md
+path: product1/toc.yaml
 "
 `;
 
@@ -122,6 +123,7 @@ items:
     items:
       - name: Article1
         href: overlay3/article1.md
+path: product2/toc.yaml
 "
 `;
 
@@ -142,6 +144,7 @@ items:
     items:
       - name: core/concepts/toc_i/item
       - name: core/concepts/toc_p/item
+path: toc.yaml
 "
 `;
 
@@ -196,6 +199,7 @@ exports[`Include toc > Toc is included in link mode > toc.yaml 1`] = `
         items:
           - name: A1
             href: folder1/folder2/a1.md
+path: toc.yaml
 "
 `;
 
@@ -297,6 +301,7 @@ exports[`Include toc > Toc is included inline, not as a new section > toc.yaml 1
     href: fileC.md
   - name: NameX
     href: fileX.md
+path: toc.yaml
 "
 `;
 
@@ -332,6 +337,7 @@ exports[`Include toc > Toc root merge on non root dir > ru/toc.yaml 1`] = `
 items:
   - name: sub-page
     href: index.yaml
+path: ru/toc.yaml
 "
 `;
 
@@ -375,6 +381,7 @@ href: index.yaml
 items:
   - name: A1
     href: a1.md
+path: toc.yaml
 "
 `;
 
@@ -460,5 +467,6 @@ items:
         items:
           - name: sub-3
             href: test/sub/sub/sub-3.md
+path: toc.yaml
 "
 `;
