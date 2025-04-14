@@ -3,12 +3,14 @@
 exports[`toc-loader > includers > should fix include path 1`] = `
 "items:
   - name: Common item
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > includers > should handle registered includer 1`] = `
 "items:
   - name: Common item
+path: toc.yaml
 "
 `;
 
@@ -16,18 +18,21 @@ exports[`toc-loader > includers > should merge includer toc to parent 1`] = `
 "items:
   - name: Common item
   - name: Includer item 1
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > includers > should pass extra params to includer 1`] = `
 "items:
   - name: Common item
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > includes > should filter include in preview stage 1`] = `
 "items:
   - name: Common item
+path: toc.yaml
 "
 `;
 
@@ -41,6 +46,7 @@ exports[`toc-loader > includes > should merge deep includes in link mode 1`] = `
         items:
           - name: Inner Lib Item 1
             href: _includes/lib/item-1.md
+path: toc.yaml
 "
 `;
 
@@ -58,12 +64,14 @@ exports[`toc-loader > includes > should merge deep includes in merge mode 1`] = 
             href: _includes/core/deep-merge-item-1.md
           - name: Inner Sub Item 1
             href: _includes/core/sub-item-1.md
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > includes > should merge includes in flat link mode 1`] = `
 "items:
   - name: Inner Item 1
+path: toc.yaml
 "
 `;
 
@@ -72,6 +80,7 @@ exports[`toc-loader > includes > should merge includes in link mode 1`] = `
   - name: Outer Item
     items:
       - name: Inner Item 1
+path: toc.yaml
 "
 `;
 
@@ -96,6 +105,7 @@ exports[`toc-loader > includes > should rebase items href for includes in link m
         href: https://example.com
       - name: Inner Item 7
         href: //example.com
+path: toc.yaml
 "
 `;
 
@@ -103,6 +113,7 @@ exports[`toc-loader > should filter hidden item 1`] = `
 "items:
   - name: Visible Item 1
   - name: Visible Item 2
+path: toc.yaml
 "
 `;
 
@@ -110,38 +121,45 @@ exports[`toc-loader > should filter item with declined rule 1`] = `
 "items:
   - name: Visible Item 1
   - name: Visible Item 2
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should handle filter title 1`] = `
 "title: Title B
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should handle simple title 1`] = `
 "title: Title
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should interpolate conditions in title 1`] = `
 "title: 'Title  IF '
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should interpolate filter title 1`] = `
 "title: Title C
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should interpolate item href 1`] = `
 "items:
   - href: file.md
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should interpolate item name 1`] = `
 "items:
   - name: Item C
+path: toc.yaml
 "
 `;
 
@@ -151,11 +169,13 @@ exports[`toc-loader > should interpolate nested item 1`] = `
     items:
       - name: Item C
         href: file.md
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should interpolate title 1`] = `
 "title: Title C
+path: toc.yaml
 "
 `;
 
@@ -165,6 +185,7 @@ exports[`toc-loader > should normalize items 1`] = `
     href: some/href.md
   - name: Item with slash
     href: some/href/index.yaml
+path: toc.yaml
 "
 `;
 
@@ -173,20 +194,24 @@ exports[`toc-loader > should not filter item with accepted rule 1`] = `
   - name: Visible Item 1
   - name: Visible Item 2
   - name: Visible Item 3
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should not interpolate title if both templating is disabled 1`] = `
 "title: Title {% if var == "C"%} IF {% endif %}
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should not interpolate title if conditions is disabled 1`] = `
 "title: Title {% if var == "C"%} IF {% endif %}
+path: toc.yaml
 "
 `;
 
 exports[`toc-loader > should not interpolate title if substitutions is disabled 1`] = `
 "title: Title {{var}}
+path: toc.yaml
 "
 `;
