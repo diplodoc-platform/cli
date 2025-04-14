@@ -8,13 +8,12 @@ import {Pool, Worker, spawn} from 'threads';
 // @ts-ignore
 import {expose} from 'threads/worker';
 
-import {all} from '~/core/utils';
+import {Defer, all} from '~/core/utils';
 import {Program, parse} from '~/commands';
 
 let pool: Pool;
 let program: Program;
-
-export const threads: ThreadAPI[] = [];
+let threads: Defer<ThreadAPI>[] = [];
 
 type ThreadAPI = {
     init(argv: string[]): Promise<void>;
@@ -43,19 +42,25 @@ export async function init(_program: Program, {jobs}: BaseArgs) {
         jobs = os.cpus().length - 1;
     }
 
+    jobs = Number(jobs);
+
     if (jobs <= 1) {
         return;
     }
 
     program = _program;
+    threads = Array(jobs)
+        .fill(true)
+        .map(() => new Defer());
 
     if (isMainThread) {
+        let index = 0;
         // eslint-disable-next-line new-cap
         pool = Pool(
             async () => {
                 const thread = await spawn<ThreadAPI>(new Worker('./index'));
 
-                threads.push(thread);
+                threads[index++].resolve(thread);
 
                 return thread;
             },
@@ -65,7 +70,12 @@ export async function init(_program: Program, {jobs}: BaseArgs) {
 }
 
 export async function setup() {
-    await all(threads.map((thread) => thread.init(process.argv)));
+    await all(
+        threads.map(async (defer) => {
+            const thread = await defer.promise;
+            return thread.init(process.argv);
+        }),
+    );
 }
 
 export async function terminate(force = false) {
