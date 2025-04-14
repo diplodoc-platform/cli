@@ -128,8 +128,7 @@ export class TocService {
                 if (own<string>(item, 'restricted-access')) {
                     this.run.toc.meta.add(normalizePath(join(dirname(path), item.href)), {
                         'restricted-access': item['restricted-access'],
-                        }
-                    );
+                    });
                 }
 
                 return item;
