@@ -139,6 +139,11 @@ export class AlgoliaSearchProvider implements SearchProvider {
             querySettings: this.querySettings,
         };
     }
+
+    getIndexedCount(): number {
+        const firstLang = Object.keys(this.objects)[0];
+        return firstLang ? this.objects[firstLang].length : 0;
+    }
 }
 
 function pageLink(lang: string) {
