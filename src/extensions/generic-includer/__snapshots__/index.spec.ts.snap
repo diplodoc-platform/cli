@@ -1,8 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Generic includer > should use leadingPage.name option 1`] = `
+exports[`Generic includer > should use autotitle option 1`] = `
 "items:
-  - name: Test Overview
+  - name: index
     href: index.md
   - name: test
     href: test.md
@@ -27,50 +27,38 @@ exports[`Generic includer > should use leadingPage.name option 1`] = `
 
 exports[`Generic includer > should use top path as input root, if input is not specified 1`] = `
 "items:
-  - name: Overview
-    href: index.md
-  - name: test
-    href: test.md
+  - href: index.md
+  - href: test.md
   - name: sub
     items:
-      - name: sub-1
-        href: sub/sub-1.md
-      - name: sub-2
-        href: sub/sub-2.md
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
       - name: sub
         items:
-          - name: sub-3
-            href: sub/sub/sub-3.md
+          - href: sub/sub/sub-3.md
   - name: skip
     items:
       - name: sub
         items:
-          - name: sub-1
-            href: skip/sub/sub-1.md
+          - href: skip/sub/sub-1.md
 "
 `;
 
 exports[`Generic includer > should work 1`] = `
 "items:
-  - name: Overview
-    href: index.md
-  - name: test
-    href: test.md
+  - href: index.md
+  - href: test.md
   - name: sub
     items:
-      - name: sub-1
-        href: sub/sub-1.md
-      - name: sub-2
-        href: sub/sub-2.md
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
       - name: sub
         items:
-          - name: sub-3
-            href: sub/sub/sub-3.md
+          - href: sub/sub/sub-3.md
   - name: skip
     items:
       - name: sub
         items:
-          - name: sub-1
-            href: skip/sub/sub-1.md
+          - href: skip/sub/sub-1.md
 "
 `;

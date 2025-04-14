@@ -20,7 +20,7 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, langFromPath, normalizePath, parseHeading, zip} from '~/core/utils';
+import {all, bounded, langFromPath, normalizePath, zip} from '~/core/utils';
 
 import {SearchService} from './services/search';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
@@ -172,32 +172,7 @@ export class Run extends BaseRun<BuildConfig> {
             return {};
         }
 
-        path = normalizePath(path);
-
-        const titles: Hash<string> = {};
-
-        try {
-            const headings = await this.markdown.headings(path);
-            const contents = headings.map(({content}) => content);
-
-            for (const content of contents) {
-                const {level, title, anchors} = parseHeading(content);
-
-                if (level === 1 && !titles['#']) {
-                    titles['#'] = title;
-                }
-
-                for (const anchor of anchors) {
-                    titles[anchor] = title;
-                }
-            }
-        } catch (error) {
-            // This is acceptable.
-            // If this is a real file and someone depends on his titles,
-            // then we throw exception in md plugin.
-        }
-
-        return titles;
+        return this.markdown.titles(path);
     }
 }
 

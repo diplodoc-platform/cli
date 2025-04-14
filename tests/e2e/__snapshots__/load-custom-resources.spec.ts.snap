@@ -165,7 +165,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -241,7 +241,7 @@ exports[`Allow load custom resources md2html single page with custom resources: 
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -348,9 +348,9 @@ exports[`Allow load custom resources md2html single page with custom resources: 
 
 exports[`Allow load custom resources md2html single page with custom resources: single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page.html","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}]};"`;
+exports[`Allow load custom resources md2html single page with custom resources: single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page"},{"name":"Config","href":"#project_config"}],"path":"toc.yaml"};"`;
 
-exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Allow load custom resources md2html single page with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Allow load custom resources md2html with custom resources: .yfm 1`] = `
 "resources:
@@ -514,7 +514,7 @@ exports[`Allow load custom resources md2html with custom resources: page.html 1`
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -590,7 +590,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
     <script type="application/json"
             id="diplodoc-state"
     >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"assets":[],"headings":[],"title":"","includes":[],"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
+      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
     </script>
     <script type="application/javascript">
       function unescapeJsonFromHtml(escaped) {
@@ -622,7 +622,7 @@ exports[`Allow load custom resources md2html with custom resources: project/conf
 </html>
 `;
 
-exports[`Allow load custom resources md2html with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Allow load custom resources md2html with custom resources: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Allow load custom resources md2md with custom resources: .yfm 1`] = `
 "resources:
@@ -703,5 +703,6 @@ items:
     href: page.md
   - name: Config
     href: project/config.md
+path: toc.yaml
 "
 `;

@@ -79,9 +79,9 @@ export class AlgoliaSearchProvider implements SearchProvider {
         this.objects[lang] = this.objects[lang] || [];
         this.objects[lang].push({
             objectID: path.replace(extname(path), ''),
-            title: info.title || info.meta.title,
+            title: info.title || info.meta?.title,
             text: html2text(info.html).slice(0, 5000),
-            keywords: info.meta.keywords || [],
+            keywords: info.meta?.keywords || [],
             url: path.replace(extname(path), '') + '.html',
         });
     }

@@ -11,7 +11,7 @@ export function platformless(text: string) {
         .replace(/\r\n/g, '\n')
         .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
         // Replace version for meta tag
-        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`)
+        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(-[\w-]+)?/g, `$1vDIPLODOC-VERSION`)
         .replace(/(\\(?![\/"'])){1,2}/g, '/');
 }
 
@@ -62,7 +62,7 @@ interface RunYfmDocsArgs {
 export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = ''}: RunYfmDocsArgs = {}): void {
     shell.rm('-rf', outputPath);
 
-    const defaults = ` --quiet --allowHTML`;
+    const defaults = `-j2 --quiet --allowHTML`;
     const run = `node ${yfmDocsPath} --input ${inputPath} --output ${outputPath} ${defaults}`;
 
     if (md2md && md2html) {

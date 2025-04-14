@@ -1,4 +1,4 @@
-import type {RawLintConfig} from '@diplodoc/yfmlint';
+import type {RawLintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
@@ -37,7 +37,7 @@ export type LintRawConfig = {
 export type LintConfig = {
     lint: {
         enabled: boolean;
-        config: RawLintConfig;
+        config: YfmLintConfig;
     };
 };
 
