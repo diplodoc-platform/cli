@@ -201,6 +201,11 @@ export class AlgoliaSearchProvider implements SearchProvider {
         };
     }
 
+    getIndexedCount(): number {
+        const firstLang = Object.keys(this.objects)[0];
+        return firstLang ? this.objects[firstLang].length : 0;
+    }
+
     private extractHeadings(html: string): string[] {
         const $ = load(html);
         const headings: string[] = [];
