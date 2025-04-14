@@ -80,6 +80,7 @@ export type IncludeInfo = {
 };
 
 export type Toc = {
+    path: NormalizedPath;
     id: string;
     title?: string;
     label?: string;
