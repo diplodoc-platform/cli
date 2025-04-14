@@ -16,7 +16,6 @@ import {Extension as GenericIncluderExtension} from '~/extensions/generic-includ
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
 import {Extension as AlgoliaSearchExtension} from '~/extensions/algolia';
-import {Extension as AlgoliaJsonSearchExtension} from '~/extensions/algolia-json';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -128,7 +127,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
         new AlgoliaSearchExtension(),
-        new AlgoliaJsonSearchExtension(),
     ];
 
     /**
