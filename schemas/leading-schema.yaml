@@ -14,8 +14,10 @@ properties:
     properties:
       title:
         $ref: '#/definitions/TextItems'
+        translate: md
       description:
         $ref: '#/definitions/TextItems'
+        translate: md
       noIndex:
         type: boolean
     additionalProperties: false
@@ -50,6 +52,7 @@ definitions:
     oneOf:
       - type: string
       - type: array
+        translate: md
         items:
           type: string
           translate: md
