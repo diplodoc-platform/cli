@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.57.12](https://github.com/diplodoc-platform/cli/compare/v4.57.11...v4.57.12) (2025-04-17)
+
+
+### chore
+
+* release 4.57.12 ([5dfbd0e](https://github.com/diplodoc-platform/cli/commit/5dfbd0e43eec40c9372f831733622fbd27d23cb6))
+
+
+### Features
+
+* add restricted access to frontmatter ([fbe9eaa](https://github.com/diplodoc-platform/cli/commit/fbe9eaabab768a1e32bd3b1b7578f3927514d5cc))
+
 ## [4.57.11](https://github.com/diplodoc-platform/cli/compare/v4.57.10...v4.57.11) (2025-04-09)
 
 
