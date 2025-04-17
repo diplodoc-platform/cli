@@ -177,6 +177,7 @@ definitions:
         format: url
       urlTitle:
         type: string
+        translate: md
       icon:
         type: string
         format: url
@@ -232,6 +233,9 @@ definitions:
   NavigationLinkItem:
     type: object
     properties:
+      text:
+        type: string
+        translate: md
       type:
         type: string
         pattern: '^link$'
