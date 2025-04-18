@@ -116,7 +116,7 @@
     "esbuild": "^0.23.1",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
-    "lint-staged": "^12.5.0",
+    "lint-staged": "^15.5.1",
     "mime-types": "2.1.35",
     "minimatch": "^9.0.3",
     "node-html-parser": "^6.1.5",
