@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.57.13](https://github.com/diplodoc-platform/cli/compare/v4.57.12...v4.57.13) (2025-04-18)
+
+
+### Bug Fixes
+
+* filter files in translate ([e4ff6a2](https://github.com/diplodoc-platform/cli/commit/e4ff6a202f275ef104013fc70ed83bd5e4e09913))
+* filter files in translate test ([9909c99](https://github.com/diplodoc-platform/cli/commit/9909c99873ff3d3d91493bef55fb68f3b456055a))
+
 ## [4.57.12](https://github.com/diplodoc-platform/cli/compare/v4.57.11...v4.57.12) (2025-04-17)
 
 
