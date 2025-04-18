@@ -12,6 +12,7 @@ import {uniq} from 'lodash';
 import {algoliasearch} from 'algoliasearch';
 import {LogLevel, Logger} from '@diplodoc/cli/lib/logger';
 import {html2text} from '@diplodoc/search-extension/indexer';
+import {load} from 'cheerio';
 
 export type ProviderConfig = AlgoliaSearchConfig['search'] & {
     api: string;
@@ -19,45 +20,39 @@ export type ProviderConfig = AlgoliaSearchConfig['search'] & {
 
 export type IndexRecord = {
     objectID: string;
-    title?: string;
-    text: string;
+    title: string;
+    content: string;
+    headings: string[];
     keywords: string[];
     url: string;
+    lang: string;
+    section?: string;
 };
 
 class IndexLogger extends Logger {
     index = this.topic(LogLevel.INFO, 'INDEX');
 }
 
+// Original Algolia provider
 export class AlgoliaSearchProvider implements SearchProvider {
     private run: BuildRun;
-
     private apiLink: string;
-
     private index: boolean;
-
+    private uploadDuringBuild: boolean;
     private appId: string;
-
-    private apiKey: string;
-
+    private apiKey?: string;
     private searchKey: string;
-
     private indexPrefix: string;
-
     private indexSettings: Partial<IndexSettings>;
-
     private querySettings: Partial<SearchParamsObject>;
-
-    private objects: Hash<IndexRecord[]> = {};
-
-    private client: Algoliasearch;
-
+    private objects: Record<string, IndexRecord[]> = {};
+    private client?: Algoliasearch;
     private logger = new IndexLogger();
 
     constructor(run: BuildRun, config: ProviderConfig) {
         this.run = run;
-
         this.index = config.index !== false;
+        this.uploadDuringBuild = config.uploadDuringBuild !== false;
         this.appId = config.appId;
         this.indexPrefix = config.indexPrefix;
         this.apiKey = config.apiKey;
@@ -66,8 +61,9 @@ export class AlgoliaSearchProvider implements SearchProvider {
         this.querySettings = config.querySettings || {};
         this.apiLink = config.api;
 
-        this.client = algoliasearch(this.appId, this.apiKey);
-
+        if (this.apiKey) {
+            this.client = algoliasearch(this.appId, this.apiKey);
+        }
         this.logger.pipe(run.logger);
     }
 
@@ -76,13 +72,74 @@ export class AlgoliaSearchProvider implements SearchProvider {
             return;
         }
 
+        const {title = '', meta = {}} = info;
+
+        // Skip pages marked as noIndex
+        if (meta.noIndex) {
+            return;
+        }
+
+        const $ = load(info.html);
+        const sections: {heading: string; content: string}[] = [];
+        let currentSection = {heading: '', content: ''};
+
+        // Process all elements to split into sections
+        $('body')
+            .children()
+            .each((_, element) => {
+                const $el = $(element);
+
+                // If it's a heading, start a new section
+                if ($el.is('h1, h2, h3, h4, h5, h6')) {
+                    // Save previous section if it has content
+                    if (currentSection.content.trim()) {
+                        sections.push({...currentSection});
+                    }
+                    currentSection = {
+                        heading: $el.text().trim(),
+                        content: '',
+                    };
+                } else {
+                    // Add content to current section
+                    currentSection.content += $el.text().trim() + ' ';
+                }
+            });
+
+        // Add the last section if it has content
+        if (currentSection.content.trim()) {
+            sections.push({...currentSection});
+        }
+
         this.objects[lang] = this.objects[lang] || [];
-        this.objects[lang].push({
-            objectID: path.replace(extname(path), ''),
-            title: info.title || info.meta.title,
-            text: html2text(info.html).slice(0, 5000),
-            keywords: info.meta.keywords || [],
-            url: path.replace(extname(path), '') + '.html',
+
+        // If no sections were found, create a single record
+        if (sections.length === 0) {
+            const record: IndexRecord = {
+                objectID: path.replace(extname(path), ''),
+                title: title || meta.title || '',
+                content: html2text(info.html).slice(0, 5000),
+                headings: this.extractHeadings(info.html),
+                keywords: meta.keywords || [],
+                url: path.replace(extname(path), '') + '.html',
+                lang,
+            };
+            this.objects[lang].push(record);
+            return;
+        }
+
+        // Create records for each section
+        sections.forEach((section, index) => {
+            const record: IndexRecord = {
+                objectID: `${path.replace(extname(path), '')}-${index}`,
+                title: title || meta.title || '',
+                content: section.content.trim(),
+                headings: [section.heading],
+                keywords: meta.keywords || [],
+                url: path.replace(extname(path), '') + '.html',
+                lang,
+                section: section.heading || undefined,
+            };
+            this.objects[lang].push(record);
         });
     }
 
@@ -93,7 +150,11 @@ export class AlgoliaSearchProvider implements SearchProvider {
             const page = await this.run.search.page(lang);
             await this.run.write(join(this.run.output, pageLink(lang)), page);
 
-            if (!this.index) {
+            // Write JSON file for each language
+            const jsonPath = join(this.run.output, '_search', `${lang}-algolia.json`);
+            await this.run.write(jsonPath, JSON.stringify(this.objects[lang], null, 2));
+
+            if (!this.index || !this.uploadDuringBuild || !this.client) {
                 continue;
             }
 
@@ -139,8 +200,37 @@ export class AlgoliaSearchProvider implements SearchProvider {
             querySettings: this.querySettings,
         };
     }
+
+    getIndexedCount(): number {
+        const firstLang = Object.keys(this.objects)[0];
+        return firstLang ? this.objects[firstLang].length : 0;
+    }
+
+    private extractHeadings(html: string): string[] {
+        const $ = load(html);
+        const headings: string[] = [];
+
+        // Select all h1-h6 elements and extract their text
+        $('h1, h2, h3, h4, h5, h6').each((_, element) => {
+            // Get text content using contents() to handle nested elements properly
+            const textPieces = $(element)
+                .contents()
+                .map((_, el) => $(el).text())
+                .get();
+
+            // Use Set to ensure uniqueness
+            const uniqueText = [...new Set(textPieces)].join('').trim();
+
+            if (uniqueText) {
+                headings.push(uniqueText);
+            }
+        });
+
+        return headings;
+    }
 }
 
+// Helper functions
 function pageLink(lang: string) {
     return join('_search', lang, `index.html`);
 }

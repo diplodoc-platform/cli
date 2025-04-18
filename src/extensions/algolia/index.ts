@@ -12,10 +12,11 @@ export type AlgoliaSearchConfig = BaseConfig &
     SearchServiceConfig & {
         search: {
             appId: string;
-            apiKey: string;
+            apiKey?: string;
             searchKey: string;
             indexPrefix: string;
             index?: boolean;
+            uploadDuringBuild?: boolean;
             indexSettings?: Partial<IndexSettings>;
             querySettings?: Partial<SearchParamsObject>;
         };
