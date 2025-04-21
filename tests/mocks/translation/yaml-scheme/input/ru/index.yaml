@@ -1,0 +1,32 @@
+blocks:
+  - type: 'content-layout-block'
+    textWidth: 'l'
+    textContent:
+      title: 'Введение'
+      text: "
+       API сервиса:
+       - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.\n
+       - Получать информацию о посещаемости сайта и другие данные.\n
+       - Формировать отчеты, в том числе с помощью сегментации и параметризации.\n
+       "
+  - type: 'card-layout-block'
+    colSizes:
+      all: 12
+      lg: 4
+      md: 6
+      sm: 12
+      xl: 4
+    indent:
+      bottom: 'xs'
+    title: 'Виды API'
+    animated: false
+    children:
+      - type: 'basic-card'
+        title: 'API управления'
+        text: "Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа)."
+        urlTitle: 'API управления'
+        border: 'shadow'
+        controlPosition: 'content'
+        url: 'management/index'
+        target: ''
+        animated: false

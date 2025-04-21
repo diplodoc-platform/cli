@@ -1,0 +1,30 @@
+definitions:
+  TextItems:
+    oneOf:
+      - type: string
+      - type: array
+        translate: md
+        items:
+          type: string
+          translate: md
+  children:    
+    selectCases:  
+      card-layout-block:
+        properties:
+          title:
+            oneOf:
+              - type: string
+                optionName: text
+                translate: md
+properties:
+  meta:
+    type: object
+    properties:
+      title:
+        $ref: '#/definitions/TextItems'
+        translate: md
+      description:
+        $ref: '#/definitions/TextItems'
+        translate: md
+      noIndex:
+        type: boolean
