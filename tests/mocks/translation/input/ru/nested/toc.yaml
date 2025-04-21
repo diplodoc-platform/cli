@@ -10,6 +10,7 @@ items:
         items:
           - name: Обзор
             href: syntax/index.md
+            when: test == "nested"
           - name: Базовая разметка
             href: syntax/base.md
           - name: Списки
