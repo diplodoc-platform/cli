@@ -1,0 +1,19 @@
+title: Заголовок
+href: index.yaml
+items:
+  - name: Дочерняя страница
+  - href: index-direct.yaml
+navigation:
+  header:
+    leftItems:
+      - text: 'Инструменты'
+        type: 'dropdown'
+        items:
+          - text: 'Пункт меню'
+            type: 'link'
+            href: 'menu/item'
+  logo:
+    light:
+      icon: 'https://icon.link/logo.svg'
+      url: 'https://site.ru'
+      urlTitle : 'На сайт сервиса'

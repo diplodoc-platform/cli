@@ -1,4 +1,3 @@
-$id: self
 definitions:
   TextItems:
     oneOf:
@@ -9,43 +8,218 @@ definitions:
           type: string
           translate: md
   children:
-    type: object
-    required:
-      - type
-    properties:
-      when:
-        type: string
-      type:
-        type: string
-        enum:
-          - divider
-          - quote
-          - event
-          - post
-          - extended-features-block
-          - promo-features-block
-          - slider-block
-          - questions-block
-          - header-block
-          - banner-block
-          - companies-block
-          - media-block
-          - map-block
-          - info-block
-          - table-block
-          - tabs-block
-          - price-detailed
-          - header-slider-block
-          - cards-with-image-block
-          - icons-block
-          - card-layout-block
-          - content-layout-block
-          - share-block
-          - filter-block
-          - form-block
-    select:
-      $data: 0/type
     selectCases:
+      card-layout-block:
+        properties:
+          title:
+            oneOf:
+              - type: string
+                optionName: text
+                translate: md
+              - type: object
+                additionalProperties: false
+                required:
+                  - text
+                properties:
+                  text:
+                    type: string
+                    translate: md
+                  textSize:
+                    type: string
+                    enum:
+                      - s
+                      - m
+                      - l
+                  url:
+                    type: string
+                  urlTitle:
+                    type: string
+                    translate: md
+                  resetMargin:
+                    type: boolean
+                optionName: options
+          type: {}
+          when:
+            type: string
+          anchor:
+            type: object
+            additionalProperties: false
+            required:
+              - text
+              - url
+            properties:
+              text:
+                type: string
+                translate: md
+              url:
+                type: string
+              urlTitle:
+                type: string
+                translate: md
+          visible:
+            type: string
+            enum:
+              - sm
+              - md
+              - lg
+              - xl
+              - all
+          resetPaddings:
+            type: boolean
+          context:
+            type: string
+          indent:
+            type: object
+            additionalProperties: false
+            properties:
+              top:
+                enum:
+                  - '0'
+                  - xxs
+                  - xs
+                  - s
+                  - m
+                  - l
+                  - xl
+                  - xxl
+                  - xxxl
+              bottom:
+                enum:
+                  - '0'
+                  - xxs
+                  - xs
+                  - s
+                  - m
+                  - l
+                  - xl
+                  - xxl
+                  - xxxl
+          animated:
+            type: boolean
+          description:
+            type: string
+            translate: md
+            inputType: textarea
+          colSizes:
+            type: object
+            additionalProperties: false
+            properties:
+              sm:
+                type: number
+                maximum: 12
+                minimum: 1
+              md:
+                type: number
+                maximum: 12
+                minimum: 1
+              lg:
+                type: number
+                maximum: 12
+                minimum: 1
+              xl:
+                type: number
+                maximum: 12
+                minimum: 1
+              all:
+                type: number
+                maximum: 12
+                minimum: 1
+          background:
+            anyOf:
+              - type: object
+                additionalProperties: false
+                properties:
+                  alt:
+                    type: string
+                    translate: md
+                  disableCompress:
+                    type: boolean
+                  loading:
+                    type: string
+                    enum:
+                      - eager
+                      - lazy
+                  fetchPriority:
+                    type: string
+                    enum:
+                      - high
+                      - low
+                      - auto
+                  src:
+                    type: string
+                    pattern: >-
+                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
+                  style:
+                    type: object
+                    additionalProperties: false
+                    required: []
+                    properties:
+                      backgroundColor:
+                        type: string
+                      height:
+                        type:
+                          - string
+                          - number
+                      width:
+                        type:
+                          - string
+                          - number
+                      color:
+                        type: string
+                  border:
+                    type: string
+                    enum:
+                      - line
+                      - shadow
+                      - none
+                optionName: options
+              - type: object
+                additionalProperties: false
+                required:
+                  - desktop
+                  - mobile
+                properties:
+                  alt:
+                    type: string
+                    translate: md
+                  disableCompress:
+                    type: boolean
+                  loading:
+                    type: string
+                    enum:
+                      - eager
+                      - lazy
+                  fetchPriority:
+                    type: string
+                    enum:
+                      - high
+                      - low
+                      - auto
+                  desktop:
+                    type: string
+                    pattern: >-
+                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
+                  tablet:
+                    type: string
+                    pattern: >-
+                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
+                  mobile:
+                    type: string
+                    pattern: >-
+                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
+                  border:
+                    type: string
+                    enum:
+                      - line
+                      - shadow
+                      - none
+                optionName: device options
+          children:
+            type: array
+            items:
+              $ref: self#/definitions/cards
+        additionalProperties: false
+        required: []
       divider:
         additionalProperties: false
         properties:
@@ -176,6 +350,7 @@ definitions:
                   enum:
                     - New
                     - Preview
+                  translate: md
                 link:
                   type: object
                   additionalProperties: false
@@ -1388,6 +1563,8 @@ definitions:
                       type: string
                     videoIframe:
                       type: string
+                    autoplay:
+                      type: boolean
                     parallax:
                       type: boolean
                     height:
@@ -1613,10 +1790,14 @@ definitions:
                 type: object
                 patternProperties:
                   .*:
-                    type:
-                      - string
-                      - number
-                      - boolean
+                    oneOf:
+                      - type:
+                          - string
+                          - number
+                          - boolean
+                      - type: object
+                        additionalProperties: true
+                      - type: array
             disabled: true
           children:
             type: array
@@ -4161,6 +4342,8 @@ definitions:
                     type: string
                   videoIframe:
                     type: string
+                  autoplay:
+                    type: boolean
                   parallax:
                     type: boolean
                   height:
@@ -4716,6 +4899,8 @@ definitions:
                         type: string
                       videoIframe:
                         type: string
+                      autoplay:
+                        type: boolean
                       parallax:
                         type: boolean
                       height:
@@ -5265,6 +5450,8 @@ definitions:
                         type: string
                       videoIframe:
                         type: string
+                      autoplay:
+                        type: boolean
                       parallax:
                         type: boolean
                       height:
@@ -5404,6 +5591,8 @@ definitions:
                   - dark
           status:
             type: string
+          centered:
+            type: boolean
       banner-block:
         additionalProperties: false
         required:
@@ -7255,6 +7444,8 @@ definitions:
                     type: string
                   videoIframe:
                     type: string
+                  autoplay:
+                    type: boolean
                   parallax:
                     type: boolean
                   height:
@@ -7806,6 +7997,8 @@ definitions:
                         type: string
                       videoIframe:
                         type: string
+                      autoplay:
+                        type: boolean
                       parallax:
                         type: boolean
                       height:
@@ -8351,6 +8544,8 @@ definitions:
                         type: string
                       videoIframe:
                         type: string
+                      autoplay:
+                        type: boolean
                       parallax:
                         type: boolean
                       height:
@@ -9604,6 +9799,7 @@ definitions:
                           type: string
                         preset:
                           type: string
+                      translate: md
       info-block:
         additionalProperties: false
         required:
@@ -13115,6 +13311,8 @@ definitions:
                           type: string
                         videoIframe:
                           type: string
+                        autoplay:
+                          type: boolean
                         parallax:
                           type: boolean
                         height:
@@ -13664,6 +13862,8 @@ definitions:
                               type: string
                             videoIframe:
                               type: string
+                            autoplay:
+                              type: boolean
                             parallax:
                               type: boolean
                             height:
@@ -14207,6 +14407,8 @@ definitions:
                               type: string
                             videoIframe:
                               type: string
+                            autoplay:
+                              type: boolean
                             parallax:
                               type: boolean
                             height:
@@ -16491,6 +16693,8 @@ definitions:
                           type: string
                         videoIframe:
                           type: string
+                        autoplay:
+                          type: boolean
                         parallax:
                           type: boolean
                         height:
@@ -17046,6 +17250,8 @@ definitions:
                               type: string
                             videoIframe:
                               type: string
+                            autoplay:
+                              type: boolean
                             parallax:
                               type: boolean
                             height:
@@ -17595,6 +17801,8 @@ definitions:
                               type: string
                             videoIframe:
                               type: string
+                            autoplay:
+                              type: boolean
                             parallax:
                               type: boolean
                             height:
@@ -17734,6 +17942,8 @@ definitions:
                         - dark
                 status:
                   type: string
+                centered:
+                  type: boolean
       icons-block:
         additionalProperties: false
         required:
@@ -17908,217 +18118,6 @@ definitions:
                         context:
                           type: string
                     optionName: list
-      card-layout-block:
-        additionalProperties: false
-        required: []
-        properties:
-          type: {}
-          when:
-            type: string
-          anchor:
-            type: object
-            additionalProperties: false
-            required:
-              - text
-              - url
-            properties:
-              text:
-                type: string
-                translate: md
-              url:
-                type: string
-              urlTitle:
-                type: string
-                translate: md
-          visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
-          resetPaddings:
-            type: boolean
-          context:
-            type: string
-          indent:
-            type: object
-            additionalProperties: false
-            properties:
-              top:
-                enum:
-                  - '0'
-                  - xxs
-                  - xs
-                  - s
-                  - m
-                  - l
-                  - xl
-                  - xxl
-                  - xxxl
-              bottom:
-                enum:
-                  - '0'
-                  - xxs
-                  - xs
-                  - s
-                  - m
-                  - l
-                  - xl
-                  - xxl
-                  - xxxl
-          animated:
-            type: boolean
-          title:
-            oneOf:
-              - type: string
-                optionName: text
-                translate: md
-              - type: object
-                additionalProperties: false
-                required:
-                  - text
-                properties:
-                  text:
-                    type: string
-                    translate: md
-                  textSize:
-                    type: string
-                    enum:
-                      - s
-                      - m
-                      - l
-                  url:
-                    type: string
-                  urlTitle:
-                    type: string
-                    translate: md
-                  resetMargin:
-                    type: boolean
-                optionName: options
-          description:
-            type: string
-            translate: md
-            inputType: textarea
-          colSizes:
-            type: object
-            additionalProperties: false
-            properties:
-              sm:
-                type: number
-                maximum: 12
-                minimum: 1
-              md:
-                type: number
-                maximum: 12
-                minimum: 1
-              lg:
-                type: number
-                maximum: 12
-                minimum: 1
-              xl:
-                type: number
-                maximum: 12
-                minimum: 1
-              all:
-                type: number
-                maximum: 12
-                minimum: 1
-          background:
-            anyOf:
-              - type: object
-                additionalProperties: false
-                properties:
-                  alt:
-                    type: string
-                    translate: md
-                  disableCompress:
-                    type: boolean
-                  loading:
-                    type: string
-                    enum:
-                      - eager
-                      - lazy
-                  fetchPriority:
-                    type: string
-                    enum:
-                      - high
-                      - low
-                      - auto
-                  src:
-                    type: string
-                    pattern: >-
-                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
-                  style:
-                    type: object
-                    additionalProperties: false
-                    required: []
-                    properties:
-                      backgroundColor:
-                        type: string
-                      height:
-                        type:
-                          - string
-                          - number
-                      width:
-                        type:
-                          - string
-                          - number
-                      color:
-                        type: string
-                  border:
-                    type: string
-                    enum:
-                      - line
-                      - shadow
-                      - none
-                optionName: options
-              - type: object
-                additionalProperties: false
-                required:
-                  - desktop
-                  - mobile
-                properties:
-                  alt:
-                    type: string
-                    translate: md
-                  disableCompress:
-                    type: boolean
-                  loading:
-                    type: string
-                    enum:
-                      - eager
-                      - lazy
-                  fetchPriority:
-                    type: string
-                    enum:
-                      - high
-                      - low
-                      - auto
-                  desktop:
-                    type: string
-                    pattern: >-
-                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
-                  tablet:
-                    type: string
-                    pattern: >-
-                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
-                  mobile:
-                    type: string
-                    pattern: >-
-                      ^((http[s]?|ftp):\/)?\/?([^:\/\s]+)((\/\w+)*\/)([\w\-\.]+[^#?\s]+)(.*)?(#[\w\-]+)?$
-                  border:
-                    type: string
-                    enum:
-                      - line
-                      - shadow
-                      - none
-                optionName: device options
-          children:
-            type: array
-            items:
-              $ref: self#/definitions/cards
       content-layout-block:
         additionalProperties: false
         properties:
@@ -20806,10 +20805,14 @@ definitions:
                 type: object
                 patternProperties:
                   .*:
-                    type:
-                      - string
-                      - number
-                      - boolean
+                    oneOf:
+                      - type:
+                          - string
+                          - number
+                          - boolean
+                      - type: object
+                        additionalProperties: true
+                      - type: array
             disabled: true
           children:
             type: array
@@ -20845,6 +20848,42 @@ definitions:
             type: string
             translate: md
             inputType: textarea
+    type: object
+    required:
+      - type
+    properties:
+      when:
+        type: string
+      type:
+        type: string
+        enum:
+          - divider
+          - quote
+          - event
+          - post
+          - extended-features-block
+          - promo-features-block
+          - slider-block
+          - questions-block
+          - header-block
+          - banner-block
+          - companies-block
+          - media-block
+          - map-block
+          - info-block
+          - table-block
+          - tabs-block
+          - price-detailed
+          - header-slider-block
+          - cards-with-image-block
+          - icons-block
+          - card-layout-block
+          - content-layout-block
+          - share-block
+          - filter-block
+          - form-block
+    select:
+      $data: 0/type
   cards:
     type: object
     required:
@@ -21318,6 +21357,8 @@ definitions:
             type: string
           videoIframe:
             type: string
+          autoplay:
+            type: boolean
           parallax:
             type: boolean
           height:
@@ -21728,6 +21769,7 @@ definitions:
                         - s
                         - m
                         - l
+                  translate: md
                 analyticsEvents:
                   oneOf:
                     - type: object
@@ -26272,11 +26314,18 @@ definitions:
           urlTitle:
             type: string
             translate: md
-type: object
-additionalProperties: false
-required:
-  - blocks
 properties:
+  meta:
+    type: object
+    properties:
+      title:
+        $ref: '#/definitions/TextItems'
+        translate: md
+      description:
+        $ref: '#/definitions/TextItems'
+        translate: md
+      noIndex:
+        type: boolean
   animated:
     type: boolean
   logo:
@@ -27352,17 +27401,6 @@ properties:
     type: array
     items:
       $ref: '#/definitions/children'
-  meta:
-    type: object
-    properties:
-      title:
-        $ref: '#/definitions/TextItems'
-        translate: md
-      description:
-        $ref: '#/definitions/TextItems'
-        translate: md
-      noIndex:
-        type: boolean
   menu:
     type: object
     additionalProperties: false
@@ -28188,3 +28226,8 @@ properties:
               fullWidthMedia:
                 type: boolean
         optionName: themes
+$id: self
+type: object
+additionalProperties: false
+required:
+  - blocks

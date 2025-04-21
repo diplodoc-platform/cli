@@ -1,0 +1,133 @@
+meta:
+ title: Справка Сервиса
+ description: В Справке Сервиса собрали всю необходимую информацию.
+ 
+fullScreen: true
+blocks:
+  - type: header-block
+    title: <div class="u-breadcrumbs"></div> 
+    breadcrumbs:
+     items:
+      - text: Справка
+        url: 'https://site.ru/support/'
+      - text: Реклама
+        url: 'https://site.ru/support/adv/'
+  - type: 'filter-block'
+    centered: false
+    title:
+      text: 'Сервис'
+    tags:
+      - id: 'one'
+        label: 'Для специалистов'
+      - id: 'two'
+        label: 'Для предпринимателей'
+    colSizes:
+      all: 12
+      xl: 4
+      sm: 6
+      md: 4
+
+    items:
+      - tags:
+          - 'one'
+        card:
+          type: 'image-card'
+          image: 'https://site.ru/img/orig'
+          title: 'Единая перфоманс-кампания'
+          text: '<div>Комплексно решайте любые перфоманс-задачи в рамках одной кампании</div><div class="u-card__more">Подробнее</>'
+          margins: 'm'
+          border: shadow
+          url: 'unified-performance-campaign/about.md'
+          urlTitle: 'Подробнее'
+
+      - tags:
+          - 'one'
+        card:
+          type: 'image-card'
+          image: 'https://site.ru/img2/orig'
+          title: 'Товарная кампания'
+          text: '<div>Используйте простой инструмент для продвижения товаров интернете</div><div class="u-card__more">Подробнее</>'
+          margins: 'm'
+          border: shadow
+          url: 'campaign-master/product-campaign.md'
+          urlTitle: 'Подробнее'
+
+      - tags:
+          - 'one'
+        card:
+          type: 'image-card'
+          image: 'https://site.ru/img2/orig'
+          title: 'Реклама в Telegram'
+          text: '<div>Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ</div><div class="u-card__more">Подробнее</>'
+          margins: 'm'
+          border: shadow
+          url: 'efficiency/telegram-ads.md'
+          urlTitle: 'Подробнее'
+
+      - tags:
+          - 'one'
+        card:
+          type: 'background-card'
+          title: Часто ищут
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: Статистика
+              url: 'statistics.md'
+              arrow: true
+              theme: 'normal'
+            - text: Управление фидами
+              url: 'feeds/about.md'
+              arrow: true
+              theme: 'normal'
+
+      - tags:
+          - 'one'
+        card:
+          type: background-card
+          title: Сервисные функции
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: Правила и модерация
+              url: 'moderation/adv-rules.md'
+              arrow: true
+              theme: 'normal'
+            - text: Технологии и сервисы
+              url: 'technologies-and-services/technologies-and-services.md'
+              arrow: true
+              theme: 'normal'
+            - text: Поддержка 24/7
+              url: 'troubleshooting/other.md'
+              arrow: true
+              theme: 'normal'
+
+      - tags:
+          - 'one'
+        card:
+          type: background-card
+          title: Полезные ссылки
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: Глоссарий
+              url: 'glossary.md'
+              arrow: true
+              theme: 'normal'
+
+      - tags:
+          - 'two'
+        card:
+          type: 'image-card'
+          image: 'https://site.ru/img4/orig'
+          title: 'Простой старт'
+          text: '<div>Минимум ручных настроек: достаточно указать ссылку на сайт</div><div class="u-card__more">Подробнее</>'
+          margins: 'm'
+          border: shadow
+          url: 'products-automatic/about.md'
+          urlTitle: 'Подробнее'
+
+animated: false
