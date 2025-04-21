@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.15](https://github.com/diplodoc-platform/cli/compare/v4.57.14...v4.57.15) (2025-04-21)
+
+
+### Bug Fixes
+
+* add default yaml conditions, update test, add toc.yaml files to translations ([d4faaaf](https://github.com/diplodoc-platform/cli/commit/d4faaaf593c76607ee25ee2d07a3de02b5a50ee9))
+
 ## [4.57.14](https://github.com/diplodoc-platform/cli/compare/v4.57.13...v4.57.14) (2025-04-18)
 
 
