@@ -18,6 +18,7 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly meta: MetaService;
     readonly toc: TocService;
     readonly markdown: MarkdownService;
+    readonly tocYamlList: Set<string>;
 
     constructor(config: Config<CommonRunConfig>) {
         super(config);
@@ -31,6 +32,7 @@ export class Run extends BaseRun<CommonRunConfig> {
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
         this.markdown = new MarkdownService(this);
+        this.tocYamlList = new Set();
     }
 
     async prepareRun() {
@@ -44,6 +46,7 @@ export class Run extends BaseRun<CommonRunConfig> {
 
             for (const toc of tocs) {
                 await this.toc.load(toc);
+                this.tocYamlList.add(toc);
             }
         }
     }
@@ -64,7 +67,7 @@ export class Run extends BaseRun<CommonRunConfig> {
             }
         }
 
-        const allFilesArray = Array.from(allFiles);
+        const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
 
         return resolveFiles(
             this.config.input,

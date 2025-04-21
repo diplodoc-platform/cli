@@ -17,7 +17,11 @@ exports[`Translate command filter files on extract with extra exclude option: fi
   "es/nested/syntax/index.md.skl",
   "es/nested/syntax/index.md.xliff",
   "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff"
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
 ]"
 `;
 
@@ -40,6 +44,10 @@ exports[`Translate command filter files on extract: filelist 1`] = `
   "es/nested/syntax/index.md.skl",
   "es/nested/syntax/index.md.xliff",
   "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff"
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
 ]"
 `;
