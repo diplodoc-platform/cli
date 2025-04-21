@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.16](https://github.com/diplodoc-platform/cli/compare/v4.57.15...v4.57.16) (2025-04-21)
+
+
+### Bug Fixes
+
+* add default toc conditions, subsitutions ([8362b8f](https://github.com/diplodoc-platform/cli/commit/8362b8fc95be8bfcbe328c963db4c40f6c5beb72))
+
 ## [4.57.15](https://github.com/diplodoc-platform/cli/compare/v4.57.14...v4.57.15) (2025-04-21)
 
 
