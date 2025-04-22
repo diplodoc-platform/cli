@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.57.17](https://github.com/diplodoc-platform/cli/compare/v4.57.16...v4.57.17) (2025-04-22)
+
+
+### Bug Fixes
+
+* add meta, urlTitle, tags, leftItems to translate ([042ba2e](https://github.com/diplodoc-platform/cli/commit/042ba2e4f18e70d00baf07e8e3b5026768e0c3ed))
+* Update page-constructor-schema and script, add e2e test ([58c1c3c](https://github.com/diplodoc-platform/cli/commit/58c1c3c323acfc36fbf4cb21d49a63ca79a8c592))
+
 ## [4.57.16](https://github.com/diplodoc-platform/cli/compare/v4.57.15...v4.57.16) (2025-04-21)
 
 
