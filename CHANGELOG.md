@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.18](https://github.com/diplodoc-platform/cli/compare/v4.57.17...v4.57.18) (2025-04-23)
+
+
+### Bug Fixes
+
+* if no entries in toc take input dir files ([3592461](https://github.com/diplodoc-platform/cli/commit/3592461744587a5eb98a6801d327f308a8f3ba36))
+
 ## [4.57.17](https://github.com/diplodoc-platform/cli/compare/v4.57.16...v4.57.17) (2025-04-22)
 
 
