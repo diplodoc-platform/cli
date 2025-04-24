@@ -59,11 +59,17 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
 
         for (const entry of this.toc.entries) {
-            const deps = await this.markdown.deps(entry as RelativePath);
-            for (const dep of deps) {
-                if (dep.path.endsWith('.md')) {
-                    allFiles.add(dep.path);
+            try {
+                const deps = await this.markdown.deps(entry as RelativePath);
+
+                for (const dep of deps) {
+                    if (dep.path.endsWith('.md')) {
+                        allFiles.add(dep.path);
+                    }
                 }
+            } catch (error) {
+                this.logger.warn(error);
+                allFiles.delete(entry);
             }
         }
 
