@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.57.19](https://github.com/diplodoc-platform/cli/compare/v4.57.18...v4.57.19) (2025-04-24)
+
+
+### Bug Fixes
+
+* add default tocEntries list ([644c283](https://github.com/diplodoc-platform/cli/commit/644c283cdbf009ee95c5a290b1768639633684e2))
+* throw enoent warning, rm this file from entries list ([1f1588d](https://github.com/diplodoc-platform/cli/commit/1f1588d3d659daad709bc3e175313684e2c3e0cd))
+
 ## [4.57.18](https://github.com/diplodoc-platform/cli/compare/v4.57.17...v4.57.18) (2025-04-23)
 
 
