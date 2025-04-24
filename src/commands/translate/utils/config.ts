@@ -98,7 +98,7 @@ export function resolveFiles(
     exclude: string[],
     lang: string | null,
     exts: string[],
-    tocEntries: string[],
+    tocEntries: string[] = [],
 ) {
     let result: string[];
     let skipped: [string, string][] = [];
