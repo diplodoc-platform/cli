@@ -59,12 +59,12 @@
   },
   "pkg": {
     "scripts": [
-        "./build/**/*.js",
-        "./node_modules/@diplodoc/client/build/server/*.js",
-        "./node_modules/@diplodoc/client/build/client/*.json"
+      "./build/**/*.js",
+      "./node_modules/@diplodoc/client/build/server/*.js",
+      "./node_modules/@diplodoc/client/build/client/*.json"
     ],
     "assets": [
-        "./assets/*"
+      "./assets/*"
     ]
   },
   "husky": {
@@ -108,7 +108,6 @@
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.1",
     "@octokit/core": "4.2.4",
-    "typescript-transform-paths": "^3.5.5",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "^3.0.0",
@@ -124,7 +123,6 @@
     "algoliasearch": "^5.20.0",
     "async": "^3.2.4",
     "axios": "^1.7.8",
-    "cheerio": "^1.0.0",
     "csp-header": "^5.2.1",
     "esbuild": "^0.23.1",
     "html-escaper": "^3.0.3",
