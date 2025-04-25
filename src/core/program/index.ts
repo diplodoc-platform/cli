@@ -1,7 +1,7 @@
 import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
-
-import {isAbsolute, resolve} from 'node:path';
+import Module from 'node:module';
+import {dirname, isAbsolute, resolve} from 'node:path';
 import {once, pick} from 'lodash';
 
 import {
@@ -89,7 +89,7 @@ export class BaseProgram<
         }
     }
 
-    async init(args: BaseArgs, parent?: BaseProgram) {
+    async init(args: BaseArgs, parent?: BaseProgram, isExtension = false) {
         this.logger.setup(args);
 
         const config = await this.resolveConfig(args as TArgs);
@@ -205,7 +205,7 @@ export class BaseProgram<
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         // args extension paths should be relative to PWD
         const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-            const path = isRelative(ext) ? resolve(ext) : ext;
+            const path = isAbsolute(ext) ? ext : resolve(process.cwd(), ext);
             const options = {};
 
             return {path, options};
@@ -214,10 +214,10 @@ export class BaseProgram<
         // config extension paths should be relative to config
         const configExtensions: ExtensionInfo[] = [
             ...this.extensions,
-            ...(config.extensions || []),
+            // ...(config.extensions || []),
         ].map((ext) => {
             const extPath = typeof ext === 'string' ? ext : ext.path;
-            const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
+            const path = isAbsolute(extPath) ? extPath : config.resolve(extPath);
             const options = typeof ext === 'string' ? {} : ext.options || {};
 
             return {path, options};
@@ -232,10 +232,29 @@ export class BaseProgram<
             path: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = require(path);
-            const Extension = ExtensionModule.Extension || ExtensionModule.default;
+            try {
+                const ExtensionModule = require(path);
+                const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
-            return new Extension(options);
+                return new Extension(options);
+            } catch (error: any) {
+                this.logger.error(`Failed to load extension from ${path}: ${error.message}`);
+                throw error;
+            }
+        };
+
+        const originalRequire = Module.prototype.require;
+
+        // @ts-ignore
+        Module.prototype.require = function() {
+            const name = arguments[0];
+            if (name === '@diplodoc/cli') {
+                const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
+                console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
+                return originalRequire.apply(this, [realCWD ]);
+            }
+            // @ts-ignore
+            return originalRequire.apply(this, arguments);
         };
 
         return Promise.all(extensions.map(initialize));
