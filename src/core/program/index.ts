@@ -247,13 +247,16 @@ export class BaseProgram<
 
         // @ts-ignore
         Module.prototype.require = function () {
+            // eslint-disable-next-line prefer-rest-params
             const name = arguments[0];
             if (name === '@diplodoc/cli') {
                 const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
                 console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
                 return originalRequire.apply(this, [realCWD]);
             }
+
             // @ts-ignore
+            // eslint-disable-next-line prefer-rest-params
             return originalRequire.apply(this, arguments);
         };
 
