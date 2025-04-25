@@ -57,6 +57,16 @@
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js"
   },
+  "pkg": {
+    "scripts": [
+        "./build/**/*.js",
+        "./node_modules/@diplodoc/client/build/server/*.js",
+        "./node_modules/@diplodoc/client/build/client/*.json"
+    ],
+    "assets": [
+        "./assets/*"
+    ]
+  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
@@ -98,6 +108,7 @@
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.1",
     "@octokit/core": "4.2.4",
+    "typescript-transform-paths": "^3.5.5",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "^3.0.0",
