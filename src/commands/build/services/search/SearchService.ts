@@ -138,4 +138,8 @@ export class SearchService implements SearchProvider<RelativePath> {
             </html>
         `;
     }
+
+    getIndexedCount(): number {
+        return this.provider?.getIndexedCount() || 0;
+    }
 }
