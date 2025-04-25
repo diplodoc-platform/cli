@@ -46,7 +46,7 @@ export class LocalSearchProvider implements SearchProvider {
         this.indexer.add(lang, url, {
             title: info.title,
             meta: info.meta || {}, // Ensure meta is never undefined
-            html: info.html
+            html: info.html,
         });
     }
 
