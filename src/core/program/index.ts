@@ -246,12 +246,12 @@ export class BaseProgram<
         const originalRequire = Module.prototype.require;
 
         // @ts-ignore
-        Module.prototype.require = function() {
+        Module.prototype.require = function () {
             const name = arguments[0];
             if (name === '@diplodoc/cli') {
                 const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
                 console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
-                return originalRequire.apply(this, [realCWD ]);
+                return originalRequire.apply(this, [realCWD]);
             }
             // @ts-ignore
             return originalRequire.apply(this, arguments);
