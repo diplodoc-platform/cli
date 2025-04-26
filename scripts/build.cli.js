@@ -1,4 +1,5 @@
-const {basename, dirname} = require("node:path");
+const {basename, dirname} = require('node:path');
+const {chmod} = require('node:fs/promises');
 const esbuild = require('esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
@@ -31,7 +32,8 @@ const lib = (entry, format) => esbuild.build({
         }),
     ]
 });
-const build = (entry, outfile, format) => {
+const build = async (entry, outfile, format) => {
+    const file = `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`;
     const config = {
         ...baseConfig,
         format,
@@ -46,7 +48,7 @@ const build = (entry, outfile, format) => {
             js: '#!/usr/bin/env node',
         },
         entryPoints: [entry],
-        outfile: `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`,
+        outfile: file,
     };
 
     config.external = [
@@ -55,7 +57,9 @@ const build = (entry, outfile, format) => {
         '@diplodoc/cli/package',
     ];
 
-    return esbuild.build(config);
+    await esbuild.build(config);
+
+    await chmod(file, '755');
 };
 
 const builds = [
