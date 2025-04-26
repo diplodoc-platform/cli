@@ -92,12 +92,13 @@ export class BaseProgram<
     async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
+        const config = await this.resolveConfig(args as TArgs);
+        const extensions = await this.resolveExtensions(config, args);
+
         // @ts-ignore
-        this['config'] = parent?.config || (await this.hookConfig(args as TArgs));
+        this['config'] = parent?.config || (await this.hookConfig(config, args as TArgs));
 
         this.logger.setup(this['config']);
-
-        const extensions = await this.resolveExtensions(this['config'], args);
 
         this.modules.push(...extensions);
 
@@ -154,7 +155,7 @@ export class BaseProgram<
         } as TArgs;
     }
 
-    private async hookConfig(args: TArgs) {
+    private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
         const configPath =
@@ -165,12 +166,14 @@ export class BaseProgram<
         const filter =
             (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
 
-        const config = await resolveConfig(configPath, {
+        return resolveConfig(configPath, {
             filter: filter || undefined,
             defaults: defaults,
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
+    }
 
+    private async hookConfig(config: Config<TConfig>, args: TArgs) {
         await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
         Object.assign(config, this.args(args));
@@ -187,12 +190,13 @@ export class BaseProgram<
 
     private async _action() {
         const args = this.command.optsWithGlobals() as TArgs;
+        const config = await this.resolveConfig(args as TArgs);
 
         // We already parse config in to init method,
         // but there we need to rebuild it,
         // because some extensions may affect config parsing.
         // @ts-ignore
-        this['config'] = await this.hookConfig(args);
+        this['config'] = await this.hookConfig(config, args);
 
         await this.action(args);
         await this.post();
