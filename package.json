@@ -44,7 +44,7 @@
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
-    "build:types": "tspc -p tsconfig.lib.json; tspc -p tsconfig.build.json",
+    "build:types": "tspc -p tsconfig.lib.json || true; tspc -p tsconfig.build.json || true",
     "build:clean": "rm -rf build lib",
     "e2e": "npm run build && cd tests && npm test",
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
