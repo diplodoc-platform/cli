@@ -133,6 +133,9 @@
     "vitest-when": "^0.5.0",
     "walk-sync": "^3.0.0"
   },
+  "overrides": {
+    "cytoscape": "3.31.2"
+  },
   "engines": {
     "node": ">=18.*"
   }
