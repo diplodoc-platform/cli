@@ -330,28 +330,22 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 `;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > index.html 1`] = `
-"
-        <!DOCTYPE html>
-        <html lang="ar" dir="rtl">
-            <head>
-                <meta charset="utf-8">
-                <meta http-equiv="refresh" content="0; url=./ar/index.html">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Redirect</title>
-                <style type="text/css">
-                    body {
-                        height: 100vh;
-                    }
-                </style>
-                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
-<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
-                <script type="text/javascript">
-                    window.location.replace("./ar/index.html");
-                </script>
-            </head>
-            <body class="g-root g-root_theme_light">
-                If you are not redirected automatically, follow this <a href="./ar/index.html">link to example</a>.
-            </body>
-        </html>
-    "
+"<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="0; url=./ar/index.html">
+        <title>Redirect</title>
+        <style type="text/css">
+            body {height: 100vh;}
+        </style>
+        <script type="text/javascript">
+            window.location.replace("./ar/index.html");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./ar/index.html">link</a>.
+    </body>
+</html>"
 `;

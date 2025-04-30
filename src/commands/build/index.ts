@@ -33,7 +33,6 @@ import {Templating} from './features/templating';
 import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
-import {Redirects} from './features/redirects';
 import {Lint} from './features/linter';
 import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
@@ -83,8 +82,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly singlepage = new SinglePage();
 
-    readonly redirects = new Redirects();
-
     readonly linter = new Lint();
 
     readonly changelogs = new Changelogs();
@@ -123,7 +120,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.resources,
         this.contributors,
         this.singlepage,
-        this.redirects,
         this.linter,
         this.changelogs,
         this.search,
@@ -291,10 +287,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.run.markdown.init();
         await this.run.vcs.init();
         await this.run.search.init();
+        await this.run.redirects.init();
     }
 
     private async releaseRun() {
         await this.run.search.release();
+        await this.run.redirects.release();
     }
 
     private async cleanup() {
