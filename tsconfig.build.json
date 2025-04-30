@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "~/*": ["./src/*"],
+      "@diplodoc/cli/lib/*": ["./lib/*"],
+      "@diplodoc/cli": ["./src"]
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths", "afterDeclarations": true }
+    ],
+    "baseUrl": ".",
+    "declaration": true,
+    "noEmitOnError": false,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "build"
+  },
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/core/**",
+    "src/extensions/**",
+  ]
+}

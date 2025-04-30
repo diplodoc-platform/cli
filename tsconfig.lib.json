@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "~/core/*": ["./src/core/*"],
+    },
+    "plugins": [
+      { "transform": "typescript-transform-paths", "afterDeclarations": true },
+    ],
+    "baseUrl": ".",
+    "declaration": true,
+    "noEmitOnError": false,
+    "emitDeclarationOnly": true,
+    "rootDir": "src/core",
+    "outDir": "lib"
+  },
+  "include": [
+    "src/path.d.ts",
+    "src/globals.d.ts",
+    "src/core"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts"
+  ]
+}
