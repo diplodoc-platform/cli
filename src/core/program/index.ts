@@ -214,7 +214,7 @@ export class BaseProgram<
         // config extension paths should be relative to config
         const configExtensions: ExtensionInfo[] = [
             ...this.extensions,
-            // ...(config.extensions || []),
+            ...(config.extensions || []),
         ].map((ext) => {
             const extPath = typeof ext === 'string' ? ext : ext.path;
             const path = isAbsolute(extPath) ? extPath : config.resolve(extPath);
