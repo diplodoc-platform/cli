@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.20](https://github.com/diplodoc-platform/cli/compare/v4.57.19...v4.57.20) (2025-04-30)
+
+
+### Dependency update
+
+* pin cytoscape to 3.31.2 ([087d704](https://github.com/diplodoc-platform/cli/commit/087d70471e57beab5f2b593c5c58a4f14204892b))
+
 ## [4.57.19](https://github.com/diplodoc-platform/cli/compare/v4.57.18...v4.57.19) (2025-04-24)
 
 
