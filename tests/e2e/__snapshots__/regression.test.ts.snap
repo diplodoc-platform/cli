@@ -158,6 +158,27 @@ Content
 "
 `;
 
+exports[`Regression > internal > c.md 1`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="refresh" content="0; url=d.md">
+        <title>Redirect</title>
+        <style type="text/css">
+            body {height: 100vh;}
+        </style>
+        <script type="text/javascript">
+            window.location.replace("d.md");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="d.md">link</a>.
+    </body>
+</html>"
+`;
+
 exports[`Regression > internal > filelist 1`] = `
 "[
   "1.md",
@@ -184,6 +205,7 @@ exports[`Regression > internal > filelist 1`] = `
   "openapi/index.md",
   "openapi/test-controller/getWithPayloadResponse.md",
   "openapi/test-controller/index.md",
+  "redirects.yaml",
   "sub/folder/item-1.md",
   "toc.yaml"
 ]"
@@ -209,6 +231,7 @@ exports[`Regression > internal > filelist 2`] = `
   "_bundle/search-js-2",
   "_bundle/search-css-1",
   "autotitle.html",
+  "c.md",
   "generic/1.html",
   "generic/2.html",
   "generic/Sub notes/1.html",
@@ -1303,6 +1326,16 @@ metadata:
 - [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
 
 <!-- markdownlint-disable-file -->"
+`;
+
+exports[`Regression > internal > redirects.yaml 1`] = `
+"files:
+  - from: c.md
+    to: d.md
+common:
+  - from: ./a.md
+    to: ./b.md
+"
 `;
 
 exports[`Regression > internal > sub/folder/item-1.html 1`] = `
