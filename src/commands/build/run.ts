@@ -6,13 +6,7 @@ import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
 
 import {configPath} from '~/core/config';
-import {
-    ASSETS_FOLDER,
-    REDIRECTS_FILENAME,
-    TMP_INPUT_FOLDER,
-    TMP_OUTPUT_FOLDER,
-    YFM_CONFIG_FILENAME,
-} from '~/constants';
+import {ASSETS_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
@@ -24,6 +18,7 @@ import {all, bounded, langFromPath, normalizePath, zip} from '~/core/utils';
 
 import {SearchService} from './services/search';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {RedirectsService} from './services/redirects';
 
 type TransformOptions = {
     deps: NormalizedPath[];
@@ -57,6 +52,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly search: SearchService;
 
+    readonly redirects: RedirectsService;
+
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
     }
@@ -67,10 +64,6 @@ export class Run extends BaseRun<BuildConfig> {
 
     get assetsPath() {
         return join(ASSETS_FOLDER);
-    }
-
-    get redirectsPath() {
-        return join(this.originalInput, REDIRECTS_FILENAME);
     }
 
     constructor(config: BuildConfig) {
@@ -96,6 +89,7 @@ export class Run extends BaseRun<BuildConfig> {
         this.leading = new LeadingService(this);
         this.markdown = new MarkdownService(this);
         this.search = new SearchService(this);
+        this.redirects = new RedirectsService(this);
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
