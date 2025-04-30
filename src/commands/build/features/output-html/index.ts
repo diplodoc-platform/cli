@@ -14,6 +14,7 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
@@ -124,6 +125,11 @@ export class OutputHtml {
                         return result;
                     },
                 );
+
+                getRedirectsHooks(run.redirects).Release.tap('Html', () => {
+                    // Do not save redirects.yaml for html mode
+                    return null;
+                });
             });
 
         getBuildHooks(program)
@@ -131,6 +137,27 @@ export class OutputHtml {
             .tapPromise('Html', async (run) => {
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
                 await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
+            });
+
+        // Generate redirects
+        getBuildHooks(program)
+            .AfterRun.for('html')
+            .tapPromise('Html', async (run) => {
+                const langRelativePath = `./${run.config.lang}/index.html`;
+                const langPath = join(run.output, langRelativePath);
+                const pagePath = join(run.output, 'index.html');
+
+                // Generate root lang redirect if it doesn't exists
+                if (!run.exists(pagePath) && run.exists(langPath)) {
+                    const content = await run.redirects.page(run.config.lang, langRelativePath);
+                    await run.write(pagePath, content);
+                }
+
+                // Generate redirect for each record in redirects.files section
+                for (const {from, to} of run.redirects.files) {
+                    const content = await run.redirects.page(run.config.lang, to);
+                    await run.write(join(run.output, from), content);
+                }
             });
     }
 }
