@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.21](https://github.com/diplodoc-platform/cli/compare/v4.57.20...v4.57.21) (2025-04-30)
+
+
+### Bug Fixes
+
+* temporarily ignore typescript errors when running `prepublishOnly` ([81f027f](https://github.com/diplodoc-platform/cli/commit/81f027fb5aa4352accf64165cb440416dce9ca25))
+
 ## [4.57.20](https://github.com/diplodoc-platform/cli/compare/v4.57.19...v4.57.20) (2025-04-30)
 
 
