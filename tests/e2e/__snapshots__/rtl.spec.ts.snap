@@ -161,7 +161,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: .yfm 1`] = `"langs: ['ar', 'en']"`;
 
@@ -303,7 +303,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"path":"ar/toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/index.html 1`] = `
 <!DOCTYPE html>
@@ -452,7 +452,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 </html>
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: filelist 1`] = `
 "[
@@ -486,28 +486,18 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 >
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="refresh"
-          content="0; url=./ar/index.html"
-    >
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0"
+    >
+    <meta http-equiv="refresh"
+          content="0; url=./ar/index.html"
     >
     <title>
       Redirect
     </title>
     <style type="text/css">
-      body {
-                        height: 100vh;
-                    }
+      body {height: 100vh;}
     </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
     <script type="text/javascript">
       window.location.replace("./ar/index.html");
     </script>
@@ -515,7 +505,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   <body class="g-root g-root_theme_light">
     If you are not redirected automatically, follow this
     <a href="./ar/index.html">
-      link to example
+      link
     </a>
     .
   </body>

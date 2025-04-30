@@ -13,6 +13,7 @@ export type BaseArgs = {
     config: AbsolutePath;
     quiet: boolean;
     strict: boolean;
+    jobs: number | true;
     extensions?: string[];
 };
 
@@ -20,6 +21,7 @@ export type BaseConfig = {
     input: AbsolutePath;
     quiet?: boolean;
     strict?: boolean;
+    jobs?: number;
     extensions?: (string | ExtensionInfo)[];
 };
 

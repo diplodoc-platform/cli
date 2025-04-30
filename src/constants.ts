@@ -7,7 +7,6 @@ export const TMP_INPUT_FOLDER = '.tmp_input';
 export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
 export const YFM_CONFIG_FILENAME = '.yfm';
-export const REDIRECTS_FILENAME = 'redirects.yaml';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const CUSTOM_STYLE = 'custom-style';
 export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
@@ -66,4 +65,4 @@ export enum ResourceType {
 
 export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
-export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 500;
+export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;

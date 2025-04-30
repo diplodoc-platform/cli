@@ -1,6 +1,6 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
+import type {EntryTocItem, Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/core/config';
-import {copyJson, isExternalHref, own} from '~/core/utils';
+import {copyJson, normalizePath} from '~/core/utils';
 import {getDepth, getDepthPath} from '~/utils';
 import {Lang} from '~/constants';
 import {generateStaticMarkup} from '~/pages';
@@ -57,10 +57,12 @@ export class SinglePage {
 
                 getBuildHooks(program)
                     .Entry.for('html')
-                    .tap('SinglePage', (entry, info, tocDir) => {
+                    .tap('SinglePage', (entry, info) => {
                         if (!info.html) {
                             return;
                         }
+
+                        const tocDir = normalizePath(dirname(run.toc.for(entry)));
 
                         results[tocDir] = results[tocDir] || [];
                         results[tocDir][info.position] = {
@@ -73,10 +75,8 @@ export class SinglePage {
 
                 getTocHooks(run.toc).Resolved.tapPromise('SinglePage', async (toc, path) => {
                     const copy = copyJson(toc);
-                    await run.toc.walkItems([copy], (item) => {
-                        if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                            item.href = getSinglePageUrl(dirname(path), item.href);
-                        }
+                    await run.toc.walkEntries([copy as EntryTocItem], (item) => {
+                        item.href = getSinglePageUrl(dirname(path), item.href);
 
                         return item;
                     });

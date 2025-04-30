@@ -65,7 +65,7 @@ interface RunYfmDocsArgs {
 export function runYfmDocs(inputPath: string, outputPath: string, {md2md=true, md2html=true, args = '', skipDefaults = false}: RunYfmDocsArgs = {}, extendedCommand = ''): void {
     shell.rm('-rf', outputPath);
 
-    const defaults = skipDefaults ? `` : ` --quiet --allowHTML`;
+    const defaults = skipDefaults ? `` : `-j2 --quiet --allowHTML`;
     const run = `node ${yfmDocsPath} ${extendedCommand} --input ${inputPath} --output ${outputPath} ${defaults}`;
 
     if (md2md && md2html) {

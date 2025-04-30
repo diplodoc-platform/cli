@@ -1,13 +1,13 @@
 import type {LiquidContext} from '@diplodoc/liquid';
 import type {TocService} from './TocService';
-import type {IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
+import type {EntryTocItem, IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
 import {omit} from 'lodash';
 import {evaluate, liquidSnippet} from '@diplodoc/liquid';
 
-import {isExternalHref, normalizePath, own} from '~/core/utils';
+import {normalizePath, own} from '~/core/utils';
 
 import {getHooks} from './hooks';
 import {getFirstValuable, isRelative} from './utils';
@@ -276,7 +276,7 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
 }
 
 /**
- * Rebuses items href after include in parent toc
+ * Rebase items href after include in parent toc
  */
 async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const rebaseHrefs = (item: RawTocItem | RawToc) => {
@@ -301,23 +301,24 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  * Fixes item href extensions
  */
 async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    await this.toc.walkItems([toc], (item: RawTocItem | RawToc) => {
-        if (own<string>(item, 'href') && !isExternalHref(item.href)) {
-            if (!item.href) {
-                delete item['href'];
-                return item;
-            }
-
-            item.href = normalizePath(item.href);
-
-            if (item.href.endsWith('/')) {
-                item.href = `${item.href}index.yaml`;
-            }
-
-            if (!item.href.endsWith('.md') && !item.href.endsWith('.yaml')) {
-                item.href = `${item.href}.md`;
-            }
+    await this.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
+        if (!item.href) {
+            // @ts-ignore
+            delete item['href'];
+            return item;
         }
+
+        let href: string = normalizePath(item.href);
+
+        if (href.endsWith('/')) {
+            href += 'index.yaml';
+        }
+
+        if (!href.endsWith('.md') && !href.endsWith('.yaml')) {
+            href += '.md';
+        }
+
+        item.href = href as YfmString & NormalizedPath;
 
         return item;
     });

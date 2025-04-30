@@ -4,9 +4,20 @@ import simpleGit from 'simple-git';
 import {minimatch} from 'minimatch';
 import {normalizePath} from '@diplodoc/cli/lib/utils';
 
+type AuthorInfo = {
+    email: string;
+    commit: string;
+};
+
 export type GitConfig = {
-    ignoreAuthorPatterns: string[];
+    authors?: {
+        ignore: string[];
+    };
+    contributors?: {
+        ignore: string[];
+    };
     vcs: {
+        branch?: string;
         initialCommit: string;
     };
 };
@@ -20,9 +31,11 @@ export class GitClient {
 
     async createMasterWorktree(baseDir: AbsolutePath, dir: RelativePath, branch: string) {
         const options: Partial<SimpleGitOptions> = {baseDir};
+        const origin = this.config.vcs.branch || 'master';
 
+        // TODO: this is cloud specific. We need extract this to isolated extension
         try {
-            await simpleGit(options).raw('worktree', 'add', '-b', branch, dir, 'origin/master');
+            await simpleGit(options).raw('worktree', 'add', '-b', branch, dir, origin);
         } catch {}
 
         return async () => {
@@ -32,55 +45,60 @@ export class GitClient {
     }
 
     async getContributors(baseDir: AbsolutePath) {
-        const contributors: Record<NormalizedPath, string[]> = {};
+        const contributors: Record<NormalizedPath, AuthorInfo[]> = {};
         const log = await simpleGit({baseDir}).raw(
             'log',
-            `${this.config.vcs.initialCommit}..HEAD`,
+            this.config.vcs.initialCommit
+                ? `${this.config.vcs.initialCommit}..HEAD`
+                : '--before=now',
+            '--reverse',
+            '--diff-filter=ADMR',
             '--pretty=format:%ae;%an;%H',
-            '--name-only',
+            '--name-status',
         );
         const parts = log.split(/\r?\n\r?\n/).filter(Boolean);
 
         for (const part of parts) {
-            const [userData, ...rawPaths] = part.trim().split(/\r?\n/);
-            const [email, name, hashCommit] = userData.split(';');
+            const [userData, ...paths] = part.trim().split(/\r?\n/);
+            const [email, name, commit] = userData.split(';');
 
-            if (shouldBeIgnored(this.config, {email, name})) {
-                continue;
-            }
+            followPaths(paths, contributors, (value) => {
+                if (shouldBeIgnored(this.config.contributors?.ignore || [], {email, name})) {
+                    return value;
+                }
 
-            const paths = (rawPaths as RelativePath[]).filter(isUsefullPath).map(normalizePath);
-            for (const path of paths) {
-                contributors[path] = (contributors[path] || []).concat(hashCommit);
-            }
+                return (value || []).concat({email, commit});
+            });
         }
 
         return contributors;
     }
 
     async getAuthors(baseDir: AbsolutePath) {
-        const authors: Record<NormalizedPath, string> = {};
+        const authors: Record<NormalizedPath, AuthorInfo> = {};
         const log = await simpleGit({baseDir}).raw(
             'log',
-            `${this.config.vcs.initialCommit}..HEAD`,
-            '--diff-filter=A',
+            this.config.vcs.initialCommit
+                ? `${this.config.vcs.initialCommit}..HEAD`
+                : '--before=now',
+            '--reverse',
+            '--diff-filter=ADR',
             '--pretty=format:%ae;%an;%H',
-            '--name-only',
+            '--name-status',
         );
         const parts = log.split(/\r?\n\r?\n/).filter(Boolean);
 
         for (const part of parts) {
-            const [userData, ...rawPaths] = part.trim().split(/\r?\n/);
-            const [email, name, hashCommit] = userData.split(';');
+            const [userData, ...paths] = part.trim().split(/\r?\n/);
+            const [email, name, commit] = userData.split(';');
 
-            if (shouldBeIgnored(this.config, {email, name})) {
-                continue;
-            }
+            followPaths(paths, authors, (value) => {
+                if (shouldBeIgnored(this.config.authors?.ignore || [], {email, name})) {
+                    return value;
+                }
 
-            const paths = (rawPaths as RelativePath[]).filter(isUsefullPath).map(normalizePath);
-            for (const path of paths) {
-                authors[path] = hashCommit;
-            }
+                return value || {email, commit};
+            });
         }
 
         return authors;
@@ -104,30 +122,7 @@ export class GitClient {
             const [date, ...lines] = part.trim().split(/\r?\n/);
             const unixtime = Number(date);
 
-            for (const line of lines) {
-                const [status, rawFrom, rawTo] = line.trim().split(/\t/);
-                const from = normalizePath((rawFrom || '') as RelativePath);
-                const to = normalizePath((rawTo || '') as RelativePath);
-
-                if (!isUsefullPath(rawFrom) || (rawTo && !isUsefullPath(rawTo))) {
-                    continue;
-                }
-
-                switch (status[0]) {
-                    case 'R': {
-                        delete mtimes[from];
-                        mtimes[to] = unixtime;
-                        break;
-                    }
-                    case 'D': {
-                        delete mtimes[from];
-                        break;
-                    }
-                    default: {
-                        mtimes[from] = unixtime;
-                    }
-                }
-            }
+            followPaths(lines, mtimes, () => unixtime);
         }
 
         return mtimes;
@@ -139,17 +134,43 @@ type ShouldAuthorBeIgnoredArgs = {
     name?: string;
 };
 
-function shouldBeIgnored(config: GitConfig, {email, name}: ShouldAuthorBeIgnoredArgs) {
+function followPaths<T>(lines: string[], map: Hash<T>, value: (prev: T) => T) {
+    for (const line of lines) {
+        const [status, rawFrom, rawTo] = line.trim().split(/\t/);
+        const from = normalizePath((rawFrom || '') as RelativePath);
+        const to = normalizePath((rawTo || '') as RelativePath);
+
+        if (!isUsefullPath(rawFrom) || (rawTo && !isUsefullPath(rawTo))) {
+            continue;
+        }
+
+        switch (status[0]) {
+            case 'R': {
+                map[to] = value(map[from]);
+                delete map[from];
+                break;
+            }
+            case 'D': {
+                delete map[from];
+                break;
+            }
+            default: {
+                map[from] = value(map[from]);
+            }
+        }
+    }
+}
+
+function shouldBeIgnored(ignore: string[], {email, name}: ShouldAuthorBeIgnoredArgs) {
     if (!(email || name)) {
         return false;
     }
 
-    const {ignoreAuthorPatterns} = config;
-    if (!ignoreAuthorPatterns.length) {
+    if (!ignore.length) {
         return false;
     }
 
-    for (const pattern of ignoreAuthorPatterns) {
+    for (const pattern of ignore) {
         if (email && minimatch(email, pattern)) {
             return true;
         }
