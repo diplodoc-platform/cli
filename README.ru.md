@@ -8,7 +8,7 @@
 Yfm-docs позволяет собрать полноценный документационный проект: с навигацией, внутренними переходами и полной поддержкой
 [Yandex Flavored Markdown (YFM)](https://diplodoc.com/docs/ru/index-yfm).
 
-![Пример отображения страницы документации](docsAssets/overview.jpg)
+![Пример отображения страницы документации](.github/assets/overview.jpg)
 
 ## Документация
 
