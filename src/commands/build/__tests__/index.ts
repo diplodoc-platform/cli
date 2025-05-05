@@ -181,6 +181,33 @@ export function testConfig(name: string, args: string, config: any, result?: any
     });
 }
 
+export function testNestedBooleanFlag(
+    name: string,
+    arg: string,
+    defaults: boolean,
+    configPath: string[],
+) {
+    describe(name, () => {
+        const createConfig = (value: boolean) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const config: any = {};
+            let current = config;
+
+            for (let i = 0; i < configPath.length - 1; i++) {
+                current[configPath[i]] = {};
+                current = current[configPath[i]];
+            }
+
+            current[configPath[configPath.length - 1]] = value;
+            return config;
+        };
+
+        testConfig('should handle default', '', createConfig(defaults));
+
+        testConfig('should handle arg', arg, createConfig(defaults), createConfig(true));
+    });
+}
+
 export function testBooleanFlag(name: string, arg: string, defaults: boolean) {
     describe(name, () => {
         testConfig('should handle default', '', {
