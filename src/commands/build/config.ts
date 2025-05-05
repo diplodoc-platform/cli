@@ -122,10 +122,40 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const interfaceToc = option({
+    flags: '--interface-toc',
+    desc: `
+        Toc will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+const interfaceSearch = option({
+    flags: '--interface-search',
+    desc: `
+        Search will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+const interfaceFeedback = option({
+    flags: '--interface-feedback',
+    desc: `
+        Feedback (likes, dislikes) will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
 export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const ignoreStage = defined('ignoreStage', args, config) || [];
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
+    const toc = defined('interfaceToc', args) || defined('toc', config['interface']);
+    const search = defined('interfaceSearch', args) || defined('search', config['interface']);
+    const feedback = defined('interfaceFeedback', args) || defined('feedback', config['interface']);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -147,6 +177,12 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     config.lang = lang || langs[0];
     config.vcs = toggleable('vcs', args, config);
     config.vcs.token = defined('vcsToken', args);
+    config.interface = {
+        ...config.interface,
+        toc,
+        feedback,
+        search,
+    }
 
     return config;
 }
@@ -173,4 +209,7 @@ export const options = {
     addSystemMeta,
     vcs,
     vcsToken,
+    interfaceToc,
+    interfaceSearch,
+    interfaceFeedback,
 };
