@@ -5,6 +5,10 @@ import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
 
 export * from '~/commands';
+export * from '~/core/program';
+export * from '~/core/config';
+export * from '~/core/logger';
+export * from '~/core/utils';
 
 if (require.main === module) {
     (async () => {
