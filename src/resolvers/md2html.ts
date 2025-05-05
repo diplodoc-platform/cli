@@ -28,7 +28,7 @@ const getFileData = async (run: Run, path: NormalizedPath) => {
 };
 
 const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
-    const {langs, analytics, search, staticContent} = run.config;
+    const {langs, analytics, search, staticContent, interface: viewerInterface} = run.config;
     const pathname = path.replace(extname(path), '');
     const lang = langFromPath(path, run.config);
 
@@ -49,6 +49,7 @@ const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
         langs,
         search: search.enabled ? run.search.config(lang) : undefined,
         analytics,
+        ...(viewerInterface && {viewerInterface}),
     };
 };
 
