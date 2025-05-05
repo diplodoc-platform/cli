@@ -1,5 +1,11 @@
 import {describe, expect, it} from 'vitest';
-import {handler, runBuild as run, testConfig as test, testBooleanFlag} from './__tests__';
+import {
+    handler,
+    runBuild as run,
+    testConfig as test,
+    testBooleanFlag,
+    testNestedBooleanFlag,
+} from './__tests__';
 
 describe('Build command', () => {
     describe('config', () => {
@@ -434,6 +440,16 @@ describe('Build command', () => {
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);
         testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
+
+        testNestedBooleanFlag('interfaceToc', '--interface-toc', true, ['interface', 'toc']);
+        testNestedBooleanFlag('interfaceSearch', '--interface-search', true, [
+            'interface',
+            'search',
+        ]);
+        testNestedBooleanFlag('interfaceFeedback', '--interface-feedback', true, [
+            'interface',
+            'feedback',
+        ]);
 
         // test('should handle required props in config', '', {
         //     input: './input',

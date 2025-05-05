@@ -67,6 +67,9 @@ const command = 'Build';
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
             lint: {enabled: true, config: {}},
+            interfaceToc: true,
+            interfaceSearch: true,
+            interfaceFeedback: true,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
@@ -114,6 +117,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.vcs,
         options.vcsToken,
         options.config(YFM_CONFIG_FILENAME),
+        options.interfaceToc,
+        options.interfaceSearch,
+        options.interfaceFeedback,
     ];
 
     readonly modules = [

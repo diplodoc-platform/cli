@@ -122,10 +122,68 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const interfaceToc = option({
+    flags: '--interface-toc',
+    desc: `
+        Toc will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+const interfaceSearch = option({
+    flags: '--interface-search',
+    desc: `
+        Search will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+const interfaceFeedback = option({
+    flags: '--interface-feedback',
+    desc: `
+        Feedback (likes, dislikes) will be removed from html output.
+    `,
+    default: true,
+    parser: () => false,
+});
+
+function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
+    const interfaceProps = ['toc', 'search', 'feedback'] as const;
+    type InterfaceProp = (typeof interfaceProps)[number];
+
+    const configInterface = config['interface'] || {};
+
+    const result = interfaceProps.reduce<Record<InterfaceProp, boolean>>(
+        (acc, prop) => {
+            acc[prop] = true;
+
+            const configValue = defined(prop, configInterface);
+            if (configValue !== null) {
+                acc[prop] = configValue;
+            }
+
+            const argProp =
+                `interface${prop.charAt(0).toUpperCase() + prop.slice(1)}` as keyof BuildArgs;
+            const argValue = defined(argProp, args);
+            if (argValue !== null) {
+                acc[prop] = argValue;
+            }
+
+            return acc;
+        },
+        {} as Record<InterfaceProp, boolean>,
+    );
+
+    return result;
+}
+
 export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const ignoreStage = defined('ignoreStage', args, config) || [];
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
+    const viewerInterface = getInterfaceProps(config, args);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -147,6 +205,10 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     config.lang = lang || langs[0];
     config.vcs = toggleable('vcs', args, config);
     config.vcs.token = defined('vcsToken', args);
+    config.interface = {
+        ...config.interface,
+        ...viewerInterface,
+    };
 
     return config;
 }
@@ -173,4 +235,7 @@ export const options = {
     addSystemMeta,
     vcs,
     vcsToken,
+    interfaceToc,
+    interfaceSearch,
+    interfaceFeedback,
 };
