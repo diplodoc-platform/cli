@@ -3,9 +3,8 @@ import type {Toc} from '~/core/toc';
 
 import {dirname, extname, join} from 'node:path';
 
-import {getDepth} from '~/utils';
 import {generateStaticMarkup} from '~/pages';
-import {copyJson, langFromPath} from '~/core/utils';
+import {copyJson, getDepth, langFromPath} from '~/core/utils';
 
 const getFileData = async (run: Run, path: NormalizedPath) => {
     const extension = extname(path);
@@ -54,13 +53,13 @@ const getFileProps = async (run: Run, path: NormalizedPath, toc: Toc) => {
 
 export async function resolveToHtml(run: Run, path: NormalizedPath): Promise<EntryInfo> {
     const tocPath = run.toc.for(path);
-    const toc = await run.toc.dump(tocPath);
+    const toc = (await run.toc.dump(tocPath)) as Toc;
     const props = await getFileProps(run, path, toc);
 
     const tocDir = dirname(tocPath);
 
     const title = getTitle(toc.title as string, props.data.title);
-    const result = generateStaticMarkup(props, join(tocDir, 'toc'), title);
+    const result = generateStaticMarkup(path, props, join(tocDir, 'toc'), title);
 
     const outputPath = path.replace(/\.(md|y?aml)$/i, '.html');
 
