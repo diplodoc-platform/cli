@@ -8,8 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {defined} from '~/core/config';
-import {copyJson, normalizePath} from '~/core/utils';
-import {getDepth, getDepthPath} from '~/utils';
+import {copyJson, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {Lang} from '~/constants';
 import {generateStaticMarkup} from '~/pages';
 
@@ -137,6 +136,7 @@ export class SinglePage {
                             SINGLE_PAGE_DATA_FILENAME,
                         );
                         const singlePageContent = generateStaticMarkup(
+                            join(tocDir as NormalizedPath, SINGLE_PAGE_FILENAME),
                             pageData,
                             join(tocDir, 'single-page-toc'),
                             (toc.title as string) || '',
