@@ -5,12 +5,12 @@ import {ok} from 'node:assert';
 import {join} from 'node:path';
 import {difference} from 'lodash';
 import {dump} from 'js-yaml';
-import { dedent } from 'ts-dedent';
 
+import {Template} from '~/core/template';
 import {resolveConfig} from '~/core/config';
+import {langFromPath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {RTL_LANGS} from '~/constants';
 
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 
@@ -22,10 +22,13 @@ export class RedirectsService {
 
     private run: Run;
 
+    private config: Run['config'];
+
     private redirects: Redirects | null = null;
 
     constructor(run: Run) {
         this.run = run;
+        this.config = this.run.config;
     }
 
     async init() {
@@ -54,29 +57,21 @@ export class RedirectsService {
         }
     }
 
-    async page(lang: string, link: string) {
-        const isRTL = RTL_LANGS.includes(lang);
+    async page(from: RelativePath, to: RelativePath) {
+        const lang = langFromPath(from, this.config);
+        const template = new Template(from, lang);
 
-        return dedent`
-            <!DOCTYPE html>
-            <html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
-                <head>
-                    <meta charset="utf-8">
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                    <meta http-equiv="refresh" content="0; url=${link}">
-                    <title>Redirect</title>
-                    <style type="text/css">
-                        body {height: 100vh;}
-                    </style>
-                    <script type="text/javascript">
-                        window.location.replace("${link}");
-                    </script>
-                </head>
-                <body class="g-root g-root_theme_light">
-                    If you are not redirected automatically, follow this <a href="${link}">link</a>.
-                </body>
-            </html>
-        `;
+        template
+            .setTitle(`Redirect to ${to}`)
+            .addMeta({'http-equiv': 'refresh', content: `0; url=${to}`})
+            .addScript(`window.location.replace("${to}");`, {inline: true, position: 'leading'})
+            .addBody(
+                `If you are not redirected automatically, follow this <a href="${to}">link</a>.`,
+            );
+
+        await getHooks(this).Page.promise(template);
+
+        return template.dump();
     }
 
     private validate(redirects: Redirects) {

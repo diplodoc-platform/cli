@@ -143,19 +143,19 @@ export class OutputHtml {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('Html', async (run) => {
-                const langRelativePath = `./${run.config.lang}/index.html`;
+                const langRelativePath: RelativePath = `./${run.config.lang}/index.html`;
                 const langPath = join(run.output, langRelativePath);
                 const pagePath = join(run.output, 'index.html');
 
                 // Generate root lang redirect if it doesn't exists
                 if (!run.exists(pagePath) && run.exists(langPath)) {
-                    const content = await run.redirects.page(run.config.lang, langRelativePath);
+                    const content = await run.redirects.page('./', langRelativePath);
                     await run.write(pagePath, content);
                 }
 
                 // Generate redirect for each record in redirects.files section
                 for (const {from, to} of run.redirects.files) {
-                    const content = await run.redirects.page(run.config.lang, to);
+                    const content = await run.redirects.page(from, to);
                     await run.write(join(run.output, from), content);
                 }
             });
