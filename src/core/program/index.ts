@@ -154,6 +154,10 @@ export class BaseProgram<
         } as TArgs;
     }
 
+    addModule(module: ICallable) {
+        this.modules.push(module);
+    }
+
     private async hookConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
