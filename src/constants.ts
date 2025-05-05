@@ -1,5 +1,4 @@
 import {resolve} from 'node:path';
-import {platform} from 'process';
 
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
@@ -8,8 +7,7 @@ export const TMP_OUTPUT_FOLDER = '.tmp_output';
 export const MAIN_TIMER_ID = 'Build time';
 export const YFM_CONFIG_FILENAME = '.yfm';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
-export const CUSTOM_STYLE = 'custom-style';
-export const DEFAULT_CSP_SETTINGS: Record<string, string[]> = {
+export const DEFAULT_CSP_SETTINGS: Hash<string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'"],
     'style-src': ["'self'", "'unsafe-inline'"],
@@ -62,7 +60,5 @@ export enum ResourceType {
     script = 'script',
     csp = 'csp',
 }
-
-export const CARRIAGE_RETURN = platform === Platforms.WINDOWS ? '\r\n' : '\n';
 
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;
