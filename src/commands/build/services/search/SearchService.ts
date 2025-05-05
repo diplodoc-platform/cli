@@ -1,20 +1,21 @@
 import type {BaseConfig} from '~/core/program';
 import type {Run as BaseRun} from '~/core/run';
-import type {EntryInfo} from '../../types';
+import type {EntryInfo, OutputFormat} from '../..';
 import type {SearchProvider} from './types';
 
 import {join} from 'node:path';
-import {dedent} from 'ts-dedent';
 import manifest from '@diplodoc/client/manifest';
 
 import {bounded, normalizePath} from '~/core/utils';
+import {Template} from '~/core/template';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
 import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
-import {OutputFormat} from '~/commands/build/config';
 
 const SEARCH_PAGE_DEPTH = 2;
+
+const rebase = (url: string) => join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url);
 
 export type SearchServiceConfig = {
     outputFormat: `${OutputFormat}`;
@@ -98,44 +99,20 @@ export class SearchService implements SearchProvider<RelativePath> {
 
     @bounded async page(lang: string) {
         const isRTL = RTL_LANGS.includes(lang);
+        const template = new Template('_search' as NormalizedPath, lang);
 
-        return dedent`
-            <!DOCTYPE html>
-            <html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
-                <head>
-                    <meta charset="utf-8" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <meta name="robots" content="noindex"/>
-                    <title>Search</title>
-                    <style type="text/css">
-                        body {
-                            height: 100vh;
-                        }
-                    </style>
-                    ${manifest.search.css
-                        .filter((file: string) => isRTL === file.includes('.rtl.css'))
-                        .map((url: string) =>
-                            join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url),
-                        )
-                        .map(
-                            (src: string) =>
-                                `<link type="text/css" rel="stylesheet" href="${src}" />`,
-                        )
-                        .join('\n')}
-                </head>
-                <body class="g-root g-root_theme_light">
-                    <div id="root"></div>
-                    ${manifest.search.js
-                        .map((url: string) =>
-                            join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url),
-                        )
-                        .map(
-                            (src: string) =>
-                                `<script type="application/javascript" src="${src}"></script>`,
-                        )
-                        .join('\n')}
-                </body>
-            </html>
-        `;
+        template.setTitle('Search');
+        template.addMeta({robots: 'noindex'});
+
+        manifest.search.css
+            .filter((file: string) => isRTL === file.includes('.rtl.css'))
+            .map(rebase)
+            .map(template.addStyle);
+
+        manifest.search.js.map(rebase).map(template.addScript);
+
+        await getHooks(this).Page.promise(template);
+
+        return template.dump();
     }
 }

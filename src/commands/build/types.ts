@@ -13,6 +13,8 @@ import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy'
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {OutputFormat} from './config';
 
+export {OutputFormat};
+
 type BaseArgs = {output: AbsolutePath};
 
 type BaseConfig = {
