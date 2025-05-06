@@ -20,7 +20,7 @@ import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {resolveSource, resolveTargets, resolveVars} from './utils';
 import {Run} from './run';
-import {configDefaults} from './utils/config';
+import {ConfigDefaults, configDefaults} from './utils/config';
 
 export {getHooks};
 
@@ -50,7 +50,7 @@ export type TranslateConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     skipped: [string, string][];
     vars: Hash;
     dryRun: boolean;
-};
+} & ConfigDefaults;
 
 @withHooks
 @withConfigScope(NAME, {strict: true})

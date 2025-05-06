@@ -10,8 +10,9 @@ import {MarkdownService} from '~/core/markdown';
 import {join} from 'node:path';
 import {resolveFiles} from './utils';
 import {isMainThread} from 'node:worker_threads';
+import {ConfigDefaults} from './utils/config';
 
-type CommonRunConfig = TranslateConfig & ExtractConfig;
+type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
 
 export class Run extends BaseRun<CommonRunConfig> {
     readonly vars: VarsService;
@@ -28,7 +29,7 @@ export class Run extends BaseRun<CommonRunConfig> {
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
         this.scopes.set('source', sourcePath);
 
-        this.vars = new VarsService(this);
+        this.vars = new VarsService(this, false);
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
         this.markdown = new MarkdownService(this);
@@ -51,7 +52,7 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
-    async getFiles(): Promise<[string[], [string, string][]]> {
+    async getFiles() {
         const allFiles = new Set<string>();
 
         for (const entry of this.toc.entries) {

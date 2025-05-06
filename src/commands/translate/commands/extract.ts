@@ -33,7 +33,7 @@ import {
     resolveVars,
 } from '../utils';
 import {Run} from '../run';
-import {configDefaults} from '../utils/config';
+import {ConfigDefaults, configDefaults} from '../utils/config';
 import {normalizePath} from '~/core/utils';
 
 const MAX_CONCURRENCY = 50;
@@ -49,7 +49,7 @@ export type ExtractArgs = BaseArgs & {
 };
 
 export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
-    output: string;
+    output: AbsolutePath;
     source: Locale;
     target: Locale[];
     include: string[];
@@ -59,7 +59,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     vars: Hash;
     useExperimentalParser?: boolean;
     schema?: string;
-};
+} & ConfigDefaults;
 
 @withConfigScope('translate.extract', {strict: true})
 @withConfigDefaults(() => ({
