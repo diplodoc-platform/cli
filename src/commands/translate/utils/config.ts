@@ -152,7 +152,7 @@ export function resolveFiles(
     // For security purpose.
     ok(pathsInScope(result, input), `Insecure access to paths out of project scope (${result})!`);
 
-    return [result, skipped];
+    return [result, skipped] as [string[], [string, string][]];
 }
 
 export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
@@ -191,7 +191,6 @@ export function configDefaults() {
         ignore: [],
         ignoreStage: [],
         vars: {},
-        meta: {},
         addSystemMeta: false,
         template: {
             enabled: false,
@@ -204,5 +203,14 @@ export function configDefaults() {
                 text: false,
             },
         },
+        removeHiddenTocItems: false,
+        outputFormat: 'md' as 'md' | 'html',
+        // TODO: delete after MarkdownService redundant types delete
+        allowHtml: true,
+        sanitizeHtml: false,
+        lang: 'en',
+        langs: ['en'],
     };
 }
+
+export type ConfigDefaults = ReturnType<typeof configDefaults>;

@@ -32,20 +32,25 @@ export class VarsService {
 
     private presets: Record<NormalizedPath, Hash> = {};
 
-    constructor(run: Run) {
+    private usePresets = true;
+
+    constructor(run: Run, options = {usePresets: true}) {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
+        this.usePresets = options.usePresets;
     }
 
     async init() {
-        const presets = await this.run.glob('**/presets.yaml', {
-            cwd: this.run.input,
-        });
+        if (this.usePresets) {
+            const presets = await this.run.glob('**/presets.yaml', {
+                cwd: this.run.input,
+            });
 
-        for (const preset of presets) {
-            const dir = normalizePath(dirname(preset));
-            this.presets[dir] = await this.load(preset);
+            for (const preset of presets) {
+                const dir = normalizePath(dirname(preset));
+                this.presets[dir] = await this.load(preset);
+            }
         }
     }
 
