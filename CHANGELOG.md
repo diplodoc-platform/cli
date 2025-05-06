@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.22](https://github.com/diplodoc-platform/cli/compare/v4.57.21...v4.57.22) (2025-05-06)
+
+
+### Bug Fixes
+
+* resricted access on group without href ([a1ff892](https://github.com/diplodoc-platform/cli/commit/a1ff8928c0eef3ab985617fca4a37d61e65d832e))
+
 ## [4.57.21](https://github.com/diplodoc-platform/cli/compare/v4.57.20...v4.57.21) (2025-04-30)
 
 
