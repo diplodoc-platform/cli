@@ -3,13 +3,14 @@ import type {HookMeta} from '~/core/utils';
 import {isMainThread} from 'node:worker_threads';
 import * as threads from '~/commands/threads';
 
-import {MAIN_TIMER_ID} from '~/constants';
 import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
 export * from '~/commands';
+
+const MAIN_TIMER_ID = 'Build time';
 
 export const run = async (argv: string[]) => {
     if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
