@@ -14,11 +14,11 @@ import {getFirstValuable, isRelative} from './utils';
 
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
-    path: RelativePath;
+    path: NormalizedPath;
     /** Path of last include level */
-    from: RelativePath;
+    from: NormalizedPath;
     /** Path of last include level with 'merge' mode */
-    base?: RelativePath;
+    base?: NormalizedPath;
     mode: IncludeMode | undefined;
     vars: Hash;
     options: {
