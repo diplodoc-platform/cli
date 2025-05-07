@@ -9,7 +9,7 @@ export function hooks(name: string) {
         /**
          * Called before item data processing (but after data interpolation)
          */
-        Item: new AsyncSeriesWaterfallHook<[RawTocItem, RelativePath]>(
+        Item: new AsyncSeriesWaterfallHook<[RawTocItem, NormalizedPath]>(
             ['TocItem', 'TocPath'],
             `${name}.Item`,
         ),
@@ -19,20 +19,20 @@ export function hooks(name: string) {
          */
         Includer: new HookMap(
             (type: string) =>
-                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, RelativePath]>(
+                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, NormalizedPath]>(
                     ['Toc', 'options', 'TocPath'],
                     `${name}.Includer(${type})`,
                 ),
         ),
-        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
+        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
             ['Toc', 'TocPath'],
             `${name}.Loaded`,
         ),
-        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
+        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
             ['Toc', 'TocPath'],
             `${name}.Resolved`,
         ),
-        Included: new AsyncParallelHook<[Toc, RelativePath, IncludeInfo]>(
+        Included: new AsyncParallelHook<[Toc, NormalizedPath, IncludeInfo]>(
             ['Toc', 'TocPath', 'IncludeInfo'],
             `${name}.Included`,
         ),
