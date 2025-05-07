@@ -76,6 +76,9 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
     // Fix item href extensions
     toc = await normalizeItems.call(this, toc);
 
+    // Fix item href extensions
+    toc = await removeHiddenItems.call(this, toc);
+
     return toc;
 }
 
@@ -132,7 +135,6 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
  * Also drops hidden items if needed.
  */
 async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    const {removeHiddenItems} = this.options;
     const {conditions, substitutions} = this.settings;
 
     if (!conditions && !substitutions) {
@@ -148,11 +150,6 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                     ? Boolean(evaluate(item.when, this.vars))
                     : item.when !== false;
             delete item.when;
-        }
-
-        if (removeHiddenItems) {
-            when = when && !item.hidden;
-            delete item.hidden;
         }
 
         return when ? item : undefined;
@@ -299,9 +296,16 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 
 /**
  * Fixes item href extensions
+ * Fixes item access rules
  */
 async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    await this.toc.walkItems([toc], (item: RawTocItem | RawToc) => {
+    await this.toc.walkItems([toc], (item: RawTocItem | RawToc, context) => {
+        if (own<string>(item, 'restricted-access')) {
+            context['restricted-access'] = (context['restricted-access'] || []).concat(
+                item['restricted-access'],
+            );
+        }
+
         if (own<string>(item, 'href') && !isExternalHref(item.href)) {
             if (!item.href) {
                 delete item['href'];
@@ -317,6 +321,33 @@ async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc>
             if (!item.href.endsWith('.md') && !item.href.endsWith('.yaml')) {
                 item.href = `${item.href}.md`;
             }
+
+            if (context['restricted-access'].length) {
+                this.toc.meta.add(item.href, context['restricted-access']);
+            }
+        }
+
+        return item;
+    });
+
+    return toc;
+}
+
+/**
+ * Fixes item href extensions
+ */
+async function removeHiddenItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const {removeHiddenItems} = this.options;
+
+    if (!removeHiddenItems) {
+        return toc;
+    }
+
+    toc.items = await this.toc.walkItems(toc.items, (item: RawTocItem) => {
+        if (item.hidden) {
+            return undefined;
+        } else {
+            delete item.hidden;
         }
 
         return item;
