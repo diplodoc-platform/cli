@@ -31,8 +31,8 @@ export function hooks(name: string) {
          */
         Entry: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<[NormalizedPath, DeepFrozen<PositionedEntryInfo>]>(
-                    ['entry', 'info'],
+                new AsyncSeriesHook<[Run, NormalizedPath, DeepFrozen<PositionedEntryInfo>]>(
+                    ['run', 'entry', 'info'],
                     `${name}.${format}.Entry`,
                 ),
         ),
