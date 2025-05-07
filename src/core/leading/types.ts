@@ -6,6 +6,7 @@ import type {LoaderContext} from './loader';
 // import {PageContent} from '@gravity-ui/page-constructor';
 
 type PageContent = {
+    fullScreen: boolean;
     blocks: object;
 };
 

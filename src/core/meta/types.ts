@@ -1,6 +1,6 @@
 import type {VcsMetadata} from '~/core/vcs';
 
-export type Resources = {
+export type RawResources = {
     script?: string[];
     style?: string[];
     /**
@@ -13,6 +13,12 @@ export type Resources = {
      *         - https://two.com
      */
     csp?: Hash<string | string[]>[];
+};
+
+export type Resources = {
+    script?: string[];
+    style?: string[];
+    csp?: Hash<string[]>[];
 };
 
 export type Meta = {

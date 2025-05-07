@@ -5,6 +5,7 @@ import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 import {ok} from 'node:assert';
 import {dirname, join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
+import {dump} from 'js-yaml';
 import pmap from 'p-map';
 
 import {
@@ -16,7 +17,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
-import {bounded, langFromPath, normalizePath} from '~/core/utils';
+import {bounded, normalizePath} from '~/core/utils';
 import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -39,14 +40,14 @@ import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
-import {processEntry} from './entry';
 
 export type * from './types';
-export type {SearchProvider, SearchServiceConfig} from './services/search';
 
 export {Run, getHooks};
 
+export {getHooks as getEntryHooks} from './services/entry';
 export {getHooks as getSearchHooks} from './services/search';
+export {getHooks as getRedirectsHooks} from './services/redirects';
 
 const command = 'Build';
 
@@ -233,12 +234,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
                     await getHooks(this)
                         .Entry.for(outputFormat)
-                        .promise(entry, {...info, position});
-
-                    if (outputFormat === 'html') {
-                        const lang = langFromPath(entry, this.run.config);
-                        await this.run.search.add(entry, lang, info);
-                    }
+                        .promise(this.run, entry, {...info, position});
 
                     this.run.logger.info('Processing finished:', entry);
                 } catch (error) {
@@ -263,10 +259,19 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @bounded
     @threads.threaded('build.process')
-    async process(entry: NormalizedPath, toc: Toc, meta: Meta): Promise<EntryInfo> {
+    async process(file: NormalizedPath, toc: Toc, meta: Meta): Promise<EntryInfo> {
         this.run.toc.set(toc.path, toc);
-        this.run.meta.set(entry, meta);
-        return processEntry(this.run, entry);
+        this.run.meta.set(file, meta);
+
+        const entry = await this.run.entry.load(file);
+        const [path, content, data] = await this.run.entry.dump(file, entry);
+
+        // Dump leading pages
+        const result = typeof content === 'string' ? content : dump(content);
+
+        await this.run.write(join(this.run.output, path), result);
+
+        return data;
     }
 
     private async prepareInput() {
