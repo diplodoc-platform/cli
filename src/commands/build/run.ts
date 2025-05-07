@@ -6,7 +6,7 @@ import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
 
 import {configPath} from '~/core/config';
-import {ASSETS_FOLDER, TMP_INPUT_FOLDER, TMP_OUTPUT_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
+import {ASSETS_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
@@ -24,6 +24,10 @@ type TransformOptions = {
     deps: NormalizedPath[];
     assets: NormalizedPath[];
 };
+
+const TMP_INPUT_FOLDER = '.tmp_input';
+
+const TMP_OUTPUT_FOLDER = '.tmp_output';
 
 /**
  * This is transferable context for build command.
