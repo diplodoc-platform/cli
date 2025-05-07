@@ -16,6 +16,11 @@
     "rootDir": "src",
     "outDir": "build"
   },
+  "include": [
+    "src/path.d.ts",
+    "src/globals.d.ts",
+    "src"
+  ],
   "exclude": [
     "src/**/*.spec.ts",
     "src/core/**",
