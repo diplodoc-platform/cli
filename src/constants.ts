@@ -2,9 +2,6 @@ import {resolve} from 'node:path';
 
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
-export const TMP_INPUT_FOLDER = '.tmp_input';
-export const TMP_OUTPUT_FOLDER = '.tmp_output';
-export const MAIN_TIMER_ID = 'Build time';
 export const YFM_CONFIG_FILENAME = '.yfm';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
 export const DEFAULT_CSP_SETTINGS: Hash<string[]> = {
