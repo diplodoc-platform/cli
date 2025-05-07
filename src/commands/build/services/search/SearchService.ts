@@ -73,6 +73,10 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded config(lang: string) {
+        if (!this.enabled) {
+            return undefined;
+        }
+
         return {
             enabled: this.enabled,
             ...this.provider.config(lang),
