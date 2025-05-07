@@ -7,7 +7,7 @@ import {Indexer} from '@diplodoc/search-extension/indexer';
 import {langs} from '@diplodoc/search-extension/worker/langs';
 
 export type ProviderConfig = Pick<WorkerConfig, 'tolerance' | 'confidence'> & {
-    api: string;
+    enabled: boolean;
 };
 
 export class LocalSearchProvider implements SearchProvider {
@@ -29,7 +29,7 @@ export class LocalSearchProvider implements SearchProvider {
         this.indexer = new Indexer();
 
         this.outputDir = '_search';
-        this.apiLink = config.api;
+        this.apiLink = join(this.outputDir, 'api.js');
         this.nocache = String(Date.now());
     }
 
@@ -86,6 +86,10 @@ export class LocalSearchProvider implements SearchProvider {
         };
     }
 
+    resourcesLink(lang: string) {
+        return join(this.outputDir, lang, `${this.nocache}-resources.js`);
+    }
+
     private resources(indexLink: string, registryLink: string, languageLink: string) {
         const resources = {
             index: indexLink,
@@ -102,10 +106,6 @@ export class LocalSearchProvider implements SearchProvider {
 
     private registryLink(lang: string, hash: string) {
         return join(this.outputDir, lang, `${hash}-registry.js`);
-    }
-
-    private resourcesLink(lang: string) {
-        return join(this.outputDir, lang, `${this.nocache}-resources.js`);
     }
 
     private languageLink(lang: string) {
