@@ -73,10 +73,10 @@ export type IncluderOptions<T extends Hash = Hash> = {
 } & T;
 
 export type IncludeInfo = {
-    from: RelativePath;
+    from: NormalizedPath;
     mode: IncludeMode;
     content?: RawToc;
-    base?: RelativePath | undefined;
+    base?: NormalizedPath | undefined;
 };
 
 export type Toc = {

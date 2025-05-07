@@ -16,6 +16,7 @@ import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
 import {all, bounded, langFromPath, normalizePath, zip} from '~/core/utils';
 
+import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {RedirectsService} from './services/redirects';
@@ -47,6 +48,8 @@ export class Run extends BaseRun<BuildConfig> {
     readonly meta: MetaService;
 
     readonly toc: TocService;
+
+    readonly entry: EntryService;
 
     readonly vcs: VcsService;
 
@@ -89,6 +92,7 @@ export class Run extends BaseRun<BuildConfig> {
         this.vars = new VarsService(this);
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
+        this.entry = new EntryService(this);
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
         this.markdown = new MarkdownService(this);
@@ -136,7 +140,6 @@ export class Run extends BaseRun<BuildConfig> {
 
     private transformConfig(path: NormalizedPath) {
         return {
-            rootInput: this.originalInput,
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),

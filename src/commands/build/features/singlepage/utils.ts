@@ -1,11 +1,17 @@
-import {join} from 'node:path';
-import {normalizePath} from '~/core/utils';
-import HTMLElement from 'node-html-parser/dist/nodes/html';
-import {dirname} from 'path';
+import type HTMLElement from 'node-html-parser/dist/nodes/html';
+
+import {dirname, join} from 'node:path';
 import {parse} from 'node-html-parser';
-import type {SinglePageResult} from '~/models';
+
+import {normalizePath} from '~/core/utils';
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
+
+interface SinglePageResult {
+    path: string;
+    content: string;
+    title?: string;
+}
 
 interface PreprocessSinglePageOptions {
     path: string;
