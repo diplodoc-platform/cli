@@ -1,8 +1,10 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
+import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {valuable} from '~/core/config';
+import {langFromPath} from '~/core/utils';
 import {options} from './config';
 
 export type SearchArgs = {
@@ -30,6 +32,7 @@ export class Search {
             command.addOption(options.search);
         });
 
+        // Normalize search config
         getBaseHooks(program).Config.tap('Search', (config, args) => {
             let search: Config | boolean = {
                 enabled: false,
@@ -56,5 +59,13 @@ export class Search {
 
             return config;
         });
+
+        // Add entry result to search index
+        getBuildHooks(program)
+            .Entry.for('html')
+            .tapPromise('Search', async (run, entry, info) => {
+                const lang = langFromPath(entry, run.config);
+                await run.search.add(entry, lang, info);
+            });
     }
 }

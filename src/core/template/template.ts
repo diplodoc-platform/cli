@@ -6,6 +6,7 @@ import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 
 enum ScriptPosition {
     Leading = 'leading',
+    State = 'state',
     Trailing = 'trailing',
 }
 
@@ -39,6 +40,8 @@ export class Template {
 
     readonly lang: string;
 
+    private signs: symbol[] = [];
+
     private title = '';
 
     private csp: Hash<string[]> = {};
@@ -53,9 +56,14 @@ export class Template {
 
     private bodyClass: string[] = ['g-root', 'g-root_theme_light'];
 
-    constructor(path: RelativePath, lang: string) {
+    constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
         this.lang = lang;
+        this.signs = signs;
+    }
+
+    is(sign: symbol) {
+        return this.signs.includes(sign);
     }
 
     escape(string: string) {
@@ -158,6 +166,7 @@ export class Template {
                 </head>
                 <body class="${bodyClass.join(' ')}">
                     ${body.join('\n') || `<div id="root"></div>`}
+                    ${state(scripts).map(script(this.csp)).join('\n')}
                     ${trailing(scripts).map(script(this.csp)).join('\n')}
                     ${trailing(styles).map(style(this.csp)).join('\n')}
                 </body>
@@ -168,6 +177,10 @@ export class Template {
 
 function leading<T extends PositionInfo>(array: T[]) {
     return array.filter(({position}) => position === 'leading');
+}
+
+function state<T extends PositionInfo>(array: T[]) {
+    return array.filter(({position}) => position === 'state');
 }
 
 function trailing<T extends PositionInfo>(array: T[]) {

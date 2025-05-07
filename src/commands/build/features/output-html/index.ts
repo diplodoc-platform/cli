@@ -1,7 +1,8 @@
 import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
-import type {Build} from '~/commands/build';
+import type {Build, EntryData} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
+import type {PageData} from '../../services/entry';
 
 import {basename, dirname, extname, join} from 'node:path';
 import {v4 as uuid} from 'uuid';
@@ -9,15 +10,21 @@ import pmap from 'p-map';
 import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
-import {fallbackLang, isExternalHref, normalizePath, own, zip} from '~/core/utils';
+import {Template} from '~/core/template';
+import {fallbackLang, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+
+const tocJS = (path: NormalizedPath) => setExt(path, '.js');
+
+const __Entry__ = Symbol('isEntry');
 
 export class OutputHtml {
     apply(program: Build) {
@@ -48,11 +55,35 @@ export class OutputHtml {
                 });
 
                 // Dump Toc to js file
-                getTocHooks(run.toc).Resolved.tapPromise('Html', async (_toc, path) => {
-                    const file = join(run.output, dirname(path), 'toc.js');
-                    const result = await run.toc.dump(path);
+                getTocHooks(run.toc).Resolved.tapPromise('Html', async (toc) => {
+                    const file = join(run.output, tocJS(toc.path));
+                    const result = await run.toc.dump(toc.path);
 
                     await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
+                });
+
+                // Add link to dumped toc.js to html template
+                getEntryHooks(run.entry).Page.tap('Html', (template) => {
+                    if (!template.is(__Entry__)) {
+                        return;
+                    }
+
+                    const tocPath = run.toc.for(template.path);
+
+                    template.addScript(tocJS(tocPath), {position: 'state'});
+                });
+
+                // Transform any entry to final html page
+                getEntryHooks(run.entry).Dump.tapPromise('Html', async (_result, entry) => {
+                    const tocPath = run.toc.for(entry.path);
+                    const toc = await run.toc.dump(tocPath);
+
+                    const data = getStateData(entry);
+                    const state = await run.entry.state(entry.path, data);
+                    const template = new Template(entry.path, state.lang, [__Entry__]);
+                    const result = await run.entry.page(template, state, toc as Toc);
+
+                    return [setExt(entry.path, '.html'), result, data];
                 });
 
                 // Transform Page Constructor yfm blocks
@@ -108,6 +139,7 @@ export class OutputHtml {
                     return run.leading.walkLinks(leading, getHref(run.input, path));
                 });
 
+                // Transform markdown to html
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Html',
                     async (markdown, path, info) => {
@@ -132,9 +164,12 @@ export class OutputHtml {
                 });
             });
 
+        // Copy project assets to output
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('Html', async (run) => {
+                // TODO: we copy all files. Required to copy only used files.
+                // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
                 await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
             });
@@ -159,6 +194,25 @@ export class OutputHtml {
                     await run.write(join(run.output, from), content);
                 }
             });
+    }
+}
+
+function getStateData(entry: EntryData): PageData {
+    if (entry.type === 'yaml') {
+        return {
+            leading: true,
+            data: entry.content,
+            meta: entry.meta,
+            title: entry.content.title || entry.meta.title || '',
+        };
+    } else {
+        return {
+            leading: false,
+            html: entry.content,
+            meta: entry.meta,
+            headings: entry.info.headings,
+            title: entry.info.title || entry.meta.title || '',
+        };
     }
 }
 
