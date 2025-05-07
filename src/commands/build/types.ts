@@ -1,8 +1,6 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {Config} from '~/core/config';
-import type {LeadingPage} from '~/core/leading';
-import type {Meta} from '~/core/meta';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
@@ -12,6 +10,10 @@ import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search'
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {OutputFormat} from './config';
+import type {PageData} from './services/entry';
+
+export type {SearchProvider, SearchServiceConfig} from './services/search';
+export type {EntryData, PageData} from './services/entry';
 
 export {OutputFormat};
 
@@ -80,13 +82,7 @@ export type BuildConfig = Config<
         CustomResourcesConfig
 >;
 
-export type EntryInfo = {
-    html?: string;
-    data?: LeadingPage;
-    meta?: Meta;
-    title?: string;
-    headings?: any;
-};
+export type EntryInfo = Partial<PageData>;
 
 export type PositionedEntryInfo = {
     position: number;
