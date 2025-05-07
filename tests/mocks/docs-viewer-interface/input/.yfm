@@ -1,0 +1,6 @@
+langs: ['en','ru']
+
+interface:
+    toc: false
+    feedback: false
+    search: false
