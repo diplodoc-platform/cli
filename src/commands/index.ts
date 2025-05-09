@@ -5,6 +5,7 @@ import {YFM_CONFIG_FILENAME} from '~/constants';
 import {Build} from './build';
 import {Publish} from './publish';
 import {Translate} from './translate';
+import {Algolia} from './algolia';
 import {BaseProgram, withConfigDefaults} from '~/core/program';
 
 import {NAME, USAGE, options} from './config';
@@ -15,6 +16,7 @@ export {parse} from './parser';
 export {Build, Run as BuildRun, getHooks as getBuildHooks, getSearchHooks} from './build';
 export {Publish, Run as PublishRun, getHooks as getPublishHooks} from './publish';
 export {Translate, getHooks as getTranslateHooks} from './translate';
+export {Algolia} from './algolia';
 
 @withConfigDefaults(() => ({
     extensions: [] as ExtensionInfo[],
@@ -38,6 +40,8 @@ export class Program extends BaseProgram {
 
     readonly translate = new Translate();
 
+    readonly algolia = new Algolia();
+
     readonly options = [
         options.input('./'),
         options.config(YFM_CONFIG_FILENAME),
@@ -46,5 +50,5 @@ export class Program extends BaseProgram {
         options.strict,
     ];
 
-    protected readonly modules = [this.build, this.publish, this.translate];
+    protected readonly modules = [this.build, this.publish, this.translate, this.algolia];
 }
