@@ -253,6 +253,13 @@ export class BaseProgram<
 
         const originalRequire = Module.prototype.require;
 
+        /*
+            Q: What is the rationale behind this action?
+            A: 
+                To correctly resolve the original @diplodoc/CLI from the Extension, 
+                it is also necessary to fix when the CLI is packaged with the pkg
+                (path in pkg starts with /snapshot/...). 
+        */
         // @ts-ignore
         Module.prototype.require = function () {
             // eslint-disable-next-line prefer-rest-params
