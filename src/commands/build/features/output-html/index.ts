@@ -93,7 +93,7 @@ export class OutputHtml {
                             return leading;
                         }
 
-                        const {path, lang, vars} = this;
+                        const {path, lang, vars, sign} = this;
                         const options = {lang: fallbackLang(lang)} as PreloadParams;
 
                         const strings = new Set<string>();
@@ -112,10 +112,11 @@ export class OutputHtml {
                         const values = zip(
                             keys,
                             await pmap(keys, async (string) => {
-                                const {content, deps, assets} = await run.markdown.analyze(
+                                const {content, deps, assets} = await run.markdown.inspect(
                                     path,
                                     string,
                                     vars,
+                                    sign,
                                 );
 
                                 return run.transform(path, content, {
