@@ -68,7 +68,7 @@ default-var-value
 
 [](./latex.md)
 
-{% include [user](includes/user.md) %}
+{% include [user](includes/user-3afe8b28d0fa.md) %}
 "
 `;
 
@@ -180,8 +180,9 @@ exports[`Regression > internal > filelist 1`] = `
   "images.md",
   "included-item.md",
   "includes.md",
-  "includes/test.md",
-  "includes/user.md",
+  "includes/deep-3afe8b28d0fa.md",
+  "includes/test-3afe8b28d0fa.md",
+  "includes/user-3afe8b28d0fa.md",
   "index.yaml",
   "latex.md",
   "merge/merge.md",
@@ -561,7 +562,7 @@ exports[`Regression > internal > includes.html 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -587,18 +588,25 @@ metadata:
 ---
 Text
 
-{% include [user](includes/user.md) %}
+{% include [user](includes/user-3afe8b28d0fa.md) %}
 
-{% include [test](includes/test.md) %}
+{% include [test](includes/test-3afe8b28d0fa.md) %}
+
+{% include [For includes/deep-3afe8b28d0fa.md](includes/deep-3afe8b28d0fa.md) %}
 "
 `;
 
-exports[`Regression > internal > includes/test.md 1`] = `
+exports[`Regression > internal > includes/deep-3afe8b28d0fa.md 1`] = `
+"{% include [user](./user-3afe8b28d0fa.md) %}
+"
+`;
+
+exports[`Regression > internal > includes/test-3afe8b28d0fa.md 1`] = `
 "Test
 "
 `;
 
-exports[`Regression > internal > includes/user.md 1`] = `
+exports[`Regression > internal > includes/user-3afe8b28d0fa.md 1`] = `
 "Bob
 "
 `;

@@ -44,20 +44,27 @@ export class Contributors {
         });
 
         getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
-            getLeadingHooks(run.leading).Resolved.tapPromise(
-                'Contributors',
-                async (_content, _meta, path) => {
-                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path)));
+            getLeadingHooks(run.leading).Dump.tapPromise(
+                {name: 'Contributors', stage: -1},
+                async (content, path) => {
+                    const rawDeps = await run.leading.deps(path);
+                    const deps = uniq(rawDeps.map(({path}) => path));
+
+                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path), deps));
+
+                    return content;
                 },
             );
 
-            getMarkdownHooks(run.markdown).Resolved.tapPromise(
-                'Contributors',
-                async (_content, path) => {
+            getMarkdownHooks(run.markdown).Dump.tapPromise(
+                {name: 'Contributors', stage: -1},
+                async (content, path) => {
                     const rawDeps = await run.markdown.deps(path);
                     const deps = uniq(rawDeps.map(({path}) => path));
 
                     run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path), deps));
+
+                    return content;
                 },
             );
         });
