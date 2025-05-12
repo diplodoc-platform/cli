@@ -51,8 +51,12 @@ export class MarkdownService {
         return this._plugins.slice();
     }
 
-    get collects() {
-        return this._collects.slice();
+    get collectsBefore() {
+        return this._collectsBefore.slice();
+    }
+
+    get collectsAfter() {
+        return this._collectsAfter.slice();
     }
 
     get config() {
@@ -61,7 +65,9 @@ export class MarkdownService {
 
     private run: Run;
 
-    private _collects: Collect[] = [];
+    private _collectsBefore: Collect[] = [];
+
+    private _collectsAfter: Collect[] = [];
 
     private _plugins: Plugin[] = [];
 
@@ -86,7 +92,16 @@ export class MarkdownService {
     }
 
     @bounded async init() {
-        this._collects = await getHooks(this).Collects.promise(this._collects);
+        const collects = await getHooks(this).Collects.promise([]);
+
+        for (const collect of collects) {
+            if (collect?.stage === 'after') {
+                this._collectsAfter.push(collect);
+            } else {
+                this._collectsBefore.push(collect);
+            }
+        }
+
         this._plugins = await getHooks(this).Plugins.promise(this._plugins);
     }
 
@@ -105,8 +120,9 @@ export class MarkdownService {
         try {
             const raw = await this.run.read(join(this.run.input, file));
             const vars = this.run.vars.for(from[0] || file);
+            const sign = this.run.vars.hash(from[0] || file);
 
-            const context = this.loaderContext(file, raw, vars, this.proxy(key));
+            const context = this.loaderContext(file, raw, vars, sign, this.proxy(key));
             const content = await loader.call(context, raw);
 
             // At this point all internal states are fully resolved.
@@ -149,7 +165,7 @@ export class MarkdownService {
     // This is very buggy! Do not use memoize here.
     // @memoize(hash)
     async deps(path: RelativePath) {
-        return this._deps(normalizePath(path));
+        return this._deps(normalizePath(path), []);
     }
 
     // @memoize(hash)
@@ -191,10 +207,10 @@ export class MarkdownService {
         return titles;
     }
 
-    @bounded async analyze(path: RelativePath, raw: string, vars: Hash) {
+    @bounded async inspect(path: RelativePath, raw: string, vars: Hash, sign: string) {
         const file = normalizePath(path);
         const api = new LoaderAPI();
-        const context = this.loaderContext(file, raw, vars, api);
+        const context = this.loaderContext(file, raw, vars, sign, api);
         const content = await loader.call(context, raw);
 
         const deps = api.deps.get();
@@ -288,11 +304,13 @@ export class MarkdownService {
         path: NormalizedPath,
         raw: string,
         vars: Hash,
+        sign: string,
         api?: Partial<LoaderAPI>,
     ): LoaderContext {
         return {
             path,
             vars,
+            sign,
             logger: this.logger,
             readFile: (path: RelativePath) => {
                 return this.run.read(join(this.run.input, path));
@@ -302,7 +320,10 @@ export class MarkdownService {
                 await this.run.write(join(this.run.input, rootPath), content);
             },
             api: new LoaderAPI(api),
-            collects: this.collects,
+            collects: {
+                before: this.collectsBefore,
+                after: this.collectsAfter,
+            },
             sourcemap: new SourceMap(raw),
             settings: {
                 substitutions: this.config.template.features.substitutions,
