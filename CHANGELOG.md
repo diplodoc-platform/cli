@@ -1,5 +1,18 @@
 # Changelog
 
+## [4.57.23](https://github.com/diplodoc-platform/cli/compare/v4.57.22...v4.57.23) (2025-05-12)
+
+
+### Bug Fixes
+
+* Fix relative extensions initialization ([f3a7f14](https://github.com/diplodoc-platform/cli/commit/f3a7f149c12fa393cf4e7a46ddff071ef037ad58))
+* ts translate command errors ([118f66f](https://github.com/diplodoc-platform/cli/commit/118f66f773a319dd90129ccb7dc7b52c09b4e174))
+
+
+### Dependency update
+
+* Update @diplodoc/translation to 1.7.9 ([2d92003](https://github.com/diplodoc-platform/cli/commit/2d92003e0517307dd5e76bb781663d8d7165ae04))
+
 ## [4.57.22](https://github.com/diplodoc-platform/cli/compare/v4.57.21...v4.57.22) (2025-05-06)
 
 
