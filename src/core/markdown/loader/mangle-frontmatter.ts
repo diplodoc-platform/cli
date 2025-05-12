@@ -12,7 +12,7 @@ export function mangleFrontMatter(this: LoaderContext, rawContent: string) {
 
     const [frontmatter, content, rawFrontmatter] = safeExtractFrontmatter.call(this, rawContent);
 
-    if (!rawFrontmatter) {
+    if (!frontmatter || !rawFrontmatter) {
         this.api.meta.set({});
         return rawContent;
     }
