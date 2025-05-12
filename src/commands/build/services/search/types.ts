@@ -8,7 +8,4 @@ export interface SearchProvider<TPath extends RelativePath = NormalizedPath> {
     release(): Promise<void>;
 
     config(lang: string): SearchAppConfig | undefined;
-
-    // Get the number of objects currently indexed
-    getIndexedCount(): number;
 }

@@ -32,9 +32,6 @@ export class LocalSearchProvider implements SearchProvider {
         this.apiLink = join(this.outputDir, 'api.js');
         this.nocache = String(Date.now());
     }
-    getIndexedCount(): number {
-        throw new Error('Method not implemented.');
-    }
 
     async add(path: NormalizedPath, lang: string, info: EntryInfo) {
         if (!info.html) {
