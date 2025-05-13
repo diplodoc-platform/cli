@@ -1,25 +1,24 @@
+import {describe, it} from 'vitest';
 import {dedent} from 'ts-dedent';
-import {compareDirectories, getTestPaths, runYfmDocs} from '../utils';
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 function test(_description: string) {
-    it('internal', () => {
-        const {inputPath, outputPath} = getTestPaths(
-            'mocks/regression',
-        );
+    it('internal', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/regression');
 
-        runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
-        runYfmDocs(outputPath, outputPath + '-html', {
+        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
         });
-        runYfmDocs(outputPath, outputPath + '-static-html', {
+        await TestAdapter.testBuildPass(outputPath, outputPath + '-static-html', {
             md2md: false,
             md2html: true,
             args: '--static-content',
         });
-        compareDirectories(outputPath);
-        compareDirectories(outputPath + '-html');
-        // compareDirectories(outputPath + '-static-html');
+        await compareDirectories(outputPath);
+        await compareDirectories(outputPath + '-html');
+        // await compareDirectories(outputPath + '-static-html');
     });
 }
 

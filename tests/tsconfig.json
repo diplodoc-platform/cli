@@ -1,20 +1,16 @@
 {
   "compilerOptions": {
-    "target": "es2019",
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
+    "target": "es2018",
+    "module": "commonjs",
+    "declaration": true,
+    "outDir": "./dist",
+    "resolveJsonModule": true,
+    "strict": true,
     "esModuleInterop": true,
-    "paths": {
-      "*": ["../src/*"],
-      "~/*": ["../src/*"]
-    },
-    "types": ["node", "jest"]
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "rootDir": "."
   },
-  "include": [
-    "../src",
-    "."
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["fixtures/**/*", "**/*.test.ts", "**/*.spec.ts", "vitest.config.ts"],
+  "exclude": ["dist"]
 }

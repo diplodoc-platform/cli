@@ -1,8 +1,8 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: .yfm 1`] = `"langs: ['he']"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > .yfm 1`] = `"langs: ['he']"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: filelist 1`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > filelist 1`] = `
 "[
   ".yfm",
   "_bundle/search-async-0",
@@ -23,438 +23,288 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 ]"
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: index.html 1`] = `
-<!DOCTYPE html>
-<html lang="he"
-      dir="rtl"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="he" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"he","langs":["he"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
+<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"page.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"index","depth":1},"lang":"he","langs":["he"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: page.html 1`] = `
-<!DOCTYPE html>
-<html lang="he"
-      dir="rtl"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="./">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="he" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <base href="./" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
+<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"he","langs":["he"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with only one rtl lang: toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: .yfm 1`] = `"langs: ['ar', 'en']"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > .yfm 1`] = `"langs: ['ar', 'en']"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ar"
-      dir="rtl"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > ar/index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"ar/index","depth":2},"lang":"ar","langs":["ar","en"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
+<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"","leading":true},"router":{"pathname":"ar/index","depth":2},"lang":"ar","langs":["ar","en"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="ar/toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="ar/toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/page.html 1`] = `
-<!DOCTYPE html>
-<html lang="ar"
-      dir="rtl"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > ar/page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;توثيق&lt;/p&gt;/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
+<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"","html":"&lt;p&gt;توثيق&lt;/p&gt;/n","leading":false},"router":{"pathname":"ar/page","depth":2},"lang":"ar","langs":["ar","en"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="ar/toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="ar/toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > ar/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ar/index.html","items":[{"name":"Documentation","href":"ar/page.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/index.html 1`] = `
-<!DOCTYPE html>
-<html lang="en"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="title"
-          content="Documentation"
-    >
-    <meta name="noIndex"
-          content="true"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation | Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="en" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="title" content="Documentation"  />
+<meta name="noIndex" content="true"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation | Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-0"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/app-css-1"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"en/index","depth":2},"lang":"en","langs":["ar","en"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="en/toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="en/toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/page.html 1`] = `
-<!DOCTYPE html>
-<html lang="en"
-      dir="ltr"
->
-  <head>
-    <meta charset="utf-8">
-    <base href="../">
-    <meta name="generator"
-          content="Diplodoc Platform vDIPLODOC-VERSION"
-    >
-    <meta name="yfm"
-          content="builder"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Documentation
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/page.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="en" dir="ltr">
+            <head>
+                <meta charset="utf-8">
+                <base href="../" />
+                <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION"  />
+<meta name="yfm" content="builder"  />
+
+                
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Documentation</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-0"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/app-css-1"
-    >
-  </head>
-  <body class="g-root g-root_theme_light">
-    <div id="root">
-    </div>
-    <script type="application/json"
-            id="diplodoc-state"
-    >
-      {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]}
-    </script>
-    <script type="application/javascript">
-      function unescapeJsonFromHtml(escaped) {
-  const unescaped = escaped.replace(/&lt;/g, "
-      <").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-0" />
+<link type="text/css" rel="stylesheet" href="_bundle/app-css-1" />
+                
+            </head>
+            <body class="g-root g-root_theme_light">
+                <div id="root"></div>
+                <script type="application/json" id="diplodoc-state">
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"en/page","depth":2},"lang":"en","langs":["ar","en"]}
+                </script>
+                <script type="application/javascript">
+                   function unescapeJsonFromHtml(escaped) {
+  const unescaped = escaped.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
   return JSON.parse(unescaped);
 }
                    const data = document.querySelector('script#diplodoc-state');
                    window.__DATA__ = unescapeJsonFromHtml(data.innerText);
                    window.STATIC_CONTENT = false;
-    </script>
-    <script src="en/toc.js"
-            type="application/javascript"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-0"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/app-js-1"
-    >
-    </script>
-    <script type="application/javascript"
-            src="_bundle/search-js-2"
-    >
-    </script>
-  </body>
-</html>
+                </script>
+                <script src="en/toc.js" type="application/javascript"></script>
+                
+                <script type="application/javascript" src="_bundle/search-js-0"></script>
+<script type="application/javascript" src="_bundle/app-js-1"></script>
+<script type="application/javascript" src="_bundle/search-js-2"></script>
+            </body>
+        </html>
+    "
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"id":"UUID"};"`;
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > en/toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"en/index.html","items":[{"name":"Documentation","href":"en/page.html","id":"UUID"}],"id":"UUID"};"`;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: filelist 1`] = `
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > filelist 1`] = `
 "[
   ".yfm",
   "_bundle/search-async-0",
@@ -479,45 +329,29 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 ]"
 `;
 
-exports[`Generate html document with correct lang and dir attributes. Load correct bundles. documentation with rtl and ltr langs: index.html 1`] = `
-<!DOCTYPE html>
-<html lang="ar"
-      dir="rtl"
->
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh"
-          content="0; url=./ar/index.html"
-    >
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0"
-    >
-    <title>
-      Redirect
-    </title>
-    <style type="text/css">
-      body {
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > index.html 1`] = `
+"
+        <!DOCTYPE html>
+        <html lang="ar" dir="rtl">
+            <head>
+                <meta charset="utf-8">
+                <meta http-equiv="refresh" content="0; url=./ar/index.html">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Redirect</title>
+                <style type="text/css">
+                    body {
                         height: 100vh;
                     }
-    </style>
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-1"
-    >
-    <link type="text/css"
-          rel="stylesheet"
-          href="_bundle/search-css-2"
-    >
-    <script type="text/javascript">
-      window.location.replace("./ar/index.html");
-    </script>
-  </head>
-  <body class="g-root g-root_theme_light">
-    If you are not redirected automatically, follow this
-    <a href="./ar/index.html">
-      link to example
-    </a>
-    .
-  </body>
-</html>
+                </style>
+                <link type="text/css" rel="stylesheet" href="_bundle/search-css-1" />
+<link type="text/css" rel="stylesheet" href="_bundle/search-css-2" />
+                <script type="text/javascript">
+                    window.location.replace("./ar/index.html");
+                </script>
+            </head>
+            <body class="g-root g-root_theme_light">
+                If you are not redirected automatically, follow this <a href="./ar/index.html">link to example</a>.
+            </body>
+        </html>
+    "
 `;

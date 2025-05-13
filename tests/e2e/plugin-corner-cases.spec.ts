@@ -1,12 +1,13 @@
-import {compareDirectories, getTestPaths, runYfmDocs} from '../utils';
+import {describe, it} from 'vitest';
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 describe('plugin corner cases:', () => {
-    it('images in deflists — integrity check', () => {
+    it('images in deflists — integrity check', async () => {
         const {inputPath, outputPath} = getTestPaths(
             'mocks/plugin-corner-cases/images-in-deflists',
         );
 
-        runYfmDocs(inputPath, outputPath, {md2md: true, md2html: false});
-        compareDirectories(outputPath);
+        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
+        await compareDirectories(outputPath);
     });
 });

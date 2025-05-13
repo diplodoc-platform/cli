@@ -1,6 +1,6 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Translate command extract yaml scheme files: en/index.yaml.skl 1`] = `
+exports[`Translate command > extract yaml scheme files > en/index.yaml.skl 1`] = `
 "blocks:
   - type: content-layout-block
     textWidth: l
@@ -35,63 +35,46 @@ exports[`Translate command extract yaml scheme files: en/index.yaml.skl 1`] = `
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/index.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > extract yaml scheme files > en/index.yaml.xliff 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Введение
+        <source xml:space="preserve">Введение</source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.
+        <source xml:space="preserve">API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Получать информацию о посещаемости сайта и другие данные.
+        <source xml:space="preserve">Получать информацию о посещаемости сайта и другие данные.</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Формировать отчеты, в том числе с помощью сегментации и параметризации.
+        <source xml:space="preserve">Формировать отчеты, в том числе с помощью сегментации и параметризации.</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Виды API
+        <source xml:space="preserve">Виды API</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">
-        API управления
+        <source xml:space="preserve">API управления</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">
-        Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).
+        <source xml:space="preserve">Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve">
-        API управления
+        <source xml:space="preserve">API управления</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: en/index-direct.yaml.skl 1`] = `
+exports[`Translate command > extract yaml scheme files > en/index-direct.yaml.skl 1`] = `
 "meta:
   title: '%%%0%%%'
   description: '%%%1%%%'
@@ -219,159 +202,118 @@ animated: false
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/index-direct.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > extract yaml scheme files > en/index-direct.yaml.xliff 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Справка Сервиса
+        <source xml:space="preserve">Справка Сервиса</source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        В Справке Сервиса собрали всю необходимую информацию.
+        <source xml:space="preserve">В Справке Сервиса собрали всю необходимую информацию.</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Справка
+        <source xml:space="preserve">Справка</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Реклама
+        <source xml:space="preserve">Реклама</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Сервис
+        <source xml:space="preserve">Сервис</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">
-        Для специалистов
+        <source xml:space="preserve">Для специалистов</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">
-        Для предпринимателей
+        <source xml:space="preserve">Для предпринимателей</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve">
-        Единая перфоманс-кампания
+        <source xml:space="preserve">Единая перфоманс-кампания</source>
       </trans-unit>
       <trans-unit id="8">
-        <source xml:space="preserve">
-        Комплексно решайте любые перфоманс-задачи в рамках одной кампании
+        <source xml:space="preserve">Комплексно решайте любые перфоманс-задачи в рамках одной кампании</source>
       </trans-unit>
       <trans-unit id="9">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="10">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="11">
-        <source xml:space="preserve">
-        Товарная кампания
+        <source xml:space="preserve">Товарная кампания</source>
       </trans-unit>
       <trans-unit id="12">
-        <source xml:space="preserve">
-        Используйте простой инструмент для продвижения товаров интернете
+        <source xml:space="preserve">Используйте простой инструмент для продвижения товаров интернете</source>
       </trans-unit>
       <trans-unit id="13">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="14">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="15">
-        <source xml:space="preserve">
-        Реклама в Telegram
+        <source xml:space="preserve">Реклама в Telegram</source>
       </trans-unit>
       <trans-unit id="16">
-        <source xml:space="preserve">
-        Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ
+        <source xml:space="preserve">Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ</source>
       </trans-unit>
       <trans-unit id="17">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="18">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="19">
-        <source xml:space="preserve">
-        Часто ищут
+        <source xml:space="preserve">Часто ищут</source>
       </trans-unit>
       <trans-unit id="20">
-        <source xml:space="preserve">
-        Статистика
+        <source xml:space="preserve">Статистика</source>
       </trans-unit>
       <trans-unit id="21">
-        <source xml:space="preserve">
-        Управление фидами
+        <source xml:space="preserve">Управление фидами</source>
       </trans-unit>
       <trans-unit id="22">
-        <source xml:space="preserve">
-        Сервисные функции
+        <source xml:space="preserve">Сервисные функции</source>
       </trans-unit>
       <trans-unit id="23">
-        <source xml:space="preserve">
-        Правила и модерация
+        <source xml:space="preserve">Правила и модерация</source>
       </trans-unit>
       <trans-unit id="24">
-        <source xml:space="preserve">
-        Технологии и сервисы
+        <source xml:space="preserve">Технологии и сервисы</source>
       </trans-unit>
       <trans-unit id="25">
-        <source xml:space="preserve">
-        Поддержка 24/7
+        <source xml:space="preserve">Поддержка 24/7</source>
       </trans-unit>
       <trans-unit id="26">
-        <source xml:space="preserve">
-        Полезные ссылки
+        <source xml:space="preserve">Полезные ссылки</source>
       </trans-unit>
       <trans-unit id="27">
-        <source xml:space="preserve">
-        Глоссарий
+        <source xml:space="preserve">Глоссарий</source>
       </trans-unit>
       <trans-unit id="28">
-        <source xml:space="preserve">
-        Простой старт
+        <source xml:space="preserve">Простой старт</source>
       </trans-unit>
       <trans-unit id="29">
-        <source xml:space="preserve">
-        Минимум ручных настроек: достаточно указать ссылку на сайт
+        <source xml:space="preserve">Минимум ручных настроек: достаточно указать ссылку на сайт</source>
       </trans-unit>
       <trans-unit id="30">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="31">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: en/toc.yaml.skl 1`] = `
+exports[`Translate command > extract yaml scheme files > en/toc.yaml.skl 1`] = `
 "title: '%%%0%%%'
 href: index.yaml
 items:
@@ -394,51 +336,37 @@ navigation:
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/toc.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > extract yaml scheme files > en/toc.yaml.xliff 1`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Заголовок
+        <source xml:space="preserve">Заголовок</source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        На сайт сервиса
+        <source xml:space="preserve">На сайт сервиса</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Инструменты
+        <source xml:space="preserve">Инструменты</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Пункт меню
+        <source xml:space="preserve">Пункт меню</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Дочерняя страница
+        <source xml:space="preserve">Дочерняя страница</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: filelist 1`] = `
+exports[`Translate command > extract yaml scheme files > filelist 1`] = `
 "[
   "en/index-direct.yaml.skl",
   "en/index-direct.yaml.xliff",
@@ -449,10 +377,12 @@ exports[`Translate command extract yaml scheme files: filelist 1`] = `
 ]"
 `;
 
-exports[`Translate command filter files on extract with extra exclude option: filelist 1`] = `
+exports[`Translate command > filter files on extract > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",
   "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
   "es/aboba.md.skl",
   "es/aboba.md.xliff",
   "es/index.md.skl",
@@ -472,12 +402,10 @@ exports[`Translate command filter files on extract with extra exclude option: fi
 ]"
 `;
 
-exports[`Translate command filter files on extract: filelist 1`] = `
+exports[`Translate command > filter files on extract with extra exclude option > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",
   "es/_includes/test.md.xliff",
-  "es/_no-translate/exclude.md.skl",
-  "es/_no-translate/exclude.md.xliff",
   "es/aboba.md.skl",
   "es/aboba.md.xliff",
   "es/index.md.skl",

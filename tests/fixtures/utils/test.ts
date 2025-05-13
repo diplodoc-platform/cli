@@ -1,0 +1,31 @@
+import {readFileSync} from 'node:fs';
+
+export function platformless(text: string): string {
+    return text
+        .replace(/\r\n/g, '\n')
+        .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
+        .replace(/(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+/g, `$1vDIPLODOC-VERSION`)
+        .replace(/(\\(?![/"'])){1,2}/g, '/');
+}
+
+export function bundleless(text: string): string {
+    const assets = require('@diplodoc/client/manifest') as Record<string, Record<string, string[]>>;
+
+    for (const [entryKey, entry] of Object.entries(assets)) {
+        for (const [typeKey, type] of Object.entries(entry)) {
+            for (let index = 0; index < type.length; index++) {
+                let prev = '';
+                while (prev !== text) {
+                    prev = text;
+                    text = text.replace(type[index], `${entryKey}-${typeKey}-${index}`);
+                }
+            }
+        }
+    }
+
+    return text;
+}
+
+export function getNormalizedContent(filePath: string): string {
+    return bundleless(platformless(readFileSync(filePath, 'utf8')));
+}
