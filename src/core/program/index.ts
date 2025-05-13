@@ -159,10 +159,6 @@ export class BaseProgram<
         this.modules.push(module);
     }
 
-    addModule(module: ICallable) {
-        this.modules.push(module);
-    }
-
     private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
