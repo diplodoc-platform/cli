@@ -252,7 +252,7 @@ describe('Build command', () => {
             // test('should merge args ang config')
         });
 
-        describe.skip('strict', () => {
+        describe('strict', () => {
             test('should handle default', '', {
                 strict: false,
             });

@@ -3,6 +3,8 @@ import type {HookMeta} from '~/core/utils';
 import {MAIN_TIMER_ID} from '~/constants';
 import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
+import {red} from 'chalk';
+import dedent from 'ts-dedent';
 
 export * from '~/commands';
 
@@ -43,6 +45,17 @@ if (require.main === module) {
         if (process.env.NODE_ENV !== 'test') {
             // eslint-disable-next-line no-console
             console.timeEnd(MAIN_TIMER_ID);
+
+            if (exitCode) {
+                // eslint-disable-next-line no-console
+                console.log(
+                    red(dedent`
+                        ================================
+                        YFM build completed with ERRORS!
+                        ================================
+                    `),
+                );
+            }
         }
 
         process.exit(exitCode);
