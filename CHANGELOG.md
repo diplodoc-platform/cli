@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.57.24](https://github.com/diplodoc-platform/cli/compare/v4.57.23...v4.57.24) (2025-05-13)
+
+
+### Bug Fixes
+
+* rm strict false mode ([5bc7f31](https://github.com/diplodoc-platform/cli/commit/5bc7f31e872dd5dccbd6ff8d95f8daa96569bd6e))
+
 ## [4.57.23](https://github.com/diplodoc-platform/cli/compare/v4.57.22...v4.57.23) (2025-05-12)
 
 
