@@ -1,10 +1,10 @@
+const MODULE_PATH = require.resolve('../../../');
+
 export class SourceRunner {
     async runYfmDocs(argv: string[]): Promise<void> {
-        const modulePath = require.resolve('@diplodoc/cli');
+        const {run} = await import(MODULE_PATH);
 
-        const {run} = await import(modulePath);
-
-        const baseArgs = ['node', modulePath, ...argv];
+        const baseArgs = ['node', MODULE_PATH, ...argv];
 
         const exitCode = await run(baseArgs);
 
