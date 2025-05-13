@@ -22,7 +22,7 @@ class CliTestAdapter {
         outputPath: string,
         {md2md = true, md2html = true, args = ''}: BuildRunArgs = {},
     ): Promise<void> {
-        cleanupDirectory(outputPath);
+        await cleanupDirectory(outputPath);
 
         const baseArgs = [
             '--input',
@@ -33,7 +33,7 @@ class CliTestAdapter {
         ];
 
         if (md2md && md2html) {
-            cleanupDirectory(`${outputPath}-html`);
+            await cleanupDirectory(`${outputPath}-html`);
 
             await this.runner.runYfmDocs([...baseArgs, '--output', outputPath, '-f', 'md']);
             await this.runner.runYfmDocs([
@@ -55,7 +55,7 @@ class CliTestAdapter {
         outputPath: string,
         {subcommand, source, target, additionalArgs = ''}: TranslateRunArgs,
     ): Promise<void> {
-        cleanupDirectory(outputPath);
+        await cleanupDirectory(outputPath);
 
         const baseArgs = [
             'translate',

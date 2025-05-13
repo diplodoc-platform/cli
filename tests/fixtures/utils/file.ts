@@ -1,9 +1,9 @@
-import {readFileSync} from 'fs';
-import {join, resolve} from 'path';
-import walkSync from 'walk-sync';
+import {readFileSync} from 'node:fs';
+import {join, resolve} from 'node:path';
+import {glob} from 'glob';
 import {bundleless, platformless} from './test';
 import {expect} from 'vitest';
-import shell from 'shelljs';
+import {$} from 'execa';
 
 export function getFileContent(filePath: string) {
     return bundleless(platformless(readFileSync(filePath, 'utf8')));
@@ -12,11 +12,16 @@ export function getFileContent(filePath: string) {
 const uselessFile = (file: string) =>
     !['_bundle/', '_assets/', '_search/'].some((part) => file.includes(part));
 
-export function compareDirectories(outputPath: string, ignoreFileContent = false): void {
-    const filesFromOutput = walkSync(outputPath, {
-        directories: false,
-        includeBasePath: false,
-    }).sort();
+export async function compareDirectories(outputPath: string, ignoreFileContent = false) {
+    const filesFromOutput = (
+        await glob(`**/*`, {
+            cwd: outputPath,
+            dot: true,
+            follow: true,
+            nodir: true,
+            posix: true,
+        })
+    ).sort();
 
     expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
@@ -40,6 +45,6 @@ export function getTestPaths(testRootPath: string): TestPaths {
     };
 }
 
-export function cleanupDirectory(path: string): void {
-    shell.rm('-rf', path);
+export function cleanupDirectory(path: string) {
+    return $`rm -rf ${path}`;
 }

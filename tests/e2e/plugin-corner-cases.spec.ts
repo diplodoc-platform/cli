@@ -8,6 +8,6 @@ describe('plugin corner cases:', () => {
         );
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {md2md: true, md2html: false});
-        compareDirectories(outputPath);
+        await compareDirectories(outputPath);
     });
 });

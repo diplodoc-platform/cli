@@ -11,7 +11,7 @@ const generateMapTestTemplate = (
 
         await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
-        compareDirectories(outputPath, true);
+        await compareDirectories(outputPath, true);
     });
 };
 
@@ -25,7 +25,7 @@ const generateFilesYamlTestTemplate = (
 
         await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
-        compareDirectories(outputPath);
+        await compareDirectories(outputPath);
     });
 };
 

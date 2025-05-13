@@ -16,9 +16,9 @@ function test(_description: string) {
             md2html: true,
             args: '--static-content',
         });
-        compareDirectories(outputPath);
-        compareDirectories(outputPath + '-html');
-        // compareDirectories(outputPath + '-static-html');
+        await compareDirectories(outputPath);
+        await compareDirectories(outputPath + '-html');
+        // await compareDirectories(outputPath + '-static-html');
     });
 }
 

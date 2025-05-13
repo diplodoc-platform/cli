@@ -9,7 +9,7 @@ const generateMapTestTemplate = (
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
         await TestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args});
-        compareDirectories(outputPath);
+        await compareDirectories(outputPath);
     });
 };
 

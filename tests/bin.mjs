@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import {spawn} from 'node:child_process';
+import {execa} from 'execa';
 import {dirname, join, resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {createRequire} from 'node:module';
@@ -8,7 +8,7 @@ import {createRequire} from 'node:module';
 const require = createRequire(import.meta.url);
 const vitestPath = require.resolve('vitest');
 
-const vitest = spawn(
+await execa(
     join(dirname(vitestPath), 'vitest.mjs'),
     [
         'run',
@@ -17,14 +17,10 @@ const vitest = spawn(
         ...process.argv.slice(2),
     ],
     {
-        stdio: 'inherit',
+        stdout: 'inherit',
         env: {
             ...process.env,
             NODE_ENV: 'test',
         },
     },
 );
-
-vitest.on('exit', (code) => {
-    process.exit(code || 0);
-});
