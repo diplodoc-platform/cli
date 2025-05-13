@@ -1,5 +1,5 @@
-import {spawn} from 'child_process';
 import {Runner} from './types';
+import {execa} from 'execa';
 
 export class BinaryRunner implements Runner {
     private readonly binaryPath: string;
@@ -8,24 +8,10 @@ export class BinaryRunner implements Runner {
         this.binaryPath = binaryPath;
     }
 
-    runYfmDocs(argv: string[]): Promise<void> {
-        return this.spawnAsync(argv);
-    }
+    async runYfmDocs(argv: string[]) {
+        const {all} = await execa(this.binaryPath, argv, {all: true});
 
-    private spawnAsync(argv: string[]): Promise<void> {
-        return new Promise((resolve, reject) => {
-            const child = spawn(this.binaryPath, argv, {
-                stdio: 'inherit',
-            });
-
-            child.on('error', reject);
-            child.on('exit', (code) => {
-                if (code === 0) {
-                    resolve();
-                } else {
-                    reject(new Error(`Process exited with code ${code}`));
-                }
-            });
-        });
+        // eslint-disable-next-line no-console
+        console.log(all);
     }
 }

@@ -14,7 +14,7 @@ export interface TranslateRunArgs {
     additionalArgs?: string;
 }
 
-export class CliTestAdapter {
+class CliTestAdapter {
     private readonly runner: Runner = createRunner();
 
     async testBuildPass(
@@ -75,3 +75,5 @@ export class CliTestAdapter {
         await this.runner.runYfmDocs(baseArgs);
     }
 }
+
+export const TestAdapter = new CliTestAdapter();

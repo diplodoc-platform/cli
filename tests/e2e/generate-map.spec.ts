@@ -1,7 +1,6 @@
 import {describe, expect, test} from 'vitest';
-import {bundleless, getFileContent, getTestPaths} from '../fixtures';
+import {TestAdapter, bundleless, getFileContent, getTestPaths} from '../fixtures';
 import {join} from 'path';
-import {CliTestAdapter} from '../fixtures/cliAdapter';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -9,12 +8,10 @@ const generateMapTestTemplate = (
     md2md = true,
     md2html = true,
 ) => {
-    const cliTestAdapter = new CliTestAdapter();
-
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
-        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
+        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args: '--add-map-file'});
 
         const content = getFileContent(join(outputPath, 'files.json'));
 

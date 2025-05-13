@@ -1,17 +1,14 @@
 import {describe, test} from 'vitest';
-import {compareDirectories, getTestPaths} from '../fixtures';
-import {CliTestAdapter} from '../fixtures/cliAdapter';
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
     testRootPath: string,
     {md2md = true, md2html = true, args = '--allow-custom-resources'},
 ) => {
-    const cliTestAdapter = new CliTestAdapter();
-
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        await cliTestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args});
+        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html, args});
         compareDirectories(outputPath);
     });
 };

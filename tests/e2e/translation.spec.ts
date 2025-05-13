@@ -1,18 +1,15 @@
 import {describe, test} from 'vitest';
-import {CliTestAdapter, TranslateRunArgs} from '../fixtures/cliAdapter';
-import {compareDirectories, getTestPaths} from '../fixtures';
+import {TestAdapter, TranslateRunArgs, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
     testRootPath: string,
     args: TranslateRunArgs,
 ) => {
-    const cliTestAdapter = new CliTestAdapter();
-
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
-        await cliTestAdapter.testTranslatePass(inputPath, outputPath, args);
+        await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
         compareDirectories(outputPath, true);
     });
@@ -23,12 +20,10 @@ const generateFilesYamlTestTemplate = (
     testRootPath: string,
     args: TranslateRunArgs,
 ) => {
-    const cliTestAdapter = new CliTestAdapter();
-
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
-        await cliTestAdapter.testTranslatePass(inputPath, outputPath, args);
+        await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
         compareDirectories(outputPath);
     });
