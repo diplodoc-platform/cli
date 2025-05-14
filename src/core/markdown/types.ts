@@ -10,7 +10,10 @@ export type Collect = {
         content: string,
         // TODO: rewrite old collect to do not use this object
         options: object,
-    ): string | [string | undefined, Meta | undefined];
+    ):
+        | string
+        | [string | undefined, Meta | undefined]
+        | Promise<string | [string | undefined, Meta | undefined]>;
     stage?: `${CollectStage}`;
 };
 
