@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.58.3](https://github.com/diplodoc-platform/cli/compare/v4.58.2...v4.58.3) (2025-05-14)
+
+
+### Dependency update
+
+* Update @diplodoc/liquid to 1.3.1 ([252acc4](https://github.com/diplodoc-platform/cli/commit/252acc465765a2d4f0ed0a24550d1c6a7665b65d))
+
 ## [4.58.2](https://github.com/diplodoc-platform/cli/compare/v4.58.1...v4.58.2) (2025-05-14)
 
 
