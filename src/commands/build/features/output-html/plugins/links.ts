@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
@@ -5,7 +6,7 @@ import type {Logger} from '~/core/logger';
 
 import url from 'url';
 import {bold} from 'chalk';
-import {dirname, isAbsolute, join} from 'node:path';
+import {dirname, isAbsolute, join, parse} from 'path';
 
 import {filterTokens, isExternalHref} from '~/core/utils';
 
@@ -48,8 +49,17 @@ function processLink(state: StateCore, tokens: Token[], idx: number, opts: Optio
     const file = pathname ? join(dirname(state.env.path || '.'), pathname) : path;
     const isPageFile = PAGE_LINK_REGEXP.test(file);
 
+    if (isPageFile && pathname) {
+        const fileLink = join(parse(path).dir, file);
+        const fileExists = fileLink in titles;
+
+        if (!fileExists) {
+            log.error(`Link is unreachable: ${bold(file)} in ${bold(path)}`);
+        }
+    }
+
     if ((isEmptyLink || isTitleRefLink) && file in titles && isPageFile) {
-        const title = titles[file][hash || '#'];
+        const title = titles[file as NormalizedPath][hash || '#'];
 
         if (typeof title === 'string') {
             const titleToken = isEmptyLink ? new state.Token('text', '', 0) : nextToken;
@@ -94,7 +104,7 @@ export default ((md, opts) => {
     };
 
     try {
-        md.core.ruler.before('includes', 'links', plugin);
+        md.core.ruler.before('links', 'includes', plugin);
     } catch (e) {
         md.core.ruler.push('links', plugin);
     }
