@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
 import {Template} from '~/core/template';
-import {copyJson, normalizePath} from '~/core/utils';
+import {copyJson} from '~/core/utils';
 
 import {options} from './config';
 import {getSinglePageUrl, joinSinglePageResults} from './utils';
@@ -54,14 +54,16 @@ export class SinglePage {
                     return;
                 }
 
-                const tocDir = normalizePath(dirname(run.toc.for(entry)));
+                const tocPath = run.toc.for(entry);
 
-                results[tocDir] = results[tocDir] || [];
-                results[tocDir][info.position] = {
+                run.meta.add(tocPath, info.meta || {});
+                run.meta.addResources(tocPath, info.meta || {});
+
+                results[tocPath] = results[tocPath] || [];
+                results[tocPath][info.position] = {
                     path: entry,
                     content: info.html,
                     title: info.title || '',
-                    // TODO: handle file resources
                 };
             });
 
@@ -106,13 +108,13 @@ export class SinglePage {
                 }
 
                 for (const entry of Object.entries(results)) {
-                    const [tocDir, result] = entry as [NormalizedPath, PageInfo[]];
+                    const [tocPath, result] = entry as [NormalizedPath, PageInfo[]];
 
                     if (!result.length) {
                         return;
                     }
 
-                    const tocPath = join(tocDir, 'toc.yaml');
+                    const tocDir = dirname(tocPath);
                     const htmlPath = join(tocDir, SINGLE_PAGE_FILENAME);
                     const dataPath = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
 
@@ -124,11 +126,13 @@ export class SinglePage {
 
                         const toc = (await run.toc.dump(tocPath)) as Toc;
 
+                        run.meta.addResources(tocPath, run.config.resources);
+
                         const data = {
                             leading: false as const,
                             html: singlePageBody,
                             headings: [],
-                            meta: run.config.resources,
+                            meta: await run.meta.dump(tocPath),
                             title: toc.title || '',
                         };
 
