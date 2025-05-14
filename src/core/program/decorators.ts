@@ -1,4 +1,5 @@
 import type {BaseConfig} from '~/core/program/types';
+import { merge } from 'lodash';
 
 const configDefaults = Symbol('defaultConfig');
 
@@ -24,7 +25,7 @@ export function withConfigDefaults<C extends () => object>(config: C) {
             get [configDefaults](): C {
                 const moreDefaults = super[configDefaults] || {};
 
-                return {...moreDefaults, ...config()};
+                return merge({}, moreDefaults, config());
             }
         };
     };
