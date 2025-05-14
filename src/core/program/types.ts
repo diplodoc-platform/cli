@@ -25,7 +25,6 @@ export type BaseConfig = {
     extensions?: (string | ExtensionInfo)[];
 };
 
-export type ExtensionInfo = {
-    path: string;
-    options: Hash;
-};
+export type ExtensionInfo<Options extends Hash = Hash> = {
+    name: string;
+} & Options;

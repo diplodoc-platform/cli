@@ -83,7 +83,11 @@ export type Toc = {
     path: NormalizedPath;
     id: string;
     title?: string;
-    label?: string;
+    label?: {
+        title: string;
+        description?: string;
+        theme?: any;
+    };
     stage?: string;
     href?: NormalizedPath;
     navigation?: boolean | Navigation;
@@ -96,7 +100,7 @@ export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean} & {
 };
 
 export type EntryTocItem = {
-    name?: string;
+    name: string;
     href: NormalizedPath;
 };
 

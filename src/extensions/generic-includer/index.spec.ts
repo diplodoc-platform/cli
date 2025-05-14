@@ -50,14 +50,16 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
-            {},
-            {
-                input: './test',
-                path: './test/toc.yaml',
-            },
-            'toc.yaml' as NormalizedPath,
-        );
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });
@@ -78,13 +80,15 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
-            {},
-            {
-                path: './path/test/toc.yaml',
-            },
-            'toc.yaml' as NormalizedPath,
-        );
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    path: './path/test/toc.yaml',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });
@@ -105,15 +109,17 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
-            {},
-            {
-                input: './test',
-                path: './test/toc.yaml',
-                autotitle: false,
-            },
-            'toc.yaml' as NormalizedPath,
-        );
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });
