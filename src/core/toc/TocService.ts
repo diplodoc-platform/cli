@@ -1,7 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {EntryTocItem, IncludeInfo, RawToc, Toc, WithItems} from './types';
+import type {IncludeInfo, RawToc, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
@@ -131,7 +131,7 @@ export class TocService {
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
         if (toc.href || toc.items?.length) {
-            await this.walkEntries([toc as EntryTocItem], (item) => {
+            await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
                 this._entries.add(normalizePath(join(dirname(path), item.href)));
 
                 if (own<string, 'restricted-access'>(item, 'restricted-access')) {
@@ -213,7 +213,7 @@ export class TocService {
      * Then applies actor to each item in actor result.items.
      * Returns actor results.
      */
-    async walkEntries<T extends WithItems<T> & EntryTocItem>(
+    async walkEntries<T extends WithItems<T> & {href: NormalizedPath}>(
         items: T[] | undefined,
         actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
     ): Promise<T[] | undefined> {
