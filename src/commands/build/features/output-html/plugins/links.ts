@@ -8,7 +8,7 @@ import url from 'url';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join, parse} from 'path';
 
-import {filterTokens, isExternalHref} from '~/core/utils';
+import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 
@@ -50,7 +50,7 @@ function processLink(state: StateCore, tokens: Token[], idx: number, opts: Optio
     const isPageFile = PAGE_LINK_REGEXP.test(file);
 
     if (isPageFile && pathname) {
-        const fileLink = join(parse(path).dir, file);
+        const fileLink = normalizePath(join(parse(path).dir, file));
         const fileExists = fileLink in titles;
 
         if (!fileExists) {
@@ -104,7 +104,7 @@ export default ((md, opts) => {
     };
 
     try {
-        md.core.ruler.before('links', 'includes', plugin);
+        md.core.ruler.before('includes', 'links', plugin);
     } catch (e) {
         md.core.ruler.push('links', plugin);
     }
