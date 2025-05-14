@@ -1,6 +1,6 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {EntryTocItem, Toc} from '~/core/toc';
+import type {Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
@@ -83,7 +83,7 @@ export class SinglePage {
                     const file = join(dirname(tocPath), 'single-page-toc.js');
 
                     const toc = copyJson(await run.toc.dump(tocPath));
-                    await run.toc.walkEntries([toc as EntryTocItem], (item) => {
+                    await run.toc.walkEntries([toc as {href: NormalizedPath}], (item) => {
                         item.href = getSinglePageUrl(dirname(toc.path), item.href);
 
                         return item;

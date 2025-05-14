@@ -2,7 +2,7 @@ import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
-import {once, pick} from 'lodash';
+import {omit, once, pick} from 'lodash';
 
 import {
     resolveConfig,
@@ -92,7 +92,7 @@ export class BaseProgram<
     async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
-        const config = parent?.config || await this.resolveConfig(args as TArgs);
+        const config = parent?.config || (await this.resolveConfig(args as TArgs));
         const extensions = await this.resolveExtensions(config, args);
 
         // @ts-ignore
@@ -204,35 +204,38 @@ export class BaseProgram<
 
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         // args extension paths should be relative to PWD
-        const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-            const path = isRelative(ext) ? resolve(ext) : ext;
+        const argsExtensions: {
+            name: string;
+            options: Record<string, unknown>;
+        }[] = (args.extensions || []).map((ext) => {
+            const name = isRelative(ext) ? resolve(ext) : ext;
             const options = {};
 
-            return {path, options};
+            return {name, options};
         });
 
         // config extension paths should be relative to config
-        const configExtensions: ExtensionInfo[] = [
-            ...this.extensions,
-            ...(config.extensions || []),
-        ].map((ext) => {
-            const extPath = typeof ext === 'string' ? ext : ext.path;
-            const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
-            const options = typeof ext === 'string' ? {} : ext.options || {};
+        const configExtensions: {
+            name: string;
+            options: Record<string, unknown>;
+        }[] = [...this.extensions, ...(config.extensions || [])].map((ext) => {
+            const extPath = typeof ext === 'string' ? ext : ext.name;
+            const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
+            const options = typeof ext === 'string' ? {} : omit(ext, 'path');
 
-            return {path, options};
+            return {name, options};
         });
 
         const extensions = [...argsExtensions, ...configExtensions];
 
         const initialize = async ({
-            path,
+            name,
             options,
         }: {
-            path: string;
+            name: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = require(path);
+            const ExtensionModule = require(name);
             const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
             return new Extension(options);

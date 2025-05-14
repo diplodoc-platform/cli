@@ -1,5 +1,5 @@
 import type {Collect} from './types';
-import type {LoaderContext} from './loader';
+import type {CollectStage, LoaderContext} from './loader';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -24,7 +24,12 @@ function bucket() {
 
 function loaderContext(
     raw: string,
-    {vars = {}, options = {}, settings = {}, collects = []}: DeepPartial<LoaderContext> = {},
+    {
+        vars = {},
+        options = {},
+        settings = {},
+        collects = {before: [], after: []} as Record<CollectStage, Collect[]>,
+    }: DeepPartial<LoaderContext> = {},
 ) {
     return {
         path: 'file.md' as NormalizedPath,
@@ -42,7 +47,7 @@ function loaderContext(
             comments: bucket(),
             sourcemap: bucket(),
         },
-        collects: collects as Collect[],
+        collects: collects as Record<CollectStage, Collect[]>,
         sourcemap: new SourceMap(raw),
         settings,
         options: {
@@ -568,18 +573,28 @@ describe('Markdown loader', () => {
                 Text
             `;
             const context = loaderContext(content, {
-                collects: [
-                    async function (input: string) {
-                        return input + '\nPlugin 1';
-                    },
-                    async function (input: string) {
-                        return input + '\nPlugin 2';
-                    },
-                ],
+                collects: {
+                    before: [
+                        async function (input: string) {
+                            return input + '\nPlugin 1';
+                        } as Collect,
+                        async function (input: string) {
+                            return input + '\nPlugin 2';
+                        } as Collect,
+                    ],
+                    after: [
+                        async function (input: string) {
+                            return input + '\nPlugin 3';
+                        } as Collect,
+                        async function (input: string) {
+                            return input + '\nPlugin 4';
+                        } as Collect,
+                    ],
+                },
             });
 
             const result = await loader.call(context, content);
-            expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
+            expect(result).toEqual('Text\nPlugin 1\nPlugin 2\nPlugin 3\nPlugin 4');
         });
     });
 });
