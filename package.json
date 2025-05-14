@@ -50,7 +50,6 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
-    "postinstall": "node scripts/postinstall.js || true",
     "start": "node build/index.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
