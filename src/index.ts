@@ -9,6 +9,7 @@ export * from '~/core/program';
 export * from '~/core/config';
 export * from '~/core/logger';
 export * from '~/core/utils';
+export * from '~/core/run';
 
 if (require.main === module) {
     (async () => {
