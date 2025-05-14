@@ -104,7 +104,7 @@ export default ((md, opts) => {
     };
 
     try {
-        md.core.ruler.before('links', 'includes', plugin);
+        md.core.ruler.before('includes', 'links', plugin);
     } catch (e) {
         md.core.ruler.push('links', plugin);
     }
