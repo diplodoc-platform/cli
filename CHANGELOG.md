@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.58.4](https://github.com/diplodoc-platform/cli/compare/v4.58.3...v4.58.4) (2025-05-14)
+
+
+### Dependency update
+
+* Update @diplodoc/client to 3.3.4 ([17a2683](https://github.com/diplodoc-platform/cli/commit/17a2683270a1f70de225bb8854b24d61a3f9b8b3))
+
 ## [4.58.3](https://github.com/diplodoc-platform/cli/compare/v4.58.2...v4.58.3) (2025-05-14)
 
 
