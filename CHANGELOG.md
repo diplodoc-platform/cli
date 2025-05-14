@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.0](https://github.com/diplodoc-platform/cli/compare/v4.58.4...v4.59.0) (2025-05-14)
+
+
+### Features
+
+* do not use a separate release flow for `cli-tests` companion package ([d37bef9](https://github.com/diplodoc-platform/cli/commit/d37bef9db9a61b25df5528b2c89cb94bec248862))
+
 ## [4.58.4](https://github.com/diplodoc-platform/cli/compare/v4.58.3...v4.58.4) (2025-05-14)
 
 
