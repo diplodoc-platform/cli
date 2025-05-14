@@ -80,6 +80,7 @@ export class LocalSearchProvider implements SearchProvider {
     config(lang: string) {
         return {
             ...this._config,
+            api: this.apiLink,
             provider: 'local',
             link: this.pageLink(lang),
             resources: this.resourcesLink(lang),
