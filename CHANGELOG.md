@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.58.1](https://github.com/diplodoc-platform/cli/compare/v4.58.0...v4.58.1) (2025-05-14)
+
+
+### Bug Fixes
+
+* add api prop to config ([f80dff7](https://github.com/diplodoc-platform/cli/commit/f80dff7aeccc746ba868496eaf3b9e2808ad7800))
+
 ## [4.58.0](https://github.com/diplodoc-platform/cli/compare/v4.57.24...v4.58.0) (2025-05-13)
 
 
