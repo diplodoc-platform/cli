@@ -89,7 +89,7 @@ export class BaseProgram<
         }
     }
 
-    async init(args: BaseArgs, parent?: BaseProgram, isExtension = false) {
+    async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
         const config = await this.resolveConfig(args as TArgs);
