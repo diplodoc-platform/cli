@@ -22,6 +22,7 @@ export function own<V = unknown, T extends string = string>(
 export function copyJson<T extends object>(
     json: T | undefined,
 ): T extends DeepFrozen<infer R> ? R : T | undefined {
+    // @ts-ignore
     return json ? JSON.parse(JSON.stringify(json)) : json;
 }
 
