@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.59.4](https://github.com/diplodoc-platform/cli/compare/v4.59.3...v4.59.4) (2025-05-15)
+
+
+### Bug Fixes
+
+* link plugin check ([99cef65](https://github.com/diplodoc-platform/cli/commit/99cef65720853271d2db383624d2cbf468b7881d))
+* Split links and includes html plugins ([ddbd80f](https://github.com/diplodoc-platform/cli/commit/ddbd80fe9ea90f791b0e5ea3283afd7839ff3178))
+
 ## [4.59.3](https://github.com/diplodoc-platform/cli/compare/v4.59.2...v4.59.3) (2025-05-15)
 
 
