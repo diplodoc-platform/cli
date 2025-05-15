@@ -1,3 +1,7 @@
+import type Token from 'markdown-it/lib/token';
+import type StateCore from 'markdown-it/lib/rules_core/state_core';
+
+import url from 'url';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import code from '@diplodoc/transform/lib/plugins/code';
@@ -15,16 +19,24 @@ import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
 
+import {filterTokens} from '~/core/utils';
+
 import includes from './plugins/includes';
+import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
+import linksAutotitles from './plugins/links-autotitles';
+import linksExternal from './plugins/links-external';
 import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [
         deflist,
         includes,
+        includesDetect,
         cut,
         links,
+        linksAutotitles,
+        linksExternal,
         images,
         notes,
         anchors,
@@ -60,4 +72,36 @@ export function getCustomMdItPlugins() {
     } catch (e) {
         return [];
     }
+}
+
+export function getHrefTokenAttr(token: Token) {
+    const href = token.attrGet('href') || '';
+    try {
+        return decodeURI(href);
+    } catch (e) {}
+
+    return href;
+}
+
+type LinkWalker = (link: Token, href: string, tokens: Token[], index: number) => void;
+
+export function walkLinks(state: StateCore, handler: LinkWalker) {
+    filterTokens(state.tokens, 'inline', (inline) => {
+        const childrenTokens = inline.children || [];
+
+        filterTokens(childrenTokens, 'link_open', (link, {index}) => {
+            const tokenClass = link.attrGet('class');
+            const href = getHrefTokenAttr(link);
+            const {pathname, hash} = url.parse(href);
+
+            /*  Don't process anchor links */
+            const isYfmAnchor = tokenClass ? tokenClass.includes('yfm-anchor') : false;
+
+            if (isYfmAnchor || !(pathname || hash)) {
+                return;
+            }
+
+            handler(link, href, childrenTokens, index);
+        });
+    });
 }
