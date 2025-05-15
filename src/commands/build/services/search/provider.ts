@@ -1,9 +1,6 @@
 import {SearchProvider} from './types';
 
 export class DefaultSearchProvider implements SearchProvider {
-    getIndexedCount(): number {
-        return 0;
-    }
     async add() {}
 
     async release() {}
