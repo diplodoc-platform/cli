@@ -138,13 +138,4 @@ export class SearchService implements SearchProvider<RelativePath> {
             </html>
         `;
     }
-
-    /**
-     * Returns the number of items that have been indexed by the search provider.
-     * If no provider is available, returns 0.
-     * @returns {number} The count of indexed items
-     */
-    getIndexedCount(): number {
-        return this.provider?.getIndexedCount() || 0;
-    }
 }
