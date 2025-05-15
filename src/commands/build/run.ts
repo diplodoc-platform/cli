@@ -148,6 +148,7 @@ export class Run extends BaseRun<BuildConfig> {
             getPublicPath,
             extractTitle: true,
             log: this.logger,
+            entries: this.toc.entries,
         };
     }
 
