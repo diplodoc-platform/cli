@@ -22,9 +22,9 @@ import images from './plugins/images';
 export function getBaseMdItPlugins() {
     return [
         deflist,
-        links,
         includes,
         cut,
+        links,
         images,
         notes,
         anchors,
