@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.59.3](https://github.com/diplodoc-platform/cli/compare/v4.59.2...v4.59.3) (2025-05-15)
+
+
+### Bug Fixes
+
+* check md file link ([cf77523](https://github.com/diplodoc-platform/cli/commit/cf775235fee58ae1778c4b603e59a58a6fe78e3b))
+* Handle includes before links ([d3e95ea](https://github.com/diplodoc-platform/cli/commit/d3e95ea3f28cd3924b394683b8e56bc7fd942365))
+
 ## [4.59.2](https://github.com/diplodoc-platform/cli/compare/v4.59.1...v4.59.2) (2025-05-15)
 
 
