@@ -16,17 +16,15 @@ import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
 
 import includes from './plugins/includes';
-import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
 import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [
         deflist,
-        includes,
-        includesDetect,
-        cut,
         links,
+        includes,
+        cut,
         images,
         notes,
         anchors,

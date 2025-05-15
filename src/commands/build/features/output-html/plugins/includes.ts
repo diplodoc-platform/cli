@@ -7,6 +7,8 @@ import {bold} from 'chalk';
 
 import {filterTokens, normalizePath} from '~/core/utils';
 
+const INCLUDE_REGEXP = /^{%\s*include\s*(notitle)?\s*\[(.+?)]\((.+?)\)\s*%}$/;
+
 function stripTitleTokens(tokens: Token[]) {
     const [open, _, close] = tokens;
 
@@ -53,10 +55,21 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
     const {tokens, md, env} = state;
 
     // @ts-ignore
-    filterTokens(tokens, 'include', (token, {index}) => {
+    filterTokens(tokens, 'paragraph_open', (_openToken, {index}) => {
+        const contentToken = tokens[index + 1];
+        const closeToken = tokens[index + 2];
+
+        if (contentToken.type !== 'inline' || closeToken.type !== 'paragraph_close') {
+            return;
+        }
+
+        const match = contentToken.content.match(INCLUDE_REGEXP);
+        if (!match) {
+            return;
+        }
+
         try {
-            const includePath = token.attrGet('path') as string;
-            const keyword = token.attrGet('keyword');
+            const [, keyword /* description */, , includePath] = match;
             const [pathname, hash] = includePath.split('#');
             const includeFullPath = normalizePath(join(dirname(path), pathname));
             const includeContent = files[includeFullPath];
@@ -83,7 +96,7 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
                 stripTitleTokens(includedTokens);
             }
 
-            tokens.splice(index, 1, ...includedTokens);
+            tokens.splice(index, 3, ...includedTokens);
 
             return {skip: includedTokens.length};
         } catch (e) {
