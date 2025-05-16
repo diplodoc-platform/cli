@@ -5,7 +5,7 @@
     "diplodoc-cli-test": "bin.mjs"
   },
   "exports": {
-    "./fixtures/*": "./fixtures/*"
+    "./fixtures": "./fixtures/index.ts"
   },
   "files": [
     "vitest.config.ts",

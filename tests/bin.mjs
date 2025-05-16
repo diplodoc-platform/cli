@@ -17,10 +17,12 @@ await execa(
         ...process.argv.slice(2),
     ],
     {
-        stdout: 'inherit',
+        stdio: 'inherit',
         env: {
             ...process.env,
             NODE_ENV: 'test',
         },
     },
-);
+).catch((error) => {
+    process.exit(error.exitCode || 1);
+});
