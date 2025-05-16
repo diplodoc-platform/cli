@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.5](https://github.com/diplodoc-platform/cli/compare/v4.59.4...v4.59.5) (2025-05-16)
+
+
+### Bug Fixes
+
+* scope `require.resolve` call to the SourceRunner class ([e5418a2](https://github.com/diplodoc-platform/cli/commit/e5418a212cd63e81f2ff51f01bdc25e073d9a696))
+
 ## [4.59.4](https://github.com/diplodoc-platform/cli/compare/v4.59.3...v4.59.4) (2025-05-15)
 
 
