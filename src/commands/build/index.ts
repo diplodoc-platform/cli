@@ -3,7 +3,7 @@ import type {Meta} from '~/core/meta';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
-import {dirname, join} from 'node:path';
+import {dirname, join, basename} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {dump} from 'js-yaml';
 import pmap from 'p-map';
@@ -17,7 +17,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
-import {bounded, normalizePath} from '~/core/utils';
+import {bounded, normalizePath, setExt} from '~/core/utils';
 import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -208,8 +208,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     if (!item.name || item.name === '{#T}') {
                         const entry = normalizePath(join(dirname(path), item.href));
                         const titles = await this.run.markdown.titles(entry);
-
-                        item.name = titles['#'];
+                        item.name = titles['#'] || setExt((basename(entry)), '');
                     }
 
                     return item;
