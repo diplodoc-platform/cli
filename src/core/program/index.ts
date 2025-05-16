@@ -1,7 +1,6 @@
 import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
-import Module from 'node:module';
-import {dirname, isAbsolute, resolve} from 'node:path';
+import {isAbsolute, resolve} from 'node:path';
 import {merge, once, pick} from 'lodash';
 
 import {
@@ -59,37 +58,6 @@ export class BaseProgram<
 
     static is(program: BaseProgram) {
         return program instanceof this;
-    }
-
-    private static patchModuleRequire() {
-        if (BaseProgram.isRequirePatched) {
-            return;
-        }
-
-        const originalRequire = Module.prototype.require;
-        /*
-            Q: What is the rationale behind this action?
-            A: 
-                To correctly resolve the original @diplodoc/CLI from the Extension, 
-                it is also necessary to fix when the CLI is packaged with the pkg
-                (path in pkg starts with /snapshot/...). 
-        */
-        // @ts-ignore
-        Module.prototype.require = function () {
-            // eslint-disable-next-line prefer-rest-params
-            const name = arguments[0];
-            if (name === '@diplodoc/cli') {
-                const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
-                console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
-                return originalRequire.apply(this, [realCWD]);
-            }
-
-            // @ts-ignore
-            // eslint-disable-next-line prefer-rest-params
-            return originalRequire.apply(this, arguments);
-        };
-
-        BaseProgram.isRequirePatched = true;
     }
 
     readonly name: string = 'Base';
@@ -242,7 +210,7 @@ export class BaseProgram<
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         // args extension paths should be relative to PWD
         const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-            const path = isAbsolute(ext) ? ext : resolve(process.cwd(), ext);
+            const path = isRelative(ext) ? resolve(process.cwd(), ext) : ext;
             const options = {};
 
             return {path, options};
@@ -254,7 +222,7 @@ export class BaseProgram<
             ...(config.extensions || []),
         ].map((ext) => {
             const extPath = typeof ext === 'string' ? ext : ext.path;
-            const path = isAbsolute(extPath) ? extPath : config.resolve(extPath);
+            const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
             const options = typeof ext === 'string' ? {} : ext.options || {};
 
             return {path, options};
@@ -279,8 +247,6 @@ export class BaseProgram<
                 throw error;
             }
         };
-
-        BaseProgram.patchModuleRequire();
 
         return Promise.all(extensions.map(initialize));
     }
