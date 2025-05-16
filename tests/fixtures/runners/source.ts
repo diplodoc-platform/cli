@@ -1,10 +1,10 @@
-const MODULE_PATH = require.resolve('../../../');
-
 export class SourceRunner {
-    async runYfmDocs(argv: string[]): Promise<void> {
-        const {run} = await import(MODULE_PATH);
+    readonly MODULE_PATH = require.resolve('../../../');
 
-        const baseArgs = ['node', MODULE_PATH, ...argv];
+    async runYfmDocs(argv: string[]): Promise<void> {
+        const {run} = await import(this.MODULE_PATH);
+
+        const baseArgs = ['node', this.MODULE_PATH, ...argv];
 
         const exitCode = await run(baseArgs);
 
