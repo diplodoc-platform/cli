@@ -67,7 +67,7 @@ export class BaseProgram<
         }
 
         const originalRequire = Module.prototype.require;
-         /*
+        /*
             Q: What is the rationale behind this action?
             A: 
                 To correctly resolve the original @diplodoc/CLI from the Extension, 
