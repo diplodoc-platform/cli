@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.7](https://github.com/diplodoc-platform/cli/compare/v4.59.6...v4.59.7) (2025-05-16)
+
+
+### Bug Fixes
+
+* tests quality of life improvements ([44a89ed](https://github.com/diplodoc-platform/cli/commit/44a89ed27c2cee98e521810d315df191eb241790))
+
 ## [4.59.6](https://github.com/diplodoc-platform/cli/compare/v4.59.5...v4.59.6) (2025-05-16)
 
 
