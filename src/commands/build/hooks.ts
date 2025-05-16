@@ -31,9 +31,10 @@ export function hooks(name: string) {
          */
         Entry: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<
-                    [NormalizedPath, DeepFrozen<PositionedEntryInfo>, NormalizedPath]
-                >(['entry', 'info', 'tocDir'], `${name}.${format}.Entry`),
+                new AsyncSeriesHook<[Run, NormalizedPath, DeepFrozen<PositionedEntryInfo>]>(
+                    ['run', 'entry', 'info'],
+                    `${name}.${format}.Entry`,
+                ),
         ),
         /**
          * Async series hook map (md|html) which runs after build.<br/><br/>

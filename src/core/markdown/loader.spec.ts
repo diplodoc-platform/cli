@@ -1,5 +1,5 @@
 import type {Collect} from './types';
-import type {LoaderContext} from './loader';
+import type {CollectStage, LoaderContext} from './loader';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -24,11 +24,17 @@ function bucket() {
 
 function loaderContext(
     raw: string,
-    {vars = {}, options = {}, settings = {}, collects = []}: DeepPartial<LoaderContext> = {},
+    {
+        vars = {},
+        options = {},
+        settings = {},
+        collects = {before: [], after: []} as Record<CollectStage, Collect[]>,
+    }: DeepPartial<LoaderContext> = {},
 ) {
     return {
         path: 'file.md' as NormalizedPath,
         vars,
+        sign: '',
         logger: new Logger(),
         emitFile: vi.fn(),
         readFile: vi.fn(),
@@ -41,7 +47,7 @@ function loaderContext(
             comments: bucket(),
             sourcemap: bucket(),
         },
-        collects: collects as Collect[],
+        collects: collects as Record<CollectStage, Collect[]>,
         sourcemap: new SourceMap(raw),
         settings,
         options: {
@@ -230,7 +236,15 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include.md', location: [12, 42], hash: null, search: null},
+                {
+                    path: 'include.md',
+                    signpath: 'include.md',
+                    link: './include.md',
+                    signlink: './include.md',
+                    location: [12, 42],
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -250,9 +264,33 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include1.md', location: [12, 43], hash: null, search: null},
-                {path: 'include2.md', location: [45, 99], hash: null, search: null},
-                {path: 'deep/include.md', location: [105, 140], hash: null, search: null},
+                {
+                    path: 'include1.md',
+                    signpath: 'include1.md',
+                    link: './include1.md',
+                    signlink: './include1.md',
+                    location: [12, 43],
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'include2.md',
+                    signpath: 'include2.md',
+                    link: './include2.md',
+                    signlink: './include2.md',
+                    location: [45, 99],
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'deep/include.md',
+                    signpath: 'deep/include.md',
+                    link: './deep/include.md',
+                    signlink: './deep/include.md',
+                    location: [105, 140],
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -272,8 +310,24 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include1.md', location: [12, 43], hash: null, search: null},
-                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+                {
+                    path: 'include1.md',
+                    signpath: 'include1.md',
+                    link: './include1.md',
+                    signlink: './include1.md',
+                    location: [12, 43],
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'include2.md',
+                    signpath: 'include2.md',
+                    link: './include2.md',
+                    signlink: './include2.md',
+                    location: [45, 99],
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -519,18 +573,28 @@ describe('Markdown loader', () => {
                 Text
             `;
             const context = loaderContext(content, {
-                collects: [
-                    async function (input: string) {
-                        return input + '\nPlugin 1';
-                    },
-                    async function (input: string) {
-                        return input + '\nPlugin 2';
-                    },
-                ],
+                collects: {
+                    before: [
+                        async function (input: string) {
+                            return input + '\nPlugin 1';
+                        } as Collect,
+                        async function (input: string) {
+                            return input + '\nPlugin 2';
+                        } as Collect,
+                    ],
+                    after: [
+                        async function (input: string) {
+                            return input + '\nPlugin 3';
+                        } as Collect,
+                        async function (input: string) {
+                            return input + '\nPlugin 4';
+                        } as Collect,
+                    ],
+                },
             });
 
             const result = await loader.call(context, content);
-            expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
+            expect(result).toEqual('Text\nPlugin 1\nPlugin 2\nPlugin 3\nPlugin 4');
         });
     });
 });

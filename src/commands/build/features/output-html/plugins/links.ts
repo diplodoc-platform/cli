@@ -8,7 +8,6 @@ import {dirname, isAbsolute, join} from 'node:path';
 
 import {walkLinks} from '../utils';
 import {normalizePath} from '~/core/utils';
-import dedent from 'ts-dedent';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 
@@ -43,11 +42,9 @@ export default ((md, opts) => {
                 );
 
                 if (isPageFile && !entries.includes(file)) {
-                    log.error(dedent`
-                            Link is unreachable: ${bold(file)} in ${bold(path)}.
-
-                            All files must be listed in toc files.
-                        `);
+                    log.error(
+                        `Link is unreachable: ${bold(file)} in ${bold(path)}. All files must be listed in toc files.`,
+                    );
                 }
             }
 

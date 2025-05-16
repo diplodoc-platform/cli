@@ -1,1 +1,0 @@
-export {generateStaticMarkup} from './document';

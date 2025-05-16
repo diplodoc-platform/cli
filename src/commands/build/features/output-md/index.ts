@@ -2,7 +2,6 @@ import type {Build, Run} from '~/commands/build';
 import type {LeadingPage} from '~/core/leading';
 
 import {join} from 'node:path';
-import {uniq} from 'lodash';
 import {dump} from 'js-yaml';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -12,6 +11,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
+import {hashDeps} from './collects';
 import {getCustomCollectPlugins} from './utils';
 
 export class OutputMd {
@@ -23,9 +23,42 @@ export class OutputMd {
                     await run.write(join(run.output, path), dump(await run.toc.dump(path)));
                 });
 
-                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (plugins) => {
-                    return plugins.concat(getCustomCollectPlugins());
+                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
+                    return collects.concat([hashDeps], getCustomCollectPlugins());
                 });
+
+                const copied = new Set();
+
+                // Recursively copy transformed markdown deps
+                getMarkdownHooks(run.markdown).Dump.tapPromise(
+                    'Build.Md',
+                    async (markdown, file) => {
+                        const deps = await run.markdown.deps(file);
+                        await all(
+                            deps.map(async ({path, signpath}) => {
+                                if (copied.has(signpath)) {
+                                    return;
+                                }
+                                copied.add(signpath);
+
+                                try {
+                                    run.logger.copy(
+                                        join(run.input, path),
+                                        join(run.output, signpath),
+                                    );
+
+                                    const content = await run.markdown.load(path, [file]);
+
+                                    await run.write(join(run.output, signpath), content);
+                                } catch (error) {
+                                    run.logger.warn(`Unable to copy dependency ${path}.`, error);
+                                }
+                            }),
+                        );
+
+                        return markdown;
+                    },
+                );
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Build.Md',
@@ -38,29 +71,6 @@ export class OutputMd {
                         }
 
                         return `---\n${dumped}\n---\n${markdown}`;
-                    },
-                );
-
-                const copied = new Set();
-
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, file) => {
-                        const deps = uniq((await run.markdown.deps(file)).map(({path}) => path));
-
-                        await all(
-                            deps.map(async (path) => {
-                                if (copied.has(path)) {
-                                    return;
-                                }
-
-                                copied.add(path);
-
-                                await this.copyDependency(run, path, [file]);
-                            }),
-                        );
-
-                        return markdown;
                     },
                 );
 
@@ -83,16 +93,6 @@ export class OutputMd {
                     await run.copy(run.config[configPath], join(run.output, '.yfm'));
                 }
             });
-    }
-
-    private async copyDependency(run: Run, path: NormalizedPath, from: NormalizedPath[]) {
-        try {
-            run.logger.copy(join(run.input, path), join(run.output, path));
-            const markdown = await run.markdown.load(path, from);
-            await run.write(join(run.output, path), markdown);
-        } catch (error) {
-            run.logger.warn(`Unable to copy dependency ${path}.`, error);
-        }
     }
 
     private copyAssets<T>(run: Run, service: Run['leading'] | Run['markdown']) {
