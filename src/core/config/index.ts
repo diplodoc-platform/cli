@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {Command as BaseCommand, Help as BaseHelp, Option} from 'commander';
-import {identity} from 'lodash';
+import {identity, merge} from 'lodash';
 import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
@@ -178,10 +178,7 @@ export async function resolveConfig<T extends Hash = {}>(
         const content = (await readFile(path, 'utf8')) || '{}';
         const data = load(content) as Hash;
 
-        return withConfigUtils(path, {
-            ...defaults,
-            ...filter(data),
-        });
+        return withConfigUtils(path, merge({}, defaults, filter(data)));
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         switch (error.code) {
