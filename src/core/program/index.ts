@@ -55,8 +55,41 @@ export class BaseProgram<
     TConfig extends BaseConfig = BaseConfig,
     TArgs extends BaseArgs = BaseArgs,
 > {
+    private static isRequirePatched = false;
+
     static is(program: BaseProgram) {
         return program instanceof this;
+    }
+
+    private static patchModuleRequire() {
+        if (BaseProgram.isRequirePatched) {
+            return;
+        }
+
+        const originalRequire = Module.prototype.require;
+         /*
+            Q: What is the rationale behind this action?
+            A: 
+                To correctly resolve the original @diplodoc/CLI from the Extension, 
+                it is also necessary to fix when the CLI is packaged with the pkg
+                (path in pkg starts with /snapshot/...). 
+        */
+        // @ts-ignore
+        Module.prototype.require = function () {
+            // eslint-disable-next-line prefer-rest-params
+            const name = arguments[0];
+            if (name === '@diplodoc/cli') {
+                const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
+                console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
+                return originalRequire.apply(this, [realCWD]);
+            }
+
+            // @ts-ignore
+            // eslint-disable-next-line prefer-rest-params
+            return originalRequire.apply(this, arguments);
+        };
+
+        BaseProgram.isRequirePatched = true;
     }
 
     readonly name: string = 'Base';
@@ -247,29 +280,7 @@ export class BaseProgram<
             }
         };
 
-        const originalRequire = Module.prototype.require;
-
-        /*
-            Q: What is the rationale behind this action?
-            A: 
-                To correctly resolve the original @diplodoc/CLI from the Extension, 
-                it is also necessary to fix when the CLI is packaged with the pkg
-                (path in pkg starts with /snapshot/...). 
-        */
-        // @ts-ignore
-        Module.prototype.require = function () {
-            // eslint-disable-next-line prefer-rest-params
-            const name = arguments[0];
-            if (name === '@diplodoc/cli') {
-                const realCWD = require.main?.path ? dirname(require.main.path) : process.cwd();
-                console.warn('CUSTOM @diplodoc/cli RESOLVED from path', realCWD);
-                return originalRequire.apply(this, [realCWD]);
-            }
-
-            // @ts-ignore
-            // eslint-disable-next-line prefer-rest-params
-            return originalRequire.apply(this, arguments);
-        };
+        BaseProgram.patchModuleRequire();
 
         return Promise.all(extensions.map(initialize));
     }
