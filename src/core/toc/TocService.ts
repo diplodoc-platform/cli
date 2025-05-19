@@ -46,10 +46,6 @@ type WalkOptions<T> = {
     accept: (item: T) => boolean;
 };
 
-enum Stage {
-    TECH_PREVIEW = 'tech-preview',
-}
-
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
     meta: MetaService;
@@ -302,12 +298,6 @@ export class TocService {
     }
 
     private shouldSkip(toc: RawToc) {
-        // Should ignore included toc with tech-preview stage.
-        // TODO(major): remove this
-        if (toc && toc.stage === Stage.TECH_PREVIEW) {
-            return true;
-        }
-
         const {ignoreStage} = this.config;
         if (toc.stage && ignoreStage.length && ignoreStage.includes(toc.stage)) {
             return true;

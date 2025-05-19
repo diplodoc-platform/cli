@@ -302,29 +302,6 @@ describe('toc-loader', () => {
         );
 
         it(
-            'should filter include in preview stage',
-            test(
-                dedent`
-                    items:
-                      - name: Common item
-                      - name: Filtered item
-                        include:
-                          path: _includes/core/i-toc.yaml
-                          mode: link
-                `,
-                {},
-                {},
-                {
-                    '_includes/core/i-toc.yaml': dedent`
-                        stage: tech-preview
-                        items:
-                          - name: Inner Item 1
-                    `,
-                },
-            ),
-        );
-
-        it(
             'should merge includes in link mode',
             test(
                 dedent`
