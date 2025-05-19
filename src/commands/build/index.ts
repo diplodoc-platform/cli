@@ -3,7 +3,7 @@ import type {Meta} from '~/core/meta';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
-import {dirname, join, basename} from 'node:path';
+import {basename, dirname, join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {dump} from 'js-yaml';
 import pmap from 'p-map';
@@ -208,7 +208,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     if (!item.name || item.name === '{#T}') {
                         const entry = normalizePath(join(dirname(path), item.href));
                         const titles = await this.run.markdown.titles(entry);
-                        item.name = titles['#'] || setExt((basename(entry)), '');
+                        item.name = titles['#'] || setExt(basename(entry), '');
                     }
 
                     return item;
@@ -219,6 +219,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         for (const toc of tocs) {
             await this.run.toc.load(toc);
         }
+
+        await pmap(this.run.toc.tocs, async ([path]) => {
+            const toc = await this.run.toc.dump(path);
+
+            await this.run.write(join(this.run.output, toc.path), toc.toString());
+        });
 
         await pmap(
             this.run.toc.entries,

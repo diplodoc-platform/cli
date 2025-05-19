@@ -5,7 +5,6 @@ import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath} from '~/core/config';
@@ -19,10 +18,6 @@ export class OutputMd {
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build.Md', async (_toc, path) => {
-                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
-                });
-
                 getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
                     return collects.concat([hashDeps], getCustomCollectPlugins());
                 });
