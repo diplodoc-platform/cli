@@ -1,4 +1,5 @@
-import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
+import type {VFile} from '~/core/utils';
+import {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
 import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
@@ -36,7 +37,7 @@ export function hooks(name: string) {
             ['Toc', 'TocPath', 'IncludeInfo'],
             `${name}.Included`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[Toc, NormalizedPath]>(['toc', 'path'], `${name}.Dump`),
+        Dump: new AsyncSeriesWaterfallHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
     };
 }
 

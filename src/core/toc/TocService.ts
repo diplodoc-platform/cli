@@ -5,15 +5,15 @@ import type {IncludeInfo, RawToc, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {
     Defer,
+    VFile,
     bounded,
     copyJson,
     errorMessage,
-    freezeJson,
     isExternalHref,
     memoize,
     normalizePath,
@@ -63,6 +63,13 @@ export class TocService {
         return [...this._entries];
     }
 
+    get tocs() {
+        return [...this._tocs.entries()].filter(([, toc]) => toc !== false) as [
+            NormalizedPath,
+            Toc,
+        ][];
+    }
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -70,6 +77,8 @@ export class TocService {
     private config: TocServiceConfig;
 
     private _entries: Set<NormalizedPath> = new Set();
+
+    private _tocs: Map<NormalizedPath, Toc | boolean> = new Map();
 
     private processed: Hash<boolean> = {};
 
@@ -146,7 +155,7 @@ export class TocService {
 
         defer.resolve(toc);
 
-        await getHooks(this).Resolved.promise(freezeJson(toc), file);
+        this._tocs.set(file, toc);
 
         return defer.promise;
     }
@@ -155,6 +164,7 @@ export class TocService {
         const file = normalizePath(path);
 
         this.processed[file] = true;
+        this._tocs.set(file, false);
 
         this.logger.proc(file);
 
@@ -197,15 +207,12 @@ export class TocService {
 
     @bounded
     @memoize('path')
-    async dump(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-        const toc = copyJson(await this.load(path));
+    async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
+        toc = toc || (await this.load(file));
 
-        if (!toc) {
-            return undefined;
-        }
+        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
 
-        return getHooks(this).Dump.promise(toc, file);
+        return getHooks(this).Dump.promise(vfile);
     }
 
     /**

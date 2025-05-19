@@ -1,6 +1,5 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
@@ -8,7 +7,6 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
 import {Template} from '~/core/template';
-import {copyJson} from '~/core/utils';
 
 import {options} from './config';
 import {getSinglePageUrl, joinSinglePageResults} from './utils';
@@ -84,8 +82,8 @@ export class SinglePage {
                     const tocPath = run.toc.for(template.path);
                     const file = join(dirname(tocPath), 'single-page-toc.js');
 
-                    const toc = copyJson(await run.toc.dump(tocPath));
-                    await run.toc.walkEntries([toc as {href: NormalizedPath}], (item) => {
+                    const toc = (await run.toc.dump(tocPath)).copy(file);
+                    await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
                         item.href = getSinglePageUrl(dirname(toc.path), item.href);
 
                         return item;
@@ -93,10 +91,7 @@ export class SinglePage {
 
                     template.addScript(file, {position: 'state'});
 
-                    await run.write(
-                        join(run.output, file),
-                        `window.__DATA__.data.toc = ${JSON.stringify(toc)};`,
-                    );
+                    await run.write(join(run.output, toc.path), toc.toString());
                 });
             });
 
@@ -124,7 +119,7 @@ export class SinglePage {
                             tocDir as NormalizedPath,
                         );
 
-                        const toc = (await run.toc.dump(tocPath)) as Toc;
+                        const toc = (await run.toc.dump(tocPath)).data;
 
                         run.meta.addResources(tocPath, run.config.resources);
 
