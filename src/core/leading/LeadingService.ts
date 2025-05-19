@@ -7,11 +7,12 @@ import type {LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 
 import {
     Buckets,
     Defer,
+    VFile,
     bounded,
     fullPath,
     langFromPath,
@@ -114,12 +115,16 @@ export class LeadingService {
         return defer.promise;
     }
 
-    @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
-        const file = normalizePath(path);
+    @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
+        leading = leading || (await this.load(path));
+        // TODO: move to output-md?
+        leading.meta = await this.run.meta.dump(path);
 
-        leading.meta = await this.run.meta.dump(file);
+        const vfile = new VFile(path, leading as LeadingPage, dump);
 
-        return getHooks(this).Dump.promise(leading, file);
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
     }
 
     @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string | void) {

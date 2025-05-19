@@ -1,5 +1,4 @@
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
-import type {Output} from '@diplodoc/transform';
 import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {CollectStage, LoaderContext} from './loader';
@@ -38,8 +37,3 @@ export type HeadingInfo = {
     content: string;
     location: Location;
 };
-
-export type AdditionalInfo = Readonly<{
-    title: string | undefined;
-    headings: Output['result']['headings'];
-}>;

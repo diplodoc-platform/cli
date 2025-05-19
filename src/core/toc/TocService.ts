@@ -204,11 +204,11 @@ export class TocService {
     @bounded
     @memoize('path')
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
-        toc = toc || (await this.load(file));
+        const vfile = new VFile<Toc>(file, copyJson(toc || (await this.load(file))), dump);
 
-        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
+        await getHooks(this).Dump.promise(vfile);
 
-        return getHooks(this).Dump.promise(vfile);
+        return vfile;
     }
 
     /**

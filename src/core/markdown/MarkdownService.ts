@@ -2,13 +2,13 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {AdditionalInfo, Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
+import type {Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
 
 import {join} from 'node:path';
 import {uniq} from 'lodash';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/utils';
+import {Buckets, Defer, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
@@ -148,13 +148,14 @@ export class MarkdownService {
         return defer.promise;
     }
 
-    @bounded async dump(path: RelativePath, markdown: string) {
-        const file = normalizePath(path);
+    @bounded async dump(path: NormalizedPath, markdown?: string) {
+        const vfile = new VFile(path, markdown || (await this.load(path)));
 
-        const info: AdditionalInfo = {title: '', headings: []};
-        const result = await getHooks(this).Dump.promise(markdown, file, info);
+        vfile.info = {title: '', headings: []};
 
-        return [result, info] as const;
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
     }
 
     // @memoize(hash)

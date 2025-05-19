@@ -1,7 +1,7 @@
 import type {Meta} from '~/core/meta';
 import type {Toc} from '~/core/toc';
 import type {Run} from '~/commands/build';
-import type {EntryData, EntryResult, PageData, PageState} from './types';
+import type {EntryData, PageData, PageState} from './types';
 
 import {extname, join} from 'node:path';
 import {isEmpty} from 'lodash';
@@ -10,7 +10,7 @@ import {render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
-import {copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
+import {VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
@@ -40,15 +40,15 @@ export class EntryService {
         const result = {type, path} as EntryData;
 
         if (type === 'yaml') {
-            result.content = await this.run.leading.dump(path, await this.run.leading.load(path));
-            result.info = {};
-        } else {
-            const [content, info] = await this.run.markdown.dump(
-                path,
-                await this.run.markdown.load(path),
-            );
+            const vfile = await this.run.leading.dump(path);
 
-            Object.assign(result, {content, info});
+            result.content = vfile;
+            result.info = vfile.info;
+        } else {
+            const vfile = await this.run.markdown.dump(path);
+
+            result.content = vfile;
+            result.info = vfile.info;
         }
 
         result.meta = await this.run.meta.dump(path);
@@ -56,13 +56,14 @@ export class EntryService {
         return result;
     }
 
-    async dump(path: NormalizedPath, entry: EntryData): Promise<EntryResult> {
-        let content = entry.content;
-        let info = {};
+    async dump(path: NormalizedPath, entry?: EntryData): Promise<VFile<EntryData>> {
+        entry = entry || (await this.load(path));
 
-        [path, content, info] = await getHooks(this).Dump.promise([path, content, info], entry);
+        const vfile = new VFile(path, entry, () => (entry as EntryData).content.toString());
 
-        return [path, content, info];
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
     }
 
     async state(path: NormalizedPath, data: PageData) {
