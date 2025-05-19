@@ -5,7 +5,6 @@ import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
-import {dump} from 'js-yaml';
 import pmap from 'p-map';
 
 import {
@@ -268,15 +267,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.run.toc.set(toc.path, toc);
         this.run.meta.set(file, meta);
 
-        const entry = await this.run.entry.load(file);
-        const [path, content, data] = await this.run.entry.dump(file, entry);
+        const result = await this.run.entry.dump(file);
 
-        // Dump leading pages
-        const result = typeof content === 'string' ? content : dump(content);
+        await this.run.write(join(this.run.output, result.path), result.toString());
 
-        await this.run.write(join(this.run.output, path), result);
-
-        return data;
+        return result.info;
     }
 
     private async prepareInput() {

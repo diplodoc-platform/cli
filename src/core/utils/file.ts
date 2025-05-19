@@ -12,7 +12,7 @@ const toString = <T>(data: T) => {
 };
 
 export class VFile<T extends string | object = string | object> {
-    get path() {
+    get path(): NormalizedPath {
         return this._path;
     }
 
@@ -28,9 +28,19 @@ export class VFile<T extends string | object = string | object> {
         this._data = value;
     }
 
+    get info() {
+        return this._info;
+    }
+
+    set info(value: Hash) {
+        this._info = value;
+    }
+
     private _path: NormalizedPath;
 
     private _data: T;
+
+    private _info: Hash = {};
 
     private _format: Formatter<T, string>;
 

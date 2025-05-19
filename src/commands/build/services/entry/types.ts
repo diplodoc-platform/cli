@@ -1,24 +1,23 @@
 import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
+import type {VFile} from '~/core/utils';
 import type {EntryInfo} from '../../';
 
 export type EntryData = (
     | {
           type: 'md';
-          content: string;
+          content: VFile<string>;
       }
     | {
           type: 'yaml';
-          content: LeadingPage;
+          content: VFile<LeadingPage>;
       }
 ) & {
     path: NormalizedPath;
     meta: Meta;
     info: EntryInfo;
 };
-
-export type EntryResult = [NormalizedPath, string | LeadingPage, object];
 
 export type PageData = (
     | {

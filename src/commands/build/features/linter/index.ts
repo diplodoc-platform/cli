@@ -103,53 +103,49 @@ export class Lint {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Lint', (run) => {
-                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (markdown, path) => {
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                     if (!run.config.lint.enabled) {
-                        return markdown;
+                        return;
                     }
 
-                    const deps = await run.markdown.deps(path);
-                    const assets = await run.markdown.assets(path);
-                    const errors = await run.lint(path, markdown, {
+                    const deps = await run.markdown.deps(vfile.path);
+                    const assets = await run.markdown.assets(vfile.path);
+                    const errors = await run.lint(vfile.path, vfile.data, {
                         deps: deps.map(({path}) => path),
                         assets,
                     });
 
                     if (errors) {
                         for (const error of errors) {
-                            error.lineNumber = run.markdown.remap(path, error.lineNumber);
+                            error.lineNumber = run.markdown.remap(vfile.path, error.lineNumber);
                         }
 
                         log(errors, run.logger);
                     }
-
-                    return markdown;
                 });
 
-                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (leading, path) => {
+                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                     if (!run.config.lint.enabled) {
-                        return leading;
+                        return;
                     }
 
                     const logLevel = getLogLevel(run.config.lint.config, ['YAML001']);
 
                     if (logLevel === LogLevels.DISABLED) {
-                        return leading;
+                        return;
                     }
 
-                    run.leading.walkLinks(leading, (link: string) => {
+                    run.leading.walkLinks(vfile.data, (link: string) => {
                         if (isExternalHref(link) || !EXTENSIONS.test(link)) {
                             return;
                         }
 
-                        if (!run.exists(join(run.input, dirname(path), link))) {
+                        if (!run.exists(join(run.input, dirname(vfile.path), link))) {
                             run.logger[logLevel](
-                                `Link is unreachable: ${bold(link)} in ${bold(path)}`,
+                                `Link is unreachable: ${bold(link)} in ${bold(vfile.path)}`,
                             );
                         }
                     });
-
-                    return leading;
                 });
             });
 
