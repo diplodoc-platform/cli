@@ -1,10 +1,9 @@
 import type {RunSpy} from '~/commands/build/__tests__';
-import type {RawToc, Toc} from './types';
+import type {RawToc} from './types';
 
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {dump} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {setupRun} from '~/commands/build/__tests__';
@@ -71,9 +70,9 @@ function test(
 
         mockData(run, content, vars, files, copy);
 
-        const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
+        const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
-        expect(dump(result)).toMatchSnapshot();
+        expect(vfile.toString()).toMatchSnapshot();
     };
 }
 
@@ -502,9 +501,9 @@ describe('toc-loader', () => {
                     stage: 'test',
                 }));
 
-            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
+            const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
-            expect(dump(result)).toMatchSnapshot();
+            expect(vfile.toString()).toMatchSnapshot();
         });
 
         it('should fix include path', async () => {
@@ -537,9 +536,9 @@ describe('toc-loader', () => {
                     };
                 });
 
-            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
+            const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
-            expect(dump(result)).toMatchSnapshot();
+            expect(vfile.toString()).toMatchSnapshot();
         });
 
         it('should pass extra params to includer', async () => {
@@ -574,9 +573,9 @@ describe('toc-loader', () => {
                     };
                 });
 
-            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
+            const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
-            expect(dump(result)).toMatchSnapshot();
+            expect(vfile.toString()).toMatchSnapshot();
         });
 
         it('should merge includer toc to parent', async () => {
@@ -605,9 +604,9 @@ describe('toc-loader', () => {
                     } as RawToc;
                 });
 
-            const result = (await toc.dump('toc.yaml' as NormalizedPath)) as Toc;
+            const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
-            expect(dump(result)).toMatchSnapshot();
+            expect(vfile.toString()).toMatchSnapshot();
         });
     });
 });

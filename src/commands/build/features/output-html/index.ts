@@ -31,8 +31,8 @@ export class OutputHtml {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
-                getTocHooks(run.toc).Dump.tapPromise('Html', async (toc, path) => {
-                    await run.toc.walkItems([toc], (item: Toc | TocItem) => {
+                getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
+                    await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
                         if (own(item, 'hidden') && item.hidden) {
                             return undefined;
                         }
@@ -44,23 +44,28 @@ export class OutputHtml {
                             const filename: string = basename(item.href, fileExtension) + '.html';
 
                             item.href = normalizePath(
-                                join(dirname(path), dirname(item.href), filename),
+                                join(dirname(vfile.path), dirname(item.href), filename),
                             );
                         }
 
                         return item;
                     });
 
-                    return toc;
+                    return vfile;
                 });
 
                 // Dump Toc to js file
-                getTocHooks(run.toc).Resolved.tapPromise('Html', async (toc) => {
-                    const file = join(run.output, tocJS(toc.path));
-                    const result = await run.toc.dump(toc.path);
+                getTocHooks(run.toc).Dump.tapPromise(
+                    {name: 'Html', stage: Infinity},
+                    async (vfile) => {
+                        vfile.format(
+                            (data) => `window.__DATA__.data.toc = ${JSON.stringify(data)};`,
+                        );
+                        vfile.path = setExt(vfile.path, 'js');
 
-                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
-                });
+                        return vfile;
+                    },
+                );
 
                 // Add link to dumped toc.js to html template
                 getEntryHooks(run.entry).Page.tap('Html', (template) => {
@@ -81,7 +86,7 @@ export class OutputHtml {
                     const data = getStateData(entry);
                     const state = await run.entry.state(entry.path, data);
                     const template = new Template(entry.path, state.lang, [__Entry__]);
-                    const result = await run.entry.page(template, state, toc as Toc);
+                    const result = await run.entry.page(template, state, toc.data);
 
                     return [setExt(entry.path, '.html'), result, data];
                 });
