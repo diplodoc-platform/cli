@@ -116,11 +116,7 @@ export class LeadingService {
     }
 
     @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
-        leading = leading || (await this.load(path));
-        // TODO: move to output-md?
-        leading.meta = await this.run.meta.dump(path);
-
-        const vfile = new VFile(path, leading as LeadingPage, dump);
+        const vfile = new VFile(path, leading || (await this.load(path)), dump);
 
         await getHooks(this).Dump.promise(vfile);
 
