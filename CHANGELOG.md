@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.8](https://github.com/diplodoc-platform/cli/compare/v4.59.7...v4.59.8) (2025-05-19)
+
+
+### Dependency update
+
+* Update @diplodoc/transform to 4.57.6 ([#1188](https://github.com/diplodoc-platform/cli/issues/1188)) ([dd53559](https://github.com/diplodoc-platform/cli/commit/dd53559b5b284532257f20d465424ed46c4db248))
+
 ## [4.59.7](https://github.com/diplodoc-platform/cli/compare/v4.59.6...v4.59.7) (2025-05-16)
 
 
