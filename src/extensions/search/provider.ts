@@ -41,6 +41,7 @@ export class LocalSearchProvider implements SearchProvider {
         const url = path.replace(extname(path), '') + '.html';
 
         this.indexer.add(lang, url, {
+            ...info,
             title: info.title,
             meta: info.meta || {}, // Ensure meta is never undefined
             html: info.html,
