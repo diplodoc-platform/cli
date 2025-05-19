@@ -57,16 +57,6 @@
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js"
   },
-  "pkg": {
-    "scripts": [
-      "./build/**/*.js",
-      "./node_modules/@diplodoc/client/build/server/*.js",
-      "./node_modules/@diplodoc/client/build/client/*.json"
-    ],
-    "assets": [
-      "./assets/*"
-    ]
-  },
   "husky": {
     "hooks": {
       "pre-commit": "lint-staged"
