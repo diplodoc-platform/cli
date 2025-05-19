@@ -47,6 +47,10 @@ export class OutputMd {
                     );
                 });
 
+                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
+                    vfile.data.meta = await run.meta.dump(vfile.path);
+                });
+
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
                     const meta = await run.meta.dump(vfile.path);
                     const dumped = dump(meta).trim();

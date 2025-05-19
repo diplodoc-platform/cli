@@ -57,7 +57,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -252,7 +252,7 @@ exports[`Allow load custom resources > md2html with custom resources > index.htm
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
