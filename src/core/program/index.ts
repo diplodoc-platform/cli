@@ -54,8 +54,6 @@ export class BaseProgram<
     TConfig extends BaseConfig = BaseConfig,
     TArgs extends BaseArgs = BaseArgs,
 > {
-    private static isRequirePatched = false;
-
     static is(program: BaseProgram) {
         return program instanceof this;
     }
