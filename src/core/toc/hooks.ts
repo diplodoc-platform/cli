@@ -1,7 +1,7 @@
 import type {VFile} from '~/core/utils';
 import {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
-import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
@@ -37,7 +37,7 @@ export function hooks(name: string) {
             ['Toc', 'TocPath', 'IncludeInfo'],
             `${name}.Included`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
+        Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
     };
 }
 

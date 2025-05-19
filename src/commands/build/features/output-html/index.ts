@@ -50,8 +50,6 @@ export class OutputHtml {
 
                         return item;
                     });
-
-                    return vfile;
                 });
 
                 // Dump Toc to js file
@@ -62,8 +60,6 @@ export class OutputHtml {
                             (data) => `window.__DATA__.data.toc = ${JSON.stringify(data)};`,
                         );
                         vfile.path = setExt(vfile.path, 'js');
-
-                        return vfile;
                     },
                 );
 
@@ -79,16 +75,18 @@ export class OutputHtml {
                 });
 
                 // Transform any entry to final html page
-                getEntryHooks(run.entry).Dump.tapPromise('Html', async (_result, entry) => {
-                    const tocPath = run.toc.for(entry.path);
+                getEntryHooks(run.entry).Dump.tapPromise('Html', async (vfile) => {
+                    const tocPath = run.toc.for(vfile.path);
                     const toc = await run.toc.dump(tocPath);
 
-                    const data = getStateData(entry);
-                    const state = await run.entry.state(entry.path, data);
-                    const template = new Template(entry.path, state.lang, [__Entry__]);
-                    const result = await run.entry.page(template, state, toc.data);
+                    const data = getStateData(vfile.data);
+                    const state = await run.entry.state(vfile.path, data);
+                    const template = new Template(vfile.path, state.lang, [__Entry__]);
 
-                    return [setExt(entry.path, '.html'), result, data];
+                    const html = await run.entry.page(template, state, toc.data);
+                    vfile.path = setExt(vfile.path, '.html');
+                    vfile.info = data;
+                    vfile.format(() => html);
                 });
 
                 // Transform Page Constructor yfm blocks
@@ -141,28 +139,27 @@ export class OutputHtml {
                     return plugins.concat(getBaseMdItPlugins()).concat(getCustomMdItPlugins());
                 });
 
-                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (leading, path) => {
-                    return run.leading.walkLinks(leading, getHref(run.input, path));
+                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
+                    vfile.data = await run.leading.walkLinks(
+                        vfile.data,
+                        getHref(run.input, vfile.path),
+                    );
                 });
 
                 // Transform markdown to html
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Html',
-                    async (markdown, path, info) => {
-                        const deps = await run.markdown.deps(path);
-                        const assets = await run.markdown.assets(path);
-                        const [result, env] = await run.transform(path, markdown, {
-                            deps: deps.map(({path}) => path),
-                            assets,
-                        });
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Html', async (vfile) => {
+                    const deps = await run.markdown.deps(vfile.path);
+                    const assets = await run.markdown.assets(vfile.path);
+                    const [result, env] = await run.transform(vfile.path, vfile.data, {
+                        deps: deps.map(({path}) => path),
+                        assets,
+                    });
 
-                        run.meta.addResources(path, env.meta);
+                    run.meta.addResources(vfile.path, env.meta);
 
-                        Object.assign(info, env);
-
-                        return result;
-                    },
-                );
+                    vfile.data = result;
+                    vfile.info = {...vfile.info, ...env};
+                });
 
                 getRedirectsHooks(run.redirects).Release.tap('Html', () => {
                     // Do not save redirects.yaml for html mode
@@ -207,14 +204,14 @@ function getStateData(entry: EntryData): PageData {
     if (entry.type === 'yaml') {
         return {
             leading: true,
-            data: entry.content,
+            data: entry.content.data,
             meta: entry.meta,
-            title: entry.content.title || entry.meta.title || '',
+            title: entry.content.data.title || entry.meta.title || '',
         };
     } else {
         return {
             leading: false,
-            html: entry.content,
+            html: entry.content.toString(),
             meta: entry.meta,
             headings: entry.info.headings,
             title: entry.info.title || entry.meta.title || '',
