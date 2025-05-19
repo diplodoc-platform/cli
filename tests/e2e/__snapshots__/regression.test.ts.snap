@@ -677,7 +677,7 @@ exports[`Regression > internal > index.html 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]}},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":true,"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

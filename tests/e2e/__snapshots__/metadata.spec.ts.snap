@@ -43,7 +43,7 @@ exports[`Allow load custom resources > md2html with metadata > index.html 1`] = 
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
