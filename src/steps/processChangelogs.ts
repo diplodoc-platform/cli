@@ -8,7 +8,7 @@ import {isExternalHref} from '~/core/utils';
 
 export const CHANGELOG_LIMIT = 50;
 export const LANG_SERVICE_RE =
-    /(?<lang>[^/]+)\/(?<service>[^/]+)\/changelogs\/__changes-(?<name>[^.]+)\.json$/;
+    /(?<lang>[^/]+)(?:\/(?<service>[^/]+))?\/changelogs\/__changes-(?<name>[^.]+)\.json$/;
 
 type FileItem = {
     lang: string;
@@ -85,10 +85,12 @@ export async function processChangelogs(run: Run) {
 
     const images = new Map<AbsolutePath, AbsolutePath>();
 
-    const processed = await pmap(usedFileItems, async (items) => {
+    const processed: Record<string, ChangelogItem[] | Record<string, ChangelogItem[]>> = {};
+
+    await pmap(usedFileItems, async (items) => {
         const {lang, service} = items[0];
 
-        const basePath = join(lang, service);
+        const basePath = join(lang, service || '');
 
         const changelogs: ChangelogItem[] = await pmap(items, ({filepath}) =>
             run.read(filepath).then(JSON.parse),
@@ -98,7 +100,7 @@ export async function processChangelogs(run: Run) {
             const {source: sourceName} = changelog as {source?: string};
             if (sourceName) {
                 // eslint-disable-next-line no-param-reassign
-                changelog.link = `/${service}/changelogs/${
+                changelog.link = `${service ? `/${service}` : ''}/changelogs/${
                     sourceName === 'index' ? '' : sourceName
                 }`;
             }
@@ -118,7 +120,11 @@ export async function processChangelogs(run: Run) {
             image.src = newImagePath;
         });
 
-        return [service, changelogs];
+        processed[lang] = service
+            ? {
+                  [service]: changelogs,
+              }
+            : changelogs;
     });
 
     for (const [from, to] of images.entries()) {
@@ -127,6 +133,6 @@ export async function processChangelogs(run: Run) {
 
     await run.write(
         join(run.output, 'changelogs.minified.json'),
-        JSON.stringify(Object.fromEntries(processed), null, 4),
+        JSON.stringify(processed, null, 4),
     );
 }
