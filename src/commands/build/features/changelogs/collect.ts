@@ -11,16 +11,15 @@ const BLOCK_START = '{% changelog %}';
 const BLOCK_END = '{% endchangelog %}';
 
 function parseChangelogs(content: string, path?: string) {
-    const result: ChangelogItem[] = [];
-
-    transform(content, {
+    const {
+        result: {changelogs},
+    } = transform(content, {
         plugins: [changelog, imsize],
         extractChangelogs: true,
-        changelogs: result,
         path,
     });
 
-    return result;
+    return changelogs || [];
 }
 
 export const collect = (changelogs: ChangelogItem[]) =>
@@ -28,6 +27,8 @@ export const collect = (changelogs: ChangelogItem[]) =>
         let result = content;
         let lastPos = 0;
         const rawChangelogs = [];
+
+        changelogs.length = 0;
 
         // eslint-disable-next-line no-constant-condition
         while (true) {

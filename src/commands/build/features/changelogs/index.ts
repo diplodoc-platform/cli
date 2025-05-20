@@ -84,7 +84,11 @@ export class Changelogs {
                                 changes,
                                 changelogs.length - index,
                             );
-                            const changesPath = join(outputDir, `__changes-${changesName}.json`);
+                            const changesPath = join(
+                                outputDir,
+                                'changelogs',
+                                `__changes-${changesName}.json`,
+                            );
 
                             return run.write(
                                 changesPath,
