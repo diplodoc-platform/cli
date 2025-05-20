@@ -150,7 +150,13 @@ export class Run extends BaseRun<BuildConfig> {
             extractTitle: true,
             log: this.logger,
             entries: this.toc.entries,
+            existsInProject: this.existsInProject,
         };
+    }
+
+    @bounded
+    private existsInProject(path: NormalizedPath) {
+        return this.exists(join(this.input, path));
     }
 
     @bounded
