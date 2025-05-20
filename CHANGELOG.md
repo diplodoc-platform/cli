@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.9](https://github.com/diplodoc-platform/cli/compare/v4.59.8...v4.59.9) (2025-05-20)
+
+
+### Bug Fixes
+
+* export `CliTestAdapter` class ([4b5e105](https://github.com/diplodoc-platform/cli/commit/4b5e10549426e2726c17928830c8677eb2bd26ff))
+
 ## [4.59.8](https://github.com/diplodoc-platform/cli/compare/v4.59.7...v4.59.8) (2025-05-19)
 
 
