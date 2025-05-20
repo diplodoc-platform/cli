@@ -14,7 +14,7 @@ export interface TranslateRunArgs {
     additionalArgs?: string;
 }
 
-class CliTestAdapter {
+export class CliTestAdapter {
     private readonly runner: Runner = createRunner();
 
     async testBuildPass(
