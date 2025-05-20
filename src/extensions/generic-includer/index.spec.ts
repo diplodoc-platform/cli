@@ -50,14 +50,16 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
-            {},
-            {
-                input: './test',
-                path: './test/toc.yaml',
-            },
-            './toc.yaml',
-        );
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });
@@ -78,18 +80,20 @@ describe('Generic includer', () => {
             ],
         ]);
 
-        const result = await getTocHooks(run.toc).Includer.for('generic').promise(
-            {},
-            {
-                path: './path/test/toc.yaml',
-            },
-            './toc.yaml',
-        );
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {},
+                {
+                    path: './path/test/toc.yaml',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
 
         expect(dump(result)).toMatchSnapshot();
     });
 
-    it('should use leadingPage.name option', async () => {
+    it('should use autotitle option', async () => {
         const {run} = await prepareExtension([
             [
                 '**/*.md',
@@ -112,11 +116,9 @@ describe('Generic includer', () => {
                 {
                     input: './test',
                     path: './test/toc.yaml',
-                    leadingPage: {
-                        name: 'Test Overview',
-                    },
+                    autotitle: false,
                 },
-                './toc.yaml',
+                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();

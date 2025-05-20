@@ -50,7 +50,6 @@
     "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "lint:fix": "npm run lint -- --fix",
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
-    "postinstall": "node scripts/postinstall.js || true",
     "start": "node build/index.js",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
@@ -75,7 +74,8 @@
     "@diplodoc/translation": "^1.7.11",
     "chalk": "^4.1.2",
     "commander": "^12.0.0",
-    "execa": "^9.5.3",
+    "csp-header": "^5.2.1",
+    "execa": "^9.5.2",
     "glob": "^10.4.5",
     "highlight.js": "^11.10.0",
     "js-yaml": "4.1.0",
@@ -98,7 +98,7 @@
     "@diplodoc/search-extension": "^1.2.2",
     "@diplodoc/transform": "^4.57.6",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@diplodoc/yfmlint": "^1.2.1",
+    "@diplodoc/yfmlint": "^1.2.2",
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
@@ -114,7 +114,6 @@
     "algoliasearch": "^5.20.0",
     "async": "^3.2.4",
     "axios": "^1.7.8",
-    "csp-header": "^5.2.1",
     "esbuild": "^0.23.1",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
@@ -133,9 +132,6 @@
     "vitest": "^3.1.1",
     "vitest-when": "^0.6.0",
     "walk-sync": "^3.0.0"
-  },
-  "overrides": {
-    "cytoscape": "3.31.2"
   },
   "engines": {
     "node": ">=18.*"

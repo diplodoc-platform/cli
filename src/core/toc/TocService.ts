@@ -1,19 +1,19 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
+import type {IncludeInfo, RawToc, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {
     Defer,
+    VFile,
     bounded,
     copyJson,
     errorMessage,
-    freezeJson,
     isExternalHref,
     memoize,
     normalizePath,
@@ -42,9 +42,9 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
-enum Stage {
-    TECH_PREVIEW = 'tech-preview',
-}
+type WalkOptions<T> = {
+    accept: (item: T) => boolean;
+};
 
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
@@ -59,6 +59,13 @@ export class TocService {
         return [...this._entries];
     }
 
+    get tocs() {
+        return [...this._tocs.entries()].filter(([, toc]) => toc !== false) as [
+            NormalizedPath,
+            Toc,
+        ][];
+    }
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -66,6 +73,8 @@ export class TocService {
     private config: TocServiceConfig;
 
     private _entries: Set<NormalizedPath> = new Set();
+
+    private _tocs: Map<NormalizedPath, Toc | boolean> = new Map();
 
     private processed: Hash<boolean> = {};
 
@@ -103,7 +112,9 @@ export class TocService {
         this.cache.set(file, defer.promise);
 
         defer.promise.then((result) => {
-            this.cache.set(file, result);
+            if (this.cache.has(file)) {
+                this.cache.set(file, result);
+            }
         });
 
         const context: LoaderContext = this.loaderContext(file);
@@ -118,18 +129,20 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
+        toc.path = file;
+
+        await getHooks(this).Loaded.promise(toc, file);
+
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
         if (toc.href || toc.items?.length) {
-            await this.walkItems([toc], (item: TocItem | Toc) => {
-                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                    this._entries.add(normalizePath(join(dirname(path), item.href)));
+            await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
+                this._entries.add(normalizePath(join(dirname(path), item.href)));
 
-                    if (own<string>(item, 'restricted-access')) {
-                        this.run.toc.meta.add(normalizePath(join(dirname(path), item.href)), {
-                            'restricted-access': item['restricted-access'],
-                        });
-                    }
+                if (own<string, 'restricted-access'>(item, 'restricted-access')) {
+                    this.run.meta.add(normalizePath(join(dirname(path), item.href)), {
+                        'restricted-access': item['restricted-access'],
+                    });
                 }
 
                 return item;
@@ -138,7 +151,7 @@ export class TocService {
 
         defer.resolve(toc);
 
-        await getHooks(this).Resolved.promise(freezeJson(toc), file);
+        this._tocs.set(file, toc);
 
         return defer.promise;
     }
@@ -147,6 +160,7 @@ export class TocService {
         const file = normalizePath(path);
 
         this.processed[file] = true;
+        this._tocs.set(file, false);
 
         this.logger.proc(file);
 
@@ -163,7 +177,7 @@ export class TocService {
             const to = normalizePath(dirname(include.base));
 
             context.vars = this.vars.for(include.base);
-            context.path = context.path.replace(from, to) as RelativePath;
+            context.path = context.path.replace(from, to) as NormalizedPath;
             context.from = include.from;
 
             const files = await this.run.copy(
@@ -189,15 +203,26 @@ export class TocService {
 
     @bounded
     @memoize('path')
-    async dump(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-        const toc = await this.load(path);
+    async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
+        const vfile = new VFile<Toc>(file, copyJson(toc || (await this.load(file))), dump);
 
-        if (!toc) {
-            return;
-        }
+        await getHooks(this).Dump.promise(vfile);
 
-        return await getHooks(this).Dump.promise(copyJson(toc), file);
+        return vfile;
+    }
+
+    /**
+     * Visits items which will be project entries. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     */
+    async walkEntries<T extends WithItems<T> & {href: NormalizedPath}>(
+        items: T[] | undefined,
+        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+    ): Promise<T[] | undefined> {
+        return this.walkItems(items, actor, {
+            accept: (item) => own<string, 'href'>(item, 'href') && !isExternalHref(item.href),
+        });
     }
 
     /**
@@ -208,19 +233,21 @@ export class TocService {
     async walkItems<T extends WithItems<T>>(
         items: T[] | undefined,
         actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T> = {accept: () => true},
     ): Promise<T[] | undefined> {
+        const {accept} = options;
         if (!items || !items.length) {
             return items;
         }
 
-        const results: T[] = [];
-        const queue = [...items];
+        let results: T[] = [];
+        const queue = items.slice();
         while (queue.length) {
             const item = queue.shift() as T;
 
-            const result = await actor(item);
+            const result = accept(item) ? await actor(item) : item;
             if (result) {
-                results.push(...([] as T[]).concat(result));
+                results = results.concat(result);
             }
         }
 
@@ -232,7 +259,7 @@ export class TocService {
                 }
 
                 if (result.items?.length) {
-                    result.items = await this.walkItems(result.items, actor);
+                    result.items = await this.walkItems(result.items, actor, options);
                 }
             }
         }
@@ -240,7 +267,11 @@ export class TocService {
         return results;
     }
 
+    /**
+     * Sets data for target toc path.
+     */
     set(path: NormalizedPath, toc: Toc) {
+        this.processed[path] = true;
         this.cache.set(path, toc);
     }
 
@@ -266,19 +297,7 @@ export class TocService {
         return this.for(nextPath);
     }
 
-    dir(path: RelativePath): NormalizedPath {
-        const tocPath = this.for(path);
-
-        return normalizePath(dirname(tocPath));
-    }
-
     private shouldSkip(toc: RawToc) {
-        // Should ignore included toc with tech-preview stage.
-        // TODO(major): remove this
-        if (toc && toc.stage === Stage.TECH_PREVIEW) {
-            return true;
-        }
-
         const {ignoreStage} = this.config;
         if (toc.stage && ignoreStage.length && ignoreStage.includes(toc.stage)) {
             return true;

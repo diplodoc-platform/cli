@@ -7,11 +7,12 @@ import type {LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 
 import {
     Buckets,
     Defer,
+    VFile,
     bounded,
     fullPath,
     langFromPath,
@@ -86,9 +87,10 @@ export class LeadingService {
         try {
             const raw = await this.run.read(join(this.run.input, file));
             const vars = this.run.vars.for(path);
+            const sign = this.run.vars.hash(path);
             const yaml = load(raw || '{}') as RawLeadingPage;
 
-            const context = this.loaderContext(file, raw, vars);
+            const context = this.loaderContext(file, raw, vars, sign);
             const leading = await loader.call(context, yaml);
 
             const meta = this.pathToMeta.get(file);
@@ -113,12 +115,12 @@ export class LeadingService {
         return defer.promise;
     }
 
-    @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
-        const file = normalizePath(path);
+    @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
+        const vfile = new VFile(path, leading || (await this.load(path)), dump);
 
-        leading.meta = await this.run.meta.dump(file);
+        await getHooks(this).Dump.promise(vfile);
 
-        return getHooks(this).Dump.promise(leading, file);
+        return vfile;
     }
 
     @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string | void) {
@@ -143,10 +145,16 @@ export class LeadingService {
         return [...this.pathToAssets.get(file)];
     }
 
-    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
+    private loaderContext(
+        path: NormalizedPath,
+        _raw: string,
+        vars: Hash,
+        sign: string,
+    ): LoaderContext {
         return {
             path,
             vars,
+            sign,
             lang: langFromPath(path, this.config),
             readFile: (path: RelativePath) => {
                 return this.run.read(join(this.run.input, path));

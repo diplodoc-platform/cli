@@ -1,4 +1,4 @@
-import {dirname, isAbsolute, join, normalize} from 'node:path';
+import {dirname, extname, isAbsolute, join, normalize} from 'node:path';
 import _normalizePath from 'normalize-path';
 
 import {isExternalHref} from '~/core/utils';
@@ -32,4 +32,21 @@ export function fullPath(
     } else {
         return normalizePath(join(dirname(root), path));
     }
+}
+
+export function getDepth(path: string) {
+    return path
+        .replace(/\\/g, '/')
+        .replace(/^\.\/|\/$/g, '')
+        .split('/').length;
+}
+
+export function getDepthPath(depth: number) {
+    return Array(depth).fill('../').join('') || './';
+}
+
+export function setExt<T extends AnyPath>(path: T, newext: string): T {
+    newext = newext.startsWith('.') ? newext.slice(1) : newext;
+
+    return (path.slice(0, -extname(path).length) + (newext ? '.' + newext : '')) as T;
 }

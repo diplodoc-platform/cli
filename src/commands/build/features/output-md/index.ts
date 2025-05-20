@@ -1,17 +1,16 @@
 import type {Build, Run} from '~/commands/build';
-import type {LeadingPage} from '~/core/leading';
+import type {VFile} from '~/core/utils';
 
 import {join} from 'node:path';
-import {uniq} from 'lodash';
 import {dump} from 'js-yaml';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
+import {hashDeps} from './collects';
 import {getCustomCollectPlugins} from './utils';
 
 export class OutputMd {
@@ -19,59 +18,58 @@ export class OutputMd {
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build.Md', async (_toc, path) => {
-                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
+                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
+                    return collects.concat([hashDeps], getCustomCollectPlugins());
                 });
-
-                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (plugins) => {
-                    return plugins.concat(getCustomCollectPlugins());
-                });
-
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, path) => {
-                        const meta = await run.meta.dump(path);
-                        const dumped = dump(meta).trim();
-
-                        if (dumped === '{}') {
-                            return markdown;
-                        }
-
-                        return `---\n${dumped}\n---\n${markdown}`;
-                    },
-                );
 
                 const copied = new Set();
 
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, file) => {
-                        const deps = uniq((await run.markdown.deps(file)).map(({path}) => path));
+                // Recursively copy transformed markdown deps
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
+                    const deps = await run.markdown.deps(vfile.path);
+                    await all(
+                        deps.map(async ({path, signpath}) => {
+                            if (copied.has(signpath)) {
+                                return;
+                            }
+                            copied.add(signpath);
 
-                        await all(
-                            deps.map(async (path) => {
-                                if (copied.has(path)) {
-                                    return;
-                                }
+                            try {
+                                run.logger.copy(join(run.input, path), join(run.output, signpath));
 
-                                copied.add(path);
+                                const content = await run.markdown.load(path, [vfile.path]);
 
-                                await this.copyDependency(run, path, [file]);
-                            }),
-                        );
+                                await run.write(join(run.output, signpath), content);
+                            } catch (error) {
+                                run.logger.warn(`Unable to copy dependency ${path}.`, error);
+                            }
+                        }),
+                    );
+                });
 
-                        return markdown;
-                    },
-                );
+                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
+                    vfile.data.meta = await run.meta.dump(vfile.path);
+                });
+
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
+                    const meta = await run.meta.dump(vfile.path);
+                    const dumped = dump(meta).trim();
+
+                    if (dumped === '{}') {
+                        return;
+                    }
+
+                    vfile.data = `---\n${dumped}\n---\n${vfile.data}`;
+                });
 
                 getLeadingHooks(run.leading).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets<LeadingPage>(run, run.leading),
+                    this.copyAssets(run, run.leading),
                 );
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets<string>(run, run.markdown),
+                    this.copyAssets(run, run.markdown),
                 );
             });
 
@@ -85,19 +83,9 @@ export class OutputMd {
             });
     }
 
-    private async copyDependency(run: Run, path: NormalizedPath, from: NormalizedPath[]) {
-        try {
-            run.logger.copy(join(run.input, path), join(run.output, path));
-            const markdown = await run.markdown.load(path, from);
-            await run.write(join(run.output, path), markdown);
-        } catch (error) {
-            run.logger.warn(`Unable to copy dependency ${path}.`, error);
-        }
-    }
-
-    private copyAssets<T>(run: Run, service: Run['leading'] | Run['markdown']) {
-        return async (content: T, file: NormalizedPath): Promise<T> => {
-            const assets = await service.assets(file);
+    private copyAssets(run: Run, service: Run['leading'] | Run['markdown']) {
+        return async (vfile: VFile<any>) => {
+            const assets = await service.assets(vfile.path);
 
             await all(
                 assets.map(async (path) => {
@@ -113,8 +101,6 @@ export class OutputMd {
                     }
                 }),
             );
-
-            return content;
         };
     }
 }
