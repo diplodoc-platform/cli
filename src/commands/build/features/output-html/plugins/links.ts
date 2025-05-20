@@ -36,22 +36,19 @@ export default ((md, opts) => {
                 return;
             }
 
-            if (pathname) {
-                const isPageFile = PAGE_LINK_REGEXP.test(pathname);
+            if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
                 const file = normalizePath(
                     pathname ? join(dirname(state.env.path || path), pathname) : path,
                 );
 
-                const exists = existsInProject(file);
-
-                if (!exists) {
+                if (!existsInProject(file)) {
                     log.error(
                         `Link is unreachable: ${bold(file)} in ${bold(path)}. File does not exists in project.`,
                     );
                     return;
                 }
 
-                if (isPageFile && !entries.includes(file)) {
+                if (!entries.includes(file)) {
                     log.warn(
                         `Link is unreachable: ${bold(file)} in ${bold(path)}. All files must be listed in toc files.`,
                     );
