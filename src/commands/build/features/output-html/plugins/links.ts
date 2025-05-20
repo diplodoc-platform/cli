@@ -16,12 +16,13 @@ type Options = {
     log: Logger;
     titles: Record<NormalizedPath, Hash<string>>;
     entries: NormalizedPath[];
+    existsInProject: (path: NormalizedPath) => boolean;
 };
 
 export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         walkLinks(state, (link, href) => {
-            const {path, log, entries} = opts;
+            const {path, log, entries, existsInProject} = opts;
 
             if (!href) {
                 log.error(`Empty link in ${bold(path)}`);
@@ -41,8 +42,17 @@ export default ((md, opts) => {
                     pathname ? join(dirname(state.env.path || path), pathname) : path,
                 );
 
-                if (isPageFile && !entries.includes(file)) {
+                const exists = existsInProject(file);
+
+                if (!exists) {
                     log.error(
+                        `Link is unreachable: ${bold(file)} in ${bold(path)}. File does not exists in project.`,
+                    );
+                    return;
+                }
+
+                if (isPageFile && !entries.includes(file)) {
+                    log.warn(
                         `Link is unreachable: ${bold(file)} in ${bold(path)}. All files must be listed in toc files.`,
                     );
                 }
