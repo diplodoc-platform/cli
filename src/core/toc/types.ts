@@ -102,9 +102,11 @@ export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean} & {
 export type EntryTocItem = {
     name: string;
     href: NormalizedPath;
+    'restricted-access'?: string[];
 };
 
 export type NamedTocItem = {
     name: string;
     href?: NormalizedPath;
+    'restricted-access'?: string[];
 };

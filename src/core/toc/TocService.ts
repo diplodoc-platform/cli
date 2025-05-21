@@ -42,8 +42,11 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
+export type WalkStepContext = Hash<unknown>;
+
 type WalkOptions<T> = {
     accept: (item: T) => boolean;
+    stepContext: WalkStepContext;
 };
 
 type Run = BaseRun<TocServiceConfig> & {
@@ -97,14 +100,10 @@ export class TocService {
         }
     }
 
-    @bounded
-    @memoize('path')
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
-        const vfile = new VFile<Toc>(file, copyJson(toc || this.for(file)), dump);
+        toc = toc || this.for(file);
 
-        await getHooks(this).Dump.promise(vfile);
-
-        return vfile;
+        return this._dump(toc.path, toc);
     }
 
     /**
@@ -118,6 +117,7 @@ export class TocService {
     ): Promise<T[] | undefined> {
         return this.walkItems(items, actor, {
             accept: (item) => own<string, 'href'>(item, 'href') && !isExternalHref(item.href),
+            stepContext: {},
         });
     }
 
@@ -128,39 +128,17 @@ export class TocService {
      */
     async walkItems<T extends WithItems<T>>(
         items: T[] | undefined,
-        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
-        options: WalkOptions<T> = {accept: () => true},
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T> = {accept: () => true, stepContext: {}},
     ): Promise<T[] | undefined> {
-        const {accept} = options;
-        if (!items || !items.length) {
-            return items;
-        }
+        const mode: 'DFS' | 'BFS' = 'DFS';
 
-        let results: T[] = [];
-        const queue = items.slice();
-        while (queue.length) {
-            const item = queue.shift() as T;
-
-            const result = accept(item) ? await actor(item) : item;
-            if (result) {
-                results = results.concat(result);
-            }
-        }
-
-        for (const result of results) {
-            if (own(result, 'items')) {
-                // Sometime users defines items as object (one item) instead of array of one item.
-                if (!Array.isArray(result.items) && result.items) {
-                    result.items = ([] as T[]).concat(result.items);
-                }
-
-                if (result.items?.length) {
-                    result.items = await this.walkItems(result.items, actor, options);
-                }
-            }
-        }
-
-        return results;
+        return mode === 'DFS'
+            ? await this.walkItemsDFS(items, actor, options)
+            : await this.walkItemsBFS(items, actor, options);
     }
 
     /**
@@ -199,7 +177,15 @@ export class TocService {
         return this.for(nextPath);
     }
 
-    @bounded
+    @memoize('path')
+    async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
+        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
+
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
+    }
+
     private async load(path: NormalizedPath): Promise<Toc | undefined> {
         const file = normalizePath(path);
 
@@ -244,12 +230,6 @@ export class TocService {
         if (toc.href || toc.items?.length) {
             await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
                 this._entries.add(normalizePath(join(dirname(path), item.href)));
-
-                if (own<string, 'restricted-access'>(item, 'restricted-access')) {
-                    this.run.meta.add(normalizePath(join(dirname(path), item.href)), {
-                        'restricted-access': item['restricted-access'],
-                    });
-                }
 
                 return item;
             });
@@ -306,6 +286,116 @@ export class TocService {
         await getHooks(this).Included.promise(toc, file, include);
 
         return toc;
+    }
+
+    /**
+     * Visits all passed items. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     * BFS
+     */
+    private async walkItemsBFS<T extends WithItems<T>>(
+        items: T[] | undefined,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T>,
+    ): Promise<T[] | undefined> {
+        const {accept, stepContext} = options;
+
+        if (!items || !items.length) {
+            return items;
+        }
+
+        const contexts = [];
+        let results: T[] = [];
+        const queue = items.slice();
+        while (queue.length) {
+            const item = queue.shift() as T;
+            const context: WalkStepContext | 'restricted-access' = {};
+            if (stepContext['restricted-access']) {
+                context['restricted-access'] = stepContext['restricted-access'];
+            }
+
+            const result = accept(item) ? await actor(item, context) : item;
+            if (result) {
+                results = results.concat(result);
+            }
+            contexts.push(context);
+        }
+
+        for (const result of results) {
+            const index = results.indexOf(result);
+            if (own(result, 'items')) {
+                // Sometime users defines items as object (one item) instead of array of one item.
+                if (!Array.isArray(result.items) && result.items) {
+                    result.items = ([] as T[]).concat(result.items);
+                }
+
+                if (result.items?.length) {
+                    result.items = await this.walkItemsBFS(result.items, actor, {
+                        ...options,
+                        stepContext: contexts[index],
+                    });
+                }
+            }
+        }
+
+        return results;
+    }
+
+    /**
+     * Visits all passed items. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     * DFS
+     */
+    private async walkItemsDFS<T extends WithItems<T>>(
+        items: T[] | undefined,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T>,
+    ): Promise<T[] | undefined> {
+        const {accept, stepContext} = options;
+
+        if (!items || !items.length) {
+            return items;
+        }
+
+        const contexts = [];
+        const results: T[] = [];
+
+        for (const item of items) {
+            const context: WalkStepContext | 'restricted-access' = {};
+            if (stepContext['restricted-access']) {
+                context['restricted-access'] = stepContext['restricted-access'];
+            }
+            const result = (accept(item) ? await actor(item, context) : item) as T &
+                Record<'items', unknown>;
+            if (result) {
+                results.push(...([] as T[]).concat(result));
+
+                if (own(result, 'items')) {
+                    // Sometime users defines items as object (one item) instead of array of one item.
+                    if (!Array.isArray(result.items) && result.items) {
+                        result.items = ([] as T[]).concat(result.items);
+                    }
+
+                    if (result.items?.length) {
+                        result.items = await this.walkItemsDFS(result.items, actor, {
+                            ...options,
+                            stepContext: context,
+                        });
+                    }
+                }
+            }
+            contexts.push(context);
+        }
+
+        return results;
     }
 
     private shouldSkip(toc: RawToc) {

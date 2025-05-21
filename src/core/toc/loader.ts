@@ -1,5 +1,5 @@
 import type {LiquidContext} from '@diplodoc/liquid';
-import type {TocService} from './TocService';
+import type {TocService, WalkStepContext} from './TocService';
 import type {
     EntryTocItem,
     IncludeInfo,
@@ -328,6 +328,33 @@ async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc>
         }
 
         item.href = href as YfmString & NormalizedPath;
+        return item;
+    });
+
+    await this.toc.walkItems([toc], (item, context: WalkStepContext) => {
+        if (own<string>(item, 'restricted-access')) {
+            // check repeat right
+            let itemAccess = Array.isArray(item['restricted-access'])
+                ? item['restricted-access']
+                : [item['restricted-access']];
+            const contextAccess: string[][] = (context['restricted-access'] as string[][]) ?? [];
+            if (contextAccess.length) {
+                for (const access of contextAccess) {
+                    if (itemAccess.sort().join(',') === access.sort().join(',')) {
+                        itemAccess = [];
+                    }
+                }
+            }
+            if (itemAccess.length > 0) {
+                context['restricted-access'] = [...contextAccess, itemAccess];
+            }
+        }
+
+        if (context['restricted-access']?.length && own<string>(item, 'href')) {
+            this.toc.meta.add(item.href, {
+                'restricted-access': context['restricted-access'],
+            });
+        }
 
         return item;
     });
