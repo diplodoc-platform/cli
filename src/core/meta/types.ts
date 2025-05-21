@@ -30,6 +30,7 @@ export type Meta = {
     __system?: Hash;
     sourcePath?: string;
     vcsPath?: string;
+    'restricted-access'?: string[][];
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;
