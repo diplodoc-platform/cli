@@ -1092,7 +1092,7 @@ exports[`Regression > internal > sub/folder/item-1.html 1`] = `
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Item 1","html":"&lt;p&gt;Item 1 text&lt;/p&gt;/n","leading":false},"router":{"pathname":"sub/folder/item-1","depth":3},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Item 1","html":"&lt;p&gt;Item 1 text&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"images.html\\"&gt;Images&lt;/a&gt;&lt;/p&gt;/n","leading":false},"router":{"pathname":"sub/folder/item-1","depth":3},"lang":"ru","langs":["ru"]}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -1122,6 +1122,8 @@ metadata:
 # Item 1
 
 Item 1 text
+
+[{#T}](../../images.md)
 "
 `;
 

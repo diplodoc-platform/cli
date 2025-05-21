@@ -25,7 +25,7 @@ export default ((md, opts) => {
             const isEmptyLink = nextToken.type === 'link_close';
             const isTitleRefLink = nextToken.type === 'text' && nextToken.content === '{#T}';
             const {pathname, hash} = url.parse(href);
-            const file = pathname ? join(dirname(state.env.path || '.'), pathname) : path;
+            const file = pathname ? join(dirname(state.env.path || path), pathname) : path;
             const isPageFile = PAGE_LINK_REGEXP.test(file);
 
             if ((!isEmptyLink && !isTitleRefLink) || !isPageFile) {
