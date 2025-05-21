@@ -1,5 +1,17 @@
 # Changelog
 
+## [4.59.10](https://github.com/diplodoc-platform/cli/compare/v4.59.9...v4.59.10) (2025-05-21)
+
+
+### Bug Fixes
+
+* Fix autotitles for parent folders ([4c2d0b2](https://github.com/diplodoc-platform/cli/commit/4c2d0b23d3abe0424a2570cfbf9162452b2537a4))
+
+
+### Dependency update
+
+* Update @diplodoc/transform to 4.57.7 ([3c9604f](https://github.com/diplodoc-platform/cli/commit/3c9604fad54b20ed3dfe1d4289364b784f858584))
+
 ## [4.59.9](https://github.com/diplodoc-platform/cli/compare/v4.59.8...v4.59.9) (2025-05-20)
 
 
