@@ -155,6 +155,10 @@ export class BaseProgram<
         } as TArgs;
     }
 
+    addModule(module: ICallable) {
+        this.modules.push(module);
+    }
+
     private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
@@ -205,7 +209,7 @@ export class BaseProgram<
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         // args extension paths should be relative to PWD
         const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-            const path = isRelative(ext) ? resolve(ext) : ext;
+            const path = isRelative(ext) ? resolve(process.cwd(), ext) : ext;
             const options = {};
 
             return {path, options};
@@ -232,10 +236,15 @@ export class BaseProgram<
             path: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = require(path);
-            const Extension = ExtensionModule.Extension || ExtensionModule.default;
+            try {
+                const ExtensionModule = require(path);
+                const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
-            return new Extension(options);
+                return new Extension(options);
+            } catch (error: any) {
+                this.logger.error(`Failed to load extension from ${path}: ${error.message}`);
+                throw error;
+            }
         };
 
         return Promise.all(extensions.map(initialize));
