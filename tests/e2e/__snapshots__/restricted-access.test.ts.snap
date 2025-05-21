@@ -1,0 +1,234 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Restricted access > Nested restricted access > filelist 1`] = `
+"[
+  "plugins/index.md",
+  "project/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Nested restricted access > plugins/index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+    - manager
+  - - userA
+    - userB
+---
+"
+`;
+
+exports[`Restricted access > Nested restricted access > project/index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userA
+    - userB
+---
+"
+`;
+
+exports[`Restricted access > Nested restricted access > toc.yaml 1`] = `
+"title: Yandex Flavored Markdown
+items:
+  - name: Plugins
+    restricted-access:
+      - admin
+      - manager
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - userA
+          - userB
+  - name: Organizing a YFM project
+    items:
+      - name: Overview
+        href: project/index.md
+        restricted-access:
+          - userA
+          - userB
+path: toc.yaml
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+This is the /a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > filelist 1`] = `
+"[
+  "a1.md",
+  "folder1/a1.md",
+  "folder1/folder2/a1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Nested toc restricted access > folder1/a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userAtoc2
+    - userBtoc2
+  - - userA
+    - userB
+---
+This is the /folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > folder1/folder2/a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userAtoc3
+    - userBtoc3
+  - - userA
+    - userB
+---
+This is the /folder1/folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > toc.yaml 1`] = `
+"items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    restricted-access:
+      - userA
+      - userB
+    items:
+      - name: A1
+        href: folder1/a1.md
+        restricted-access:
+          - userAtoc2
+          - userBtoc2
+      - name: folder1
+        items:
+          - name: A1
+            href: folder1/folder2/a1.md
+            restricted-access:
+              - userAtoc3
+              - userBtoc3
+path: toc.yaml
+"
+`;
+
+exports[`Restricted access > Simple restricted access > filelist 1`] = `
+"[
+  "index.md",
+  "plugins/index.md",
+  "plugins/index2.md",
+  "plugins/index3.md",
+  "plugins/index4.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Simple restricted access > index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access > plugins/index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access > plugins/index2.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+  - - admin
+    - user
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access > plugins/index3.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access > plugins/index4.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+  - - customInFile
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access > toc.yaml 1`] = `
+"title: Yandex Flavored Markdown
+items:
+  - name: Yandex Flavored Markdown
+    href: index.md
+    restricted-access: admin
+  - name: Plugins
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - admin
+  - name: Plugins 2
+    restricted-access: admin
+    items:
+      - name: Overview 2
+        href: plugins/index2.md
+        restricted-access:
+          - admin
+          - user
+      - name: Overview 3
+        href: plugins/index3.md
+        restricted-access:
+          - admin
+      - name: Overview 4
+        href: plugins/index4.md
+        restricted-access:
+          - admin
+path: toc.yaml
+"
+`;

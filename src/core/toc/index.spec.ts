@@ -263,6 +263,56 @@ describe('toc-loader', () => {
         ),
     );
 
+    it(
+        'should load restricted-access as string',
+        test(
+            dedent`
+                name: root
+                restricted-access: admin
+                items:
+                  - name: Item without access
+                    href: some/href.md
+            `,
+            {},
+            {},
+        ),
+    );
+    it(
+        'should load restricted-access as array',
+        test(
+            dedent`
+                name: root
+                restricted-access: 
+                  - admin
+                  - user
+                items:
+                  - name: Item without access
+                    href: some/href.md
+            `,
+            {},
+            {},
+        ),
+    );
+    it(
+        'should load restricted-access as array on two level',
+        test(
+            dedent`
+                name: root
+                restricted-access: 
+                  - admin
+                  - user
+                items:
+                  - name: Item without access
+                    restricted-access: 
+                      - userA
+                      - userB
+                    href: some/href.md
+            `,
+            {},
+            {},
+        ),
+    );
+
     describe('includes', () => {
         it(
             'should rebase items href for includes in link mode',
