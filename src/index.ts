@@ -7,6 +7,11 @@ import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
 export * from '~/commands';
+export * from '~/core/program';
+export * from '~/core/config';
+export * from '~/core/logger';
+export * from '~/core/utils';
+export * from '~/core/run';
 
 export const run = async (argv: string[]) => {
     if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
