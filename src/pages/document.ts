@@ -163,8 +163,10 @@ function getResources({style, script}: Resources) {
 
     if (style) {
         style
-        // User files containing "_assets/style" are moved to the end
-            .sort((a: string, b: string) => a.includes('_assets/style') ? 1 : b.includes('_assets/style') ? -1 : 0) 
+            // User files containing "_assets/style" are moved to the end
+            .sort((a: string, b: string) =>
+                a.includes('_assets/style') ? 1 : b.includes('_assets/style') ? -1 : 0,
+            )
             .forEach((el: string, id: number) =>
                 resourcesTags.push(
                     `<link rel="stylesheet" type="text/css" href="${el}" ${
@@ -180,4 +182,3 @@ function getResources({style, script}: Resources) {
 
     return resourcesTags.join('\n');
 }
-
