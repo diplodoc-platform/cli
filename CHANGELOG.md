@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.59.11](https://github.com/diplodoc-platform/cli/compare/v4.59.10...v4.59.11) (2025-05-21)
+
+
+### Bug Fixes
+
+* revert to a less verbose regex to use in version substitution ([caee2fd](https://github.com/diplodoc-platform/cli/commit/caee2fdb2edaa45446d087fbea4516e9b52ef110))
+* use a regexp with wider coverage to replace version with a placeholder ([b7db9d2](https://github.com/diplodoc-platform/cli/commit/b7db9d249fda3b536e180aec7b87969a1a03f839))
+
 ## [4.59.10](https://github.com/diplodoc-platform/cli/compare/v4.59.9...v4.59.10) (2025-05-21)
 
 
