@@ -17,12 +17,13 @@ type Options = {
     titles: Record<NormalizedPath, Hash<string>>;
     entries: NormalizedPath[];
     existsInProject: (path: NormalizedPath) => boolean;
+    linkLogLevel?: 'error' | 'warn';
 };
 
 export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         walkLinks(state, (link, href) => {
-            const {path, log, entries, existsInProject} = opts;
+            const {path, log, entries, existsInProject, linkLogLevel = 'error'} = opts;
 
             if (!href) {
                 log.error(`Empty link in ${bold(path)}`);
@@ -42,7 +43,7 @@ export default ((md, opts) => {
                 );
 
                 if (!existsInProject(file)) {
-                    log.error(
+                    log[linkLogLevel](
                         `Link is unreachable: ${bold(file)} in ${bold(path)}. File does not exists in project.`,
                     );
                     return;

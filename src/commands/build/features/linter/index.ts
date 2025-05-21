@@ -108,11 +108,14 @@ export class Lint {
                         return;
                     }
 
+                    const linkLogLevel = getLogLevel(run.config.lint.config, ['LINK001']);
+
                     const deps = await run.markdown.deps(vfile.path);
                     const assets = await run.markdown.assets(vfile.path);
                     const errors = await run.lint(vfile.path, vfile.data, {
                         deps: deps.map(({path}) => path),
                         assets,
+                        linkLogLevel,
                     });
 
                     if (errors) {
