@@ -135,6 +135,8 @@ export class SinglePage {
                         const template = new Template(htmlPath, state.lang, [__SinglePage__]);
                         const page = await run.entry.page(template, state, toc);
 
+                        state.data.toc = toc;
+
                         await run.write(join(run.output, dataPath), JSON.stringify(state));
                         await run.write(join(run.output, htmlPath), page);
                     } catch (error) {
