@@ -76,9 +76,25 @@ export class MetaService {
         const file = normalizePath(path);
 
         const meta = this.meta.get(file) || this.initialMeta();
+        const needMergeAccess = meta['restricted-access'] && record['restricted-access'];
+
+        if (meta['restricted-access'] && record['restricted-access']) {
+            meta['restricted-access'] = [
+                ...meta['restricted-access'],
+                ...record['restricted-access'],
+            ];
+        }
+
         const result = Object.assign(
             meta,
-            omit(record, ['script', 'style', 'csp', 'metadata', '__system']),
+            omit(record, [
+                'script',
+                'style',
+                'csp',
+                'metadata',
+                '__system',
+                needMergeAccess ? 'restricted-access' : '',
+            ]),
         );
 
         this.meta.set(file, result);

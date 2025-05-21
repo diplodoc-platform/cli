@@ -42,6 +42,8 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
+export type WalkStepContext = Hash<unknown>;
+
 enum Stage {
     TECH_PREVIEW = 'tech-preview',
 }
@@ -124,12 +126,6 @@ export class TocService {
             await this.walkItems([toc], (item: TocItem | Toc) => {
                 if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                     this._entries.add(normalizePath(join(dirname(path), item.href)));
-
-                    if (own<string>(item, 'restricted-access')) {
-                        this.run.toc.meta.add(normalizePath(join(dirname(path), item.href)), {
-                            'restricted-access': item['restricted-access'],
-                        });
-                    }
                 }
 
                 return item;
@@ -200,31 +196,58 @@ export class TocService {
         return await getHooks(this).Dump.promise(copyJson(toc), file);
     }
 
+    async walkItems<T extends WithItems<T>>(
+        items: T[] | undefined,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        parentContext: WalkStepContext = {},
+    ): Promise<T[] | undefined> {
+        const mode: 'DFS' | 'BFS' = 'DFS';
+
+        return mode === 'DFS'
+            ? await this.walkItemsDFS(items, actor, parentContext)
+            : await this.walkItemsBFS(items, actor, parentContext);
+    }
+
     /**
      * Visits all passed items. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
      * Returns actor results.
+     * BFS
      */
-    async walkItems<T extends WithItems<T>>(
+    async walkItemsBFS<T extends WithItems<T>>(
         items: T[] | undefined,
-        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        parentContext: WalkStepContext = {},
     ): Promise<T[] | undefined> {
         if (!items || !items.length) {
             return items;
         }
 
+        const contexts = [];
         const results: T[] = [];
         const queue = [...items];
         while (queue.length) {
             const item = queue.shift() as T;
+            const context: WalkStepContext | 'restricted-access' = {};
+            if (parentContext['restricted-access']) {
+                context['restricted-access'] = parentContext['restricted-access'];
+            }
 
-            const result = await actor(item);
+            const result = await actor(item, context);
             if (result) {
                 results.push(...([] as T[]).concat(result));
             }
+            contexts.push(context);
         }
 
         for (const result of results) {
+            const index = results.indexOf(result);
             if (own(result, 'items')) {
                 // Sometime users defines items as object (one item) instead of array of one item.
                 if (!Array.isArray(result.items) && result.items) {
@@ -232,9 +255,56 @@ export class TocService {
                 }
 
                 if (result.items?.length) {
-                    result.items = await this.walkItems(result.items, actor);
+                    result.items = await this.walkItemsBFS(result.items, actor, contexts[index]);
                 }
             }
+        }
+
+        return results;
+    }
+
+    /**
+     * Visits all passed items. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     * DFS
+     */
+    async walkItemsDFS<T extends WithItems<T>>(
+        items: T[] | undefined,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        parentContext: WalkStepContext = {},
+    ): Promise<T[] | undefined> {
+        if (!items || !items.length) {
+            return items;
+        }
+
+        const contexts = [];
+        const results: T[] = [];
+
+        for (const item of items) {
+            const context: WalkStepContext | 'restricted-access' = {};
+            if (parentContext['restricted-access']) {
+                context['restricted-access'] = parentContext['restricted-access'];
+            }
+            const result = (await actor(item, context)) as T & Record<'items', unknown>;
+            if (result) {
+                results.push(...([] as T[]).concat(result));
+
+                if (own(result, 'items')) {
+                    // Sometime users defines items as object (one item) instead of array of one item.
+                    if (!Array.isArray(result.items) && result.items) {
+                        result.items = ([] as T[]).concat(result.items);
+                    }
+
+                    if (result.items?.length) {
+                        result.items = await this.walkItemsDFS(result.items, actor, context);
+                    }
+                }
+            }
+            contexts.push(context);
         }
 
         return results;

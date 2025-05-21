@@ -1,0 +1,21 @@
+title: Yandex Flavored Markdown
+items:
+  - name: Plugins
+    restricted-access: 
+     - admin
+     - manager
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - userA
+          - userB
+  - name: Organizing a YFM project
+    items:
+      - name: Overview
+        href: project/index.md
+        restricted-access:
+          - userA
+          - userB
+
+
