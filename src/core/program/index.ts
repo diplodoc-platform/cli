@@ -2,7 +2,7 @@ import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
 
 import {isAbsolute, resolve} from 'node:path';
-import {once, pick} from 'lodash';
+import {merge, once, pick} from 'lodash';
 
 import {
     resolveConfig,
@@ -176,7 +176,7 @@ export class BaseProgram<
     private async hookConfig(config: Config<TConfig>, args: TArgs) {
         await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
-        Object.assign(config, this.args(args));
+        merge(config, this.args(args));
 
         return getHooks(this as BaseProgram).Config.promise(config, args);
     }
