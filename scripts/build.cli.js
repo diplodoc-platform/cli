@@ -101,15 +101,6 @@ Promise.all([
     ...libs.map((entry) => lib(entry, 'cjs')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
-    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
-    esbuild.build({
-        tsconfig: './tsconfig.json',
-        bundle: true,
-        target: 'ES6',
-        platform: 'browser',
-        outfile: 'build/algolia-api.js',
-        entryPoints: ['src/extensions/algolia/worker.ts'],
-    }),
 ]).then(() => {
     for (const dep of externals) {
         if (!dependencies[dep]) {
