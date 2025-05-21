@@ -179,6 +179,40 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > should load restricted-access as array 1`] = `
+"name: root
+restricted-access:
+  - admin
+  - user
+items:
+  - name: Item without access
+    href: some/href.md
+"
+`;
+
+exports[`toc-loader > should load restricted-access as array on two level 1`] = `
+"name: root
+restricted-access:
+  - admin
+  - user
+items:
+  - name: Item without access
+    restricted-access:
+      - userA
+      - userB
+    href: some/href.md
+"
+`;
+
+exports[`toc-loader > should load restricted-access as string 1`] = `
+"name: root
+restricted-access: admin
+items:
+  - name: Item without access
+    href: some/href.md
+"
+`;
+
 exports[`toc-loader > should normalize items 1`] = `
 "items:
   - name: Item without extension

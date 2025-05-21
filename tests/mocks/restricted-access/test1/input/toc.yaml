@@ -1,0 +1,28 @@
+title: Yandex Flavored Markdown
+items:
+  - name: Yandex Flavored Markdown
+    href: index.md
+    restricted-access: admin
+  - name: Plugins
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - admin
+  - name: Plugins 2
+    restricted-access: admin
+    items:
+      - name: Overview 2
+        href: plugins/index2.md
+        restricted-access:
+          - admin
+          - user
+      - name: Overview 3
+        href: plugins/index3.md
+        restricted-access:
+          - admin
+      - name: Overview 4
+        href: plugins/index4.md
+        restricted-access:
+          - admin
+
