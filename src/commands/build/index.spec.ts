@@ -302,4 +302,12 @@ describe('Build command', () => {
     });
 
     // describe('apply', () => {});
+    describe('error', () => {
+        it('should exit with none zero if file not exists in project', async () => {
+            const temp = await run('-i ../../../tests/mocks/regression/input -o ./temp-out');
+            console.log('TEMP', temp);
+            // await expect(() => ).toThrow();
+        });
+    });    
+
 });

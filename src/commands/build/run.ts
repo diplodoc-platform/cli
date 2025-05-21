@@ -24,6 +24,7 @@ import {RedirectsService} from './services/redirects';
 type TransformOptions = {
     deps: NormalizedPath[];
     assets: NormalizedPath[];
+    linkLogLevel?: string;
 };
 
 const TMP_INPUT_FOLDER = '.tmp_input';
@@ -123,12 +124,13 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
-        const {deps, assets} = options;
+        const {deps, assets, linkLogLevel} = options;
         const pluginOptions = {
             ...this.transformConfig(file),
             files: await remap(deps, this.files),
             titles: await remap([file].concat(assets), this.titles),
             assets: await remap(assets),
+            linkLogLevel,
         };
 
         return yfmlint(markdown, file, {
