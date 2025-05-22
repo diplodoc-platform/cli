@@ -7,10 +7,13 @@ import {optimize} from 'svgo';
 
 import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
 
+const MAX_SVG_SIZE = 1024 * 1024;
+
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;
     assets: Record<NormalizedPath, string | boolean>;
     inlineSvg?: boolean;
+    getFileSize: (file: string) => number;
 };
 
 function prefix() {
@@ -39,7 +42,7 @@ function convertSvg(file: NormalizedPath, state: StateCore, {assets}: Options) {
 }
 
 export default ((md, opts) => {
-    const {path, assets, log} = opts;
+    const {path, assets, log, getFileSize} = opts;
 
     const plugin = (state: StateCore) => {
         const tokens = state.tokens;
@@ -74,7 +77,11 @@ export default ((md, opts) => {
                 }
 
                 if (imgSrc.endsWith('.svg') && shouldInlineSvg) {
-                    childrenTokens[index] = convertSvg(file, state, opts);
+                    const size = getFileSize(file);
+
+                    if (size < MAX_SVG_SIZE) {
+                        childrenTokens[index] = convertSvg(file, state, opts);
+                    }
                 } else {
                     image.attrSet('src', file);
                     image.attrSet('yfm_patched', '1');

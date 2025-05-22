@@ -151,12 +151,19 @@ export class Run extends BaseRun<BuildConfig> {
             log: this.logger,
             entries: this.toc.entries,
             existsInProject: this.existsInProject,
+            getFileSize: this.getFileSize,
         };
     }
 
     @bounded
     private existsInProject(path: NormalizedPath) {
         return this.exists(join(this.input, path));
+    }
+
+    @bounded
+    private getFileSize(path: NormalizedPath) {
+        const stats = this.fs.statSync(join(this.input, path));
+        return stats.size;
     }
 
     @bounded

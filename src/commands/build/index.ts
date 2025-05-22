@@ -227,7 +227,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         });
 
         const entries = this.run.toc.entries;
-        await pmap(entries,
+        await pmap(
+            entries,
             async (entry, position) => {
                 try {
                     this.run.logger.proc(entry);
@@ -264,7 +265,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @bounded
     @threads.threaded('build.process')
-    async process(file: NormalizedPath, entries: NormalizedPath[], toc: Toc, meta: Meta): Promise<EntryInfo> {
+    async process(
+        file: NormalizedPath,
+        entries: NormalizedPath[],
+        toc: Toc,
+        meta: Meta,
+    ): Promise<EntryInfo> {
         this.run.toc.setToc(toc.path, toc);
         this.run.toc.setEntries(entries);
         this.run.meta.set(file, meta);
