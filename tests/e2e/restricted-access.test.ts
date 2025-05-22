@@ -16,4 +16,6 @@ describe('Restricted access', () => {
     generateFilesYamlTestTemplate('Simple restricted access', 'mocks/restricted-access/test1');
 
     generateFilesYamlTestTemplate('Nested restricted access', 'mocks/restricted-access/test2');
+
+    generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/restricted-access/test3');
 });

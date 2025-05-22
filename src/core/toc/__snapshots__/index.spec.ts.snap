@@ -171,8 +171,8 @@ items:
 `;
 
 exports[`toc-loader > should load restricted-access as array on two level 1`] = `
-"rname: root
-estricted-access:
+"name: root
+restricted-access:
   - admin
   - user
 items:

@@ -1,0 +1,16 @@
+items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    restricted-access:
+      - userA
+      - userB
+    include:
+      mode: link
+      path: folder1/toc.yaml
+      
+
+
+
+
+

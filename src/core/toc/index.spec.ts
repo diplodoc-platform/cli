@@ -298,8 +298,8 @@ describe('toc-loader', () => {
         'should load restricted-access as array on two level',
         test(
             dedent`
-                rname: root
-                estricted-access: 
+                name: root
+                restricted-access: 
                   - admin
                   - user
                 items:

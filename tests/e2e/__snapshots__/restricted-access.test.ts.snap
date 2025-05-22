@@ -57,6 +57,79 @@ items:
 "
 `;
 
+exports[`Restricted access > Nested toc restricted access > a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+This is the /a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > filelist 1`] = `
+"[
+  "a1.md",
+  "folder1/a1.md",
+  "folder1/folder2/a1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Nested toc restricted access > folder1/a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userAtoc2
+    - userBtoc2
+  - - userA
+    - userB
+---
+This is the /folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > folder1/folder2/a1.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userAtoc3
+    - userBtoc3
+  - - userA
+    - userB
+---
+This is the /folder1/folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > toc.yaml 1`] = `
+"items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    restricted-access:
+      - userA
+      - userB
+    items:
+      - name: A1
+        href: folder1/a1.md
+        restricted-access:
+          - userAtoc2
+          - userBtoc2
+      - name: folder1
+        items:
+          - name: A1
+            href: folder1/folder2/a1.md
+            restricted-access:
+              - userAtoc3
+              - userBtoc3
+"
+`;
+
 exports[`Restricted access > Simple restricted access > filelist 1`] = `
 "[
   "index.md",
