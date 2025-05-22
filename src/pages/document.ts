@@ -162,18 +162,13 @@ function getResources({style, script}: Resources) {
     const resourcesTags: string[] = [];
 
     if (style) {
-        style
-            // User files containing "_assets/style" are moved to the end
-            .sort((a: string, b: string) =>
-                a.includes('_assets/style') ? 1 : b.includes('_assets/style') ? -1 : 0,
-            )
-            .forEach((el: string, id: number) =>
-                resourcesTags.push(
-                    `<link rel="stylesheet" type="text/css" href="${el}" ${
-                        id === 0 && `id="${CUSTOM_STYLE}"`
-                    }>`,
-                ),
-            );
+        style.forEach((el, id) =>
+            resourcesTags.push(
+                `<link rel="stylesheet" type="text/css" href="${el}" ${
+                    id === 0 && `id="${CUSTOM_STYLE}"`
+                }>`,
+            ),
+        );
     }
 
     if (script) {

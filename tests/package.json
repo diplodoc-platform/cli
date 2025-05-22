@@ -17,8 +17,7 @@
   ],
   "scripts": {
     "build": "false",
-    "test": "vitest run",
-    "test:update": "vitest -u"
+    "test": "vitest run"
   },
   "publishConfig": {
     "access": "public"

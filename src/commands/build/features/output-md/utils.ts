@@ -2,7 +2,6 @@ import type {Collect} from '~/core/markdown';
 
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
-import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
 type Plugin = {
     collect?: Collect;
@@ -24,13 +23,6 @@ export function getCustomCollectPlugins(): Collect[] {
                     runtime: {
                         script: '_bundle/latex-extension.js',
                         style: '_bundle/latex-extension.css',
-                    },
-                }),
-                pageConstructor.transform({
-                    bundle: false,
-                    runtime: {
-                        script: '_bundle/page-constructor-extension.js',
-                        style: '_bundle/page-constructor-extension.css',
                     },
                 }),
             ] as Plugin[]
