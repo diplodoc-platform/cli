@@ -18,6 +18,7 @@ import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
+import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
 import {filterTokens} from '~/core/utils';
 
@@ -58,6 +59,13 @@ export function getBaseMdItPlugins() {
             runtime: {
                 script: '_bundle/latex-extension.js',
                 style: '_bundle/latex-extension.css',
+            },
+        }),
+        pageConstructor.transform({
+            bundle: false,
+            runtime: {
+                script: '_bundle/page-constructor-extension.js',
+                style: '_bundle/page-constructor-extension.css',
             },
         }),
         blockAnchor,
