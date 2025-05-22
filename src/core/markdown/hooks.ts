@@ -1,4 +1,5 @@
-import type {AdditionalInfo, Collect, Plugin} from './types';
+import type {VFile} from '~/core/utils';
+import type {Collect, Plugin} from './types';
 
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
 
@@ -9,18 +10,15 @@ export function hooks(name: string) {
     return {
         Collects: new AsyncSeriesWaterfallHook<[Collect[]]>(['collects'], `${name}.Collects`),
         Plugins: new AsyncSeriesWaterfallHook<[Plugin[]]>(['plugins'], `${name}.Plugins`),
-        Loaded: new AsyncSeriesHook<[string, DeepFrozen<Meta>, NormalizedPath, NormalizedPath[]]>(
-            ['markdown', 'meta', 'path', 'from'],
+        Loaded: new AsyncSeriesHook<[string, DeepFrozen<Meta>, NormalizedPath]>(
+            ['markdown', 'meta', 'path'],
             `${name}.Loaded`,
         ),
-        Resolved: new AsyncSeriesHook<[string, NormalizedPath, NormalizedPath[]]>(
-            ['markdown', 'path', 'from'],
+        Resolved: new AsyncSeriesHook<[string, NormalizedPath]>(
+            ['markdown', 'path'],
             `${name}.Resolved`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[string, NormalizedPath, AdditionalInfo]>(
-            ['markdown', 'path', 'info'],
-            `${name}.Dump`,
-        ),
+        Dump: new AsyncSeriesHook<VFile<string>>(['vfile'], `${name}.Dump`),
     };
 }
 

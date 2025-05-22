@@ -1,5 +1,5 @@
 import type {Run} from '~/core/run';
-import type {Meta, Resources} from './types';
+import type {Meta, RawResources} from './types';
 
 import {omit, uniq} from 'lodash';
 
@@ -10,6 +10,7 @@ import {getHooks, withHooks} from './hooks';
 type Config = {
     addSystemMeta: boolean;
 };
+
 type MetaItem = {
     name: string;
     content: string;
@@ -33,9 +34,19 @@ export class MetaService {
     /**
      * Returns non normalized current readonly metadata for selected path.
      */
-    get(path: RelativePath) {
+    get(path: RelativePath): DeepFrozen<Meta> {
         const file = normalizePath(path);
-        return copyJson(this.meta.get(file)) || this.initialMeta();
+
+        if (!this.meta.has(file)) {
+            this.meta.set(file, this.initialMeta());
+        }
+
+        return this.meta.get(file) as DeepFrozen<Meta>;
+    }
+
+    set(path: RelativePath, meta: Meta) {
+        const file = normalizePath(path);
+        this.meta.set(file, meta);
     }
 
     /**
@@ -89,7 +100,7 @@ export class MetaService {
         return meta;
     }
 
-    addResources(path: RelativePath, resources: Resources | undefined) {
+    addResources(path: RelativePath, resources: RawResources | undefined) {
         const file = normalizePath(path);
 
         if (!resources) {
@@ -107,13 +118,16 @@ export class MetaService {
         }
 
         if (Array.isArray(resources.csp)) {
-            for (const record of resources.csp) {
-                for (const [key, value] of Object.entries(record)) {
+            const records = [];
+            for (const csp of resources.csp) {
+                const record: Hash<string[]> = {};
+                for (const [key, value] of Object.entries(csp)) {
                     record[key] = ([] as string[]).concat(value);
                 }
+                records.push(record);
             }
 
-            meta.csp = [...(meta.csp || []), ...resources.csp];
+            meta.csp = [...(meta.csp || []), ...records];
         }
 
         this.meta.set(file, meta);

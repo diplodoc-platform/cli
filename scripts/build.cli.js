@@ -7,6 +7,8 @@ const {sync: glob} = require('glob');
 
 const {version, dependencies = {}} = require('../package.json');
 
+require('./assets');
+
 const baseConfig = {
     tsconfig: './tsconfig.json',
     platform: 'node',

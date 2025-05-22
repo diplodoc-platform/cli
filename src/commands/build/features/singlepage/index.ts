@@ -1,17 +1,12 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBaseHooks} from '~/core/program';
-import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
-import {copyJson, isExternalHref, own} from '~/core/utils';
-import {getDepth, getDepthPath} from '~/utils';
-import {Lang} from '~/constants';
-import {generateStaticMarkup} from '~/pages';
+import {Template} from '~/core/template';
 
 import {options} from './config';
 import {getSinglePageUrl, joinSinglePageResults} from './utils';
@@ -34,6 +29,8 @@ type PageInfo = {
     title: string;
 };
 
+const __SinglePage__ = Symbol('isSinglePage');
+
 export class SinglePage {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('SinglePage', (command: Command) => {
@@ -49,41 +46,52 @@ export class SinglePage {
         const results: Record<NormalizedPath, PageInfo[]> = {};
 
         getBuildHooks(program)
+            .Entry.for('html')
+            .tap('SinglePage', (run, entry, info) => {
+                if (!run.config.singlePage || !info.html) {
+                    return;
+                }
+
+                const tocPath = run.toc.for(entry);
+
+                run.meta.add(tocPath, info.meta || {});
+                run.meta.addResources(tocPath, info.meta || {});
+
+                results[tocPath] = results[tocPath] || [];
+                results[tocPath][info.position] = {
+                    path: entry,
+                    content: info.html,
+                    title: info.title || '',
+                };
+            });
+
+        getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('SinglePage', (run) => {
                 if (!run.config.singlePage) {
                     return;
                 }
 
-                getBuildHooks(program)
-                    .Entry.for('html')
-                    .tap('SinglePage', (entry, info, tocDir) => {
-                        if (!info.html) {
-                            return;
-                        }
+                // Modify and dump toc for single page.
+                // Add link to dumped single-page-toc.js to html template.
+                getEntryHooks(run.entry).Page.tapPromise('Html', async (template) => {
+                    if (!template.is(__SinglePage__)) {
+                        return;
+                    }
 
-                        results[tocDir] = results[tocDir] || [];
-                        results[tocDir][info.position] = {
-                            path: entry,
-                            content: info.html,
-                            title: info.title || '',
-                            // TODO: handle file resources
-                        };
-                    });
+                    const tocPath = run.toc.for(template.path);
+                    const file = join(dirname(tocPath), 'single-page-toc.js');
 
-                getTocHooks(run.toc).Resolved.tapPromise('SinglePage', async (toc, path) => {
-                    const copy = copyJson(toc);
-                    await run.toc.walkItems([copy], (item) => {
-                        if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                            item.href = getSinglePageUrl(dirname(path), item.href);
-                        }
+                    const toc = (await run.toc.dump(tocPath)).copy(file);
+                    await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
+                        item.href = getSinglePageUrl(dirname(toc.path), item.href);
 
                         return item;
                     });
 
-                    const file = join(run.output, dirname(path), 'single-page-toc.js');
+                    template.addScript(file, {position: 'state'});
 
-                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(copy)};`);
+                    await run.write(join(run.output, toc.path), toc.toString());
                 });
             });
 
@@ -94,10 +102,16 @@ export class SinglePage {
                     return;
                 }
 
-                for (const [tocDir, result] of Object.entries(results)) {
+                for (const entry of Object.entries(results)) {
+                    const [tocPath, result] = entry as [NormalizedPath, PageInfo[]];
+
                     if (!result.length) {
                         return;
                     }
+
+                    const tocDir = dirname(tocPath);
+                    const htmlPath = join(tocDir, SINGLE_PAGE_FILENAME);
+                    const dataPath = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
 
                     try {
                         const singlePageBody = joinSinglePageResults(
@@ -105,45 +119,26 @@ export class SinglePage {
                             tocDir as NormalizedPath,
                         );
 
-                        const toc = (await run.toc.dump(
-                            join(tocDir as NormalizedPath, 'toc.yaml'),
-                        )) as Toc;
-                        const lang = run.config.lang ?? Lang.RU;
-                        const langs = run.config.langs.length ? run.config.langs : [lang];
-                        const depth = getDepth(tocDir) + 1;
+                        const toc = (await run.toc.dump(tocPath)).data;
 
-                        const pageData = {
-                            data: {
-                                leading: false as const,
-                                html: singlePageBody,
-                                headings: [],
-                                meta: run.config.resources,
-                                title: toc.title || '',
-                            },
-                            router: {
-                                pathname: SINGLE_PAGE_FILENAME,
-                                depth,
-                                base: getDepthPath(depth - 1),
-                            },
-                            lang,
-                            langs,
+                        run.meta.addResources(tocPath, run.config.resources);
+
+                        const data = {
+                            leading: false as const,
+                            html: singlePageBody,
+                            headings: [],
+                            meta: await run.meta.dump(tocPath),
+                            title: toc.title || '',
                         };
 
-                        // Save the full single page for viewing locally
-                        const singlePageFn = join(run.output, tocDir, SINGLE_PAGE_FILENAME);
-                        const singlePageDataFn = join(
-                            run.output,
-                            tocDir,
-                            SINGLE_PAGE_DATA_FILENAME,
-                        );
-                        const singlePageContent = generateStaticMarkup(
-                            pageData,
-                            join(tocDir, 'single-page-toc'),
-                            (toc.title as string) || '',
-                        );
+                        const state = await run.entry.state(htmlPath, data);
+                        const template = new Template(htmlPath, state.lang, [__SinglePage__]);
+                        const page = await run.entry.page(template, state, toc);
 
-                        await run.write(singlePageFn, singlePageContent);
-                        await run.write(singlePageDataFn, JSON.stringify(pageData));
+                        state.data.toc = toc;
+
+                        await run.write(join(run.output, dataPath), JSON.stringify(state));
+                        await run.write(join(run.output, htmlPath), page);
                     } catch (error) {
                         run.logger.error(error);
                     }

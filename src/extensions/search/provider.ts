@@ -83,7 +83,6 @@ export class LocalSearchProvider implements SearchProvider {
             api: this.apiLink,
             provider: 'local',
             link: this.pageLink(lang),
-            resources: this.resourcesLink(lang),
         };
     }
 

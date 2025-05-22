@@ -1,6 +1,10 @@
+import type {EntryTocItem, Toc} from '~/core/toc';
+import type {Meta} from '~/core/meta';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
+import {basename, dirname, join} from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
 import {
@@ -9,13 +13,16 @@ import {
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
-import {bounded, langFromPath} from '~/core/utils';
+import {bounded, normalizePath, setExt} from '~/core/utils';
+import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
 import {Extension as AlgoliaSearchExtension} from '~/extensions/algolia';
+import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, options} from './config';
@@ -26,21 +33,20 @@ import {Templating} from './features/templating';
 import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
-import {Redirects} from './features/redirects';
 import {Lint} from './features/linter';
 import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
-import {processEntry} from './entry';
 
 export type * from './types';
-export type {SearchProvider, SearchServiceConfig} from './services/search';
 
 export {Run, getHooks};
 
+export {getHooks as getEntryHooks} from './services/entry';
 export {getHooks as getSearchHooks} from './services/search';
+export {getHooks as getRedirectsHooks} from './services/redirects';
 
 const command = 'Build';
 
@@ -75,8 +81,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     readonly contributors = new Contributors();
 
     readonly singlepage = new SinglePage();
-
-    readonly redirects = new Redirects();
 
     readonly linter = new Lint();
 
@@ -116,13 +120,13 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.resources,
         this.contributors,
         this.singlepage,
-        this.redirects,
         this.linter,
         this.changelogs,
         this.search,
         this.md,
         this.html,
         this.legacy,
+        new GithubVcsConnector(),
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
@@ -178,8 +182,17 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await getBaseHooks(this).BeforeAnyRun.promise(this.run);
         await getHooks(this).BeforeRun.for(outputFormat).promise(this.run);
 
-        await this.prepareInput();
+        if (isMainThread) {
+            await this.prepareInput();
+        }
+
         await this.prepareRun();
+
+        if (!isMainThread) {
+            return;
+        }
+
+        await threads.setup();
 
         const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
         const tocs = await this.run.glob('**/toc.yaml', {
@@ -187,39 +200,51 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             ignore,
         });
 
+        // Regenerate toc entry names from md titles
+        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
+            await this.run.toc.walkEntries(
+                toc?.items as EntryTocItem[],
+                async (item: EntryTocItem) => {
+                    if (!item.name || item.name === '{#T}') {
+                        const entry = normalizePath(join(dirname(path), item.href));
+                        const titles = await this.run.markdown.titles(entry);
+                        item.name = titles['#'] || setExt(basename(entry), '');
+                    }
+
+                    return item;
+                },
+            );
+        });
+
         for (const toc of tocs) {
             await this.run.toc.load(toc);
         }
 
-        await pmap(
-            this.run.toc.entries,
+        await pmap(this.run.toc.tocs, async ([path]) => {
+            const toc = await this.run.toc.dump(path);
+
+            await this.run.write(join(this.run.output, toc.path), toc.toString());
+        });
+
+        const entries = this.run.toc.entries;
+        await pmap(entries,
             async (entry, position) => {
                 try {
                     this.run.logger.proc(entry);
 
-                    // Add generator meta tag with versions
-                    this.run.meta.add(entry, {
-                        metadata: {
-                            generator: `Diplodoc Platform v${VERSION}`,
-                        },
-                    });
-
-                    const info = await this.process(entry);
-                    const tocDir = this.run.toc.dir(entry);
+                    const meta = this.run.meta.get(entry);
+                    const tocPath = this.run.toc.for(entry);
+                    const toc = await this.run.toc.load(tocPath);
+                    const info = await this.process(entry, entries, toc as Toc, meta);
 
                     await getHooks(this)
                         .Entry.for(outputFormat)
-                        .promise(entry, {...info, position}, tocDir);
-
-                    if (outputFormat === 'html') {
-                        const lang = langFromPath(entry, this.run.config);
-                        await this.run.search.add(entry, lang, info);
-                    }
+                        .promise(this.run, entry, {...info, position});
 
                     this.run.logger.info('Processing finished:', entry);
                 } catch (error) {
                     console.error(error);
-                    this.run.logger.error(error);
+                    this.run.logger.error(`${entry}: ${error}`);
                 }
             },
             {
@@ -238,8 +263,17 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @bounded
-    async process(entry: NormalizedPath): Promise<EntryInfo> {
-        return processEntry(this.run, entry);
+    @threads.threaded('build.process')
+    async process(file: NormalizedPath, entries: NormalizedPath[], toc: Toc, meta: Meta): Promise<EntryInfo> {
+        this.run.toc.setToc(toc.path, toc);
+        this.run.toc.setEntries(entries);
+        this.run.meta.set(file, meta);
+
+        const result = await this.run.entry.dump(file);
+
+        await this.run.write(join(this.run.output, result.path), result.toString());
+
+        return result.info;
     }
 
     private async prepareInput() {
@@ -260,10 +294,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.run.markdown.init();
         await this.run.vcs.init();
         await this.run.search.init();
+        await this.run.redirects.init();
     }
 
     private async releaseRun() {
         await this.run.search.release();
+        await this.run.redirects.release();
     }
 
     private async cleanup() {

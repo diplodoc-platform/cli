@@ -16,7 +16,11 @@ type DeepPartial<T> = {
 };
 
 type DeepFrozen<T> = {
-    readonly [P in keyof T]: T[P] extends {} ? DeepFrozen<T[P]> : T[P];
+    readonly [P in keyof T]: T[P] extends {}
+        ? T[P] extends AnyPath
+            ? T[P]
+            : DeepFrozen<T[P]>
+        : T[P];
 };
 
 type URIString = string & {

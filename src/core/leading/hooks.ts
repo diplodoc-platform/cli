@@ -1,3 +1,4 @@
+import type {VFile} from '~/core/utils';
 import type {LeadingPage, Plugin} from './types';
 
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
@@ -16,10 +17,7 @@ export function hooks(name: string) {
             ['leading', 'meta', 'path'],
             `${name}.Resolved`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[LeadingPage, NormalizedPath]>(
-            ['leading', 'path'],
-            `${name}.Dump`,
-        ),
+        Dump: new AsyncSeriesHook<[VFile<LeadingPage>]>(['vfile'], `${name}.Dump`),
     };
 }
 

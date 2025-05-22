@@ -1,6 +1,7 @@
-import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
+import type {VFile} from '~/core/utils';
+import {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
-import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
@@ -9,7 +10,7 @@ export function hooks(name: string) {
         /**
          * Called before item data processing (but after data interpolation)
          */
-        Item: new AsyncSeriesWaterfallHook<[RawTocItem, RelativePath]>(
+        Item: new AsyncSeriesWaterfallHook<[RawTocItem, NormalizedPath]>(
             ['TocItem', 'TocPath'],
             `${name}.Item`,
         ),
@@ -19,20 +20,24 @@ export function hooks(name: string) {
          */
         Includer: new HookMap(
             (type: string) =>
-                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, RelativePath]>(
+                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, NormalizedPath]>(
                     ['Toc', 'options', 'TocPath'],
                     `${name}.Includer(${type})`,
                 ),
         ),
-        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
+        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
+            ['Toc', 'TocPath'],
+            `${name}.Loaded`,
+        ),
+        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
             ['Toc', 'TocPath'],
             `${name}.Resolved`,
         ),
-        Included: new AsyncParallelHook<[Toc, RelativePath, IncludeInfo]>(
+        Included: new AsyncParallelHook<[Toc, NormalizedPath, IncludeInfo]>(
             ['Toc', 'TocPath', 'IncludeInfo'],
             `${name}.Included`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[Toc, NormalizedPath]>(['toc', 'path'], `${name}.Dump`),
+        Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
     };
 }
 

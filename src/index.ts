@@ -1,12 +1,16 @@
 import type {HookMeta} from '~/core/utils';
 
-import {MAIN_TIMER_ID} from '~/constants';
+import {isMainThread} from 'node:worker_threads';
+import * as threads from '~/commands/threads';
+
 import {Program, parse} from '~/commands';
 import {errorMessage, own} from '~/core/utils';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
 export * from '~/commands';
+
+const MAIN_TIMER_ID = 'Build time';
 
 export const run = async (argv: string[]) => {
     if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
@@ -18,6 +22,7 @@ export const run = async (argv: string[]) => {
     try {
         const args = parse(argv);
         const program = new Program();
+        await threads.init(program, argv);
         await program.init(args);
         await program.parse(argv);
     } catch (error: unknown) {
@@ -36,10 +41,12 @@ export const run = async (argv: string[]) => {
         }
     }
 
+    await threads.terminate(true);
+
     return exitCode;
 };
 
-if (require.main === module) {
+if (isMainThread && require.main === module) {
     (async () => {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);

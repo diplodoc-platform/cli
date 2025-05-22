@@ -12,7 +12,13 @@ import {NAME, USAGE, options} from './config';
 export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
 
 export {parse} from './parser';
-export {Build, Run as BuildRun, getHooks as getBuildHooks, getSearchHooks} from './build';
+export {
+    Build,
+    Run as BuildRun,
+    getHooks as getBuildHooks,
+    getSearchHooks,
+    getEntryHooks,
+} from './build';
 export {Publish, Run as PublishRun, getHooks as getPublishHooks} from './publish';
 export {Translate, getHooks as getTranslateHooks} from './translate';
 
@@ -44,6 +50,7 @@ export class Program extends BaseProgram {
         options.extensions,
         options.quiet,
         options.strict,
+        options.jobs,
     ];
 
     protected readonly modules = [this.build, this.publish, this.translate];

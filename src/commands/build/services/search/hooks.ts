@@ -1,13 +1,15 @@
+import type {Template} from '~/core/template';
 import type {SearchService} from '.';
 import type {SearchProvider} from './types';
 import type {SearchServiceConfig} from './SearchService';
 
-import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
 export function hooks<TConfig extends SearchServiceConfig['search']>(name: string) {
     return {
+        Page: new AsyncSeriesHook<[Template]>(['template'], `${name}.Page`),
         Provider: new HookMap(
             (type: string) =>
                 new AsyncSeriesWaterfallHook<[SearchProvider, TConfig]>(
