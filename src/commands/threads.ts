@@ -127,7 +127,7 @@ function pack(thread: ThreadAPI, args: unknown[]) {
     mem.idx = mem.idx || 1;
 
     return args.map((arg) => {
-        if (arg && typeof arg === 'object' && mem.has(arg)) {
+        if (arg && typeof arg === 'object') {
             if (mem.has(arg)) {
                 return '#@&__' + mem.get(arg);
             } else {
