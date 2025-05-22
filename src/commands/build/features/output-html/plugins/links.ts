@@ -41,9 +41,17 @@ export default ((md, opts) => {
                     pathname ? join(dirname(state.env.path || path), pathname) : path,
                 );
 
-                if (!existsInProject(file) || !entries.includes(file)) {
-                    link.attrSet('YFM003', file);
+                if (!existsInProject(file)) {
+                    log.error(
+                        `Link is unreachable: ${bold(file)} in ${bold(path)}. File does not exists in project.`,
+                    );
+                    return;
                 }
+
+                if (!entries.includes(file)) {
+                    log.warn(
+                        `Link is unreachable: ${bold(file)} in ${bold(path)}. All files must be listed in toc files.`,
+                    );
             }
 
             link.attrSet(
