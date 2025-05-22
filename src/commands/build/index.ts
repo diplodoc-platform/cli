@@ -200,6 +200,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             ignore,
         });
 
+        // Regenerate toc entry names from md titles
         getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
             await this.run.toc.walkEntries(
                 toc?.items as EntryTocItem[],
@@ -225,8 +226,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             await this.run.write(join(this.run.output, toc.path), toc.toString());
         });
 
-        await pmap(
-            this.run.toc.entries,
+        const entries = this.run.toc.entries;
+        await pmap(entries,
             async (entry, position) => {
                 try {
                     this.run.logger.proc(entry);
@@ -234,7 +235,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
                     const meta = this.run.meta.get(entry);
                     const tocPath = this.run.toc.for(entry);
                     const toc = await this.run.toc.load(tocPath);
-                    const info = await this.process(entry, toc as Toc, meta);
+                    const info = await this.process(entry, entries, toc as Toc, meta);
 
                     await getHooks(this)
                         .Entry.for(outputFormat)
@@ -263,8 +264,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @bounded
     @threads.threaded('build.process')
-    async process(file: NormalizedPath, toc: Toc, meta: Meta): Promise<EntryInfo> {
-        this.run.toc.set(toc.path, toc);
+    async process(file: NormalizedPath, entries: NormalizedPath[], toc: Toc, meta: Meta): Promise<EntryInfo> {
+        this.run.toc.setToc(toc.path, toc);
+        this.run.toc.setEntries(entries);
         this.run.meta.set(file, meta);
 
         const result = await this.run.entry.dump(file);
