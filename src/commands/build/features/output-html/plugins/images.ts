@@ -6,6 +6,9 @@ import {bold} from 'chalk';
 import {optimize} from 'svgo';
 
 import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
+import { statSync } from 'node:fs';
+
+const MAX_SVG_SIZE = 1024 * 1024;
 
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;
@@ -59,7 +62,6 @@ export default ((md, opts) => {
                 }
 
                 const imgSrc = image.attrGet('src') || '';
-                const shouldInlineSvg = opts.inlineSvg !== false;
 
                 if (isExternalHref(imgSrc)) {
                     return;
@@ -67,6 +69,8 @@ export default ((md, opts) => {
 
                 const root = state.env.path || path;
                 const file = normalizePath(join(dirname(root), imgSrc));
+                const fileStats = statSync(file)
+                const shouldInlineSvg = opts.inlineSvg !== false && fileStats.size < MAX_SVG_SIZE;
 
                 if (!assets[file]) {
                     log.error(`Asset not found: ${bold(file)} in ${bold(root)}`);
