@@ -82,16 +82,17 @@ export class MetaService {
             // check repeat right
             if (meta['restricted-access'].length) {
                 for (const access of meta['restricted-access']) {
-                    record['restricted-access'] = record['restricted-access']
-                        .filter((recordAccess: string[]) => 
-                            recordAccess.sort().join(',') !== access.slice().sort().join(','));
+                    record['restricted-access'] = record['restricted-access'].filter(
+                        (recordAccess: string[]) =>
+                            recordAccess.sort().join(',') !== access.slice().sort().join(','),
+                    );
                 }
             }
             if (record['restricted-access'].length > 0) {
                 meta['restricted-access'] = [
                     ...meta['restricted-access'],
                     ...record['restricted-access'],
-                ]
+                ];
             }
         }
 
