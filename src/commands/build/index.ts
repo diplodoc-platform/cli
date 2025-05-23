@@ -148,9 +148,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
-            const toc = defined('interfaceToc', args, config);
-            const search = defined('interfaceSearch', args, config);
-            const feedback = defined('interfaceFeedback', args, config);
+            const toc = defined('interfaceToc', config, args);
+            const search = defined('interfaceSearch', config, args);
+            const feedback = defined('interfaceFeedback', config, args);
 
             if (valuable(lang)) {
                 if (!langs.length) {
