@@ -23,6 +23,8 @@ export async function compareDirectories(outputPath: string, ignoreFileContent =
         })
     ).sort();
 
+    const temp = JSON.stringify(filesFromOutput, null, 2);
+    console.log('TEMP', temp);
     expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {

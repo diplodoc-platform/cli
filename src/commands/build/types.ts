@@ -39,7 +39,7 @@ type BaseConfig = {
     supportGithubAnchors?: boolean;
 };
 
-type DocsViewerConfig = Partial<{
+type ViewerConfig = Partial<{
     interface: Record<string, boolean>;
 }>;
 
@@ -80,7 +80,7 @@ export type BuildConfig = Config<
         SearchConfig &
         LegacyConfig &
         CustomResourcesConfig &
-        DocsViewerConfig
+        ViewerConfig
 >;
 
 export type EntryInfo = {
