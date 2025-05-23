@@ -108,6 +108,30 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const interfaceToc = option({
+    flags: '--interface-toc',
+    desc: `
+        Toc will be removed from html output.
+    `,
+    parser: (value) => Boolean(value),
+});
+
+const interfaceSearch = option({
+    flags: '--interface-search',
+    desc: `
+        Search will be removed from html output.
+    `,
+    parser: (value) => Boolean(value),
+});
+
+const interfaceFeedback = option({
+    flags: '--interface-feedback',
+    desc: `
+        Feedback (likes, dislikes) will be removed from html output.
+    `,
+    parser: (value) => Boolean(value),
+});
+
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -125,4 +149,7 @@ export const options = {
     ignore,
     ignoreStage,
     addSystemMeta,
+    interfaceToc,
+    interfaceSearch,
+    interfaceFeedback,
 };

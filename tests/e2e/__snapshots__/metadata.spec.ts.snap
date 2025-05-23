@@ -49,7 +49,7 @@ exports[`Allow load custom resources > md2html with metadata > index.html 1`] = 
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"]}
+                    {"data":{"data":{"title":"Documentation","description":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation","leading":true},"router":{"pathname":"index","depth":1},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -97,7 +97,7 @@ exports[`Allow load custom resources > md2html with metadata > page.html 1`] = `
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in page"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in page"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"page","depth":1},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
@@ -145,7 +145,7 @@ exports[`Allow load custom resources > md2html with metadata > project/config.ht
             <body class="g-root g-root_theme_light">
                 <div id="root"></div>
                 <script type="application/json" id="diplodoc-state">
-                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"]}
+                    {"data":{"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}]},"headings":[],"title":"","html":"&lt;p&gt;Lorem&lt;/p&gt;/n","leading":false},"router":{"pathname":"project/config","depth":2},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
                 </script>
                 <script type="application/javascript">
                    function unescapeJsonFromHtml(escaped) {
