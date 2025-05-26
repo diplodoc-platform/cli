@@ -98,7 +98,7 @@
     "@diplodoc/search-extension": "^1.2.2",
     "@diplodoc/transform": "^4.57.7",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@diplodoc/yfmlint": "^1.2.3",
+    "@diplodoc/yfmlint": "^1.2.5",
     "@octokit/core": "4.2.4",
     "@types/async": "^3.2.15",
     "@types/chalk": "2.2.0",
