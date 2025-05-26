@@ -211,10 +211,6 @@ export class TocService {
         return vfile;
     }
 
-    setEntries(entries: NormalizedPath[]) {
-        this._entries = new Set(entries);
-    }
-
     /**
      * Visits items which will be project entries. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
@@ -277,6 +273,12 @@ export class TocService {
     setToc(path: NormalizedPath, toc: Toc) {
         this.processed[path] = true;
         this.cache.set(path, toc);
+    }
+
+    setEntries(entries: NormalizedPath[]) {
+        if (!this._entries.size) {
+            this._entries = new Set(entries);
+        }
     }
 
     /**
