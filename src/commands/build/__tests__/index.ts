@@ -1,5 +1,6 @@
 import type {BuildConfig, BuildRawConfig} from '..';
 import type {Mock, MockInstance} from 'vitest';
+import {LogLevels} from '@diplodoc/yfmlint';
 
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
@@ -10,6 +11,7 @@ import {parse} from '~/commands';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
+import {merge} from 'lodash';
 
 export const handler = originalHandler as Mock;
 
@@ -161,10 +163,7 @@ export function testConfig(name: string, args: string, config: any, result?: any
                 return withConfigUtils(null, {});
             }
 
-            return withConfigUtils(path, {
-                ...defaults,
-                ...config,
-            });
+            return withConfigUtils(path, merge({}, defaults, config));
         });
 
         handler.mockImplementation((run: Run) => {
