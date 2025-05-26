@@ -1,0 +1,39 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Yfm docs-viewer: interface props > Interface props set - toc, search, feedback, __DATA__ object should contain props in viewerInterface prop > .yfm 1`] = `
+"langs: ['en','ru']
+
+interface:
+    toc: false
+    feedback: false
+    search: false
+"
+`;
+
+exports[`Yfm docs-viewer: interface props > Interface props set - toc, search, feedback, __DATA__ object should contain props in viewerInterface prop > filelist 1`] = `
+"[
+  ".yfm",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Yfm docs-viewer: interface props > Interface props set - toc, search, feedback, __DATA__ object should contain props in viewerInterface prop > index.md 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Hello World!
+
+some text inside"
+`;
+
+exports[`Yfm docs-viewer: interface props > Interface props set - toc, search, feedback, __DATA__ object should contain props in viewerInterface prop > toc.yaml 1`] = `
+"title: Test123
+href: index.md
+items:
+  - name: Главная
+    href: index.md
+"
+`;

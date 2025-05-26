@@ -63,6 +63,9 @@ const command = 'Build';
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
             lint: {enabled: true, config: {}},
+            interfaceToc: true,
+            interfaceSearch: true,
+            interfaceFeedback: true,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
@@ -109,6 +112,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.ignore,
         options.ignoreStage,
         options.config(YFM_CONFIG_FILENAME),
+        options.interfaceToc,
+        options.interfaceSearch,
+        options.interfaceFeedback,
     ];
 
     readonly modules = [
@@ -142,6 +148,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             const ignoreStage = defined('ignoreStage', args, config) || [];
             const langs = defined('langs', args, config) || [];
             const lang = defined('lang', config);
+            const toc = defined('interfaceToc', config, args);
+            const search = defined('interfaceSearch', config, args);
+            const feedback = defined('interfaceFeedback', config, args);
+            const yfmInterface = defined('interface', config) || {};
 
             if (valuable(lang)) {
                 if (!langs.length) {
@@ -161,6 +171,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             config.ignoreStage = [].concat(ignoreStage);
             config.langs = langs;
             config.lang = lang || langs[0];
+            config.interface = {
+                toc,
+                search,
+                feedback,
+                ...yfmInterface,
+            };
 
             return config;
         });
