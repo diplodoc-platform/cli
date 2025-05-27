@@ -25,6 +25,7 @@ export type LoaderContext = LiquidContext & {
         removeHiddenItems: boolean;
     };
     toc: TocService;
+    isTranslateMode?: boolean;
 };
 
 export enum IncludeMode {
@@ -143,10 +144,32 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         let when = true;
 
         if (conditions) {
-            when =
-                typeof item.when === 'string'
-                    ? Boolean(evaluate(item.when, this.vars))
-                    : item.when !== false;
+            if (typeof item.when === 'string') {
+                // only no quotes are possible vars
+                const withoutQuotes = item.when.replace(/['"][^'"]*['"]/g, '');
+                
+                // get all possible vars
+                const identifiers = withoutQuotes.match(/[\w-|]+[?]?/g) || [];
+                
+                // exclude literals and operators
+                const variables = identifiers.filter(id => 
+                    !['and', 'or', 'contains', 'true', 'false'].includes(id.toLowerCase()) &&
+                    !/^\d+$/.test(id) // no numbers
+                );
+    
+                // check if variable in vars config
+                const hasAllVars = variables.every(varName => varName in this.vars);
+    
+                // if no vars then return item, but only for translate command
+                if (!hasAllVars && this.isTranslateMode) {
+                    delete item.when;
+                    return item;
+                }
+    
+                when = Boolean(evaluate(item.when, this.vars));
+            } else {
+                when = item.when !== false;
+            }
             delete item.when;
         }
 

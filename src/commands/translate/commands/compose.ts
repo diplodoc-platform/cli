@@ -40,7 +40,7 @@ export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     useExperimentalParser?: boolean;
 };
 
-@withConfigScope('translate.compose', {strict: true})
+@withConfigScope('compose', {strict: true})
 @withConfigDefaults(() => ({
     useSource: false,
     useExperimentalParser: false,

@@ -205,6 +205,7 @@ export function configDefaults() {
         },
         removeHiddenTocItems: false,
         outputFormat: 'md' as 'md' | 'html',
+        isTranslateMode: true,
         // TODO: delete after MarkdownService redundant types delete
         allowHtml: true,
         sanitizeHtml: false,
