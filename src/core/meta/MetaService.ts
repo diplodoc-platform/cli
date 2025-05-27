@@ -76,36 +76,26 @@ export class MetaService {
         const file = normalizePath(path);
 
         const meta = this.meta.get(file) || this.initialMeta();
-        const needMergeAccess = meta['restricted-access'] && record['restricted-access'];
 
-        if (meta['restricted-access'] && record['restricted-access']) {
-            // check repeat right
-            if (meta['restricted-access'].length) {
-                for (const access of meta['restricted-access']) {
-                    record['restricted-access'] = record['restricted-access'].filter(
-                        (recordAccess: string[]) =>
-                            recordAccess.sort().join(',') !== access.slice().sort().join(','),
-                    );
-                }
+        // check repeat right
+        if (meta['restricted-access']?.length && record['restricted-access']) {
+            for (const access of meta['restricted-access']) {
+                record['restricted-access'] = record['restricted-access'].filter(
+                    (recordAccess: string[]) =>
+                        recordAccess.sort().join(',') !== access.slice().sort().join(','),
+                );
             }
-            if (record['restricted-access'].length > 0) {
-                meta['restricted-access'] = [
-                    ...meta['restricted-access'],
-                    ...record['restricted-access'],
-                ];
-            }
+        }
+        if (record['restricted-access']?.length > 0) {
+            meta['restricted-access'] = [
+                ...(meta['restricted-access'] || []),
+                ...record['restricted-access'],
+            ];
         }
 
         const result = Object.assign(
             meta,
-            omit(record, [
-                'script',
-                'style',
-                'csp',
-                'metadata',
-                '__system',
-                needMergeAccess ? 'restricted-access' : '',
-            ]),
+            omit(record, ['script', 'style', 'csp', 'metadata', '__system', 'restricted-access']),
         );
 
         this.meta.set(file, result);

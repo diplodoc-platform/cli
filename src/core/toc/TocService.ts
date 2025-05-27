@@ -211,13 +211,45 @@ export class TocService {
             : await this.walkItemsBFS(items, actor, parentContext);
     }
 
+    set(path: NormalizedPath, toc: Toc) {
+        this.cache.set(path, toc);
+    }
+
+    /**
+     * Resolves toc path and data for any page path.
+     * Expects what all paths are already loaded in service.
+     */
+    for(path: RelativePath): NormalizedPath {
+        path = normalizePath(path);
+
+        const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
+
+        if (this.cache.has(tocPath as NormalizedPath)) {
+            return tocPath;
+        }
+
+        const nextPath = dirname(path);
+
+        if (path === nextPath) {
+            throw new Error('Error while finding toc dir.');
+        }
+
+        return this.for(nextPath);
+    }
+
+    dir(path: RelativePath): NormalizedPath {
+        const tocPath = this.for(path);
+
+        return normalizePath(dirname(tocPath));
+    }
+
     /**
      * Visits all passed items. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
      * Returns actor results.
      * BFS
      */
-    async walkItemsBFS<T extends WithItems<T>>(
+    private async walkItemsBFS<T extends WithItems<T>>(
         items: T[] | undefined,
         actor: (
             item: T,
@@ -269,7 +301,7 @@ export class TocService {
      * Returns actor results.
      * DFS
      */
-    async walkItemsDFS<T extends WithItems<T>>(
+    private async walkItemsDFS<T extends WithItems<T>>(
         items: T[] | undefined,
         actor: (
             item: T,
@@ -308,38 +340,6 @@ export class TocService {
         }
 
         return results;
-    }
-
-    set(path: NormalizedPath, toc: Toc) {
-        this.cache.set(path, toc);
-    }
-
-    /**
-     * Resolves toc path and data for any page path.
-     * Expects what all paths are already loaded in service.
-     */
-    for(path: RelativePath): NormalizedPath {
-        path = normalizePath(path);
-
-        const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
-
-        if (this.cache.has(tocPath as NormalizedPath)) {
-            return tocPath;
-        }
-
-        const nextPath = dirname(path);
-
-        if (path === nextPath) {
-            throw new Error('Error while finding toc dir.');
-        }
-
-        return this.for(nextPath);
-    }
-
-    dir(path: RelativePath): NormalizedPath {
-        const tocPath = this.for(path);
-
-        return normalizePath(dirname(tocPath));
     }
 
     private shouldSkip(toc: RawToc) {
