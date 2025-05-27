@@ -87,10 +87,9 @@ export class LeadingService {
         try {
             const raw = await this.run.read(join(this.run.input, file));
             const vars = this.run.vars.for(path);
-            const sign = this.run.vars.hash(path);
             const yaml = load(raw || '{}') as RawLeadingPage;
 
-            const context = this.loaderContext(file, raw, vars, sign);
+            const context = this.loaderContext(file, raw, vars);
             const leading = await loader.call(context, yaml);
 
             const meta = this.pathToMeta.get(file);
@@ -145,16 +144,10 @@ export class LeadingService {
         return [...this.pathToAssets.get(file)];
     }
 
-    private loaderContext(
-        path: NormalizedPath,
-        _raw: string,
-        vars: Hash,
-        sign: string,
-    ): LoaderContext {
+    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
         return {
             path,
             vars,
-            sign,
             lang: langFromPath(path, this.config),
             readFile: (path: RelativePath) => {
                 return this.run.read(join(this.run.input, path));

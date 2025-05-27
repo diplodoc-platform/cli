@@ -26,13 +26,9 @@ export function resolveDependencies(this: LoaderContext, content: string) {
         const include = parseLocalUrl<IncludeInfo>(link);
 
         if (include) {
-            include.signpath = rebasePath(
-                this.path,
-                signlink(include.path, this.sign) as RelativePath,
-            );
             include.path = rebasePath(this.path, include.path as RelativePath);
             include.link = link;
-            include.signlink = signlink(link, this.sign);
+            include.match = content.slice(match.index, INCLUDE_CONTENTS.lastIndex);
             include.location = [match.index, INCLUDE_CONTENTS.lastIndex];
 
             includes.push(include);
@@ -42,15 +38,4 @@ export function resolveDependencies(this: LoaderContext, content: string) {
     this.api.deps.set(filterRanges(exclude, includes));
 
     return content;
-}
-
-function signlink(link: string, sign: string) {
-    if (!sign) {
-        return link;
-    }
-
-    const [path, hash] = link.split('#');
-    const [_, name, ext] = path.match(/(.*)\.(.*?)$/) as string[];
-
-    return `${name}-${sign}.${ext}${hash ? '#' + hash : ''}`;
 }

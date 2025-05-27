@@ -1,5 +1,5 @@
 import type {Collect} from './types';
-import type {CollectStage, LoaderContext} from './loader';
+import type {LoaderContext} from './loader';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -28,13 +28,12 @@ function loaderContext(
         vars = {},
         options = {},
         settings = {},
-        collects = {before: [], after: []} as Record<CollectStage, Collect[]>,
+        collects = [] as Collect[],
     }: DeepPartial<LoaderContext> = {},
 ) {
     return {
         path: 'file.md' as NormalizedPath,
         vars,
-        sign: '',
         logger: new Logger(),
         emitFile: vi.fn(),
         readFile: vi.fn(),
@@ -47,7 +46,7 @@ function loaderContext(
             comments: bucket(),
             sourcemap: bucket(),
         },
-        collects: collects as Record<CollectStage, Collect[]>,
+        collects: collects as Collect[],
         sourcemap: new SourceMap(raw),
         settings,
         options: {
@@ -238,10 +237,9 @@ describe('Markdown loader', () => {
             expect(context.api.deps.set).toBeCalledWith([
                 {
                     path: 'include.md',
-                    signpath: 'include.md',
                     link: './include.md',
-                    signlink: './include.md',
                     location: [12, 42],
+                    match: '{% include [](./include.md) %}',
                     hash: null,
                     search: null,
                 },
@@ -266,28 +264,25 @@ describe('Markdown loader', () => {
             expect(context.api.deps.set).toBeCalledWith([
                 {
                     path: 'include1.md',
-                    signpath: 'include1.md',
                     link: './include1.md',
-                    signlink: './include1.md',
                     location: [12, 43],
+                    match: '{% include [](./include1.md) %}',
                     hash: null,
                     search: null,
                 },
                 {
                     path: 'include2.md',
-                    signpath: 'include2.md',
                     link: './include2.md',
-                    signlink: './include2.md',
                     location: [45, 99],
+                    match: '{% include [some text (with) braces](./include2.md) %}',
                     hash: null,
                     search: null,
                 },
                 {
                     path: 'deep/include.md',
-                    signpath: 'deep/include.md',
                     link: './deep/include.md',
-                    signlink: './deep/include.md',
                     location: [105, 140],
+                    match: '{% include [](./deep/include.md) %}',
                     hash: null,
                     search: null,
                 },
@@ -312,19 +307,17 @@ describe('Markdown loader', () => {
             expect(context.api.deps.set).toBeCalledWith([
                 {
                     path: 'include1.md',
-                    signpath: 'include1.md',
                     link: './include1.md',
-                    signlink: './include1.md',
                     location: [12, 43],
+                    match: '{% include [](./include1.md) %}',
                     hash: null,
                     search: null,
                 },
                 {
                     path: 'include2.md',
-                    signpath: 'include2.md',
                     link: './include2.md',
-                    signlink: './include2.md',
                     location: [45, 99],
+                    match: '{% include [some text (with) braces](./include2.md) %}',
                     hash: null,
                     search: null,
                 },
@@ -573,28 +566,18 @@ describe('Markdown loader', () => {
                 Text
             `;
             const context = loaderContext(content, {
-                collects: {
-                    before: [
-                        async function (input: string) {
-                            return input + '\nPlugin 1';
-                        } as Collect,
-                        async function (input: string) {
-                            return input + '\nPlugin 2';
-                        } as Collect,
-                    ],
-                    after: [
-                        async function (input: string) {
-                            return input + '\nPlugin 3';
-                        } as Collect,
-                        async function (input: string) {
-                            return input + '\nPlugin 4';
-                        } as Collect,
-                    ],
-                },
+                collects: [
+                    async function (input: string) {
+                        return input + '\nPlugin 1';
+                    } as Collect,
+                    async function (input: string) {
+                        return input + '\nPlugin 2';
+                    } as Collect,
+                ],
             });
 
             const result = await loader.call(context, content);
-            expect(result).toEqual('Text\nPlugin 1\nPlugin 2\nPlugin 3\nPlugin 4');
+            expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
         });
     });
 });
