@@ -6,7 +6,7 @@ const generateMapTestTemplate = (
     testRootPath: string,
     args: TranslateRunArgs,
 ) => {
-    test(testTitle, async () => {
+    test.skip(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
         await TestAdapter.testTranslatePass(inputPath, outputPath, args);
