@@ -1,5 +1,5 @@
 import type {LiquidContext} from '@diplodoc/liquid';
-import type {TocService} from './TocService';
+import type {TocService, WalkStepContext} from './TocService';
 import type {IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
 
 import {ok} from 'node:assert';
@@ -301,7 +301,25 @@ async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  * Fixes item href extensions
  */
 async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    await this.toc.walkItems([toc], (item: RawTocItem | RawToc) => {
+    await this.toc.walkItems([toc], (item: RawTocItem | RawToc, context: WalkStepContext) => {
+        if (own<string>(item, 'restricted-access')) {
+            // check repeat right
+            let itemAccess = Array.isArray(item['restricted-access'])
+                ? item['restricted-access']
+                : [item['restricted-access']];
+            const contextAccess: string[][] = (context['restricted-access'] as string[][]) ?? [];
+            if (contextAccess.length) {
+                for (const access of contextAccess) {
+                    if (itemAccess.sort().join(',') === access.sort().join(',')) {
+                        itemAccess = [];
+                    }
+                }
+            }
+            if (itemAccess.length > 0) {
+                context['restricted-access'] = [...contextAccess, itemAccess];
+            }
+        }
+
         if (own<string>(item, 'href') && !isExternalHref(item.href)) {
             if (!item.href) {
                 delete item['href'];
@@ -316,6 +334,12 @@ async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc>
 
             if (!item.href.endsWith('.md') && !item.href.endsWith('.yaml')) {
                 item.href = `${item.href}.md`;
+            }
+
+            if (context['restricted-access']?.length) {
+                this.toc.meta.add(item.href, {
+                    'restricted-access': context['restricted-access'],
+                });
             }
         }
 
