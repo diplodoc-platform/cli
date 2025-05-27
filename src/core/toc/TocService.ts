@@ -38,6 +38,7 @@ export type TocServiceConfig = {
         };
     };
     removeHiddenTocItems: boolean;
+    isTranslateMode?: boolean;
 };
 
 type WalkStepResult<I> = I | I[] | null | undefined;
@@ -328,6 +329,7 @@ export class TocService {
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,
             },
+            isTranslateMode: this.config.isTranslateMode
         };
     }
 }

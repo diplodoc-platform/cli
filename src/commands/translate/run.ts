@@ -7,10 +7,11 @@ import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
 import {TocService} from '~/core/toc';
 import {MarkdownService} from '~/core/markdown';
-import {join} from 'node:path';
+import {basename, dirname, join} from 'node:path';
 import {resolveFiles} from './utils';
 import {isMainThread} from 'node:worker_threads';
 import {ConfigDefaults} from './utils/config';
+import { dump } from 'js-yaml';
 
 type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
 
@@ -20,6 +21,8 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly toc: TocService;
     readonly markdown: MarkdownService;
     readonly tocYamlList: Set<string>;
+    private tempTocPath: AbsolutePath;
+
 
     constructor(config: Config<CommonRunConfig>) {
         super(config);
@@ -27,9 +30,11 @@ export class Run extends BaseRun<CommonRunConfig> {
         this.scopes.set('input', config.input);
         this.scopes.set('output', config.output);
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
+        // const outputPath = join(config.output, config.source.language) as AbsolutePath;
         this.scopes.set('source', sourcePath);
+        this.tempTocPath = join(config.input);
 
-        this.vars = new VarsService(this, false);
+        this.vars = new VarsService(this, {usePresets: false});
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
         this.markdown = new MarkdownService(this);
@@ -46,8 +51,16 @@ export class Run extends BaseRun<CommonRunConfig> {
             });
 
             for (const toc of tocs) {
-                await this.toc.load(toc);
-                this.tocYamlList.add(toc);
+                const loadedToc = await this.toc.load(toc);
+
+                if (!loadedToc) {
+                    continue;
+                }
+                const tocDirname = dirname(toc);
+                const tmpTocPath = join(this.tempTocPath, tocDirname, 'for_translation_' + basename(toc));
+                const {path: _path, ...restToc} = loadedToc
+                await this.fs.writeFile(tmpTocPath, dump(restToc));
+                this.tocYamlList.add(join(dirname(toc), 'for_translation_' + basename(toc)));
             }
         }
     }
@@ -69,11 +82,13 @@ export class Run extends BaseRun<CommonRunConfig> {
                     }
                 }
             } catch (error) {
-                this.logger.warn(error);
+                // this.logger.warn(error);
                 allFiles.delete(entry);
             }
         }
 
+        // TODO: Temp disable toc filter
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
 
         return resolveFiles(
@@ -85,5 +100,18 @@ export class Run extends BaseRun<CommonRunConfig> {
             ['.md', '.yaml'],
             allFilesArray,
         );
+    }
+
+    async cleanup() {
+        if (isMainThread) {
+            try {
+                for (const toc of this.tocYamlList) {
+                    const tmpTocPath = join(this.tempTocPath, toc);
+                    await this.fs.rm(tmpTocPath, {force: true});
+                }
+            } catch (error) {
+                this.logger.error('Failed to cleanup temporary files', error);
+            }
+        }
     }
 }

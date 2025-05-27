@@ -61,7 +61,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     schema?: string;
 } & ConfigDefaults;
 
-@withConfigScope('translate.extract', {strict: true})
+@withConfigScope('extract', {strict: true})
 @withConfigDefaults(() => ({
     useExperimentalParser: false,
     ...configDefaults(),
@@ -185,6 +185,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 }),
             );
         }
+
+        await this.run.cleanup();
     }
 }
 
@@ -253,12 +255,14 @@ function pipeline(params: PipelineParameters) {
             throw new EmptyTokensError();
         }
 
+
+
         const xlf = new FileLoader(inputPath).set(xliffResult);
         const skl = new FileLoader(inputPath).set(skeleton);
 
         await Promise.all([
-            xlf.dump((path) => output(path) + '.xliff'),
-            skl.dump((path) => output(path) + '.skl'),
+            xlf.dump((path) => output(path.replace('for_translation_', '')) + '.xliff'),
+            skl.dump((path) => output(path.replace('for_translation_', '')) + '.skl'),
         ]);
     };
 }
