@@ -29,7 +29,7 @@ export class Run extends BaseRun<CommonRunConfig> {
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
         this.scopes.set('source', sourcePath);
 
-        this.vars = new VarsService(this, false);
+        this.vars = new VarsService(this, {usePresets: false});
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
         this.markdown = new MarkdownService(this);
@@ -52,29 +52,30 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
+    // TODO: temp disable toc filtration on translate
     async getFiles() {
-        const allFiles = new Set<string>();
+        // const allFiles = new Set<string>();
 
-        for (const entry of this.toc.entries) {
-            allFiles.add(entry);
-        }
+        // for (const entry of this.toc.entries) {
+        //     allFiles.add(entry);
+        // }
 
-        for (const entry of this.toc.entries) {
-            try {
-                const deps = await this.markdown.deps(entry as RelativePath);
+        // for (const entry of this.toc.entries) {
+        //     try {
+        //         const deps = await this.markdown.deps(entry as RelativePath);
 
-                for (const dep of deps) {
-                    if (dep.path.endsWith('.md')) {
-                        allFiles.add(dep.path);
-                    }
-                }
-            } catch (error) {
-                this.logger.warn(error);
-                allFiles.delete(entry);
-            }
-        }
+        //         for (const dep of deps) {
+        //             if (dep.path.endsWith('.md')) {
+        //                 allFiles.add(dep.path);
+        //             }
+        //         }
+        //     } catch (error) {
+        //         this.logger.warn(error);
+        //         allFiles.delete(entry);
+        //     }
+        // }
 
-        const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
+        // const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
 
         return resolveFiles(
             this.config.input,
@@ -83,7 +84,7 @@ export class Run extends BaseRun<CommonRunConfig> {
             this.config.exclude,
             this.config.source.language,
             ['.md', '.yaml'],
-            allFilesArray,
+            [],
         );
     }
 }
