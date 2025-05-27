@@ -13,7 +13,6 @@ export type LoaderContext = LiquidContext & {
     path: NormalizedPath;
     lang: string;
     vars: Hash;
-    sign: string;
     plugins: Plugin[];
     emitFile(path: NormalizedPath, content: string): Promise<void>;
     readFile(path: NormalizedPath): Promise<string>;

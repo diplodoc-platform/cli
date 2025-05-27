@@ -2,21 +2,21 @@
 
 exports[`Include toc > Nested toc inclusions with mixed including modes > filelist 1`] = `
 "[
-  "product1/_includes/inc-e3b0c44298fc.md",
+  "product1/_includes/inc-bd8944f73bdd.md",
   "product1/article1.md",
   "product1/toc.yaml",
-  "product2/overlay1/_includes/inc-e3b0c44298fc.md",
+  "product2/overlay1/_includes/inc-666e729492f5.md",
   "product2/overlay1/article1.md",
-  "product2/overlay2/_includes/inc-e3b0c44298fc.md",
+  "product2/overlay2/_includes/inc-666e729492f5.md",
   "product2/overlay2/article1.md",
-  "product2/overlay3/_includes/inc-e3b0c44298fc.md",
+  "product2/overlay3/_includes/inc-666e729492f5.md",
   "product2/overlay3/article1.md",
   "product2/p2.md",
   "product2/toc.yaml"
 ]"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes > product1/_includes/inc-e3b0c44298fc.md 1`] = `"This is the core include."`;
+exports[`Include toc > Nested toc inclusions with mixed including modes > product1/_includes/inc-bd8944f73bdd.md 1`] = `"This is the core include."`;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes > product1/article1.md 1`] = `
 "---
@@ -27,7 +27,7 @@ sourcePath: product1/core/article1.md
 ---
 This is the core content of Article 1.
 
-{% include [x](_includes/inc-e3b0c44298fc.md) %}
+{% include [x](_includes/inc-bd8944f73bdd.md) %}
 "
 `;
 
@@ -40,7 +40,7 @@ path: product1/toc.yaml
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay1/_includes/inc-e3b0c44298fc.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay1/_includes/inc-666e729492f5.md 1`] = `
 "This is the core include.
 "
 `;
@@ -54,11 +54,11 @@ sourcePath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
 
-{% include [x](_includes/inc-e3b0c44298fc.md) %}
+{% include [x](_includes/inc-666e729492f5.md) %}
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay2/_includes/inc-e3b0c44298fc.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay2/_includes/inc-666e729492f5.md 1`] = `
 "This is the core include.
 "
 `;
@@ -72,11 +72,11 @@ sourcePath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
-{% include [x](_includes/inc-e3b0c44298fc.md) %}
+{% include [x](_includes/inc-666e729492f5.md) %}
 "
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay3/_includes/inc-e3b0c44298fc.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes > product2/overlay3/_includes/inc-666e729492f5.md 1`] = `
 "This is the core include.
 "
 `;
@@ -90,7 +90,7 @@ sourcePath: product2/core/article1.md
 ---
 This is the core content of Article 1.
 
-{% include [x](_includes/inc-e3b0c44298fc.md) %}
+{% include [x](_includes/inc-666e729492f5.md) %}
 "
 `;
 

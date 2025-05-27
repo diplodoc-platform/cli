@@ -20,11 +20,6 @@ export enum TransformMode {
     Md = 'md',
 }
 
-export enum CollectStage {
-    Before = 'before',
-    after = 'after',
-}
-
 export class LoaderAPI {
     comments: Bucket<Location[]>;
     deps: Bucket<IncludeInfo[]>;
@@ -46,11 +41,10 @@ export class LoaderAPI {
 export type LoaderContext = LiquidContext & {
     path: NormalizedPath;
     vars: Hash;
-    sign: string;
     logger: Logger;
     emitFile(path: NormalizedPath, content: string): Promise<void>;
     readFile(path: NormalizedPath): Promise<string>;
-    collects: Record<CollectStage, Collect[]>;
+    collects: Collect[];
     api: LoaderAPI;
     sourcemap: SourceMap;
     options: {
@@ -61,22 +55,21 @@ export type LoaderContext = LiquidContext & {
 export async function loader(this: LoaderContext, content: string) {
     content = mangleFrontMatter.call(this, content);
     content = templateContent.call(this, content);
-    content = await applyCollectPlugins.call(this, content, 'before');
+    content = await applyCollectPlugins.call(this, content);
     content = resolveComments.call(this, content);
     content = resolveDependencies.call(this, content);
     content = resolveAssets.call(this, content);
     content = resolveHeadings.call(this, content);
-    content = await applyCollectPlugins.call(this, content, 'after');
 
     this.api.sourcemap.set(this.sourcemap.dump());
 
     return content;
 }
 
-async function applyCollectPlugins(this: LoaderContext, content: string, stage: `${CollectStage}`) {
+async function applyCollectPlugins(this: LoaderContext, content: string) {
     let meta = {};
 
-    for (const collect of this.collects[stage]) {
+    for (const collect of this.collects) {
         let result = await collect.call(this, content, {});
 
         if (Array.isArray(result)) {

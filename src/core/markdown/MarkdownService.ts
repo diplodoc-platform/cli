@@ -2,7 +2,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
+import type {Collect, EntryGraph, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
 
 import {join} from 'node:path';
 import {uniq} from 'lodash';
@@ -51,12 +51,8 @@ export class MarkdownService {
         return this._plugins.slice();
     }
 
-    get collectsBefore() {
-        return this._collectsBefore.slice();
-    }
-
-    get collectsAfter() {
-        return this._collectsAfter.slice();
+    get collects() {
+        return this._collects.slice();
     }
 
     get config() {
@@ -65,9 +61,7 @@ export class MarkdownService {
 
     private run: Run;
 
-    private _collectsBefore: Collect[] = [];
-
-    private _collectsAfter: Collect[] = [];
+    private _collects: Collect[] = [];
 
     private _plugins: Plugin[] = [];
 
@@ -92,16 +86,7 @@ export class MarkdownService {
     }
 
     @bounded async init() {
-        const collects = await getHooks(this).Collects.promise([]);
-
-        for (const collect of collects) {
-            if (collect?.stage === 'after') {
-                this._collectsAfter.push(collect);
-            } else {
-                this._collectsBefore.push(collect);
-            }
-        }
-
+        this._collects = await getHooks(this).Collects.promise(this._collects);
         this._plugins = await getHooks(this).Plugins.promise(this._plugins);
     }
 
@@ -120,9 +105,8 @@ export class MarkdownService {
         try {
             const raw = await this.run.read(join(this.run.input, file));
             const vars = this.run.vars.for(from[0] || file);
-            const sign = this.run.vars.hash(from[0] || file);
 
-            const context = this.loaderContext(file, raw, vars, sign, this.proxy(key));
+            const context = this.loaderContext(file, raw, vars, this.proxy(key));
             const content = await loader.call(context, raw);
 
             // At this point all internal states are fully resolved.
@@ -148,8 +132,8 @@ export class MarkdownService {
         return defer.promise;
     }
 
-    @bounded async dump(path: NormalizedPath, markdown?: string) {
-        const vfile = new VFile(path, markdown || (await this.load(path)));
+    @bounded async dump(file: NormalizedPath, markdown?: string) {
+        const vfile = new VFile(file, markdown || (await this.load(file)));
 
         vfile.info = {title: '', headings: []};
 
@@ -167,6 +151,10 @@ export class MarkdownService {
     // @memoize(hash)
     async deps(path: RelativePath) {
         return this._deps(normalizePath(path), []);
+    }
+
+    async graph(path: RelativePath) {
+        return this._graph(normalizePath(path), []);
     }
 
     // @memoize(hash)
@@ -208,10 +196,10 @@ export class MarkdownService {
         return titles;
     }
 
-    @bounded async inspect(path: RelativePath, raw: string, vars: Hash, sign: string) {
+    @bounded async inspect(path: RelativePath, raw: string, vars: Hash) {
         const file = normalizePath(path);
         const api = new LoaderAPI();
-        const context = this.loaderContext(file, raw, vars, sign, api);
+        const context = this.loaderContext(file, raw, vars, api);
         const content = await loader.call(context, raw);
 
         const deps = api.deps.get();
@@ -239,11 +227,10 @@ export class MarkdownService {
         return this.pathToMeta.get(key);
     }
 
-    private async _deps(path: NormalizedPath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
+    private async _deps(file: NormalizedPath, from: NormalizedPath[] = []) {
         const key = this.hash(file, from);
 
-        await this.load(path, from);
+        await this.load(file, from);
 
         const deps = this.pathToDeps.get(key) || [];
         const internals: IncludeInfo[][] = await all(
@@ -255,6 +242,22 @@ export class MarkdownService {
         );
 
         return deps.concat(...internals);
+    }
+
+    private async _graph(path: NormalizedPath, from: NormalizedPath[] = []): Promise<EntryGraph> {
+        const key = this.hash(path, from);
+
+        const content = await this.load(path, from);
+        const deps = await all(
+            (this.pathToDeps.get(key) || []).map(async (dep) => {
+                return {
+                    ...dep,
+                    ...(await this._graph(dep.path, [...from, path])),
+                };
+            }),
+        );
+
+        return {path, content, deps};
     }
 
     private async _assets(file: NormalizedPath, from: NormalizedPath[] = []) {
@@ -305,13 +308,11 @@ export class MarkdownService {
         path: NormalizedPath,
         raw: string,
         vars: Hash,
-        sign: string,
         api?: Partial<LoaderAPI>,
     ): LoaderContext {
         return {
             path,
             vars,
-            sign,
             logger: this.logger,
             readFile: (path: RelativePath) => {
                 return this.run.read(join(this.run.input, path));
@@ -321,10 +322,7 @@ export class MarkdownService {
                 await this.run.write(join(this.run.input, rootPath), content);
             },
             api: new LoaderAPI(api),
-            collects: {
-                before: this.collectsBefore,
-                after: this.collectsAfter,
-            },
+            collects: this.collects,
             sourcemap: new SourceMap(raw),
             settings: {
                 substitutions: this.config.template.features.substitutions,
