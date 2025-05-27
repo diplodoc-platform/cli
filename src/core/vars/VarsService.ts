@@ -2,7 +2,6 @@ import type {Run as BaseRun} from '~/core/run';
 import {Preset, Presets} from './types';
 
 import {dirname, join} from 'node:path';
-import {createHash} from 'node:crypto';
 import {isEmpty, uniq} from 'lodash';
 import {dump, load} from 'js-yaml';
 
@@ -53,15 +52,6 @@ export class VarsService {
                 this.presets[dir] = await this.load(preset);
             }
         }
-    }
-
-    hash(path: RelativePath) {
-        const paths = this.paths(dirname(path));
-        const hash = createHash('sha256');
-
-        hash.update(paths.join('&'));
-
-        return hash.digest('hex').slice(0, 12);
     }
 
     for(path: RelativePath): Preset {

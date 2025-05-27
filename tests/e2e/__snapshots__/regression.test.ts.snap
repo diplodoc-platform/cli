@@ -18,7 +18,7 @@ exports[`Regression > internal > 1.html 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text {{not-var}} {{skip()}} default-var-value&lt;/p&gt;/n&lt;p&gt;Text &lt;code&gt;{{not-var}}&lt;/code&gt; &lt;code&gt;{{skip()}}&lt;/code&gt; &lt;code&gt;default-var-value&lt;/code&gt;&lt;/p&gt;/n&lt;p&gt;Text&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs\\"&gt;{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;p&gt;&lt;code&gt;[not a link](./path/to/relative/file.md)&lt;/code&gt;&lt;/p&gt;/n&lt;h2 id=\\"subtitle\\"&gt;&lt;a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Subtitle&lt;/span&gt;&lt;/a&gt;Subtitle&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html\\"&gt;Mermaid usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html#info\\"&gt;Mermaid info&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;Latex usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"nowhere-link.html\\"&gt;nowhere-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"includes\\"&gt;noext-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Forbibben text before {% include &lt;a href=\\"includes/user-3afe8b28d0fa.html\\"&gt;user&lt;/a&gt; %}&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title"},"router":{"pathname":"1","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text {{not-var}} {{skip()}} default-var-value&lt;/p&gt;/n&lt;p&gt;Text &lt;code&gt;{{not-var}}&lt;/code&gt; &lt;code&gt;{{skip()}}&lt;/code&gt; &lt;code&gt;default-var-value&lt;/code&gt;&lt;/p&gt;/n&lt;p&gt;Text&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs\\"&gt;{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;p&gt;&lt;code&gt;[not a link](./path/to/relative/file.md)&lt;/code&gt;&lt;/p&gt;/n&lt;h2 id=\\"subtitle\\"&gt;&lt;a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Subtitle&lt;/span&gt;&lt;/a&gt;Subtitle&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html\\"&gt;Mermaid usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html#info\\"&gt;Mermaid info&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;Latex usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"nowhere-link.html\\"&gt;nowhere-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"includes\\"&gt;noext-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Forbibben text before {% include &lt;a href=\\"includes/user-e5ceb56bbcbc.html\\"&gt;user&lt;/a&gt; %}&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title"},"router":{"pathname":"1","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -72,9 +72,9 @@ default-var-value
 
 [noext-link](./includes)
 
-{% include [user](includes/user-3afe8b28d0fa.md) %}
+{% include [user](includes/user-e5ceb56bbcbc.md) %}
 
-Forbibben text before {% include [user](includes/user-3afe8b28d0fa.md) %}
+Forbibben text before {% include [user](includes/user-e5ceb56bbcbc.md) %}
 "
 `;
 
@@ -187,9 +187,9 @@ exports[`Regression > internal > filelist 1`] = `
   "images.md",
   "included-item.md",
   "includes.md",
-  "includes/deep-3afe8b28d0fa.md",
-  "includes/test-3afe8b28d0fa.md",
-  "includes/user-3afe8b28d0fa.md",
+  "includes/deep-cad9dc01e96f.md",
+  "includes/test-c9d04c9565fc.md",
+  "includes/user-e5ceb56bbcbc.md",
   "index.yaml",
   "latex.md",
   "merge/merge.md",
@@ -642,25 +642,25 @@ metadata:
 ---
 Text
 
-{% include [user](includes/user-3afe8b28d0fa.md) %}
+{% include [user](includes/user-e5ceb56bbcbc.md) %}
 
-{% include [test](includes/test-3afe8b28d0fa.md) %}
+{% include [test](includes/test-c9d04c9565fc.md) %}
 
-{% include [For includes/deep-3afe8b28d0fa.md](includes/deep-3afe8b28d0fa.md) %}
+{% include [For includes/deep-cad9dc01e96f.md](includes/deep-cad9dc01e96f.md) %}
 "
 `;
 
-exports[`Regression > internal > includes/deep-3afe8b28d0fa.md 1`] = `
-"{% include [user](./user-3afe8b28d0fa.md) %}
+exports[`Regression > internal > includes/deep-cad9dc01e96f.md 1`] = `
+"{% include [user](./user-e5ceb56bbcbc.md) %}
 "
 `;
 
-exports[`Regression > internal > includes/test-3afe8b28d0fa.md 1`] = `
+exports[`Regression > internal > includes/test-c9d04c9565fc.md 1`] = `
 "Test
 "
 `;
 
-exports[`Regression > internal > includes/user-3afe8b28d0fa.md 1`] = `
+exports[`Regression > internal > includes/user-e5ceb56bbcbc.md 1`] = `
 "Bob
 "
 `;

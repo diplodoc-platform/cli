@@ -1,7 +1,7 @@
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
-import type {CollectStage, LoaderContext} from './loader';
+import type {LoaderContext} from './loader';
 
 export type Collect = {
     (
@@ -13,7 +13,6 @@ export type Collect = {
         | string
         | [string | undefined, Meta | undefined]
         | Promise<string | [string | undefined, Meta | undefined]>;
-    stage?: `${CollectStage}`;
 };
 
 export type Plugin = MarkdownItPluginCb<any>;
@@ -22,9 +21,8 @@ export type Location = [number, number];
 
 export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
-    signpath: NormalizedPath;
     link: string;
-    signlink: string;
+    match: string;
     location: Location;
 };
 
@@ -37,3 +35,9 @@ export type HeadingInfo = {
     content: string;
     location: Location;
 };
+
+export type EntryGraph = {
+    path: NormalizedPath;
+    content: string;
+    deps: EntryGraph[];
+} & Partial<Pick<IncludeInfo, 'match' | 'link'>>;

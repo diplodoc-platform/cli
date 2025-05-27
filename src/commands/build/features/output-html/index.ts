@@ -96,7 +96,7 @@ export class OutputHtml {
                             return leading;
                         }
 
-                        const {path, lang, vars, sign} = this;
+                        const {path, lang, vars} = this;
                         const options = {lang: fallbackLang(lang)} as PreloadParams;
 
                         const strings = new Set<string>();
@@ -119,7 +119,6 @@ export class OutputHtml {
                                     path,
                                     string,
                                     vars,
-                                    sign,
                                 );
 
                                 return run.transform(path, content, {

@@ -1,5 +1,6 @@
 import type {Build, Run} from '~/commands/build';
 import type {VFile} from '~/core/utils';
+import type {EntryGraph} from '~/core/markdown';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
@@ -10,8 +11,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
-import {hashDeps} from './collects';
-import {getCustomCollectPlugins} from './utils';
+import {getCustomCollectPlugins, rehashContent, replaceDeps, signlink} from './utils';
 
 export class OutputMd {
     apply(program: Build) {
@@ -19,32 +19,44 @@ export class OutputMd {
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
                 getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
-                    return collects.concat([hashDeps], getCustomCollectPlugins());
+                    return collects.concat(getCustomCollectPlugins());
                 });
-
-                const copied = new Set();
 
                 // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
-                    const deps = await run.markdown.deps(vfile.path);
-                    await all(
-                        deps.map(async ({path, signpath}) => {
-                            if (copied.has(signpath)) {
-                                return;
-                            }
-                            copied.add(signpath);
+                    const processed = new Map();
+                    const entry = await run.markdown.graph(vfile.path);
 
+                    vfile.data = (await dump(entry)).content;
+
+                    async function dump(entry: EntryGraph, write = false) {
+                        if (processed.has(entry.path)) {
+                            return processed.get(entry.path);
+                        }
+
+                        const deps = await all(entry.deps.map((dep) => dump(dep, true)));
+                        const content = replaceDeps(entry.content, deps);
+                        const hash = rehashContent(content);
+                        const link = signlink(entry.path, hash);
+                        const hashed = {...entry, content, hash};
+
+                        processed.set(entry.path, hashed);
+
+                        if (write) {
                             try {
-                                run.logger.copy(join(run.input, path), join(run.output, signpath));
+                                run.logger.copy(
+                                    join(run.input, entry.path),
+                                    join(run.output, link),
+                                );
 
-                                const content = await run.markdown.load(path, [vfile.path]);
-
-                                await run.write(join(run.output, signpath), content);
+                                await run.write(join(run.output, link), content);
                             } catch (error) {
-                                run.logger.warn(`Unable to copy dependency ${path}.`, error);
+                                run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
                             }
-                        }),
-                    );
+                        }
+
+                        return hashed;
+                    }
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
