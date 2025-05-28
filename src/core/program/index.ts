@@ -10,10 +10,9 @@ import {
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/core/config';
-import {Logger, stats} from '~/core/logger';
+import {Logger} from '~/core/logger';
 
 import {getHooks, withHooks} from './hooks';
-import {HandledError} from './utils';
 import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
 
 export * from './types';
@@ -181,13 +180,6 @@ export class BaseProgram<
         return getHooks(this as BaseProgram).Config.promise(config, args);
     }
 
-    private async post() {
-        const stat = stats(this.logger);
-        if (stat.error || (this.config.strict && stat.warn)) {
-            throw new HandledError('There is some processing errors.');
-        }
-    }
-
     private async _action() {
         const args = this.command.optsWithGlobals() as TArgs;
         const config = await this.resolveConfig(args as TArgs);
@@ -199,7 +191,6 @@ export class BaseProgram<
         this['config'] = await this.hookConfig(config, args);
 
         await this.action(args);
-        await this.post();
     }
 
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {

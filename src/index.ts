@@ -1,12 +1,13 @@
 import type {HookMeta} from '~/core/utils';
 
 import {isMainThread} from 'node:worker_threads';
-import * as threads from '~/commands/threads';
-
-import {Program, parse} from '~/commands';
-import {errorMessage, own} from '~/core/utils';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
+
+import * as threads from '~/commands/threads';
+import {Program, parse} from '~/commands';
+import {stats} from '~/core/logger';
+import {errorMessage, own} from '~/core/utils';
 
 export * from '~/commands';
 
@@ -25,6 +26,11 @@ export const run = async (argv: string[]) => {
         await threads.init(program, argv);
         await program.init(args);
         await program.parse(argv);
+
+        const stat = stats(program.logger);
+        if (stat.error || (program.config.strict && stat.warn)) {
+            throw new Error('There is some processing errors.');
+        }
     } catch (error: unknown) {
         exitCode = 1;
 
