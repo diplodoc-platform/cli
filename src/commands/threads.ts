@@ -1,12 +1,17 @@
+import type {LogConsumer, LogRecord} from '~/core/logger';
+
 import os from 'node:os';
 import {isMainThread} from 'node:worker_threads';
 import {get} from 'lodash';
 // @ts-ignore
 import {Pool, Worker, spawn} from 'threads';
 // @ts-ignore
+import {Observable, Subject} from 'threads/observable';
+// @ts-ignore
 import {expose} from 'threads/worker';
 
 import {Defer, all} from '~/core/utils';
+import {LogLevel} from '~/core/logger';
 import {Program, parse} from '~/commands';
 
 let pool: Pool;
@@ -15,16 +20,31 @@ let threads: Defer<ThreadAPI>[] = [];
 let argv: string[] = [];
 
 type ThreadAPI = {
-    init(argv: string[]): Promise<void>;
+    init(argv: string[]): Promise<Subject<LogRecord>>;
     call(method: string, args: unknown[]): Promise<unknown>;
+    logger(): Observable<LogRecord>;
 };
 
+function writer(subject: Subject<LogRecord>, level: string) {
+    return function (...msgs: string[]) {
+        subject.next({level, message: msgs.join(' ')});
+    };
+}
+
 if (!isMainThread) {
+    const subject = new Subject<LogRecord>();
+    const logger = {
+        [Symbol.for(LogLevel.INFO)]: writer(subject, LogLevel.INFO),
+        [Symbol.for(LogLevel.WARN)]: writer(subject, LogLevel.WARN),
+        [Symbol.for(LogLevel.ERROR)]: writer(subject, LogLevel.ERROR),
+    } as LogConsumer;
+
     expose({
         async init(argv: string[]) {
             const args = parse(argv);
 
             program = new Program();
+            program.logger.pipe(logger);
 
             await program.init(args);
             await program.parse(argv);
@@ -32,6 +52,9 @@ if (!isMainThread) {
         async call(call: string, args: unknown[]) {
             const method = get(program, call);
             return method(...unpack(args));
+        },
+        logger() {
+            return Observable.from(subject);
         },
     });
 }
@@ -75,7 +98,10 @@ export async function setup() {
     await all(
         threads.map(async (defer) => {
             const thread = await defer.promise;
-            return thread.init(argv);
+
+            await thread.init(argv);
+
+            program.logger.subscribe(thread.logger());
         }),
     );
 }
