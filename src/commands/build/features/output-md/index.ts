@@ -18,20 +18,24 @@ import {options} from './config';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
+    mergeIncludes: boolean;
 };
 
 export type OutputMdConfig = {
     hashIncludes: boolean;
+    mergeIncludes: boolean;
 };
 
 export class OutputMd {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Build.Md', (command: Command) => {
             command.addOption(options.hashIncludes);
+            command.addOption(options.mergeIncludes);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
             config.hashIncludes = defined('hashIncludes', args, config, {hashIncludes: true});
+            config.hashIncludes = defined('mergeIncludes', args, config, {mergeIncludes: false});
             return config;
         });
 
