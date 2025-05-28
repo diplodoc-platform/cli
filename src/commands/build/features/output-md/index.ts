@@ -1,4 +1,5 @@
 import type {Build, Run} from '~/commands/build';
+import type {Command} from '~/core/config';
 import type {VFile} from '~/core/utils';
 import type {EntryGraph} from '~/core/markdown';
 
@@ -6,15 +7,34 @@ import {join} from 'node:path';
 import {dump} from 'js-yaml';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {configPath} from '~/core/config';
+import {configPath, defined} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
 import {getCustomCollectPlugins, rehashContent, replaceDeps, signlink} from './utils';
+import {options} from './config';
+
+export type OutputMdArgs = {
+    hashIncludes: boolean;
+};
+
+export type OutputMdConfig = {
+    hashIncludes: boolean;
+};
 
 export class OutputMd {
     apply(program: Build) {
+        getBaseHooks(program).Command.tap('Build.Md', (command: Command) => {
+            command.addOption(options.hashIncludes);
+        });
+
+        getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
+            config.hashIncludes = defined('hashIncludes', args, config, {hashIncludes: true});
+            return config;
+        });
+
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
@@ -24,6 +44,7 @@ export class OutputMd {
 
                 // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
+                    const {hashIncludes} = run.config;
                     const processed = new Map();
                     const entry = await run.markdown.graph(vfile.path);
 
@@ -36,7 +57,7 @@ export class OutputMd {
 
                         const deps = await all(entry.deps.map((dep) => dump(dep, true)));
                         const content = replaceDeps(entry.content, deps);
-                        const hash = rehashContent(content);
+                        const hash = hashIncludes ? rehashContent(content) : '';
                         const link = signlink(entry.path, hash);
                         const hashed = {...entry, content, hash};
 
