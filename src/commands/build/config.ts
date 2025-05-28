@@ -87,11 +87,6 @@ const removeHiddenTocItems = option({
     desc: 'Remove from Toc all items marked as hidden.',
 });
 
-const mergeIncludes = option({
-    flags: '--merge-includes',
-    desc: 'Merge includes syntax during md to md processing.',
-});
-
 const staticContent = option({
     flags: '--static-content',
     desc: 'Allow loading custom resources into statically generated pages.',
@@ -120,7 +115,6 @@ export const options = {
     sanitizeHtml,
     addMapFile,
     removeHiddenTocItems,
-    mergeIncludes,
     staticContent,
     ignore,
     ignoreStage,
