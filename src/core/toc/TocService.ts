@@ -211,10 +211,6 @@ export class TocService {
         return vfile;
     }
 
-    setEntries(entries: NormalizedPath[]) {
-        this._entries = new Set(entries);
-    }
-
     /**
      * Visits items which will be project entries. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
