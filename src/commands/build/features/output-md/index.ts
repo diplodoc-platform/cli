@@ -35,7 +35,7 @@ export class OutputMd {
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
             config.hashIncludes = defined('hashIncludes', args, config, {hashIncludes: true});
-            config.hashIncludes = defined('mergeIncludes', args, config, {mergeIncludes: false});
+            config.mergeIncludes = defined('mergeIncludes', args, config, {mergeIncludes: false});
             return config;
         });
 
