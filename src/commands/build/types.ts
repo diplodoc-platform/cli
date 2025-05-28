@@ -5,6 +5,7 @@ import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './feat
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
+import type {OutputMdArgs, OutputMdConfig} from './features/output-md';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
@@ -50,6 +51,7 @@ export type BuildArgs = ProgramArgs &
             ContributorsArgs &
             SinglePageArgs &
             LintArgs &
+            OutputMdArgs &
             ChangelogsArgs &
             SearchArgs &
             LegacyArgs &
@@ -63,6 +65,7 @@ export type BuildRawConfig = BaseArgs &
     ContributorsConfig &
     SinglePageConfig &
     LintRawConfig &
+    OutputMdConfig &
     ChangelogsConfig &
     SearchRawConfig &
     LegacyRawConfig &
@@ -76,6 +79,7 @@ export type BuildConfig = Config<
         ContributorsConfig &
         SinglePageConfig &
         LintConfig &
+        OutputMdConfig &
         ChangelogsConfig &
         SearchConfig &
         LegacyConfig &
