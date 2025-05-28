@@ -6,6 +6,13 @@ const hashIncludes = option({
     desc: 'Toggle includes hashing.',
 });
 
+const mergeIncludes = option({
+    flags: '--merge-includes',
+    hidden: true,
+    desc: 'Merge includes syntax during md to md processing.',
+});
+
 export const options = {
     hashIncludes,
+    mergeIncludes,
 };
