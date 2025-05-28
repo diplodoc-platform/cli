@@ -46,6 +46,8 @@ export class OutputMd {
                     return collects.concat(getCustomCollectPlugins());
                 });
 
+                const copied = new Set();
+
                 // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
                     const {hashIncludes} = run.config;
@@ -67,17 +69,20 @@ export class OutputMd {
 
                         processed.set(entry.path, hashed);
 
-                        if (write) {
-                            try {
-                                run.logger.copy(
-                                    join(run.input, entry.path),
-                                    join(run.output, link),
-                                );
+                        if (copied.has(link) || !write) {
+                            return hashed;
+                        }
+                        copied.add(link);
 
-                                await run.write(join(run.output, link), content);
-                            } catch (error) {
-                                run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
-                            }
+                        try {
+                            run.logger.copy(
+                                join(run.input, entry.path),
+                                join(run.output, link),
+                            );
+
+                            await run.write(join(run.output, link), content);
+                        } catch (error) {
+                            run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
                         }
 
                         return hashed;
