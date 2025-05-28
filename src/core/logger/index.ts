@@ -15,11 +15,9 @@ const WARN = Symbol.for(LogLevel.WARN);
 
 const ERROR = Symbol.for(LogLevel.ERROR);
 
-interface LogConsumer {
-    [INFO]: Writer;
-    [WARN]: Writer;
-    [ERROR]: Writer;
-}
+type LogLevelsAccess = typeof INFO | typeof WARN | typeof ERROR;
+
+export type LogConsumer = Record<LogLevelsAccess, Writer>;
 
 type LogBuffer = Record<LogLevels, string[]>;
 
@@ -29,6 +27,15 @@ type LoggerOptions = Readonly<{
 }>;
 
 type Color = typeof red;
+
+export type LogRecord = {
+    level: LogLevels;
+    message: string;
+};
+
+type Observable = {
+    subscribe(handler: (record: LogRecord) => void): void;
+};
 
 const Write = Symbol('write');
 
@@ -123,6 +130,12 @@ export class Logger implements LogConsumer {
         this.consumer = consumer;
 
         return this;
+    }
+
+    subscribe(subject: Observable) {
+        subject.subscribe((record) => {
+            this[Symbol.for(record.level) as LogLevelsAccess](record.message);
+        });
     }
 
     /**
