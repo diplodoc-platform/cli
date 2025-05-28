@@ -19,8 +19,6 @@ type LogLevelsAccess = typeof INFO | typeof WARN | typeof ERROR;
 
 export type LogConsumer = Record<LogLevelsAccess, Writer>;
 
-type LogBuffer = Record<LogLevels, string[]>;
-
 type LoggerOptions = Readonly<{
     colors: boolean;
     quiet: boolean;
@@ -56,7 +54,7 @@ function writer(
     return writer;
 }
 
-export type Writer = ReturnType<typeof writer>;
+export type Writer = (...msgs: string[]) => void;
 
 const colors = {
     [LogLevel.INFO]: green,
@@ -177,19 +175,9 @@ export class Logger implements LogConsumer {
         return topic;
     }
 
-    add(buffers: LogBuffer) {
-        for (const [level, buffer] of Object.entries(buffers) as [LogLevels, string[]][]) {
-            for (const message of buffer) {
-                this[level](message);
-            }
-        }
-
-        return this;
-    }
-
     reset() {
         for (const level of Object.values(LogLevel)) {
-            this[level].count = 0;
+            this[Symbol.for(level) as LogLevelsAccess].count = 0;
         }
 
         return this;
