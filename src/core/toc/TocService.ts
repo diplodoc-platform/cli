@@ -97,10 +97,14 @@ export class TocService {
         }
     }
 
+    @bounded
+    @memoize('path')
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
-        toc = toc || this.for(file);
+        const vfile = new VFile<Toc>(file, copyJson(toc || this.for(file)), dump);
 
-        return this._dump(toc.path, toc);
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
     }
 
     /**
@@ -195,15 +199,7 @@ export class TocService {
         return this.for(nextPath);
     }
 
-    @memoize('path')
-    async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
-        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
-
-        await getHooks(this).Dump.promise(vfile);
-
-        return vfile;
-    }
-
+    @bounded
     private async load(path: NormalizedPath): Promise<Toc | undefined> {
         const file = normalizePath(path);
 
