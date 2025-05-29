@@ -11,7 +11,7 @@ import {
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/core/config';
-import {Logger} from '~/core/logger';
+import {Logger, stats} from '~/core/logger';
 import {errorMessage, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';

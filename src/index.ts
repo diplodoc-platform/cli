@@ -13,6 +13,7 @@ const MAIN_TIMER_ID = 'Build time';
 export const run = async (argv: string[]) => {
     const program = new Program();
 
+    let report = program.report;
     try {
         const args = parse(argv);
         await threads.init(program, argv);
@@ -27,12 +28,12 @@ export const run = async (argv: string[]) => {
     } catch (error: unknown) {
         // eslint-disable-next-line no-console
         console.error(error);
-        program.report.code = 1;
+        report = {code: 1};
     } finally {
         await threads.terminate(true);
     }
 
-    return program.report;
+    return report;
 };
 
 if (isMainThread && require.main === module) {
