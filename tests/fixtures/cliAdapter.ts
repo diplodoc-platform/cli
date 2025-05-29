@@ -14,8 +14,32 @@ export interface TranslateRunArgs {
     additionalArgs?: string;
 }
 
+class Build {
+    private readonly runner: Runner;
+
+    constructor(runner: Runner) {
+        this.runner = runner;
+    }
+
+    run(input: string, output: string, args: string[]) {
+        return this.runner.runYfmDocs([
+            '--input',
+            input,
+            '--output',
+            output,
+            '--quiet',
+            '--allowHTML',
+            ...args,
+            '-e',
+            'report-logs',
+        ]);
+    }
+}
+
 export class CliTestAdapter {
-    private readonly runner: Runner = createRunner();
+    readonly runner: Runner = createRunner();
+
+    readonly build = new Build(this.runner);
 
     async testBuildPass(
         inputPath: string,
@@ -23,30 +47,27 @@ export class CliTestAdapter {
         {md2md = true, md2html = true, args = ''}: BuildRunArgs = {},
     ): Promise<void> {
         await cleanupDirectory(outputPath);
+        await cleanupDirectory(`${outputPath}-md`);
+        await cleanupDirectory(`${outputPath}-html`);
 
-        const baseArgs = [
-            '--input',
-            inputPath,
-            '--quiet',
-            '--allowHTML',
-            ...args.split(' ').filter(Boolean),
-        ];
+        const baseArgs = args.split(' ').filter(Boolean);
+
+        const tasks = [];
 
         if (md2md && md2html) {
-            await cleanupDirectory(`${outputPath}-html`);
-
-            await this.runner.runYfmDocs([...baseArgs, '--output', outputPath, '-f', 'md']);
-            await this.runner.runYfmDocs([
-                ...baseArgs,
-                '--output',
-                `${outputPath}-html`,
-                '-f',
-                'html',
-            ]);
+            tasks.push(() => this.build.run(inputPath, outputPath,[...baseArgs, '-f', 'md']));
+            tasks.push(() => this.build.run(inputPath, `${outputPath}-html`, [...baseArgs, '-f', 'html']));
         } else if (md2md) {
-            await this.runner.runYfmDocs([...baseArgs, '--output', outputPath, '-f', 'md']);
+            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md']));
         } else {
-            await this.runner.runYfmDocs([...baseArgs, '--output', outputPath]);
+            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'html']));
+        }
+
+        for (const task of tasks) {
+            const report = await task();
+            if (report.code > 0) {
+                throw report;
+            }
         }
     }
 
