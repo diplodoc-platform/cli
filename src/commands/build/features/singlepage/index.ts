@@ -52,13 +52,13 @@ export class SinglePage {
                     return;
                 }
 
-                const tocPath = run.toc.for(entry);
+                const toc = run.toc.for(entry);
 
-                run.meta.add(tocPath, info.meta || {});
-                run.meta.addResources(tocPath, info.meta || {});
+                run.meta.add(toc.path, info.meta || {});
+                run.meta.addResources(toc.path, info.meta || {});
 
-                results[tocPath] = results[tocPath] || [];
-                results[tocPath][info.position] = {
+                results[toc.path] = results[toc.path] || [];
+                results[toc.path][info.position] = {
                     path: entry,
                     content: info.html,
                     title: info.title || '',
@@ -79,10 +79,9 @@ export class SinglePage {
                         return;
                     }
 
-                    const tocPath = run.toc.for(template.path);
-                    const file = join(dirname(tocPath), 'single-page-toc.js');
+                    const file = join(dirname(template.path), 'single-page-toc.js');
 
-                    const toc = (await run.toc.dump(tocPath)).copy(file);
+                    const toc = (await run.toc.dump(template.path)).copy(file);
                     await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
                         item.href = getSinglePageUrl(dirname(toc.path), item.href);
 

@@ -51,7 +51,7 @@ if (!isMainThread) {
         },
         async call(call: string, args: unknown[]) {
             const method = get(program, call);
-            return method(...unpack(args));
+            return method(...args);
         },
         logger() {
             return Observable.from(subject);
@@ -126,7 +126,7 @@ export function threaded(call: string) {
                 this[methodName] = function (...args: unknown[]) {
                     if (pool) {
                         return pool.queue((thread: ThreadAPI) => {
-                            return thread.call(call, pack(thread, args));
+                            return thread.call(call, args);
                         });
                     } else {
                         return method.call(this, ...args);
@@ -139,42 +139,31 @@ export function threaded(call: string) {
     };
 }
 
-type CountedMap = Map<string, unknown> & {idx: number};
-type CountedWeakMap = WeakMap<object, number> & {idx: number};
+export function multicast(call: string) {
+    return function (_originalMethod: unknown, context: ClassMethodDecoratorContext) {
+        const methodName = context.name;
 
-const mems = new Map() as Map<unknown, CountedWeakMap>;
-const refs = new Map() as CountedMap;
-refs.idx = 1;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        context.addInitializer(function (this: any) {
+            const method = this[methodName];
 
-function pack(thread: ThreadAPI, args: unknown[]) {
-    const mem = mems.get(thread) || (new WeakMap() as CountedWeakMap);
+            if (isMainThread) {
+                this[methodName] = function (...args: unknown[]) {
+                    if (pool) {
+                        return all(
+                            threads.map(async (defer) => {
+                                const thread = await defer.promise;
 
-    mems.set(thread, mem);
-    mem.idx = mem.idx || 1;
-
-    return args.map((arg) => {
-        if (arg && typeof arg === 'object') {
-            if (mem.has(arg)) {
-                return '#@&__' + mem.get(arg);
+                                await thread.call(call, args);
+                            }),
+                        );
+                    } else {
+                        return method.call(this, ...args);
+                    }
+                };
             } else {
-                mem.set(arg, mem.idx++);
-                return arg;
+                this[methodName] = method.bind(this);
             }
-        } else {
-            return arg;
-        }
-    });
-}
-
-function unpack(args: unknown[]) {
-    return args.map((arg) => {
-        if (typeof arg === 'string' && arg.match(/^#@&__/)) {
-            return refs.get(arg);
-        } else if (arg && typeof arg === 'object') {
-            refs.set('#@&__' + refs.idx++, arg);
-            return arg;
-        } else {
-            return arg;
-        }
-    });
+        });
+    };
 }
