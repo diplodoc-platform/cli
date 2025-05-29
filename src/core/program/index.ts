@@ -11,17 +11,16 @@ import {
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/core/config';
-import {Logger, stats} from '~/core/logger';
+import {Logger} from '~/core/logger';
 import {errorMessage, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
+import {isProgram, isRelative, requireExtension} from './utils';
 
 export * from './types';
 
 export {getHooks, withConfigDefaults, withConfigScope};
-
-const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
 
 const YFM_CONFIG_FILENAME = '.yfm';
 
@@ -259,7 +258,7 @@ export class BaseProgram<
             name: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = require(name);
+            const ExtensionModule = requireExtension(name);
             const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
             return new Extension(options);
@@ -267,10 +266,4 @@ export class BaseProgram<
 
         return Promise.all(extensions.map(initialize));
     }
-}
-
-function isProgram<TConfig extends BaseConfig, TArgs extends BaseArgs>(
-    module: unknown,
-): module is BaseProgram<TConfig, TArgs> {
-    return Boolean(module && typeof (module as BaseProgram).init === 'function');
 }
