@@ -64,8 +64,34 @@ const build = async (entry, outfile, format) => {
     await chmod(file, '755');
 };
 
+const extension = async (entry, outfile, format) => {
+    const file = `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`;
+    const config = {
+        ...baseConfig,
+        format,
+        plugins: [
+            alias({
+                '@diplodoc/cli/lib': ['../lib', true],
+                '@diplodoc/cli$': ['../build', true],
+            }),
+        ],
+        entryPoints: [entry],
+        outfile: file,
+    };
+
+    config.external = [
+        '@diplodoc/cli',
+    ];
+
+    await esbuild.build(config);
+};
+
 const builds = [
     ['src/index.ts', 'index'],
+];
+
+const extensions = [
+    ['src/extensions/report-logs/index.js', 'report-logs'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
@@ -75,6 +101,7 @@ Promise.all([
     ...libs.map((entry) => lib(entry, 'cjs')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
+    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
     esbuild.build({
         tsconfig: './tsconfig.json',
         bundle: true,
