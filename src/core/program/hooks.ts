@@ -65,6 +65,15 @@ export function hooks<TRun extends Run, TConfig extends BaseConfig, TArgs extend
          * @prop run - [Run](../run) constructed context.
          */
         AfterAnyRun: new AsyncSeriesHook<[TRun]>(['run'], `${name}.AfterAnyRun`),
+        /**
+         * Async series **waterfall** hook which runs when current program fails with error.<br/>
+         * If someone from handlers will return `undefined`, then error will be ignored.
+         *
+         * @usage Best place to handle uncaught program errors.<br/>
+         *
+         * @prop error - thrown error or undefined.
+         */
+        Error: new AsyncSeriesWaterfallHook<[unknown]>(['error'], `${name}.Error`),
     };
 }
 

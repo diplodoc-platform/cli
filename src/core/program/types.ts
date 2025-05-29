@@ -28,3 +28,7 @@ export type BaseConfig = {
 export type ExtensionInfo<Options extends Hash = Hash> = {
     name: string;
 } & Options;
+
+export type Report = {
+    code: number;
+} & Hash;
