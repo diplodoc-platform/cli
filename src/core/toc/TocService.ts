@@ -60,10 +60,7 @@ export class TocService {
     }
 
     get tocs() {
-        return [...this._tocs.entries()].filter(([, toc]) => toc !== false) as [
-            NormalizedPath,
-            Toc,
-        ][];
+        return [...this._tocs.values()].filter(Boolean) as Toc[];
     }
 
     private run: Run;
@@ -94,121 +91,16 @@ export class TocService {
         this.config = run.config;
     }
 
-    @bounded async load(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-
-        // There is no error. We really skip toc processing, if it was processed previously in any way.
-        // For example toc can be processed as include of some other toc.
-        if (this.processed[file]) {
-            return this.cache.get(file);
+    async init(paths: NormalizedPath[]) {
+        for (const path of paths) {
+            await this.load(path);
         }
-
-        this.processed[file] = true;
-
-        this.logger.proc(file);
-
-        const defer = new Defer<Toc | undefined>();
-
-        this.cache.set(file, defer.promise);
-
-        defer.promise.then((result) => {
-            if (this.cache.has(file)) {
-                this.cache.set(file, result);
-            }
-        });
-
-        const context: LoaderContext = this.loaderContext(file);
-
-        const content = await read(this.run, file);
-
-        if (this.shouldSkip(content)) {
-            this.cache.delete(file);
-            defer.resolve(undefined);
-            return undefined;
-        }
-
-        const toc = (await loader.call(context, content)) as Toc;
-
-        toc.path = file;
-
-        await getHooks(this).Loaded.promise(toc, file);
-
-        // This looks how small optimization, but there was cases when toc is an array...
-        // This is not that we expect.
-        if (toc.href || toc.items?.length) {
-            await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
-                this._entries.add(normalizePath(join(dirname(path), item.href)));
-
-                if (own<string, 'restricted-access'>(item, 'restricted-access')) {
-                    this.run.meta.add(normalizePath(join(dirname(path), item.href)), {
-                        'restricted-access': item['restricted-access'],
-                    });
-                }
-
-                return item;
-            });
-        }
-
-        defer.resolve(toc);
-
-        this._tocs.set(file, toc);
-
-        return defer.promise;
     }
 
-    @bounded async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-
-        this.processed[file] = true;
-        this._tocs.set(file, false);
-
-        this.logger.proc(file);
-
-        const context: LoaderContext = await this.loaderContext(file, include);
-
-        const content = include.content || (await read(this.run, file, include.from));
-
-        if (this.shouldSkip(content)) {
-            return undefined;
-        }
-
-        if (isMergeMode(include)) {
-            const from = normalizePath(dirname(file));
-            const to = normalizePath(dirname(include.base));
-
-            context.vars = this.vars.for(include.base);
-            context.path = context.path.replace(from, to) as NormalizedPath;
-            context.from = include.from;
-
-            const files = await this.run.copy(
-                join(this.run.input, from),
-                join(this.run.input, to),
-                [basename(file), '**/toc.yaml'],
-            );
-
-            for (const [from, to] of files) {
-                this.logger.copy(from, to);
-                this.meta.add(relative(this.run.input, to), {
-                    sourcePath: relative(this.run.input, from),
-                });
-            }
-        }
-
-        const toc = (await loader.call(context, content)) as Toc;
-
-        await getHooks(this).Included.promise(toc, file, include);
-
-        return toc;
-    }
-
-    @bounded
-    @memoize('path')
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
-        const vfile = new VFile<Toc>(file, copyJson(toc || (await this.load(file))), dump);
+        toc = toc || this.for(file);
 
-        await getHooks(this).Dump.promise(vfile);
-
-        return vfile;
+        return this._dump(toc.path, toc);
     }
 
     /**
@@ -270,9 +162,9 @@ export class TocService {
     /**
      * Sets data for target toc path.
      */
-    setToc(path: NormalizedPath, toc: Toc) {
-        this.processed[path] = true;
-        this.cache.set(path, toc);
+    setToc(toc: Toc) {
+        this.processed[toc.path] = true;
+        this.cache.set(toc.path, toc);
     }
 
     setEntries(entries: NormalizedPath[]) {
@@ -285,13 +177,13 @@ export class TocService {
      * Resolves toc path and data for any page path.
      * Expects what all paths are already loaded in service.
      */
-    for(path: RelativePath): NormalizedPath {
+    for(path: RelativePath): Toc {
         path = normalizePath(path);
 
         const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
 
-        if (this.cache.has(tocPath as NormalizedPath)) {
-            return tocPath;
+        if (this.cache.has(tocPath)) {
+            return this.cache.get(tocPath) as Toc;
         }
 
         const nextPath = dirname(path);
@@ -301,6 +193,123 @@ export class TocService {
         }
 
         return this.for(nextPath);
+    }
+
+    @memoize('path')
+    async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
+        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
+
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
+    }
+
+    private async load(path: NormalizedPath): Promise<Toc | undefined> {
+        const file = normalizePath(path);
+
+        // There is no error. We really skip toc processing, if it was processed previously in any way.
+        // For example toc can be processed as include of some other toc.
+        if (this.processed[file]) {
+            return this.cache.get(file);
+        }
+
+        this.processed[file] = true;
+
+        this.logger.proc(file);
+
+        const defer = new Defer<Toc | undefined>();
+
+        this.cache.set(file, defer.promise);
+
+        defer.promise.then((result) => {
+            if (this.cache.has(file)) {
+                this.cache.set(file, result);
+            }
+        });
+
+        const context: LoaderContext = this.loaderContext(file);
+
+        const content = await read(this.run, file);
+
+        if (this.shouldSkip(content)) {
+            this.cache.delete(file);
+            defer.resolve(undefined);
+            return undefined;
+        }
+
+        const toc = (await loader.call(context, content)) as Toc;
+
+        toc.path = file;
+
+        await getHooks(this).Loaded.promise(toc, file);
+
+        // This looks how small optimization, but there was cases when toc is an array...
+        // This is not that we expect.
+        if (toc.href || toc.items?.length) {
+            await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
+                this._entries.add(normalizePath(join(dirname(path), item.href)));
+
+                if (own<string, 'restricted-access'>(item, 'restricted-access')) {
+                    this.run.meta.add(normalizePath(join(dirname(path), item.href)), {
+                        'restricted-access': item['restricted-access'],
+                    });
+                }
+
+                return item;
+            });
+        }
+
+        defer.resolve(toc);
+
+        this._tocs.set(file, toc);
+
+        return defer.promise;
+    }
+
+    @bounded
+    private async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
+        const file = normalizePath(path);
+
+        this.processed[file] = true;
+        this._tocs.set(file, false);
+
+        this.logger.proc(file);
+
+        const context: LoaderContext = await this.loaderContext(file, include);
+
+        const content = include.content || (await read(this.run, file, include.from));
+
+        if (this.shouldSkip(content)) {
+            return undefined;
+        }
+
+        if (isMergeMode(include)) {
+            const from = normalizePath(dirname(file));
+            const to = normalizePath(dirname(include.base));
+
+            context.vars = this.vars.for(include.base);
+            context.path = context.path.replace(from, to) as NormalizedPath;
+            context.from = include.from;
+
+            const files = await this.run.copy(
+                join(this.run.input, from),
+                join(this.run.input, to),
+                [basename(file), '**/toc.yaml'],
+            );
+
+            for (const [from, to] of files) {
+                this.logger.copy(from, to);
+                this.meta.add(relative(this.run.input, to), {
+                    sourcePath: relative(this.run.input, from),
+                });
+            }
+        }
+
+        const toc = (await loader.call(context, content)) as Toc;
+
+        await getHooks(this).Included.promise(toc, file, include);
+
+        return toc;
     }
 
     private shouldSkip(toc: RawToc) {
@@ -321,6 +330,7 @@ export class TocService {
             vars: this.vars.for(path),
             toc: this,
             logger: this.logger,
+            include: this.include,
             settings: {
                 conditions: this.config.template.features.conditions,
                 substitutions: this.config.template.features.substitutions,

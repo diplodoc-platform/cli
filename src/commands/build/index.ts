@@ -1,5 +1,5 @@
-import type {EntryTocItem, Toc} from '~/core/toc';
 import type {Meta} from '~/core/meta';
+import type {EntryTocItem, Toc} from '~/core/toc';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
@@ -16,7 +16,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command, defined, valuable} from '~/core/config';
-import {bounded, normalizePath, setExt} from '~/core/utils';
+import {normalizePath, setExt} from '~/core/utils';
 import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -193,7 +193,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await threads.setup();
 
         const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
-        const tocs = await this.run.glob('**/toc.yaml', {
+        const paths = await this.run.glob('**/toc.yaml', {
             cwd: this.run.input,
             ignore,
         });
@@ -214,42 +214,35 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             );
         });
 
-        for (const toc of tocs) {
-            await this.run.toc.load(toc);
-        }
+        await this.run.toc.init(paths);
 
-        await pmap(this.run.toc.tocs, async ([path]) => {
-            const toc = await this.run.toc.dump(path);
+        const {tocs, entries} = this.run.toc;
+
+        await this.sync(tocs, entries);
+
+        await this.concurrently(tocs, async (raw) => {
+            const toc = await this.run.toc.dump(raw.path, raw);
 
             await this.run.write(join(this.run.output, toc.path), toc.toString());
         });
 
-        const entries = this.run.toc.entries;
-        await pmap(
-            entries,
-            async (entry, position) => {
-                try {
-                    this.run.logger.proc(entry);
+        await this.concurrently(entries, async (entry, position) => {
+            try {
+                this.run.logger.proc(entry);
 
-                    const meta = this.run.meta.get(entry);
-                    const tocPath = this.run.toc.for(entry);
-                    const toc = await this.run.toc.load(tocPath);
-                    const info = await this.process(entry, entries, toc as Toc, meta);
+                const meta = this.run.meta.get(entry);
+                const info = await this.process(entry, meta);
 
-                    await getHooks(this)
-                        .Entry.for(outputFormat)
-                        .promise(this.run, entry, {...info, position});
+                await getHooks(this)
+                    .Entry.for(outputFormat)
+                    .promise(this.run, entry, {...info, position});
 
-                    this.run.logger.info('Processing finished:', entry);
-                } catch (error) {
-                    console.error(error);
-                    this.run.logger.error(`${entry}: ${error}`);
-                }
-            },
-            {
-                concurrency: PAGE_PROCESS_CONCURRENCY,
-            },
-        );
+                this.run.logger.info('Processing finished:', entry);
+            } catch (error) {
+                console.error(error);
+                this.run.logger.error(`${entry}: ${error}`);
+            }
+        });
 
         await handler(this.run);
 
@@ -261,16 +254,22 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.releaseOutput();
     }
 
-    @bounded
-    @threads.threaded('build.process')
-    async process(
-        file: NormalizedPath,
-        entries: NormalizedPath[],
-        toc: Toc,
-        meta: Meta,
-    ): Promise<EntryInfo> {
-        this.run.toc.setToc(toc.path, toc);
+    async concurrently<T>(items: T[], iterator: (item: T, index: number) => Promise<void>) {
+        await pmap(items, iterator, {
+            concurrency: PAGE_PROCESS_CONCURRENCY,
+        });
+    }
+
+    @threads.multicast('build.sync')
+    async sync(tocs: Toc[], entries: NormalizedPath[]) {
         this.run.toc.setEntries(entries);
+        for (const toc of tocs) {
+            this.run.toc.setToc(toc);
+        }
+    }
+
+    @threads.threaded('build.process')
+    async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
         this.run.meta.set(file, meta);
 
         const result = await this.run.entry.dump(file);
