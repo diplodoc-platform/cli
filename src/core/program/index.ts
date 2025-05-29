@@ -1,5 +1,6 @@
-import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
+import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, Report} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
+import type {HookMeta} from '~/core/utils';
 
 import {isAbsolute, resolve} from 'node:path';
 import {omit, once, pick} from 'lodash';
@@ -10,7 +11,8 @@ import {
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/core/config';
-import {Logger} from '~/core/logger';
+import {Logger, stats} from '~/core/logger';
+import {errorMessage, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
@@ -68,9 +70,15 @@ export class BaseProgram<
 
     readonly options!: ExtendedOption[];
 
+    get report(): Report {
+        return this.parent ? this.parent.report : this._report;
+    }
+
     protected modules: ICallable[] = [];
 
     protected extensions: (string | ExtensionInfo)[] = [];
+
+    private _report: Report = {code: 0};
 
     private parent: BaseProgram | null = null;
 
@@ -190,7 +198,32 @@ export class BaseProgram<
         // @ts-ignore
         this['config'] = await this.hookConfig(config, args);
 
-        await this.action(args);
+        try {
+            await this.action(args);
+        } catch (error) {
+            // eslint-disable-next-line no-ex-assign
+            error = await getHooks(this as BaseProgram).Error.promise(error);
+
+            if (!error) {
+                return;
+            }
+
+            if (own<HookMeta, 'hook'>(error, 'hook')) {
+                const {service, hook, name} = error.hook;
+                // eslint-disable-next-line no-console
+                console.error(
+                    `Intercept error for ${service}.${hook} hook from ${name} extension.`,
+                );
+            }
+
+            const message = errorMessage(error);
+            if (message) {
+                // eslint-disable-next-line no-console
+                console.error(message);
+            }
+
+            this.report.code = error ? 1 : 0;
+        }
     }
 
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {

@@ -1,4 +1,10 @@
+export type Report = {
+    code: number;
+    warns: string[];
+    errors: string[];
+}
+
 export interface Runner {
-    runYfmDocs(argv: string[]): Promise<void>;
+    runYfmDocs(argv: string[]): Promise<Report>;
 }
 

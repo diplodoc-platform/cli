@@ -29,7 +29,8 @@
       "node": "./lib/*/index.js",
       "default": "./lib/*/index.mjs"
     },
-    "./package": "./package.json"
+    "./package": "./package.json",
+    "./report-logs": "./build/report-logs.js"
   },
   "main": "build/index.js",
   "bin": {
