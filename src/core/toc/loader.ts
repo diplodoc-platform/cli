@@ -1,6 +1,14 @@
 import type {LiquidContext} from '@diplodoc/liquid';
 import type {TocService} from './TocService';
-import type {EntryTocItem, IncludeInfo, RawToc, RawTocItem, TocInclude, YfmString} from './types';
+import type {
+    EntryTocItem,
+    IncludeInfo,
+    RawToc,
+    RawTocItem,
+    Toc,
+    TocInclude,
+    YfmString,
+} from './types';
 
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
@@ -21,6 +29,7 @@ export type LoaderContext = LiquidContext & {
     base?: NormalizedPath;
     mode: IncludeMode | undefined;
     vars: Hash;
+    include: (path: RelativePath, include: IncludeInfo) => Promise<Toc | undefined>;
     options: {
         removeHiddenItems: boolean;
     };
@@ -203,7 +212,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 toc = await hook.promise(toc, options, this.path);
             }
 
-            toc = (await this.toc.include(tocPath, {
+            toc = (await this.include(tocPath, {
                 from: this.path,
                 mode: IncludeMode.Link,
                 content: toc,
@@ -218,7 +227,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 includeInfo.base = this.base || this.path;
             }
 
-            toc = (await this.toc.include(include.path, includeInfo)) as RawToc;
+            toc = (await this.include(include.path, includeInfo)) as RawToc;
         }
 
         item = omit(item, ['include']) as RawTocItem;

@@ -75,10 +75,7 @@ export class OutputMd {
                         copied.add(link);
 
                         try {
-                            run.logger.copy(
-                                join(run.input, entry.path),
-                                join(run.output, link),
-                            );
+                            run.logger.copy(join(run.input, entry.path), join(run.output, link));
 
                             await run.write(join(run.output, link), content);
                         } catch (error) {
