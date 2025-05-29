@@ -69,15 +69,14 @@ export class OutputHtml {
                         return;
                     }
 
-                    const tocPath = run.toc.for(template.path);
+                    const toc = run.toc.for(template.path);
 
-                    template.addScript(tocJS(tocPath), {position: 'state'});
+                    template.addScript(tocJS(toc.path), {position: 'state'});
                 });
 
                 // Transform any entry to final html page
                 getEntryHooks(run.entry).Dump.tapPromise('Html', async (vfile) => {
-                    const tocPath = run.toc.for(vfile.path);
-                    const toc = await run.toc.dump(tocPath);
+                    const toc = await run.toc.dump(vfile.path);
 
                     const data = getStateData(vfile.data);
                     const state = await run.entry.state(vfile.path, data);
