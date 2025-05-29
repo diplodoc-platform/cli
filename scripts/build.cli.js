@@ -91,7 +91,7 @@ const builds = [
 ];
 
 const extensions = [
-    ['src/extensions/report-logs/index.js', 'report-logs'],
+    ['src/extensions/report-logs/index.ts', 'report-logs'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
