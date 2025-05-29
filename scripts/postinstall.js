@@ -31,7 +31,7 @@ copyFileSync(join(LATEX_PATH, 'index.js'), join(ASSETS_PATH, 'latex-extension.js
 copyFileSync(join(LATEX_PATH, 'index.css'), join(ASSETS_PATH, 'latex-extension.css'));
 copyFileSync(join(SEARCH_PATH, 'index.js'), join(ASSETS_PATH, 'search-extension/api.js'));
 copyFileSync(join(PAGE_CONSTRUCTOR_PATH, 'index.js'), join(ASSETS_PATH, 'page-constructor-extension.js'));
-copyFileSync(join(PAGE_CONSTRUCTOR_PATH, 'index.css'), join(ASSETS_PATH, 'page-constructor-extension.css'));
+copyFileSync(join(PAGE_CONSTRUCTOR_PATH, 'plugin.css'), join(ASSETS_PATH, 'page-constructor-extension.css'));
 
 for (const lang of langs) {
     copyFileSync(join(SEARCH_PATH, lang), join(ASSETS_PATH, 'search-extension', lang));
