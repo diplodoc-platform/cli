@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.60.0](https://github.com/diplodoc-platform/cli/compare/v4.59.11...v4.60.0) (2025-05-29)
+
+
+### Features
+
+* add @diplodoc/page-constructor-extension ([#1205](https://github.com/diplodoc-platform/cli/issues/1205)) ([bfe1b5b](https://github.com/diplodoc-platform/cli/commit/bfe1b5b94c41cdaf311cff0ccb42c355503115dc))
+* add @diplodoc/page-constructor-extension ([#1218](https://github.com/diplodoc-platform/cli/issues/1218)) ([db3fc89](https://github.com/diplodoc-platform/cli/commit/db3fc89f73cd429e1554ad575eb5102886a36dea))
+
 ## [4.59.11](https://github.com/diplodoc-platform/cli/compare/v4.59.10...v4.59.11) (2025-05-21)
 
 
