@@ -70,6 +70,8 @@ function test(
 
         mockData(run, content, vars, files, copy);
 
+        await toc.init(['toc.yaml'] as NormalizedPath[]);
+
         const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
         expect(vfile.toString()).toMatchSnapshot();
@@ -528,6 +530,8 @@ describe('toc-loader', () => {
                     stage: 'test',
                 }));
 
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
             const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
             expect(vfile.toString()).toMatchSnapshot();
@@ -550,6 +554,7 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
+            debugger;
             getHooks(toc)
                 .Includer.for('expected')
                 .tap('Tests', (toc, options) => {
@@ -562,6 +567,8 @@ describe('toc-loader', () => {
                         stage: 'test',
                     };
                 });
+
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
 
             const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
@@ -600,6 +607,8 @@ describe('toc-loader', () => {
                     };
                 });
 
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
+
             const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
             expect(vfile.toString()).toMatchSnapshot();
@@ -630,6 +639,8 @@ describe('toc-loader', () => {
                         items: [{name: 'Includer item 1'}],
                     } as RawToc;
                 });
+
+            await toc.init(['toc.yaml'] as NormalizedPath[]);
 
             const vfile = await toc.dump('toc.yaml' as NormalizedPath);
 
