@@ -554,7 +554,6 @@ describe('toc-loader', () => {
 
             mockData(run, content, {}, files, []);
 
-            debugger;
             getHooks(toc)
                 .Includer.for('expected')
                 .tap('Tests', (toc, options) => {

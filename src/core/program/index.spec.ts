@@ -1,6 +1,6 @@
-import {describe, expect, it, vi, beforeEach} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 import {BaseProgram, getHooks} from './index';
-import {withConfigDefaults, getConfigDefaults} from './decorators';
+import {getConfigDefaults, withConfigDefaults} from './decorators';
 
 vi.mock('../config', () => ({
     resolveConfig: vi.fn(),
@@ -61,11 +61,9 @@ describe('program module', () => {
 
             it('should merge config with args correctly', async () => {
                 class TestProgram extends BaseProgram {
-                    apply() {
-                    }
+                    apply() {}
 
-                    async action() {
-                    }
+                    async action() {}
 
                     async testHookConfig(config: any, args: any) {
                         // @ts-ignore - use private method
@@ -127,7 +125,7 @@ describe('program module', () => {
                 class TestProgram extends BaseProgram {
                     apply() {}
                     async action() {}
-                    
+
                     async testHookConfig(config: any, args: any) {
                         // @ts-ignore - use private method
                         return this['hookConfig'](config, args);
@@ -142,7 +140,10 @@ describe('program module', () => {
 
                 const hooks = getHooks(program);
                 hooks.RawConfig.tap('test', vi.fn());
-                hooks.Config.tap('test', vi.fn((config) => config));
+                hooks.Config.tap(
+                    'test',
+                    vi.fn((config) => config),
+                );
 
                 const config = {
                     option1: 'configValue1',
@@ -150,10 +151,10 @@ describe('program module', () => {
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                         deepNested: {
-                            deepOption1: 'deepConfigValue1'
-                        }
+                            deepOption1: 'deepConfigValue1',
+                        },
                     },
-                    array: ['item1', 'item2']
+                    array: ['item1', 'item2'],
                 };
 
                 program.args = vi.fn().mockReturnValue({
@@ -162,27 +163,27 @@ describe('program module', () => {
                     nested: {
                         nestedOption2: 'nestedArgValue2',
                         deepNested: {
-                            deepOption2: 'deepArgValue2'
-                        }
+                            deepOption2: 'deepArgValue2',
+                        },
                     },
-                    array: ['item3']
+                    array: ['item3'],
                 });
 
                 const result = await program.testHookConfig(config, {});
 
                 const expected = {
-                    option1: 'argValue1',    
-                    option2: 'configValue2',   
-                    option3: 'argValue3',  
+                    option1: 'argValue1',
+                    option2: 'configValue2',
+                    option3: 'argValue3',
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                         nestedOption2: 'nestedArgValue2',
                         deepNested: {
                             deepOption1: 'deepConfigValue1',
-                            deepOption2: 'deepArgValue2'
-                        }
+                            deepOption2: 'deepArgValue2',
+                        },
                     },
-                    array: ['item3', 'item2']
+                    array: ['item3', 'item2'],
                 };
 
                 expect(result).toEqual(expected);
