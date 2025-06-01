@@ -2,6 +2,7 @@ import type {BuildConfig, BuildRawConfig} from '..';
 import type {Mock, MockInstance} from 'vitest';
 
 import {join} from 'node:path';
+import {merge} from 'lodash';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 import {Build} from '..';
@@ -161,10 +162,7 @@ export function testConfig(name: string, args: string, config: any, result?: any
                 return withConfigUtils(null, {});
             }
 
-            return withConfigUtils(path, {
-                ...defaults,
-                ...config,
-            });
+            return withConfigUtils(path, merge({}, defaults, config));
         });
 
         handler.mockImplementation((run: Run) => {
