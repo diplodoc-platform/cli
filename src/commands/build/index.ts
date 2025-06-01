@@ -21,7 +21,6 @@ import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
-import {Extension as AlgoliaSearchExtension} from '~/extensions/algolia';
 import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
@@ -128,7 +127,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
-        new AlgoliaSearchExtension(),
     ];
 
     /**
