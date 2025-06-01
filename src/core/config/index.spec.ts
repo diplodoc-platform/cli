@@ -1,6 +1,6 @@
-import {describe, expect, it, vi, beforeEach} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
-import {toggleable, resolveConfig} from '.';
+import {resolveConfig, toggleable} from '.';
 
 vi.mock('node:fs/promises', () => ({
     readFile: vi.fn(),
