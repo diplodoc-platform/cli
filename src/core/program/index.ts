@@ -3,7 +3,7 @@ import type {Command, Config, ExtendedOption} from '~/core/config';
 import type {HookMeta} from '~/core/utils';
 
 import {isAbsolute, resolve} from 'node:path';
-import {omit, once, pick} from 'lodash';
+import {omit, once, pick, merge} from 'lodash';
 
 import {
     resolveConfig,
@@ -182,7 +182,7 @@ export class BaseProgram<
     private async hookConfig(config: Config<TConfig>, args: TArgs) {
         await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
-        Object.assign(config, this.args(args));
+        merge(config, this.args(args));
 
         return getHooks(this as BaseProgram).Config.promise(config, args);
     }
