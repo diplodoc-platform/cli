@@ -161,6 +161,10 @@ export class BaseProgram<
         } as TArgs;
     }
 
+    addModule(module: ICallable) {
+        this.modules.push(module);
+    }
+
     private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
@@ -258,10 +262,15 @@ export class BaseProgram<
             name: string;
             options: Record<string, unknown>;
         }) => {
-            const ExtensionModule = requireExtension(name);
-            const Extension = ExtensionModule.Extension || ExtensionModule.default;
+            try {
+                const ExtensionModule = requireExtension(name);
+                const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
-            return new Extension(options);
+                return new Extension(options);
+            } catch (error) {
+                this.logger.error(`Failed to load extension from ${name}: ${error instanceof Error ? error.message : String(error)}`);
+                throw error;
+            }
         };
 
         return Promise.all(extensions.map(initialize));
