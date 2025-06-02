@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.12](https://github.com/diplodoc-platform/cli/compare/v4.59.11...v4.59.12) (2025-06-02)
+
+
+### Bug Fixes
+
+* Seal project deps for stable version ([174e0a0](https://github.com/diplodoc-platform/cli/commit/174e0a03ed1df15ec1f3ea3719da7bfff82442d0))
+
 ## [4.59.11](https://github.com/diplodoc-platform/cli/compare/v4.59.10...v4.59.11) (2025-05-21)
 
 
