@@ -29,13 +29,6 @@ path: toc.yaml
 "
 `;
 
-exports[`toc-loader > includes > should filter include in preview stage 1`] = `
-"items:
-  - name: Common item
-path: toc.yaml
-"
-`;
-
 exports[`toc-loader > includes > should merge deep includes in link mode 1`] = `
 "items:
   - name: Outer Item
@@ -187,6 +180,7 @@ restricted-access:
 items:
   - name: Item without access
     href: some/href.md
+path: toc.yaml
 "
 `;
 
@@ -201,6 +195,7 @@ items:
       - userA
       - userB
     href: some/href.md
+path: toc.yaml
 "
 `;
 
@@ -210,6 +205,7 @@ restricted-access: admin
 items:
   - name: Item without access
     href: some/href.md
+path: toc.yaml
 "
 `;
 

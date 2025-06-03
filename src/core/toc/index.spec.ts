@@ -284,7 +284,7 @@ describe('toc-loader', () => {
         test(
             dedent`
                 name: root
-                restricted-access: 
+                restricted-access:
                   - admin
                   - user
                 items:
@@ -300,12 +300,12 @@ describe('toc-loader', () => {
         test(
             dedent`
                 name: root
-                restricted-access: 
+                restricted-access:
                   - admin
                   - user
                 items:
                   - name: Item without access
-                    restricted-access: 
+                    restricted-access:
                       - userA
                       - userB
                     href: some/href.md
