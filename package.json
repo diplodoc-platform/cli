@@ -113,7 +113,7 @@
     "ajv": "^8.11.0",
     "algoliasearch": "5.20.0",
     "async": "3.2.4",
-    "axios": "1.7.8",
+    "axios": "1.9.0",
     "csp-header": "5.2.1",
     "esbuild": "0.23.1",
     "html-escaper": "3.0.3",
