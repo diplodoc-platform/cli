@@ -91,12 +91,12 @@ export class GithubVcsConnector implements VcsConnector {
         const author = await this.getAuthorByPath(path);
         const result: Contributor[] = [];
 
-        result.push(...this.contributorsByPath[normalizePath(path)]);
+        result.push(...(this.contributorsByPath[normalizePath(path)] || []));
         for (const dep of deps) {
-            result.push(...this.contributorsByPath[normalizePath(dep)]);
+            result.push(...(this.contributorsByPath[normalizePath(dep)] || []));
         }
 
-        return uniqBy(result, ({login}) => login).filter(({login}) => login !== author?.login);
+        return uniqBy(result.filter(Boolean), ({login}) => login).filter(({login}) => login !== author?.login);
     }
 
     @bounded
