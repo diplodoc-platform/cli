@@ -29,19 +29,24 @@ export class GitClient {
         this.config = config;
     }
 
-    async createMasterWorktree(baseDir: AbsolutePath, dir: RelativePath, branch: string) {
+    async createBranchWorktree(baseDir: AbsolutePath, dir: RelativePath, branch: string) {
         const options: Partial<SimpleGitOptions> = {baseDir};
         const origin = this.config.vcs.branch || 'master';
-
-        // TODO: this is cloud specific. We need extract this to isolated extension
-        try {
-            await simpleGit(options).raw('worktree', 'add', '-b', branch, dir, origin);
-        } catch {}
-
-        return async () => {
-            await simpleGit(options).raw('worktree', 'remove', dir);
-            await simpleGit(options).raw('branch', '-d', branch);
+        const cleanup = async () => {
+            try {
+                await simpleGit(options).raw('worktree', 'remove', dir, '-f');
+                await simpleGit(options).raw('branch', '-D', branch);
+            } catch {}
         };
+
+        try {
+            await cleanup();
+            await simpleGit(options).raw('worktree', 'add', '-b', branch, dir, origin);
+        } catch (error) {
+            console.error(error);
+        }
+
+        return cleanup;
     }
 
     async getContributors(baseDir: AbsolutePath) {
