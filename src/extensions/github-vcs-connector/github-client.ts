@@ -12,12 +12,14 @@ export type GithubConfig = {
 };
 
 type CommitsInfo = {
-    repository: Hash<{
-        oid: string;
-        author: {
-            user: Contributor;
-        };
-    }>;
+    repository: Hash<CommitInfo>;
+};
+
+type CommitInfo = {
+    oid: string;
+    author: {
+        user: Contributor | null;
+    };
 };
 
 export class GithubClient {
@@ -51,20 +53,42 @@ export class GithubClient {
         const queries = refs.map(
             (ref) => `sha${ref}: object(expression: "${ref}") {... on Commit {${fields}}}`,
         );
-        const request = `
+        const parts = splitRequests(queries, 25);
+        const requests = parts.map(
+            (part) => `
             query getCommits($owner: String!, $repo: String!) {
               repository(owner: $owner, name: $repo) {
-                ${queries.join('\n')}
+                ${part.join('\n')}
               }
             }
-        `;
+        `,
+        );
 
         try {
-            const result: CommitsInfo = await this.octokit.graphql(request, {owner, repo});
+            const results = (await Promise.all(
+                requests.map((request) => this.octokit.graphql(request, {owner, repo})),
+            )) as CommitsInfo[];
 
-            return Object.values(result.repository);
+            return joinResults(results);
         } catch {
             return [];
         }
     }
+}
+
+function splitRequests(array: unknown[], slice: number) {
+    array = array.slice();
+
+    const parts = [];
+    while (array.length) {
+        parts.push(array.splice(0, slice));
+    }
+
+    return parts;
+}
+
+function joinResults(results: CommitsInfo[]) {
+    return results.reduce((result, part) => {
+        return result.concat(Object.values(part.repository).filter(Boolean));
+    }, [] as CommitInfo[]);
 }
