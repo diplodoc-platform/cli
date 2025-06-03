@@ -12,6 +12,16 @@ export class DefaultVcsConnector implements VcsConnector {
         this.run = run;
     }
 
+    getData() {
+        return {
+            mtimes: {},
+            authors: {},
+            contributors: {},
+        };
+    }
+
+    setData() {}
+
     async getContributorsByPath() {
         return [];
     }

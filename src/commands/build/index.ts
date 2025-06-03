@@ -1,5 +1,6 @@
 import type {Meta} from '~/core/meta';
 import type {EntryTocItem, Toc} from '~/core/toc';
+import type {SyncData as VcsSyncData} from '~/core/vcs';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {ok} from 'node:assert';
@@ -213,10 +214,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         });
 
         await this.run.toc.init(paths);
+        await this.run.vcs.init();
 
         const {tocs, entries} = this.run.toc;
+        const vcs = this.run.vcs.getData();
 
-        await this.sync(tocs, entries);
+        await this.sync(tocs, entries, vcs);
 
         await this.concurrently(tocs, async (raw) => {
             const toc = await this.run.toc.dump(raw.path, raw);
@@ -259,7 +262,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @threads.multicast('build.sync')
-    async sync(tocs: Toc[], entries: NormalizedPath[]) {
+    async sync(tocs: Toc[], entries: NormalizedPath[], vcs: VcsSyncData) {
+        this.run.vcs.setData(vcs);
         this.run.toc.setEntries(entries);
         for (const toc of tocs) {
             this.run.toc.setToc(toc);
@@ -293,7 +297,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.run.vars.init();
         await this.run.leading.init();
         await this.run.markdown.init();
-        await this.run.vcs.init();
         await this.run.search.init();
         await this.run.redirects.init();
     }

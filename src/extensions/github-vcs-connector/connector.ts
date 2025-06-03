@@ -1,5 +1,5 @@
 import type {Run} from '@diplodoc/cli/lib/run';
-import type {Contributor, VcsConnector} from '@diplodoc/cli/lib/vcs';
+import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {join} from 'node:path';
@@ -56,6 +56,20 @@ export class GithubVcsConnector implements VcsConnector {
         }
 
         return this;
+    }
+
+    getData() {
+        return {
+            mtimes: this.mtimeByPath,
+            authors: this.authorByPath,
+            contributors: this.contributorsByPath,
+        };
+    }
+
+    setData(data: SyncData) {
+        this.mtimeByPath = data.mtimes;
+        this.authorByPath = data.authors;
+        this.contributorsByPath = data.contributors;
     }
 
     @bounded

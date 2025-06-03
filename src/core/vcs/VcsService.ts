@@ -1,5 +1,5 @@
 import type {Run} from '~/core/run';
-import type {Contributor, VcsConnector, VcsMetadata} from './types';
+import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
 
 import {join, relative} from 'node:path';
 
@@ -68,6 +68,14 @@ export class VcsService implements VcsConnector {
         }
 
         this.connector = await getHooks(this).VcsConnector.for(type).promise(this.connector);
+    }
+
+    getData() {
+        return this.connector.getData();
+    }
+
+    setData(data: SyncData) {
+        this.connector.setData(data);
     }
 
     async metadata(path: RelativePath, meta: Meta, deps: NormalizedPath[] = []) {
