@@ -614,7 +614,7 @@ exports[`Regression > internal > includes.html 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -644,6 +644,7 @@ Text
 
 {% include [test](includes/test-c9d04c9565fc.md) %}
 
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
 {% include [For includes/deep-cad9dc01e96f.md](includes/deep-cad9dc01e96f.md) %}
 "
 `;

@@ -49,42 +49,48 @@ export class OutputMd {
                 const copied = new Set();
 
                 // Recursively copy transformed markdown deps
-                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
-                    const {hashIncludes} = run.config;
-                    const processed = new Map();
-                    const entry = await run.markdown.graph(vfile.path);
+                getMarkdownHooks(run.markdown).Dump.tapPromise(
+                    {name: 'Build.Md', stage: -Infinity},
+                    async (vfile) => {
+                        const {hashIncludes} = run.config;
+                        const processed = new Map();
+                        const entry = await run.markdown.graph(vfile.path);
 
-                    vfile.data = (await dump(entry)).content;
+                        vfile.data = (await dump(entry)).content;
 
-                    async function dump(entry: EntryGraph, write = false) {
-                        if (processed.has(entry.path)) {
-                            return processed.get(entry.path);
-                        }
+                        async function dump(entry: EntryGraph, write = false) {
+                            if (processed.has(entry.path)) {
+                                return processed.get(entry.path);
+                            }
 
-                        const deps = await all(entry.deps.map((dep) => dump(dep, true)));
-                        const content = replaceDeps(entry.content, deps);
-                        const hash = hashIncludes ? rehashContent(content) : '';
-                        const link = signlink(entry.path, hash);
-                        const hashed = {...entry, content, hash};
+                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
+                            const content = replaceDeps(entry.content, deps);
+                            const hash = hashIncludes ? rehashContent(content) : '';
+                            const link = signlink(entry.path, hash);
+                            const hashed = {...entry, content, hash};
 
-                        processed.set(entry.path, hashed);
+                            processed.set(entry.path, hashed);
 
-                        if (copied.has(link) || !write) {
+                            if (copied.has(link) || !write) {
+                                return hashed;
+                            }
+                            copied.add(link);
+
+                            try {
+                                run.logger.copy(
+                                    join(run.input, entry.path),
+                                    join(run.output, link),
+                                );
+
+                                await run.write(join(run.output, link), content);
+                            } catch (error) {
+                                run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
+                            }
+
                             return hashed;
                         }
-                        copied.add(link);
-
-                        try {
-                            run.logger.copy(join(run.input, entry.path), join(run.output, link));
-
-                            await run.write(join(run.output, link), content);
-                        } catch (error) {
-                            run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
-                        }
-
-                        return hashed;
-                    }
-                });
+                    },
+                );
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
                     vfile.data.meta = await run.meta.dump(vfile.path);

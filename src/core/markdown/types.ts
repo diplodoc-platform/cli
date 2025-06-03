@@ -39,5 +39,11 @@ export type HeadingInfo = {
 export type EntryGraph = {
     path: NormalizedPath;
     content: string;
-    deps: EntryGraph[];
-} & Partial<Pick<IncludeInfo, 'match' | 'link'>>;
+    deps: EntryGraphNode[];
+};
+
+export type EntryGraphNode = {
+    path: NormalizedPath;
+    content: string;
+    deps: EntryGraphNode[];
+} & IncludeInfo;
