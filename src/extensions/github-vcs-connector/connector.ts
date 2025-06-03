@@ -128,13 +128,15 @@ export class GithubVcsConnector implements VcsConnector {
         this.run.logger.info('Contributors: Getting all contributors.');
 
         const contributors = await this.git.getContributors(normalizePath(baseDir) as AbsolutePath);
-        const infos = Object.values(contributors).reduce((a, b) => a.concat(b), []);
+        const infos = Object.values(contributors).flat();
         const users = await this.getUsersByCommits(infos);
 
         for (const [path, infos] of Object.entries(contributors)) {
-            this.contributorsByPath[path as NormalizedPath] = (
-                this.contributorsByPath[path as NormalizedPath] || []
-            ).concat(infos.map(({commit}) => users[commit]));
+            const next = infos.map(({commit}) => users[commit]).filter(Boolean);
+            const prev = this.contributorsByPath[path as NormalizedPath] || [];
+            if (next.length) {
+                this.contributorsByPath[path as NormalizedPath] = prev.concat(next);
+            }
         }
 
         this.run.logger.info('Contributors: All contributors received.');
@@ -181,8 +183,10 @@ export class GithubVcsConnector implements VcsConnector {
         const commitsInfo = await this.github.getCommitsInfo(requests);
 
         return commitsInfo.reduce((result, info) => {
-            for (const commit of aliases[info.oid]) {
-                result[commit] = info.author.user;
+            if (info.author?.user) {
+                for (const commit of aliases[info.oid]) {
+                    result[commit] = info.author.user;
+                }
             }
 
             return result;
