@@ -1,4 +1,4 @@
-import type {Collect, EntryGraph} from '~/core/markdown';
+import type {Collect, EntryGraphNode} from '~/core/markdown';
 
 import {createHash} from 'node:crypto';
 import * as mermaid from '@diplodoc/mermaid-extension';
@@ -11,9 +11,8 @@ type Plugin = {
     collect?: Collect;
 };
 
-type HashedGraph = EntryGraph & {
+type HashedGraphNode = EntryGraphNode & {
     link: string;
-    match: string;
     hash: string;
 };
 
@@ -53,20 +52,14 @@ export function getCustomCollectPlugins(): Collect[] {
     }
 }
 
-export function replaceDeps(content: string, deps: HashedGraph[]) {
+export function replaceDeps(content: string, deps: HashedGraphNode[]) {
     deps = deps.slice();
 
-    let index = 0;
-    while (deps.length && index > -1) {
-        const dep = deps.shift() as HashedGraph;
-        const start = content.indexOf(dep.match, index);
-        const end = start + dep.match.length;
+    while (deps.length) {
+        const dep = deps.pop() as HashedGraphNode;
 
-        if (start > -1) {
-            const rehashed = rehashInclude(dep);
-            content = content.slice(0, start) + rehashed + content.slice(end);
-            index = start + rehashed.length - 1;
-        }
+        const rehashed = rehashInclude(dep);
+        content = content.slice(0, dep.location[0]) + rehashed + content.slice(dep.location[1]);
     }
 
     return content;
@@ -80,7 +73,7 @@ export function rehashContent(content: string) {
     return hash.digest('hex').slice(0, 12);
 }
 
-export function rehashInclude(include: HashedGraph) {
+export function rehashInclude(include: HashedGraphNode) {
     return replaceAll(include.match, include.link, signlink(include.link, include.hash));
 }
 
