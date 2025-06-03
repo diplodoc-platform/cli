@@ -33,10 +33,8 @@ export class GitClient {
         const options: Partial<SimpleGitOptions> = {baseDir};
         const origin = this.config.vcs.branch || 'master';
         const cleanup = async () => {
-            try {
-                await simpleGit(options).raw('worktree', 'remove', dir, '-f');
-                await simpleGit(options).raw('branch', '-D', branch);
-            } catch {}
+            await safe(simpleGit(options).raw('worktree', 'remove', dir, '-f'));
+            await safe(simpleGit(options).raw('branch', '-D', branch));
         };
 
         try {
@@ -50,6 +48,7 @@ export class GitClient {
     }
 
     async getContributors(baseDir: AbsolutePath) {
+        const ignore = this.config.contributors?.ignore || [];
         const contributors: Record<NormalizedPath, AuthorInfo[]> = {};
         const log = await simpleGit({baseDir}).raw(
             'log',
@@ -66,13 +65,10 @@ export class GitClient {
         for (const part of parts) {
             const [userData, ...paths] = part.trim().split(/\r?\n/);
             const [email, name, commit] = userData.split(';');
+            const skip = shouldBeIgnored(ignore, {email, name});
 
             followPaths(paths, contributors, (value) => {
-                if (shouldBeIgnored(this.config.contributors?.ignore || [], {email, name})) {
-                    return value;
-                }
-
-                return (value || []).concat({email, commit});
+                return skip ? value : (value || []).concat({email, commit});
             });
         }
 
@@ -80,6 +76,7 @@ export class GitClient {
     }
 
     async getAuthors(baseDir: AbsolutePath) {
+        const ignore = this.config.authors?.ignore || [];
         const authors: Record<NormalizedPath, AuthorInfo> = {};
         const log = await simpleGit({baseDir}).raw(
             'log',
@@ -96,13 +93,10 @@ export class GitClient {
         for (const part of parts) {
             const [userData, ...paths] = part.trim().split(/\r?\n/);
             const [email, name, commit] = userData.split(';');
+            const skip = shouldBeIgnored(ignore, {email, name});
 
             followPaths(paths, authors, (value) => {
-                if (shouldBeIgnored(this.config.authors?.ignore || [], {email, name})) {
-                    return value;
-                }
-
-                return value || {email, commit};
+                return skip ? value : value || {email, commit};
             });
         }
 
@@ -149,9 +143,13 @@ function followPaths<T>(lines: string[], map: Hash<T>, value: (prev: T) => T) {
             continue;
         }
 
+        const val = value(map[from]);
+
         switch (status[0]) {
             case 'R': {
-                map[to] = value(map[from]);
+                if (val) {
+                    map[to] = val;
+                }
                 delete map[from];
                 break;
             }
@@ -160,7 +158,9 @@ function followPaths<T>(lines: string[], map: Hash<T>, value: (prev: T) => T) {
                 break;
             }
             default: {
-                map[from] = value(map[from]);
+                if (val) {
+                    map[from] = val;
+                }
             }
         }
     }
@@ -190,4 +190,12 @@ function shouldBeIgnored(ignore: string[], {email, name}: ShouldAuthorBeIgnoredA
 
 function isUsefullPath(path: string) {
     return path && (path.endsWith('.md') || path.endsWith('.yaml'));
+}
+
+async function safe(call: Promise<unknown> | undefined) {
+    try {
+        if (call) {
+            await call;
+        }
+    } catch {}
 }
