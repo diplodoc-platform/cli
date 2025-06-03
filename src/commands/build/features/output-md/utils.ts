@@ -1,11 +1,12 @@
 import type {Collect, EntryGraphNode} from '~/core/markdown';
 
+import {basename, extname} from 'node:path';
 import {createHash} from 'node:crypto';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
-import {replaceAll} from '~/core/utils';
+import {replaceAll, setExt} from '~/core/utils';
 
 type Plugin = {
     collect?: Collect;
@@ -83,7 +84,8 @@ export function signlink(link: string, sign: string) {
     }
 
     const [path, hash] = link.split('#');
-    const [_, name, ext] = path.match(/(.*)\.(.*?)$/) as string[];
+    const ext = extname(path);
+    const name = setExt(path, '');
 
-    return `${name}-${sign}.${ext}${hash ? '#' + hash : ''}`;
+    return `${name}-${sign}${ext}${hash ? '#' + hash : ''}`;
 }
