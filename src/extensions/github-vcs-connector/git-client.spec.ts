@@ -409,13 +409,13 @@ describe('GitClient', () => {
 
         git = new GitClient({vcs: {initialCommit: 'sha-1'}});
 
-        const cleanup = await git.createMasterWorktree(baseDir, dir, branch);
+        const cleanup = await git.createBranchWorktree(baseDir, dir, branch);
 
         expect(raw).toBeCalledWith('worktree', 'add', '-b', 'test-branch', 'test-dir', 'master');
 
         await cleanup();
 
-        expect(raw).toBeCalledWith('worktree', 'remove', 'test-dir');
-        expect(raw).toBeCalledWith('branch', '-d', 'test-branch');
+        expect(raw).toBeCalledWith('worktree', 'remove', 'test-dir', '-f');
+        expect(raw).toBeCalledWith('branch', '-D', 'test-branch');
     });
 });

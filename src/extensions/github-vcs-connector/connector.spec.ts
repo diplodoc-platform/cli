@@ -56,6 +56,7 @@ describe('GithubVcsConnector', () => {
                 owner: 'diplodoc-platform',
                 repo: 'cli',
                 token: 'token',
+                branch: 'origin/master',
                 endpoint: 'endpoint',
                 initialCommit: '',
             },
@@ -65,7 +66,7 @@ describe('GithubVcsConnector', () => {
         cleanup = vi.fn(async () => {});
         connector = new GithubVcsConnector(run);
 
-        git.createMasterWorktree.mockResolvedValue(cleanup);
+        git.createBranchWorktree.mockResolvedValue(cleanup);
         git.getMTimes.mockResolvedValue({});
         git.getAuthors.mockResolvedValue({});
         git.getContributors.mockResolvedValue({});

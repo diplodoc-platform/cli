@@ -35,20 +35,26 @@ export class GithubVcsConnector implements VcsConnector {
     }
 
     async init() {
-        const {mtimes, authors, contributors} = this.config;
-        const masterDir = '_yfm-master' as RelativePath;
-        const cleanup = await this.git.createMasterWorktree(
-            this.run.originalInput,
-            masterDir,
-            'yfm-tmp-master',
-        );
+        const {mtimes, authors, contributors, vcs} = this.config;
+
+        let workdir = this.run.originalInput;
+        let cleanup = async () => {};
+
+        if (vcs.branch) {
+            workdir = join(this.run.originalInput, '_yfm-master');
+            cleanup = await this.git.createBranchWorktree(
+                this.run.originalInput,
+                '_yfm-master' as RelativePath,
+                'yfm-tmp-master',
+            );
+        }
 
         try {
             await Promise.all(
                 [
-                    mtimes && this.fillMTimes(this.run.originalInput),
-                    authors && this.fillAuthors(join(this.run.originalInput, masterDir)),
-                    contributors && this.fillContributors(join(this.run.originalInput, masterDir)),
+                    mtimes && this.fillMTimes(workdir),
+                    authors && this.fillAuthors(workdir),
+                    contributors && this.fillContributors(workdir),
                 ].filter(Boolean),
             );
         } finally {
