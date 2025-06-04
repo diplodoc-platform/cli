@@ -30,7 +30,6 @@ export class Contributors {
         });
 
         getBaseHooks(program).Config.tap('Contributors', (config, args) => {
-            config.vcs = defined('vcs', config) || {enabled: false};
             config.mtimes = toggleable('mtimes', args, config);
             config.authors = toggleable('authors', args, config);
             config.contributors = toggleable('contributors', args, config);

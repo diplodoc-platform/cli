@@ -230,6 +230,8 @@ export class BaseProgram<
     }
 
     private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
+        const extnames = new Set();
+
         // args extension paths should be relative to PWD
         const argsExtensions: {
             name: string;
@@ -238,8 +240,13 @@ export class BaseProgram<
             const name = isRelative(ext) ? resolve(ext) : ext;
             const options = {};
 
+            if (extnames.has(name)) {
+                return undefined;
+            }
+            extnames.add(name);
+
             return {name, options};
-        });
+        }).filter(Boolean);
 
         // config extension paths should be relative to config
         const configExtensions: {
@@ -250,8 +257,13 @@ export class BaseProgram<
             const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
             const options = typeof ext === 'string' ? {} : omit(ext, 'path');
 
+            if (extnames.has(name)) {
+                return undefined;
+            }
+            extnames.add(name);
+
             return {name, options};
-        });
+        }).filter(Boolean);
 
         const extensions = [...argsExtensions, ...configExtensions];
 

@@ -2,7 +2,7 @@ import type {BuildArgs, BuildRawConfig} from './types';
 import {ok} from 'node:assert';
 import {bold, underline} from 'chalk';
 import {options as globalOptions} from '~/commands/config';
-import {defined, option, valuable} from '~/core/config';
+import {defined, option, toggleable, valuable} from '~/core/config';
 import {Lang, Stage} from '~/constants';
 
 export enum OutputFormat {
@@ -78,6 +78,22 @@ const ignore = option({
     `,
 });
 
+const vcs = option({
+    flags: '--vcs',
+    desc: `
+        Enable or disable VCS connection.
+
+        If disabled, then some features, like authors or auto redirects list,
+        will be also disabled.
+    `,
+});
+
+const vcsToken = option({
+    flags: '--vcs-token <secret>',
+    desc: `Secret token for enabled VCS connector.`,
+    default: process.env.VCS_TOKEN,
+});
+
 // TODO: options below are not beautified.
 const addMapFile = option({
     flags: '--add-map-file',
@@ -128,8 +144,14 @@ export function normalize(config: BuildRawConfig, args: BuildArgs) {
     config.ignoreStage = [].concat(ignoreStage);
     config.langs = langs;
     config.lang = lang || langs[0];
+    config.vcs = toggleable('vcs', args, config);
+    config.vcs.token = defined('vcsToken', args);
 
     return config;
+}
+
+export function validate(config: BuildRawConfig) {
+    ok(!config.vcs?.token, 'Do not store secret VCS token in config. Use args or env.');
 }
 
 export const options = {
@@ -148,4 +170,6 @@ export const options = {
     ignore,
     ignoreStage,
     addSystemMeta,
+    vcs,
+    vcsToken,
 };

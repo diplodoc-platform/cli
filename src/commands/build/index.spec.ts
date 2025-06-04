@@ -284,6 +284,74 @@ describe('Build command', () => {
             );
         });
 
+        describe('vcs', () => {
+            test('should handle default', '', {
+                vcs: {enabled: false},
+            });
+
+            test('should handle arg', '--vcs', {
+                vcs: {enabled: true},
+            });
+
+            test(
+                'should handle simple config',
+                '',
+                {
+                    vcs: true,
+                },
+                {
+                    vcs: {enabled: true},
+                },
+            );
+
+            test(
+                'should handle complex config 1',
+                '',
+                {
+                    vcs: {enabled: true},
+                },
+                {
+                    vcs: {enabled: true},
+                },
+            );
+
+            test(
+                'should handle complex config 1',
+                '',
+                {
+                    vcs: {enabled: false},
+                },
+                {
+                    vcs: {enabled: false},
+                },
+            );
+        });
+
+        describe('vcsToken', () => {
+            test('should handle default', '', {
+                vcs: {enabled: false},
+            });
+
+            test('should handle arg', '--vcs-token A', {
+                vcs: {
+                    enabled: true,
+                    token: 'A',
+                },
+            });
+
+            test(
+                'should throw if token passed to config',
+                '',
+                {
+                    vcs: {
+                        enabled: true,
+                        token: 'A',
+                    },
+                },
+                new Error('Do not store secret VCS token in config. Use args or env.'),
+            );
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('removeHiddenTocItems', '--remove-hidden-toc-items', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);

@@ -30,7 +30,8 @@
       "default": "./lib/*/index.mjs"
     },
     "./package": "./package.json",
-    "./report-logs": "./build/report-logs.js"
+    "./report-logs": "./build/report-logs.js",
+    "./github-vcs-connector": "./build/github-vcs-connector.js"
   },
   "main": "build/index.js",
   "bin": {

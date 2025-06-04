@@ -1,3 +1,4 @@
+import type {Meta} from '~/core/meta';
 import type {EntryTocItem, Toc} from '~/core/toc';
 import type {SyncData as VcsSyncData} from '~/core/vcs';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
@@ -16,14 +17,13 @@ import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
 import {normalizePath, setExt} from '~/core/utils';
-import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as LocalSearchExtension} from '~/extensions/search';
 import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
-import {OutputFormat, normalize, options} from './config';
+import {OutputFormat, normalize, options, validate} from './config';
 import {Run} from './run';
 import {handler} from './handler';
 
@@ -108,6 +108,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.addSystemMeta,
         options.ignore,
         options.ignoreStage,
+        options.vcs,
+        options.vcsToken,
         options.config(YFM_CONFIG_FILENAME),
     ];
 
@@ -122,7 +124,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.md,
         this.html,
         this.legacy,
-        new GithubVcsConnector(),
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
@@ -137,7 +138,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     private run!: Run;
 
     apply(program?: BaseProgram) {
-        getBaseHooks(this).Config.tap('Build', normalize);
+        getBaseHooks(this).RawConfig.tap('Build', validate);
+        getBaseHooks(this).Config.tap({name: 'Build', stage: -1}, normalize);
 
         super.apply(program);
     }

@@ -6,4 +6,13 @@ export type Config = GitConfig &
         mtimes: {enabled: true};
         authors: {enabled: true};
         contributors: {enabled: true};
+        vcs: {enabled: boolean};
     };
+
+export type Args = {
+    vcsRepo: string;
+    vcsOwner: string;
+    vcsEndpoint: string;
+    vcsBranch: string;
+    vcsInitialCommit: string;
+};
