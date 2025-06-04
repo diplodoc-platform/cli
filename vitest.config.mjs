@@ -10,14 +10,13 @@ export default defineConfig({
     test: {
         environment: 'node',
         include: [
-            'tests/e2e/**/*.{test,spec}.ts',
             'src/**/*.{test,spec}.ts',
         ],
         exclude: ['node_modules'],
         coverage: {
             all: true,
             provider: 'v8',
-            include: ['src/**', 'build/index.?(m)js'],
+            include: ['src/**'],
             exclude: ['assets/**', 'tests/**', ...coverageConfigDefaults.exclude],
             excludeAfterRemap: true,
             reporter: ['text', 'json', 'html'],
