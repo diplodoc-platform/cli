@@ -1,5 +1,91 @@
 # Changelog
 
+## [5.0.0](https://github.com/diplodoc-platform/cli/compare/v4.59.13...v5.0.0) (2025-06-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Add multithreading
+
+### Features
+
+* add @diplodoc/page-constructor-extension ([#1222](https://github.com/diplodoc-platform/cli/issues/1222)) ([5a9f8ce](https://github.com/diplodoc-platform/cli/commit/5a9f8ce8e9d38092393ebf964c485c60a48d0622))
+* Add `hashIncludes` build option ([80b3d96](https://github.com/diplodoc-platform/cli/commit/80b3d96e447ab701fa3e5295abac1a06e0c05be3))
+* Add autotitles to generic includer ([3e7f143](https://github.com/diplodoc-platform/cli/commit/3e7f1438f2685bfc8813d24bc913d0d9a7ecd811))
+* Add autotitles to TOC ([32d790f](https://github.com/diplodoc-platform/cli/commit/32d790f2e83a911267e88f0347236698ff2abc7a))
+* Add hooks to logger ([78d06f4](https://github.com/diplodoc-platform/cli/commit/78d06f4fdb94f4bb5311fa6ce5c14fd4e471e6d0))
+* Add multithreading ([d7af822](https://github.com/diplodoc-platform/cli/commit/d7af822c6b0ed8a25b7e1b7764c363fb6b0452ee))
+* Add program run report ([456d03b](https://github.com/diplodoc-platform/cli/commit/456d03b318090006e04ede69726bb5d3ce0e57e7))
+* Add program run report ([62a6541](https://github.com/diplodoc-platform/cli/commit/62a65419e0766807dd529ff3d135005e743d32ea))
+* Add smart extensions resolving ([81a0c4c](https://github.com/diplodoc-platform/cli/commit/81a0c4c606adf079b4e46b519a10b9adbc97032d))
+* delete algolia ([9257c87](https://github.com/diplodoc-platform/cli/commit/9257c870026021869ad6b7b19acc7ea8a50b6f31))
+* flexible support for restricted-access has been added when adding it to frontmatter ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* Implement build Entry service ([2551b64](https://github.com/diplodoc-platform/cli/commit/2551b64001cf4bc8fa62cf6f462261efe92e9442))
+* Implement core template class ([d094a6a](https://github.com/diplodoc-platform/cli/commit/d094a6ac7e28dff0a1b0adc7bdc7282b6cc1231d))
+* Improve vcs connector ([0251165](https://github.com/diplodoc-platform/cli/commit/0251165f8f57fdedb111336a25ef1f28ba9885d3))
+* Make VCS feature more configuragle ([03c33f5](https://github.com/diplodoc-platform/cli/commit/03c33f590b2eb8e07d8ea64238f5bdfaa37011b7))
+* merge config ([7597350](https://github.com/diplodoc-platform/cli/commit/75973504327e6fbe9f317e5c7559b8c14154ee1c))
+* Reimplement redirects feature to redirects service ([f4931ec](https://github.com/diplodoc-platform/cli/commit/f4931ec1c7777f5d1ac354726f9225b6aa6b12aa))
+* Remove `from` argument from public markdown api ([f896a6f](https://github.com/diplodoc-platform/cli/commit/f896a6fe65537bc664933098c628f2c0996326ff))
+* Rename github-vcs-connector to github-vcs ([925854b](https://github.com/diplodoc-platform/cli/commit/925854b226c154dae357021704f3cf782377ae40))
+
+
+### Bug Fixes
+
+* Accurate use memory on threads ([2b9e213](https://github.com/diplodoc-platform/cli/commit/2b9e21351a5ee73d2fddadcecfdc8d2fe4bb949c))
+* add lint rule YFM003 for unreachable links ([617e432](https://github.com/diplodoc-platform/cli/commit/617e432c62f8b815d36161ac0fd4d50a091388a3))
+* Add toc info for ssr single-page ([c13805c](https://github.com/diplodoc-platform/cli/commit/c13805c51e1f56678829f90ab6583aecb8602650))
+* addModule & lint tests ([4615a40](https://github.com/diplodoc-platform/cli/commit/4615a4054c2299d931cac3dd0b55eb34142126fd))
+* after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* by review ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* Change includes hashing algorithm ([7bdd323](https://github.com/diplodoc-platform/cli/commit/7bdd3231a0504ff75e24c4d651c87ffc09179946))
+* Change threads sync algorithm and Toc service api ([f747846](https://github.com/diplodoc-platform/cli/commit/f747846b963cb78580e91eca6b0534fb05366881))
+* Change threads sync algorithm and Toc service api ([89e2a11](https://github.com/diplodoc-platform/cli/commit/89e2a11703e95b455803987191c86e7e856809b9))
+* correct after rebase ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* Create VCS worktree only if branch configured ([0d0237e](https://github.com/diplodoc-platform/cli/commit/0d0237e5afaa19635ebc69c41d1042dd69a91a2a))
+* Debounce includes copy ([11bec0b](https://github.com/diplodoc-platform/cli/commit/11bec0ba968b2212aa20ac11c9c7996cb6dd21c5))
+* Disable ignoring toc with `technical-preview` stage ([9c7c6be](https://github.com/diplodoc-platform/cli/commit/9c7c6be2efedc13af5676ab0065706989eb97b38))
+* Disable VCS data processing on threads ([cf276ea](https://github.com/diplodoc-platform/cli/commit/cf276ea1b0b4aff856a2ff19fd920606beff64b1))
+* Do not store meta inside leading data for html ([c27d463](https://github.com/diplodoc-platform/cli/commit/c27d463cc243b78001871afbcfed597f2f52e0b7))
+* Fix commented includes hashing ([8ced95b](https://github.com/diplodoc-platform/cli/commit/8ced95bfd0f1a60a5ab6d1fbbb29f3b739196bdd))
+* Fix empty VCS data processing ([c9f5870](https://github.com/diplodoc-platform/cli/commit/c9f587086c1947b617cd66848ec2894b02d39afd))
+* Fix included tocs processing ([ad1a8e3](https://github.com/diplodoc-platform/cli/commit/ad1a8e336c449e9cf3be0592112852c39011aa52))
+* Fix includes hashing link processing ([f8e6161](https://github.com/diplodoc-platform/cli/commit/f8e6161ab8c628a5427f40cc76c2c6537d2cc916))
+* Fix link unreachble check for threading mode ([f4d03ba](https://github.com/diplodoc-platform/cli/commit/f4d03baf0495ec741a88070fdaae49f4cfb0eaa4))
+* Fix link unreachble check for threading mode ([1be05ab](https://github.com/diplodoc-platform/cli/commit/1be05abb9c9eeeb7fb711c1e6abc652f079aa8c2))
+* Fix multithreading featue ([7fc344e](https://github.com/diplodoc-platform/cli/commit/7fc344e0a80faa8658946644fff9d2590e7e0f83))
+* Fix project links exists check ([4b73a93](https://github.com/diplodoc-platform/cli/commit/4b73a9328522fa884cb276c08fce1e1822f2541d))
+* Fix single-page rendering mode ([c9c5968](https://github.com/diplodoc-platform/cli/commit/c9c5968da6e4f0c3c070b3e1bc30bd3da5d79c42))
+* fix tests, add test, fix logic add meta ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* Fix threaded entries processing ([b094bf5](https://github.com/diplodoc-platform/cli/commit/b094bf5dca1583af767dbd90f47dc1dac4cfbfa5))
+* Fix types, lint, package-lock ([4646d21](https://github.com/diplodoc-platform/cli/commit/4646d217adaff405ee097854494e65b3fe9f1a71))
+* Fix VCS mtimes for threaded mode ([6cd665c](https://github.com/diplodoc-platform/cli/commit/6cd665ce028a3bd5e4043aacc19e973e95331048))
+* generic include ([d8e43a4](https://github.com/diplodoc-platform/cli/commit/d8e43a40e752d2cd2be1d7126d5aeb5605942a51))
+* Handle VCS empty user info ([e096544](https://github.com/diplodoc-platform/cli/commit/e096544e71ee25f81f66e9997dd5b92075dbafc9))
+* Hash markdown includes ([7d1a599](https://github.com/diplodoc-platform/cli/commit/7d1a5994ed58d670607519f9b4af019402e13cea))
+* Improve error logs ([0533029](https://github.com/diplodoc-platform/cli/commit/05330291392ec77756637e751a7fc5a59ecf7c91))
+* incorrect merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* link err to warn ([2c3806c](https://github.com/diplodoc-platform/cli/commit/2c3806c47c78fbd8395bb63e771c517e0fd090f2))
+* merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* merge ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* Move `mergeIncludes` option to md feature ([ac7401f](https://github.com/diplodoc-platform/cli/commit/ac7401f35398d026fbbc9a7664fcb332a2d28d43))
+* Move `mergeIncludes` option to md feature ([370d9b8](https://github.com/diplodoc-platform/cli/commit/370d9b8d9850eff2bb90f32cae3ac3847675c5a5))
+* Pile threads logs to main process ([dcd1572](https://github.com/diplodoc-platform/cli/commit/dcd1572b2e498c141df9feb5ad3c6c884a3d0926))
+* Remove useless logger `add` method ([c9bfb17](https://github.com/diplodoc-platform/cli/commit/c9bfb1722e41818aeae53f6eb02062579ae4497b))
+* Split github info request ([074ff4d](https://github.com/diplodoc-platform/cli/commit/074ff4dc793e1a38e583c87dd713a5898dd6993a))
+* temp disable toc filtrations ([172630d](https://github.com/diplodoc-platform/cli/commit/172630d0d6864fc15b8842e5bb1a17f7b327b9d8))
+* transferring restricted-access logic to walkItems ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+* traversing branches without an href attribute ([2638d1e](https://github.com/diplodoc-platform/cli/commit/2638d1e2a5be26d355654e7f3e08133aed64aca9))
+
+
+### Dependency update
+
+* @diplodoc/client@3.5.0 ([d7b2373](https://github.com/diplodoc-platform/cli/commit/d7b2373b573eac7b6fec1861f99d0bddd49f5fe7))
+* bump yfmlint 1.2.2-&gt;1.23 ([9ccca5e](https://github.com/diplodoc-platform/cli/commit/9ccca5e6db6aa66c7831ddbd298aea60d4cfd6e8))
+* Downgrade execa to 9.5.2 ([3c7e83e](https://github.com/diplodoc-platform/cli/commit/3c7e83eccfcd378b7e8e446025150963d8329c0b))
+* Update yfmlint ([471993b](https://github.com/diplodoc-platform/cli/commit/471993bb279a59b1bf5d06dff728a3a30368e16d))
+* Update yfmlint and client ([6ebc0eb](https://github.com/diplodoc-platform/cli/commit/6ebc0eb8a3e188b0a2613ab44f6ad5c3a19e975b))
+
 ## [4.59.13](https://github.com/diplodoc-platform/cli/compare/v4.59.12...v4.59.13) (2025-06-04)
 
 
