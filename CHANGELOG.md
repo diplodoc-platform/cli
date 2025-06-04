@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.59.13](https://github.com/diplodoc-platform/cli/compare/v4.59.12...v4.59.13) (2025-06-04)
+
+
+### Bug Fixes
+
+* Fix source to full path ([#1228](https://github.com/diplodoc-platform/cli/issues/1228)) ([53864ea](https://github.com/diplodoc-platform/cli/commit/53864ea210f22a05e44407b48610eff452f86193))
+
 ## [4.59.12](https://github.com/diplodoc-platform/cli/compare/v4.59.11...v4.59.12) (2025-06-02)
 
 
