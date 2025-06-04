@@ -112,7 +112,7 @@
     "@types/markdown-it": "13.0.9",
     "@types/mime-types": "2.1.4",
     "@types/node": "18.19.4",
-    "@vitest/coverage-v8": "3.1.1",
+    "@vitest/coverage-v8": "^3.2.1",
     "ajv": "^8.11.0",
     "async": "^3.2.4",
     "axios": "^1.7.8",
@@ -130,9 +130,10 @@
     "typescript": "5.4.5",
     "typescript-transform-paths": "3.5.5",
     "uuid": "11.0.4",
-    "vite-tsconfig-paths": "4.2.3",
-    "vitest": "3.1.1",
-    "vitest-when": "0.6.0",
+    "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.1",
+    "vitest-when": "^0.6.1",
     "walk-sync": "3.0.0"
   },
   "engines": {
