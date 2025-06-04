@@ -66,6 +66,10 @@ export class TocService {
         return [...this._tocs.values()].filter(Boolean) as Toc[];
     }
 
+    get copymap() {
+        return this._copymap;
+    }
+
     private run: Run;
 
     private logger: Run['logger'];
@@ -75,6 +79,8 @@ export class TocService {
     private _entries: Set<NormalizedPath> = new Set();
 
     private _tocs: Map<NormalizedPath, Toc | boolean> = new Map();
+
+    private _copymap: Record<NormalizedPath, NormalizedPath> = {};
 
     private processed: Hash<boolean> = {};
 
@@ -147,6 +153,10 @@ export class TocService {
     setToc(toc: Toc) {
         this.processed[toc.path] = true;
         this.cache.set(toc.path, toc);
+    }
+
+    setCopymap(copymap: Record<NormalizedPath, NormalizedPath>) {
+        this._copymap = copymap;
     }
 
     setEntries(entries: NormalizedPath[]) {
@@ -273,11 +283,12 @@ export class TocService {
                 [basename(file), '**/toc.yaml'],
             );
 
-            for (const [from, to] of files) {
-                this.logger.copy(from, to);
-                this.meta.add(relative(this.run.input, to), {
-                    sourcePath: relative(this.run.input, from),
-                });
+            for (const pair of files) {
+                const [from, to] = pair.map((path) =>
+                    normalizePath(relative(this.run.input, path)),
+                );
+                this.logger.copy(pair[0], pair[1]);
+                this._copymap[from] = to;
             }
         }
 

@@ -15,6 +15,7 @@ export interface VcsConnector {
 
 export interface VcsMetadata {
     vcsPath?: NormalizedPath;
+    sourcePath?: NormalizedPath;
     updatedAt?: string;
     author?: Contributor;
     contributors?: Contributor[];

@@ -1,7 +1,6 @@
-import type {Run} from '~/core/run';
+import type {Run as BaseRun} from '~/core/run';
+import type {TocService} from '~/core/toc';
 import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
-
-import {join, relative} from 'node:path';
 
 import {memoize, normalizePath} from '~/core/utils';
 
@@ -14,7 +13,6 @@ export type VcsServiceConfig = {
     contributors: {enabled: boolean; ignore: string[]};
     vcs: {
         enabled: boolean;
-        type: string;
         /**
          * Externally accessible base URI for a resource where a particular documentation
          * source is hosted.
@@ -41,17 +39,21 @@ type Meta = {
     vcsPath?: string;
 };
 
+type Run = BaseRun<VcsServiceConfig> & {
+    toc: TocService;
+};
+
 @withHooks
 export class VcsService implements VcsConnector {
     readonly name = 'Vcs';
 
-    readonly run: Run<VcsServiceConfig>;
+    readonly run: Run;
 
     readonly config: VcsServiceConfig;
 
     private connector: VcsConnector;
 
-    constructor(run: Run<VcsServiceConfig>) {
+    constructor(run: Run) {
         this.run = run;
         this.connector = new DefaultVcsConnector(run);
         this.config = run.config;
@@ -62,12 +64,7 @@ export class VcsService implements VcsConnector {
             return;
         }
 
-        const type = this.config.vcs.type;
-        if (!type) {
-            return;
-        }
-
-        this.connector = await getHooks(this).VcsConnector.for(type).promise(this.connector);
+        this.connector = await getHooks(this).VcsConnector.promise(this.connector);
     }
 
     getData() {
@@ -86,7 +83,11 @@ export class VcsService implements VcsConnector {
 
         // TODO: resolve meta.vcsPath || meta.sourcePath on server side
         if (addVCSPath) {
-            result.vcsPath = normalizePath(meta.vcsPath || meta.sourcePath || file);
+            const sourcePath = normalizePath(
+                meta.vcsPath || meta.sourcePath || this.realpath(file),
+            );
+            result.vcsPath = sourcePath;
+            result.sourcePath = sourcePath;
         }
 
         const [author, contributors, updatedAt] = await Promise.all([
@@ -156,9 +157,8 @@ export class VcsService implements VcsConnector {
         const files = [path].concat(deps);
 
         for (const file of files) {
-            const realpath = await this.run.realpath(join(this.run.input, file), false);
-            const path = relative(this.run.originalInput, realpath);
-            const mtime = await this.getModifiedTimeByPath(path);
+            const realpath = await this.realpath(file);
+            const mtime = await this.getModifiedTimeByPath(realpath);
 
             if (typeof mtime === 'number') {
                 mtimes.push(mtime);
@@ -170,5 +170,15 @@ export class VcsService implements VcsConnector {
         }
 
         return new Date(Math.max(...mtimes) * 1000).toISOString();
+    }
+
+    private realpath(file: NormalizedPath) {
+        const copymap = this.run.toc.copymap;
+
+        while (copymap[file]) {
+            file = copymap[file];
+        }
+
+        return file;
     }
 }

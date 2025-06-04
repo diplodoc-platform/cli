@@ -1,17 +1,14 @@
 import type {VcsConnector} from './types';
 
-import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {AsyncSeriesWaterfallHook} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
 export function hooks(name: string) {
     return {
-        VcsConnector: new HookMap(
-            (type: string) =>
-                new AsyncSeriesWaterfallHook<[VcsConnector]>(
-                    ['connector'],
-                    `${name}.VcsConnector(${type})`,
-                ),
+        VcsConnector: new AsyncSeriesWaterfallHook<[VcsConnector]>(
+            ['connector'],
+            `${name}.VcsConnector`,
         ),
     };
 }
