@@ -44,6 +44,11 @@ type BaseConfig = {
     supportGithubAnchors?: boolean;
 };
 
+export type VcsArgs = {
+    vcs: boolean;
+    vcsToken: string;
+};
+
 export type BuildArgs = ProgramArgs &
     BaseArgs &
     Partial<
@@ -55,7 +60,8 @@ export type BuildArgs = ProgramArgs &
             ChangelogsArgs &
             SearchArgs &
             LegacyArgs &
-            CustomResourcesArgs
+            CustomResourcesArgs &
+            VcsArgs
     >;
 
 export type BuildRawConfig = BaseArgs &

@@ -1,6 +1,6 @@
 import type {Collect, EntryGraphNode} from '~/core/markdown';
 
-import {basename, extname} from 'node:path';
+import {extname} from 'node:path';
 import {createHash} from 'node:crypto';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
