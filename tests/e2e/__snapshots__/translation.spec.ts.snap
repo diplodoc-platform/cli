@@ -377,6 +377,372 @@ exports[`Translate command > extract yaml scheme files > filelist 1`] = `
 ]"
 `;
 
+exports[`Translate command > extract yaml scheme files 1`] = `
+"meta:
+  title: '%%%0%%%'
+  description: '%%%1%%%'
+fullScreen: true
+blocks:
+  - type: header-block
+    title: <div class="u-breadcrumbs"></div>
+    breadcrumbs:
+      items:
+        - text: '%%%2%%%'
+          url: https://site.ru/support/
+        - text: '%%%3%%%'
+          url: https://site.ru/support/adv/
+  - type: filter-block
+    centered: false
+    title:
+      text: '%%%4%%%'
+    tags:
+      - id: one
+        label: '%%%5%%%'
+      - id: two
+        label: '%%%6%%%'
+    colSizes:
+      all: 12
+      xl: 4
+      sm: 6
+      md: 4
+    items:
+      - tags:
+          - one
+        card:
+          type: image-card
+          image: https://site.ru/img/orig
+          title: '%%%7%%%'
+          text: <div>%%%8%%%</div><div class="u-card__more">%%%9%%%
+          margins: m
+          border: shadow
+          url: unified-performance-campaign/about.md
+          urlTitle: '%%%10%%%'
+      - tags:
+          - one
+        card:
+          type: image-card
+          image: https://site.ru/img2/orig
+          title: '%%%11%%%'
+          text: <div>%%%12%%%</div><div class="u-card__more">%%%13%%%
+          margins: m
+          border: shadow
+          url: campaign-master/product-campaign.md
+          urlTitle: '%%%14%%%'
+      - tags:
+          - one
+        card:
+          type: image-card
+          image: https://site.ru/img2/orig
+          title: '%%%15%%%'
+          text: <div>%%%16%%%</div><div class="u-card__more">%%%17%%%
+          margins: m
+          border: shadow
+          url: efficiency/telegram-ads.md
+          urlTitle: '%%%18%%%'
+      - tags:
+          - one
+        card:
+          type: background-card
+          title: '%%%19%%%'
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: '%%%20%%%'
+              url: statistics.md
+              arrow: true
+              theme: normal
+            - text: '%%%21%%%'
+              url: feeds/about.md
+              arrow: true
+              theme: normal
+      - tags:
+          - one
+        card:
+          type: background-card
+          title: '%%%22%%%'
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: '%%%23%%%'
+              url: moderation/adv-rules.md
+              arrow: true
+              theme: normal
+            - text: '%%%24%%%'
+              url: technologies-and-services/technologies-and-services.md
+              arrow: true
+              theme: normal
+            - text: '%%%25%%%'
+              url: troubleshooting/other.md
+              arrow: true
+              theme: normal
+      - tags:
+          - one
+        card:
+          type: background-card
+          title: '%%%26%%%'
+          text: ''
+          backgroundColor: '#F3F6FC'
+          border: line
+          links:
+            - text: '%%%27%%%'
+              url: glossary.md
+              arrow: true
+              theme: normal
+      - tags:
+          - two
+        card:
+          type: image-card
+          image: https://site.ru/img4/orig
+          title: '%%%28%%%'
+          text: <div>%%%29%%%</div><div class="u-card__more">%%%30%%%
+          margins: m
+          border: shadow
+          url: products-automatic/about.md
+          urlTitle: '%%%31%%%'
+animated: false
+"
+`;
+
+exports[`Translate command > extract yaml scheme files 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Справка Сервиса</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">В Справке Сервиса собрали всю необходимую информацию.</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Справка</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Реклама</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Сервис</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Для специалистов</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Для предпринимателей</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Единая перфоманс-кампания</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Комплексно решайте любые перфоманс-задачи в рамках одной кампании</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Подробнее</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Товарная кампания</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">Используйте простой инструмент для продвижения товаров интернете</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source xml:space="preserve">Подробнее</source>
+      </trans-unit>
+      <trans-unit id="15">
+        <source xml:space="preserve">Реклама в Telegram</source>
+      </trans-unit>
+      <trans-unit id="16">
+        <source xml:space="preserve">Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ</source>
+      </trans-unit>
+      <trans-unit id="17">
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
+      </trans-unit>
+      <trans-unit id="18">
+        <source xml:space="preserve">Подробнее</source>
+      </trans-unit>
+      <trans-unit id="19">
+        <source xml:space="preserve">Часто ищут</source>
+      </trans-unit>
+      <trans-unit id="20">
+        <source xml:space="preserve">Статистика</source>
+      </trans-unit>
+      <trans-unit id="21">
+        <source xml:space="preserve">Управление фидами</source>
+      </trans-unit>
+      <trans-unit id="22">
+        <source xml:space="preserve">Сервисные функции</source>
+      </trans-unit>
+      <trans-unit id="23">
+        <source xml:space="preserve">Правила и модерация</source>
+      </trans-unit>
+      <trans-unit id="24">
+        <source xml:space="preserve">Технологии и сервисы</source>
+      </trans-unit>
+      <trans-unit id="25">
+        <source xml:space="preserve">Поддержка 24/7</source>
+      </trans-unit>
+      <trans-unit id="26">
+        <source xml:space="preserve">Полезные ссылки</source>
+      </trans-unit>
+      <trans-unit id="27">
+        <source xml:space="preserve">Глоссарий</source>
+      </trans-unit>
+      <trans-unit id="28">
+        <source xml:space="preserve">Простой старт</source>
+      </trans-unit>
+      <trans-unit id="29">
+        <source xml:space="preserve">Минимум ручных настроек: достаточно указать ссылку на сайт</source>
+      </trans-unit>
+      <trans-unit id="30">
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
+      </trans-unit>
+      <trans-unit id="31">
+        <source xml:space="preserve">Подробнее</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract yaml scheme files 3`] = `
+"blocks:
+  - type: content-layout-block
+    textWidth: l
+    textContent:
+      title: '%%%0%%%'
+      text: |2-
+         %%%1%%%
+         - %%%2%%%
+         - %%%3%%%
+         
+  - type: card-layout-block
+    colSizes:
+      all: 12
+      lg: 4
+      md: 6
+      sm: 12
+      xl: 4
+    indent:
+      bottom: xs
+    title: '%%%4%%%'
+    animated: false
+    children:
+      - type: basic-card
+        title: '%%%5%%%'
+        text: '%%%6%%%'
+        urlTitle: '%%%7%%%'
+        border: shadow
+        controlPosition: content
+        url: management/index
+        target: ''
+        animated: false
+"
+`;
+
+exports[`Translate command > extract yaml scheme files 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Введение</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Получать информацию о посещаемости сайта и другие данные.</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Формировать отчеты, в том числе с помощью сегментации и параметризации.</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Виды API</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">API управления</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">API управления</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract yaml scheme files 5`] = `
+"title: '%%%0%%%'
+href: index.yaml
+items:
+  - name: '%%%4%%%'
+  - href: index-direct.yaml
+navigation:
+  header:
+    leftItems:
+      - text: '%%%2%%%'
+        type: dropdown
+        items:
+          - text: '%%%3%%%'
+            type: link
+            href: menu/item
+  logo:
+    light:
+      icon: https://icon.link/logo.svg
+      url: https://site.ru
+      urlTitle: '%%%1%%%'
+"
+`;
+
+exports[`Translate command > extract yaml scheme files 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Заголовок</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">На сайт сервиса</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Инструменты</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Пункт меню</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Дочерняя страница</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
 exports[`Translate command > filter files on extract > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",

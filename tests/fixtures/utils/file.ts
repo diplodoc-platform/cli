@@ -1,7 +1,7 @@
 import {readFileSync} from 'node:fs';
 import {join, resolve} from 'node:path';
 import {glob} from 'glob';
-import {bundleless, platformless} from './test';
+import {bundleless, hashless, platformless} from './test';
 import {expect} from 'vitest';
 import {$} from 'execa';
 
@@ -23,12 +23,12 @@ export async function compareDirectories(outputPath: string, ignoreFileContent =
         })
     ).sort();
 
-    expect(bundleless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
+    expect(hashless(bundleless(JSON.stringify(filesFromOutput, null, 2)))).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {
         filesFromOutput.filter(uselessFile).forEach((filePath) => {
             const content = getFileContent(resolve(outputPath, filePath));
-            expect(content).toMatchSnapshot(filePath);
+            expect(content).toMatchSnapshot();
         });
     }
 }

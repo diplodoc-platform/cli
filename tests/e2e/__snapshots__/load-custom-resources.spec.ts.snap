@@ -1,14 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Allow load custom resources > md2html single page with custom resources > .yfm 1`] = `
-"resources:
-  style:
-    - _assets/style/test.css
-  script:
-    - _assets/script/test1.js
-"
-`;
-
 exports[`Allow load custom resources > md2html single page with custom resources > filelist 1`] = `
 "[
   ".yfm",
@@ -39,7 +30,16 @@ exports[`Allow load custom resources > md2html single page with custom resources
 ]"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources > index.html 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Allow load custom resources > md2html single page with custom resources 2`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -79,7 +79,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources > page.html 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources 3`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -118,7 +118,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources > project/config.html 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources 4`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -156,7 +156,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources > single-page.html 1`] = `
+exports[`Allow load custom resources > md2html single page with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page","id":"UUID"},{"name":"Config","href":"#project_config","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+
+exports[`Allow load custom resources > md2html single page with custom resources 6`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -195,20 +197,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources > single-page.json 1`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}"`;
+exports[`Allow load custom resources > md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}"`;
 
-exports[`Allow load custom resources > md2html single page with custom resources > single-page-toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"#index","items":[{"name":"Documentation","href":"#page","id":"UUID"},{"name":"Config","href":"#project_config","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Allow load custom resources > md2html single page with custom resources > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Allow load custom resources > md2html with custom resources > .yfm 1`] = `
-"resources:
-  style:
-    - _assets/style/test.css
-  script:
-    - _assets/script/test1.js
-"
-`;
+exports[`Allow load custom resources > md2html single page with custom resources 8`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Allow load custom resources > md2html with custom resources > filelist 1`] = `
 "[
@@ -237,7 +228,16 @@ exports[`Allow load custom resources > md2html with custom resources > filelist 
 ]"
 `;
 
-exports[`Allow load custom resources > md2html with custom resources > index.html 1`] = `
+exports[`Allow load custom resources > md2html with custom resources 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Allow load custom resources > md2html with custom resources 2`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -277,7 +277,7 @@ exports[`Allow load custom resources > md2html with custom resources > index.htm
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html with custom resources > page.html 1`] = `
+exports[`Allow load custom resources > md2html with custom resources 3`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -316,7 +316,7 @@ exports[`Allow load custom resources > md2html with custom resources > page.html
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html with custom resources > project/config.html 1`] = `
+exports[`Allow load custom resources > md2html with custom resources 4`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -354,16 +354,7 @@ exports[`Allow load custom resources > md2html with custom resources > project/c
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html with custom resources > toc.js 1`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Allow load custom resources > md2md with custom resources > .yfm 1`] = `
-"resources:
-  style:
-    - _assets/style/test.css
-  script:
-    - _assets/script/test1.js
-"
-`;
+exports[`Allow load custom resources > md2html with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
 exports[`Allow load custom resources > md2md with custom resources > filelist 1`] = `
 "[
@@ -377,7 +368,16 @@ exports[`Allow load custom resources > md2md with custom resources > filelist 1`
 ]"
 `;
 
-exports[`Allow load custom resources > md2md with custom resources > index.yaml 1`] = `
+exports[`Allow load custom resources > md2md with custom resources 1`] = `
+"resources:
+  style:
+    - _assets/style/test.css
+  script:
+    - _assets/script/test1.js
+"
+`;
+
+exports[`Allow load custom resources > md2md with custom resources 2`] = `
 "title: Documentation
 description: ''
 meta:
@@ -397,7 +397,7 @@ links:
 "
 `;
 
-exports[`Allow load custom resources > md2md with custom resources > page.md 1`] = `
+exports[`Allow load custom resources > md2md with custom resources 3`] = `
 "---
 metadata:
   - name: generator
@@ -414,7 +414,7 @@ Lorem
 "
 `;
 
-exports[`Allow load custom resources > md2md with custom resources > project/config.md 1`] = `
+exports[`Allow load custom resources > md2md with custom resources 4`] = `
 "---
 metadata:
   - name: generator
@@ -427,7 +427,7 @@ script:
 Lorem"
 `;
 
-exports[`Allow load custom resources > md2md with custom resources > toc.yaml 1`] = `
+exports[`Allow load custom resources > md2md with custom resources 5`] = `
 "title: Documentation
 href: index.yaml
 items:
