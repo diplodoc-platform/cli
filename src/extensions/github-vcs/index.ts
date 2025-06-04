@@ -63,7 +63,7 @@ async function resolveRemote(gitOptions: {baseDir: AbsolutePath}) {
         const remote = await simpleGit(gitOptions).raw('remote', 'get-url', 'origin');
 
         if (!remote) {
-            return {}
+            return {};
         }
 
         const [endpoint, rest] = remote.split(':');
