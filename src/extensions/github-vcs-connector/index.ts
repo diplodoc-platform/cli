@@ -15,13 +15,14 @@ type Run = BaseRun<Config> & {
 export class Extension implements IExtension {
     apply(program: BaseProgram<BaseConfig & Config>) {
         getBaseHooks<Run>(program).BeforeAnyRun.tap('GithubVcsConnector', (run) => {
-            getVcsHooks(run.vcs)
-                .VcsConnector.for('github')
-                .tapPromise('GithubVcsConnector', async (_connector) => {
+            getVcsHooks(run.vcs).VcsConnector.tapPromise(
+                'GithubVcsConnector',
+                async (_connector) => {
                     const connector = new GithubVcsConnector(run);
 
                     return connector.init();
-                });
+                },
+            );
         });
     }
 }

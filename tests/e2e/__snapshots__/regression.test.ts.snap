@@ -822,7 +822,6 @@ exports[`Regression > internal > merge/merged.html 1`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="sourcePath" content="merge-source/merged.md">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -832,7 +831,7 @@ exports[`Regression > internal > merge/merged.html 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -855,7 +854,6 @@ exports[`Regression > internal > merge/merged.md 1`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: merge-source/merged.md
 ---
 # Merged item
 

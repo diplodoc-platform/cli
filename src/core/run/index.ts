@@ -44,8 +44,6 @@ export class Run<TConfig = BaseConfig> {
 
     protected scopes: Map<string, AbsolutePath> = new Map();
 
-    private _copyMap: Record<AbsolutePath, AbsolutePath> = {};
-
     constructor(config: Config<BaseConfig & TConfig>) {
         this.config = config;
         this.input = config.input;
@@ -159,8 +157,6 @@ export class Run<TConfig = BaseConfig> {
 
             await this.fs.unlink(to).catch(() => {});
             await this.fs.copyFile(from, to, fsConstants.COPYFILE_FICLONE);
-
-            this._copyMap[to] = from;
         };
 
         if (from === to) {
@@ -199,31 +195,18 @@ export class Run<TConfig = BaseConfig> {
         } catch {}
     }
 
-    realpath(path: AbsolutePath): Promise<AbsolutePath[]>;
-    realpath(path: AbsolutePath, withStack: true): Promise<AbsolutePath[]>;
-    realpath(path: AbsolutePath, withStack: false): Promise<AbsolutePath>;
-    @bounded async realpath(path: AbsolutePath, withStack = true) {
-        const stack = [path];
-        while (this._copyMap[path]) {
-            path = this._copyMap[path];
-            stack.unshift(path);
-        }
-
+    @bounded async realpath(path: AbsolutePath) {
         try {
-            const realpath = await this.fs.realpath(stack[0]);
-
-            if (realpath !== stack[0]) {
-                stack.unshift(realpath);
-            }
-        } catch {}
-
-        return withStack ? stack : stack[0];
+            return await this.fs.realpath(path);
+        } catch {
+            return path;
+        }
     }
 
     private async assertProjectScope(path: AbsolutePath) {
         const scopes = [...this.scopes.values()];
         const realpath = await this.realpath(path);
-        const isInScope = scopes.some((scope) => realpath[0].startsWith(scope));
+        const isInScope = scopes.some((scope) => realpath.startsWith(scope));
         ok(isInScope, new InsecureAccessError(path, realpath, scopes));
     }
 }

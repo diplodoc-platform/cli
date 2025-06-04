@@ -3,9 +3,10 @@ import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {join} from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
-import {bounded, memoize, normalizePath} from '@diplodoc/cli/lib/utils';
+import {Defer, bounded, memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
 import {GitClient} from './git-client';
 import {GithubClient} from './github-client';
@@ -27,6 +28,10 @@ export class GithubVcsConnector implements VcsConnector {
 
     private github: GithubClient;
 
+    private defer: Defer<void> = new Defer();
+
+    private ready: Promise<void> | boolean = this.defer.promise;
+
     constructor(run: Run<Config>) {
         this.run = run;
         this.config = run.config;
@@ -35,6 +40,10 @@ export class GithubVcsConnector implements VcsConnector {
     }
 
     async init() {
+        if (!isMainThread) {
+            return this;
+        }
+
         const {mtimes, authors, contributors, vcs} = this.config;
 
         let workdir = this.run.originalInput;
@@ -61,6 +70,8 @@ export class GithubVcsConnector implements VcsConnector {
             await cleanup();
         }
 
+        this.defer.resolve();
+
         return this;
     }
 
@@ -76,6 +87,8 @@ export class GithubVcsConnector implements VcsConnector {
         this.mtimeByPath = data.mtimes;
         this.authorByPath = data.authors;
         this.contributorsByPath = data.contributors;
+
+        this.defer.resolve();
     }
 
     @bounded
@@ -103,11 +116,15 @@ export class GithubVcsConnector implements VcsConnector {
 
     @bounded
     async getAuthorByPath(path: RelativePath): Promise<Contributor | null> {
+        await this.ready;
+
         return this.authorByPath[normalizePath(path)] ?? null;
     }
 
     @bounded
     async getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]> {
+        await this.ready;
+
         const author = await this.getAuthorByPath(path);
         const result: Contributor[] = [];
 
@@ -121,6 +138,8 @@ export class GithubVcsConnector implements VcsConnector {
 
     @bounded
     async getModifiedTimeByPath(path: RelativePath) {
+        await this.ready;
+
         return this.mtimeByPath[normalizePath(path)] ?? null;
     }
 
