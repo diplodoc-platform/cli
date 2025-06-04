@@ -92,7 +92,7 @@ const builds = [
 
 const extensions = [
     ['src/extensions/report-logs/index.ts', 'report-logs'],
-    ['src/extensions/github-vcs-connector/index.ts', 'github-vcs-connector'],
+    ['src/extensions/github-vcs/index.ts', 'github-vcs'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});

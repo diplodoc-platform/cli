@@ -31,7 +31,7 @@
     },
     "./package": "./package.json",
     "./report-logs": "./build/report-logs.js",
-    "./github-vcs-connector": "./build/github-vcs-connector.js"
+    "./github-vcs": "./build/github-vcs.js"
   },
   "main": "build/index.js",
   "bin": {
