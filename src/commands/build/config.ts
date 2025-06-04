@@ -1,7 +1,9 @@
+import type {BuildArgs, BuildRawConfig} from './types';
+import {ok} from 'node:assert';
 import {bold, underline} from 'chalk';
 import {options as globalOptions} from '~/commands/config';
-import {option} from '~/core/config';
-import {Stage} from '~/constants';
+import {defined, option, valuable} from '~/core/config';
+import {Lang, Stage} from '~/constants';
 
 export enum OutputFormat {
     md = 'md',
@@ -102,6 +104,33 @@ const addSystemMeta = option({
     flags: '--add-system-meta',
     desc: 'Should add system section variables form presets into files meta data.',
 });
+
+export function normalize(config: BuildRawConfig, args: BuildArgs) {
+    const ignoreStage = defined('ignoreStage', args, config) || [];
+    const langs = defined('langs', args, config) || [];
+    const lang = defined('lang', config);
+
+    if (valuable(lang)) {
+        if (!langs.length) {
+            langs.push(lang);
+        }
+
+        ok(
+            langs.includes(lang),
+            `Configured default lang '${lang}' is not listed in langs (${langs.join(', ')})`,
+        );
+    }
+
+    if (!langs.length) {
+        langs.push(Lang.RU);
+    }
+
+    config.ignoreStage = [].concat(ignoreStage);
+    config.langs = langs;
+    config.lang = lang || langs[0];
+
+    return config;
+}
 
 export const options = {
     input: globalOptions.input,

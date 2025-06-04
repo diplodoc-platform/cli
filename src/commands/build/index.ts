@@ -3,7 +3,6 @@ import type {EntryTocItem, Toc} from '~/core/toc';
 import type {SyncData as VcsSyncData} from '~/core/vcs';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
-import {ok} from 'node:assert';
 import {basename, dirname, join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
@@ -15,8 +14,8 @@ import {
     withConfigScope,
 } from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
-import {Lang, PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, defined, valuable} from '~/core/config';
+import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
+import {Command} from '~/core/config';
 import {normalizePath, setExt} from '~/core/utils';
 import {Extension as GithubVcsConnector} from '~/extensions/github-vcs-connector';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
@@ -25,7 +24,7 @@ import {Extension as LocalSearchExtension} from '~/extensions/search';
 import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
-import {OutputFormat, options} from './config';
+import {OutputFormat, normalize, options} from './config';
 import {Run} from './run';
 import {handler} from './handler';
 
@@ -139,32 +138,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     private run!: Run;
 
     apply(program?: BaseProgram) {
-        getBaseHooks(this).Config.tap('Build', (config, args) => {
-            const ignoreStage = defined('ignoreStage', args, config) || [];
-            const langs = defined('langs', args, config) || [];
-            const lang = defined('lang', config);
-
-            if (valuable(lang)) {
-                if (!langs.length) {
-                    langs.push(lang);
-                }
-
-                ok(
-                    langs.includes(lang),
-                    `Configured default lang '${lang}' is not listed in langs (${langs.join(', ')})`,
-                );
-            }
-
-            if (!langs.length) {
-                langs.push(Lang.RU);
-            }
-
-            config.ignoreStage = [].concat(ignoreStage);
-            config.langs = langs;
-            config.lang = lang || langs[0];
-
-            return config;
-        });
+        getBaseHooks(this).Config.tap('Build', normalize);
 
         super.apply(program);
     }
