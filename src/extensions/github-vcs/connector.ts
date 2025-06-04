@@ -133,7 +133,9 @@ export class GithubVcsConnector implements VcsConnector {
             result.push(...(this.contributorsByPath[normalizePath(dep)] || []));
         }
 
-        return uniqBy(result.filter(Boolean), ({login}) => login).filter(({login}) => login !== author?.login);
+        return uniqBy(result.filter(Boolean), ({login}) => login).filter(
+            ({login}) => login !== author?.login,
+        );
     }
 
     @bounded

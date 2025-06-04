@@ -236,34 +236,38 @@ export class BaseProgram<
         const argsExtensions: {
             name: string;
             options: Record<string, unknown>;
-        }[] = (args.extensions || []).map((ext) => {
-            const name = isRelative(ext) ? resolve(ext) : ext;
-            const options = {};
+        }[] = (args.extensions || [])
+            .map((ext) => {
+                const name = isRelative(ext) ? resolve(ext) : ext;
+                const options = {};
 
-            if (extnames.has(name)) {
-                return undefined;
-            }
-            extnames.add(name);
+                if (extnames.has(name)) {
+                    return undefined;
+                }
+                extnames.add(name);
 
-            return {name, options};
-        }).filter(Boolean);
+                return {name, options};
+            })
+            .filter(Boolean);
 
         // config extension paths should be relative to config
         const configExtensions: {
             name: string;
             options: Record<string, unknown>;
-        }[] = [...this.extensions, ...(config.extensions || [])].map((ext) => {
-            const extPath = typeof ext === 'string' ? ext : ext.name;
-            const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
-            const options = typeof ext === 'string' ? {} : omit(ext, 'path');
+        }[] = [...this.extensions, ...(config.extensions || [])]
+            .map((ext) => {
+                const extPath = typeof ext === 'string' ? ext : ext.name;
+                const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
+                const options = typeof ext === 'string' ? {} : omit(ext, 'path');
 
-            if (extnames.has(name)) {
-                return undefined;
-            }
-            extnames.add(name);
+                if (extnames.has(name)) {
+                    return undefined;
+                }
+                extnames.add(name);
 
-            return {name, options};
-        }).filter(Boolean);
+                return {name, options};
+            })
+            .filter(Boolean);
 
         const extensions = [...argsExtensions, ...configExtensions];
 
