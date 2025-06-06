@@ -7,17 +7,19 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
+  "_bundle/app-css-3",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
   "_bundle/search-js-0",
-  "_bundle/search-js-1",
   "_bundle/search-css-0",
-  "_bundle/search-js-2",
+  "_bundle/search-js-1",
+  "_bundle/search-css-3",
   "_bundle/search-css-1",
+  "_bundle/search-js-2",
+  "_bundle/search-css-2",
   "index.html",
   "page.html",
   "toc.js"
@@ -38,8 +40,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -74,8 +76,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -107,17 +109,19 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
+  "_bundle/app-css-3",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
   "_bundle/search-js-0",
-  "_bundle/search-js-1",
   "_bundle/search-css-0",
-  "_bundle/search-js-2",
+  "_bundle/search-js-1",
+  "_bundle/search-css-3",
   "_bundle/search-css-1",
+  "_bundle/search-js-2",
+  "_bundle/search-css-2",
   "ar/index.html",
   "ar/page.html",
   "ar/toc.js",
@@ -142,8 +146,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -178,8 +182,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -218,7 +222,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -255,7 +259,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">

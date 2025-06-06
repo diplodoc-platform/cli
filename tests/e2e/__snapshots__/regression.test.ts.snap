@@ -45,17 +45,19 @@ exports[`Regression > internal > filelist 2`] = `
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
-  "_bundle/search-css-2",
+  "_bundle/app-css-3",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
   "_bundle/search-js-0",
-  "_bundle/search-js-1",
   "_bundle/search-css-0",
-  "_bundle/search-js-2",
+  "_bundle/search-js-1",
+  "_bundle/search-css-3",
   "_bundle/search-css-1",
+  "_bundle/search-js-2",
+  "_bundle/search-css-2",
   "autotitle.html",
   "c.md",
   "generic/1.html",
@@ -652,7 +654,7 @@ exports[`Regression > internal 26`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -688,7 +690,7 @@ exports[`Regression > internal 27`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -749,7 +751,7 @@ exports[`Regression > internal 29`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -785,7 +787,7 @@ exports[`Regression > internal 30`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -821,7 +823,7 @@ exports[`Regression > internal 31`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -857,7 +859,7 @@ exports[`Regression > internal 32`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -893,7 +895,7 @@ exports[`Regression > internal 33`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -929,7 +931,7 @@ exports[`Regression > internal 34`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -965,7 +967,7 @@ exports[`Regression > internal 35`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1001,7 +1003,7 @@ exports[`Regression > internal 36`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1037,7 +1039,7 @@ exports[`Regression > internal 37`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1073,7 +1075,7 @@ exports[`Regression > internal 38`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/latex-extension.css"/>
     </head>
@@ -1111,7 +1113,7 @@ exports[`Regression > internal 39`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1147,7 +1149,7 @@ exports[`Regression > internal 40`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1185,7 +1187,7 @@ exports[`Regression > internal 42`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1222,7 +1224,7 @@ exports[`Regression > internal 43`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
@@ -1260,7 +1262,7 @@ exports[`Regression > internal 44`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
@@ -1298,7 +1300,7 @@ exports[`Regression > internal 45`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
@@ -1334,7 +1336,7 @@ exports[`Regression > internal 46`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
