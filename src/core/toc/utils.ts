@@ -1,9 +1,14 @@
 import type {TextFilter} from './types';
 
 import {evaluate} from '@diplodoc/liquid';
+import {isExternalHref, own} from '~/core/utils';
 
 export function isRelative(path: AnyPath): path is RelativePath {
     return /^\.{1,2}\//.test(path) || !/^(\w{0,7}:)?\/\//.test(path);
+}
+
+export function isEntryItem(item: {href?: string}): item is {href: string} {
+    return own<string, 'href'>(item, 'href') && !isExternalHref(item.href);
 }
 
 export function getFirstValuable<T>(

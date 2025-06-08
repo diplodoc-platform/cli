@@ -1,7 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {IncludeInfo, RawToc, Toc, WithItems} from './types';
+import type {EntryTocItem, IncludeInfo, RawToc, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
@@ -14,7 +14,6 @@ import {
     bounded,
     copyJson,
     errorMessage,
-    isExternalHref,
     memoize,
     normalizePath,
     own,
@@ -22,6 +21,7 @@ import {
 
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
+import {isEntryItem} from './utils';
 
 export type TocServiceConfig = {
     ignore: string[];
@@ -42,11 +42,14 @@ export type TocServiceConfig = {
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
-export type WalkStepContext = Hash<unknown>;
+export type WalkStepContext<T extends object = {}> = Hash<unknown> & T;
+
+type RestrictedAccessContext = WalkStepContext<{
+    'restricted-access'?: string[][];
+}>;
 
 type WalkOptions<T> = {
     accept: (item: T) => boolean;
-    stepContext: WalkStepContext;
 };
 
 type Run = BaseRun<TocServiceConfig> & {
@@ -121,10 +124,7 @@ export class TocService {
         items: T[] | undefined,
         actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
     ): Promise<T[] | undefined> {
-        return this.walkItems(items, actor, {
-            accept: (item) => own<string, 'href'>(item, 'href') && !isExternalHref(item.href),
-            stepContext: {},
-        });
+        return this.walkItems(items, actor, {accept: isEntryItem});
     }
 
     /**
@@ -138,13 +138,9 @@ export class TocService {
             item: T,
             context: WalkStepContext,
         ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
-        options: WalkOptions<T> = {accept: () => true, stepContext: {}},
+        options: WalkOptions<T> = {accept: () => true},
     ): Promise<T[] | undefined> {
-        const mode: 'DFS' | 'BFS' = 'DFS';
-
-        return mode === 'DFS'
-            ? await this.walkItemsDFS(items, actor, options)
-            : await this.walkItemsBFS(items, actor, options);
+        return this._walkItems(items, actor, options);
     }
 
     /**
@@ -238,11 +234,8 @@ export class TocService {
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
         if (toc.href || toc.items?.length) {
-            await this.walkEntries([toc as {href: NormalizedPath}], (item) => {
-                this._entries.add(normalizePath(join(dirname(path), item.href)));
-
-                return item;
-            });
+            await this.addEntries(path, toc);
+            await this.restrictAccess(path, toc);
         }
 
         defer.resolve(toc);
@@ -303,89 +296,31 @@ export class TocService {
      * Visits all passed items. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
      * Returns actor results.
-     * BFS
-     */
-    private async walkItemsBFS<T extends WithItems<T>>(
-        items: T[] | undefined,
-        actor: (
-            item: T,
-            context: WalkStepContext,
-        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
-        options: WalkOptions<T>,
-    ): Promise<T[] | undefined> {
-        const {accept, stepContext} = options;
-
-        if (!items || !items.length) {
-            return items;
-        }
-
-        const contexts = [];
-        let results: T[] = [];
-        const queue = items.slice();
-        while (queue.length) {
-            const item = queue.shift() as T;
-            const context: WalkStepContext | 'restricted-access' = {};
-            if (stepContext['restricted-access']) {
-                context['restricted-access'] = stepContext['restricted-access'];
-            }
-
-            const result = accept(item) ? await actor(item, context) : item;
-            if (result) {
-                results = results.concat(result);
-            }
-            contexts.push(context);
-        }
-
-        for (const result of results) {
-            const index = results.indexOf(result);
-            if (own(result, 'items')) {
-                // Sometime users defines items as object (one item) instead of array of one item.
-                if (!Array.isArray(result.items) && result.items) {
-                    result.items = ([] as T[]).concat(result.items);
-                }
-
-                if (result.items?.length) {
-                    result.items = await this.walkItemsBFS(result.items, actor, {
-                        ...options,
-                        stepContext: contexts[index],
-                    });
-                }
-            }
-        }
-
-        return results;
-    }
-
-    /**
-     * Visits all passed items. Applies actor to each item.
-     * Then applies actor to each item in actor result.items.
-     * Returns actor results.
      * DFS
      */
-    private async walkItemsDFS<T extends WithItems<T>>(
+    private async _walkItems<T extends WithItems<T>>(
         items: T[] | undefined,
         actor: (
             item: T,
             context: WalkStepContext,
         ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
         options: WalkOptions<T>,
+        context: Hash = {},
     ): Promise<T[] | undefined> {
-        const {accept, stepContext} = options;
+        const {accept} = options;
 
         if (!items || !items.length) {
             return items;
         }
 
-        const contexts = [];
         const results: T[] = [];
 
         for (const item of items) {
-            const context: WalkStepContext | 'restricted-access' = {};
-            if (stepContext['restricted-access']) {
-                context['restricted-access'] = stepContext['restricted-access'];
-            }
-            const result = (accept(item) ? await actor(item, context) : item) as T &
+            const itemContext: WalkStepContext = {...context};
+
+            const result = (accept(item) ? await actor(item, itemContext) : item) as T &
                 Record<'items', unknown>;
+
             if (result) {
                 results.push(...([] as T[]).concat(result));
 
@@ -396,14 +331,15 @@ export class TocService {
                     }
 
                     if (result.items?.length) {
-                        result.items = await this.walkItemsDFS(result.items, actor, {
-                            ...options,
-                            stepContext: context,
-                        });
+                        result.items = await this._walkItems(
+                            result.items,
+                            actor,
+                            options,
+                            itemContext,
+                        );
                     }
                 }
             }
-            contexts.push(context);
         }
 
         return results;
@@ -416,6 +352,46 @@ export class TocService {
         }
 
         return false;
+    }
+
+    private async addEntries(path: NormalizedPath, toc: Toc) {
+        await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
+            this._entries.add(normalizePath(join(dirname(path), item.href)));
+
+            return item;
+        });
+    }
+
+    private async restrictAccess(path: NormalizedPath, toc: Toc) {
+        await this.walkItems(
+            [toc as unknown as RawToc],
+            (item, context: RestrictedAccessContext) => {
+                if (own<string | string[]>(item, 'restricted-access')) {
+                    let itemAccess = ([] as string[]).concat(item['restricted-access'] || []);
+
+                    const contextAccess: string[][] =
+                        (context['restricted-access'] as string[][]) ?? [];
+                    if (contextAccess.some(isEqualAccess(itemAccess.sort().join(',')))) {
+                        itemAccess = [];
+                    }
+
+                    if (itemAccess.length > 0) {
+                        context['restricted-access'] = [...contextAccess, itemAccess];
+                    }
+                }
+
+                if (context['restricted-access']?.length && isEntryItem(item)) {
+                    const href = normalizePath(join(dirname(path), item.href));
+                    this.meta.add(href, {
+                        'restricted-access': context['restricted-access'],
+                    });
+                }
+
+                return item;
+            },
+        );
+
+        return toc;
     }
 
     private loaderContext(path: NormalizedPath, {from, mode, base}: Partial<IncludeInfo> = {}) {
@@ -449,4 +425,10 @@ async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc
                 ${errorMessage(error)}
         `);
     }
+}
+
+function isEqualAccess(match: string) {
+    return function (access: string[]) {
+        return access.sort().join() === match;
+    };
 }
