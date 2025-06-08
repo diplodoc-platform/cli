@@ -46,7 +46,8 @@ export class OutputMd {
                     return collects.concat(getCustomCollectPlugins());
                 });
 
-                const copied = new Set();
+                const copiedIncludes = new Set<string>();
+                const copiedAssets = new Set<string>();
 
                 // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
@@ -71,10 +72,10 @@ export class OutputMd {
 
                             processed.set(entry.path, hashed);
 
-                            if (copied.has(link) || !write) {
+                            if (copiedIncludes.has(link) || !write) {
                                 return hashed;
                             }
-                            copied.add(link);
+                            copiedIncludes.add(link);
 
                             try {
                                 run.logger.copy(
@@ -109,12 +110,12 @@ export class OutputMd {
 
                 getLeadingHooks(run.leading).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets(run, run.leading),
+                    this.copyAssets(run, run.leading, copiedAssets),
                 );
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets(run, run.markdown),
+                    this.copyAssets(run, run.markdown, copiedAssets),
                 );
             });
 
@@ -128,15 +129,20 @@ export class OutputMd {
             });
     }
 
-    private copyAssets(run: Run, service: Run['leading'] | Run['markdown']) {
+    private copyAssets(run: Run, service: Run['leading'] | Run['markdown'], cache: Set<string>) {
         return async (vfile: VFile<any>) => {
             const assets = await service.assets(vfile.path);
 
             await all(
-                assets.map(async (path) => {
+                assets.map(async ({path}) => {
                     if (!isMediaLink(path)) {
                         return;
                     }
+
+                    if (cache.has(path)) {
+                        return;
+                    }
+                    cache.add(path);
 
                     try {
                         run.logger.copy(join(run.input, path), join(run.output, path));

@@ -1,4 +1,5 @@
 import type {BuildConfig} from '.';
+import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 
 import {join, resolve} from 'node:path';
 import {uniq} from 'lodash';
@@ -14,7 +15,7 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, langFromPath, normalizePath, zip} from '~/core/utils';
+import {all, bounded, get, langFromPath, normalizePath, zip} from '~/core/utils';
 
 import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
@@ -22,13 +23,11 @@ import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {RedirectsService} from './services/redirects';
 
 type TransformOptions = {
-    deps: NormalizedPath[];
-    assets: NormalizedPath[];
+    deps: IncludeInfo[];
+    assets: AssetInfo[];
 };
 
 const TMP_INPUT_FOLDER = '.tmp_input';
-
-const TMP_OUTPUT_FOLDER = '.tmp_output';
 
 /**
  * This is transferable context for build command.
@@ -38,8 +37,6 @@ export class Run extends BaseRun<BuildConfig> {
     readonly originalInput: AbsolutePath;
 
     readonly input: AbsolutePath;
-
-    readonly originalOutput: AbsolutePath;
 
     readonly output: AbsolutePath;
 
@@ -77,9 +74,8 @@ export class Run extends BaseRun<BuildConfig> {
         super(config);
 
         this.originalInput = config.input;
-        this.originalOutput = config.output;
         this.input = resolve(config.output, TMP_INPUT_FOLDER);
-        this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
+        this.output = config.output;
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.
@@ -87,7 +83,6 @@ export class Run extends BaseRun<BuildConfig> {
         this.scopes.set('<input>', this.input);
         this.scopes.set('<output>', this.output);
         this.scopes.set('<origin>', this.originalInput);
-        this.scopes.set('<result>', this.originalOutput);
 
         this.vars = new VarsService(this);
         this.meta = new MetaService(this);
@@ -103,11 +98,13 @@ export class Run extends BaseRun<BuildConfig> {
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
+        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+
         const {parse, compile, env} = transformer({
             ...this.transformConfig(file),
-            files: await remap(deps, this.files),
-            titles: await remap([file].concat(assets), this.titles),
-            assets: await remap(assets, async (path) => {
+            files: await remap(deps.map(get('path')), this.files),
+            titles: await remap(titles, this.titles),
+            assets: await remap(assets.map(get('path')), async (path) => {
                 if (path.endsWith('.svg')) {
                     return this.read(join(this.input, path));
                 } else {
@@ -124,11 +121,14 @@ export class Run extends BaseRun<BuildConfig> {
 
     async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
+
+        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+
         const pluginOptions = {
             ...this.transformConfig(file),
-            files: await remap(deps, this.files),
-            titles: await remap([file].concat(assets), this.titles),
-            assets: await remap(assets),
+            files: await remap(deps.map(get('path')), this.files),
+            titles: await remap(titles, this.titles),
+            assets: await remap(assets.map(get('path'))),
         };
 
         return yfmlint(markdown, file, {
@@ -182,6 +182,10 @@ export class Run extends BaseRun<BuildConfig> {
 
         return this.markdown.titles(path);
     }
+}
+
+function needAutotitle(asset: AssetInfo) {
+    return asset.autotitle;
 }
 
 async function remap<T>(

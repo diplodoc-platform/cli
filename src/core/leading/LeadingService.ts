@@ -3,25 +3,16 @@ import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
 
-import type {LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
 import {dump, load} from 'js-yaml';
 
-import {
-    Buckets,
-    Defer,
-    VFile,
-    bounded,
-    fullPath,
-    langFromPath,
-    memoize,
-    normalizePath,
-} from '~/core/utils';
+import {Buckets, Defer, VFile, bounded, fullPath, langFromPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {loader} from './loader';
+import {LoaderAPI, loader} from './loader';
 import {walkLinks} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
@@ -62,7 +53,7 @@ export class LeadingService {
 
     private pathToDeps = new Buckets<never[]>();
 
-    private pathToAssets = new Buckets<Set<NormalizedPath>>();
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
     constructor(run: Run) {
         this.run = run;
@@ -89,7 +80,7 @@ export class LeadingService {
             const vars = this.run.vars.for(path);
             const yaml = load(raw || '{}') as RawLeadingPage;
 
-            const context = this.loaderContext(file, raw, vars);
+            const context = this.loaderContext(file, raw, vars, this.proxy(file));
             const leading = await loader.call(context, yaml);
 
             const meta = this.pathToMeta.get(file);
@@ -130,21 +121,32 @@ export class LeadingService {
         return walkLinks(leading, walker);
     }
 
-    @memoize('path')
     async deps(path: RelativePath) {
         const file = normalizePath(path);
 
         return this.pathToDeps.get(file);
     }
 
-    @memoize('path')
     async assets(path: RelativePath) {
         const file = normalizePath(path);
 
         return [...this.pathToAssets.get(file)];
     }
 
-    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
+    private proxy(key: string) {
+        return {
+            deps: this.pathToDeps.bind(key),
+            assets: this.pathToAssets.bind(key),
+            meta: this.pathToMeta.bind(key),
+        };
+    }
+
+    private loaderContext(
+        path: NormalizedPath,
+        _raw: string,
+        vars: Hash,
+        api: Partial<LoaderAPI>,
+    ): LoaderContext {
         return {
             path,
             vars,
@@ -158,11 +160,7 @@ export class LeadingService {
             },
             plugins: [...this.plugins],
             logger: this.logger,
-            leading: {
-                setDependencies: this.pathToDeps.set,
-                setAssets: this.pathToAssets.set,
-                setMeta: this.pathToMeta.set,
-            },
+            api: new LoaderAPI(api),
             options: {
                 disableLiquid: !this.run.config.template.enabled,
             },

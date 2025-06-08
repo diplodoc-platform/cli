@@ -121,7 +121,7 @@ export class OutputHtml {
                                 );
 
                                 return run.transform(path, content, {
-                                    deps: deps.map(({path}) => path),
+                                    deps: deps,
                                     assets,
                                 });
                             }),
@@ -149,7 +149,7 @@ export class OutputHtml {
                     const deps = await run.markdown.deps(vfile.path);
                     const assets = await run.markdown.assets(vfile.path);
                     const [result, env] = await run.transform(vfile.path, vfile.data, {
-                        deps: deps.map(({path}) => path),
+                        deps,
                         assets,
                     });
 

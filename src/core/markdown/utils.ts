@@ -1,43 +1,82 @@
-import type {Location} from './types';
+import type {AssetInfo, Location} from './types';
 
-type LinkInfo = {link: string; location: Location};
+import {parseLocalUrl} from '~/core/utils';
 
-export function findLinks<T extends boolean>(
-    content: string,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    return find(
-        /]\(\s*/g,
-        content,
-        (_, rx) => {
-            const link = parseLinkDestination(content, rx.lastIndex);
+type AssetModifier = '!' | '@' | '';
 
-            // TODO: add more precise filter for unix compatible paths
-            if (!link || link.match(/[${}]/)) {
-                return undefined;
-            }
+const modifiers = {'!': 'image', '@': 'video', '': 'link'} as const;
 
-            rx.lastIndex += link.length + 1;
-            return link;
-        },
-        withPosition,
-    );
+export function findLink(content: string): string | undefined {
+    const rx = /]\(\s*/g;
+    const match = rx.exec(content);
+    if (!match) {
+        return undefined;
+    }
+
+    const link = parseLinkDestination(content, rx.lastIndex);
+
+    if (link === null || link.match(/[${}]/)) {
+        return undefined;
+    }
+
+    rx.lastIndex += link.length + 1;
+
+    return link;
 }
 
-export function findDefs<T extends boolean>(
-    content: string,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    return find(/^\s*\[.*?]:\s*([^\s]+)/gm, content, (match) => match[1], withPosition);
+export function findLinksInfo(content: string): AssetInfo[] {
+    return find(/]\(\s*/g, content, (match, rx) => {
+        const link = parseLinkDestination(content, rx.lastIndex);
+        const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+
+        // TODO: add more precise filter for unix compatible paths
+        if (link === null || title === null || link.match(/[${}]/)) {
+            return undefined;
+        }
+
+        const parsed = parseLocalUrl(link);
+        if (!parsed) {
+            return undefined;
+        }
+
+        const modifier = content[
+            rx.lastIndex - match[0].length - title.length - 2
+        ] as AssetModifier;
+        const type = modifiers[modifier] || 'link';
+
+        rx.lastIndex += link.length + 1;
+
+        return {
+            ...parsed,
+            type,
+            title,
+            autotitle: type === 'link' && (!title || title === '{#T}'),
+        };
+    });
 }
 
-function find<T extends boolean>(
+export function findDefs(content: string): AssetInfo[] {
+    return find(/^\s*\[.*?]:\s*([^\s]+)/gm, content, (match) => {
+        const parsed = parseLocalUrl(match[1]);
+        if (!parsed) {
+            return undefined;
+        }
+
+        return {
+            ...parsed,
+            type: 'def',
+            title: '',
+            autotitle: true,
+        };
+    });
+}
+
+function find(
     matcher: RegExp,
     content: string,
-    map: (match: RegExpMatchArray, rx: RegExp) => string | void,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    const links = [];
+    map: (match: RegExpMatchArray, rx: RegExp) => Omit<AssetInfo, 'location'> | void,
+): AssetInfo[] {
+    const links: AssetInfo[] = [];
 
     let match;
     // eslint-disable-next-line no-cond-assign
@@ -47,16 +86,15 @@ function find<T extends boolean>(
             continue;
         }
 
-        // replace is related to parseLinkDestination from markdown-it
-        const link = result.replace(/\\/g, '');
-        const location = [match.index, matcher.lastIndex];
-        const info = withPosition ? ({link, location} as LinkInfo) : link;
-        if (link) {
-            links.push(info);
+        if (result) {
+            links.push({
+                ...result,
+                location: [match.index, matcher.lastIndex],
+            });
         }
     }
 
-    return links as T extends true ? LinkInfo[] : string[];
+    return links;
 }
 
 function parseLinkDestination(str: string, start: number) {
@@ -115,6 +153,46 @@ function parseLinkDestination(str: string, start: number) {
     }
 
     return str.slice(start, pos);
+}
+
+function parseLinkTitle(str: string, start: number) {
+    let code,
+        prev,
+        level = 0,
+        pos = start;
+
+    while (pos >= 0) {
+        code = str.charCodeAt(pos);
+        prev = str.charCodeAt(pos - 1);
+
+        // ascii control characters
+        if (code < 0x20 || code === 0x7f) {
+            break;
+        }
+
+        if (prev === 0x5c /* \ */) {
+            pos -= 2;
+            continue;
+        }
+
+        if (code === 93 /* ] */) {
+            level++;
+            if (level > 32) {
+                return null;
+            }
+        }
+
+        if (code === 91 /* [ */) {
+            if (level === 1) {
+                break;
+            }
+            level--;
+        }
+
+        pos--;
+    }
+
+    return str.slice(pos + 1, start);
 }
 
 function parseSimpleLink(str: string, start: number) {

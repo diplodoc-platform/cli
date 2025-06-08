@@ -1,3 +1,4 @@
+import type {Mock} from 'vitest';
 import type {Collect} from './types';
 import type {LoaderContext} from './loader';
 
@@ -360,11 +361,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                'some.png',
-                '_images/auth_3.png',
-                'link.png',
-            ]);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -376,7 +373,8 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png']);
+
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -388,7 +386,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -401,7 +399,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -429,7 +427,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([]);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -443,7 +441,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -457,7 +455,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -470,7 +468,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.PNG', 'some2.pnG']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -482,7 +480,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -498,7 +496,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['image.jpeg']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
     });

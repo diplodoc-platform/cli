@@ -2,10 +2,17 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {LoaderContext} from './loader';
-import type {Collect, EntryGraph, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
+import type {
+    AssetInfo,
+    Collect,
+    EntryGraph,
+    HeadingInfo,
+    IncludeInfo,
+    Location,
+    Plugin,
+} from './types';
 
 import {join} from 'node:path';
-import {uniq} from 'lodash';
 import {SourceMap} from '@diplodoc/liquid';
 
 import {Buckets, Defer, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
@@ -71,7 +78,7 @@ export class MarkdownService {
 
     private pathToDeps = new Buckets<IncludeInfo[]>();
 
-    private pathToAssets = new Buckets<NormalizedPath[]>();
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
     private pathToHeadings = new Buckets<HeadingInfo[]>();
 
@@ -265,15 +272,15 @@ export class MarkdownService {
 
         await this.load(file, from);
 
-        const assets = this.pathToAssets.get(key) || new Set();
+        const assets = this.pathToAssets.get(key) || [];
         const deps = (await this._deps(file, from)) || [];
-        const internals: NormalizedPath[][] = await all(
+        const internals: AssetInfo[][] = await all(
             deps.map(async ({path}) => {
                 return this._assets(path, [...from, file]);
             }),
         );
 
-        return uniq([...assets].concat(...internals));
+        return assets.concat(...internals);
     }
 
     private async _headings(file: NormalizedPath, from: NormalizedPath[] = []) {
