@@ -1,0 +1,286 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        30,
+      ],
+      "path": "some.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        36,
+        59,
+      ],
+      "path": "_images/auth/_3.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        65,
+        76,
+      ],
+      "path": "link.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should detect link asset 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        30,
+      ],
+      "path": "some.png",
+      "search": null,
+      "title": "link",
+      "type": "link",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should detect link image asset 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        18,
+        31,
+      ],
+      "path": "some.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        31,
+        48,
+      ],
+      "path": "some-big.png",
+      "search": null,
+      "title": "![img](./some.png)",
+      "type": "link",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should skip commented content 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        18,
+        31,
+      ],
+      "path": "some.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        31,
+        48,
+      ],
+      "path": "some-big.png",
+      "search": null,
+      "title": "![img](./some.png)",
+      "type": "link",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should skip external content 1`] = `
+[
+  [],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with case sensitive images 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        31,
+      ],
+      "path": "some1.PNG",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        37,
+        51,
+      ],
+      "path": "some2.pnG",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with deflists 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        36,
+        49,
+      ],
+      "path": "image.jpeg",
+      "search": null,
+      "title": "",
+      "type": "image",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with references 1`] = `
+[
+  [
+    {
+      "autotitle": true,
+      "hash": null,
+      "location": [
+        12,
+        30,
+      ],
+      "path": "some1.png",
+      "search": null,
+      "title": "",
+      "type": "def",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with sized images 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        31,
+      ],
+      "path": "some1.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        46,
+        60,
+      ],
+      "path": "some2.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        72,
+        86,
+      ],
+      "path": "some3.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with spaced images 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        17,
+        32,
+      ],
+      "path": "some1.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        38,
+        52,
+      ],
+      "path": "some2.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        59,
+        74,
+      ],
+      "path": "some3.png",
+      "search": null,
+      "title": "img",
+      "type": "image",
+    },
+  ],
+]
+`;

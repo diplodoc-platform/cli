@@ -1,12 +1,25 @@
 import type {LiquidContext} from '@diplodoc/liquid';
 import type {Meta} from '~/core/meta';
 import type {AssetInfo, Filter, LeadingPage, Plugin, RawLeadingPage, TextItem} from './types';
+import type {Bucket} from '~/core/utils';
 
 import {get, set} from 'lodash';
 import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
-import {parseLocalUrl, rebasePath} from '~/core/utils';
+import {bucket, parseLocalUrl, rebasePath} from '~/core/utils';
 
 import {walkLinks} from './utils';
+
+export class LoaderAPI {
+    deps: Bucket<never[]>;
+    assets: Bucket<AssetInfo[]>;
+    meta: Bucket<Meta>;
+
+    constructor(proxy: Partial<LoaderAPI> = {}) {
+        this.deps = proxy.deps || bucket();
+        this.assets = proxy.assets || bucket();
+        this.meta = proxy.meta || bucket();
+    }
+}
 
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
@@ -16,11 +29,7 @@ export type LoaderContext = LiquidContext & {
     plugins: Plugin[];
     emitFile(path: NormalizedPath, content: string): Promise<void>;
     readFile(path: NormalizedPath): Promise<string>;
-    leading: {
-        setDependencies(path: NormalizedPath, deps: never[]): void;
-        setAssets(path: NormalizedPath, assets: Set<NormalizedPath>): void;
-        setMeta(path: NormalizedPath, meta: Meta): void;
-    };
+    api: LoaderAPI;
     options: {
         disableLiquid: boolean;
     };
@@ -37,7 +46,7 @@ export async function loader(this: LoaderContext, yaml: RawLeadingPage) {
 
     yaml = resolveAssets.call(this, yaml);
 
-    this.leading.setDependencies(this.path, []);
+    this.api.deps.set([]);
 
     return yaml as LeadingPage;
 }
@@ -60,11 +69,11 @@ function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
 }
 
 function mangleFrontMatter(this: LoaderContext, yaml: RawLeadingPage) {
-    const {path, vars, options} = this;
+    const {vars, options} = this;
     const {disableLiquid} = options;
 
     if (!yaml.meta) {
-        this.leading.setMeta(path, {});
+        this.api.meta.set({});
         return yaml;
     }
 
@@ -72,9 +81,9 @@ function mangleFrontMatter(this: LoaderContext, yaml: RawLeadingPage) {
     yaml.meta = undefined;
 
     if (disableLiquid) {
-        this.leading.setMeta(path, frontmatter);
+        this.api.meta.set(frontmatter);
     } else {
-        this.leading.setMeta(path, liquidJson.call(this, frontmatter, vars));
+        this.api.meta.set(liquidJson.call(this, frontmatter, vars));
     }
 
     return yaml;
@@ -117,22 +126,25 @@ function templateFields(this: LoaderContext, yaml: RawLeadingPage) {
 }
 
 function resolveAssets(this: LoaderContext, yaml: RawLeadingPage) {
-    const assets: Set<NormalizedPath> = new Set();
+    const assets: AssetInfo[] = [];
 
     yaml = walkLinks(yaml, (link) => {
         const asset = parseLocalUrl<AssetInfo>(link);
 
         if (asset) {
             try {
-                const path = rebasePath(this.path, decodeURIComponent(asset.path) as RelativePath);
-                assets.add(path);
+                asset.path = rebasePath(
+                    this.path,
+                    decodeURIComponent(asset.path) as NormalizedPath,
+                );
+                assets.push(asset);
             } catch {}
         }
 
         return link;
     });
 
-    this.leading.setAssets(this.path, assets);
+    this.api.assets.set(assets);
 
     return yaml;
 }

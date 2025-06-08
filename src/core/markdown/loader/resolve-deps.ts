@@ -2,7 +2,7 @@ import type {IncludeInfo} from '../types';
 import type {LoaderContext} from '../loader';
 
 import {parseLocalUrl, rebasePath} from '~/core/utils';
-import {filterRanges, findLinks} from '../utils';
+import {filterRanges, findLink} from '../utils';
 
 export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
@@ -21,7 +21,7 @@ export function resolveDependencies(this: LoaderContext, content: string) {
             continue;
         }
 
-        const link = findLinks(match[0])[0] as string;
+        const link = findLink(match[0]) as string;
         // TODO: warn about non local urls
         const include = parseLocalUrl<IncludeInfo>(link);
 

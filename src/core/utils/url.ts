@@ -1,5 +1,9 @@
+import type {UrlWithStringQuery} from 'node:url';
+
+import {parse} from 'node:url';
 import {pick} from 'lodash';
-import {type UrlWithStringQuery, parse} from 'node:url';
+
+import {normalizePath} from './path';
 
 export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
@@ -28,6 +32,10 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
 
         if (parsed.host || parsed.protocol) {
             return null;
+        }
+
+        if (parsed.path) {
+            parsed.path = normalizePath(parsed.path);
         }
 
         return pick(parsed, ['path', 'search', 'hash']) as T;

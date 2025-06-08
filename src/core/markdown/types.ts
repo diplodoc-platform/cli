@@ -28,6 +28,9 @@ export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
+    type: 'link' | 'image' | 'video' | 'def';
+    title: string;
+    autotitle: boolean;
     location: Location;
 };
 

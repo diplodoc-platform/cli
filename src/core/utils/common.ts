@@ -3,6 +3,14 @@ import {bounded} from './decorators';
 
 export const all = Promise.all.bind(Promise);
 
+export function get<K extends string>(key: K) {
+    return function <T extends Record<K, any>>(
+        object: T,
+    ): T extends Record<K, infer V> ? V : never {
+        return object[key];
+    };
+}
+
 export function zip<T = unknown>(keys: string[], values: T[]) {
     return keys.reduce((acc, key, index) => {
         acc[key] = values[index];
