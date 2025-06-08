@@ -268,8 +268,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     private async releaseOutput() {
-        const {output, originalOutput} = this.run;
-        await this.run.copy(output, originalOutput);
         await this.cleanup();
     }
 
@@ -289,6 +287,5 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     private async cleanup() {
         await this.run.remove(this.run.input);
-        await this.run.remove(this.run.output);
     }
 }
