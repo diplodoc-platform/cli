@@ -83,10 +83,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
-  - - userAtoc2
-    - userBtoc2
   - - userA
     - userB
+  - - userAtoc2
+    - userBtoc2
 ---
 This is the /folder1/a1.md file content.
 "
@@ -98,10 +98,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
-  - - userAtoc3
-    - userBtoc3
   - - userA
     - userB
+  - - userAtoc3
+    - userBtoc3
 ---
 This is the /folder1/folder1/a1.md file content.
 "
