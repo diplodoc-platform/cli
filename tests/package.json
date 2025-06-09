@@ -27,7 +27,7 @@
     "@diplodoc/cli": "file:.."
   },
   "dependencies": {
-    "@diplodoc/client": "^3.3.1",
+    "@diplodoc/client": "^3.6.3",
     "@types/node": "18.x",
     "@vitest/coverage-istanbul": "^3.1.1",
     "@vitest/coverage-v8": "^3.1.1",
