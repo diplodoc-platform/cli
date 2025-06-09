@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.3](https://github.com/diplodoc-platform/cli/compare/v5.0.2...v5.0.3) (2025-06-09)
+
+
+### Dependency update
+
+* update @diplodoc/client@3.6.3 to run tests ([31885da](https://github.com/diplodoc-platform/cli/commit/31885dada6df48cdf37812cb6b8bb75964d9f07d))
+
 ## [5.0.2](https://github.com/diplodoc-platform/cli/compare/v5.0.1...v5.0.2) (2025-06-06)
 
 
