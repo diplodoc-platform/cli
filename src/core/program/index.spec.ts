@@ -91,6 +91,7 @@ describe('program module', () => {
                 const config = {
                     option1: 'configValue1',
                     option2: 'configValue2',
+                    extensions: [],
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                     },
@@ -107,6 +108,7 @@ describe('program module', () => {
                     option2: 'configValue2',
                     argOption1: 'argValue1',
                     argOption2: 'argValue2',
+                    extensions: [],
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                     },
@@ -148,6 +150,7 @@ describe('program module', () => {
                 const config = {
                     option1: 'configValue1',
                     option2: 'configValue2',
+                    extensions: [],
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                         deepNested: {
@@ -160,6 +163,7 @@ describe('program module', () => {
                 program.args = vi.fn().mockReturnValue({
                     option1: 'argValue1',
                     option3: 'argValue3',
+                    extensions: [],
                     nested: {
                         nestedOption2: 'nestedArgValue2',
                         deepNested: {
@@ -175,6 +179,7 @@ describe('program module', () => {
                     option1: 'argValue1',
                     option2: 'configValue2',
                     option3: 'argValue3',
+                    extensions: [],
                     nested: {
                         nestedOption1: 'nestedConfigValue1',
                         nestedOption2: 'nestedArgValue2',
