@@ -52,8 +52,8 @@ export function setupRun<C = BaseConfig>(config: DeepPartial<C>): RunSpy<BaseCon
 type Anything = ReturnType<typeof expect.anything>;
 
 type MockData = {
-    glob?: Record<string, NormalizedPath[] | Error>;
-    read?: Record<string, string | Error>;
+    glob?: Record<string, NormalizedPath[] | Error> | Anything;
+    read?: Record<string, string | Error> | Anything;
     write?: Anything;
     remove?: Anything;
 };

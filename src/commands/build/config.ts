@@ -1,4 +1,4 @@
-import type {BuildArgs, BuildRawConfig} from './types';
+import type {BuildArgs, BuildConfig} from './types';
 import {ok} from 'node:assert';
 import {bold, underline} from 'chalk';
 import {options as globalOptions} from '~/commands/config';
@@ -121,7 +121,7 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
-export function normalize(config: BuildRawConfig, args: BuildArgs) {
+export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const ignoreStage = defined('ignoreStage', args, config) || [];
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
@@ -150,7 +150,7 @@ export function normalize(config: BuildRawConfig, args: BuildArgs) {
     return config;
 }
 
-export function validate(config: BuildRawConfig) {
+export function validate<C extends DeepFrozen<BuildConfig>>(config: C) {
     ok(!config.vcs?.token, 'Do not store secret VCS token in config. Use args or env.');
 }
 

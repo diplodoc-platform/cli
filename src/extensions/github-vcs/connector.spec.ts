@@ -53,6 +53,7 @@ describe('GithubVcsConnector', () => {
             authors: {enabled: true, ignore: []},
             contributors: {enabled: true, ignore: []},
             vcs: {
+                enabled: true,
                 owner: 'diplodoc-platform',
                 repo: 'cli',
                 token: 'token',
