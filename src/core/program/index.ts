@@ -28,6 +28,11 @@ type Behavior = {
     isDefaultCommand?: boolean;
 };
 
+type ExtensionConfig = {
+    name: string;
+    options: Hash;
+};
+
 @withHooks
 @withConfigDefaults(() => ({
     strict: false,
@@ -99,7 +104,7 @@ export class BaseProgram<
         this.logger.setup(args);
 
         const config = parent?.config || (await this.resolveConfig(args as TArgs));
-        const extensions = await this.resolveExtensions(config, args);
+        const extensions = await this.resolveExtensions(config.extensions);
 
         // @ts-ignore
         this['config'] = parent?.config || (await this.hookConfig(config, args as TArgs));
@@ -176,17 +181,21 @@ export class BaseProgram<
         const filter =
             (strictScope && strictScopeConfig(strictScope)) || (scope && scopeConfig(scope));
 
-        return resolveConfig(configPath, {
+        const config = await resolveConfig(configPath, {
             filter: filter || undefined,
             defaults: defaults,
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
+
+        config.extensions = this.normalizeExtensions(config, args);
+
+        return config;
     }
 
     private async hookConfig(config: Config<TConfig>, args: TArgs) {
         await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
-        merge(config, this.args(args));
+        merge(config, omit(this.args(args), ['extensions']));
 
         return getHooks(this as BaseProgram).Config.promise(config, args);
     }
@@ -229,55 +238,28 @@ export class BaseProgram<
         }
     }
 
-    private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
-        const extnames = new Set();
+    private normalizeExtensions(config: Config<TConfig>, args: TArgs) {
+        const argsExtensions: ExtensionConfig[] = (args.extensions || []).map((ext) => {
+            const name = isRelative(ext) ? resolve(ext) : ext;
+            const options = {};
 
-        // args extension paths should be relative to PWD
-        const argsExtensions: {
-            name: string;
-            options: Record<string, unknown>;
-        }[] = (args.extensions || [])
-            .map((ext) => {
-                const name = isRelative(ext) ? resolve(ext) : ext;
-                const options = {};
-
-                if (extnames.has(name)) {
-                    return undefined;
-                }
-                extnames.add(name);
-
-                return {name, options};
-            })
-            .filter(Boolean);
+            return {name, options};
+        });
 
         // config extension paths should be relative to config
-        const configExtensions: {
-            name: string;
-            options: Record<string, unknown>;
-        }[] = [...this.extensions, ...(config.extensions || [])]
-            .map((ext) => {
-                const extPath = typeof ext === 'string' ? ext : ext.name;
-                const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
-                const options = typeof ext === 'string' ? {} : omit(ext, 'path');
+        const configExtensions: ExtensionConfig[] = (config.extensions || []).map((ext) => {
+            const extPath = typeof ext === 'string' ? ext : ext.name;
+            const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
+            const options = typeof ext === 'string' ? {} : omit(ext, 'path');
 
-                if (extnames.has(name)) {
-                    return undefined;
-                }
-                extnames.add(name);
+            return {name, options};
+        });
 
-                return {name, options};
-            })
-            .filter(Boolean);
+        return [...argsExtensions, ...configExtensions];
+    }
 
-        const extensions = [...argsExtensions, ...configExtensions];
-
-        const initialize = async ({
-            name,
-            options,
-        }: {
-            name: string;
-            options: Record<string, unknown>;
-        }) => {
+    private async resolveExtensions(extensions: ExtensionConfig[]) {
+        const initialize = async ({name, options}: ExtensionConfig) => {
             try {
                 const ExtensionModule = requireExtension(name);
                 const Extension = ExtensionModule.Extension || ExtensionModule.default;

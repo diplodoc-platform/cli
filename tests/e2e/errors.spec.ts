@@ -1,5 +1,12 @@
+import type {Report} from '../fixtures/runners/types';
+
 import {describe, expect, it} from 'vitest';
 import {TestAdapter, getTestPaths} from '../fixtures';
+
+type TestResult = {
+    md: Report;
+    html: Report;
+}
 
 function test(path: string, expect: Function) {
     it(path, async () => {
@@ -13,8 +20,7 @@ function test(path: string, expect: Function) {
 }
 
 describe('Errors', () => {
-    test('mocks/errors/unreachable-link', ({md, html}) => {
-        // console.log(md, html);
+    test('mocks/errors/unreachable-link', ({html}: TestResult) => {
         expectErrors(html, [
             'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "[Unreachable link: "exists.html"][existing file](./exists.md)"]',
             'ERR index.md: 2: YFM003 / unreachable-link Link is unreachable [Context: "[Unreachable link: "missed.html"][missed file](./missed.md)"]'
