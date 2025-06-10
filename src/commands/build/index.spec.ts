@@ -216,6 +216,7 @@ describe('Build command', () => {
                 'should handle simplified config',
                 '',
                 {
+                    // @ts-ignore
                     ignoreStage: 'preview',
                 },
                 {
@@ -297,6 +298,7 @@ describe('Build command', () => {
                 'should handle simple config',
                 '',
                 {
+                    // @ts-ignore
                     vcs: true,
                 },
                 {

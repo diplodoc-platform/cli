@@ -18,6 +18,7 @@
   },
   "license": "MIT",
   "author": "Yandex Data UI Team <data-ui@yandex-team.ru>",
+  "typings": "build/index.d.ts",
   "exports": {
     ".": {
       "types": "./build/index.d.ts",
