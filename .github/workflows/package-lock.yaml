@@ -1,0 +1,47 @@
+name: Check package-lock status
+
+on:
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test:
+    name: Check package-lock status
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+          # Важно, чтобы токен был вручную добавлен в репозиторий
+          # Иначе после коммита не перезапускается workflow
+          token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
+      - name: Setup Node 18
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      - name: Install packages for project
+        run: npm i --package-lock-only
+      - name: Create and publish commit
+        env:
+          GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          set -e
+
+          # Проверяем наличие изменений в package-lock.json
+          [[ -z $(git diff --stat | grep package-lock.json) ]] && echo "::info::Nothing to update" && exit 0
+
+          # Настраиваем git
+          git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
+          git config --global user.name "yc-ui-bot"
+
+          # Добавляем изменения и создаем коммит
+          git add package-lock.json
+          git commit -m "chore: Update package-lock"
+          
+          # Пушим изменения в ветку PR
+          git push origin HEAD:${BRANCH_NAME}
