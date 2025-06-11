@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.0.4](https://github.com/diplodoc-platform/cli/compare/v5.0.3...v5.0.4) (2025-06-11)
+
+
+### Bug Fixes
+
+* Fix extensions initialization ([ee09c16](https://github.com/diplodoc-platform/cli/commit/ee09c16d2e1b49e5018cbc745ae8554055f141c5))
+* Fix Toc restricted-access for subsequent tocs ([0d9206a](https://github.com/diplodoc-platform/cli/commit/0d9206a8bb199e9c4ac78c49cd278f212a8a4288))
+* Improve autotitles resolution speed ([a029252](https://github.com/diplodoc-platform/cli/commit/a02925235d91c372304ce63551f67e4e77dca582))
+* Skip copy to tmp output folder ([dbead70](https://github.com/diplodoc-platform/cli/commit/dbead708d639d15fa3c86ca92c704392a0252684))
+
 ## [5.0.3](https://github.com/diplodoc-platform/cli/compare/v5.0.2...v5.0.3) (2025-06-09)
 
 
