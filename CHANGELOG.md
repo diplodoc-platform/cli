@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.5](https://github.com/diplodoc-platform/cli/compare/v5.0.4...v5.0.5) (2025-06-11)
+
+
+### Bug Fixes
+
+* Update search extension to latest version ([b9bacd6](https://github.com/diplodoc-platform/cli/commit/b9bacd611e66e0a3a7cfc0ebc83c883ee0ac703f))
+
 ## [5.0.4](https://github.com/diplodoc-platform/cli/compare/v5.0.3...v5.0.4) (2025-06-11)
 
 
