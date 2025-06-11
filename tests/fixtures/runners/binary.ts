@@ -9,7 +9,7 @@ export class BinaryRunner implements Runner {
     }
 
     async runYfmDocs(argv: string[]) {
-        const {stderr, exitCode} = await execa(this.binaryPath, argv, {all: true});
+        const {stderr, exitCode} = await execa(this.binaryPath, argv, {all: true, reject: false});
         const report = {
             code: exitCode || 0,
             warns: fillLog(/^WARN/, stderr),
@@ -28,5 +28,8 @@ export class BinaryRunner implements Runner {
 }
 
 function fillLog(filter: RegExp, source: string) {
-    return source.split('\n').filter((line) => line.match(filter));
+    return source.split('\n')
+        .filter((line) => line.match(filter))
+        .map((line) => line.trim())
+        .filter(Boolean);
 }

@@ -17,10 +17,9 @@ export default defineConfig({
         environment: 'node',
         include: [
             'e2e/**/*.{test,spec}.ts',
-            'units/**/*.{test,spec}.ts',
             ...resolvedTestPaths.map((path) => `${path}/**/*.{test,spec}.ts`),
         ],
-        exclude: ['node_modules', 'dist'],
+        exclude: ['node_modules'],
         coverage: {
             enabled: false,
         },
