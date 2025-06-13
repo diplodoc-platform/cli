@@ -61,17 +61,19 @@ export class Changelogs {
                     return;
                 }
 
-                const changelogs: ChangelogItem[] = [];
+                const changelogsMap: Record<string, ChangelogItem[]> = {};
 
                 getMarkdownHooks(run.markdown).Collects.tap('Changelogs', (plugins) => {
-                    return plugins.concat(collect(changelogs));
+                    return plugins.concat(collect(changelogsMap));
                 });
 
                 getMarkdownHooks(run.markdown).Resolved.tapPromise(
                     'Changelogs',
                     async (_content, path) => {
+                        const changelogs = changelogsMap[path];
+
                         // TODO: why we handle all changelogs?
-                        if (!changelogs.length) {
+                        if (!changelogs || !changelogs.length) {
                             return;
                         }
 
@@ -83,7 +85,6 @@ export class Changelogs {
                         await pmap(changelogs, (changes, index) => {
                             const changesName = changelogName(
                                 filename,
-                                changes,
                                 changelogs.length - index,
                             );
                             const changesPath = join(
@@ -100,16 +101,6 @@ export class Changelogs {
     }
 }
 
-function changelogName(filename: string, changes: ChangelogItem, order: number) {
-    const {date, index} = changes;
-
-    if (typeof index === 'number') {
-        return String(index);
-    }
-
-    if (date && /^\d{4}/.test(date)) {
-        return Math.trunc(new Date(date).getTime() / 1000);
-    }
-
+function changelogName(filename: string, order: number) {
     return `name-${filename}-${String(order).padStart(3, '0')}`;
 }
