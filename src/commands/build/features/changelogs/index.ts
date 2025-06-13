@@ -83,10 +83,7 @@ export class Changelogs {
                         changelogs[changelogs.length - 1].source = join(dirname(path), filename);
 
                         await pmap(changelogs, (changes, index) => {
-                            const changesName = changelogName(
-                                filename,
-                                changelogs.length - index,
-                            );
+                            const changesName = changelogName(filename, changelogs.length - index);
                             const changesPath = join(
                                 outputDir,
                                 'changelogs',
