@@ -22,13 +22,13 @@ function parseChangelogs(content: string, path?: string) {
     return changelogs || [];
 }
 
-export const collect = (changelogs: ChangelogItem[]) =>
+export const collect = (changelogsMap: Record<string, ChangelogItem[]>) =>
     function (this: LoaderContext, content: string) {
         let result = content;
         let lastPos = 0;
         const rawChangelogs = [];
 
-        changelogs.length = 0;
+        const changelogs = changelogsMap[this.path] || [];
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
@@ -62,6 +62,8 @@ export const collect = (changelogs: ChangelogItem[]) =>
             }
             changelogs.push(...parsedChangelogs);
         }
+
+        changelogsMap[this.path] = changelogs;
 
         return result;
     };
