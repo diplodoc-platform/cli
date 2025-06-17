@@ -6,6 +6,7 @@ exports[`Regression > internal > filelist 1`] = `
   "_assets/1.png",
   "_assets/2.png",
   "_assets/3.png",
+  "_assets/5_1.png",
   "_assets/empty.pdf",
   "autotitle.md",
   "generic/1.md",
@@ -40,6 +41,7 @@ exports[`Regression > internal > filelist 2`] = `
   "_assets/1.png",
   "_assets/2.png",
   "_assets/3.png",
+  "_assets/5_1.png",
   "_assets/empty.pdf",
   "_bundle/search-async-1",
   "_bundle/search-async-0",
@@ -225,6 +227,8 @@ metadata:
 ![with trailing comment](_assets/3.png)<!-- comment -->
 
 <!-- ![commented](_assets/4.png) -->
+
+![with backslash](_assets/5/_1.png)
 "
 `;
 
@@ -937,7 +941,7 @@ exports[`Regression > internal 34`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;img src=\\"_assets/1.png\\" alt=\\"simple image\\" /&gt;&lt;/p&gt;/n![with leading comment](_assets/2.png)/n&lt;p&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" /&gt;&lt;/p&gt;/n/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Images"},"router":{"pathname":"images","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;img src=\\"_assets/1.png\\" alt=\\"simple image\\" /&gt;&lt;/p&gt;/n![with leading comment](_assets/2.png)/n&lt;p&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" /&gt;&lt;/p&gt;/n/n&lt;p&gt;&lt;img src=\\"_assets/5_1.png\\" alt=\\"with backslash\\" /&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Images"},"router":{"pathname":"images","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

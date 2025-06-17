@@ -22,13 +22,23 @@ type LocalUrlInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
 };
 
+const UNESCAPE_MD_RE = /\\([!"#$%&'()*+,\-./:;<=>?@[\\\]^_`{|}~])/g;
+
+function unescapeAll(str: string) {
+    if (str.indexOf('\\') < 0 && str.indexOf('&') < 0) {
+        return str;
+    }
+
+    return str.replace(UNESCAPE_MD_RE, (_match: string, escaped: string) => escaped);
+}
+
 export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
     if (!url || isExternalHref(url) || url.startsWith('/')) {
         return null;
     }
 
     try {
-        const parsed = parse(url);
+        const parsed = parse(unescapeAll(url));
 
         if (parsed.host || parsed.protocol) {
             return null;
