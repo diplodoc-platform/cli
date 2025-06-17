@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.5](https://github.com/diplodoc-platform/cli/compare/v5.0.4...v5.0.5) (2025-06-17)
+
+
+### Bug Fixes
+
+* FIx assets with escaped chars handling ([940bdfc](https://github.com/diplodoc-platform/cli/commit/940bdfcb7ba89f2d1d4b399d21fab28a51e3fa31))
+* Fix mdit-plugins extension configuration ([91d865f](https://github.com/diplodoc-platform/cli/commit/91d865f963afff6c15290fdbc3c8e88f7094ffac))
+* Update search extension to latest version ([b9bacd6](https://github.com/diplodoc-platform/cli/commit/b9bacd611e66e0a3a7cfc0ebc83c883ee0ac703f))
+
 ## [5.0.4](https://github.com/diplodoc-platform/cli/compare/v5.0.3...v5.0.4) (2025-06-11)
 
 
