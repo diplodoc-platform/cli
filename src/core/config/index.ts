@@ -6,8 +6,6 @@ import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
-type ExtendedError = Error & {code: string};
-
 export function toArray(value: string | string[], previous: string | string[]) {
     value = ([] as string[]).concat(value);
 
@@ -63,17 +61,33 @@ export function args(command: Command | null) {
 const deprecatedArg = (reason: string) => yellow('\nDEPRECATED:\n' + reason);
 
 export const scope = (scopeName: string) => (config: Hash) => {
-    return config[scopeName] || config;
+    const path = scopeName.split('.');
+    let current = config;
+
+    for (const part of path) {
+        if (current && typeof current === 'object' && part in current) {
+            current = current[part];
+        }
+    }
+
+    return current || config;
 };
 
 export const strictScope = (scopeName: string) => (config: Hash) => {
-    if (scopeName in config) {
-        return config[scopeName];
-    } else {
-        const error = new TypeError(`Scope ${scopeName} doesn't exist in config`) as ExtendedError;
-        error.code = 'ScopeException';
-        throw error;
+    const path = scopeName.split('.');
+    let current = config;
+
+    for (const part of path) {
+        if (current && typeof current === 'object' && part in current) {
+            current = current[part];
+        } else {
+            const error = new TypeError(`Scope ${scopeName} doesn't exist in config`);
+            error.code = 'ScopeException';
+            throw error;
+        }
     }
+
+    return current;
 };
 
 export const defined = (option: string, ...scopes: Hash[]) => {

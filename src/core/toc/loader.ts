@@ -13,7 +13,7 @@ import type {
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
 import {omit} from 'lodash';
-import {evaluate, liquidSnippet} from '@diplodoc/liquid';
+import {NoValue, evaluate, liquidSnippet} from '@diplodoc/liquid';
 
 import {normalizePath, own} from '~/core/utils';
 
@@ -34,6 +34,7 @@ export type LoaderContext = LiquidContext & {
         removeHiddenItems: boolean;
     };
     toc: TocService;
+    skipMissingVars?: boolean;
 };
 
 export enum IncludeMode {
@@ -152,10 +153,18 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         let when = true;
 
         if (conditions) {
-            when =
-                typeof item.when === 'string'
-                    ? Boolean(evaluate(item.when, this.vars))
-                    : item.when !== false;
+            if (typeof item.when === 'string') {
+                const evalResult = evaluate(item.when, this.vars, this.skipMissingVars);
+
+                if (evalResult === NoValue && this.skipMissingVars) {
+                    when = true;
+                } else {
+                    when = Boolean(evalResult);
+                }
+            } else {
+                when = item.when !== false;
+            }
+
             delete item.when;
         }
 
