@@ -22,7 +22,7 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
         36,
         59,
       ],
-      "path": "_images/auth/_3.png",
+      "path": "_images/auth_3.png",
       "search": null,
       "title": "img",
       "type": "image",
