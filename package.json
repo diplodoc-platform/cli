@@ -31,7 +31,6 @@
       "default": "./lib/*/index.mjs"
     },
     "./package": "./package.json",
-    "./report-logs": "./build/report-logs.js",
     "./github-vcs": "./build/github-vcs.js"
   },
   "main": "build/index.js",

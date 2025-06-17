@@ -91,7 +91,7 @@ const builds = [
 ];
 
 const extensions = [
-    ['src/extensions/report-logs/index.ts', 'report-logs'],
+    ['src/extensions/mdit-plugins/index.ts', 'mdit-plugins'],
     ['src/extensions/github-vcs/index.ts', 'github-vcs'],
 ];
 

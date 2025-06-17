@@ -30,8 +30,6 @@ class Build {
             '--quiet',
             '--allowHTML',
             ...args,
-            '-e',
-            'report-logs',
         ]);
     }
 }
