@@ -6,30 +6,28 @@ import {omit} from 'lodash';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getMarkdownHooks} from '@diplodoc/cli/lib/markdown';
 
-type PluginConfigInput =
-    | string
-    | {
-          name: string;
-          [key: string]: unknown;
-      };
-
-interface NormalizedPluginConfig {
+type PluginConfigInput = {
     name: string;
-    [key: string]: unknown;
-}
+    plugins: (string | NormalizedPlugin)[];
+};
+
+type NormalizedPlugin = {
+    name: string;
+} & Hash;
 
 type Run = BaseRun & {
     markdown?: MarkdownService;
 };
 
 export class MarkdownItPluginsExtension implements IExtension {
-    private plugins: NormalizedPluginConfig[];
+    private plugins: NormalizedPlugin[];
 
-    constructor(config: PluginConfigInput[]) {
-        this.plugins = config.map((plugin) => {
+    constructor(config: PluginConfigInput) {
+        this.plugins = config.plugins.map((plugin) => {
             if (typeof plugin === 'string') {
                 return {name: plugin};
             }
+
             return plugin;
         });
     }
