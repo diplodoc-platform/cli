@@ -31,6 +31,7 @@
       "default": "./lib/*/index.mjs"
     },
     "./package": "./package.json",
+    "./mdit-plugins": "./build/mdit-plugins.js",
     "./github-vcs": "./build/github-vcs.js"
   },
   "main": "build/index.js",
