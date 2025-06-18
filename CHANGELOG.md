@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.6](https://github.com/diplodoc-platform/cli/compare/v5.0.5...v5.0.6) (2025-06-18)
+
+
+### Dependency update
+
+* Update @diplodoc/translation to 1.7.14 ([a9217b0](https://github.com/diplodoc-platform/cli/commit/a9217b0d482d0fba83d63a339286512e78e06b11))
+
 ## [5.0.5](https://github.com/diplodoc-platform/cli/compare/v5.0.4...v5.0.5) (2025-06-17)
 
 
