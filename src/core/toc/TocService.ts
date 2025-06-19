@@ -38,6 +38,7 @@ export type TocServiceConfig = {
         };
     };
     removeHiddenTocItems: boolean;
+    skipMissingVars?: boolean;
 };
 
 type WalkStepResult<I> = I | I[] | null | undefined;
@@ -411,6 +412,7 @@ export class TocService {
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,
             },
+            skipMissingVars: this.config.skipMissingVars,
         };
     }
 }

@@ -1,5 +1,5 @@
 import type {BaseArgs} from '~/core/program';
-import type {ExtractOptions} from '@diplodoc/translation';
+import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 
 import {ok} from 'node:assert';
@@ -59,6 +59,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     vars: Hash;
     useExperimentalParser?: boolean;
     schema?: string;
+    skipMissingVars: boolean;
 } & ConfigDefaults;
 
 @withConfigScope('translate.extract', {strict: true})
@@ -119,6 +120,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 exclude,
                 vars,
                 useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+                skipMissingVars: true,
             });
         });
     }
@@ -161,10 +163,12 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
             await eachLimit(
                 Array.from(files),
                 MAX_CONCURRENCY,
-                asyncify(async (file: string) => {
+                asyncify(async (file: NormalizedPath) => {
                     try {
                         this.logger.extract(file);
-                        await configuredPipeline(file);
+                        const content = await this.run.getFileContent(file);
+
+                        await configuredPipeline(file, content);
                         this.logger.extracted(file);
                     } catch (error: unknown) {
                         if (error instanceof TranslateError) {
@@ -203,9 +207,8 @@ function pipeline(params: PipelineParameters) {
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async (path: string) => {
+    return async (path: string, content: string | JSONObject) => {
         const inputPath = join(inputRoot, path);
-        const content = new FileLoader(inputPath);
         const output = (path: string) => {
             const normalizedPath = normalizePath(path);
             const normalizedInputRoot = normalizePath(inputRoot);
@@ -216,24 +219,20 @@ function pipeline(params: PipelineParameters) {
             return join(outputRoot, targetPath);
         };
 
-        await content.load();
-
-        if (Object.keys(vars).length && content.isString) {
-            content.set(
-                liquid(content.data as string, vars, inputPath, {
-                    conditions: 'strict',
-                    substitutions: false,
-                    cycles: false,
-                }),
-            );
+        if (Object.keys(vars).length && typeof content === 'string') {
+            content = liquid(content, vars, inputPath, {
+                conditions: 'strict',
+                substitutions: false,
+                cycles: false,
+            });
         }
 
         const {schemas, ajvOptions} = await resolveSchemas({
-            content: content.data,
+            content,
             path,
             customSchemaPath: schema,
         });
-        const {xliff, skeleton, units} = extract(content.data, {
+        const {xliff, skeleton, units} = extract(content, {
             originalFile: path,
             source,
             target,

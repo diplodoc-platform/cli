@@ -3,6 +3,7 @@ href: index.yaml
 items:
   - name: API Yandex Cloud
     href: index.yaml
+  - include: {mode: merge, path: folder1/toc-i.yaml}
   - name: Yandex Flavored Markdown
     href: index-yfm.md
     items:

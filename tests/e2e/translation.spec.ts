@@ -6,12 +6,12 @@ const generateMapTestTemplate = (
     testRootPath: string,
     args: TranslateRunArgs,
 ) => {
-    test.skip(testTitle, async () => {
+    test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
         await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
-        await compareDirectories(outputPath, true);
+        await compareDirectories(outputPath);
     });
 };
 
@@ -43,7 +43,19 @@ describe('Translate command', () => {
             subcommand: 'extract',
             source: 'ru-RU',
             target: 'es-ES',
-            additionalArgs: '--exclude ru/_no-translate/*.md',
+            additionalArgs: '--exclude ru/to-be-excluded.md',
+        },
+    );
+
+    const vars = {skip: 'prod'}
+    generateMapTestTemplate(
+        'filter files on extract with extra vars option',
+        'mocks/translation/dir-files',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(vars)}`,
         },
     );
 
