@@ -11,7 +11,7 @@ type TocItem = {
 type TocItems = TocItem[];
 
 export async function prepareMapFile(run: Run) {
-    const navigationPathsWithoutExtensions = run.toc.entries.map((path) => {
+    const navigationPathsWithoutExtensions = run.getEntries().map((path) => {
         let preparedPath = path.replace(extname(path), '');
 
         if (preparedPath.endsWith('/index')) {

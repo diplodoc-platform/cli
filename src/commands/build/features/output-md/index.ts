@@ -59,13 +59,22 @@ export class OutputMd {
 
                         vfile.data = (await dump(entry)).content;
 
-                        async function dump(entry: EntryGraph, write = false) {
+                        async function dump(
+                            entry: EntryGraph,
+                            from?: NormalizedPath,
+                            write = false,
+                        ) {
                             if (processed.has(entry.path)) {
                                 return processed.get(entry.path);
                             }
 
-                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
-                            const content = replaceDeps(entry.content, deps);
+                            const deps = await all(
+                                entry.deps.map((dep) => dump(dep, entry.path, true)),
+                            );
+                            const content = replaceDeps(
+                                await run.markdown.load(entry.path, from),
+                                deps,
+                            );
                             const hash = hashIncludes ? rehashContent(content) : '';
                             const link = signlink(entry.path, hash);
                             const hashed = {...entry, content, hash};

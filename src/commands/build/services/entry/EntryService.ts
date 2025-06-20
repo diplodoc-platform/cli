@@ -1,6 +1,6 @@
 import type {Meta} from '~/core/meta';
 import type {Toc} from '~/core/toc';
-import type {Run} from '~/commands/build';
+import type {EntryInfo, Run} from '~/commands/build';
 import type {EntryData, PageData, PageState} from './types';
 
 import {extname, join} from 'node:path';
@@ -10,7 +10,7 @@ import {render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
-import {VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
+import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
@@ -19,6 +19,8 @@ const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 @withHooks
 export class EntryService {
+    readonly graph = new Graph();
+
     private run: Run;
 
     private config: Run['config'];
@@ -39,31 +41,32 @@ export class EntryService {
         const type = extname(path).slice(1);
         const result = {type, path} as EntryData;
 
-        if (type === 'yaml') {
-            const vfile = await this.run.leading.dump(path);
+        const service = this.getService(path);
+        const vfile = await service.dump(path);
 
-            result.content = vfile;
-            result.info = vfile.info;
-        } else {
-            const vfile = await this.run.markdown.dump(path);
-
-            result.content = vfile;
-            result.info = vfile.info;
-        }
-
+        result.content = vfile;
+        result.info = vfile.info as EntryInfo;
         result.meta = await this.run.meta.dump(path);
 
         return result;
     }
 
-    async dump(path: NormalizedPath, entry?: EntryData): Promise<VFile<EntryData>> {
+    async dump(path: NormalizedPath, entry?: EntryData): Promise<VFile<EntryData, EntryInfo>> {
         entry = entry || (await this.load(path));
 
-        const vfile = new VFile(path, entry, () => (entry as EntryData).content.toString());
+        const vfile = new VFile<EntryData, EntryInfo>(path, entry, () =>
+            (entry as EntryData).content.toString(),
+        );
+        vfile.info.graph = entry.info.graph;
 
         await getHooks(this).Dump.promise(vfile);
 
         return vfile;
+    }
+
+    release(path: NormalizedPath, from?: NormalizedPath) {
+        const service = this.getService(path);
+        return service.release(path, from);
     }
 
     async state(path: NormalizedPath, data: PageData) {
@@ -158,6 +161,16 @@ export class EntryService {
         await getHooks(this).Page.promise(template);
 
         return template.dump();
+    }
+
+    private getService(path: NormalizedPath) {
+        const type = extname(path).slice(1);
+
+        if (type === 'yaml') {
+            return this.run.leading;
+        } else {
+            return this.run.markdown;
+        }
     }
 }
 

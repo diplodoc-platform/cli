@@ -70,6 +70,8 @@ export class Run extends BaseRun<BuildConfig> {
         return join(ASSETS_FOLDER);
     }
 
+    private _entries: NormalizedPath[] = [];
+
     constructor(config: BuildConfig) {
         super(config);
 
@@ -93,6 +95,16 @@ export class Run extends BaseRun<BuildConfig> {
         this.markdown = new MarkdownService(this);
         this.search = new SearchService(this);
         this.redirects = new RedirectsService(this);
+    }
+
+    getEntries() {
+        return this._entries;
+    }
+
+    setEntries(entries: NormalizedPath[]) {
+        if (!this._entries.length) {
+            this._entries = entries;
+        }
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
@@ -149,7 +161,7 @@ export class Run extends BaseRun<BuildConfig> {
             getPublicPath,
             extractTitle: true,
             log: this.logger,
-            entries: this.toc.entries,
+            entries: this._entries,
             existsInProject: this.existsInProject,
         };
     }

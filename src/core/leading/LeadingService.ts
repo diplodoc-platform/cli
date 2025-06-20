@@ -3,13 +3,22 @@ import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
 
-import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {AssetInfo, EntryGraph, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
 import {dump, load} from 'js-yaml';
 
-import {Buckets, Defer, VFile, bounded, fullPath, langFromPath, normalizePath} from '~/core/utils';
+import {
+    Buckets,
+    Defer,
+    VFile,
+    all,
+    bounded,
+    fullPath,
+    langFromPath,
+    normalizePath,
+} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, loader} from './loader';
@@ -51,7 +60,7 @@ export class LeadingService {
 
     private pathToMeta = new Buckets<Meta>();
 
-    private pathToDeps = new Buckets<never[]>();
+    private pathToDeps = new Buckets<{path: NormalizedPath}[]>();
 
     private pathToAssets = new Buckets<AssetInfo[]>();
 
@@ -107,6 +116,9 @@ export class LeadingService {
 
     @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
         const vfile = new VFile(path, leading || (await this.load(path)), dump);
+        const graph = await this.graph(vfile.path);
+
+        vfile.info = {graph};
 
         await getHooks(this).Dump.promise(vfile);
 
@@ -131,6 +143,29 @@ export class LeadingService {
         const file = normalizePath(path);
 
         return [...this.pathToAssets.get(file)];
+    }
+
+    async graph(path: RelativePath): Promise<EntryGraph> {
+        const file = normalizePath(path);
+
+        await this.load(file);
+        const deps = await all(
+            (this.pathToDeps.get(file) || []).map(async (dep) => {
+                return {
+                    ...dep,
+                    ...(await this.graph(dep.path)),
+                };
+            }),
+        );
+
+        return {path: file, deps};
+    }
+
+    release(path: NormalizedPath) {
+        delete this.cache[path];
+        this.pathToDeps.delete(path);
+        this.pathToMeta.delete(path);
+        this.pathToAssets.delete(path);
     }
 
     private proxy(key: string) {

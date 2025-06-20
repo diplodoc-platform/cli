@@ -1,5 +1,7 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
+import type {EntryGraph as LeadingEntryGraph} from '~/core/leading';
+import type {EntryGraph as MarkdownEntryGraph} from '~/core/markdown';
 import type {Config} from '~/core/config';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
@@ -10,6 +12,7 @@ import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
+import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {PageData} from './services/entry';
 
@@ -61,7 +64,8 @@ export type BuildArgs = ProgramArgs &
             SearchArgs &
             LegacyArgs &
             CustomResourcesArgs &
-            VcsArgs
+            VcsArgs &
+            WatchArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -75,7 +79,8 @@ export type BuildRawConfig = BaseArgs &
     ChangelogsConfig &
     SearchRawConfig &
     LegacyRawConfig &
-    CustomResourcesConfig;
+    CustomResourcesConfig &
+    WatchConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -89,11 +94,12 @@ export type BuildConfig = Config<
         ChangelogsConfig &
         SearchConfig &
         LegacyConfig &
-        CustomResourcesConfig
+        CustomResourcesConfig &
+        WatchConfig
 >;
 
-export type EntryInfo = Partial<PageData>;
+export type EntryInfo = Partial<PageData> & {
+    graph: EntryGraph;
+};
 
-export type PositionedEntryInfo = {
-    position: number;
-} & EntryInfo;
+export type EntryGraph = MarkdownEntryGraph | LeadingEntryGraph;

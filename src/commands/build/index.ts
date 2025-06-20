@@ -17,7 +17,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
-import {normalizePath, setExt} from '~/core/utils';
+import {bounded, normalizePath, setExt} from '~/core/utils';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import * as threads from '~/commands/threads';
@@ -36,6 +36,7 @@ import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
+import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 
 export type * from './types';
@@ -89,6 +90,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly search = new Search();
 
+    readonly watch = new Watch();
+
     readonly legacy = new Legacy();
 
     readonly command = new Command('build').description('Build documentation in target directory');
@@ -121,6 +124,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.linter,
         this.changelogs,
         this.search,
+        this.watch,
         this.md,
         this.html,
         this.legacy,
@@ -173,12 +177,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         });
 
         // Regenerate toc entry names from md titles
-        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
+        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc) => {
             await this.run.toc.walkEntries(
                 toc?.items as EntryTocItem[],
                 async (item: EntryTocItem) => {
                     if (!item.name || item.name === '{#T}') {
-                        const entry = normalizePath(join(dirname(path), item.href));
+                        const entry = normalizePath(join(dirname(toc.path), item.href));
                         const titles = await this.run.markdown.titles(entry);
                         item.name = titles['#'] || setExt(basename(entry), '');
                     }
@@ -188,40 +192,24 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             );
         });
 
-        await this.run.toc.init(paths);
-
-        const {tocs, entries, copymap} = this.run.toc;
+        const tocs = await this.run.toc.init(paths);
+        const copymap = this.run.toc.copymap;
+        const entries = await this.getEntries(tocs);
         const vcs = this.run.vcs.getData();
+
+        this.run.setEntries(entries);
 
         await this.sync(tocs, entries, copymap, vcs);
 
-        await this.concurrently(tocs, async (raw) => {
-            const toc = await this.run.toc.dump(raw.path, raw);
+        await this.concurrently(tocs, this.processToc);
 
-            await this.run.write(join(this.run.output, toc.path), toc.toString());
-        });
-
-        await this.concurrently(entries, async (entry, position) => {
-            try {
-                this.run.logger.proc(entry);
-
-                const meta = this.run.meta.get(entry);
-                const info = await this.process(entry, meta);
-
-                await getHooks(this)
-                    .Entry.for(outputFormat)
-                    .promise(this.run, entry, {...info, position});
-
-                this.run.logger.info('Processing finished:', entry);
-            } catch (error) {
-                console.error(error);
-                this.run.logger.error(`${entry}: ${error}`);
-            }
-        });
+        await this.concurrently(entries, this.processEntry);
 
         await handler(this.run);
 
         await this.releaseRun();
+
+        await threads.terminate();
 
         await getHooks(this).AfterRun.for(outputFormat).promise(this.run);
         await getBaseHooks(this).AfterAnyRun.promise(this.run);
@@ -242,11 +230,43 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         copymap: Record<NormalizedPath, NormalizedPath>,
         vcs: VcsSyncData,
     ) {
+        this.run.setEntries(entries);
         this.run.vcs.setData(vcs);
-        this.run.toc.setEntries(entries);
         this.run.toc.setCopymap(copymap);
         for (const toc of tocs) {
             this.run.toc.setToc(toc);
+        }
+    }
+
+    @bounded async processToc(raw: Toc) {
+        const toc = await this.run.toc.dump(raw.path, raw);
+
+        await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
+    }
+
+    @bounded async processEntry(entry: NormalizedPath) {
+        try {
+            const {outputFormat} = this.config;
+
+            this.run.logger.proc(entry);
+
+            const toc = this.run.toc.for(entry);
+            const meta = this.run.meta.get(entry);
+
+            const info = await this.process(entry, meta);
+
+            this.run.entry.graph.consume(info.graph);
+            this.run.entry.graph.addNode(toc.path);
+            this.run.entry.graph.addDependency(entry, toc.path);
+            this.run.entry.graph.setNodeData(entry, {type: 'entry'});
+            this.run.entry.graph.setNodeData(toc.path, {type: 'toc'});
+
+            await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
+
+            this.run.logger.info('Processing finished:', entry);
+        } catch (error) {
+            console.error(error);
+            this.run.logger.error(`${entry}: ${error}`);
         }
     }
 
@@ -256,7 +276,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         const result = await this.run.entry.dump(file);
 
-        await this.run.write(join(this.run.output, result.path), result.toString());
+        await this.run.write(join(this.run.output, result.path), result.toString(), true);
 
         return result.info;
     }
@@ -287,5 +307,19 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     private async cleanup() {
         await this.run.remove(this.run.input);
+    }
+
+    private async getEntries(tocs: Toc[]) {
+        const entries = new Set<NormalizedPath>();
+
+        for (const toc of tocs) {
+            await this.run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
+                entries.add(normalizePath(join(dirname(toc.path), item.href)));
+
+                return item;
+            });
+        }
+
+        return [...entries];
     }
 }

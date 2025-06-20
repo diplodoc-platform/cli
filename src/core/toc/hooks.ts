@@ -20,21 +20,15 @@ export function hooks(name: string) {
          */
         Includer: new HookMap(
             (type: string) =>
-                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, NormalizedPath]>(
-                    ['Toc', 'options', 'TocPath'],
+                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions]>(
+                    ['Toc', 'options'],
                     `${name}.Includer(${type})`,
                 ),
         ),
-        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
-            ['Toc', 'TocPath'],
-            `${name}.Loaded`,
-        ),
-        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, NormalizedPath]>(
-            ['Toc', 'TocPath'],
-            `${name}.Resolved`,
-        ),
-        Included: new AsyncParallelHook<[Toc, NormalizedPath, IncludeInfo]>(
-            ['Toc', 'TocPath', 'IncludeInfo'],
+        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>]>(['Toc'], `${name}.Loaded`),
+        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>]>(['Toc'], `${name}.Resolved`),
+        Included: new AsyncParallelHook<[Toc, IncludeInfo]>(
+            ['Toc', 'IncludeInfo'],
             `${name}.Included`,
         ),
         Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),

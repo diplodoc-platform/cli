@@ -1,7 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {EntryTocItem, IncludeInfo, RawToc, Toc, WithItems} from './types';
+import type {IncludeInfo, RawToc, RawTocItem, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
@@ -10,6 +10,7 @@ import {dedent} from 'ts-dedent';
 
 import {
     Defer,
+    Graph,
     VFile,
     bounded,
     copyJson,
@@ -61,12 +62,10 @@ type Run = BaseRun<TocServiceConfig> & {
 export class TocService {
     readonly name = 'Toc';
 
-    get entries() {
-        return [...this._entries];
-    }
+    readonly graph = new Graph();
 
     get tocs() {
-        return [...this._tocs.values()].filter(Boolean) as Toc[];
+        return (this.graph.entryNodes() as NormalizedPath[]).map(this.for);
     }
 
     get copymap() {
@@ -78,10 +77,6 @@ export class TocService {
     private logger: Run['logger'];
 
     private config: TocServiceConfig;
-
-    private _entries: Set<NormalizedPath> = new Set();
-
-    private _tocs: Map<NormalizedPath, Toc | boolean> = new Map();
 
     private _copymap: Record<NormalizedPath, NormalizedPath> = {};
 
@@ -107,6 +102,8 @@ export class TocService {
         for (const path of paths) {
             await this.load(path);
         }
+
+        return this.tocs.filter((toc) => paths.includes(toc.path));
     }
 
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
@@ -155,17 +152,11 @@ export class TocService {
         this._copymap = copymap;
     }
 
-    setEntries(entries: NormalizedPath[]) {
-        if (!this._entries.size) {
-            this._entries = new Set(entries);
-        }
-    }
-
     /**
      * Resolves toc path and data for any page path.
      * Expects what all paths are already loaded in service.
      */
-    for(path: RelativePath): Toc {
+    @bounded for(path: RelativePath): Toc {
         path = normalizePath(path);
 
         const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
@@ -183,8 +174,14 @@ export class TocService {
         return this.for(nextPath);
     }
 
+    release(path: NormalizedPath) {
+        memoize.release(this._dump, path);
+        this.cache.delete(path);
+        this.processed[path] = false;
+    }
+
     @memoize('path')
-    async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
+    private async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
         const vfile = new VFile<Toc>(file, copyJson(toc), dump);
 
         await getHooks(this).Dump.promise(vfile);
@@ -216,8 +213,9 @@ export class TocService {
         });
 
         const context: LoaderContext = this.loaderContext(file);
-
         const content = await read(this.run, file);
+
+        content.path = file;
 
         if (this.shouldSkip(content)) {
             this.cache.delete(file);
@@ -227,20 +225,17 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        toc.path = file;
+        await getHooks(this).Loaded.promise(toc);
 
-        await getHooks(this).Loaded.promise(toc, file);
+        this.graph.addNode(file);
 
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
         if (toc.href || toc.items?.length) {
-            await this.addEntries(path, toc);
             await this.restrictAccess(path, toc);
         }
 
         defer.resolve(toc);
-
-        this._tocs.set(file, toc);
 
         return defer.promise;
     }
@@ -250,12 +245,14 @@ export class TocService {
         const file = normalizePath(path);
 
         this.processed[file] = true;
-        this._tocs.set(file, false);
+
+        this.graph.addNode(file);
+        this.graph.addNode(include.from);
+        this.graph.addDependency(include.from, file);
 
         this.logger.proc(file);
 
         const context: LoaderContext = await this.loaderContext(file, include);
-
         const content = include.content || (await read(this.run, file, include.from));
 
         if (this.shouldSkip(content)) {
@@ -287,7 +284,7 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        await getHooks(this).Included.promise(toc, file, include);
+        await getHooks(this).Included.promise(toc, include);
 
         return toc;
     }
@@ -354,17 +351,9 @@ export class TocService {
         return false;
     }
 
-    private async addEntries(path: NormalizedPath, toc: Toc) {
-        await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
-            this._entries.add(normalizePath(join(dirname(path), item.href)));
-
-            return item;
-        });
-    }
-
     private async restrictAccess(path: NormalizedPath, toc: Toc) {
         await this.walkItems(
-            [toc as unknown as RawToc],
+            [toc as unknown as RawTocItem],
             (item, context: RestrictedAccessContext) => {
                 if (own<string | string[]>(item, 'restricted-access')) {
                     let itemAccess = ([] as string[]).concat(item['restricted-access'] || []);
