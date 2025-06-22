@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.0.8](https://github.com/diplodoc-platform/cli/compare/v5.0.7...v5.0.8) (2025-06-22)
+
+
+### Bug Fixes
+
+* Fix docs rebuilding with existed output ([35aa586](https://github.com/diplodoc-platform/cli/commit/35aa58698dd3ac897b245a109d34cd508266a8b7))
+
+
+### Dependency update
+
+* Update @diplodoc/search-extension to 2.0.1 ([f5dc159](https://github.com/diplodoc-platform/cli/commit/f5dc1597c5cb81050813b575cff5ad5a473b41fe))
+
 ## [5.0.7](https://github.com/diplodoc-platform/cli/compare/v5.0.6...v5.0.7) (2025-06-19)
 
 
