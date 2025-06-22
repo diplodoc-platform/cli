@@ -198,7 +198,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.concurrently(tocs, async (raw) => {
             const toc = await this.run.toc.dump(raw.path, raw);
 
-            await this.run.write(join(this.run.output, toc.path), toc.toString());
+            await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
         });
 
         await this.concurrently(entries, async (entry, position) => {
@@ -256,7 +256,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         const result = await this.run.entry.dump(file);
 
-        await this.run.write(join(this.run.output, result.path), result.toString());
+        await this.run.write(join(this.run.output, result.path), result.toString(), true);
 
         return result.info;
     }

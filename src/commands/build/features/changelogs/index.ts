@@ -90,7 +90,7 @@ export class Changelogs {
                                 `__changes-${changesName}.json`,
                             );
 
-                            return run.write(changesPath, JSON.stringify(changes));
+                            return run.write(changesPath, JSON.stringify(changes), true);
                         });
                     },
                 );

@@ -186,13 +186,13 @@ export class OutputHtml {
                 // Generate root lang redirect if it doesn't exists
                 if (!run.exists(pagePath) && run.exists(langPath)) {
                     const content = await run.redirects.page('./', langRelativePath);
-                    await run.write(pagePath, content);
+                    await run.write(pagePath, content, true);
                 }
 
                 // Generate redirect for each record in redirects.files section
                 for (const {from, to} of run.redirects.files) {
                     const content = await run.redirects.page(from, to);
-                    await run.write(join(run.output, from), content);
+                    await run.write(join(run.output, from), content, true);
                 }
             });
     }

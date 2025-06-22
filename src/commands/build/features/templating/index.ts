@@ -117,6 +117,7 @@ export class Templating {
                                 dump(result, {
                                     lineWidth: 120,
                                 }),
+                                true,
                             );
 
                             return presets;

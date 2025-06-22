@@ -23,5 +23,5 @@ export async function prepareMapFile(run: Run) {
     const navigationPaths = {files: [...new Set(navigationPathsWithoutExtensions)].sort()};
     const content = JSON.stringify(navigationPaths, null, '\t');
 
-    await run.write(join(run.output, 'files.json'), content);
+    await run.write(join(run.output, 'files.json'), content, true);
 }

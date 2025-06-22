@@ -134,5 +134,6 @@ export async function processChangelogs(run: Run) {
     await run.write(
         join(run.output, 'changelogs.minified.json'),
         JSON.stringify(processed, null, 4),
+        true,
     );
 }

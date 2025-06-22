@@ -83,7 +83,7 @@ export class OutputMd {
                                     join(run.output, link),
                                 );
 
-                                await run.write(join(run.output, link), content);
+                                await run.write(join(run.output, link), content, true);
                             } catch (error) {
                                 run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
                             }

@@ -90,7 +90,7 @@ export class SinglePage {
 
                     template.addScript(file, {position: 'state'});
 
-                    await run.write(join(run.output, toc.path), toc.toString());
+                    await run.write(join(run.output, toc.path), toc.toString(), true);
                 });
             });
 
@@ -136,8 +136,8 @@ export class SinglePage {
 
                         state.data.toc = toc;
 
-                        await run.write(join(run.output, dataPath), JSON.stringify(state));
-                        await run.write(join(run.output, htmlPath), page);
+                        await run.write(join(run.output, dataPath), JSON.stringify(state), true);
+                        await run.write(join(run.output, htmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);
                     }

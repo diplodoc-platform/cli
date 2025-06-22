@@ -326,7 +326,7 @@ export class MarkdownService {
             },
             emitFile: async (file: NormalizedPath, content: string) => {
                 const rootPath = fullPath(file, path);
-                await this.run.write(join(this.run.input, rootPath), content);
+                await this.run.write(join(this.run.input, rootPath), content, true);
             },
             api: new LoaderAPI(api),
             collects: this.collects,

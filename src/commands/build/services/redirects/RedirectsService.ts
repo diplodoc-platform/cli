@@ -53,7 +53,7 @@ export class RedirectsService {
         const redirects = await getHooks(this).Release.promise(this.redirects);
 
         if (redirects && Object.keys(redirects).length) {
-            await this.run.write(join(this.run.output, REDIRECTS_FILENAME), dump(redirects));
+            await this.run.write(join(this.run.output, REDIRECTS_FILENAME), dump(redirects), true);
         }
     }
 

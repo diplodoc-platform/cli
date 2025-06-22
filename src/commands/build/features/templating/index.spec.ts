@@ -253,6 +253,7 @@ describe('Build template feature', () => {
             expect(run(build).write).toHaveBeenCalledWith(
                 resolve('/dev/null/output/presets.yaml'),
                 `default:\n  field: value\n`,
+                true,
             );
         });
 
@@ -278,6 +279,7 @@ describe('Build template feature', () => {
             expect(run(build).write).toHaveBeenCalledWith(
                 resolve('/dev/null/output/presets.yaml'),
                 `default:\n  field: value\ninternal:\n  field: value\n`,
+                true,
             );
         });
     });
