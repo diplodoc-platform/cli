@@ -5,6 +5,7 @@ import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './feat
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
+import type {BuildManifestConfig} from './features/build-manifest';
 import type {OutputMdArgs, OutputMdConfig} from './features/output-md';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
@@ -86,6 +87,7 @@ export type BuildConfig = Config<
         ContributorsConfig &
         SinglePageConfig &
         LintConfig &
+        BuildManifestConfig &
         OutputMdConfig &
         ChangelogsConfig &
         SearchConfig &
