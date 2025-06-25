@@ -22,6 +22,7 @@ import {
 import {getHooks, withHooks} from './hooks';
 import {isMergeMode, loader} from './loader';
 import {isEntryItem} from './utils';
+import {maxBy} from 'lodash';
 
 export type TocServiceConfig = {
     ignore: string[];
@@ -88,6 +89,8 @@ export class TocService {
     private processed: Hash<boolean> = {};
 
     private cache: Map<NormalizedPath, Toc | Promise<Toc | undefined> | undefined> = new Map();
+
+    private reachableFiles: Map<NormalizedPath, Set<NormalizedPath>> = new Map();
 
     private get vars() {
         return this.run.vars;
@@ -166,21 +169,23 @@ export class TocService {
      * Expects what all paths are already loaded in service.
      */
     for(path: RelativePath): Toc {
-        path = normalizePath(path);
+        const normalized = normalizePath(path);
 
-        const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
+        const tocsWhereReachable = [...this.reachableFiles.entries()]
+            .filter(([, files]) => files.has(normalized))
+            .map(([path]) => path);
 
-        if (this.cache.has(tocPath)) {
-            return this.cache.get(tocPath) as Toc;
-        }
+        const maybeDeepestTocPath = maxBy(tocsWhereReachable, (path) => path.split('/').length);
+        const maybeDeepestToc = maybeDeepestTocPath ? this.cache.get(maybeDeepestTocPath) : undefined;
 
-        const nextPath = dirname(path);
-
-        if (path === nextPath) {
+        if (!maybeDeepestToc) {
             throw new Error('Error while finding toc dir.');
         }
 
-        return this.for(nextPath);
+        // theoretically unsafe yet should be fine in practice because reasons
+        // (i.e. it would be breach of "contract" for this method to get called when something is not yet processed)
+        // TODO: refactor this class to statically eliminate promises from this branch of execution
+        return maybeDeepestToc as Toc;
     }
 
     @memoize('path')
@@ -356,7 +361,10 @@ export class TocService {
 
     private async addEntries(path: NormalizedPath, toc: Toc) {
         await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
-            this._entries.add(normalizePath(join(dirname(path), item.href)));
+            const resolvedItemHref = normalizePath(join(dirname(path), item.href));
+
+            this._entries.add(resolvedItemHref);
+            this.addReachableFile(path, resolvedItemHref);
 
             return item;
         });
@@ -412,6 +420,14 @@ export class TocService {
                 removeHiddenItems: this.config.removeHiddenTocItems,
             },
         };
+    }
+
+    private addReachableFile(file: NormalizedPath, reachableFile: NormalizedPath) {
+        const reachableFiles = this.reachableFiles.get(file) || new Set();
+
+        reachableFiles.add(reachableFile);
+
+        this.reachableFiles.set(file, reachableFiles);
     }
 }
 
