@@ -45,28 +45,23 @@ declare module 'normalize-path' {
 }
 
 declare module 'node:path' {
-    namespace path {
-        interface PlatformPath extends PlatformPath {
-            normalize<T extends AnyPath>(path: T): T;
+    interface PlatformPath {
+        normalize<T extends AnyPath>(path: T): T;
 
-            join<T extends AnyPath>(path: T, ...paths: string[]): T;
+        join<T extends AnyPath>(path: T, ...paths: string[]): T;
 
-            resolve(...paths: string[]): AbsolutePath;
+        resolve(...paths: string[]): AbsolutePath;
 
-            isAbsolute(path: AnyPath): path is AbsolutePath;
+        isAbsolute(path: AnyPath): path is AbsolutePath;
 
-            relative(from: AnyPath, to: AnyPath): RelativePath;
+        relative(from: AnyPath, to: AnyPath): RelativePath;
 
-            dirname<T extends AnyPath>(path: T): T;
+        dirname<T extends AnyPath>(path: T): T;
 
-            basename(path: AnyPath, suffix?: string): RelativePath;
+        basename(path: AnyPath, suffix?: string): RelativePath;
 
-            extname(path: AnyPath): string;
+        extname(path: AnyPath): string;
 
-            sep: string;
-        }
+        sep: string;
     }
-
-    const path: path.PlatformPath;
-    export = path;
 }

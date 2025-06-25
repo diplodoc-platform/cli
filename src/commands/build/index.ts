@@ -32,6 +32,7 @@ import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
 import {Lint} from './features/linter';
+import {BuildManifest} from './features/build-manifest';
 import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
@@ -81,6 +82,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly linter = new Lint();
 
+    readonly buildManifest = new BuildManifest();
+
     readonly changelogs = new Changelogs();
 
     readonly md = new OutputMd();
@@ -119,6 +122,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.contributors,
         this.singlepage,
         this.linter,
+        this.buildManifest,
         this.changelogs,
         this.search,
         this.md,
