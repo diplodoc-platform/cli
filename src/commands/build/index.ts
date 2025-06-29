@@ -249,6 +249,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.run.vcs.setData(vcs);
         this.run.toc.setEntries(entries);
         this.run.toc.setCopymap(copymap);
+
         for (const toc of tocs) {
             this.run.toc.setToc(toc);
         }

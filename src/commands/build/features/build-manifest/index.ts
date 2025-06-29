@@ -1,5 +1,5 @@
 import type {Build, Run} from '~/commands/build';
-import type {Command} from '~/core/config';
+import {type Command, valuable} from '~/core/config';
 
 import {join, parse} from 'node:path';
 import {load} from 'js-yaml';
@@ -28,7 +28,11 @@ type BuildManifestFormat = {
     yfmConfig: unknown;
 };
 
-const MANIFEST_FILENAME = 'build-manifest.json';
+const MANIFEST_FILENAME = 'yfm-build-manifest.json';
+
+export type BuildManifestArgs = {
+    buildManifest: boolean;
+};
 
 export type BuildManifestConfig = {
     buildManifest: boolean;
@@ -40,6 +44,22 @@ export class BuildManifest {
             command.addOption(options.buildManifest);
         });
 
+        getBaseHooks(program).Config.tapPromise('BuildManifest', async (config, args) => {
+            let buildManifest = false;
+
+            if (valuable(config.buildManifest)) {
+                buildManifest = Boolean(config.buildManifest);
+            }
+
+            if (valuable(args.buildManifest)) {
+                buildManifest = Boolean(args.buildManifest);
+            }
+
+            config.buildManifest = buildManifest;
+
+            return config;
+        });
+
         getBuildHooks(program)
             .AfterRun.for('md')
             .tapPromise('BuildManifest', async (run: Run) => {
@@ -48,17 +68,30 @@ export class BuildManifest {
                 }
 
                 const fileTrie = this.buildFileTrie(run);
-                const yfmConfigPath = run.configPath;
-
-                const yfmConfig = load(await run.read(yfmConfigPath));
+                const yfmConfig = await this.readYfmConfig(run);
 
                 const manifest: BuildManifestFormat = {
                     fileTrie,
                     yfmConfig,
                 };
 
-                await run.write(join(run.output, MANIFEST_FILENAME), JSON.stringify(manifest));
+                await run.write(
+                    join(run.output, MANIFEST_FILENAME),
+                    JSON.stringify(manifest, null, 2),
+                );
             });
+    }
+
+    private async readYfmConfig(run: Run): Promise<unknown> {
+        try {
+            const yfmConfigPath = run.configPath;
+
+            return load(await run.read(yfmConfigPath)) ?? {};
+        } catch (error) {
+            run.logger.warn(`BuildMap: Failed to read YFM config: ${error}`);
+
+            return {};
+        }
     }
 
     private buildFileTrie(run: Run): FileTrie {
@@ -103,6 +136,7 @@ export class BuildManifest {
             const file = {ext, effectiveTocPath: run.toc.for(path).path};
 
             trieNode.file = file;
+            lastHead[name] = trieNode;
         };
 
         run.toc.entries.forEach(addFile);

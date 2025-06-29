@@ -13,6 +13,70 @@ exports[`Generate map for > project with external links in toc 1`] = `
 }"
 `;
 
+exports[`Generate map for > project with external links in toc 2`] = `
+{
+  "fileTrie": {
+    "ru": {
+      "children": {
+        "folder1": {
+          "children": {
+            "a1": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "folder2": {
+              "children": {
+                "a1": {
+                  "file": {
+                    "effectiveTocPath": "ru/toc.yaml",
+                    "ext": ".md",
+                  },
+                },
+              },
+            },
+          },
+        },
+        "index": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+        "plugins": {
+          "children": {
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "project": {
+          "children": {
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "settings": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+      },
+    },
+  },
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with multiple language 1`] = `
 "{
 	"files": [
@@ -32,6 +96,110 @@ exports[`Generate map for > project with multiple language 1`] = `
 }"
 `;
 
+exports[`Generate map for > project with multiple language 2`] = `
+{
+  "fileTrie": {
+    "en": {
+      "children": {
+        "index": {
+          "file": {
+            "effectiveTocPath": "en/toc.yaml",
+            "ext": ".md",
+          },
+        },
+        "plugins": {
+          "children": {
+            "import": {
+              "file": {
+                "effectiveTocPath": "en/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "en/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "project": {
+          "children": {
+            "config": {
+              "file": {
+                "effectiveTocPath": "en/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "en/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "settings": {
+          "file": {
+            "effectiveTocPath": "en/toc.yaml",
+            "ext": ".md",
+          },
+        },
+      },
+    },
+    "ru": {
+      "children": {
+        "index": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+        "plugins": {
+          "children": {
+            "import": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "project": {
+          "children": {
+            "config": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "settings": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+      },
+    },
+  },
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with single language and toc include - only md2html 1`] = `
 "{
 	"files": [
@@ -47,6 +215,82 @@ exports[`Generate map for > project with single language and toc include - only 
 }"
 `;
 
+exports[`Generate map for > project with single language and toc include - only md2html 2`] = `
+{
+  "fileTrie": {
+    "ru": {
+      "children": {
+        "folder1": {
+          "children": {
+            "a1": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "folder2": {
+              "children": {
+                "a1": {
+                  "file": {
+                    "effectiveTocPath": "ru/toc.yaml",
+                    "ext": ".md",
+                  },
+                },
+              },
+            },
+          },
+        },
+        "index": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+        "plugins": {
+          "children": {
+            "import": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "project": {
+          "children": {
+            "config": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "settings": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+      },
+    },
+  },
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with single language and toc include 1`] = `
 "{
 	"files": [
@@ -60,4 +304,80 @@ exports[`Generate map for > project with single language and toc include 1`] = `
 		"ru/settings"
 	]
 }"
+`;
+
+exports[`Generate map for > project with single language and toc include 2`] = `
+{
+  "fileTrie": {
+    "ru": {
+      "children": {
+        "folder1": {
+          "children": {
+            "a1": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "folder2": {
+              "children": {
+                "a1": {
+                  "file": {
+                    "effectiveTocPath": "ru/toc.yaml",
+                    "ext": ".md",
+                  },
+                },
+              },
+            },
+          },
+        },
+        "index": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+        "plugins": {
+          "children": {
+            "import": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "project": {
+          "children": {
+            "config": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+            "index": {
+              "file": {
+                "effectiveTocPath": "ru/toc.yaml",
+                "ext": ".md",
+              },
+            },
+          },
+        },
+        "settings": {
+          "file": {
+            "effectiveTocPath": "ru/toc.yaml",
+            "ext": ".md",
+          },
+        },
+      },
+    },
+  },
+  "yfmConfig": {},
+}
 `;

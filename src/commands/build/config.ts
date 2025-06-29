@@ -97,6 +97,7 @@ const vcsToken = option({
 // TODO: options below are not beautified.
 const addMapFile = option({
     flags: '--add-map-file',
+    deprecated: `Use ${bold('--build-manifest')} instead.`,
     desc: 'Should add all paths of documentation into file.json.',
 });
 
