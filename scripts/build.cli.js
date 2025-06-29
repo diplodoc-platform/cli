@@ -55,6 +55,7 @@ const build = async (entry, outfile, format) => {
 
     config.external = [
         ...Object.keys(dependencies),
+        '@diplodoc/cli',
         '@diplodoc/cli/lib',
         '@diplodoc/cli/package',
     ];

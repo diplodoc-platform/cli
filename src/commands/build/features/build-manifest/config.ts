@@ -5,9 +5,7 @@ import dedent from 'ts-dedent';
 const buildManifest = option({
     flags: '--build-manifest',
     desc: dedent`
-        Output a build manifest file.
-
-        Applicable only to builds with ${bold('md')} output format.
+        Output a build manifest file. Intended replacement for ${bold('--add-map-file')}.
     `,
 });
 
