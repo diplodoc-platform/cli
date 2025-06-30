@@ -40,6 +40,10 @@ type Run = BaseRun<MarkdownServiceConfig> & {
     vars: VarsService;
 };
 
+type Options = {
+    mode: 'build' | 'translate';
+};
+
 function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
     return `${path}+${from[0] || ''}`;
 }
@@ -88,8 +92,11 @@ export class MarkdownService {
 
     private hash = hash;
 
-    constructor(run: Run) {
+    private options;
+
+    constructor(run: Run, options: Options = {mode: 'build'}) {
         this.run = run;
+        this.options = options;
     }
 
     @bounded async init() {
@@ -340,6 +347,7 @@ export class MarkdownService {
             options: {
                 disableLiquid: !this.config.template.enabled,
             },
+            mode: this.options.mode,
         };
     }
 }
