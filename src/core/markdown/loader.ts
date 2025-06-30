@@ -14,6 +14,7 @@ import {resolveComments} from './loader/resolve-comments';
 import {resolveDependencies} from './loader/resolve-deps';
 import {resolveAssets} from './loader/resolve-assets';
 import {resolveHeadings} from './loader/resolve-headings';
+import {resolveNoTranslate} from './loader/resolve-no-translate';
 
 export enum TransformMode {
     Html = 'html',
@@ -50,10 +51,12 @@ export type LoaderContext = LiquidContext & {
     options: {
         disableLiquid: boolean;
     };
+    mode: 'build' | 'translate';
 };
 
 export async function loader(this: LoaderContext, content: string) {
     content = mangleFrontMatter.call(this, content);
+    content = resolveNoTranslate.call(this, content);
     content = templateContent.call(this, content);
     content = await applyCollectPlugins.call(this, content);
     content = resolveComments.call(this, content);

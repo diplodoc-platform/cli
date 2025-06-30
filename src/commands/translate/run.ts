@@ -32,8 +32,8 @@ export class Run extends BaseRun<CommonRunConfig> {
         this.vars = new VarsService(this, {usePresets: false});
         this.meta = new MetaService(this);
         this.toc = new TocService(this);
-        this.markdown = new MarkdownService(this);
-        this.tocYamlList = new Set();
+        this.markdown = new MarkdownService(this, {mode: 'translate'});
+        this.tocYamlList = new Set<NormalizedPath>();
     }
 
     async prepareRun() {

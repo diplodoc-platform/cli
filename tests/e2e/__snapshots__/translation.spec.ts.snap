@@ -1,5 +1,581 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Translate command > build translated md files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# No-translate directive
+
+## Block directive
+### No-translate header
+Should not be translated.
+Can use **markup** inside.
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+
+"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+
+{% endcut %}
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method} 
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+
+\`\`\`json translate=no
+{
+    "A": "string"
+}
+\`\`\`
+
+
+{% endcut %}
+
+
+#|||
+ **Name** 
+|
+ **Description** 
+||
+
+||
+ A {.openapi-table-parameter-name} 
+|
+ **Type:** string 
+|||#
+
+</div>
+
+</div>
+<!-- markdownlint-disable-file -->
+
+</div>
+
+
+
+[*Deprecated]: No longer supported, please use an alternative and newer version."
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# test-controller
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
+"title: Test123
+href: index.md
+items:
+  - name: Не переводить
+    href: no-translate.md
+  - name: openapi
+    items:
+      - name: Overview
+        href: openapi/index.md
+      - name: test-controller
+        items:
+          - name: Overview
+            href: openapi/test-controller/index.md
+          - href: openapi/test-controller/getWithPayloadResponse.md
+            name: Simple get operation. тест новой верстки 3
+path: toc.yaml
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# No-translate directive
+
+## Block directive
+### No-translate header
+Should not be translated.
+Can use **markup** inside.
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+
+{% endcut %}
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method} 
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+
+\`\`\`json translate=no
+{
+    "A": "string"
+}
+\`\`\`
+
+
+{% endcut %}
+
+
+#|||
+ **Name** 
+|
+ **Description** 
+||
+
+||
+ A {.openapi-table-parameter-name} 
+|
+ **Type:** string 
+|||#
+
+</div>
+
+</div>
+<!-- markdownlint-disable-file -->
+
+</div>
+
+
+
+[*Deprecated]: No longer supported, please use an alternative and newer version."
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# test-controller
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
+"title: Test123
+href: index.md
+items:
+  - name: Не переводить
+    href: no-translate.md
+  - name: openapi
+    items:
+      - name: Overview
+        href: openapi/index.md
+      - name: test-controller
+        items:
+          - name: Overview
+            href: openapi/test-controller/index.md
+          - href: openapi/test-controller/getWithPayloadResponse.md
+            name: Simple get operation. тест новой верстки 3
+path: toc.yaml
+"
+`;
+
 exports[`Translate command > extract openapi spec files > filelist 1`] = `
 "[
   "openapi-spec.yaml.skl",
@@ -1116,4 +1692,536 @@ exports[`Translate command > filter files on extract with extra exclude option >
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 1`] = `
+"## %%%0%%%
+
+::no-translate  [adsfasdfasdfasdfasdf]
+
+%%%1%%%
+
+%%%2%%%"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Index header</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">lorem</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">asdfasdfasdf</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 3`] = `
+"# %%%0%%%
+
+## %%%1%%%
+:::no-translate
+### No-translate header
+Should not be translated.
+Can use **markup** inside.
+:::
+
+## %%%2%%%
+
+::no-translate [## /usr/local/bin/application]
+::no-translate[**C:/Program Files/Application/config.ini**]
+::no-translate [~/Documents/project/src/main.rs]
+
+
+- :no-translate[GET /api/v1/users] %%%3%%%
+- :no-translate[POST /api/v1/auth/login] %%%4%%%
+- :no-translate[PUT /api/v1/users/{id}] %%%5%%%
+
+## %%%6%%%
+%%%7%%%
+:no-translate[The default port is unless specified.] %%%8%%%
+%%%9%%%
+
+## %%%10%%%
+%%%11%%%
+%%%12%%%
+%%%13%%%
+
+## %%%14%%%
+%%%15%%%
+
+## %%%16%%%
+%%%17%%%
+
+
+"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">No-translate directive</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Block directive</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Leaf directive</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">— get all users</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">— authorization</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">— update users data</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Simple case leaf</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Install using command.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Next sentence.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Simple case inline</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-2"/> command.</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-3"/> unless specified.</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-4"/> for production builds.</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source xml:space="preserve">Few inline directives</source>
+      </trans-unit>
+      <trans-unit id="15">
+        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-5"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-6"/> to create.</source>
+      </trans-unit>
+      <trans-unit id="16">
+        <source xml:space="preserve">Empty inline directive</source>
+      </trans-unit>
+      <trans-unit id="17">
+        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-7"/> directive.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 5`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 7`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: no-translate.md
+  - name: '%%%2%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+"
+`;
+
+exports[`Translate command > removes no-translate directive and leaves content as is 8`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Test123</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Не переводить</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > skip no-translate marked content > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > skip no-translate marked content 1`] = `
+"## %%%0%%%
+
+::no-translate  [adsfasdfasdfasdfasdf]
+
+%%%1%%%
+
+%%%2%%%"
+`;
+
+exports[`Translate command > skip no-translate marked content 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Index header</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">lorem</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">asdfasdfasdf</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > skip no-translate marked content 3`] = `
+"# %%%0%%%
+
+## %%%1%%%
+:::no-translate
+### No-translate header
+Should not be translated.
+Can use **markup** inside.
+:::
+
+## %%%2%%%
+
+::no-translate [## /usr/local/bin/application]
+::no-translate[**C:/Program Files/Application/config.ini**]
+::no-translate [~/Documents/project/src/main.rs]
+
+
+- :no-translate[GET /api/v1/users] %%%3%%%
+- :no-translate[POST /api/v1/auth/login] %%%4%%%
+- :no-translate[PUT /api/v1/users/{id}] %%%5%%%
+
+## %%%6%%%
+%%%7%%%
+:no-translate[The default port is unless specified.] %%%8%%%
+%%%9%%%
+
+## %%%10%%%
+%%%11%%%
+%%%12%%%
+%%%13%%%
+
+## %%%14%%%
+%%%15%%%
+
+## %%%16%%%
+%%%17%%%
+
+
+"
+`;
+
+exports[`Translate command > skip no-translate marked content 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">No-translate directive</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Block directive</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Leaf directive</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">— get all users</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">— authorization</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">— update users data</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Simple case leaf</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Install using command.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Next sentence.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Simple case inline</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-2"/> command.</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-3"/> unless specified.</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-4"/> for production builds.</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source xml:space="preserve">Few inline directives</source>
+      </trans-unit>
+      <trans-unit id="15">
+        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-5"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-6"/> to create.</source>
+      </trans-unit>
+      <trans-unit id="16">
+        <source xml:space="preserve">Empty inline directive</source>
+      </trans-unit>
+      <trans-unit id="17">
+        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-7"/> directive.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > skip no-translate marked content 5`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+"
+`;
+
+exports[`Translate command > skip no-translate marked content 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > skip no-translate marked content 7`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: no-translate.md
+  - name: '%%%2%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+"
+`;
+
+exports[`Translate command > skip no-translate marked content 8`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Test123</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Не переводить</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
 `;
