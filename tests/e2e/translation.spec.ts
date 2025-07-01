@@ -30,6 +30,12 @@ const generateFilesYamlTestTemplate = (
 };
 
 describe('Translate command', () => {
+    generateFilesYamlTestTemplate('extract openapi spec files', 'mocks/translation/openapi', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
+
     generateMapTestTemplate('filter files on extract', 'mocks/translation/dir-files', {
         subcommand: 'extract',
         source: 'ru-RU',
