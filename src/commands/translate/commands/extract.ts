@@ -18,7 +18,7 @@ import {
 } from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
-
+import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {
@@ -85,6 +85,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         options.schema,
     ];
 
+    readonly modules = [new ExtractOpenapiIncluderFakeExtension()];
+
     readonly logger = new TranslateLogger();
 
     private run!: Run;
@@ -137,6 +139,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         this.logger.setup(this.config);
 
         this.run = new Run(this.config);
+
+        await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 
         await this.run.prepareRun();
 

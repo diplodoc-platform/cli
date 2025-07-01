@@ -1,5 +1,315 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Translate command > extract openapi spec files > filelist 1`] = `
+"[
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract openapi spec files 1`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+"
+`;
+
+exports[`Translate command > extract openapi spec files 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 3`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+"
+`;
+
+exports[`Translate command > extract openapi spec files 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 5`] = `
+"<div class="openapi">
+
+# %%%0%%%
+
+%%%1%%%
+
+## %%%2%%%
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+%%%3%%% {.openapi__method} 
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+
+
+</div>
+
+%%%4%%%
+
+</div>
+
+</div>
+
+## %%%5%%%
+
+<div class="openapi__response__code__200">
+
+## %%%6%%%
+
+%%%7%%%
+
+<div class="openapi-entity">
+
+### %%%8%%%
+
+{% cut "%%%9%%%" %}
+
+
+\`\`\`json translate=no
+{
+    "A": "string"
+}
+\`\`\`
+
+
+{% endcut %}
+
+
+#|||
+ %%%10%%% 
+|
+ %%%11%%% 
+||
+
+||
+ %%%12%%% {.openapi-table-parameter-name} 
+|
+ %%%13%%% 
+|||#
+
+</div>
+
+</div>
+<!-- markdownlint-disable-file -->
+
+</div>
+
+
+
+[*Deprecated]: %%%14%%%"
+`;
+
+exports[`Translate command > extract openapi spec files 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Request</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">GET</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Responses</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">200 OK</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Body</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">application/json</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-4" x-begin="**" x-end="**">Name</g></source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-5" x-begin="**" x-end="**">Description</g></source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">A</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-6" x-begin="**" x-end="**">Type:</g> string</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source xml:space="preserve">No longer supported, please use an alternative and newer version.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 7`] = `
+"# %%%0%%%
+
+## %%%1%%%
+
+- %%%2%%%
+
+<!-- markdownlint-disable-file -->"
+`;
+
+exports[`Translate command > extract openapi spec files 8`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">test-controller</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Endpoints</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](getWithPayloadResponse.md)" id="g-3" x-begin="[" x-end="](getWithPayloadResponse.md)">Simple get operation. тест новой верстки 3</g></source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 9`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+"
+`;
+
+exports[`Translate command > extract openapi spec files 10`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
 exports[`Translate command > extract yaml scheme files > en/index.yaml.skl 1`] = `
 "blocks:
   - type: content-layout-block
