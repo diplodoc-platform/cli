@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.9](https://github.com/diplodoc-platform/cli/compare/v5.0.8...v5.0.9) (2025-07-01)
+
+
+### Bug Fixes
+
+* add to extract openapi includer ([c823a9c](https://github.com/diplodoc-platform/cli/commit/c823a9c74f49e43446e89480142b81509f9fc4eb))
+
 ## [5.0.8](https://github.com/diplodoc-platform/cli/compare/v5.0.7...v5.0.8) (2025-06-22)
 
 
