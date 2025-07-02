@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.11](https://github.com/diplodoc-platform/cli/compare/v5.0.10...v5.0.11) (2025-07-02)
+
+
+### Bug Fixes
+
+* rm no-translate directive, leave content ([2cfd010](https://github.com/diplodoc-platform/cli/commit/2cfd01049e95d3e970417e8e99db573610cc0755))
+
 ## [5.0.10](https://github.com/diplodoc-platform/cli/compare/v5.0.9...v5.0.10) (2025-07-02)
 
 
