@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.0.10](https://github.com/diplodoc-platform/cli/compare/v5.0.9...v5.0.10) (2025-07-02)
+
+
+### Bug Fixes
+
+* translate test: Change regexp for search construction ([3aece84](https://github.com/diplodoc-platform/cli/commit/3aece8416c4194213d38cda4dc2a3645b2063d33))
+
+
+### Dependency update
+
+* Update @diplodoc/translation to 1.7.17 ([f88f62c](https://github.com/diplodoc-platform/cli/commit/f88f62ce557c027a1504ac5ac516372b20f7a676))
+
 ## [5.0.9](https://github.com/diplodoc-platform/cli/compare/v5.0.8...v5.0.9) (2025-07-01)
 
 
