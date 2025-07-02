@@ -39,6 +39,11 @@ components:
       properties:
         A:
           type: string
+          description: |
+            %%%5%%%
+            - %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
     RecurceMiddle:
       type: object
       properties:
@@ -73,6 +78,18 @@ exports[`Translate command > extract openapi spec files 2`] = `
       </trans-unit>
       <trans-unit id="4">
         <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Статус загрузки:</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
       </trans-unit>
     </body>
   </file>

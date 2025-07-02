@@ -27,6 +27,11 @@ components:
       properties:
         A:
           type: string
+          description: |
+            Статус загрузки:
+            - `UPLOADED` — загрузка завершена.
+            - `IN_PROGRESS` — загрузка находится в процессе обработки.
+            - `PROCESSED` — загрузка успешно обработана.
     #          $ref: '#/components/schemas/RecurceMiddle'
     RecurceMiddle:
       type: object
