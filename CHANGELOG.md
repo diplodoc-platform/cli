@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.12](https://github.com/diplodoc-platform/cli/compare/v5.0.11...v5.0.12) (2025-07-03)
+
+
+### Bug Fixes
+
+* Compute difference for git and yfm roots for vcs features ([95f0ffe](https://github.com/diplodoc-platform/cli/commit/95f0ffeca2cf9cb32a542d2235731bfabfa15fe9))
+* Do not resolve authors for disabled feature ([415458b](https://github.com/diplodoc-platform/cli/commit/415458bba03e323724ed74c03ca9689621a8f356))
+* Fix search extension deps conflict ([7d0e384](https://github.com/diplodoc-platform/cli/commit/7d0e384834f95f61f48891e87963e1460aef1fc2))
+
 ## [5.0.11](https://github.com/diplodoc-platform/cli/compare/v5.0.10...v5.0.11) (2025-07-02)
 
 
