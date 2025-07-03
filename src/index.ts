@@ -2,6 +2,8 @@ import {isMainThread} from 'node:worker_threads';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
+import './require';
+
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
 import {stats} from '~/core/logger';
