@@ -35,7 +35,7 @@ export class GithubVcsConnector implements VcsConnector {
     constructor(run: Run<Config>) {
         this.run = run;
         this.config = run.config;
-        this.git = new GitClient(this.config);
+        this.git = new GitClient(this.config, run.originalInput);
         this.github = new GithubClient(this.config);
     }
 

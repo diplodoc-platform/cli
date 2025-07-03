@@ -1,8 +1,9 @@
 import type {SimpleGitOptions} from 'simple-git';
 
+import {relative} from 'node:path';
 import simpleGit from 'simple-git';
 import {minimatch} from 'minimatch';
-import {normalizePath} from '@diplodoc/cli/lib/utils';
+import {normalizePath as _normalizePath} from '@diplodoc/cli/lib/utils';
 
 type AuthorInfo = {
     email: string;
@@ -25,8 +26,11 @@ export type GitConfig = {
 export class GitClient {
     private config: GitConfig;
 
-    constructor(config: GitConfig) {
+    private root: AbsolutePath;
+
+    constructor(config: GitConfig, root: AbsolutePath) {
         this.config = config;
+        this.root = root;
     }
 
     async createBranchWorktree(baseDir: AbsolutePath, dir: RelativePath, branch: string) {
@@ -48,6 +52,7 @@ export class GitClient {
     }
 
     async getContributors(baseDir: AbsolutePath) {
+        const base = await this.getBase(baseDir);
         const ignore = this.config.contributors?.ignore || [];
         const contributors: Record<NormalizedPath, AuthorInfo[]> = {};
         const log = await simpleGit({baseDir}).raw(
@@ -67,15 +72,21 @@ export class GitClient {
             const [email, name, commit] = userData.split(';');
             const skip = shouldBeIgnored(ignore, {email, name});
 
-            followPaths(paths, contributors, (value) => {
-                return skip ? value : (value || []).concat({email, commit});
-            });
+            followPaths(
+                paths,
+                contributors,
+                (value) => {
+                    return skip ? value : (value || []).concat({email, commit});
+                },
+                base,
+            );
         }
 
         return contributors;
     }
 
     async getAuthors(baseDir: AbsolutePath) {
+        const base = await this.getBase(baseDir);
         const ignore = this.config.authors?.ignore || [];
         const authors: Record<NormalizedPath, AuthorInfo> = {};
         const log = await simpleGit({baseDir}).raw(
@@ -95,15 +106,21 @@ export class GitClient {
             const [email, name, commit] = userData.split(';');
             const skip = shouldBeIgnored(ignore, {email, name});
 
-            followPaths(paths, authors, (value) => {
-                return skip ? value : value || {email, commit};
-            });
+            followPaths(
+                paths,
+                authors,
+                (value) => {
+                    return skip ? value : value || {email, commit};
+                },
+                base,
+            );
         }
 
         return authors;
     }
 
     async getMTimes(baseDir: AbsolutePath) {
+        const base = await this.getBase(baseDir);
         const mtimes: Record<NormalizedPath, number> = {};
 
         const log = await simpleGit({baseDir}).raw(
@@ -121,10 +138,19 @@ export class GitClient {
             const [date, ...lines] = part.trim().split(/\r?\n/);
             const unixtime = Number(date);
 
-            followPaths(lines, mtimes, () => unixtime);
+            followPaths(lines, mtimes, () => unixtime, base);
         }
 
         return mtimes;
+    }
+
+    /**
+     * Returns difference between yfm project root and git project root.
+     * Roots can be different if docs project is only small part of more complex product.
+     */
+    private async getBase(baseDir: AbsolutePath) {
+        const root = await simpleGit({baseDir}).raw('rev-parse', '--show-toplevel');
+        return _normalizePath(relative(root.trim(), this.root)) || ('.' as NormalizedPath);
     }
 }
 
@@ -133,13 +159,32 @@ type ShouldAuthorBeIgnoredArgs = {
     name?: string;
 };
 
-function followPaths<T>(lines: string[], map: Hash<T>, value: (prev: T) => T) {
+function normalizePath(path: RelativePath, base: NormalizedPath) {
+    const result = _normalizePath(path);
+
+    if (result.startsWith(base)) {
+        return relative(base, path);
+    }
+
+    return result;
+}
+
+function followPaths<T>(
+    lines: string[],
+    map: Hash<T>,
+    value: (prev: T) => T,
+    base: NormalizedPath,
+) {
     for (const line of lines) {
         const [status, rawFrom, rawTo] = line.trim().split(/\t/);
-        const from = normalizePath((rawFrom || '') as RelativePath);
-        const to = normalizePath((rawTo || '') as RelativePath);
+        const from = normalizePath((rawFrom || '') as RelativePath, base);
+        const to = normalizePath((rawTo || '') as RelativePath, base);
 
         if (!isUsefullPath(rawFrom) || (rawTo && !isUsefullPath(rawTo))) {
+            continue;
+        }
+
+        if (!isProjectPath(rawFrom, base) || (rawTo && !isProjectPath(rawTo, base))) {
             continue;
         }
 
@@ -190,6 +235,10 @@ function shouldBeIgnored(ignore: string[], {email, name}: ShouldAuthorBeIgnoredA
 
 function isUsefullPath(path: string) {
     return path && (path.endsWith('.md') || path.endsWith('.yaml'));
+}
+
+function isProjectPath(path: string, base: string) {
+    return base === '.' || path.startsWith(base);
 }
 
 async function safe(call: Promise<unknown> | undefined) {

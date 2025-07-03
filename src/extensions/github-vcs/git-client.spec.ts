@@ -24,6 +24,8 @@ describe('GitClient', () => {
         when(simpleGit)
             .calledWith({baseDir})
             .thenReturn({raw} as unknown as ReturnType<SimpleGitFactory>);
+
+        when(raw).calledWith('rev-parse', '--show-toplevel').thenResolve('/\n');
     });
 
     afterEach(() => {
@@ -44,7 +46,7 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(mtimes);
 
-        git = new GitClient({vcs: {initialCommit: ''}});
+        git = new GitClient({vcs: {initialCommit: ''}}, '/');
 
         const result = await git.getMTimes(baseDir);
 
@@ -75,7 +77,7 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(authors);
 
-        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}}, '/');
 
         const result = await git.getAuthors(baseDir);
 
@@ -129,11 +131,14 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(authors);
 
-        git = new GitClient({
-            authors: {ignore: ['user2']},
-            contributors: {ignore: []},
-            vcs: {initialCommit: 'sha-1'},
-        });
+        git = new GitClient(
+            {
+                authors: {ignore: ['user2']},
+                contributors: {ignore: []},
+                vcs: {initialCommit: 'sha-1'},
+            },
+            '/',
+        );
 
         const result = await git.getAuthors(baseDir);
 
@@ -183,11 +188,14 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(authors);
 
-        git = new GitClient({
-            authors: {ignore: ['user2@email.net']},
-            contributors: {ignore: []},
-            vcs: {initialCommit: 'sha-1'},
-        });
+        git = new GitClient(
+            {
+                authors: {ignore: ['user2@email.net']},
+                contributors: {ignore: []},
+                vcs: {initialCommit: 'sha-1'},
+            },
+            '/',
+        );
 
         const result = await git.getAuthors(baseDir);
 
@@ -237,7 +245,7 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(contributors);
 
-        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}}, '/');
 
         const result = await git.getContributors(baseDir);
 
@@ -305,11 +313,14 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(contributors);
 
-        git = new GitClient({
-            authors: {ignore: []},
-            contributors: {ignore: ['user2']},
-            vcs: {initialCommit: 'sha-1'},
-        });
+        git = new GitClient(
+            {
+                authors: {ignore: []},
+                contributors: {ignore: ['user2']},
+                vcs: {initialCommit: 'sha-1'},
+            },
+            '/',
+        );
 
         const result = await git.getContributors(baseDir);
 
@@ -361,11 +372,14 @@ describe('GitClient', () => {
             .calledWith(...args)
             .thenResolve(contributors);
 
-        git = new GitClient({
-            authors: {ignore: []},
-            contributors: {ignore: ['user2@email.net']},
-            vcs: {initialCommit: 'sha-1'},
-        });
+        git = new GitClient(
+            {
+                authors: {ignore: []},
+                contributors: {ignore: ['user2@email.net']},
+                vcs: {initialCommit: 'sha-1'},
+            },
+            '/',
+        );
 
         const result = await git.getContributors(baseDir);
 
@@ -407,7 +421,7 @@ describe('GitClient', () => {
         const branch = 'test-branch';
         const dir = 'test-dir' as RelativePath;
 
-        git = new GitClient({vcs: {initialCommit: 'sha-1'}});
+        git = new GitClient({vcs: {initialCommit: 'sha-1'}}, '/');
 
         const cleanup = await git.createBranchWorktree(baseDir, dir, branch);
 
