@@ -99,7 +99,7 @@
     "@diplodoc/openapi-extension": "^2.7.1",
     "@diplodoc/page-constructor-extension": "^0.5.0",
     "@diplodoc/prettier-config": "^2.0.0",
-    "@diplodoc/search-extension": "^2.0.1",
+    "@diplodoc/search-extension": "^2.0.2",
     "@diplodoc/transform": "^4.57.7",
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.5",

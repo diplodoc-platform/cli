@@ -1,4 +1,4 @@
-const {basename, dirname} = require('node:path');
+const {basename, dirname, resolve} = require('node:path');
 const {chmod} = require('node:fs/promises');
 const esbuild = require('esbuild');
 const deps = require('./deps');
@@ -55,6 +55,7 @@ const build = async (entry, outfile, format) => {
 
     config.external = [
         ...Object.keys(dependencies),
+        '@diplodoc/cli',
         '@diplodoc/cli/lib',
         '@diplodoc/cli/package',
     ];
