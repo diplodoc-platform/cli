@@ -61,9 +61,9 @@ export class GithubVcsConnector implements VcsConnector {
         try {
             await Promise.all(
                 [
-                    mtimes && this.fillMTimes(workdir),
-                    authors && this.fillAuthors(workdir),
-                    contributors && this.fillContributors(workdir),
+                    mtimes.enabled && this.fillMTimes(workdir),
+                    authors.enabled && this.fillAuthors(workdir),
+                    contributors.enabled && this.fillContributors(workdir),
                 ].filter(Boolean),
             );
         } finally {
