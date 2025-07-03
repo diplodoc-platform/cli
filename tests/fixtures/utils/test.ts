@@ -11,6 +11,7 @@ export function platformless(text: string): string {
 export function hashless(text: string): string {
     return text
         .replace(/-[a-z0-9]{12}\./g, '-hash.')
+        .replace(/(\/|\\)[a-z0-9]{12,13}-(index|registry|resources)\./g, '/hash-$2.');
 }
 
 export function bundleless(text: string): string {

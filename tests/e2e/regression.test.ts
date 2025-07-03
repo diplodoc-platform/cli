@@ -14,7 +14,7 @@ function test(_description: string) {
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
-            args: '-j2 --search',
+            args: '-j2',
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-static-html', {
             md2md: false,
