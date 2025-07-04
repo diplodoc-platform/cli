@@ -20,6 +20,10 @@ export class RedirectsService {
         return this.redirects?.files || [];
     }
 
+    get rawRedirects() {
+        return this.redirects || {};
+    }
+
     private run: Run;
 
     private config: Run['config'];

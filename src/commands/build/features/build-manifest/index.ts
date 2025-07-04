@@ -1,4 +1,5 @@
 import type {Build, Run} from '~/commands/build';
+import type {Redirects} from '../../services/redirects';
 import {type Command, valuable} from '~/core/config';
 
 import {join, parse} from 'node:path';
@@ -10,22 +11,28 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {options} from './config';
 
 type FileDescriptor = {
-    ext: string;
-    effectiveTocPath: NormalizedPath;
+    e: string;
+    t: string;
 };
 
 type TrieNode = {
-    file?: FileDescriptor;
-    children?: FileTrie;
+    f?: FileDescriptor;
+    c?: FileTrie;
 };
 
 type FileTrie = {
     [key: string]: TrieNode | undefined;
 };
 
+type FileTrieEntryPoint = {
+    trie: FileTrie;
+    tocMapping: Record<string, string>;
+};
+
 type BuildManifestFormat = {
-    fileTrie: FileTrie;
+    fileTrie: FileTrieEntryPoint;
     yfmConfig: unknown;
+    redirects: Redirects;
 };
 
 const MANIFEST_FILENAME = 'yfm-build-manifest.json';
@@ -39,6 +46,8 @@ export type BuildManifestConfig = {
 };
 
 export class BuildManifest {
+    private lastTocId = '';
+
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildManifest', (command: Command) => {
             command.addOption(options.buildManifest);
@@ -67,18 +76,17 @@ export class BuildManifest {
                     return;
                 }
 
+                const redirects = run.redirects.rawRedirects;
                 const fileTrie = this.buildFileTrie(run);
                 const yfmConfig = await this.readYfmConfig(run);
 
                 const manifest: BuildManifestFormat = {
+                    redirects,
                     fileTrie,
                     yfmConfig,
                 };
 
-                await run.write(
-                    join(run.output, MANIFEST_FILENAME),
-                    JSON.stringify(manifest, null, 2),
-                );
+                await run.write(join(run.output, MANIFEST_FILENAME), JSON.stringify(manifest));
             });
     }
 
@@ -94,8 +102,17 @@ export class BuildManifest {
         }
     }
 
-    private buildFileTrie(run: Run): FileTrie {
+    private buildFileTrie(run: Run): FileTrieEntryPoint {
         const fileTrie: FileTrie = {};
+        const reverseTocMapping: Record<string, string> = {};
+
+        const getOrAddTocToMapping = (tocPath: NormalizedPath) => {
+            const mapping = reverseTocMapping[tocPath] ?? this.nextId();
+
+            reverseTocMapping[tocPath] = mapping;
+
+            return mapping;
+        };
 
         const addFile = (path: NormalizedPath) => {
             const pathParts = path.split('/');
@@ -114,15 +131,15 @@ export class BuildManifest {
             const lastHead = dirs.reduce<FileTrie>((head, dir) => {
                 const maybeExisting = head[dir];
                 const trieNode = maybeExisting ?? {};
-                const newChildren = trieNode.children ?? {};
+                const newChildren = trieNode.c ?? {};
                 head[dir] = trieNode;
 
-                trieNode.children = newChildren;
+                trieNode.c = newChildren;
 
                 return newChildren;
             }, fileTrie);
 
-            if (lastHead[name]?.file) {
+            if (lastHead[name]?.f) {
                 run.logger.warn(`BuildMap: File ${path} already exists in prefix tree.`);
                 run.logger.warn(
                     '   This likely means two files with the same name have different extensions.',
@@ -133,14 +150,43 @@ export class BuildManifest {
             }
 
             const trieNode = lastHead[name] ?? {};
-            const file = {ext, effectiveTocPath: run.toc.for(path).path};
+            const file = {e: ext, t: getOrAddTocToMapping(run.toc.for(path).path)};
 
-            trieNode.file = file;
+            trieNode.f = file;
             lastHead[name] = trieNode;
         };
 
         run.toc.entries.forEach(addFile);
 
-        return fileTrie;
+        return {
+            trie: fileTrie,
+            tocMapping: Object.fromEntries(
+                Object.entries(reverseTocMapping).map(([k, v]) => [v, k]),
+            ),
+        };
+    }
+
+    private nextId() {
+        const previous = this.lastTocId;
+
+        if (previous === '') {
+            return this.updateId('a');
+        }
+
+        const lastChar = previous.charAt(previous.length - 1);
+
+        if (lastChar === 'z') {
+            return this.updateId(`${previous.slice(0, -1)}a`);
+        }
+
+        const nextChar = String.fromCharCode(lastChar.charCodeAt(0) + 1);
+
+        return this.updateId(`${previous.slice(0, -1)}${nextChar}`);
+    }
+
+    private updateId(id: string) {
+        this.lastTocId = id;
+
+        return id;
     }
 }
