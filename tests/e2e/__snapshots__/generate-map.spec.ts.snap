@@ -13,6 +13,76 @@ exports[`Generate map for > project with external links in toc 1`] = `
 }"
 `;
 
+exports[`Generate map for > project with external links in toc 2`] = `
+{
+  "fileTrie": {
+    "tocMapping": {
+      "a": "ru/toc.yaml",
+    },
+    "trie": {
+      "ru": {
+        "c": {
+          "folder1": {
+            "c": {
+              "a1": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "folder2": {
+                "c": {
+                  "a1": {
+                    "f": {
+                      "e": ".md",
+                      "t": "a",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "index": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+          "plugins": {
+            "c": {
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "project": {
+            "c": {
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "settings": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+        },
+      },
+    },
+  },
+  "redirects": {},
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with multiple language 1`] = `
 "{
 	"files": [
@@ -32,6 +102,117 @@ exports[`Generate map for > project with multiple language 1`] = `
 }"
 `;
 
+exports[`Generate map for > project with multiple language 2`] = `
+{
+  "fileTrie": {
+    "tocMapping": {
+      "a": "en/toc.yaml",
+      "b": "ru/toc.yaml",
+    },
+    "trie": {
+      "en": {
+        "c": {
+          "index": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+          "plugins": {
+            "c": {
+              "import": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "project": {
+            "c": {
+              "config": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "settings": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+        },
+      },
+      "ru": {
+        "c": {
+          "index": {
+            "f": {
+              "e": ".md",
+              "t": "b",
+            },
+          },
+          "plugins": {
+            "c": {
+              "import": {
+                "f": {
+                  "e": ".md",
+                  "t": "b",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "b",
+                },
+              },
+            },
+          },
+          "project": {
+            "c": {
+              "config": {
+                "f": {
+                  "e": ".md",
+                  "t": "b",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "b",
+                },
+              },
+            },
+          },
+          "settings": {
+            "f": {
+              "e": ".md",
+              "t": "b",
+            },
+          },
+        },
+      },
+    },
+  },
+  "redirects": {},
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with single language and toc include - only md2html 1`] = `
 "{
 	"files": [
@@ -47,6 +228,88 @@ exports[`Generate map for > project with single language and toc include - only 
 }"
 `;
 
+exports[`Generate map for > project with single language and toc include - only md2html 2`] = `
+{
+  "fileTrie": {
+    "tocMapping": {
+      "a": "ru/toc.yaml",
+    },
+    "trie": {
+      "ru": {
+        "c": {
+          "folder1": {
+            "c": {
+              "a1": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "folder2": {
+                "c": {
+                  "a1": {
+                    "f": {
+                      "e": ".md",
+                      "t": "a",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "index": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+          "plugins": {
+            "c": {
+              "import": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "project": {
+            "c": {
+              "config": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "settings": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+        },
+      },
+    },
+  },
+  "redirects": {},
+  "yfmConfig": {},
+}
+`;
+
 exports[`Generate map for > project with single language and toc include 1`] = `
 "{
 	"files": [
@@ -60,4 +323,86 @@ exports[`Generate map for > project with single language and toc include 1`] = `
 		"ru/settings"
 	]
 }"
+`;
+
+exports[`Generate map for > project with single language and toc include 2`] = `
+{
+  "fileTrie": {
+    "tocMapping": {
+      "a": "ru/toc.yaml",
+    },
+    "trie": {
+      "ru": {
+        "c": {
+          "folder1": {
+            "c": {
+              "a1": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "folder2": {
+                "c": {
+                  "a1": {
+                    "f": {
+                      "e": ".md",
+                      "t": "a",
+                    },
+                  },
+                },
+              },
+            },
+          },
+          "index": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+          "plugins": {
+            "c": {
+              "import": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "project": {
+            "c": {
+              "config": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+              "index": {
+                "f": {
+                  "e": ".md",
+                  "t": "a",
+                },
+              },
+            },
+          },
+          "settings": {
+            "f": {
+              "e": ".md",
+              "t": "a",
+            },
+          },
+        },
+      },
+    },
+  },
+  "redirects": {},
+  "yfmConfig": {},
+}
 `;

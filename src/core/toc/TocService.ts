@@ -356,7 +356,9 @@ export class TocService {
 
     private async addEntries(path: NormalizedPath, toc: Toc) {
         await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
-            this._entries.add(normalizePath(join(dirname(path), item.href)));
+            const resolvedItemHref = normalizePath(join(dirname(path), item.href));
+
+            this._entries.add(resolvedItemHref);
 
             return item;
         });
