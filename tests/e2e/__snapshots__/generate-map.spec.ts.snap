@@ -21,21 +21,21 @@ exports[`Generate map for > project with external links in toc 2`] = `
     },
     "trie": {
       "ru": {
-        "c": {
+        "children": {
           "folder1": {
-            "c": {
+            "children": {
               "a1": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "folder2": {
-                "c": {
+                "children": {
                   "a1": {
-                    "f": {
-                      "e": ".md",
-                      "t": "a",
+                    "file": {
+                      "ext": ".md",
+                      "toc": "a",
                     },
                   },
                 },
@@ -43,35 +43,35 @@ exports[`Generate map for > project with external links in toc 2`] = `
             },
           },
           "index": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
           "plugins": {
-            "c": {
+            "children": {
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "project": {
-            "c": {
+            "children": {
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "settings": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
         },
@@ -111,97 +111,97 @@ exports[`Generate map for > project with multiple language 2`] = `
     },
     "trie": {
       "en": {
-        "c": {
+        "children": {
           "index": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
           "plugins": {
-            "c": {
+            "children": {
               "import": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "project": {
-            "c": {
+            "children": {
               "config": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "settings": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
         },
       },
       "ru": {
-        "c": {
+        "children": {
           "index": {
-            "f": {
-              "e": ".md",
-              "t": "b",
+            "file": {
+              "ext": ".md",
+              "toc": "b",
             },
           },
           "plugins": {
-            "c": {
+            "children": {
               "import": {
-                "f": {
-                  "e": ".md",
-                  "t": "b",
+                "file": {
+                  "ext": ".md",
+                  "toc": "b",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "b",
+                "file": {
+                  "ext": ".md",
+                  "toc": "b",
                 },
               },
             },
           },
           "project": {
-            "c": {
+            "children": {
               "config": {
-                "f": {
-                  "e": ".md",
-                  "t": "b",
+                "file": {
+                  "ext": ".md",
+                  "toc": "b",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "b",
+                "file": {
+                  "ext": ".md",
+                  "toc": "b",
                 },
               },
             },
           },
           "settings": {
-            "f": {
-              "e": ".md",
-              "t": "b",
+            "file": {
+              "ext": ".md",
+              "toc": "b",
             },
           },
         },
@@ -236,21 +236,21 @@ exports[`Generate map for > project with single language and toc include - only 
     },
     "trie": {
       "ru": {
-        "c": {
+        "children": {
           "folder1": {
-            "c": {
+            "children": {
               "a1": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "folder2": {
-                "c": {
+                "children": {
                   "a1": {
-                    "f": {
-                      "e": ".md",
-                      "t": "a",
+                    "file": {
+                      "ext": ".md",
+                      "toc": "a",
                     },
                   },
                 },
@@ -258,47 +258,47 @@ exports[`Generate map for > project with single language and toc include - only 
             },
           },
           "index": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
           "plugins": {
-            "c": {
+            "children": {
               "import": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "project": {
-            "c": {
+            "children": {
               "config": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "settings": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
         },
@@ -333,21 +333,21 @@ exports[`Generate map for > project with single language and toc include 2`] = `
     },
     "trie": {
       "ru": {
-        "c": {
+        "children": {
           "folder1": {
-            "c": {
+            "children": {
               "a1": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "folder2": {
-                "c": {
+                "children": {
                   "a1": {
-                    "f": {
-                      "e": ".md",
-                      "t": "a",
+                    "file": {
+                      "ext": ".md",
+                      "toc": "a",
                     },
                   },
                 },
@@ -355,47 +355,47 @@ exports[`Generate map for > project with single language and toc include 2`] = `
             },
           },
           "index": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
           "plugins": {
-            "c": {
+            "children": {
               "import": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "project": {
-            "c": {
+            "children": {
               "config": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
               "index": {
-                "f": {
-                  "e": ".md",
-                  "t": "a",
+                "file": {
+                  "ext": ".md",
+                  "toc": "a",
                 },
               },
             },
           },
           "settings": {
-            "f": {
-              "e": ".md",
-              "t": "a",
+            "file": {
+              "ext": ".md",
+              "toc": "a",
             },
           },
         },
