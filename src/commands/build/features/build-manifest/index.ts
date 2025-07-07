@@ -11,13 +11,13 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {options} from './config';
 
 type FileDescriptor = {
-    e: string;
-    t: string;
+    ext: string;
+    toc: string;
 };
 
 type TrieNode = {
-    f?: FileDescriptor;
-    c?: FileTrie;
+    file?: FileDescriptor;
+    children?: FileTrie;
 };
 
 type FileTrie = {
@@ -104,7 +104,12 @@ export class BuildManifest {
 
     private buildFileTrie(run: Run): FileTrieEntryPoint {
         const fileTrie: FileTrie = {};
-        const reverseTocMapping: Record<string, string> = {};
+        const reverseTocMapping: Record<string, string> = Object.fromEntries(
+            run.toc.tocs
+                .map(({path}) => path)
+                .sort()
+                .map((path) => [path, this.nextId()]),
+        );
 
         const getOrAddTocToMapping = (tocPath: NormalizedPath) => {
             const mapping = reverseTocMapping[tocPath] ?? this.nextId();
@@ -131,15 +136,15 @@ export class BuildManifest {
             const lastHead = dirs.reduce<FileTrie>((head, dir) => {
                 const maybeExisting = head[dir];
                 const trieNode = maybeExisting ?? {};
-                const newChildren = trieNode.c ?? {};
+                const newChildren = trieNode.children ?? {};
                 head[dir] = trieNode;
 
-                trieNode.c = newChildren;
+                trieNode.children = newChildren;
 
                 return newChildren;
             }, fileTrie);
 
-            if (lastHead[name]?.f) {
+            if (lastHead[name]?.file) {
                 run.logger.warn(`BuildMap: File ${path} already exists in prefix tree.`);
                 run.logger.warn(
                     '   This likely means two files with the same name have different extensions.',
@@ -150,9 +155,9 @@ export class BuildManifest {
             }
 
             const trieNode = lastHead[name] ?? {};
-            const file = {e: ext, t: getOrAddTocToMapping(run.toc.for(path).path)};
+            const file = {ext: ext, toc: getOrAddTocToMapping(run.toc.for(path).path)};
 
-            trieNode.f = file;
+            trieNode.file = file;
             lastHead[name] = trieNode;
         };
 
