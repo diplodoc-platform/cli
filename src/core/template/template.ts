@@ -3,6 +3,7 @@ import {getCSP} from 'csp-header';
 
 import {RTL_LANGS} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
+import { getFaviconType } from '../utils/favicon';
 
 enum ScriptPosition {
     Leading = 'leading',
@@ -55,6 +56,8 @@ export class Template {
     private body: string[] = [];
 
     private bodyClass: string[] = ['g-root', 'g-root_theme_light'];
+
+    private faviconSrc: string = '';
 
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
@@ -146,9 +149,16 @@ export class Template {
         }
     }
 
+    @bounded setFaviconSrc(faviconSrc: string) {
+        this.faviconSrc = faviconSrc;
+
+        return this;
+    }
+
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass} = this;
+        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
+        const faviconType = getFaviconType(faviconSrc);
 
         return dedent`
             <!DOCTYPE html>
@@ -161,6 +171,7 @@ export class Template {
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+                    <link rel="icon" type="${faviconType}" href="${faviconSrc}" />
                     ${leading(scripts).map(script(this.csp)).join('\n')}
                     ${leading(styles).map(style(this.csp)).join('\n')}
                 </head>
