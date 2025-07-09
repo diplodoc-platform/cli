@@ -171,7 +171,7 @@ export class Template {
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-                    ${faviconSrc ? `<link rel="icon" type="${faviconType}" href="${faviconSrc}">` : ''}
+                    ${faviconSrc && `<link rel="icon" type="${faviconType}" href="${faviconSrc}">`}
                     ${leading(scripts).map(script(this.csp)).join('\n')}
                     ${leading(styles).map(style(this.csp)).join('\n')}
                 </head>
