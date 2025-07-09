@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest';
-import { getFaviconType } from './favicon';
+import {describe, expect, it} from 'vitest';
+import {getFaviconType} from './favicon';
 
 
 describe('getFaviconType', () => {
