@@ -67,7 +67,7 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics} = this.config;
+        const {langs, analytics, interface: viewerInterface} = this.config;
         const lang = langFromPath(path, this.config);
 
         const state: PageState = {
@@ -81,6 +81,7 @@ export class EntryService {
             lang,
             langs,
             analytics,
+            viewerInterface,
         };
 
         await getHooks(this).State.promise(state);
