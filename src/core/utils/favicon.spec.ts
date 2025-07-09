@@ -1,7 +1,6 @@
 import {describe, expect, it} from 'vitest';
 import {getFaviconType} from './favicon';
 
-
 describe('getFaviconType', () => {
     it('should return svg type for .svg', () => {
         expect(getFaviconType('favicon.svg')).toBe('image/svg+xml');

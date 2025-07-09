@@ -3,7 +3,7 @@ import {getCSP} from 'csp-header';
 
 import {RTL_LANGS} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
-import { getFaviconType } from '../utils/favicon';
+import {getFaviconType} from '../utils/favicon';
 
 enum ScriptPosition {
     Leading = 'leading',
@@ -57,7 +57,7 @@ export class Template {
 
     private bodyClass: string[] = ['g-root', 'g-root_theme_light'];
 
-    private faviconSrc: string = '';
+    private faviconSrc = '';
 
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);

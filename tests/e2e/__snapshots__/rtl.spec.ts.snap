@@ -40,6 +40,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
@@ -75,6 +76,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
@@ -146,6 +148,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
     </head>
@@ -181,6 +184,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-3"/>
@@ -222,6 +226,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -258,6 +263,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="yfm" content="builder">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -296,6 +302,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta http-equiv="refresh" content="0; url=./ar/index.html">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         <script type="application/javascript">
             window.location.replace("./ar/index.html");
         </script>
