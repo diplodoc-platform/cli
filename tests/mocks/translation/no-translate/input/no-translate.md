@@ -3,8 +3,28 @@
 ## Block directive
 :::no-translate
 ### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
 Should not be translated.
 Can use **markup** inside.
+:::
+
+
+::: some-other-directive
+content here
+:::
+::: no-translate
+content here
+::: some-other-directive
+nested content
+:::
 :::
 
 ## Leaf directive
