@@ -7,7 +7,7 @@ import {normalizePath} from '~/core/utils';
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 
-interface SinglePageResult {
+export interface SinglePageResult {
     path: string;
     content: string;
     title?: string;
