@@ -658,6 +658,7 @@ exports[`Regression > internal 26`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -694,6 +695,7 @@ exports[`Regression > internal 27`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -729,6 +731,7 @@ exports[`Regression > internal 28`] = `
         <meta http-equiv="refresh" content="0; url=d.md">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         <script type="application/javascript">
             window.location.replace("d.md");
         </script>
@@ -754,6 +757,7 @@ exports[`Regression > internal 29`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -791,6 +795,7 @@ exports[`Regression > internal 30`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -826,6 +831,7 @@ exports[`Regression > internal 31`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -863,6 +869,7 @@ exports[`Regression > internal 32`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -898,6 +905,7 @@ exports[`Regression > internal 33`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -935,6 +943,7 @@ exports[`Regression > internal 34`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -970,6 +979,7 @@ exports[`Regression > internal 35`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -1007,6 +1017,7 @@ exports[`Regression > internal 36`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1043,6 +1054,7 @@ exports[`Regression > internal 37`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1078,6 +1090,7 @@ exports[`Regression > internal 38`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -1117,6 +1130,7 @@ exports[`Regression > internal 39`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1152,6 +1166,7 @@ exports[`Regression > internal 40`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -1191,6 +1206,7 @@ exports[`Regression > internal 42`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1227,6 +1243,7 @@ exports[`Regression > internal 43`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -1266,6 +1283,7 @@ exports[`Regression > internal 44`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
@@ -1304,6 +1322,7 @@ exports[`Regression > internal 45`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1339,6 +1358,7 @@ exports[`Regression > internal 46`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>

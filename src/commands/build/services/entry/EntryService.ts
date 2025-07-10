@@ -100,6 +100,8 @@ export class EntryService {
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
+        const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
+
         const html = staticContent
             ? render({
                   ...state,
@@ -113,6 +115,7 @@ export class EntryService {
 
         template.setTitle(title);
         template.addBody(`<div id="root">${html}</div>`);
+        template.setFaviconSrc(faviconSrc);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);

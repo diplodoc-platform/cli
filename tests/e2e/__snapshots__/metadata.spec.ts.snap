@@ -42,6 +42,7 @@ exports[`Allow load custom resources > md2html with metadata 1`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -81,6 +82,7 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
+        
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -119,6 +121,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="yfm" value="builder in config">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
