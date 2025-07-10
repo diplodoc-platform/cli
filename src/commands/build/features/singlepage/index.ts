@@ -1,5 +1,7 @@
 import type {Build} from '~/commands/build';
+import type {EntryTocItem} from '~/core/toc';
 import type {Command} from '~/core/config';
+import type {SinglePageResult} from './utils';
 
 import {dirname, join} from 'node:path';
 
@@ -23,12 +25,6 @@ export type SinglePageConfig = {
     singlePage: boolean;
 };
 
-type PageInfo = {
-    path: NormalizedPath;
-    content: string;
-    title: string;
-};
-
 const __SinglePage__ = Symbol('isSinglePage');
 
 export class SinglePage {
@@ -43,7 +39,7 @@ export class SinglePage {
             return config;
         });
 
-        const results: Record<NormalizedPath, PageInfo[]> = {};
+        const results: Record<NormalizedPath, SinglePageResult> = {};
 
         getBuildHooks(program)
             .Entry.for('html')
@@ -57,8 +53,8 @@ export class SinglePage {
                 run.meta.add(toc.path, info.meta || {});
                 run.meta.addResources(toc.path, info.meta || {});
 
-                results[toc.path] = results[toc.path] || [];
-                results[toc.path][info.position] = {
+                results[entry] = results[entry] || [];
+                results[entry] = {
                     path: entry,
                     content: info.html,
                     title: info.title || '',
@@ -81,7 +77,8 @@ export class SinglePage {
 
                     const file = join(dirname(template.path), 'single-page-toc.js');
 
-                    const toc = (await run.toc.dump(template.path)).copy(file);
+                    const tocPath = join(dirname(template.path), 'toc.yaml');
+                    const toc = (await run.toc.dump(tocPath)).copy(file);
                     await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
                         item.href = getSinglePageUrl(dirname(toc.path), item.href);
 
@@ -101,40 +98,45 @@ export class SinglePage {
                     return;
                 }
 
-                for (const entry of Object.entries(results)) {
-                    const [tocPath, result] = entry as [NormalizedPath, PageInfo[]];
+                for (const toc of run.toc.tocs) {
+                    const entries: SinglePageResult[] = [];
+                    await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
+                        entries.push(results[item.href]);
 
-                    if (!result.length) {
+                        return item;
+                    });
+
+                    if (!entries.length) {
                         return;
                     }
 
-                    const tocDir = dirname(tocPath);
+                    const tocDir = dirname(toc.path);
                     const htmlPath = join(tocDir, SINGLE_PAGE_FILENAME);
                     const dataPath = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
 
                     try {
                         const singlePageBody = joinSinglePageResults(
-                            result.filter(Boolean),
+                            entries.filter(Boolean),
                             tocDir as NormalizedPath,
                         );
 
-                        const toc = (await run.toc.dump(tocPath)).data;
+                        const tocData = (await run.toc.dump(toc.path, toc)).data;
 
-                        run.meta.addResources(tocPath, run.config.resources);
+                        run.meta.addResources(toc.path, run.config.resources);
 
                         const data = {
                             leading: false as const,
                             html: singlePageBody,
                             headings: [],
-                            meta: await run.meta.dump(tocPath),
+                            meta: await run.meta.dump(toc.path),
                             title: toc.title || '',
                         };
 
                         const state = await run.entry.state(htmlPath, data);
                         const template = new Template(htmlPath, state.lang, [__SinglePage__]);
-                        const page = await run.entry.page(template, state, toc);
+                        const page = await run.entry.page(template, state, tocData);
 
-                        state.data.toc = toc;
+                        state.data.toc = tocData;
 
                         await run.write(join(run.output, dataPath), JSON.stringify(state), true);
                         await run.write(join(run.output, htmlPath), page, true);
