@@ -53,12 +53,11 @@ describe('Generic includer', () => {
         const result = await getTocHooks(run.toc)
             .Includer.for('generic')
             .promise(
-                {},
+                {path: 'toc.yaml' as NormalizedPath},
                 {
                     input: './test',
                     path: './test/toc.yaml',
                 },
-                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();
@@ -83,11 +82,10 @@ describe('Generic includer', () => {
         const result = await getTocHooks(run.toc)
             .Includer.for('generic')
             .promise(
-                {},
+                {path: 'toc.yaml' as NormalizedPath},
                 {
                     path: './path/test/toc.yaml',
                 },
-                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();
@@ -112,13 +110,12 @@ describe('Generic includer', () => {
         const result = await getTocHooks(run.toc)
             .Includer.for('generic')
             .promise(
-                {},
+                {path: 'toc.yaml' as NormalizedPath},
                 {
                     input: './test',
                     path: './test/toc.yaml',
                     autotitle: false,
                 },
-                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();
