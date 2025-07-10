@@ -15,11 +15,45 @@ export function resolveNoTranslate(this: LoaderContext, content: string) {
 }
 
 function resolveContainerDirectives(content: string): string {
-    const containerRegex = /:::\s*no-translate\s*\n([\s\S]*?)\n\s*:::/g;
+    const lines = content.split('\n');
+    const result = [];
 
-    return content.replace(containerRegex, (_, innerContent) => {
-        return innerContent;
-    });
+    const stack = [];
+
+    for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+
+        if (line.trim().startsWith(':::')) {
+            const directiveLine = line.trim();
+
+            if (directiveLine === ':::') {
+                if (stack.length > 0) {
+                    const lastDirective = stack.pop();
+
+                    if (lastDirective === 'no-translate' && stack.length === 0) {
+                        continue;
+                    }
+
+                    result.push(line);
+                }
+            } else {
+                const directiveMatch = directiveLine.match(/^:::\s*([^\s]+)/);
+                const directiveName = directiveMatch ? directiveMatch[1] : '';
+
+                if (directiveName === 'no-translate') {
+                    stack.push('no-translate');
+                    continue;
+                } else {
+                    stack.push(directiveName);
+                    result.push(line);
+                }
+            }
+        } else {
+            result.push(line);
+        }
+    }
+
+    return result.join('\n');
 }
 
 function resolveLeafBlockDirectives(content: string): string {

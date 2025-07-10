@@ -578,4 +578,54 @@ describe('Markdown loader', () => {
             expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
         });
     });
+
+    describe('resolve no-translate directive', () => {
+        it('should remove no-translate directive but leave its content', async () => {
+            const content = dedent`
+                ::: no-translate
+                Should not be
+                translated
+                :::
+            `;
+            const context = loaderContext(content);
+
+            const result = await loader.call(context, content);
+
+            expect(result).toEqual(
+                dedent`
+                    Should not be
+                    translated
+                `,
+            );
+        });
+
+        it('should remove no-translate directive but leave nested directives unchanged', async () => {
+            const content = dedent`
+                ::: no-translate
+                Should not be
+                translated
+                ::: some-other-directive
+                Some other directive
+                :: some-other-inline-directive with text. : item-directive [attr]
+                content
+                :::
+                :::
+            `;
+            const context = loaderContext(content);
+
+            const result = await loader.call(context, content);
+
+            expect(result).toEqual(
+                dedent`
+                    Should not be
+                    translated
+                    ::: some-other-directive
+                    Some other directive
+                    :: some-other-inline-directive with text. : item-directive [attr]
+                    content
+                    :::
+                `,
+            );
+        });
+    });
 });
