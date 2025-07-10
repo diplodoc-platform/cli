@@ -184,7 +184,7 @@ export class TocService {
     }
 
     @memoize('path')
-    async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
+    private async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
         const vfile = new VFile<Toc>(file, copyJson(toc), dump);
 
         await getHooks(this).Dump.promise(vfile);
@@ -216,8 +216,9 @@ export class TocService {
         });
 
         const context: LoaderContext = this.loaderContext(file);
-
         const content = await read(this.run, file);
+
+        content.path = file;
 
         if (this.shouldSkip(content)) {
             this.cache.delete(file);
@@ -227,9 +228,7 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        toc.path = file;
-
-        await getHooks(this).Loaded.promise(toc, file);
+        await getHooks(this).Loaded.promise(toc);
 
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
@@ -255,7 +254,6 @@ export class TocService {
         this.logger.proc(file);
 
         const context: LoaderContext = await this.loaderContext(file, include);
-
         const content = include.content || (await read(this.run, file, include.from));
 
         if (this.shouldSkip(content)) {
@@ -288,7 +286,7 @@ export class TocService {
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        await getHooks(this).Included.promise(toc, file, include);
+        await getHooks(this).Included.promise(toc, include);
 
         return toc;
     }
@@ -367,7 +365,7 @@ export class TocService {
 
     private async restrictAccess(path: NormalizedPath, toc: Toc) {
         await this.walkItems(
-            [toc as unknown as RawToc],
+            [toc as unknown as RawTocItem],
             (item, context: RestrictedAccessContext) => {
                 if (own<string | string[]>(item, 'restricted-access')) {
                     let itemAccess = ([] as string[]).concat(item['restricted-access'] || []);

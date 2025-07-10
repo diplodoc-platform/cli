@@ -21,9 +21,9 @@ export class Extension implements IExtension {
         getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
-                .tapPromise(EXTENSION, async (_toc, options, path) => {
+                .tapPromise(EXTENSION, async (rawtoc, options) => {
                     // @ts-ignore
-                    const {toc, files} = await includer(run, options, path);
+                    const {toc, files} = await includer(run, options, rawtoc.path);
 
                     const root = join(run.input, dirname(options.path));
                     for (const {path, content} of files) {

@@ -180,12 +180,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         });
 
         // Regenerate toc entry names from md titles
-        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
+        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc) => {
             await this.run.toc.walkEntries(
                 toc?.items as EntryTocItem[],
                 async (item: EntryTocItem) => {
                     if (!item.name || item.name === '{#T}') {
-                        const entry = normalizePath(join(dirname(path), item.href));
+                        const entry = normalizePath(join(dirname(toc.path), item.href));
                         const titles = await this.run.markdown.titles(entry);
                         item.name = titles['#'] || setExt(basename(entry), '');
                     }

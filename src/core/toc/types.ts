@@ -18,6 +18,7 @@ export type WithItems<Item> = {
 };
 
 export type RawToc = {
+    path: NormalizedPath;
     title?: YfmString | TextFilter[];
     label?: YfmString | TextFilter[];
     stage?: string;

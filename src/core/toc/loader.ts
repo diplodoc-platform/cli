@@ -186,7 +186,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 
         ok(include.path, 'Invalid value for include path.');
 
-        let toc: RawToc | undefined = {};
+        let toc: RawToc;
         if (own(include, 'includers')) {
             ok(
                 include.mode === IncludeMode.Link || !include.mode,
@@ -197,6 +197,8 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             const tocPath = include.path.endsWith('toc.yaml')
                 ? normalizePath(include.path)
                 : normalizePath(join(include.path, 'toc.yaml'));
+
+            toc = {path: tocPath};
 
             for (const includer of include.includers) {
                 const hook = getHooks(this.toc).Includer.get(includer.name);
@@ -209,7 +211,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                     path: tocPath,
                 };
 
-                toc = await hook.promise(toc, options, this.path);
+                toc = await hook.promise(toc, options);
             }
 
             toc = (await this.include(tocPath, {
@@ -289,11 +291,11 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
  */
 async function rebaseItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const rebaseHrefs = (item: RawTocItem | RawToc) => {
-        if (own<AnyPath>(item, 'href') && isRelative(item.href)) {
+        if (own<AnyPath, 'href'>(item, 'href') && isRelative(item.href)) {
             const absBase = dirname(this.from);
             const absPath = join(dirname(this.base || this.path), item.href);
 
-            item.href = relative(absBase, absPath);
+            item.href = relative(absBase, absPath) as YfmString & RelativePath;
         }
 
         return item;
