@@ -100,7 +100,7 @@ export class EntryService {
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
-        const faviconSrc = state.viewerInterface?.faviconSrc || '';
+        const faviconSrc = state.viewerInterface['favicon-src'] || '';
 
         const html = staticContent
             ? render({

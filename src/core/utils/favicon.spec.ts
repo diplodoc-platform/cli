@@ -46,4 +46,11 @@ describe('getFaviconType', () => {
     it('should handle full urls', () => {
         expect(getFaviconType('https://cdn.site.com/favicon.ico')).toBe('image/x-icon');
     });
+
+    it('should handle extensions when url has query params or fragments', () => {
+        expect(getFaviconType('favicon.png?v=123')).toBe('image/png');
+        expect(getFaviconType('favicon.ico#hash')).toBe('image/x-icon');
+        expect(getFaviconType('https://site.com/favicon.jpg?foo=bar#baz')).toBe('image/jpeg');
+        expect(getFaviconType('/path/to/favicon.svg?updated=1')).toBe('image/svg+xml');
+    });
 });

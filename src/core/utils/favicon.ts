@@ -1,7 +1,9 @@
 export function getFaviconType(faviconSrc: string): string | undefined {
     if (!faviconSrc) return undefined;
 
-    const ext = faviconSrc.split('.').pop()?.toLowerCase();
+    const cleanSrc = faviconSrc.split(/[?#]/)[0];
+
+    const ext = cleanSrc.split('.').pop()?.toLowerCase();
 
     switch (ext) {
         case 'svg':
