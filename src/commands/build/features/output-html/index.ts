@@ -84,8 +84,8 @@ export class OutputHtml {
 
                     const html = await run.entry.page(template, state, toc.data);
                     vfile.path = setExt(vfile.path, '.html');
-                    vfile.info = data;
                     vfile.format(() => html);
+                    Object.assign(vfile.info, data);
                 });
 
                 // Transform Page Constructor yfm blocks
