@@ -208,16 +208,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
         });
 
-        await this.concurrently(entries, async (entry, position) => {
+        await this.concurrently(entries, async (entry) => {
             try {
                 this.run.logger.proc(entry);
 
                 const meta = this.run.meta.get(entry);
                 const info = await this.process(entry, meta);
 
-                await getHooks(this)
-                    .Entry.for(outputFormat)
-                    .promise(this.run, entry, {...info, position});
+                await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
 
                 this.run.logger.info('Processing finished:', entry);
             } catch (error) {
