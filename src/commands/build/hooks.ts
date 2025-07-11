@@ -1,3 +1,4 @@
+import type {BaseProgram} from '~/core/program';
 import type {Run} from './run';
 import type {PositionedEntryInfo} from './types';
 
@@ -7,7 +8,7 @@ import {generateHooksAccess} from '~/core/utils';
 
 import {OutputFormat} from './config';
 
-export function hooks(name: string) {
+export function hooks<TRun extends Run>(name: string) {
     return {
         /**
          * Async series hook map (md|html) which runs before start of target Run type.<br/><br/>
@@ -18,7 +19,7 @@ export function hooks(name: string) {
          */
         BeforeRun: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `${name}.${format}.BeforeRun`),
+                new AsyncSeriesHook<[TRun]>(['run'], `${name}.${format}.BeforeRun`),
         ),
         /**
          * Async series hook map (md|html) which runs when project entry (each member of toc)
@@ -31,7 +32,7 @@ export function hooks(name: string) {
          */
         Entry: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<[Run, NormalizedPath, DeepFrozen<PositionedEntryInfo>]>(
+                new AsyncSeriesHook<[TRun, NormalizedPath, DeepFrozen<PositionedEntryInfo>]>(
                     ['run', 'entry', 'info'],
                     `${name}.${format}.Entry`,
                 ),
@@ -45,11 +46,17 @@ export function hooks(name: string) {
          */
         AfterRun: new HookMap(
             (format: `${OutputFormat}`) =>
-                new AsyncSeriesHook<Run>(['run'], `${name}.${format}.AfterRun`),
+                new AsyncSeriesHook<[TRun]>(['run'], `${name}.${format}.AfterRun`),
         ),
     };
 }
 
-const [getHooks, withHooks] = generateHooksAccess('Build', hooks);
+const [getHooksInternal, withHooks] = generateHooksAccess('Build', hooks);
+
+function getHooks<TRun extends Run = Run, TProgram extends BaseProgram = BaseProgram>(
+    holder: TProgram,
+) {
+    return getHooksInternal(holder) as unknown as ReturnType<typeof hooks<TRun>>;
+}
 
 export {getHooks, withHooks};
