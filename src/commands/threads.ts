@@ -4,13 +4,13 @@ import os from 'node:os';
 import {isMainThread} from 'node:worker_threads';
 import {get} from 'lodash';
 // @ts-ignore
-import {Pool, Worker, spawn} from 'threads';
+import {Pool, Worker, registerSerializer, spawn} from 'threads';
 // @ts-ignore
 import {Observable, Subject} from 'threads/observable';
 // @ts-ignore
 import {expose} from 'threads/worker';
 
-import {Defer, all} from '~/core/utils';
+import {Defer, Graph, all} from '~/core/utils';
 import {LogLevel} from '~/core/logger';
 import {Program, parse} from '~/commands';
 
@@ -30,6 +30,63 @@ function writer(subject: Subject<LogRecord>, level: string) {
         subject.next({level, message: msgs.join(' ')});
     };
 }
+
+registerSerializer({
+    deserialize(message: any, defaultHandler: Function) {
+        if (Graph.is(message)) {
+            return Graph.deserialize(message as any);
+        } else if (Array.isArray(message)) {
+            return defaultHandler(
+                message.map((item: unknown) => {
+                    if (Graph.is(item)) {
+                        return Graph.deserialize(item);
+                    }
+
+                    return item;
+                }),
+            );
+        } else if (typeof message === 'object') {
+            const graphs = Object.keys(message).filter((key) => Graph.is(message[key]));
+            const parsed = Object.fromEntries(
+                graphs.map((key) => [key, Graph.deserialize(message[key])]),
+            );
+
+            return defaultHandler({
+                ...message,
+                ...parsed,
+            });
+        } else {
+            return defaultHandler(message);
+        }
+    },
+    serialize(message: any, defaultHandler: Function) {
+        if (message instanceof Graph) {
+            return defaultHandler(message.serialize());
+        } else if (Array.isArray(message)) {
+            return defaultHandler(
+                message.map((item: unknown) => {
+                    if (item instanceof Graph) {
+                        return item.serialize();
+                    }
+
+                    return item;
+                }),
+            );
+        } else if (typeof message === 'object') {
+            const graphs = Object.keys(message).filter((key) => message[key] instanceof Graph);
+            const serialized = Object.fromEntries(
+                graphs.map((key) => [key, message[key].serialize()]),
+            );
+
+            return defaultHandler({
+                ...message,
+                ...serialized,
+            });
+        } else {
+            return defaultHandler(message);
+        }
+    },
+});
 
 if (!isMainThread) {
     const subject = new Subject<LogRecord>();
