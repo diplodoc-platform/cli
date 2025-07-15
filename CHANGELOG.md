@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.1.0](https://github.com/diplodoc-platform/cli/compare/v5.0.12...v5.1.0) (2025-07-15)
+
+
+### Features
+
+* added viewerInterface to page state ([#1268](https://github.com/diplodoc-platform/cli/issues/1268)) ([dfffa8d](https://github.com/diplodoc-platform/cli/commit/dfffa8dfa5edb55d6582af0a570e9d4339621eee))
+* supported favicon in static ([#1271](https://github.com/diplodoc-platform/cli/issues/1271)) ([cdd8d79](https://github.com/diplodoc-platform/cli/commit/cdd8d798ec215c6fa5af482fdc3948a3e7c0a1c6))
+
+
+### Bug Fixes
+
+* no-translate directive resolve ([a77bb22](https://github.com/diplodoc-platform/cli/commit/a77bb2221a6c597de23d9da21e548b73ab5f3b30))
+
+
+### Dependency update
+
+* Update @diplodoc/client to 3.7.3 ([#1275](https://github.com/diplodoc-platform/cli/issues/1275)) ([e2f98bf](https://github.com/diplodoc-platform/cli/commit/e2f98bfc572b03d2f46c7d50d3dc0a634bfe66a8))
+
 ## [5.0.12](https://github.com/diplodoc-platform/cli/compare/v5.0.11...v5.0.12) (2025-07-03)
 
 
