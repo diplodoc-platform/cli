@@ -12,6 +12,7 @@ import {
 } from '~/core/program';
 import {Command, args, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
 
 import {getHooks, withHooks} from './hooks';
 import {DESCRIPTION, NAME, options} from './config';
@@ -83,7 +84,12 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     readonly compose = new Compose();
 
-    protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
+    protected readonly modules: ICallable[] = [
+        this.extract,
+        this.compose,
+        new YandexTranslation(),
+        new ExtractOpenapiIncluderFakeExtension(),
+    ];
 
     private run!: Run;
 
