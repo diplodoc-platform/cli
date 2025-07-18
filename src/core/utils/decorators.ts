@@ -7,6 +7,12 @@ export function bounded(_originalMethod: unknown, context: ClassMethodDecoratorC
     });
 }
 
+const Release = Symbol('Cache');
+
+type DecoratedMethod = Function & {
+    [Release](args: unknown[]): void;
+};
+
 export function memoize(...props: string[] | [Function]) {
     return function (_originalMethod: unknown, context: ClassMethodDecoratorContext) {
         const methodName = context.name;
@@ -40,9 +46,20 @@ export function memoize(...props: string[] | [Function]) {
 
                 return cache.get(key);
             };
+            this[methodName][Release] = (args: unknown[]) => {
+                const key = hash.call(this, ...args);
+
+                cache.delete(key);
+            };
         });
     };
 }
+
+memoize.release = (method: Function, ...args: unknown[]) => {
+    if (Release in method) {
+        (method as DecoratedMethod)[Release](args);
+    }
+};
 
 const PRIMITIVE_TYPES = ['string', 'number', 'symbol', 'boolean', 'undefined'];
 
