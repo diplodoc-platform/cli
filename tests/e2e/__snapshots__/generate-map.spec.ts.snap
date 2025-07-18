@@ -17,7 +17,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
 {
   "fileTrie": {
     "tocMapping": {
-      "a": "ru/toc.yaml",
+      "t0": "ru/toc.yaml",
     },
     "trie": {
       "ru": {
@@ -27,7 +27,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
               "a1": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "folder2": {
@@ -35,7 +35,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
                   "a1": {
                     "file": {
                       "ext": ".md",
-                      "toc": "a",
+                      "toc": "t0",
                     },
                   },
                 },
@@ -45,7 +45,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
           "index": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
           "plugins": {
@@ -53,7 +53,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -63,7 +63,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -71,7 +71,7 @@ exports[`Generate map for > project with external links in toc 2`] = `
           "settings": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
         },
@@ -106,8 +106,8 @@ exports[`Generate map for > project with multiple language 2`] = `
 {
   "fileTrie": {
     "tocMapping": {
-      "a": "en/toc.yaml",
-      "b": "ru/toc.yaml",
+      "t0": "en/toc.yaml",
+      "t1": "ru/toc.yaml",
     },
     "trie": {
       "en": {
@@ -115,7 +115,7 @@ exports[`Generate map for > project with multiple language 2`] = `
           "index": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
           "plugins": {
@@ -123,13 +123,13 @@ exports[`Generate map for > project with multiple language 2`] = `
               "import": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -139,13 +139,13 @@ exports[`Generate map for > project with multiple language 2`] = `
               "config": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -153,7 +153,7 @@ exports[`Generate map for > project with multiple language 2`] = `
           "settings": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
         },
@@ -163,7 +163,7 @@ exports[`Generate map for > project with multiple language 2`] = `
           "index": {
             "file": {
               "ext": ".md",
-              "toc": "b",
+              "toc": "t1",
             },
           },
           "plugins": {
@@ -171,13 +171,13 @@ exports[`Generate map for > project with multiple language 2`] = `
               "import": {
                 "file": {
                   "ext": ".md",
-                  "toc": "b",
+                  "toc": "t1",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "b",
+                  "toc": "t1",
                 },
               },
             },
@@ -187,13 +187,13 @@ exports[`Generate map for > project with multiple language 2`] = `
               "config": {
                 "file": {
                   "ext": ".md",
-                  "toc": "b",
+                  "toc": "t1",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "b",
+                  "toc": "t1",
                 },
               },
             },
@@ -201,7 +201,7 @@ exports[`Generate map for > project with multiple language 2`] = `
           "settings": {
             "file": {
               "ext": ".md",
-              "toc": "b",
+              "toc": "t1",
             },
           },
         },
@@ -232,7 +232,7 @@ exports[`Generate map for > project with single language and toc include - only 
 {
   "fileTrie": {
     "tocMapping": {
-      "a": "ru/toc.yaml",
+      "t0": "ru/toc.yaml",
     },
     "trie": {
       "ru": {
@@ -242,7 +242,7 @@ exports[`Generate map for > project with single language and toc include - only 
               "a1": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "folder2": {
@@ -250,7 +250,7 @@ exports[`Generate map for > project with single language and toc include - only 
                   "a1": {
                     "file": {
                       "ext": ".md",
-                      "toc": "a",
+                      "toc": "t0",
                     },
                   },
                 },
@@ -260,7 +260,7 @@ exports[`Generate map for > project with single language and toc include - only 
           "index": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
           "plugins": {
@@ -268,13 +268,13 @@ exports[`Generate map for > project with single language and toc include - only 
               "import": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -284,13 +284,13 @@ exports[`Generate map for > project with single language and toc include - only 
               "config": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -298,7 +298,7 @@ exports[`Generate map for > project with single language and toc include - only 
           "settings": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
         },
@@ -329,7 +329,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
 {
   "fileTrie": {
     "tocMapping": {
-      "a": "ru/toc.yaml",
+      "t0": "ru/toc.yaml",
     },
     "trie": {
       "ru": {
@@ -339,7 +339,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
               "a1": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "folder2": {
@@ -347,7 +347,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
                   "a1": {
                     "file": {
                       "ext": ".md",
-                      "toc": "a",
+                      "toc": "t0",
                     },
                   },
                 },
@@ -357,7 +357,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
           "index": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
           "plugins": {
@@ -365,13 +365,13 @@ exports[`Generate map for > project with single language and toc include 2`] = `
               "import": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -381,13 +381,13 @@ exports[`Generate map for > project with single language and toc include 2`] = `
               "config": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
               "index": {
                 "file": {
                   "ext": ".md",
-                  "toc": "a",
+                  "toc": "t0",
                 },
               },
             },
@@ -395,7 +395,7 @@ exports[`Generate map for > project with single language and toc include 2`] = `
           "settings": {
             "file": {
               "ext": ".md",
-              "toc": "a",
+              "toc": "t0",
             },
           },
         },

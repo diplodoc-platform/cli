@@ -46,7 +46,7 @@ export type BuildManifestConfig = {
 };
 
 export class BuildManifest {
-    private lastTocId = '';
+    private lastTocId = 0;
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildManifest', (command: Command) => {
@@ -172,26 +172,6 @@ export class BuildManifest {
     }
 
     private nextId() {
-        const previous = this.lastTocId;
-
-        if (previous === '') {
-            return this.updateId('a');
-        }
-
-        const lastChar = previous.charAt(previous.length - 1);
-
-        if (lastChar === 'z') {
-            return this.updateId(`${previous.slice(0, -1)}a`);
-        }
-
-        const nextChar = String.fromCharCode(lastChar.charCodeAt(0) + 1);
-
-        return this.updateId(`${previous.slice(0, -1)}${nextChar}`);
-    }
-
-    private updateId(id: string) {
-        this.lastTocId = id;
-
-        return id;
+        return `t${this.lastTocId++}`;
     }
 }
