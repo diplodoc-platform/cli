@@ -1,5 +1,6 @@
 import {Runner} from './types';
 import {execa} from 'execa';
+import strip from 'strip-ansi';
 
 export class BinaryRunner implements Runner {
     private readonly binaryPath: string;
@@ -29,7 +30,7 @@ export class BinaryRunner implements Runner {
 
 function fillLog(filter: RegExp, source: string) {
     return source.split('\n')
-        .filter((line) => line.match(filter))
-        .map((line) => line.trim())
-        .filter(Boolean);
+        .map((line) => strip(line).trim())
+        .filter(Boolean)
+        .filter((line) => line.match(filter));
 }
