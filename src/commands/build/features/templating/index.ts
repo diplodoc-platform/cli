@@ -93,14 +93,14 @@ export class Templating {
 
         getBuildHooks(program)
             .BeforeRun.for('md')
-            .tap('Build', (run) => {
+            .tap('Templating', (run) => {
                 const {varsPreset, template} = run.config;
                 const {substitutions, conditions} = template.features;
 
                 // For case when we need to copy project from private to public repo and filter private presets.
                 if (!substitutions || !conditions) {
                     getVarsHooks(run.vars).PresetsLoaded.tapPromise(
-                        'Build',
+                        'Templating',
                         async (presets, path) => {
                             const scopes = [
                                 {default: presets.default},
