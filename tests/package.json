@@ -33,6 +33,7 @@
     "execa": "^9.5.3",
     "glob": "^11.0.2",
     "js-yaml": "^4.1.0",
+    "strip-ansi": "^7.1.0",
     "ts-dedent": "^2.2.0",
     "typescript": "^5.9.2"
   },
