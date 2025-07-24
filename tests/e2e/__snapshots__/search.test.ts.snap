@@ -19,12 +19,6 @@ exports[`Local search > internal > filelist 1`] = `
   "_bundle/search-css-1",
   "_bundle/search-js-2",
   "_bundle/search-css-2",
-  "_search/api.js",
-  "_search/ru/hash-index.js",
-  "_search/ru/hash-resources.js",
-  "_search/ru/hash-registry.js",
-  "_search/ru/index.html",
-  "_search/ru/language.js",
   "index.html",
   "toc.js"
 ]"
@@ -39,6 +33,7 @@ exports[`Local search > internal 1`] = `
         <base href="./" />
         <title>Header</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Content">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -49,7 +44,7 @@ exports[`Local search > internal 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"search":{"enabled":true,"provider":"local","api":"_search/api.js","link":"_search/ru/index.html"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Content"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -59,7 +54,6 @@ exports[`Local search > internal 1`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>

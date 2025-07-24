@@ -655,6 +655,7 @@ exports[`Regression > internal 26`] = `
         <base href="./" />
         <title>Title</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Text {{not-var}} {{skip()}} default-var-value">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -665,7 +666,7 @@ exports[`Regression > internal 26`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text {{not-var}} {{skip()}} default-var-value&lt;/p&gt;/n&lt;p&gt;Text &lt;code&gt;{{not-var}}&lt;/code&gt; &lt;code&gt;{{skip()}}&lt;/code&gt; &lt;code&gt;default-var-value&lt;/code&gt;&lt;/p&gt;/n&lt;p&gt;Text&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs\\"&gt;{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;p&gt;&lt;code&gt;[not a link](./path/to/relative/file.md)&lt;/code&gt;&lt;/p&gt;/n&lt;h2 id=\\"subtitle\\"&gt;&lt;a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Subtitle&lt;/span&gt;&lt;/a&gt;Subtitle&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html\\"&gt;Mermaid usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html#info\\"&gt;Mermaid info&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;Latex usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"includes\\"&gt;noext-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title"},"router":{"pathname":"1","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text {{not-var}} {{skip()}} default-var-value&lt;/p&gt;/n&lt;p&gt;Text &lt;code&gt;{{not-var}}&lt;/code&gt; &lt;code&gt;{{skip()}}&lt;/code&gt; &lt;code&gt;default-var-value&lt;/code&gt;&lt;/p&gt;/n&lt;p&gt;Text&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs\\"&gt;{{not-var}}/n/n{{skip()}}/n/ndefault-var-value/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"9\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-9\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-9\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-9.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;p&gt;&lt;code&gt;[not a link](./path/to/relative/file.md)&lt;/code&gt;&lt;/p&gt;/n&lt;h2 id=\\"subtitle\\"&gt;&lt;a href=\\"1.html#subtitle\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Subtitle&lt;/span&gt;&lt;/a&gt;Subtitle&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html\\"&gt;Mermaid usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"mermaid.html#info\\"&gt;Mermaid info&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;Latex usage&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"includes\\"&gt;noext-link&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Text {{not-var}} {{skip()}} default-var-value"}]},"headings":[{"title":"Subtitle","href":"1.html#subtitle","level":2}],"title":"Title"},"router":{"pathname":"1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -692,6 +693,8 @@ exports[`Regression > internal 27`] = `
         <base href="./" />
         <title>Autotitles</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Empty title
+        Title">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -702,7 +705,7 @@ exports[`Regression > internal 27`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Empty title/nTitle"}]},"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -755,6 +758,7 @@ exports[`Regression > internal 29`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Note content 1">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -765,7 +769,7 @@ exports[`Regression > internal 29`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Note 1"},"router":{"pathname":"generic/1","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Note content 1"}]},"headings":[],"title":"Note 1"},"router":{"pathname":"generic/1","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -792,6 +796,7 @@ exports[`Regression > internal 30`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Note content 1">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -802,7 +807,7 @@ exports[`Regression > internal 30`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Note 1"},"router":{"pathname":"generic/2","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Note content 1"}]},"headings":[],"title":"Note 1"},"router":{"pathname":"generic/2","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -829,6 +834,7 @@ exports[`Regression > internal 31`] = `
         <base href="../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Note content 1">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -839,7 +845,7 @@ exports[`Regression > internal 31`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"generic/3","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Note content 1"}]},"headings":[],"title":""},"router":{"pathname":"generic/3","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -866,6 +872,7 @@ exports[`Regression > internal 32`] = `
         <base href="../../" />
         <title>Sub note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Note content 1">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -876,7 +883,7 @@ exports[`Regression > internal 32`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Sub note 1"},"router":{"pathname":"generic/Sub notes/1","depth":3,"base":"../../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Note content 1&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Note content 1"}]},"headings":[],"title":"Sub note 1"},"router":{"pathname":"generic/Sub notes/1","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -903,6 +910,7 @@ exports[`Regression > internal 33`] = `
         <base href="../../" />
         <title>Sub note 2</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Note content 2">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -913,7 +921,7 @@ exports[`Regression > internal 33`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Note content 2&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Sub note 2"},"router":{"pathname":"generic/Sub notes/2","depth":3,"base":"../../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Note content 2&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Note content 2"}]},"headings":[],"title":"Sub note 2"},"router":{"pathname":"generic/Sub notes/2","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -950,7 +958,7 @@ exports[`Regression > internal 34`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;img src=\\"_assets/1.png\\" alt=\\"simple image\\" /&gt;&lt;/p&gt;/n![with leading comment](_assets/2.png)/n&lt;p&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" /&gt;&lt;/p&gt;/n/n&lt;p&gt;&lt;img src=\\"_assets/5_1.png\\" alt=\\"with backslash\\" /&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Images"},"router":{"pathname":"images","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;img src=\\"_assets/1.png\\" alt=\\"simple image\\" /&gt;&lt;/p&gt;/n![with leading comment](_assets/2.png)/n&lt;p&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"with trailing comment\\" /&gt;&lt;/p&gt;/n/n&lt;p&gt;&lt;img src=\\"_assets/5_1.png\\" alt=\\"with backslash\\" /&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Images"},"router":{"pathname":"images","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -977,6 +985,7 @@ exports[`Regression > internal 35`] = `
         <base href="./" />
         <title>Included item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Included item text">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -987,7 +996,7 @@ exports[`Regression > internal 35`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Included item text&lt;/p&gt;/n/n&lt;div class=\\"yfm-note yfm-accent-alert\\" note-type=\\"alert\\"&gt;&lt;p class=\\"yfm-note-title\\"&gt;Alert!&lt;/p&gt;/n&lt;div class=\\"yfm-note-content\\"&gt;  /n&lt;/div&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=\\"_assets/empty.pdf\\" alt=\\"pdf\\" /&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Included item"},"router":{"pathname":"included-item","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Included item text&lt;/p&gt;/n/n&lt;div class=\\"yfm-note yfm-accent-alert\\" note-type=\\"alert\\"&gt;&lt;p class=\\"yfm-note-title\\"&gt;Alert!&lt;/p&gt;/n&lt;div class=\\"yfm-note-content\\"&gt;  /n&lt;/div&gt;&lt;/div&gt;&lt;p&gt;&lt;img src=\\"_assets/empty.pdf\\" alt=\\"pdf\\" /&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Included item text"}]},"headings":[],"title":"Included item"},"router":{"pathname":"included-item","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1014,6 +1023,7 @@ exports[`Regression > internal 36`] = `
         <base href="./" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Text">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1024,7 +1034,7 @@ exports[`Regression > internal 36`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Text"}]},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1061,7 +1071,7 @@ exports[`Regression > internal 37`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":true,"data":{"description":["Some text"],"links":[{"name":"Link 1","href":"1.html"},{"name":"Link 2","href":"1/index.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1099,7 +1109,7 @@ exports[`Regression > internal 38`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22displayMode%22%3Afalse%7D\\"&gt;&lt;/span&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"]},"headings":[],"title":"Latex usage"},"router":{"pathname":"latex","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22displayMode%22%3Afalse%7D\\"&gt;&lt;/span&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"]},"headings":[],"title":"Latex usage"},"router":{"pathname":"latex","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1127,6 +1137,7 @@ exports[`Regression > internal 39`] = `
         <base href="../" />
         <title>Should use merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="merged">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1137,7 +1148,7 @@ exports[`Regression > internal 39`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"merge/merged.html\\"&gt;merged&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Should use merged item"},"router":{"pathname":"merge/merge","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"merge/merged.html\\"&gt;merged&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"merged"}]},"headings":[],"title":"Should use merged item"},"router":{"pathname":"merge/merge","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1164,6 +1175,7 @@ exports[`Regression > internal 40`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Should be linked in toc.yaml">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1174,7 +1186,7 @@ exports[`Regression > internal 40`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Should be linked in toc.yaml"}]},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1213,7 +1225,7 @@ exports[`Regression > internal 42`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\"&gt;&lt;/div&gt;&lt;h2 id=\\"info\\"&gt;&lt;a href=\\"mermaid.html#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Mermaid info&lt;/span&gt;&lt;/a&gt;Mermaid info&lt;/h2&gt;/n&lt;p&gt;Some mermaid info&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"script":["_bundle/mermaid-extension.js"]},"headings":[{"title":"Mermaid info","href":"mermaid.html#info","level":2}],"title":"Mermaid usage"},"router":{"pathname":"mermaid","depth":1,"base":"./"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\"&gt;&lt;/div&gt;&lt;h2 id=\\"info\\"&gt;&lt;a href=\\"mermaid.html#info\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Mermaid info&lt;/span&gt;&lt;/a&gt;Mermaid info&lt;/h2&gt;/n&lt;p&gt;Some mermaid info&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"script":["_bundle/mermaid-extension.js"]},"headings":[{"title":"Mermaid info","href":"mermaid.html#info","level":2}],"title":"Mermaid usage"},"router":{"pathname":"mermaid","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1241,6 +1253,7 @@ exports[`Regression > internal 43`] = `
         <base href="../" />
         <title>OpenAPI definition</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="version: v0">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1252,7 +1265,7 @@ exports[`Regression > internal 43`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;samp&gt;version: v0&lt;/samp&gt;&lt;/p&gt;/n&lt;h2 id=\\"sections\\"&gt;&lt;a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Sections&lt;/span&gt;&lt;/a&gt;Sections&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/index.html\\"&gt;test-controller&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n&lt;h2 id=\\"specification\\"&gt;&lt;a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Specification&lt;/span&gt;&lt;/a&gt;Specification&lt;/h2&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;Open API&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"21\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-21\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-21\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-21.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":"OpenAPI definition"},"router":{"pathname":"openapi/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;samp&gt;version: v0&lt;/samp&gt;&lt;/p&gt;/n&lt;h2 id=\\"sections\\"&gt;&lt;a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Sections&lt;/span&gt;&lt;/a&gt;Sections&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/index.html\\"&gt;test-controller&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n&lt;h2 id=\\"specification\\"&gt;&lt;a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Specification&lt;/span&gt;&lt;/a&gt;Specification&lt;/h2&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;Open API&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"21\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-21\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-21\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-21.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"version: v0"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":"OpenAPI definition"},"router":{"pathname":"openapi/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1280,6 +1293,7 @@ exports[`Regression > internal 44`] = `
         <base href="../../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Simple get operation. тест новой верстки 3">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1291,7 +1305,7 @@ exports[`Regression > internal 44`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Simple get operation. тест новой верстки 3&lt;/h1&gt;/n&lt;p&gt;Defines a simple get operation with no inputs and a complex&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"16\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-16\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-16\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-16.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;200!!!!&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"A\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"string\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"42\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-42\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-42\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-42.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"openapi-table-parameter-name\\"&gt;/n&lt;p&gt;A&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Type:&lt;/strong&gt; string&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n/n&lt;/div&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":Deprecated_element\\" role=\\"dialog\\"&gt;&lt;p&gt;No longer supported, please use an alternative and newer version.&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3,"base":"../../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Simple get operation. тест новой верстки 3&lt;/h1&gt;/n&lt;p&gt;Defines a simple get operation with no inputs and a complex&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"16\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-16\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-16\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-16.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;200!!!!&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-clipboard\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"A\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"string\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;button class=\\"yfm-clipboard-button\\"&gt;/n            &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-clipboard-icon\\" data-animation=\\"42\\"&gt;/n                &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                    &lt;animate id=\\"visibileAnimation-42\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                    &lt;animate id=\\"hideAnimation-42\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-42.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                &lt;/path&gt;/n            &lt;/svg&gt;/n        &lt;/button&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"openapi-table-parameter-name\\"&gt;/n&lt;p&gt;A&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Type:&lt;/strong&gt; string&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n/n&lt;/div&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":Deprecated_element\\" role=\\"dialog\\"&gt;&lt;p&gt;No longer supported, please use an alternative and newer version.&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Simple get operation. тест новой верстки 3"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"]},"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1319,6 +1333,7 @@ exports[`Regression > internal 45`] = `
         <base href="../../" />
         <title>test-controller</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Endpoints">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1329,7 +1344,7 @@ exports[`Regression > internal 45`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 id=\\"endpoints\\"&gt;&lt;a href=\\"openapi/test-controller/index.html#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Endpoints&lt;/span&gt;&lt;/a&gt;Endpoints&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html\\"&gt;Simple get operation. тест новой верстки 3&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Endpoints","href":"openapi/test-controller/index.html#endpoints","level":2}],"title":"test-controller"},"router":{"pathname":"openapi/test-controller/index","depth":3,"base":"../../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"endpoints\\"&gt;&lt;a href=\\"openapi/test-controller/index.html#endpoints\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Endpoints&lt;/span&gt;&lt;/a&gt;Endpoints&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html\\"&gt;Simple get operation. тест новой верстки 3&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Endpoints"}]},"headings":[{"title":"Endpoints","href":"openapi/test-controller/index.html#endpoints","level":2}],"title":"test-controller"},"router":{"pathname":"openapi/test-controller/index","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1356,6 +1371,7 @@ exports[`Regression > internal 46`] = `
         <base href="../../" />
         <title>Item 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Item 1 text">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1366,7 +1382,7 @@ exports[`Regression > internal 46`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Item 1 text&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"images.html\\"&gt;Images&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Item 1"},"router":{"pathname":"sub/folder/item-1","depth":3,"base":"../../"},"lang":"ru","langs":["ru"]}
+            {"data":{"leading":false,"html":"&lt;p&gt;Item 1 text&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"images.html\\"&gt;Images&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Item 1 text"}]},"headings":[],"title":"Item 1"},"router":{"pathname":"sub/folder/item-1","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

@@ -70,7 +70,7 @@ export class EntryService {
         const {langs, analytics, interface: baseInterface} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
-        
+
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
@@ -104,7 +104,6 @@ export class EntryService {
             metadata = [],
             title: metaTitle,
             description: metaDescription,
-            interface: metaInterface,
             resources: metaResources,
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
@@ -114,10 +113,7 @@ export class EntryService {
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
         const metaCsp = metaResources?.csp;
 
-        const csp = [
-            ...(baseCsp || []),
-            ...(metaCsp || []),
-        ];
+        const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
         const html = staticContent
             ? render({
@@ -140,7 +136,7 @@ export class EntryService {
         }
 
         if (description) {
-            metadata.push({ name: 'description', content: description });
+            metadata.push({name: 'description', content: description});
         }
 
         metadata.map(template.addMeta);
@@ -196,9 +192,9 @@ function getTitle(tocTitle: string, dataTitle: string) {
 
 function getDescription(data: PageData) {
     if (!data.html) return '';
-        
+
     const match = data.html.match(/<\w+[^>]*>([\s\S]*?)<\/\w+>/);
-    
+
     if (match) {
         return match[1].replace(/<\/?[^>]+>/g, '').trim();
     }
