@@ -173,8 +173,8 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <base href="./" />
         <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="description" content="Lorem">
         <meta name="yfm" content="builder">
+        <meta name="description" content="Lorem">
         <meta name="description" content="Lorem">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -187,7 +187,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n&lt;hr class=\\"yfm-page__delimeter\\"&gt;&lt;p&gt;Lorem&lt;/p&gt;/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Lorem"},{"name":"yfm","content":"builder"},{"name":"description","content":"Lorem"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n&lt;hr class=\\"yfm-page__delimeter\\"&gt;&lt;p&gt;Lorem&lt;/p&gt;/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"},{"name":"description","content":"Lorem"},{"name":"description","content":"Lorem"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation"},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -206,7 +206,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
 </html>"
 `;
 
-exports[`Allow load custom resources > md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Lorem"},{"name":"yfm","content":"builder"},{"name":"description","content":"Lorem"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}"`;
+exports[`Allow load custom resources > md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"},{"name":"description","content":"Lorem"},{"name":"description","content":"Lorem"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"]},"title":"Documentation","toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}"`;
 
 exports[`Allow load custom resources > md2html single page with custom resources 8`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
 
