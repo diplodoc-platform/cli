@@ -109,7 +109,7 @@ export class EntryService {
         } = (state.data.meta as Meta) || {};
 
         const baseTitle = metaTitle || state.data.title;
-        const title =  getTitle(toc.title as string, baseTitle);
+        const title = getTitle(toc.title as string, baseTitle);
         const description = metaDescription || getDescription(state.data);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
         const metaCsp = metaResources?.csp;
@@ -140,6 +140,7 @@ export class EntryService {
             metadata.push({name: 'description', content: description});
         }
 
+        metadata.sort((a: Hash, b: Hash) => a.name.localeCompare(b.name));
         metadata.map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
