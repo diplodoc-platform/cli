@@ -67,8 +67,14 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: viewerInterface} = this.config;
+        const {langs, analytics, interface: baseInterface} = this.config;
         const lang = langFromPath(path, this.config);
+        const {interface: metaInterface} = data.meta;
+        
+        const viewerInterface = {
+            ...(baseInterface ?? {}),
+            ...(metaInterface ?? {}),
+        };
 
         const state: PageState = {
             data,
@@ -91,16 +97,27 @@ export class EntryService {
 
     async page(template: Template, state: PageState, toc: Toc) {
         const {staticContent} = this.config;
-        const title = getTitle(toc.title as string, state.data.title);
         const {
             style = [],
             script = [],
-            csp,
+            csp: baseCsp,
             metadata = [],
+            title: metaTitle,
+            description: metaDescription,
+            interface: metaInterface,
+            resources: metaResources,
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
+        const title = metaTitle || getTitle(toc.title as string, state.data.title);
+        const description = metaDescription || getDescription(state.data);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
+        const metaCsp = metaResources?.csp;
+
+        const csp = [
+            ...(baseCsp || []),
+            ...(metaCsp || []),
+        ];
 
         const html = staticContent
             ? render({
@@ -120,6 +137,10 @@ export class EntryService {
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
             csp.map(template.addCsp);
+        }
+
+        if (description) {
+            metadata.push({ name: 'description', content: description });
         }
 
         metadata.map(template.addMeta);
@@ -171,4 +192,16 @@ function getTitle(tocTitle: string, dataTitle: string) {
     }
 
     return tocTitle || dataTitle || '';
+}
+
+function getDescription(data: PageData) {
+    if (!data.html) return '';
+        
+    const match = data.html.match(/<\w+[^>]*>([\s\S]*?)<\/\w+>/);
+    
+    if (match) {
+        return match[1].replace(/<\/?[^>]+>/g, '').trim();
+    }
+
+    return '';
 }
