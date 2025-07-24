@@ -221,7 +221,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
-        <title>Documentation</title>
+        <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
         

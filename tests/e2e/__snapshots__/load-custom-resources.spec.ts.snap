@@ -48,7 +48,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title>Documentation</title>
+        <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
         
@@ -255,7 +255,7 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title>Documentation</title>
+        <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
         

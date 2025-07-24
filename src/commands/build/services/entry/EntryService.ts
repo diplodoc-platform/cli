@@ -108,7 +108,8 @@ export class EntryService {
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
-        const title = metaTitle || getTitle(toc.title as string, state.data.title);
+        const baseTitle = metaTitle || state.data.title;
+        const title =  getTitle(toc.title as string, baseTitle);
         const description = metaDescription || getDescription(state.data);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
         const metaCsp = metaResources?.csp;
@@ -135,7 +136,7 @@ export class EntryService {
             csp.map(template.addCsp);
         }
 
-        if (description) {
+        if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
             metadata.push({name: 'description', content: description});
         }
 
