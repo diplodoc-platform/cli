@@ -74,11 +74,11 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation</title>
+        <meta name="description" content="Lorem">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
-        <meta name="yfm-config" content="config test">
         <meta name="yfm" value="builder in page">
-        <meta name="description" content="Lorem">
+        <meta name="yfm-config" content="config test">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -89,7 +89,7 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in page"},{"name":"description","content":"Lorem"}]},"headings":[],"title":""},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Lorem"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","value":"builder in page"},{"name":"yfm-config","content":"config test"}]},"headings":[],"title":""},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -115,11 +115,11 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
+        <meta name="description" content="Lorem">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
-        <meta name="yfm-config" content="config test">
         <meta name="yfm" value="builder in config">
-        <meta name="description" content="Lorem">
+        <meta name="yfm-config" content="config test">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -130,7 +130,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"},{"name":"description","content":"Lorem"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Lorem"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","value":"builder in config"},{"name":"yfm-config","content":"config test"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

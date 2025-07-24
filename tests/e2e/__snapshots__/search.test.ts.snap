@@ -38,8 +38,8 @@ exports[`Local search > internal 1`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Header</title>
-        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="description" content="Content">
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -50,7 +50,7 @@ exports[`Local search > internal 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Content"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{},"search":{"enabled":true,"provider":"local","api":"_search/api.js","link":"_search/ru/index.html"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Content"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{},"search":{"enabled":true,"provider":"local","api":"_search/api.js","link":"_search/ru/index.html"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
