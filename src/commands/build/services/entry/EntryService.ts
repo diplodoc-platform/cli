@@ -103,14 +103,13 @@ export class EntryService {
             csp: baseCsp,
             metadata = [],
             title: metaTitle,
-            description: metaDescription,
+            description,
             resources: metaResources,
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
         const baseTitle = metaTitle || state.data.title;
         const title = getTitle(toc.title as string, baseTitle);
-        const description = metaDescription || getDescription(state.data);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
         const metaCsp = metaResources?.csp;
 
@@ -190,16 +189,4 @@ function getTitle(tocTitle: string, dataTitle: string) {
     }
 
     return tocTitle || dataTitle || '';
-}
-
-function getDescription(data: PageData) {
-    if (!data.html) return '';
-
-    const match = data.html.match(/<\w+[^>]*>([\s\S]*?)<\/\w+>/);
-
-    if (match) {
-        return match[1].replace(/<\/?[^>]+>/g, '').trim();
-    }
-
-    return '';
 }

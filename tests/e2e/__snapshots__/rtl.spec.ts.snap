@@ -73,7 +73,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation</title>
-        <meta name="description" content="תיעוד">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -85,7 +84,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"תיעוד"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"he","langs":["he"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;תיעוד&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"he","langs":["he"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -182,7 +181,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <meta name="description" content="توثيق">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -194,7 +192,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;توثيق&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"توثيق"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"ar/page","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;توثيق&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":""},"router":{"pathname":"ar/page","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -260,7 +258,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <meta name="description" content="Lorem">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder">
         
@@ -273,7 +270,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Lorem"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"headings":[],"title":""},"router":{"pathname":"en/page","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}]},"headings":[],"title":""},"router":{"pathname":"en/page","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

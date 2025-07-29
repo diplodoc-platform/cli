@@ -73,15 +73,16 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title>Documentation</title>
-        <meta name="description" content="Lorem">
+        <title>Page Title | Documentation</title>
+        <meta name="description" content="Some test description">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
-        <meta name="yfm" value="builder in page">
+        <meta name="yfm" content="builder in page">
         <meta name="yfm-config" content="config test">
+        <meta name="interface" content="[object Object]">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -89,7 +90,7 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Lorem"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","value":"builder in page"},{"name":"yfm-config","content":"config test"}]},"headings":[],"title":""},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Some test description"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","content":"builder in page"},{"name":"yfm-config","content":"config test"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -115,7 +116,6 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <meta name="description" content="Lorem">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm" value="builder in config">
@@ -130,7 +130,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"description","content":"Lorem"},{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","value":"builder in config"},{"name":"yfm-config","content":"config test"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm","value":"builder in config"},{"name":"yfm-config","content":"config test"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -190,6 +190,11 @@ metadata:
     content: config test
   - name: yfm
     content: builder in page
+title: Page Title
+description: Some test description
+interface:
+  toc: false
+  favicon-src: /favicon.ico
 ---
 
 Lorem"
