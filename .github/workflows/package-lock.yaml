@@ -24,7 +24,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
       - name: Install packages for project
-        run: npm i --package-lock-only
+        run: npm i --package-lock-only --save-exact
       - name: Create and publish commit
         env:
           GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
