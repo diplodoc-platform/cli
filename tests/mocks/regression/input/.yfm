@@ -1,0 +1,4 @@
+preprocess:
+  replaceAutotitle: true
+  replaceIncludes: false
+  replaceSvg: false
