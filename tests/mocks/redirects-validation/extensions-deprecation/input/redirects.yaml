@@ -1,0 +1,5 @@
+common:
+  - from: /foo.md
+    to: /bar.md
+  - from: /barbar.md
+    to: /baz.md
