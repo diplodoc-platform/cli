@@ -14,6 +14,22 @@ import {getHooks, withHooks} from './hooks';
 
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 
+const EXT_MATCH = /\.(md|yaml)/;
+
+const getRegexpFromRedirect = (match: string) => {
+    let result = match;
+
+    if (!match.startsWith('^')) {
+        result = `^${result}`;
+    }
+
+    if (!match.endsWith('$')) {
+        result = `${result}$`;
+    }
+
+    return new RegExp(result.replace(/\./g, '\\.'));
+};
+
 @withHooks
 export class RedirectsService {
     get files() {
@@ -44,7 +60,7 @@ export class RedirectsService {
 
             this.redirects = redirects;
         } catch (error) {
-            this.run.logger.error(error);
+            this.run.logger.error(`redirects.yaml parsing error: ${error}`);
             this.redirects = null;
         }
     }
@@ -75,8 +91,7 @@ export class RedirectsService {
     }
 
     private validate(redirects: Redirects) {
-        const getContext = (from: string, to: string) =>
-            ` [Context: \n- from: ${from}\n- to: ${to} ]`;
+        const getContext = (from: string, to: string) => `[Context: from: ${from} to: ${to}]`;
         const formatMessage = (message: string, section: string, from: string, to: string) =>
             `${REDIRECTS_FILENAME}#${section}: ${message} ${getContext(from, to)}`;
 
@@ -85,6 +100,31 @@ export class RedirectsService {
         for (const key of sections) {
             const section = redirects[key] as Redirect[];
             for (const {from, to} of section) {
+                if (EXT_MATCH.test(from) || EXT_MATCH.test(to)) {
+                    this.run.logger.warn(
+                        formatMessage(
+                            `Redirects with explicit extensions are deprecated. This may lead to an undefined behaviour in the future.`,
+                            key,
+                            from,
+                            to,
+                        ),
+                    );
+                }
+
+                try {
+                    getRegexpFromRedirect(from);
+                    getRegexpFromRedirect(to);
+                } catch (error) {
+                    this.run.logger.error(
+                        formatMessage(
+                            `Redirects configuration results in a non-valid regular expression.`,
+                            key,
+                            from,
+                            to,
+                        ),
+                    );
+                }
+
                 ok(
                     from && to,
                     formatMessage('One of the two parameters is missing', key, from, to),
