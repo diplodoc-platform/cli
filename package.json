@@ -128,7 +128,7 @@
     "slugify": "1.6.5",
     "svgo": "3.3.2",
     "ts-patch": "3.3.0",
-    "typescript": "5.4.5",
+    "typescript": "5.9.2",
     "typescript-transform-paths": "3.5.5",
     "uuid": "11.0.4",
     "vite": "^6.3.5",
