@@ -73,7 +73,7 @@ export class OutputMd {
                         const entry = await run.markdown.graph(vfile.path);
 
                         const processSteps = [
-                            async (content: string) => {
+                            async (content: string, entryPath: RelativePath) => {
                                 if (!replaceIncludes) {
                                     return content;
                                 }
@@ -81,18 +81,20 @@ export class OutputMd {
                                 const baseDir = path.resolve(run.input);
                                 return await processIncludes(
                                     content,
-                                    path.resolve(path.join(run.input), entry.path),
+                                    path.resolve(path.join(run.input), entryPath),
                                     run.vars,
                                     baseDir,
                                 );
                             },
-                            async (content: string) => {
+                            async (content: string, entryPath: RelativePath) => {
                                 if (!replaceAutotitle) {
                                     return content;
                                 }
 
-                                const baseDir = path.dirname(entry.path);
-                                return await processAutotitle(content, getTitle, baseDir);
+                                const assets = await run.markdown.assets(entryPath);
+                                const links = assets.filter(asset => asset.autotitle === true && asset.type === 'link');
+
+                                return await processAutotitle(content, getTitle, links);
                             },
                             async (content: string) => {
                                 if (!replaceSvg) {
@@ -106,7 +108,7 @@ export class OutputMd {
 
                         vfile.data = (await dump(entry)).content;
 
-                        async function getTitle(link: string, baseDir: string) {
+                        async function getTitle(link: string) {
                             if (link.startsWith('#')) {
                                 link = `${entry.path}${link}`;
                             }
@@ -116,7 +118,7 @@ export class OutputMd {
 
                             const [href] = link.split('#');
                             const titles = await run.markdown.titles(
-                                path.join(baseDir, href) as NormalizedPath,
+                                href as NormalizedPath,
                             );
                             for (const key in titles) {
                                 if (key === '#') {
@@ -141,7 +143,7 @@ export class OutputMd {
                             }
 
                             for (const step of processSteps) {
-                                content = await step(content);
+                                content = await step(content, entry.path);
                             }
 
                             const hash =

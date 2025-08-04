@@ -1,33 +1,21 @@
+import { AssetInfo } from "~/core/markdown/types";
+
 export async function processAutotitle(
     mdContent: string,
-    getTitle: (url: string, baseDir: string) => Promise<string>,
-    baseDirPath: string,
+    getTitle: (url: string) => Promise<string>,
+    links: AssetInfo[],
 ): Promise<string> {
-    // Ищем все ссылки с маркером {#T}
-    const linkRegex = /\[{#T}]\(([^)\s]+)\)/g;
-
-    // Собираем все совпадения с их позициями
-    const matches = [];
-    let match;
-    while ((match = linkRegex.exec(mdContent)) !== null) {
-        matches.push({
-            fullMatch: match[0],
-            url: match[1],
-            index: match.index,
-        });
-    }
-
-    // Заменяем совпадения с конца файла
     let result = mdContent;
-    for (let i = matches.length - 1; i >= 0; i--) {
-        const {fullMatch, url} = matches[i];
-        const newTitle = await getTitle(url, baseDirPath);
+
+    for (let i = links.length - 1; i >= 0; i--) {
+        const {path, hash, location, title} = links[i];
+        const url = (path != 'null' ? path : '') + (hash || '');
+        const newTitle = await getTitle(url);
         if (newTitle) {
-            const newText = `[${newTitle}](${url})`;
             result =
-                result.substring(0, matches[i].index) +
-                newText +
-                result.substring(matches[i].index + fullMatch.length);
+                result.substring(0, location[0] - title.length) +
+                newTitle +
+                result.substring(location[0]);
         }
     }
 

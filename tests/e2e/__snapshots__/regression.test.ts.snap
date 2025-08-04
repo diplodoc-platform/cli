@@ -126,7 +126,7 @@ default-var-value
 
 [Mermaid info](./mermaid.md#info)
 
-[](./latex.md)
+[Latex usage](./latex.md)
 
 [noext-link](./includes)
 
@@ -143,10 +143,10 @@ metadata:
 # Autotitles
 
 Empty title
-[](./1.md)
+[Title](./1.md)
 
 Empty subtitle
-[](./1.md#subtitle)
+[Subtitle](./1.md#subtitle)
 
 Special title
 [Title](./1.md)
@@ -155,7 +155,7 @@ Special subtitle
 [Subtitle](./1.md#subtitle)
 
 Empty local title
-[](#header)
+[Header](#header)
 
 Special local title
 [Header](#header)
