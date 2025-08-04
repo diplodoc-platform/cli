@@ -5,7 +5,7 @@ import {optimize} from 'svgo';
 function prefix() {
     const value = Math.floor(Math.random() * 1e9);
 
-    return 'r' + value.toString(16);
+    return 'rnd-' + value.toString(16);
 }
 
 export async function inlineSVGImages(markdown: string, baseDir: string) {
