@@ -1,4 +1,6 @@
 items:
   - name: Use merged
     href: ./merge.md
+  - name: Multitoc item
+    href: ../1.md
   - include: {path: ../merge-source/toc-m.yaml, mode: merge}
