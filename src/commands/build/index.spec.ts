@@ -342,7 +342,7 @@ describe('Build command', () => {
 
             test('should handle arg', '--vcs-token A', {
                 vcs: {
-                    enabled: true,
+                    enabled: false,
                     token: 'A',
                 },
             });
@@ -365,7 +365,7 @@ describe('Build command', () => {
                 preprocess: {
                     hashIncludes: true,
                     mergeIncludes: false,
-                    mergeAutotitles: true,
+                    mergeAutotitles: false,
                 },
             });
 

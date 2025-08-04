@@ -40,7 +40,7 @@ describe('GithubVcsConnector', () => {
 
     beforeEach(() => {
         (GitClient as Mock).mockImplementationOnce(function (config: GithubVcsConfig) {
-            git = new GitClient(config) as Mocked<GitClient>;
+            git = new GitClient(config, '/dev/null') as Mocked<GitClient>;
             return git;
         });
         (GithubClient as Mock).mockImplementationOnce((config: GithubVcsConfig) => {

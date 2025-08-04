@@ -70,7 +70,9 @@ export function mockRun(run: RunSpy, data: MockData) {
     if (data.glob === expect.anything()) {
         when(run.glob).calledWith(expect.anything(), expect.anything()).thenResolve([]);
     } else {
-        for (const [match, result] of Object.entries(data.glob || {})) {
+        for (const [match, result] of Object.entries(
+            (data.glob || {}) as Record<string, NormalizedPath[] | Error>,
+        )) {
             if (result instanceof Error) {
                 when(run.glob).calledWith(match, expect.anything()).thenReject(result);
             } else {
@@ -82,7 +84,9 @@ export function mockRun(run: RunSpy, data: MockData) {
     if (data.read === expect.anything()) {
         when(run.read).calledWith(expect.anything()).thenResolve('');
     } else {
-        for (const [file, result] of Object.entries(data.read || {})) {
+        for (const [file, result] of Object.entries(
+            (data.read || {}) as Record<string, string | Error>,
+        )) {
             if (result instanceof Error) {
                 when(run.read).calledWith(join(run.input, file)).thenReject(result);
             } else {
