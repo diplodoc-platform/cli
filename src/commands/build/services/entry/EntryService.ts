@@ -67,8 +67,14 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: viewerInterface} = this.config;
+        const {langs, analytics, interface: baseInterface} = this.config;
         const lang = langFromPath(path, this.config);
+        const {interface: metaInterface} = data.meta;
+
+        const viewerInterface = {
+            ...(baseInterface ?? {}),
+            ...(metaInterface ?? {}),
+        };
 
         const state: PageState = {
             data,
@@ -91,16 +97,23 @@ export class EntryService {
 
     async page(template: Template, state: PageState, toc: Toc) {
         const {staticContent} = this.config;
-        const title = getTitle(toc.title as string, state.data.title);
         const {
             style = [],
             script = [],
-            csp,
+            csp: baseCsp,
             metadata = [],
+            title: metaTitle,
+            description,
+            resources: metaResources,
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
+        const baseTitle = metaTitle || state.data.title;
+        const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
+        const metaCsp = metaResources?.csp;
+
+        const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
         const html = staticContent
             ? render({
@@ -122,6 +135,11 @@ export class EntryService {
             csp.map(template.addCsp);
         }
 
+        if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
+            metadata.push({name: 'description', content: description});
+        }
+
+        metadata.sort((a: Hash, b: Hash) => a.name.localeCompare(b.name));
         metadata.map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
