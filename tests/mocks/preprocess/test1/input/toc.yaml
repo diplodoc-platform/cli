@@ -1,0 +1,16 @@
+items:
+  - name: Md item with not_var syntax
+    href: ./1.md
+  - name: Md item named without extension
+    href: ./1
+  - include: {path: toc-i.yaml}
+  - include: {path: sub/toc.yaml, mode: link}
+  - href: ./mermaid
+  - name: '{#T}'
+    href: ./latex
+  - name: Images
+    href: ./images
+  - name: Autotitle
+    href: ./autotitle
+  - name: includes
+    href: ./includes

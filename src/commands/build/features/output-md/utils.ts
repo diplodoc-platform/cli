@@ -1,4 +1,4 @@
-import type {Collect, EntryGraphNode} from '~/core/markdown';
+import type {AssetInfo, Collect, EntryGraph, EntryGraphNode, Location} from '~/core/markdown';
 
 import {extname} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -6,13 +6,23 @@ import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
-import {replaceAll, setExt} from '~/core/utils';
+import {setExt} from '~/core/utils';
 
 type Plugin = {
     collect?: Collect;
 };
 
-type HashedGraphNode = EntryGraphNode & {
+export type StepFunction = {
+    (sheduler: Sheduler, entry: EntryGraph): Promise<void>;
+};
+export type StepActor = {
+    (content: string, context: StepContext): Promise<string>;
+};
+export type StepContext = {
+    dep?: HashedGraphNode;
+    link?: AssetInfo;
+};
+export type HashedGraphNode = EntryGraphNode & {
     link: string;
     hash: string;
 };
@@ -53,29 +63,12 @@ export function getCustomCollectPlugins(): Collect[] {
     }
 }
 
-export function replaceDeps(content: string, deps: HashedGraphNode[]) {
-    deps = deps.slice();
-
-    while (deps.length) {
-        const dep = deps.pop() as HashedGraphNode;
-
-        const rehashed = rehashInclude(dep);
-        content = content.slice(0, dep.location[0]) + rehashed + content.slice(dep.location[1]);
-    }
-
-    return content;
-}
-
 export function rehashContent(content: string) {
     const hash = createHash('sha256');
 
     hash.update(content);
 
     return hash.digest('hex').slice(0, 12);
-}
-
-export function rehashInclude(include: HashedGraphNode) {
-    return replaceAll(include.match, include.link, signlink(include.link, include.hash));
 }
 
 export function signlink(link: string, sign: string) {
@@ -88,4 +81,35 @@ export function signlink(link: string, sign: string) {
     const name = setExt(path, '');
 
     return `${name}-${sign}${ext}${hash ? '#' + hash : ''}`;
+}
+
+export class Sheduler {
+    private entries: Array<[Location, StepActor, StepContext]> = [];
+    private steps: Array<StepFunction> = [];
+
+    add(location: Location, actor: StepActor, context: StepContext): void {
+        this.entries.push([location, actor, context]);
+    }
+
+    addStep(step: StepFunction): void {
+        this.steps.push(step);
+    }
+
+    async shedule(entry: EntryGraph): Promise<void> {
+        for (const step of this.steps) {
+            await step(this, entry);
+        }
+        this.entries.sort((a, b) => b[0][0] - a[0][0]);
+    }
+
+    async process(content: string): Promise<string> {
+        if (this.entries.length === 0) {
+            return content;
+        }
+
+        for (const [_, actor, context] of this.entries) {
+            content = await actor(content, context);
+        }
+        return content;
+    }
 }

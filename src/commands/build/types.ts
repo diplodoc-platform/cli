@@ -5,8 +5,8 @@ import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './feat
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
+import type {OutputMdArgs, OutputMdConfig, PreprocessConfig} from './features/output-md';
 import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
-import type {OutputMdArgs, OutputMdConfig} from './features/output-md';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
@@ -78,7 +78,8 @@ export type BuildRawConfig = BaseArgs &
     ChangelogsConfig &
     SearchRawConfig &
     LegacyRawConfig &
-    CustomResourcesConfig;
+    CustomResourcesConfig &
+    PreprocessConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -93,7 +94,8 @@ export type BuildConfig = Config<
         ChangelogsConfig &
         SearchConfig &
         LegacyConfig &
-        CustomResourcesConfig
+        CustomResourcesConfig &
+        PreprocessConfig
 >;
 
 export type EntryInfo = Partial<PageData>;
