@@ -9,6 +9,8 @@ items:
     href: ./1
   - name: Item with empty href
     href:
+  - name: Multitoc item
+    href: ./merge/merged.md
   - include: {path: toc-i.yaml}
   - include: {path: sub/toc.yaml, mode: link}
   - href: ./mermaid

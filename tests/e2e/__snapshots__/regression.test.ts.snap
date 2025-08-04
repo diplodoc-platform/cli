@@ -344,6 +344,7 @@ exports[`Regression > internal 18`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: merge-source/merged.md
 ---
 # Merged item
 
@@ -355,6 +356,8 @@ exports[`Regression > internal 19`] = `
 "items:
   - name: Use merged
     href: merge.md
+  - name: Multitoc item
+    href: ../1.md
   - name: Merged item
     href: merged.md
 path: merge/toc.yaml
@@ -502,7 +505,7 @@ Defines a simple get operation with no inputs and a complex
 
 <div class="openapi__request">
 
-GET {.openapi__method} 
+GET {.openapi__method}
 \`\`\`text translate=no
 http://localhost:8080/test
 \`\`\`
@@ -543,15 +546,15 @@ Generated server url
 
 
 #|||
- **Name** 
+ **Name**
 |
- **Description** 
+ **Description**
 ||
 
 ||
- A {.openapi-table-parameter-name} 
+ A {.openapi-table-parameter-name}
 |
- **Type:** string 
+ **Type:** string
 |||#
 
 </div>
@@ -616,6 +619,8 @@ exports[`Regression > internal 26`] = `
   - name: Md item named without extension
     href: 1.md
   - name: Item with empty href
+  - name: Multitoc item
+    href: merge/merged.md
   - name: Included Item
     href: included-item.md
   - name: Named include (items is Object here - this is not an error)
@@ -675,10 +680,10 @@ exports[`Regression > internal 28`] = `
         <base href="./" />
         <title>Title</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -698,7 +703,7 @@ exports[`Regression > internal 28`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -712,10 +717,10 @@ exports[`Regression > internal 29`] = `
         <base href="./" />
         <title>Autotitles</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -735,7 +740,7 @@ exports[`Regression > internal 29`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -749,19 +754,19 @@ exports[`Regression > internal 30`] = `
         <base href="./" />
         <title>Redirect to d.md</title>
         <meta http-equiv="refresh" content="0; url=d.md">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
+
         <script type="application/javascript">
             window.location.replace("d.md");
         </script>
-        
+
     </head>
     <body class="g-root g-root_theme_light">
         If you are not redirected automatically, follow this <a href="d.md">link</a>.
-        
-        
-        
+
+
+
     </body>
 </html>"
 `;
@@ -775,10 +780,10 @@ exports[`Regression > internal 31`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -798,7 +803,7 @@ exports[`Regression > internal 31`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -812,10 +817,10 @@ exports[`Regression > internal 32`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -835,7 +840,7 @@ exports[`Regression > internal 32`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -849,10 +854,10 @@ exports[`Regression > internal 33`] = `
         <base href="../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -872,7 +877,7 @@ exports[`Regression > internal 33`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -886,10 +891,10 @@ exports[`Regression > internal 34`] = `
         <base href="../../" />
         <title>Sub note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -909,7 +914,7 @@ exports[`Regression > internal 34`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -923,10 +928,10 @@ exports[`Regression > internal 35`] = `
         <base href="../../" />
         <title>Sub note 2</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -946,7 +951,7 @@ exports[`Regression > internal 35`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -960,10 +965,10 @@ exports[`Regression > internal 36`] = `
         <base href="./" />
         <title>Images</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -983,7 +988,7 @@ exports[`Regression > internal 36`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -997,10 +1002,10 @@ exports[`Regression > internal 37`] = `
         <base href="./" />
         <title>Included item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1020,7 +1025,7 @@ exports[`Regression > internal 37`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1034,10 +1039,10 @@ exports[`Regression > internal 38`] = `
         <base href="./" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1057,7 +1062,7 @@ exports[`Regression > internal 38`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1071,10 +1076,10 @@ exports[`Regression > internal 39`] = `
         <base href="./" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1094,7 +1099,7 @@ exports[`Regression > internal 39`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1108,10 +1113,10 @@ exports[`Regression > internal 40`] = `
         <base href="./" />
         <title>Latex usage</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/latex-extension.css"/>
@@ -1133,7 +1138,7 @@ exports[`Regression > internal 40`] = `
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_bundle/latex-extension.js"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1147,10 +1152,10 @@ exports[`Regression > internal 41`] = `
         <base href="../" />
         <title>Should use merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1170,7 +1175,7 @@ exports[`Regression > internal 41`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1184,17 +1189,18 @@ exports[`Regression > internal 42`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+        <meta name="sourcePath" content="merge-source/merged.md">
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1207,12 +1213,12 @@ exports[`Regression > internal 42`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 41`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
 exports[`Regression > internal 44`] = `
 "<!DOCTYPE html>
@@ -1223,10 +1229,10 @@ exports[`Regression > internal 44`] = `
         <base href="./" />
         <title>Mermaid usage</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1247,7 +1253,7 @@ exports[`Regression > internal 44`] = `
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_bundle/mermaid-extension.js"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1261,10 +1267,10 @@ exports[`Regression > internal 45`] = `
         <base href="../" />
         <title>OpenAPI definition</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
@@ -1286,7 +1292,7 @@ exports[`Regression > internal 45`] = `
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1300,10 +1306,10 @@ exports[`Regression > internal 46`] = `
         <base href="../../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
@@ -1325,7 +1331,7 @@ exports[`Regression > internal 46`] = `
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1339,10 +1345,10 @@ exports[`Regression > internal 47`] = `
         <base href="../../" />
         <title>test-controller</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1362,7 +1368,7 @@ exports[`Regression > internal 47`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
@@ -1376,10 +1382,10 @@ exports[`Regression > internal 48`] = `
         <base href="../../" />
         <title>Item 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
+
+
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
@@ -1399,9 +1405,9 @@ exports[`Regression > internal 48`] = `
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
+
     </body>
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 47`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

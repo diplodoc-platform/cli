@@ -1,7 +1,8 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`Generic includer > should use autotitle option 1`] = `
-"items:
+"path: toc.yaml
+items:
   - name: index
     href: index.md
   - name: test
@@ -26,7 +27,8 @@ exports[`Generic includer > should use autotitle option 1`] = `
 `;
 
 exports[`Generic includer > should use top path as input root, if input is not specified 1`] = `
-"items:
+"path: toc.yaml
+items:
   - href: index.md
   - href: test.md
   - name: sub
@@ -45,7 +47,8 @@ exports[`Generic includer > should use top path as input root, if input is not s
 `;
 
 exports[`Generic includer > should work 1`] = `
-"items:
+"path: toc.yaml
+items:
   - href: index.md
   - href: test.md
   - name: sub
