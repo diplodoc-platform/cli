@@ -354,6 +354,79 @@ describe('Build command', () => {
             );
         });
 
+        describe('preprocess', () => {
+            test('should handle default', '', {
+                preprocess: {
+                    hashIncludes: true,
+                    mergeIncludes: false,
+                    mergeAutotitles: true,
+                },
+            });
+
+            test('should handle arg hashIncludes', '--hash-includes', {
+                preprocess: {
+                    hashIncludes: true,
+                },
+            });
+
+            test('should handle arg mergeIncludes', '--merge-includes', {
+                preprocess: {
+                    mergeIncludes: true,
+                },
+            });
+
+            test('should handle arg mergeAutotitles', '--merge-autotitles', {
+                preprocess: {
+                    mergeAutotitles: true,
+                },
+            });
+
+            test(
+                'should handle mergeAutotitles=false',
+                '',
+                {
+                    preprocess: {
+                        mergeAutotitles: false,
+                    },
+                },
+                {
+                    preprocess: {
+                        mergeAutotitles: false,
+                    },
+                },
+            );
+
+            test(
+                'should handle mergeIncludes=true',
+                '',
+                {
+                    preprocess: {
+                        mergeIncludes: true,
+                    },
+                },
+                {
+                    preprocess: {
+                        mergeIncludes: true,
+                    },
+                },
+            );
+
+            test(
+                'should handle mergeIncludes=false',
+                '',
+                {
+                    preprocess: {
+                        mergeIncludes: false,
+                    },
+                },
+                {
+                    preprocess: {
+                        mergeIncludes: false,
+                    },
+                },
+            );
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('removeHiddenTocItems', '--remove-hidden-toc-items', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);

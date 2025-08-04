@@ -13,17 +13,26 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
-import {getCustomCollectPlugins, rehashContent, replaceDeps, signlink} from './utils';
+import {Sheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
+
 import {options} from './config';
+import {rehashIncludes} from './plugins/resolve-deps';
+import {mergeAutotitles} from './plugins/links-autotitles';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
     mergeIncludes: boolean;
+    mergeAutotitles: boolean;
 };
 
 export type OutputMdConfig = {
     hashIncludes: boolean;
     mergeIncludes: boolean;
+    mergeAutotitles: boolean;
+};
+
+export type PreprocessConfig = {
+    preprocess: Partial<OutputMdConfig>;
 };
 
 export class OutputMd {
@@ -31,12 +40,26 @@ export class OutputMd {
         getBaseHooks(program).Command.tap('Build.Md', (command: Command) => {
             command.addOption(options.hashIncludes);
             command.addOption(options.mergeIncludes);
+            command.addOption(options.mergeAutotitles);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
-            config.hashIncludes = defined('hashIncludes', args, config, {hashIncludes: true});
-            config.mergeIncludes = defined('mergeIncludes', args, config, {mergeIncludes: false});
-            return config;
+            const hashIncludes = defined('hashIncludes', args, config.preprocess || {}, {
+                hashIncludes: true,
+            });
+            const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
+                mergeIncludes: false,
+            });
+            const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
+                mergeAutotitles: true,
+            });
+            return Object.assign(config, {
+                preprocess: {
+                    hashIncludes,
+                    mergeIncludes,
+                    mergeAutotitles,
+                },
+            });
         });
 
         getBuildHooks(program)
@@ -53,8 +76,10 @@ export class OutputMd {
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     {name: 'Build.Md', stage: -Infinity},
                     async (vfile) => {
-                        const {hashIncludes} = run.config;
                         const processed = new Map();
+                        const titles = new Map();
+
+                        const config = run.config.preprocess;
                         const entry = await run.markdown.graph(vfile.path);
 
                         vfile.data = (await dump(entry)).content;
@@ -65,8 +90,21 @@ export class OutputMd {
                             }
 
                             const deps = await all(entry.deps.map((dep) => dump(dep, true)));
-                            const content = replaceDeps(entry.content, deps);
-                            const hash = hashIncludes ? rehashContent(content) : '';
+                            let content = entry.content;
+                            const sheduler = new Sheduler();
+
+                            if (!config.mergeIncludes && config.hashIncludes) {
+                                sheduler.addStep(rehashIncludes(run, deps));
+                            }
+
+                            if (config.mergeAutotitles) {
+                                sheduler.addStep(mergeAutotitles(run, titles));
+                            }
+
+                            await sheduler.shedule(entry);
+                            content = await sheduler.process(content);
+
+                            const hash = config.hashIncludes ? rehashContent(content) : '';
                             const link = signlink(entry.path, hash);
                             const hashed = {...entry, content, hash};
 

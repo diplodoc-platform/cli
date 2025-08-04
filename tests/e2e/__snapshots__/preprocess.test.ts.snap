@@ -1,0 +1,497 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
+"[
+  ".yfm",
+  "1.md",
+  "_assets/1.png",
+  "autotitle.md",
+  "images.md",
+  "included-item.md",
+  "includes.md",
+  "includes/deep-hash.md",
+  "includes/sub/user-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
+  "latex.md",
+  "mermaid.md",
+  "sub/folder/item-1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 1`] = `
+"preprocess:
+  mergeAutotitles: false
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[{#T}](./mermaid.md)
+
+[{#T}](./mermaid.md#info)
+
+[](./latex.md)
+
+[noext-link](./includes)
+
+{% include [user](includes/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Autotitles
+
+Empty title
+[](./1.md)
+
+Empty subtitle
+[](./1.md#subtitle)
+
+Special title
+[{#T}](./1.md)
+
+Special subtitle
+[{#T}](./1.md#subtitle)
+
+Empty local title
+[](#header)
+
+Special local title
+[{#T}](#header)
+
+## Header {#header}
+
+Content
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Images
+
+![simple image](_assets/1.png)
+
+
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+Text
+
+{% include [user](includes/user-hash.md) %}
+
+{% include [test](includes/test-hash.md) %}
+
+Link after include
+[{#T}](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
+
+Link after include
+[{#T}](./1.md#subtitle)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 7`] = `
+"{% include [user](./sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 8`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 9`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 10`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 11`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Item 1
+
+Item 1 text
+
+[{#T}](../../images.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
+"items:
+  - name: Md item with not_var syntax
+    href: 1.md
+  - name: Md item named without extension
+    href: 1.md
+  - name: Included Item
+    href: included-item.md
+  - name: Named include (items is Object here - this is not an error)
+    items:
+      - name: Item 1
+        href: sub/folder/item-1.md
+  - href: mermaid.md
+    name: Mermaid usage
+  - name: Latex usage
+    href: latex.md
+  - name: Images
+    href: images.md
+  - name: Autotitle
+    href: autotitle.md
+  - name: includes
+    href: includes.md
+path: toc.yaml
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
+"[
+  ".yfm",
+  "1.md",
+  "_assets/1.png",
+  "autotitle.md",
+  "images.md",
+  "included-item.md",
+  "includes.md",
+  "includes/deep-hash.md",
+  "includes/sub/user-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
+  "latex.md",
+  "mermaid.md",
+  "sub/folder/item-1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 1`] = `
+"preprocess:
+  mergeAutotitles: true
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](./mermaid.md)
+
+[Mermaid info](./mermaid.md#info)
+
+[Latex usage](./latex.md)
+
+[noext-link](./includes)
+
+{% include [user](includes/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Autotitles
+
+Empty title
+[Title](./1.md)
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+## Header {#header}
+
+Content
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Images
+
+![simple image](_assets/1.png)
+
+
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+Text
+
+{% include [user](includes/user-hash.md) %}
+
+{% include [test](includes/test-hash.md) %}
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
+
+Link after include
+[Subtitle](./1.md#subtitle)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 7`] = `
+"{% include [user](./sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 9`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 10`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 11`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Item 1
+
+Item 1 text
+
+[Images](../../images.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
+"items:
+  - name: Md item with not_var syntax
+    href: 1.md
+  - name: Md item named without extension
+    href: 1.md
+  - name: Included Item
+    href: included-item.md
+  - name: Named include (items is Object here - this is not an error)
+    items:
+      - name: Item 1
+        href: sub/folder/item-1.md
+  - href: mermaid.md
+    name: Mermaid usage
+  - name: Latex usage
+    href: latex.md
+  - name: Images
+    href: images.md
+  - name: Autotitle
+    href: autotitle.md
+  - name: includes
+    href: includes.md
+path: toc.yaml
+"
+`;

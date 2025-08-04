@@ -12,7 +12,14 @@ const mergeIncludes = option({
     desc: 'Merge includes syntax during md to md processing.',
 });
 
+const mergeAutotitles = option({
+    flags: '--merge-autotitles',
+    hidden: true,
+    desc: 'Merge autotitles syntax during md to md processing.',
+});
+
 export const options = {
     hashIncludes,
     mergeIncludes,
+    mergeAutotitles,
 };
