@@ -16,7 +16,7 @@ type Options = MarkdownItPluginOpts & {
 function prefix() {
     const value = Math.floor(Math.random() * 1e9);
 
-    return 'r' + value.toString(16);
+    return 'rnd-' + value.toString(16);
 }
 
 function convertSvg(file: NormalizedPath, state: StateCore, {assets}: Options) {

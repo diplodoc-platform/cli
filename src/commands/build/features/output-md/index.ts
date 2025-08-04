@@ -3,7 +3,7 @@ import type {Command} from '~/core/config';
 import type {VFile} from '~/core/utils';
 import type {EntryGraph} from '~/core/markdown';
 
-import {join} from 'node:path';
+import path, {join} from 'node:path';
 import {dump} from 'js-yaml';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -14,7 +14,17 @@ import {configPath, defined} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
 import {getCustomCollectPlugins, rehashContent, replaceDeps, signlink} from './utils';
+
 import {options} from './config';
+import {processAutotitle} from './plugins/links-autotitles';
+import {processIncludes} from './plugins/includes';
+import {inlineSVGImages} from './plugins/svg-inline';
+
+const PREPROCESS_DEFAULTS = {
+    replaceAutotitle: true,
+    replaceIncludes: false,
+    replaceSvg: false,
+};
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
@@ -55,18 +65,87 @@ export class OutputMd {
                     async (vfile) => {
                         const {hashIncludes} = run.config;
                         const processed = new Map();
+                        const titleList = new Map();
+                        const {replaceAutotitle, replaceIncludes, replaceSvg} = {
+                            ...PREPROCESS_DEFAULTS,
+                            ...(run.config.preprocess || {}),
+                        };
                         const entry = await run.markdown.graph(vfile.path);
 
+                        const processSteps = [
+                            async (content: string) => {
+                                if (!replaceIncludes) {
+                                    return content;
+                                }
+
+                                const baseDir = path.resolve(run.input);
+                                return await processIncludes(
+                                    content,
+                                    path.resolve(path.join(run.input), entry.path),
+                                    run.vars,
+                                    baseDir,
+                                );
+                            },
+                            async (content: string) => {
+                                if (!replaceAutotitle) {
+                                    return content;
+                                }
+
+                                const baseDir = path.dirname(entry.path);
+                                return await processAutotitle(content, getTitle, baseDir);
+                            },
+                            async (content: string) => {
+                                if (!replaceSvg) {
+                                    return content;
+                                }
+
+                                const baseDir = path.resolve(run.input); //path.dirname(entry.path);
+                                return await inlineSVGImages(content, baseDir);
+                            },
+                        ];
+
                         vfile.data = (await dump(entry)).content;
+
+                        async function getTitle(link: string, baseDir: string) {
+                            if (link.startsWith('#')) {
+                                link = `${entry.path}${link}`;
+                            }
+                            if (titleList.has(link)) {
+                                return titleList.get(link);
+                            }
+
+                            const [href] = link.split('#');
+                            const titles = await run.markdown.titles(
+                                path.join(baseDir, href) as NormalizedPath,
+                            );
+                            for (const key in titles) {
+                                if (key === '#') {
+                                    titleList.set(href, titles[key]);
+                                } else {
+                                    titleList.set(href + key, titles[key]);
+                                }
+                            }
+
+                            return titleList.get(link);
+                        }
 
                         async function dump(entry: EntryGraph, write = false) {
                             if (processed.has(entry.path)) {
                                 return processed.get(entry.path);
                             }
 
-                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
-                            const content = replaceDeps(entry.content, deps);
-                            const hash = hashIncludes ? rehashContent(content) : '';
+                            let content = entry.content;
+                            if (!replaceIncludes) {
+                                const deps = await all(entry.deps.map((dep) => dump(dep, true)));
+                                content = replaceDeps(content, deps);
+                            }
+
+                            for (const step of processSteps) {
+                                content = await step(content);
+                            }
+
+                            const hash =
+                                hashIncludes && !replaceIncludes ? rehashContent(content) : '';
                             const link = signlink(entry.path, hash);
                             const hashed = {...entry, content, hash};
 
