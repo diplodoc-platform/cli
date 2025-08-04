@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.1.1](https://github.com/diplodoc-platform/cli/compare/v5.1.0...v5.1.1) (2025-07-31)
+
+
+### Bug Fixes
+
+* build_doc fixed undici version ([6dfd11c](https://github.com/diplodoc-platform/cli/commit/6dfd11c914755fe84836394a2ba417e2d109759b))
+
+
+### Dependency update
+
+* Update @diplodoc/client to 3.8.2 ([5aaee7c](https://github.com/diplodoc-platform/cli/commit/5aaee7cdbeda6c03298faf8094c12daed62f57a1))
+* Update @diplodoc/transform to 4.59.1 ([37e19b1](https://github.com/diplodoc-platform/cli/commit/37e19b17245d13989248451c3484492448a21177))
+* Update @diplodoc/transform to 4.60.0 ([#1288](https://github.com/diplodoc-platform/cli/issues/1288)) ([174bf5d](https://github.com/diplodoc-platform/cli/commit/174bf5d17c24dc1b01c62201200db63ad6cc9d66))
+
 ## [5.1.0](https://github.com/diplodoc-platform/cli/compare/v5.0.12...v5.1.0) (2025-07-15)
 
 
