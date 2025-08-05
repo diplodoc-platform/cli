@@ -1,5 +1,6 @@
 import type {RawLintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
+import type {IncludeInfo} from '~/core/markdown';
 import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
@@ -9,7 +10,7 @@ import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
 import {flat, isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
