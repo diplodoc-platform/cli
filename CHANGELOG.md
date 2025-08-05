@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.2.1](https://github.com/diplodoc-platform/cli/compare/v5.2.0...v5.2.1) (2025-08-05)
+
+
+### Dependency update
+
+* CI release trigger ([ab17894](https://github.com/diplodoc-platform/cli/commit/ab17894d7acddef2e3d809f702e3dd59527a26ad))
+
 ## [5.2.0](https://github.com/diplodoc-platform/cli/compare/v5.1.1...v5.2.0) (2025-08-05)
 
 
