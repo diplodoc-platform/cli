@@ -2,6 +2,7 @@ import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
 import type {Build, EntryData} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
+import type {IncludeInfo} from '~/core/markdown';
 import type {PageData} from '../../services/entry';
 
 import {basename, dirname, extname, join} from 'node:path';
@@ -11,7 +12,7 @@ import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
 import {Template} from '~/core/template';
-import {fallbackLang, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
+import {fallbackLang, flat, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
@@ -146,7 +147,7 @@ export class OutputHtml {
 
                 // Transform markdown to html
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Html', async (vfile) => {
-                    const deps = await run.markdown.deps(vfile.path);
+                    const deps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const assets = await run.markdown.assets(vfile.path);
                     const [result, env] = await run.transform(vfile.path, vfile.data, {
                         deps,

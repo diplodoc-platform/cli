@@ -1,7 +1,8 @@
 import type {Build, Run} from '~/commands/build';
+import type {IncludeInfo} from '~/core/markdown';
 import type {Command} from '~/core/config';
 import type {VFile} from '~/core/utils';
-import type {EntryGraph} from '~/core/markdown';
+import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
@@ -54,41 +55,48 @@ export class OutputMd {
                     {name: 'Build.Md', stage: -Infinity},
                     async (vfile) => {
                         const {hashIncludes} = run.config;
-                        const processed = new Map();
-                        const entry = await run.markdown.graph(vfile.path);
+                        const graph = await run.markdown.deps(vfile.path);
 
-                        vfile.data = (await dump(entry)).content;
+                        vfile.data = (await dump([vfile, graph])).content;
 
-                        async function dump(entry: EntryGraph, write = false) {
-                            if (processed.has(entry.path)) {
-                                return processed.get(entry.path);
-                            }
+                        type Entry = [{path: NormalizedPath}, Dep[]];
+                        type Dep = [IncludeInfo, Dep[]];
 
-                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
-                            const content = replaceDeps(entry.content, deps);
+                        async function dump(
+                            [info, deps]: Dep | Entry,
+                            from?: NormalizedPath,
+                            write = false,
+                        ) {
+                            const content = replaceDeps(
+                                await run.markdown.load(info.path, from),
+                                await all(
+                                    deps.map((dep) => {
+                                        if (Array.isArray(dep)) {
+                                            return dump(dep as Dep, from || info.path, true);
+                                        } else {
+                                            return dump([dep, []], from || info.path, true);
+                                        }
+                                    }),
+                                ),
+                            );
                             const hash = hashIncludes ? rehashContent(content) : '';
-                            const link = signlink(entry.path, hash);
-                            const hashed = {...entry, content, hash};
-
-                            processed.set(entry.path, hashed);
+                            const link = signlink(info.path, hash);
+                            const hashed = {...info, content, hash};
 
                             if (copiedIncludes.has(link) || !write) {
-                                return hashed;
+                                return hashed as HashedGraphNode;
                             }
                             copiedIncludes.add(link);
 
                             try {
-                                run.logger.copy(
-                                    join(run.input, entry.path),
-                                    join(run.output, link),
-                                );
+                                run.logger.copy(join(run.input, info.path), join(run.output, link));
 
                                 await run.write(join(run.output, link), content, true);
                             } catch (error) {
-                                run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
+                                run.logger.warn(`Unable to copy dependency ${info.path}.`, error);
                             }
 
-                            return hashed;
+                            return hashed as HashedGraphNode;
                         }
                     },
                 );
