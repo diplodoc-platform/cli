@@ -1,5 +1,6 @@
 import type {RawLintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
+import type {IncludeInfo} from '~/core/markdown';
 import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
@@ -11,7 +12,7 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
-import {isExternalHref} from '~/core/utils';
+import {flat, isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
 
@@ -108,7 +109,7 @@ export class Lint {
                         return;
                     }
 
-                    const deps = await run.markdown.deps(vfile.path);
+                    const deps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const assets = await run.markdown.assets(vfile.path);
                     const errors = await run.lint(vfile.path, vfile.data, {deps, assets});
 

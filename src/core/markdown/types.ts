@@ -39,14 +39,7 @@ export type HeadingInfo = {
     location: Location;
 };
 
-export type EntryGraph = {
-    path: NormalizedPath;
-    content: string;
-    deps: EntryGraphNode[];
+export type EntryInfo = {
+    title: string;
+    headings: string[];
 };
-
-export type EntryGraphNode = {
-    path: NormalizedPath;
-    content: string;
-    deps: EntryGraphNode[];
-} & IncludeInfo;
