@@ -1,5 +1,6 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {TocService} from '~/core/toc';
+import type {MetaService} from '~/core/meta';
 import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
 
 import {memoize, normalizePath} from '~/core/utils';
@@ -33,14 +34,9 @@ export type VcsServiceConfig = {
     } & Hash;
 };
 
-type Meta = {
-    author?: string | Contributor;
-    sourcePath?: string;
-    vcsPath?: string;
-};
-
 type Run = BaseRun<VcsServiceConfig> & {
     toc: TocService;
+    meta: MetaService;
 };
 
 @withHooks
@@ -75,17 +71,16 @@ export class VcsService implements VcsConnector {
         this.connector.setData(data);
     }
 
-    async metadata(path: RelativePath, meta: Meta, deps: NormalizedPath[] = []) {
+    async metadata(path: RelativePath, deps: NormalizedPath[] = []) {
         const file = normalizePath(path);
+        const meta = this.run.meta.get(file);
         const addVCSPath = Boolean(this.config.vcs.remoteBase);
 
         const result: VcsMetadata = {};
 
         // TODO: resolve meta.vcsPath || meta.sourcePath on server side
         if (addVCSPath) {
-            const sourcePath = normalizePath(
-                meta.vcsPath || meta.sourcePath || this.realpath(file),
-            );
+            const sourcePath = normalizePath(this.realpath(file));
             result.vcsPath = sourcePath;
             result.sourcePath = sourcePath;
         }
@@ -173,12 +168,8 @@ export class VcsService implements VcsConnector {
     }
 
     private realpath(file: NormalizedPath) {
-        const copymap = this.run.toc.copymap;
+        const meta = this.run.meta.get(file);
 
-        while (copymap[file]) {
-            file = copymap[file];
-        }
-
-        return file;
+        return meta.vcsPath || meta.sourcePath || file;
     }
 }
