@@ -101,7 +101,7 @@ export class RedirectsService {
             const section = redirects[key] as Redirect[];
             for (const {from, to} of section) {
                 if (EXT_MATCH.test(from) || EXT_MATCH.test(to)) {
-                    this.run.logger.warn(
+                    this.run.logger.info(
                         formatMessage(
                             `Redirects with explicit extensions are deprecated. This may lead to an undefined behaviour in the future.`,
                             key,
