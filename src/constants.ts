@@ -1,5 +1,6 @@
 import {resolve} from 'node:path';
 
+export const VERSION = global.VERSION ? global.VERSION : '0.0.0';
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
 export const YFM_CONFIG_FILENAME = '.yfm';
@@ -45,18 +46,6 @@ export const RTL_LANGS = [
     'uz_AF',
     'yi',
 ];
-
-export enum Platforms {
-    WINDOWS = 'win32',
-    MAC = 'darwin',
-    LINUX = 'linux',
-}
-
-export enum ResourceType {
-    style = 'style',
-    script = 'script',
-    csp = 'csp',
-}
 
 export const excludedMetaFields = ['interface', 'resources'];
 
