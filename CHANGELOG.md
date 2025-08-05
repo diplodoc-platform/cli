@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.2.0](https://github.com/diplodoc-platform/cli/compare/v5.1.1...v5.2.0) (2025-08-05)
+
+
+### Features
+
+* added metadata support ([#1284](https://github.com/diplodoc-platform/cli/issues/1284)) ([3fe5c36](https://github.com/diplodoc-platform/cli/commit/3fe5c3611b8ce46a3cfd1bc83fdae3677c288b1a))
+
+
+### Bug Fixes
+
+* disable prefix in svg classes ([6892265](https://github.com/diplodoc-platform/cli/commit/689226583d633081c448bed22a2552edca4b9214))
+
+
+### Dependency update
+
+* Update @diplodoc/client to 3.8.3 ([#1296](https://github.com/diplodoc-platform/cli/issues/1296)) ([192c89b](https://github.com/diplodoc-platform/cli/commit/192c89b93048dfd9c244f40c75a7912c8c961e90))
+
 ## [5.1.1](https://github.com/diplodoc-platform/cli/compare/v5.1.0...v5.1.1) (2025-07-31)
 
 
