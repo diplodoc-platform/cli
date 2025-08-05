@@ -144,6 +144,7 @@ export class EntryService {
             metadata.push({name: 'description', content: description});
         }
 
+        metadata.sort((a: Hash, b: Hash) => a.name.localeCompare(b.name));
         metadata.map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
