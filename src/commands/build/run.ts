@@ -103,7 +103,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         const {parse, compile, env} = transformer({
             ...this.transformConfig(file),
-            files: await remap(deps.map(get('path')), this.files),
+            files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
             titles: await remap(titles, this.titles),
             assets: await remap(assets.map(get('path')), async (path) => {
                 if (path?.endsWith('.svg')) {
@@ -127,7 +127,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         const pluginOptions = {
             ...this.transformConfig(file),
-            files: await remap(deps.map(get('path')), this.files),
+            files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
             titles: await remap(titles, this.titles),
             assets: await remap(assets.map(get('path'))),
         };
@@ -161,8 +161,8 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     @bounded
-    private async files(path: NormalizedPath) {
-        return this.markdown.load(path);
+    private async files(path: NormalizedPath, from?: NormalizedPath) {
+        return this.markdown.load(path, from);
     }
 
     @bounded
