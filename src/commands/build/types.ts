@@ -98,8 +98,7 @@ export type BuildConfig = Config<
         PreprocessConfig
 >;
 
-export type EntryInfo = Partial<PageData>;
-
-export type PositionedEntryInfo = {
-    position: number;
-} & EntryInfo;
+export type EntryInfo = Partial<PageData> & {
+    entryGraph: Graph<unknown>;
+    varsGraph: Graph<unknown>;
+};
