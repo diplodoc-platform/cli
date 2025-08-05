@@ -51,4 +51,5 @@ export type PageState = {
     lang: string;
     langs: string[];
     analytics: Hash;
+    skipHtmlExtension?: boolean;
 } & Hash;

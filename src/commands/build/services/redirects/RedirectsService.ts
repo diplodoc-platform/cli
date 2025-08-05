@@ -11,6 +11,7 @@ import {resolveConfig} from '~/core/config';
 import {langFromPath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
+import { prettifyLink } from '../../utils';
 
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 
@@ -61,12 +62,15 @@ export class RedirectsService {
         const lang = langFromPath(from, this.config);
         const template = new Template(from, lang);
 
+        const skipHtmlExtension = this.config.skipHtmlExtension;
+        const newTo = skipHtmlExtension ? prettifyLink(to) : to;
+
         template
-            .setTitle(`Redirect to ${to}`)
-            .addMeta({'http-equiv': 'refresh', content: `0; url=${to}`})
-            .addScript(`window.location.replace("${to}");`, {inline: true, position: 'leading'})
+            .setTitle(`Redirect to ${newTo}`)
+            .addMeta({'http-equiv': 'refresh', content: `0; url=${newTo}`})
+            .addScript(`window.location.replace("${newTo}");`, {inline: true, position: 'leading'})
             .addBody(
-                `If you are not redirected automatically, follow this <a href="${to}">link</a>.`,
+                `If you are not redirected automatically, follow this <a href="${newTo}">link</a>.`,
             );
 
         await getHooks(this).Page.promise(template);

@@ -98,6 +98,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.output({required: true}),
         options.langs,
         options.outputFormat,
+        options.skipHtmlExtension,
         options.varsPreset,
         options.vars,
         options.allowHtml,
@@ -250,13 +251,31 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         }
     }
 
+    private prettifyHtmlPath(path: string): string {
+        if (path.endsWith('/index.html')) {
+            return path;
+        }
+
+        if (path.endsWith('.html') && path !== 'index.html') {
+            return path.replace(/\.html$/, '/index.html');
+        }
+
+        return path;
+    }
+
     @threads.threaded('build.process')
     async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
         this.run.meta.set(file, meta);
 
         const result = await this.run.entry.dump(file);
 
-        await this.run.write(join(this.run.output, result.path), result.toString(), true);
+        let outPath = result.path;
+        
+        if (this.config.skipHtmlExtension) {
+            outPath = normalizePath(this.prettifyHtmlPath(result.path));
+        }
+
+        await this.run.write(join(this.run.output, outPath), result.toString(), true);
 
         return result.info;
     }

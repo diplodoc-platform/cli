@@ -21,6 +21,7 @@ import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+import { prettifyLink } from '../../utils';
 
 const tocJS = (path: NormalizedPath) => setExt(path, '.js');
 
@@ -39,6 +40,8 @@ export class OutputHtml {
 
                         item.id = uuid();
 
+                        const skipHtmlExtension = run.config.skipHtmlExtension;
+
                         if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
                             const fileExtension: string = extname(item.href);
                             const filename: string = basename(item.href, fileExtension) + '.html';
@@ -46,6 +49,10 @@ export class OutputHtml {
                             item.href = normalizePath(
                                 join(dirname(vfile.path), dirname(item.href), filename),
                             );
+                        }
+
+                        if (skipHtmlExtension && item.href) {
+                            item.href = normalizePath(prettifyLink(item.href)); 
                         }
 
                         return item;
@@ -134,13 +141,15 @@ export class OutputHtml {
                 });
 
                 getMarkdownHooks(run.markdown).Plugins.tap('Html', (plugins) => {
-                    return plugins.concat(getBaseMdItPlugins()).concat(getCustomMdItPlugins());
+                    return plugins
+                        .concat(getBaseMdItPlugins(run.config.skipHtmlExtension))
+                        .concat(getCustomMdItPlugins());
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
                     vfile.data = await run.leading.walkLinks(
                         vfile.data,
-                        getHref(run.input, vfile.path),
+                        getHref(run.input, vfile.path, run.config.skipHtmlExtension),
                     );
                 });
 
@@ -217,7 +226,7 @@ function getStateData(entry: EntryData): PageData {
     }
 }
 
-function getHref(root: AbsolutePath, path: NormalizedPath) {
+function getHref(root: AbsolutePath, path: NormalizedPath, skipHtmlExtension: boolean) {
     return function (href: string) {
         if (isExternalHref(href)) {
             return href;
@@ -234,6 +243,10 @@ function getHref(root: AbsolutePath, path: NormalizedPath) {
         } else if (!/.+\.\w+$/gi.test(href)) {
             // TODO: isFileExists index.md or index.yaml
             href = href + (href.endsWith('/') ? '' : '/') + 'index.html';
+        }
+
+        if (skipHtmlExtension) {
+            href = prettifyLink(href);
         }
 
         return href;

@@ -59,6 +59,8 @@ export class Template {
 
     private faviconSrc = '';
 
+    private skipHtmlExtension = false;
+
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
         this.lang = lang;
@@ -155,9 +157,16 @@ export class Template {
         return this;
     }
 
+    @bounded setSkipHtmlExtension(skipHtmlExtension: boolean) {
+        this.skipHtmlExtension = skipHtmlExtension;
+
+        return this;
+    }
+
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
-        const base = getDepthPath(getDepth(this.path) - 1);
+        const {lang, title, styles, scripts, body, bodyClass, faviconSrc, skipHtmlExtension} = this;
+        const pathDepth = skipHtmlExtension ? 0 : 1;
+        const base = getDepthPath(getDepth(this.path) - pathDepth);
         const faviconType = getFaviconType(faviconSrc);
 
         return dedent`

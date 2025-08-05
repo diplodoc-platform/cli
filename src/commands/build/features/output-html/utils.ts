@@ -30,13 +30,13 @@ import linksExternal from './plugins/links-external';
 import images from './plugins/images';
 import {noTranslate} from '@diplodoc/translation';
 
-export function getBaseMdItPlugins() {
+export function getBaseMdItPlugins(skipHtmlExtension: boolean) {
     return [
         deflist,
         includes,
         includesDetect,
         cut,
-        links,
+        (md: any, opts: any) => links(md, { ...(opts || {}), skipHtmlExtension }),
         linksAutotitles,
         linksExternal,
         images,

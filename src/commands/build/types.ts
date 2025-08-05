@@ -25,6 +25,7 @@ type BaseConfig = {
     // TODO(patch): exetend langs list by newly supported langs or change type to string
     langs: string[];
     outputFormat: `${OutputFormat}`;
+    skipHtmlExtension: boolean;
     varsPreset: string;
     vars: Hash;
     allowHtml: boolean;

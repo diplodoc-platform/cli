@@ -67,7 +67,7 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface} = this.config;
+        const {langs, analytics, interface: baseInterface, skipHtmlExtension} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
 
@@ -88,6 +88,7 @@ export class EntryService {
             langs,
             analytics,
             viewerInterface,
+            skipHtmlExtension,
         };
 
         await getHooks(this).State.promise(state);
@@ -96,7 +97,7 @@ export class EntryService {
     }
 
     async page(template: Template, state: PageState, toc: Toc) {
-        const {staticContent} = this.config;
+        const {staticContent, skipHtmlExtension} = this.config;
         const {
             style = [],
             script = [],
@@ -132,6 +133,7 @@ export class EntryService {
         template.setTitle(title);
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
+        template.setSkipHtmlExtension(skipHtmlExtension);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);

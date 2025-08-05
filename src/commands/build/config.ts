@@ -26,6 +26,14 @@ const outputFormat = option({
     `,
 });
 
+const skipHtmlExtension = option({
+    flags: '--skip-html-extension',
+    default: false,
+    desc: `
+        Skip .html extension
+    `,
+});
+
 const langs = option({
     flags: '--lang, --langs <value...>',
     desc: 'Configure langs supported by build',
@@ -160,6 +168,7 @@ export const options = {
     config: globalOptions.config,
     langs,
     outputFormat,
+    skipHtmlExtension,
     varsPreset,
     vars,
     allowHtml,
