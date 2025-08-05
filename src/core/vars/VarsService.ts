@@ -219,8 +219,9 @@ export class VarsService {
 
         this.graph.addNode(file);
 
+        const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
         const data = await getHooks(this).PresetsLoaded.promise(
-            load((await this.run.read(join(this.run.input, file))) || '{}') as Presets,
+            load((await this.run.read(source)) || '{}') as Presets,
             file,
         );
 
