@@ -1,6 +1,8 @@
 declare const __dirname: AbsolutePath;
 declare const require: Require;
-declare const VERSION: string;
+declare const global: typeof globalThis & {
+    VERSION: string;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;

@@ -11,7 +11,7 @@ import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
 import {VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
-import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS} from '~/constants';
+import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 

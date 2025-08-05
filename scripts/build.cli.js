@@ -16,7 +16,7 @@ const baseConfig = {
     sourcemap: true,
     bundle: true,
     define: {
-        VERSION: JSON.stringify(version),
+        'global.VERSION': JSON.stringify(version),
     },
 };
 

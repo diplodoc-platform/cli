@@ -1,7 +1,7 @@
 import type {ExtensionInfo} from '~/core/program';
 
 import {Command} from '~/core/config';
-import {YFM_CONFIG_FILENAME} from '~/constants';
+import {VERSION, YFM_CONFIG_FILENAME} from '~/constants';
 import {Build} from './build';
 import {Publish} from './publish';
 import {Translate} from './translate';
@@ -31,11 +31,7 @@ export class Program extends BaseProgram {
     readonly command: Command = new Command(NAME)
         .helpOption(true)
         .allowUnknownOption(false)
-        .version(
-            typeof VERSION === 'undefined' ? '' : VERSION,
-            '--version',
-            'Output the version number',
-        )
+        .version(VERSION, '--version', 'Output the version number')
         .usage(USAGE);
 
     readonly build = new Build(undefined, {isDefaultCommand: true});
