@@ -21,7 +21,7 @@ import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
-import { prettifyLink } from '../../utils';
+import {prettifyLink} from '../../utils';
 
 const tocJS = (path: NormalizedPath) => setExt(path, '.js');
 

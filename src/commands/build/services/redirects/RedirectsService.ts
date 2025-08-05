@@ -11,7 +11,7 @@ import {resolveConfig} from '~/core/config';
 import {langFromPath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import { prettifyLink } from '../../utils';
+import {prettifyLink} from '../../utils';
 
 export const REDIRECTS_FILENAME = 'redirects.yaml';
 
