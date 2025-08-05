@@ -1,4 +1,4 @@
-const {basename, dirname, resolve} = require('node:path');
+const {basename, dirname} = require('node:path');
 const {chmod} = require('node:fs/promises');
 const esbuild = require('esbuild');
 const deps = require('./deps');
@@ -16,7 +16,7 @@ const baseConfig = {
     sourcemap: true,
     bundle: true,
     define: {
-        VERSION: JSON.stringify(version),
+        'global.VERSION': JSON.stringify(version),
     },
 };
 
