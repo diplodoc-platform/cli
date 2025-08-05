@@ -52,3 +52,8 @@ export type EntryGraphNode = {
     deps: EntryGraphNode[];
     assets: AssetInfo[];
 } & IncludeInfo;
+
+export type EntryInfo = {
+    title: string;
+    headings: string[];
+};
