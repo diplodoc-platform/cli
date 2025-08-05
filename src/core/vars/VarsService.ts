@@ -1,13 +1,15 @@
 import type {Run as BaseRun} from '~/core/run';
-import {Preset, Presets} from './types';
+import type {Preset, Presets} from './types';
+import type {Scope} from './utils';
 
 import {dirname, join} from 'node:path';
-import {isEmpty, uniq} from 'lodash';
+import {isEmpty} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {memoize, normalizePath, own} from '~/core/utils';
+import {Graph, all, bounded, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
+import {proxy} from './utils';
 
 export type VarsServiceConfig = {
     varsPreset: string;
@@ -20,9 +22,7 @@ type Run = BaseRun<VarsServiceConfig>;
 export class VarsService {
     readonly name = 'Vars';
 
-    get entries() {
-        return this.presets;
-    }
+    readonly relations = new Graph<{type: string; data: Preset | undefined}>();
 
     private run: Run;
 
@@ -30,85 +30,179 @@ export class VarsService {
 
     private config: VarsServiceConfig;
 
-    private presets: Record<NormalizedPath, Hash> = {};
-
     private usePresets = true;
 
-    constructor(run: Run, options = {usePresets: true}) {
+    private storeDeps = true;
+
+    constructor(run: Run, {usePresets = true} = {}) {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
-        this.usePresets = options.usePresets;
+        this.usePresets = usePresets;
     }
 
-    async init() {
-        if (this.usePresets) {
-            const presets = await this.run.glob('**/presets.yaml', {
-                cwd: this.run.input,
-            });
+    async init(presets?: NormalizedPath[]) {
+        if (!this.usePresets) {
+            return [];
+        }
 
-            for (const preset of presets) {
-                const dir = normalizePath(dirname(preset));
-                this.presets[dir] = await this.load(preset);
+        presets =
+            presets ||
+            (await this.run.glob('**/presets.yaml', {
+                cwd: this.run.input,
+            }));
+
+        return all(presets.map(this.load));
+    }
+
+    /**
+     * @returns preset value by filename
+     */
+    get(path: NormalizedPath): Preset | undefined {
+        if (!this.relations.hasNode(path)) {
+            return undefined;
+        }
+
+        return this.relations.getNodeData(path).data as Preset | undefined;
+    }
+
+    for(path: RelativePath, from?: NormalizedPath): Preset {
+        const scopes = this.scopes(from || path);
+        const keys = () => {
+            const keys = [];
+
+            for (const {scope} of scopes) {
+                keys.push(...Object.keys(scope));
+            }
+
+            return keys;
+        };
+
+        return proxy<Presets>(path, (prop: string) => {
+            for (let i = 0; i < scopes.length; i++) {
+                const {scope, path} = scopes[i];
+
+                if (own(scope, prop)) {
+                    return {
+                        value: scope[prop],
+                        scope: path,
+                        track: this.trackDependency,
+                        missed: this.trackMissedDependency,
+                        keys,
+                    };
+                }
+            }
+
+            return {
+                track: this.trackDependency,
+                missed: this.trackMissedDependency,
+                keys,
+            };
+        });
+    }
+
+    /**
+     * Получает файлы, которые зависят от изменённых свойств и (опционально) конкретного scopePath
+     */
+    getAffectedFiles(scopePath: string, changedProperties: string[]): Set<RelativePath> {
+        const affectedFiles = new Set<RelativePath>();
+
+        for (const property of changedProperties) {
+            const dependencyKey = `${scopePath}#${property}`;
+
+            if (this.relations.hasNode(dependencyKey)) {
+                const dependents = this.relations.dependentsOf(dependencyKey);
+                for (const dependent of dependents) {
+                    affectedFiles.add(dependent as RelativePath);
+                }
             }
         }
+
+        return affectedFiles;
     }
 
-    for(path: RelativePath): Preset {
-        const scopes = this.scopes(dirname(path));
+    getSpecifiedFiles(pathA: NormalizedPath, addedProps: string[], removedProps: string[]) {
+        const {varsPreset} = this.config;
+        const props: string[] = [];
+        const specified: Set<NormalizedPath> = new Set();
+        const nodes = this.relations.overallOrder().filter((node) => node.indexOf('#') > -1);
 
-        const proxy: Hash = new Proxy(
-            {},
-            {
-                has(_target, prop: string) {
-                    for (const scope of scopes) {
-                        if (own(scope, prop)) {
-                            return true;
-                        }
-                    }
+        for (const scopedPropA of addedProps) {
+            const [scopeA, propA] = splitProp(scopedPropA);
+            props.push(
+                ...nodes.filter((node) => {
+                    const [pathB, scopedPropB] = node.split('#');
+                    const [scopeB, propB] = splitProp(scopedPropB);
+                    return propA === propB && isMoreSpecific(pathA, pathB, scopeA, scopeB);
+                }),
+            );
+        }
 
-                    return false;
-                },
+        for (const scopedPropA of removedProps) {
+            const [scopeA, propA] = splitProp(scopedPropA);
+            props.push(
+                ...nodes.filter((pathProp) => {
+                    const [pathB, scopedPropB] = pathProp.split('#');
+                    const [scopeB, propB] = splitProp(scopedPropB);
+                    return propA === propB && !isMoreSpecific(pathA, pathB, scopeA, scopeB);
+                }),
+            );
+        }
 
-                get(_target, prop: string) {
-                    for (const scope of scopes) {
-                        if (own(scope, prop)) {
-                            return scope[prop];
-                        }
-                    }
+        for (const prop of props) {
+            (this.relations.dependantsOf(prop) as NormalizedPath[])
+                .filter((path) => canBeUsedByPath(pathA, path))
+                .forEach((path) => specified.add(path));
+        }
 
-                    // @ts-ignore
-                    if (typeof Object.prototype[prop] === 'function') {
-                        // @ts-ignore
-                        return Object.prototype[prop].bind(proxy);
-                    }
+        return specified;
 
-                    return undefined;
-                },
+        function splitProp(scopedProp: string) {
+            const dot = scopedProp.indexOf('.');
 
-                getOwnPropertyDescriptor(_target, prop: string) {
-                    for (const scope of scopes) {
-                        if (own(scope, prop)) {
-                            return {configurable: true, enumerable: true, value: scope[prop]};
-                        }
-                    }
+            if (dot > -1) {
+                return [scopedProp.slice(0, dot), scopedProp.slice(dot)];
+            }
 
-                    return undefined;
-                },
+            return [scopedProp, ''];
+        }
 
-                ownKeys() {
-                    const keys = [];
+        function canBeUsedByPath(preset: NormalizedPath, path: NormalizedPath) {
+            const presetParts = dirname(preset).split('/');
+            const pathParts = dirname(path).split('/');
 
-                    for (const scope of scopes) {
-                        keys.push(...Object.keys(scope));
-                    }
+            while (presetParts.length) {
+                if (presetParts[0] !== pathParts[0]) {
+                    break;
+                }
 
-                    return uniq(keys);
-                },
-            },
-        );
+                presetParts.shift();
+                pathParts.shift();
+            }
 
-        return proxy;
+            return !presetParts.length;
+        }
+
+        function isMoreSpecific(
+            pathA: NormalizedPath,
+            pathB: string,
+            scopeA: string,
+            scopeB: string,
+        ) {
+            if (pathB === 'config') {
+                return false;
+            }
+
+            if (pathB === 'missed') {
+                return true;
+            }
+
+            if (pathA.length === pathB.length) {
+                return scopeA !== scopeB && scopeA === varsPreset;
+            }
+
+            return pathA.length > pathB.length;
+        }
     }
 
     dump(presets: Hash): string {
@@ -117,32 +211,41 @@ export class VarsService {
         });
     }
 
+    @bounded
     private async load(path: RelativePath): Promise<Hash> {
         const file = normalizePath(path);
 
         this.logger.proc(file);
 
+        this.relations.addNode(file);
+
         const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
-        return getHooks(this).PresetsLoaded.promise(
+        const data = await getHooks(this).PresetsLoaded.promise(
             load((await this.run.read(source)) || '{}') as Presets,
             file,
         );
+
+        this.relations.setNodeData(file, {type: 'preset', data});
+
+        return data;
     }
 
-    @memoize('path')
     private scopes(path: RelativePath) {
         const paths = this.paths(path);
+        const config = {scope: this.config.vars, path: 'config'} as Scope;
 
-        return [this.config.vars].concat(
+        return [config].concat(
             paths.map((path) => {
-                const [dir, preset] = path.split('#') as [NormalizedPath, string];
+                const [preset, scope] = path.split('#') as [NormalizedPath, string];
 
-                return this.presets[dir][preset];
+                return {
+                    scope: (this.get(preset) as Presets)[scope],
+                    path,
+                };
             }),
         );
     }
 
-    @memoize('path')
     private paths(path: RelativePath) {
         const varsPreset = this.config.varsPreset || 'default';
         const paths = [];
@@ -150,17 +253,19 @@ export class VarsService {
 
         while (dirs.length) {
             const dir = dirs.pop() as NormalizedPath;
+            const path = normalizePath(join(dir, 'presets.yaml'));
+            const preset = this.get(path);
 
-            if (this.presets[dir]) {
-                const defaults = this.presets[dir]['default'];
-                const overrides = this.presets[dir][varsPreset];
+            if (preset) {
+                const defaults = preset['default'];
+                const overrides = preset[varsPreset];
 
                 if (overrides && !isEmpty(overrides)) {
-                    paths.push(`${dir}#${varsPreset}`);
+                    paths.push(`${path}#${varsPreset}`);
                 }
 
                 if (varsPreset !== 'default' && defaults && !isEmpty(defaults)) {
-                    paths.push(`${dir}#default`);
+                    paths.push(`${path}#default`);
                 }
             }
 
@@ -171,5 +276,73 @@ export class VarsService {
         }
 
         return paths;
+    }
+
+    /**
+     * Отслеживает зависимость файла от свойства
+     */
+    @bounded
+    private trackDependency(
+        path: RelativePath,
+        scopePath: string,
+        propertyPath: string | symbol,
+    ): void {
+        if (!this.storeDeps) {
+            return;
+        }
+
+        if (typeof propertyPath !== 'string') {
+            return;
+        }
+
+        let dependencyKey: string;
+
+        const file = normalizePath(path);
+
+        this.relations.addNode(file);
+
+        if (['config', 'missed'].includes(scopePath)) {
+            dependencyKey = `${scopePath}#${propertyPath}`;
+        } else {
+            const [preset, scope] = scopePath.split('#');
+            dependencyKey = `${preset}#${scope}.${propertyPath}`;
+
+            this.relations.addNode(preset);
+            this.relations.addDependency(preset, file);
+        }
+
+        if (!this.relations.hasNode(dependencyKey)) {
+            this.relations.addNode(dependencyKey);
+        }
+
+        this.relations.addDependency(file, dependencyKey);
+    }
+
+    @bounded
+    private trackMissedDependency(path: RelativePath, propertyPath: string | symbol): void {
+        if (!this.storeDeps) {
+            return;
+        }
+
+        if (typeof propertyPath !== 'string') {
+            return;
+        }
+
+        const dependencyKeys = [
+            `missed#default.${propertyPath}`,
+            `missed#${this.config.varsPreset}.${propertyPath}`,
+        ];
+
+        const file = normalizePath(path);
+
+        this.relations.addNode(file);
+
+        for (const key of dependencyKeys) {
+            if (!this.relations.hasNode(key)) {
+                this.relations.addNode(key);
+            }
+
+            this.relations.addDependency(file, key);
+        }
     }
 }
