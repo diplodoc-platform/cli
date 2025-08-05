@@ -25,6 +25,13 @@ const content = {
           override1: value1
     `,
     './empty/presets.yaml': '',
+    './nested/presets.yaml': dedent`
+        default:
+          deep:
+            deep:
+              deep:
+                var: value
+    `,
     './subfolder/presets.yaml': dedent`
         default:
           sub1: value1
@@ -85,35 +92,7 @@ function test(name: string, path: string, options: Options = {}) {
 
 describe('vars', () => {
     describe('service', () => {
-        describe('load', () => {
-            test('should load presets file default scope', 'test.md');
-
-            test('should load presets file target scope', 'test.md', {varsPreset: 'internal'});
-
-            test('should load presets file target empty scope', 'test.md', {
-                varsPreset: 'external',
-            });
-
-            test('should override default presets with vars', 'test.md', {
-                vars: {field1: 'value6'},
-            });
-
-            test('should override target presets with vars', 'test.md', {
-                varsPreset: 'internal',
-                vars: {field1: 'value6'},
-            });
-
-            test('should merge deep presets 1', './subfolder/subfolder/subfolder/test.md');
-
-            test(
-                'should merge deep presets 2',
-                './subfolder/subfolder/subfolder/subfolder/test.md',
-            );
-
-            test('should not merge presets on lower levels', './subfolder/subfolder/test.md');
-
-            test('should handle empty preset', './empty/test.md');
-
+        describe('proxy', () => {
             it('should handle `has` trap', async () => {
                 const service = prepare();
 
@@ -153,100 +132,87 @@ describe('vars', () => {
                 expect(vars.hasOwnProperty('field10')).toEqual(false);
             });
 
-            // test('should use vars if presets not found', ENOENT, {vars: {field1: 'value6'}});
+            it('should track dependencies', async () => {
+                const service = prepare();
+                await service.init();
+                const vars = service.for('./test.md' as RelativePath);
 
-            // it('should throw parse error', async () => {
-            //     await expect(() => call('!@#', {vars: {field1: 'value6'}})).rejects.toThrow(
-            //         YAMLException,
-            //     );
-            // });
-            //
-            // it('should load super layers', async () => {
-            //     const service = prepare({varsPreset: 'internal'});
-            //
-            //     const result = await service.for(
-            //         'subfolder/subfolder/subfolder/test.md' as NormalizedPath,
-            //     );
-            //
-            //     expect(service.dump(result)).toMatchSnapshot();
-            // });
-            //
-            // it('should call PresetsLoaded hook', async () => {
-            //     const service = prepare();
-            //
-            //     const spy = vi.fn();
-            //
-            //     getHooks(service).PresetsLoaded.tap('Test', spy);
-            //
-            //     await service.load('presets.yaml' as NormalizedPath);
-            //
-            //     expect(spy).toHaveBeenCalledWith({default: {field1: 'value1'}}, 'presets.yaml');
-            // });
-            //
-            // it('should call Resolved hook', async () => {
-            //     const service = prepare();
-            //
-            //     const spy = vi.fn();
-            //
-            //     getHooks(service).Resolved.tap('Test', spy);
-            //
-            //     await service.load('presets.yaml' as NormalizedPath);
-            //
-            //     expect(spy).toHaveBeenCalledWith({field1: 'value1'}, 'presets.yaml');
-            // });
-            //
-            // it('should allow content updating in PresetsLoaded hook', async () => {
-            //     const service = prepare(dedent`
-            //         default:
-            //           field1: value1
-            //     `);
-            //
-            //     getHooks(service).PresetsLoaded.tap('Test', (presets) => {
-            //         presets.default.field1 = 'value2';
-            //
-            //         return presets;
-            //     });
-            //
-            //     const result = await service.load('presets.yaml' as NormalizedPath);
-            //
-            //     expect(service.dump(result)).toMatchSnapshot();
-            // });
-            //
-            // it('should allow content extending in PresetsLoaded hook', async () => {
-            //     const service = prepare(dedent`
-            //         default:
-            //           field1: value1
-            //     `);
-            //
-            //     getHooks(service).PresetsLoaded.tap('Test', (presets) => {
-            //         presets.default.field2 = 'value2';
-            //
-            //         return presets;
-            //     });
-            //
-            //     const result = await service.load('presets.yaml' as NormalizedPath);
-            //
-            //     expect(service.dump(result)).toMatchSnapshot();
-            // });
-            //
-            // it('should load content only once', async () => {
-            //     const service = prepare(dedent`
-            //         default:
-            //           field1: value1
-            //     `);
-            //
-            //     const spy1 = vi.fn();
-            //     const spy2 = vi.fn();
-            //
-            //     getHooks(service).PresetsLoaded.tap('Test', spy1);
-            //     getHooks(service).Resolved.tap('Test', spy2);
-            //
-            //     await service.load('presets.yaml' as NormalizedPath);
-            //     await service.load('presets.yaml' as NormalizedPath);
-            //
-            //     expect(spy1).toHaveBeenCalledOnce();
-            //     expect(spy2).toHaveBeenCalledOnce();
-            // });
+                expect(vars.field1).toEqual('value1');
+                expect(vars.override1).toEqual('value2');
+                expect(service.relations.hasNode('presets.yaml#default.field1')).toBeTruthy();
+                expect(service.relations.hasNode('presets.yaml#default.override1')).toBeTruthy();
+            });
+
+            it('should track dependencies from scopes', async () => {
+                const service = prepare({varsPreset: 'internal'});
+                await service.init();
+                const vars = service.for('./test.md' as RelativePath);
+
+                expect(vars.field1).toEqual('value1');
+                expect(vars.override1).toEqual('value1');
+                expect(service.relations.hasNode('presets.yaml#default.field1')).toBeTruthy();
+                expect(service.relations.hasNode('presets.yaml#internal.override1')).toBeTruthy();
+            });
+
+            it('should track dependencies for nested objects', async () => {
+                const service = prepare();
+                await service.init();
+                const vars = service.for('./nested/test.md' as RelativePath);
+
+                // @ts-ignore
+                expect(vars.deep.deep.deep.var).toEqual('value');
+                expect(
+                    service.relations.hasNode('nested/presets.yaml#default.deep.deep.deep.var'),
+                ).toBeTruthy();
+            });
+
+            it('should track missed dependency for nested objects', async () => {
+                const service = prepare({varsPreset: 'internal'});
+                await service.init();
+                const vars = service.for('./nested/test.md' as RelativePath);
+
+                try {
+                    // @ts-ignore
+                    expect(vars.deep.deep.deep.missed).toEqual(undefined);
+                } catch {}
+
+                expect(
+                    service.relations.hasNode('missed#default.deep.deep.deep.missed'),
+                ).toBeTruthy();
+                expect(
+                    service.relations.hasNode('missed#internal.deep.deep.deep.missed'),
+                ).toBeTruthy();
+            });
+        });
+
+        describe('load', () => {
+            test('should load presets file default scope', 'test.md');
+
+            test('should load presets file target scope', 'test.md', {varsPreset: 'internal'});
+
+            test('should load presets file target empty scope', 'test.md', {
+                varsPreset: 'external',
+            });
+
+            test('should override default presets with vars', 'test.md', {
+                vars: {field1: 'value6'},
+            });
+
+            test('should override target presets with vars', 'test.md', {
+                varsPreset: 'internal',
+                vars: {field1: 'value6'},
+            });
+
+            test('should merge deep presets 1', './subfolder/subfolder/subfolder/test.md');
+
+            test(
+                'should merge deep presets 2',
+                './subfolder/subfolder/subfolder/subfolder/test.md',
+            );
+
+            test('should not merge presets on lower levels', './subfolder/subfolder/test.md');
+
+            test('should handle empty preset', './empty/test.md');
         });
     });
 });
