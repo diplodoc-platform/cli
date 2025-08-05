@@ -104,6 +104,7 @@ export class OutputMd {
                             ]);
 
                             await scheduler.schedule(graph.path);
+
                             const content = await scheduler.process(graph.content);
 
                             const hash = config.hashIncludes ? rehashContent(content) : '';
