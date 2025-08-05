@@ -10,7 +10,7 @@ import {bucket, parseLocalUrl, rebasePath} from '~/core/utils';
 import {walkLinks} from './utils';
 
 export class LoaderAPI {
-    deps: Bucket<never[]>;
+    deps: Bucket<{path: NormalizedPath}[]>;
     assets: Bucket<AssetInfo[]>;
     meta: Bucket<Meta>;
 

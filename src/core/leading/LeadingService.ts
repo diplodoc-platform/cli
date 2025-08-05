@@ -2,14 +2,23 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
-
 import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {join} from 'node:path';
 import {dump, load} from 'js-yaml';
 
-import {Buckets, Defer, VFile, bounded, fullPath, langFromPath, normalizePath} from '~/core/utils';
+import {
+    Buckets,
+    Defer,
+    Graph,
+    VFile,
+    all,
+    bounded,
+    fullPath,
+    langFromPath,
+    normalizePath,
+} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, loader} from './loader';
@@ -51,7 +60,7 @@ export class LeadingService {
 
     private pathToMeta = new Buckets<Meta>();
 
-    private pathToDeps = new Buckets<never[]>();
+    private pathToDeps = new Buckets<{path: NormalizedPath}[]>();
 
     private pathToAssets = new Buckets<AssetInfo[]>();
 
@@ -132,6 +141,31 @@ export class LeadingService {
         const file = normalizePath(path);
 
         return [...this.pathToAssets.get(file)];
+    }
+
+    async relations(path: RelativePath): Promise<Graph> {
+        const file = normalizePath(path);
+        const graph = new Graph();
+
+        graph.addNode(path);
+
+        await this.load(path);
+        await all(
+            (this.pathToDeps.get(file) || []).map(async (dep) => {
+                graph.consume(await this.relations(dep.path));
+                // graph.setNodeData(dep.path, dep);
+                graph.addDependency(path, dep.path);
+            }),
+        );
+
+        return graph;
+    }
+
+    release(path: NormalizedPath) {
+        delete this.cache[path];
+        this.pathToDeps.delete(path);
+        this.pathToMeta.delete(path);
+        this.pathToAssets.delete(path);
     }
 
     private proxy(key: string) {
