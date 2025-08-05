@@ -49,10 +49,7 @@ export class Contributors {
                     const rawDeps = await run.leading.deps(vfile.path);
                     const deps = uniq(rawDeps.map(({path}) => path));
 
-                    run.meta.add(
-                        vfile.path,
-                        await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps),
-                    );
+                    run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
                 },
             );
 
@@ -61,7 +58,7 @@ export class Contributors {
                 async (vfile) => {
                     const rawDeps = await run.markdown.deps(vfile.path);
                     const deps = uniq(rawDeps.map(({path}) => path));
-                    const meta = await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps);
+                    const meta = await run.vcs.metadata(vfile.path, deps);
 
                     run.meta.add(vfile.path, meta);
                 },
