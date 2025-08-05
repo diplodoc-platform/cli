@@ -41,12 +41,13 @@ export class Run extends BaseRun<CommonRunConfig> {
         await this.markdown.init();
 
         if (isMainThread) {
-            const tocs = await this.glob('**/toc.yaml', {
+            const paths = await this.glob('**/toc.yaml', {
                 cwd: this.input,
             });
 
-            for (const toc of tocs) {
-                await this.toc.load(toc);
+            await this.toc.init(paths);
+
+            for (const toc of paths) {
                 this.tocYamlList.add(toc);
             }
         }
