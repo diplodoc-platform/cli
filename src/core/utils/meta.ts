@@ -1,4 +1,4 @@
-import {YfmFields} from "~/constants";
+import {YfmFields} from '~/constants';
 
 export function filterMeta<T>(meta: Hash<T>[]): Hash<T>[] {
     const excludedFields = Object.values(YfmFields);
