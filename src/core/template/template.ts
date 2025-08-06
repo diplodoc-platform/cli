@@ -162,7 +162,7 @@ export class Template {
 
         const excludedFields = Object.values(YfmFields);
         const filteredMeta = this.meta.filter(
-            (item: Hash) => !excludedFields.includes(item.name),
+            (item: Hash) => !excludedFields.includes(item.name)
         );
 
         return dedent`
