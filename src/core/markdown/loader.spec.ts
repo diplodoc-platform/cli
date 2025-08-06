@@ -54,6 +54,7 @@ function loaderContext(
             disableLiquid: false,
             ...options,
         },
+        mode: 'build',
     } as LoaderContext;
 }
 
@@ -496,6 +497,19 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect link to anchor', async () => {
+            const content = dedent`
+                Simple text
+                [link](#anchor)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+
             expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });

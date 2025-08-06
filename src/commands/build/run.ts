@@ -21,6 +21,7 @@ import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {RedirectsService} from './services/redirects';
+import {Lang} from '@diplodoc/transform/lib/typings';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -105,7 +106,7 @@ export class Run extends BaseRun<BuildConfig> {
             files: await remap(deps.map(get('path')), this.files),
             titles: await remap(titles, this.titles),
             assets: await remap(assets.map(get('path')), async (path) => {
-                if (path.endsWith('.svg')) {
+                if (path?.endsWith('.svg')) {
                     return this.read(join(this.input, path));
                 } else {
                     return true;
@@ -145,7 +146,7 @@ export class Run extends BaseRun<BuildConfig> {
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),
             plugins: this.markdown.plugins,
             path,
-            lang: langFromPath(path, this.config),
+            lang: langFromPath(path, this.config) as Lang,
             getPublicPath,
             extractTitle: true,
             log: this.logger,
@@ -166,17 +167,17 @@ export class Run extends BaseRun<BuildConfig> {
 
     @bounded
     private async titles(path: NormalizedPath) {
-        if (path.endsWith('/')) {
+        if (path?.endsWith('/')) {
             path = this.exists(join(this.input, path, 'index.yaml'))
                 ? join(path, 'index.yaml')
                 : join(path, 'index.md');
         }
 
-        if (path.match(/\/[^.]+?$/)) {
+        if (path?.match(/\/[^.]+?$/)) {
             path = normalizePath(path + '.md');
         }
 
-        if (!path.endsWith('.md')) {
+        if (path === null || !path?.endsWith('.md')) {
             return {};
         }
 
