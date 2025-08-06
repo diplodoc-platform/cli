@@ -61,7 +61,6 @@ export enum ResourceType {
 export enum YfmFields {
     interface = 'interface',
     resources = 'resources',
-    docsViewer = 'docs-viewer',
 }
 
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;

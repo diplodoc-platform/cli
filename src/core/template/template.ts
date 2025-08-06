@@ -1,9 +1,10 @@
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
-import {RTL_LANGS, YfmFields} from '~/constants';
+import {RTL_LANGS} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {getFaviconType} from '../utils/favicon';
+import { filterMeta } from '../utils/meta';
 
 enum ScriptPosition {
     Leading = 'leading',
@@ -159,9 +160,7 @@ export class Template {
         const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
-
-        const excludedFields = Object.values(YfmFields);
-        const filteredMeta = this.meta.filter((item: Hash) => !excludedFields.includes(item.name));
+        const filteredMeta = filterMeta(this.meta);
 
         return dedent`
             <!DOCTYPE html>
