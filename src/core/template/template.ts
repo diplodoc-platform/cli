@@ -161,9 +161,7 @@ export class Template {
         const faviconType = getFaviconType(faviconSrc);
 
         const excludedFields = Object.values(YfmFields);
-        const filteredMeta = this.meta.filter(
-            (item: Hash) => !excludedFields.includes(item.name)
-        );
+        const filteredMeta = this.meta.filter((item: Hash) => !excludedFields.includes(item.name));
 
         return dedent`
             <!DOCTYPE html>
