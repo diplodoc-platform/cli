@@ -4,7 +4,7 @@ import {getCSP} from 'csp-header';
 import {RTL_LANGS} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {getFaviconType} from '../utils/favicon';
-import { filterMeta } from '../utils/meta';
+import {filterMeta} from '../utils/meta';
 
 enum ScriptPosition {
     Leading = 'leading',
