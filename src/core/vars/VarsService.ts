@@ -60,7 +60,7 @@ export class VarsService {
      */
     get(path: NormalizedPath): Preset | undefined {
         if (!this.graph.hasNode(path)) {
-            return;
+            return undefined;
         }
 
         return this.graph.getNodeData(path).data as Preset | undefined;
@@ -121,7 +121,7 @@ export class VarsService {
         return affectedFiles;
     }
 
-    getSpecifiedFiles(pathA: NormalizedPath, addedProps: string[], removedProps: string[]): any {
+    getSpecifiedFiles(pathA: NormalizedPath, addedProps: string[], removedProps: string[]) {
         const {varsPreset} = this.config;
         const props: string[] = [];
         const specified: Set<NormalizedPath> = new Set();
@@ -282,8 +282,12 @@ export class VarsService {
      * Отслеживает зависимость файла от свойства
      */
     @bounded
-    private trackDependency(path: RelativePath, scopePath: string, propertyPath: string): void {
+    private trackDependency(path: RelativePath, scopePath: string, propertyPath: string | symbol): void {
         if (!this.storeDeps) {
+            return;
+        }
+
+        if (typeof propertyPath !== 'string') {
             return;
         }
 
@@ -311,7 +315,7 @@ export class VarsService {
     }
 
     @bounded
-    private trackMissedDependency(path: RelativePath, propertyPath: string): void {
+    private trackMissedDependency(path: RelativePath, propertyPath: string | symbol): void {
         if (!this.storeDeps) {
             return;
         }
