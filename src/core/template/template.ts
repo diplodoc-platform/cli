@@ -1,7 +1,7 @@
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
-import {RTL_LANGS} from '~/constants';
+import {RTL_LANGS, YfmFields} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {getFaviconType} from '../utils/favicon';
 
@@ -159,8 +159,10 @@ export class Template {
         const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
+
+        const excludedFields = Object.values(YfmFields);
         const filteredMeta = this.meta.filter(
-            (item: Hash) => item.name !== 'interface' && item.name !== 'resources',
+            (item: Hash) => !excludedFields.includes(item.name),
         );
 
         return dedent`
