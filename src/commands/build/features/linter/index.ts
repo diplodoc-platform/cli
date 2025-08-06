@@ -1,4 +1,4 @@
-import type {RawLintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
+import type {LintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
@@ -95,7 +95,11 @@ export class Lint {
                 config.lint.config = normalizeConfig(levels, config.lint.config);
             }
 
-            config.lint.config['MD033'] = config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR;
+            config.lint.config['MD033'] = config.allowHtml
+                ? false
+                : {
+                      loglevel: config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR,
+                  };
 
             return config;
         });

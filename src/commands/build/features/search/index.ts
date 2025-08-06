@@ -65,6 +65,7 @@ export class Search {
             .Entry.for('html')
             .tapPromise('Search', async (run, entry, info) => {
                 const lang = langFromPath(entry, run.config);
+                // @ts-ignore
                 await run.search.add(entry, lang, info);
             });
     }

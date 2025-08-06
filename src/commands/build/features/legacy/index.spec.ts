@@ -1,5 +1,4 @@
 import {describe} from 'vitest';
-import {LogLevels} from '@diplodoc/yfmlint';
 import {testConfig as test} from '../../__tests__';
 
 describe('Build legacy feature', () => {
@@ -245,7 +244,7 @@ describe('Build legacy feature', () => {
                 lint: {
                     enabled: true,
                     config: {
-                        MD033: LogLevels.DISABLED,
+                        MD033: false,
                     },
                 },
             });
