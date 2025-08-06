@@ -300,11 +300,11 @@ export class MarkdownService {
                 graph.addDependency(path, dep.path);
             }),
         );
-        (this.pathToAssets.get(key) || []).map(async (asset) => {
-            graph.addNode(asset.path);
-            graph.setNodeData(asset.path, {type: 'asset'});
-            graph.addDependency(path, asset.path);
-        });
+        // (this.pathToAssets.get(key) || []).map(async (asset) => {
+        //     graph.addNode(asset.path);
+        //     graph.setNodeData(asset.path, {type: 'asset'});
+        //     graph.addDependency(path, asset.path);
+        // });
 
         return graph;
     }
