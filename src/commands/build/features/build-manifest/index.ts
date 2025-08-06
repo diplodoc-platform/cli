@@ -96,7 +96,7 @@ export class BuildManifest {
 
             return load(await run.read(yfmConfigPath)) ?? {};
         } catch (error) {
-            run.logger.warn(`BuildMap: Failed to read YFM config: ${error}`);
+            run.logger.warn(`BuildManifest: Failed to read YFM config: ${error}`);
 
             return {};
         }
@@ -123,7 +123,9 @@ export class BuildManifest {
             const pathParts = path.split('/');
 
             if (pathParts.length === 0) {
-                run.logger.warn(`BuildMap: Attempted to add an empty path to the prefix tree.`);
+                run.logger.warn(
+                    `BuildManifest: Attempted to add an empty path to the prefix tree.`,
+                );
 
                 return;
             }
@@ -133,24 +135,28 @@ export class BuildManifest {
 
             const {name, ext} = parse(fileWithExtension);
 
-            const lastHead = dirs.reduce<FileTrie>((head, dir) => {
-                const maybeExisting = head[dir];
+            let lastHead: FileTrie = fileTrie;
+
+            dirs.forEach((dir) => {
+                const maybeExisting = lastHead[dir];
                 const trieNode = maybeExisting ?? {};
                 const newChildren = trieNode.children ?? {};
-                head[dir] = trieNode;
+                lastHead[dir] = trieNode;
 
                 trieNode.children = newChildren;
 
-                return newChildren;
+                lastHead = newChildren;
             }, fileTrie);
 
             if (lastHead[name]?.file) {
-                run.logger.warn(`BuildMap: File ${path} already exists in prefix tree.`);
-                run.logger.warn(
-                    '   This likely means two files with the same name have different extensions.',
+                const pathToReport = path.replace(/\..+$/, '');
+
+                run.logger.error(
+                    `BuildManifest: Attepmted to commit a file with extension \`${ext}\` at path \`${pathToReport}\` which already exists with extension \`${lastHead[name]?.file?.ext}\`. This behavior is not supported.`,
                 );
-                run.logger.warn(
-                    '   Please note that this might lead to undefined behavior. Overriding.',
+
+                throw new Error(
+                    `File object at path ${pathToReport} already exists in prefix tree.`,
                 );
             }
 
