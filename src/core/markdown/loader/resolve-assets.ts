@@ -18,7 +18,9 @@ export function resolveAssets(this: LoaderContext, content: string) {
 
     for (const info of [...defs, ...links]) {
         try {
-            info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
+            if (info.path !== null) {
+                info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
+            }
             assets.push(info);
         } catch {}
     }

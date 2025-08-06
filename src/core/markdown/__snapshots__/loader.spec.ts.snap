@@ -93,6 +93,25 @@ exports[`Markdown loader > resolveAssets > should detect link image asset 1`] = 
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should detect link to anchor 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": "#anchor",
+      "location": [
+        17,
+        27,
+      ],
+      "path": null,
+      "search": null,
+      "title": "link",
+      "type": "link",
+    },
+  ],
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should skip commented content 1`] = `
 [
   [
