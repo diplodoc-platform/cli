@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.2.2](https://github.com/diplodoc-platform/cli/compare/v5.2.1...v5.2.2) (2025-08-06)
+
+
+### Bug Fixes
+
+* lang type, path in assets, config in tests ([5efdbb1](https://github.com/diplodoc-platform/cli/commit/5efdbb16094993f01cb32c5fe1f33b9396210ce2))
+* removed interface and resources from html meta ([#1303](https://github.com/diplodoc-platform/cli/issues/1303)) ([50a18a1](https://github.com/diplodoc-platform/cli/commit/50a18a197ecbe1b7601ad4f5da3f89e50470c727))
+
 ## [5.2.1](https://github.com/diplodoc-platform/cli/compare/v5.2.0...v5.2.1) (2025-08-05)
 
 
