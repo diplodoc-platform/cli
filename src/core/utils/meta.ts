@@ -1,11 +1,9 @@
-import {YfmFields} from '~/constants';
+import {testedMetaFields} from '~/constants';
 
 export function filterMeta<T>(meta: Hash<T>[]): Hash<T>[] {
-    const excludedFields = Object.values(YfmFields);
-
     return meta.filter((item: Hash) => {
         if (!item.name) return true;
 
-        return !excludedFields.includes(item.name);
+        return !testedMetaFields.includes(item.name);
     });
 }
