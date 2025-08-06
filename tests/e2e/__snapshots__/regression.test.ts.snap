@@ -330,6 +330,7 @@ exports[`Regression > internal 17`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: merge-source/merged.md
 ---
 # Merged item
 
@@ -341,6 +342,8 @@ exports[`Regression > internal 18`] = `
 "items:
   - name: Use merged
     href: merge.md
+  - name: Multitoc item
+    href: ../1.md
   - name: Merged item
     href: merged.md
 path: merge/toc.yaml
@@ -602,6 +605,8 @@ exports[`Regression > internal 25`] = `
   - name: Md item named without extension
     href: 1.md
   - name: Item with empty href
+  - name: Multitoc item
+    href: merge/merged.md
   - name: Included Item
     href: included-item.md
   - name: Named include (items is Object here - this is not an error)
@@ -1164,6 +1169,7 @@ exports[`Regression > internal 40`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="sourcePath" content="merge-source/merged.md">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
@@ -1174,7 +1180,7 @@ exports[`Regression > internal 40`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1192,7 +1198,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 41`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
 exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
@@ -1384,4 +1390,4 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 47`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

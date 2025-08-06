@@ -42,9 +42,9 @@ if (isMainThread && require.main === module) {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
-        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
+        if (global.VERSION && process.env.NODE_ENV !== 'test') {
             // eslint-disable-next-line no-console
-            console.log(`Using v${VERSION} version`);
+            console.log(`Using v${global.VERSION} version`);
         }
 
         const report = await run(process.argv);

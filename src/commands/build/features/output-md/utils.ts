@@ -1,4 +1,4 @@
-import type {Collect, EntryGraphNode} from '~/core/markdown';
+import type {Collect, IncludeInfo} from '~/core/markdown';
 
 import {extname} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -12,8 +12,8 @@ type Plugin = {
     collect?: Collect;
 };
 
-type HashedGraphNode = EntryGraphNode & {
-    link: string;
+export type HashedGraphNode = IncludeInfo & {
+    content: string;
     hash: string;
 };
 
@@ -54,7 +54,7 @@ export function getCustomCollectPlugins(): Collect[] {
 }
 
 export function replaceDeps(content: string, deps: HashedGraphNode[]) {
-    deps = deps.slice();
+    deps = deps.slice().sort((a, b) => a.location[0] - b.location[0]);
 
     while (deps.length) {
         const dep = deps.pop() as HashedGraphNode;

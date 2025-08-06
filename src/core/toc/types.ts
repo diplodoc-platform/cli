@@ -18,6 +18,7 @@ export type WithItems<Item> = {
 };
 
 export type RawToc = {
+    path: NormalizedPath;
     title?: YfmString | TextFilter[];
     label?: YfmString | TextFilter[];
     stage?: string;
@@ -110,3 +111,11 @@ export type NamedTocItem = {
     href?: NormalizedPath;
     'restricted-access'?: string[];
 };
+
+export type GraphTocData = {type: 'toc'; data: Toc | undefined | Promise<Toc | undefined>};
+
+type GraphTocIncludeData = {type: 'source'; data: undefined};
+
+type GraphEntryData = {type: 'entry'; data: undefined};
+
+export type GraphData = GraphTocData | GraphTocIncludeData | GraphEntryData;

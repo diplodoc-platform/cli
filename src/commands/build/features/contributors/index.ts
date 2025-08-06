@@ -1,6 +1,7 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VcsServiceConfig} from '~/core/vcs';
+import type {IncludeInfo} from '~/core/markdown';
 
 import {uniq} from 'lodash';
 
@@ -8,6 +9,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {defined, toggleable} from '~/core/config';
+import {flat, get} from '~/core/utils';
 
 import {options} from './config';
 
@@ -49,19 +51,16 @@ export class Contributors {
                     const rawDeps = await run.leading.deps(vfile.path);
                     const deps = uniq(rawDeps.map(({path}) => path));
 
-                    run.meta.add(
-                        vfile.path,
-                        await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps),
-                    );
+                    run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
                 },
             );
 
             getMarkdownHooks(run.markdown).Dump.tapPromise(
                 {name: 'Contributors', stage: -1},
                 async (vfile) => {
-                    const rawDeps = await run.markdown.deps(vfile.path);
-                    const deps = uniq(rawDeps.map(({path}) => path));
-                    const meta = await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps);
+                    const rawDeps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
+                    const deps = uniq(rawDeps.map(get('path')));
+                    const meta = await run.vcs.metadata(vfile.path, deps);
 
                     run.meta.add(vfile.path, meta);
                 },
