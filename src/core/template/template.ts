@@ -159,7 +159,9 @@ export class Template {
         const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
-        const filteredMeta = this.meta.filter((item: Hash) => item.name !== 'interface' && item.name !== 'resources');
+        const filteredMeta = this.meta.filter(
+            (item: Hash) => item.name !== 'interface' && item.name !== 'resources',
+        );
 
         return dedent`
             <!DOCTYPE html>
