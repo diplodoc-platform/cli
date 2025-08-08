@@ -7,6 +7,7 @@ import {includer} from '@diplodoc/openapi-extension/includer';
 
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
+import {normalizePath} from '@diplodoc/cli/lib/utils';
 
 type Run = BaseRun & {
     toc?: TocService;
@@ -22,6 +23,9 @@ export class Extension implements IExtension {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (_rawtoc, options, from) => {
+                    const input = normalizePath(options.input);
+                    run.toc!.relations.addNode(input, {type: 'source', data: undefined});
+                    run.toc!.relations.addDependency(from, input);
                     // @ts-ignore
                     const {toc, files} = await includer(run, options, from);
 
