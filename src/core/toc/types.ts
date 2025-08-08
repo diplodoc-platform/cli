@@ -71,6 +71,10 @@ export type IncluderOptions<T extends Hash = Hash> = {
      * Relative to run.input include path
      */
     path: RelativePath;
+    /**
+     * Relative to run.input path to toc from which this part was included
+     */
+    from: RelativePath;
 } & T;
 
 export type IncludeInfo = {

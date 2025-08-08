@@ -104,8 +104,8 @@ export class VarsService {
     /**
      * Получает файлы, которые зависят от изменённых свойств и (опционально) конкретного scopePath
      */
-    getAffectedFiles(scopePath: string, changedProperties: string[]): Set<RelativePath> {
-        const affectedFiles = new Set<RelativePath>();
+    getAffectedFiles(scopePath: string, changedProperties: string[]) {
+        const affectedFiles = new Set<NormalizedPath>();
 
         for (const property of changedProperties) {
             const dependencyKey = `${scopePath}#${property}`;
@@ -113,7 +113,7 @@ export class VarsService {
             if (this.graph.hasNode(dependencyKey)) {
                 const dependents = this.graph.dependentsOf(dependencyKey);
                 for (const dependent of dependents) {
-                    affectedFiles.add(dependent as RelativePath);
+                    affectedFiles.add(dependent as NormalizedPath);
                 }
             }
         }
@@ -151,6 +151,7 @@ export class VarsService {
 
         for (const prop of props) {
             (this.graph.dependantsOf(prop) as NormalizedPath[])
+                .filter((path) => path !== pathA)
                 .filter((path) => canBeUsedByPath(pathA, path))
                 .forEach((path) => specified.add(path));
         }
@@ -282,7 +283,11 @@ export class VarsService {
      * Отслеживает зависимость файла от свойства
      */
     @bounded
-    private trackDependency(path: RelativePath, scopePath: string, propertyPath: string | symbol): void {
+    private trackDependency(
+        path: RelativePath,
+        scopePath: string,
+        propertyPath: string | symbol,
+    ): void {
         if (!this.storeDeps) {
             return;
         }
