@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.3.0](https://github.com/diplodoc-platform/cli/compare/v5.2.2...v5.3.0) (2025-08-08)
+
+
+### Features
+
+* draft implementation for BuildManifest feature ([339ee5f](https://github.com/diplodoc-platform/cli/commit/339ee5f9bb711c3994128847d1ef0a5e75eccd6c))
+* Improve mdit_plugins ([971c57d](https://github.com/diplodoc-platform/cli/commit/971c57d23c0b523b8068a72db633d862514ee67e))
+* optimize manifest size on disk ([c4ca36d](https://github.com/diplodoc-platform/cli/commit/c4ca36d444393060bb724c234f710315032841a5))
+* preprocess autotitles with sheduler ([29d7783](https://github.com/diplodoc-platform/cli/commit/29d778311439313f1ec50a5d0746f05f48d8acf7))
+* tests for build maps ([a4e19a3](https://github.com/diplodoc-platform/cli/commit/a4e19a3e754807a32dade77499d533d7e0ae2e6b))
+
+
+### Bug Fixes
+
+* replace warning with an error on a duplicate file ([45c96ee](https://github.com/diplodoc-platform/cli/commit/45c96ee10cc80b9635db81edf31abdc616de1ac9))
+
 ## [5.2.2](https://github.com/diplodoc-platform/cli/compare/v5.2.1...v5.2.2) (2025-08-06)
 
 
