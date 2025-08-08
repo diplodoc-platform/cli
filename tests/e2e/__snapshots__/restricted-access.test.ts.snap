@@ -134,6 +134,7 @@ path: toc.yaml
 
 exports[`Restricted access > Simple restricted access > filelist 1`] = `
 "[
+  "includes.md",
   "index.md",
   "plugins/index.md",
   "plugins/index2.md",
@@ -149,8 +150,10 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
-  - - admin
+  - - includes
 ---
+Last
+
 "
 `;
 
@@ -172,8 +175,6 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
-  - - admin
-    - user
 ---
 "
 `;
@@ -185,6 +186,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
+  - - admin
+    - user
 ---
 "
 `;
@@ -196,12 +199,23 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
-  - - customInFile
 ---
 "
 `;
 
 exports[`Restricted access > Simple restricted access 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+  - - customInFile
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 7`] = `
 "title: Yandex Flavored Markdown
 items:
   - name: Yandex Flavored Markdown
@@ -229,6 +243,9 @@ items:
         href: plugins/index4.md
         restricted-access:
           - admin
+  - name: Included
+    href: includes.md
+    restricted-access: includes
 path: toc.yaml
 "
 `;
