@@ -24,6 +24,7 @@ export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     link: string;
     match: string;
     location: Location;
+    indent: number;
 };
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {

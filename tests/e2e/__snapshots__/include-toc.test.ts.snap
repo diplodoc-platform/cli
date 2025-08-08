@@ -2,23 +2,17 @@
 
 exports[`Include toc > Nested toc inclusions with mixed including modes > filelist 1`] = `
 "[
-  "product1/_includes/inc-hash.md",
   "product1/article1.md",
   "product1/toc.yaml",
-  "product2/overlay1/_includes/inc-hash.md",
   "product2/overlay1/article1.md",
-  "product2/overlay2/_includes/inc-hash.md",
   "product2/overlay2/article1.md",
-  "product2/overlay3/_includes/inc-hash.md",
   "product2/overlay3/article1.md",
   "product2/p2.md",
   "product2/toc.yaml"
 ]"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `"This is the core include."`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `
 "---
 metadata:
   - name: generator
@@ -26,7 +20,16 @@ metadata:
 ---
 This is the core content of Article 1.
 
-{% include [x](_includes/inc-hash.md) %}
+This is the core include.
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
+"title: Product 1 title
+items:
+  - name: Article1
+    href: article1.md
+path: product1/toc.yaml
 "
 `;
 
@@ -52,16 +55,28 @@ path: toc.yaml
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 3`] = `
-"title: Product 1 title
-items:
-  - name: Article1
-    href: article1.md
-path: product1/toc.yaml
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+This is the overlay content of Article 1 for product 2.
+
+This is the core include.
+
 "
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
-"This is the core include.
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+This is the overlay number #2  of Article 1 content for product 2.
+
+This is the core include.
+
 "
 `;
 
@@ -71,47 +86,14 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 ---
-This is the overlay content of Article 1 for product 2.
+This is the core content of Article 1.
 
-{% include [x](_includes/inc-hash.md) %}
+This is the core include.
+
 "
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
-"This is the core include.
-"
-`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
----
-This is the overlay number #2  of Article 1 content for product 2.
-
-{% include [x](_includes/inc-hash.md) %}
-"
-`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 8`] = `
-"This is the core include.
-"
-`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 9`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
----
-This is the core content of Article 1.
-
-{% include [x](_includes/inc-hash.md) %}
-"
-`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 10`] = `
 "---
 metadata:
   - name: generator
@@ -123,7 +105,7 @@ Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 11`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
 "title: Product 2 title
 items:
   - name: P2 Article

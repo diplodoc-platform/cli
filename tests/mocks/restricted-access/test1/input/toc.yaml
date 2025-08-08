@@ -25,4 +25,7 @@ items:
         href: plugins/index4.md
         restricted-access:
           - admin
+  - name: Included
+    href: includes.md
+    restricted-access: includes
 

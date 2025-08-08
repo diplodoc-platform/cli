@@ -1,2 +1,3 @@
 preprocess:
   mergeAutotitles: true
+  mergeIncludes: true

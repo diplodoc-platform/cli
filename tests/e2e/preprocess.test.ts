@@ -13,9 +13,9 @@ const generateFilesYamlTestTemplate = (
 };
 
 describe('Preprocess', () => {
-    generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=false', 'mocks/preprocess/test1');
+    generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=false,MergeIncludes=false', 'mocks/preprocess/test1');
 
-    generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true', 'mocks/preprocess/test2');
+    generateFilesYamlTestTemplate('HashIncludes=true(ignore),Autotitles=true,MergeIncludes=true', 'mocks/preprocess/test2');
 
     // generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/preprocess/test3');
 });

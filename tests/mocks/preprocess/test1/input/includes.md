@@ -10,5 +10,20 @@ Link after include
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
 {% include [For includes/deep.md](includes/deep.md) %}
 
+Include with big indent
+
+  {% include [For includes/deep.md](includes/deepWithIndent.md) %}
+
+Include as codeblock
+
+    {% include [As code block](included-item.md) %}
+
+```
+  {% include [As code block](included-item.md) %}
+```
+
+:   Include as deflist
+    {% include [As deflist](included-item.md) %}
+
 Link after include
 [{#T}](./1.md#subtitle)
