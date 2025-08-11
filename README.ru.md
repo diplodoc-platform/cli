@@ -14,6 +14,10 @@ Yfm-docs позволяет собрать полноценный докумен
 
 [ydocs.tech](https://diplodoc.com/docs/ru/tools/docs)
 
+## Требования
+
+Node 22+
+
 ## Использование
 
 ```bash

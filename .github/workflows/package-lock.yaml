@@ -10,21 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
           # Важно, чтобы токен был вручную добавлен в репозиторий
           # Иначе после коммита не перезапускается workflow
           token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
-      - name: Setup Node 18
+      - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
       - name: Install packages for project
-        run: npm i --package-lock-only --save-exact
+        run: npm i --package-lock-only
       - name: Create and publish commit
         env:
           GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}

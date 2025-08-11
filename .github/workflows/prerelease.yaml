@@ -8,10 +8,10 @@ jobs:
     if: github.ref_protected != true
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Node 18
-        uses: actions/setup-node@v3
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
       - run: npm ci
