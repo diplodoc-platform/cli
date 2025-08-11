@@ -215,12 +215,19 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const vcs = this.run.vcs.getData();
 
         console.log('Sync project data');
-        await this.sync(this.run.toc.graph, vcs);
+        await this.sync(this.run.toc.relations, vcs);
 
         await this.concurrently(this.run.toc.tocs, this.processToc);
 
         console.log('Process project files');
-        await this.concurrently(this.run.toc.entries, this.processEntry);
+        await this.concurrently(this.run.toc.entries, async (entry) => {
+            try {
+                await this.processEntry(entry);
+            } catch (error) {
+                console.error(error);
+                this.run.logger.error(`${entry}: ${error}`);
+            }
+        });
 
         await handler(this.run);
 
@@ -243,7 +250,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     @threads.multicast('build.sync')
     async sync(tocs: Graph<TocGraphData>, vcs: VcsSyncData) {
         this.run.vcs.setData(vcs);
-        this.run.toc.graph.consume(tocs);
+        this.run.toc.relations.consume(tocs);
     }
 
     @bounded async processToc(raw: Toc) {
@@ -253,27 +260,22 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @bounded async processEntry(entry: NormalizedPath) {
-        try {
-            const {outputFormat} = this.config;
+        const {outputFormat} = this.config;
 
-            this.run.logger.proc(entry);
+        this.run.logger.proc(entry);
 
-            this.run.entry.graph.addNode(entry);
+        this.run.entry.relations.addNode(entry);
 
-            const meta = this.run.meta.get(entry);
+        const meta = this.run.meta.get(entry);
 
-            const info = await this.process(entry, meta);
+        const info = await this.process(entry, meta);
 
-            this.run.vars.graph.consume(info.varsGraph);
-            this.run.entry.graph.consume(info.entryGraph);
+        this.run.vars.relations.consume(info.varsGraph);
+        this.run.entry.relations.consume(info.entryGraph);
 
-            await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
+        await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
 
-            this.run.logger.info('Processing finished:', entry);
-        } catch (error) {
-            console.error(error);
-            this.run.logger.error(`${entry}: ${error}`);
-        }
+        this.run.logger.info('Processing finished:', entry);
     }
 
     @threads.threaded('build.process')

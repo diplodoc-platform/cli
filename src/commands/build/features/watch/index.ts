@@ -91,6 +91,15 @@ class Watcher {
         return data?.type === 'toc';
     }
 
+    @bounded isKnownTocGenerator(path: NormalizedPath) {
+        if (!this.isGraphPart('toc', path)) {
+            return false;
+        }
+
+        const data = this.run.toc.relations.getNodeData(path);
+        return data?.type === 'generator';
+    }
+
     @bounded isToc(path: NormalizedPath) {
         return Boolean(path.match(/(^|\/|\\)toc.yaml$/));
     }
@@ -303,6 +312,7 @@ export class Watch {
                 const entries = [...watch.invalide].filter(watch.isKnownEntry);
                 for (const entry of entries) {
                     watch.invalide.delete(entry);
+                    watch.run.entry.release(entry);
                     await watch.processEntry(entry).catch(watch.logger.error);
                 }
 
@@ -356,6 +366,7 @@ export class Watch {
         watch.logger.info('Handle toc graph change for', file);
 
         const isExistedToc = (path: NormalizedPath) => path !== file || hasNewContent;
+        const isGenerator = watch.isKnownTocGenerator(file);
 
         // Touched files can be toc or some toc part (like include).
         const oldFiles = [file, ...watch.getParents('toc', file)] as NormalizedPath[];
@@ -419,6 +430,13 @@ export class Watch {
 
             watch.invalidate(entry);
         }
+
+        // If entries was generated, then we expect that any existed entry can be updated.
+        if (isGenerator) {
+            for (const entry of entriesDiff.rest) {
+                watch.invalidate(entry);
+            }
+        }
     }
 
     private async reinitTocs(watch: Watcher, tocs: NormalizedPath[]) {
@@ -474,6 +492,7 @@ export class Watch {
 function diff(a: NormalizedPath[], b: NormalizedPath[]) {
     const removed = [];
     const added = [];
+    const rest = [];
 
     const paths = new Set([...a, ...b]);
     for (const path of paths) {
@@ -487,7 +506,9 @@ function diff(a: NormalizedPath[], b: NormalizedPath[]) {
         if (!aMemeber && bMemeber) {
             added.push(path);
         }
+
+        rest.push(path);
     }
 
-    return {added, removed};
+    return {added, removed, rest};
 }
