@@ -82,7 +82,7 @@
     "glob": "^10.4.5",
     "highlight.js": "^11.10.0",
     "js-yaml": "4.1.0",
-    "katex": "0.16.9",
+    "katex": "0.16.22",
     "lodash": "4.17.21",
     "normalize-path": "3.0.0",
     "p-map": "4.0.0",
