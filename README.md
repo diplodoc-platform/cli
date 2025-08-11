@@ -14,6 +14,10 @@ Yfm-docs lets you build a full-fledged documentation project: with navigation, i
 
 [ydocs.tech](https://diplodoc.com/docs/en/tools/docs)
 
+## Requirements
+
+Node 22+
+
 ## Usage
 
 ```bash

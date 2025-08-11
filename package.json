@@ -138,9 +138,6 @@
     "walk-sync": "3.0.0"
   },
   "engines": {
-    "node": ">=18.*"
-  },
-  "overrides": {
-    "undici": "6.21.3"
+    "node": ">=22.*"
   }
 }
