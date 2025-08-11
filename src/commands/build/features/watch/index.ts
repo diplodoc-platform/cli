@@ -12,7 +12,7 @@ import {createServer} from 'node:http';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {bounded, compareJson, normalizePath} from '~/core/utils';
+import {Graph, bounded, compareJson, normalizePath} from '~/core/utils';
 
 import {options} from './config';
 import * as threads from '~/commands/threads';
@@ -31,6 +31,8 @@ class Watcher {
     readonly changed = new Set<NormalizedPath>();
 
     readonly invalide = new Set<NormalizedPath>();
+
+    readonly detachedEntries: Graph = new Graph();
 
     readonly run: Run;
 
@@ -61,16 +63,23 @@ class Watcher {
         return event.eventType;
     }
 
-    @bounded invalidate(path: NormalizedPath) {
+    @bounded invalidateToc(path: NormalizedPath) {
         this.invalide.add(path);
     }
 
-    processToc(...args: Parameters<Build['processToc']>) {
+    @bounded invalidateEntry(path: NormalizedPath) {
+        const graph = this.run.entry.relations.extract(path);
+        this.invalide.add(path);
+        this.detachedEntries.consume(graph);
+    }
+
+    async processToc(...args: Parameters<Build['processToc']>) {
         return this.program.processToc(...args);
     }
 
-    processEntry(...args: Parameters<Build['processEntry']>) {
-        return this.program.processEntry(...args);
+    async processEntry(entry: NormalizedPath) {
+        await this.program.processEntry(entry);
+        this.detachedEntries.release(entry);
     }
 
     @bounded isKnownEntry(path: NormalizedPath) {
@@ -108,12 +117,13 @@ class Watcher {
         return Boolean(path.match(/(^|\/|\\)presets.yaml$/));
     }
 
-    isGraphPart(graph: 'toc' | 'vars' | 'entry', node: NormalizedPath) {
-        return this.run[graph].relations.hasNode(node);
+    isGraphPart(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
+        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
+        return store.hasNode(node);
     }
 
-    getParents(graph: 'toc' | 'vars' | 'entry', node: NormalizedPath) {
-        const store = this.run[graph].relations;
+    getParents(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
+        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
         if (!store.hasNode(node)) {
             return [];
         }
@@ -121,8 +131,8 @@ class Watcher {
         return store.dependantsOf(node) as NormalizedPath[];
     }
 
-    getChilds(graph: 'toc' | 'vars' | 'entry', node: NormalizedPath) {
-        const store = this.run[graph].relations;
+    getChilds(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
+        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
         if (!store.hasNode(node)) {
             return [];
         }
@@ -267,8 +277,10 @@ export class Watch {
 
             const isTocGraphPart = watch.isGraphPart('toc', file);
             const isEntryGraphPart = watch.isGraphPart('entry', file);
+            const isDetachedEntryGraphPart = watch.isGraphPart('detached', file);
             const isVarsGraphPart = watch.isGraphPart('vars', file);
-            const isGraphPart = isTocGraphPart || isEntryGraphPart || isVarsGraphPart;
+            const isGraphPart =
+                isTocGraphPart || isEntryGraphPart || isDetachedEntryGraphPart || isVarsGraphPart;
 
             // New file was added.
             // Some kind of new files should be handled.
@@ -302,6 +314,10 @@ export class Watch {
                 await this.handleChangeEntry(file, watch, {hasNewContent});
             }
 
+            if (isDetachedEntryGraphPart) {
+                await this.handleChangeDetachedEntry(file, watch, {hasNewContent});
+            }
+
             if (watch.invalide.size) {
                 const tocs = [...watch.invalide].filter(watch.isKnownToc);
                 for (const toc of tocs) {
@@ -313,6 +329,7 @@ export class Watch {
                 for (const entry of entries) {
                     watch.invalide.delete(entry);
                     watch.run.entry.release(entry);
+                    watch.run.entry.relations.release(entry);
                     await watch.processEntry(entry).catch(watch.logger.error);
                 }
 
@@ -411,7 +428,7 @@ export class Watch {
         // Update added to toc entries
         // because path for this entries can be changed.
         for (const entry of entriesDiff.added) {
-            watch.invalidate(entry);
+            watch.invalidateEntry(entry);
         }
 
         // Update removed from toc entries.
@@ -428,13 +445,13 @@ export class Watch {
                 continue;
             }
 
-            watch.invalidate(entry);
+            watch.invalidateEntry(entry);
         }
 
         // If entries was generated, then we expect that any existed entry can be updated.
         if (isGenerator) {
             for (const entry of entriesDiff.rest) {
-                watch.invalidate(entry);
+                watch.invalidateEntry(entry);
             }
         }
     }
@@ -443,7 +460,7 @@ export class Watch {
         for (const toc of tocs) {
             try {
                 await watch.run.toc.init([toc]);
-                watch.invalidate(toc);
+                watch.invalidateToc(toc);
             } catch (error) {
                 watch.logger.error(error);
             }
@@ -457,8 +474,6 @@ export class Watch {
     ) {
         watch.logger.info('Handle entry graph change for', file);
 
-        const isExistedEntry = (path: NormalizedPath) => path !== file || hasNewContent;
-
         const files = [file, ...watch.getParents('entry', file)] as NormalizedPath[];
         const entries = files.filter(watch.isKnownEntry);
 
@@ -469,11 +484,33 @@ export class Watch {
                     watch.run.entry.release(file, entry);
                 }
             }
-            watch.run.entry.release(entry);
-            watch.run.entry.relations.release(entry);
 
-            if (isExistedEntry(entry)) {
-                watch.invalidate(entry);
+            if (file !== entry || hasNewContent) {
+                watch.invalidateEntry(entry);
+            }
+        }
+    }
+
+    private async handleChangeDetachedEntry(
+        file: NormalizedPath,
+        watch: Watcher,
+        {hasNewContent = true} = {},
+    ) {
+        watch.logger.info('Handle detached graph change for', file);
+
+        const files = [file, ...watch.getParents('detached', file)] as NormalizedPath[];
+        const entries = files.filter(watch.isKnownEntry);
+
+        for (const entry of entries) {
+            for (const file of files) {
+                if (!watch.isKnownEntry(file)) {
+                    // Release all includes relative to target entry
+                    watch.run.entry.release(file, entry);
+                }
+            }
+
+            if (file !== entry || hasNewContent) {
+                watch.invalidateEntry(entry);
             }
         }
     }
