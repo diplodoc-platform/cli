@@ -12,7 +12,7 @@ Link after include
 
 Include with big indent
 
-  {% include [For includes/deep.md](includes/deepWithIndent.md) %}
+{% include [For includes/deep.md](includes/deepWithIndent.md) %}
 
 Include as codeblock
 
@@ -27,3 +27,5 @@ Include as codeblock
 
 Link after include
 [{#T}](./1.md#subtitle)
+
+[*popup-1]: {% include notitle [popup_1](included-item.md) %}
