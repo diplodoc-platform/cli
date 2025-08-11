@@ -389,7 +389,8 @@ describe('Build watch feature', () => {
                     service.relations.addNode(input, {type: 'source', data: undefined});
                     service.relations.addDependency(options.from, input);
 
-                    const content = await run(build).read(join(run(build).input, options.input));
+                    const file = normalizePath(join(run(build).input, options.input));
+                    const content = await run(build).read(file as AbsolutePath);
 
                     return load(content) as RawToc;
                 });

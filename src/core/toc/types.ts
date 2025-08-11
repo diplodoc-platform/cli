@@ -116,6 +116,8 @@ export type GraphTocData = {type: 'toc'; data: Toc | undefined | Promise<Toc | u
 
 type GraphTocIncludeData = {type: 'source'; data: undefined};
 
-type GraphEntryData = {type: 'entry'; data: undefined};
+type GraphTocGeneratorData = {type: 'generator'; data: undefined};
 
-export type GraphData = GraphTocData | GraphTocIncludeData | GraphEntryData;
+type GraphEntryData = {type: 'entry'; data: unknown};
+
+export type GraphData = GraphTocData | GraphTocIncludeData | GraphTocGeneratorData | GraphEntryData;
