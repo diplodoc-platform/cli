@@ -24,8 +24,10 @@ export class Extension implements IExtension {
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (rawtoc, options) => {
                     const input = normalizePath(options.input);
-                    run.toc!.graph.addNode(input, {type: 'source', data: undefined});
-                    run.toc!.graph.addDependency(options.from, input);
+                    run.toc!.graph.addNode(input, {type: 'generator', data: undefined});
+                    // TODO: We need to add this node in TocService only
+                    run.toc!.graph.addNode(rawtoc.path, {type: 'source', data: undefined});
+                    run.toc!.graph.addDependency(rawtoc.path, input);
                     // @ts-ignore
                     const {toc, files} = await includer(run, options, rawtoc.path);
 
@@ -33,6 +35,14 @@ export class Extension implements IExtension {
                     for (const {path, content} of files) {
                         await run.write(join(root, path), content, true);
                     }
+
+                    await run.toc!.walkEntries([toc], async (entry) => {
+                        const path = normalizePath(join(dirname(options.path), entry.href));
+                        run.toc!.graph.addNode(path, {type: 'entry', data: undefined});
+                        run.toc!.graph.addDependency(input, path);
+
+                        return entry;
+                    });
 
                     // @ts-ignore
                     return toc as RawToc;
