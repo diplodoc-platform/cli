@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.3.1](https://github.com/diplodoc-platform/cli/compare/v5.3.0...v5.3.1) (2025-08-12)
+
+
+### Bug Fixes
+
+* disable Autotitles ([f8a5df3](https://github.com/diplodoc-platform/cli/commit/f8a5df3ebf102644a9da23bc23a09e4ef8a8f2da))
+
 ## [5.3.0](https://github.com/diplodoc-platform/cli/compare/v5.2.2...v5.3.0) (2025-08-08)
 
 
