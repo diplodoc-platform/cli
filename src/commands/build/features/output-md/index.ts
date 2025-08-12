@@ -51,7 +51,7 @@ export class OutputMd {
                 mergeIncludes: false,
             });
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
-                mergeAutotitles: true,
+                mergeAutotitles: false,
             });
             return Object.assign(config, {
                 preprocess: {
