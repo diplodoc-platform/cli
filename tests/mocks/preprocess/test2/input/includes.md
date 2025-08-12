@@ -19,7 +19,7 @@ Include as codeblock
     {% include [As code block](included-item.md) %}
 
 ```
-  {% include [As code block](included-item.md) %}
+  {% include [As fence code block](included-item.md) %}
 ```
 
 :   Include as deflist

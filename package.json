@@ -88,7 +88,8 @@
     "p-map": "4.0.0",
     "tapable": "2.2.1",
     "threads": "1.7.0",
-    "ts-dedent": "2.2.0"
+    "ts-dedent": "2.2.0",
+    "vitest": "^3.2.1"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
