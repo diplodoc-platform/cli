@@ -32,7 +32,7 @@ export type OutputMdConfig = {
 };
 
 export type PreprocessConfig = {
-    preprocess: Partial<OutputMdConfig>;
+    preprocess: OutputMdConfig;
 };
 
 export class OutputMd {
@@ -48,7 +48,7 @@ export class OutputMd {
                 hashIncludes: true,
             });
             const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
-                mergeIncludes: false,
+                mergeIncludes: true,
             });
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
                 mergeAutotitles: false,
@@ -89,12 +89,14 @@ export class OutputMd {
                                 return processed.get(entry.path);
                             }
 
-                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
+                            const deps = await all(
+                                entry.deps.map((dep) => dump(dep, !config.mergeIncludes)),
+                            );
                             let content = entry.content;
                             const sheduler = new Sheduler();
 
-                            if (!config.mergeIncludes && config.hashIncludes) {
-                                sheduler.addStep(rehashIncludes(run, deps));
+                            if (config.hashIncludes) {
+                                sheduler.addStep(rehashIncludes(run, deps, config.mergeIncludes));
                             }
 
                             if (config.mergeAutotitles) {
@@ -104,7 +106,10 @@ export class OutputMd {
                             await sheduler.shedule(entry);
                             content = await sheduler.process(content);
 
-                            const hash = config.hashIncludes ? rehashContent(content) : '';
+                            const hash =
+                                config.hashIncludes && !config.mergeIncludes
+                                    ? rehashContent(content)
+                                    : '';
                             const link = signlink(entry.path, hash);
                             const hashed = {...entry, content, hash};
 
