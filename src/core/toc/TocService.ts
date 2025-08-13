@@ -195,7 +195,7 @@ export class TocService {
         memoize.release(this._dump, path);
     }
 
-    @bounded private isToc(path: NormalizedPath) {
+    @bounded isToc(path: NormalizedPath) {
         if (!this.graph.hasNode(path)) {
             return false;
         }
@@ -205,7 +205,7 @@ export class TocService {
         return data.type === 'toc';
     }
 
-    @bounded private isEntry(path: NormalizedPath) {
+    @bounded isEntry(path: NormalizedPath) {
         if (!this.graph.hasNode(path)) {
             return false;
         }
@@ -213,6 +213,16 @@ export class TocService {
         const data = this.graph.getNodeData(path);
 
         return data.type === 'entry';
+    }
+
+    @bounded isGenerator(path: NormalizedPath) {
+        if (!this.graph.hasNode(path)) {
+            return false;
+        }
+
+        const data = this.graph.getNodeData(path);
+
+        return data.type === 'generator';
     }
 
     @memoize('path')
