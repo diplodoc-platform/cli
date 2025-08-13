@@ -3,7 +3,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {EntryInfo, OutputFormat} from '../..';
 import type {SearchProvider} from './types';
 
-import {join} from 'node:path';
+import {join, basename} from 'node:path';
 import manifest from '@diplodoc/client/manifest';
 
 import {bounded, normalizePath} from '~/core/utils';
@@ -12,6 +12,7 @@ import {Template} from '~/core/template';
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
 import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
+import dedent from 'ts-dedent';
 
 const SEARCH_PAGE_DEPTH = 2;
 
@@ -25,7 +26,7 @@ export type SearchServiceConfig = {
     } & Hash<unknown>;
 };
 
-type Run = BaseRun<BaseConfig & SearchServiceConfig>;
+type Run = BaseRun<BaseConfig & SearchServiceConfig & Hash>;
 
 @withHooks
 export class SearchService implements SearchProvider<RelativePath> {
@@ -104,8 +105,19 @@ export class SearchService implements SearchProvider<RelativePath> {
     @bounded async page(lang: string) {
         const isRTL = RTL_LANGS.includes(lang);
         const template = new Template('_search' as NormalizedPath, lang);
+        const config = this.run.config;
+        const baseInterface = config.interface;
+        const faviconSrc = baseInterface['favicon-src'] || '';
 
-        template.setTitle('Search');
+        const state = {
+            lang,
+            ...this.config(lang),
+        };
+
+        const title = lang === 'ru' ? 'Поиск' : 'Search';
+
+        template.setTitle(title);
+        template.setFaviconSrc(faviconSrc);
         template.addMeta({robots: 'noindex'});
 
         manifest.search.css
@@ -114,6 +126,35 @@ export class SearchService implements SearchProvider<RelativePath> {
             .map(template.addStyle);
 
         manifest.search.js.map(rebase).map(template.addScript);
+
+        template.addScript(template.escape(JSON.stringify(state)), {
+            inline: true,
+            position: 'state',
+            attrs: {
+                type: 'application/json',
+                id: 'diplodoc-state',
+            },
+        });
+        template.addScript(
+            dedent`
+                const data = document.querySelector('script#diplodoc-state');
+                window.__DATA__ = {
+                    search: JSON.parse((function ${template.unescape.toString()})(data.innerText)),
+                }
+            `,
+            {
+                inline: true,
+                position: 'state',
+            },
+        );
+
+        const resourcesLink = this.provider.resourcesLink?.(lang);
+
+        if (resourcesLink) {
+            const resourcesLinkBase = basename(resourcesLink);
+
+            template.addScript(resourcesLinkBase);
+        }
 
         await getHooks(this).Page.promise(template);
 
