@@ -9,9 +9,9 @@ import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
-import {isExternalHref} from '~/core/utils';
+import {flat, isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
 
@@ -108,7 +108,7 @@ export class Lint {
                         return;
                     }
 
-                    const deps = await run.markdown.deps(vfile.path);
+                    const deps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const assets = await run.markdown.assets(vfile.path);
                     const errors = await run.lint(vfile.path, vfile.data, {deps, assets});
 
