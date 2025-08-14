@@ -32,6 +32,7 @@
     },
     "./package": "./package.json",
     "./mdit-plugins": "./build/mdit-plugins.js",
+    "./arcadia-vcs": "./build/arcadia-vcs.js",
     "./github-vcs": "./build/github-vcs.js"
   },
   "main": "build/index.js",
