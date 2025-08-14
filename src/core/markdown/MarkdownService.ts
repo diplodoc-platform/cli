@@ -15,7 +15,7 @@ import type {
 import {join} from 'node:path';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Buckets, Defer, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
+import {Buckets, Defer, VFile, all, bounded, flat, fullPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, TransformMode, loader} from './loader';
@@ -44,8 +44,11 @@ type Options = {
     mode: 'build' | 'translate';
 };
 
-function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
-    return `${path}+${from[0] || ''}`;
+type Dep = [IncludeInfo, Dep[]];
+type Deps = Dep[];
+
+function hash(path: NormalizedPath, from?: NormalizedPath) {
+    return `${path}${from ? '+' + from : ''}`;
 }
 
 const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
@@ -104,7 +107,7 @@ export class MarkdownService {
         this._plugins = await getHooks(this).Plugins.promise(this._plugins);
     }
 
-    @bounded async load(path: RelativePath, from: NormalizedPath[] = []) {
+    @bounded async load(path: RelativePath, from?: NormalizedPath) {
         const file = normalizePath(path);
         const key = this.hash(file, from);
 
@@ -118,7 +121,7 @@ export class MarkdownService {
 
         try {
             const raw = await this.run.read(join(this.run.input, file));
-            const vars = this.run.vars.for(from[0] || file);
+            const vars = this.run.vars.for((from?.[0] || file) as RelativePath);
 
             const context = this.loaderContext(file, raw, vars, this.proxy(key));
             const content = await loader.call(context, raw);
@@ -161,14 +164,14 @@ export class MarkdownService {
         return this._meta(normalizePath(path));
     }
 
-    // This is very buggy! Do not use memoize here.
     // @memoize(hash)
     async deps(path: RelativePath) {
-        return this._deps(normalizePath(path), []);
+        return this._deps(normalizePath(path));
     }
 
+    // @memoize(hash)
     async graph(path: RelativePath) {
-        return this._graph(normalizePath(path), []);
+        return this._graph(normalizePath(path));
     }
 
     // @memoize(hash)
@@ -233,7 +236,7 @@ export class MarkdownService {
         return Number(sourcemap[line]) || line;
     }
 
-    private async _meta(file: NormalizedPath, from: NormalizedPath[] = []) {
+    private async _meta(file: NormalizedPath, from?: NormalizedPath) {
         const key = this.hash(file, from);
 
         await this.load(file, from);
@@ -241,24 +244,26 @@ export class MarkdownService {
         return this.pathToMeta.get(key);
     }
 
-    private async _deps(file: NormalizedPath, from: NormalizedPath[] = []) {
+    private async _deps(file: NormalizedPath, from?: NormalizedPath): Promise<Deps> {
         const key = this.hash(file, from);
 
         await this.load(file, from);
 
         const deps = this.pathToDeps.get(key) || [];
-        const internals: IncludeInfo[][] = await all(
-            deps.map(async ({path, location}) => {
-                const deps = await this._deps(path, [...from, file]);
+        return all(
+            deps.map(async (node) => {
+                const deps = await this._deps(node.path, from || file);
 
-                return deps.map((dep) => ({...dep, location}));
+                if (deps.length) {
+                    return [node, deps];
+                }
+
+                return node;
             }),
-        );
-
-        return deps.concat(...internals);
+        ) as Promise<Deps>;
     }
 
-    private async _graph(path: NormalizedPath, from: NormalizedPath[] = []): Promise<EntryGraph> {
+    private async _graph(path: NormalizedPath, from?: NormalizedPath): Promise<EntryGraph> {
         const key = this.hash(path, from);
 
         const content = await this.load(path, from);
@@ -266,7 +271,7 @@ export class MarkdownService {
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 return {
                     ...dep,
-                    ...(await this._graph(dep.path, [...from, path])),
+                    ...(await this._graph(dep.path, from || path)),
                 };
             }),
         );
@@ -274,32 +279,32 @@ export class MarkdownService {
         return {path, content, deps};
     }
 
-    private async _assets(file: NormalizedPath, from: NormalizedPath[] = []) {
+    private async _assets(file: NormalizedPath, from?: NormalizedPath) {
         const key = this.hash(file, from);
 
         await this.load(file, from);
 
-        const assets = this.pathToAssets.get(key) || [];
-        const deps = (await this._deps(file, from)) || [];
+        const assets = (this.pathToAssets.get(key) || []).map((asset) => ({...asset, from}));
+        const deps = flat<IncludeInfo>(await this._deps(file, from)) || [];
         const internals: AssetInfo[][] = await all(
             deps.map(async ({path}) => {
-                return this._assets(path, [...from, file]);
+                return this._assets(path, from || file);
             }),
         );
 
         return assets.concat(...internals);
     }
 
-    private async _headings(file: NormalizedPath, from: NormalizedPath[] = []) {
+    private async _headings(file: NormalizedPath, from?: NormalizedPath) {
         const key = this.hash(file, from);
 
         await this.load(file, from);
 
         const headings = this.pathToHeadings.get(key) || [];
-        const deps = (await this._deps(file, from)) || [];
+        const deps = flat<IncludeInfo>(await this._deps(file, from)) || [];
         const internals: HeadingInfo[][] = await all(
             deps.map(async ({path, location}) => {
-                const headings = await this._headings(path, [...from, file]);
+                const headings = await this._headings(path, from || file);
                 return headings.map((heading) => ({...heading, location}));
             }),
         );

@@ -258,7 +258,9 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
   "included-item.md",
   "includes.md",
   "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
   "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
   "includes/test-hash.md",
   "includes/user-hash.md",
   "latex.md",
@@ -397,6 +399,10 @@ Link after include
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
 {% include [For includes/deep-hash.md](includes/deep-hash.md) %}
 
+Include with big indent
+
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
+
 Link after include
 [Subtitle](./1.md#subtitle)
 "
@@ -408,21 +414,38 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 7`] = `
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
-"Bob
-"
+"- list item
+
+  {% include [user](./sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](../mermaid.md)"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 9`] = `
-"Test
+"Bob
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 10`] = `
+"Link to mermaid diagram from 2 level
+[Mermaid usage](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 11`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
 "Bob
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 11`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
 "---
 metadata:
   - name: generator
@@ -434,7 +457,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
 "---
 metadata:
   - name: generator
@@ -456,7 +479,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
 "---
 metadata:
   - name: generator
@@ -470,7 +493,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 16`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
