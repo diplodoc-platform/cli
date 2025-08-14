@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.4.0](https://github.com/diplodoc-platform/cli/compare/v5.3.2...v5.4.0) (2025-08-14)
+
+
+### Features
+
+* **BREAKING** update version node 22 ([8497f58](https://github.com/diplodoc-platform/cli/commit/8497f5838fd6d303be4301ae88e3b6301316e9c4))
+
 ## [5.3.2](https://github.com/diplodoc-platform/cli/compare/v5.3.1...v5.3.2) (2025-08-14)
 
 
