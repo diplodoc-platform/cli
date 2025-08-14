@@ -99,6 +99,7 @@ const builds = [
 const extensions = [
     ['src/extensions/mdit-plugins/index.ts', 'mdit-plugins'],
     ['src/extensions/github-vcs/index.ts', 'github-vcs'],
+    ['src/extensions/arcadia-vcs/index.ts', 'arcadia-vcs'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
