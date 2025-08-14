@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.3.2](https://github.com/diplodoc-platform/cli/compare/v5.3.1...v5.3.2) (2025-08-14)
+
+
+### Bug Fixes
+
+* exclude titles with from includes, add test ([a00eb47](https://github.com/diplodoc-platform/cli/commit/a00eb47d9040bd34645f2f8244045eb2af07dfc5))
+
+
+### Dependency update
+
+* update openapi ([078f974](https://github.com/diplodoc-platform/cli/commit/078f974c80a5bad329b62ac276bcdf1fceab5944))
+
 ## [5.3.1](https://github.com/diplodoc-platform/cli/compare/v5.3.0...v5.3.1) (2025-08-12)
 
 
