@@ -40,6 +40,14 @@ export class Contributors {
                 config.contributors.ignore = args.ignoreAuthor as string[];
             }
 
+            if (config.authors.ignore && !Array.isArray(config.authors.ignore)) {
+                config.authors.ignore = [].concat(config.authors.ignore);
+            }
+
+            if (config.contributors.ignore && !Array.isArray(config.contributors.ignore)) {
+                config.contributors.ignore = [].concat(config.contributors.ignore);
+            }
+
             return config;
         });
 
@@ -52,7 +60,7 @@ export class Contributors {
 
                     run.meta.add(
                         vfile.path,
-                        await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps),
+                        await run.vcs.metadata(vfile.path, deps),
                     );
                 },
             );
@@ -62,7 +70,7 @@ export class Contributors {
                 async (vfile) => {
                     const rawDeps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const deps = uniq(rawDeps.map(({path}) => path));
-                    const meta = await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps);
+                    const meta = await run.vcs.metadata(vfile.path, deps);
 
                     run.meta.add(vfile.path, meta);
                 },
