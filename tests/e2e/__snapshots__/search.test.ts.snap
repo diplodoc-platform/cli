@@ -2,6 +2,7 @@
 
 exports[`Local search > internal > filelist 1`] = `
 "[
+  ".yfm",
   "_bundle/search-async-1",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
@@ -20,19 +21,33 @@ exports[`Local search > internal > filelist 1`] = `
   "_bundle/search-js-2",
   "_bundle/search-css-2",
   "_search/api.js",
-  "_search/ru/hash-index.js",
-  "_search/ru/hash-resources.js",
-  "_search/ru/hash-registry.js",
-  "_search/ru/index.html",
-  "_search/ru/language.js",
+  "_search/en/hash-resources.js",
+  "_search/en/hash-index.js",
+  "_search/en/hash-registry.js",
+  "_search/en/index.html",
   "index.html",
   "toc.js"
 ]"
 `;
 
 exports[`Local search > internal 1`] = `
+"allowHTML: true
+langs: ['en','ru']
+
+interface:
+  toc-header: false
+  favicon-src: https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased
+  "
+`;
+
+exports[`Local search > internal 2`] = `
 "<!DOCTYPE html>
-<html lang="ru" dir="ltr">
+<html lang="en" dir="ltr">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -41,7 +56,7 @@ exports[`Local search > internal 1`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
+        <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
         
         <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
@@ -49,7 +64,7 @@ exports[`Local search > internal 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{},"search":{"enabled":true,"provider":"local","api":"_search/api.js","link":"_search/ru/index.html"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico"},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -59,7 +74,7 @@ exports[`Local search > internal 1`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
+        <script type="application/javascript" defer src="_search/en/hash-resources.js"></script>
         <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/app-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
@@ -68,4 +83,4 @@ exports[`Local search > internal 1`] = `
 </html>"
 `;
 
-exports[`Local search > internal 2`] = `"window.__DATA__.data.toc = {"href":"index.html","path":"toc.yaml","id":"UUID"};"`;
+exports[`Local search > internal 3`] = `"window.__DATA__.data.toc = {"href":"index.html","path":"toc.yaml","id":"UUID"};"`;

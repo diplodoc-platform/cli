@@ -3,7 +3,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {EntryInfo, OutputFormat} from '../..';
 import type {SearchProvider} from './types';
 
-import {join, basename} from 'node:path';
+import {basename, join} from 'node:path';
 import manifest from '@diplodoc/client/manifest';
 
 import {bounded, normalizePath} from '~/core/utils';
@@ -107,7 +107,7 @@ export class SearchService implements SearchProvider<RelativePath> {
         const template = new Template('_search' as NormalizedPath, lang);
         const config = this.run.config;
         const baseInterface = config.interface;
-        const faviconSrc = baseInterface['favicon-src'] || '';
+        const faviconSrc = (baseInterface && baseInterface['favicon-src']) || '';
 
         const state = {
             lang,
