@@ -60,7 +60,7 @@ export class Contributors {
 
                     run.meta.add(
                         vfile.path,
-                        await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps),
+                        await run.vcs.metadata(vfile.path, deps),
                     );
                 },
             );
@@ -70,7 +70,7 @@ export class Contributors {
                 async (vfile) => {
                     const rawDeps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const deps = uniq(rawDeps.map(({path}) => path));
-                    const meta = await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps);
+                    const meta = await run.vcs.metadata(vfile.path, deps);
 
                     run.meta.add(vfile.path, meta);
                 },

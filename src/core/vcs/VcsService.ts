@@ -33,14 +33,9 @@ export type VcsServiceConfig = {
     } & Hash;
 };
 
-type Meta = {
-    author?: string | Contributor;
-    sourcePath?: string;
-    vcsPath?: string;
-};
-
 type Run = BaseRun<VcsServiceConfig> & {
     toc: TocService;
+    meta: MetaService;
 };
 
 @withHooks
@@ -75,8 +70,9 @@ export class VcsService implements VcsConnector {
         this.connector.setData(data);
     }
 
-    async metadata(path: RelativePath, meta: Meta, deps: NormalizedPath[] = []) {
-        const file = normalizePath(path);
+    async metadata(path: RelativePath, deps: NormalizedPath[] = []) {
+        const file = this.run.normalize(path);
+        const meta = this.run.meta.get(file);
         const addVCSPath = Boolean(this.config.vcs.remoteBase);
 
         const result: VcsMetadata = {};
