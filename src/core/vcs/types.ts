@@ -7,6 +7,7 @@ export interface SyncData {
 export interface VcsConnector {
     getData(): SyncData;
     setData(data: SyncData): void;
+    getBase(): Promise<RelativePath>;
     getUserByLogin(login: string): Promise<Contributor | null>;
     getAuthorByPath(path: RelativePath): Promise<Contributor | null>;
     getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]>;
