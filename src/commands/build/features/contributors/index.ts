@@ -6,11 +6,10 @@ import {uniq} from 'lodash';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {defined, toggleable} from '~/core/config';
 
 import {options} from './config';
-import {flat} from '~/core/utils';
 
 export type ContributorsArgs = {
     mtimes?: {enabled: boolean};
@@ -60,7 +59,7 @@ export class Contributors {
             getMarkdownHooks(run.markdown).Dump.tapPromise(
                 {name: 'Contributors', stage: -1},
                 async (vfile) => {
-                    const rawDeps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
+                    const rawDeps = await run.markdown.deps(vfile.path);
                     const deps = uniq(rawDeps.map(({path}) => path));
                     const meta = await run.vcs.metadata(vfile.path, run.meta.get(vfile.path), deps);
 
