@@ -91,6 +91,10 @@ export class GithubVcsConnector implements VcsConnector {
         this.defer.resolve();
     }
 
+    async getBase() {
+        return this.git.getBase(this.run.originalInput);
+    }
+
     @bounded
     @memoize('login')
     async getUserByLogin(login: string): Promise<Contributor | null> {

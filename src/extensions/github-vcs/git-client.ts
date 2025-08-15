@@ -51,6 +51,15 @@ export class GitClient {
         return cleanup;
     }
 
+    /**
+     * Returns difference between yfm project root and git project root.
+     * Roots can be different if docs project is only small part of more complex product.
+     */
+    async getBase(baseDir: AbsolutePath) {
+        const root = await simpleGit({baseDir}).raw('rev-parse', '--show-toplevel');
+        return _normalizePath(relative(root.trim(), this.root)) || ('.' as NormalizedPath);
+    }
+
     async getContributors(baseDir: AbsolutePath) {
         const base = await this.getBase(baseDir);
         const ignore = this.config.contributors?.ignore || [];
@@ -142,15 +151,6 @@ export class GitClient {
         }
 
         return mtimes;
-    }
-
-    /**
-     * Returns difference between yfm project root and git project root.
-     * Roots can be different if docs project is only small part of more complex product.
-     */
-    private async getBase(baseDir: AbsolutePath) {
-        const root = await simpleGit({baseDir}).raw('rev-parse', '--show-toplevel');
-        return _normalizePath(relative(root.trim(), this.root)) || ('.' as NormalizedPath);
     }
 }
 
