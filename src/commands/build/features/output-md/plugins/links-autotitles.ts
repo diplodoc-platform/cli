@@ -3,7 +3,7 @@ import {Run} from '../../..';
 import {Sheduler, StepContext} from '../utils';
 
 function isAutotitle(asset: AssetInfo) {
-    return asset.autotitle === true && asset.type === 'link' && !asset.from;
+    return asset.autotitle === true && asset.type === 'link';
 }
 
 export function mergeAutotitles(run: Run, titleList: Map<string, string>) {

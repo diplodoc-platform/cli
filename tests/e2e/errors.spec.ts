@@ -13,7 +13,7 @@ function test(path: string, expect: Function) {
         const {inputPath, outputPath} = getTestPaths(path);
 
         const md = await TestAdapter.build.run(inputPath, outputPath, ['-j2', '-f', 'md']);
-        const html = await TestAdapter.build.run(inputPath, outputPath + '-html', ['-j2', '-f', 'html']);
+        const html = await TestAdapter.build.run(outputPath, outputPath + '-html', ['-j2', '-f', 'html']);
 
         return expect({md, html});
     });

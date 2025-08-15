@@ -32,7 +32,6 @@ export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     title: string;
     autotitle: boolean;
     location: Location;
-    from: NormalizedPath | undefined;
 };
 
 export type HeadingInfo = {
