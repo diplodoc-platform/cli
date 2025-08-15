@@ -103,6 +103,11 @@ export class VcsService implements VcsConnector {
         return result;
     }
 
+    @memoize()
+    async getBase() {
+        return this.connector.getBase();
+    }
+
     async getContributorsByPath(
         path: RelativePath,
         deps: RelativePath[] = [],
