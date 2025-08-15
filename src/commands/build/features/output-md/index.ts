@@ -1,7 +1,7 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VFile} from '~/core/utils';
-import type {EntryGraph, IncludeInfo} from '~/core/markdown';
+import type {EntryGraph} from '~/core/markdown';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
@@ -80,50 +80,35 @@ export class OutputMd {
                         const titles = new Map();
 
                         const config = run.config.preprocess;
-                        const graph = await run.markdown.deps(vfile.path);
+                        const entry = await run.markdown.graph(vfile.path);
 
-                        vfile.data = (await dump([vfile, graph])).content;
+                        vfile.data = (await dump(entry)).content;
 
-                        type Entry = [{path: NormalizedPath}, Dep[]];
-                        type Dep = [IncludeInfo, Dep[]];
-
-                        async function dump(
-                            [info, deps]: Dep | Entry,
-                            from?: NormalizedPath,
-                            write = false,
-                        ) {
-                            if (processed.has(info.path)) {
-                                return processed.get(info.path);
+                        async function dump(entry: EntryGraph, write = false) {
+                            if (processed.has(entry.path)) {
+                                return processed.get(entry.path);
                             }
 
-                            const _deps = await all(
-                                deps.map((dep) => {
-                                    if (Array.isArray(dep)) {
-                                        return dump(dep as Dep, from || info.path, true);
-                                    } else {
-                                        return dump([dep, []], from || info.path, true);
-                                    }
-                                }),
-                            );
-                            let content = await run.markdown.load(info.path, from); //info.content;
+                            const deps = await all(entry.deps.map((dep) => dump(dep, true)));
+                            let content = entry.content;
                             const sheduler = new Sheduler();
 
                             if (!config.mergeIncludes && config.hashIncludes) {
-                                sheduler.addStep(rehashIncludes(run, _deps));
+                                sheduler.addStep(rehashIncludes(run, deps));
                             }
 
                             if (config.mergeAutotitles) {
                                 sheduler.addStep(mergeAutotitles(run, titles));
                             }
 
-                            await sheduler.shedule(info as EntryGraph);
+                            await sheduler.shedule(entry);
                             content = await sheduler.process(content);
 
                             const hash = config.hashIncludes ? rehashContent(content) : '';
-                            const link = signlink(info.path, hash);
-                            const hashed = {...info, content, hash};
+                            const link = signlink(entry.path, hash);
+                            const hashed = {...entry, content, hash};
 
-                            processed.set(info.path, hashed);
+                            processed.set(entry.path, hashed);
 
                             if (copiedIncludes.has(link) || !write) {
                                 return hashed;
@@ -131,11 +116,14 @@ export class OutputMd {
                             copiedIncludes.add(link);
 
                             try {
-                                run.logger.copy(join(run.input, info.path), join(run.output, link));
+                                run.logger.copy(
+                                    join(run.input, entry.path),
+                                    join(run.output, link),
+                                );
 
                                 await run.write(join(run.output, link), content, true);
                             } catch (error) {
-                                run.logger.warn(`Unable to copy dependency ${info.path}.`, error);
+                                run.logger.warn(`Unable to copy dependency ${entry.path}.`, error);
                             }
 
                             return hashed;
