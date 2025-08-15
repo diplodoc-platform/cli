@@ -17,7 +17,7 @@ vi.mock('execa', () => ({
 // Helper functions for data preparation
 function createClientWithSampleData(sample: string, config: any = {vcs: {}}) {
     vi.mocked(execa).mockResolvedValue({stdout: sample} as any);
-    return new ArcClient(config, baseDir as string);
+    return new ArcClient(config, baseDir);
 }
 
 // Common test data

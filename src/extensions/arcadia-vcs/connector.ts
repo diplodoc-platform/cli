@@ -2,7 +2,6 @@ import type {Run} from '@diplodoc/cli/lib/run';
 import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
-import {join} from 'node:path';
 import {uniqBy} from 'lodash';
 import {bounded, normalizePath} from '@diplodoc/cli/lib/utils';
 
