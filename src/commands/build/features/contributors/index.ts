@@ -58,10 +58,7 @@ export class Contributors {
                     const rawDeps = await run.leading.deps(vfile.path);
                     const deps = uniq(rawDeps.map(({path}) => path));
 
-                    run.meta.add(
-                        vfile.path,
-                        await run.vcs.metadata(vfile.path, deps),
-                    );
+                    run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
                 },
             );
 

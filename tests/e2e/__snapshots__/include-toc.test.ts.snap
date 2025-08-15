@@ -23,6 +23,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: product1/core/article1.md
 ---
 This is the core content of Article 1.
 
@@ -70,6 +71,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -87,6 +89,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -104,6 +107,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 9`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: product2/core/article1.md
 ---
 This is the core content of Article 1.
 
@@ -231,6 +235,7 @@ exports[`Include toc > Toc is included inline, not as a new section 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: folder/fileA.md
 title: File A
 description: YFM description
 ---
@@ -249,6 +254,7 @@ exports[`Include toc > Toc is included inline, not as a new section 4`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: folder/fileB.md
 ---
 # File B
 
@@ -267,6 +273,7 @@ exports[`Include toc > Toc is included inline, not as a new section 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: folder/folder/fileC.md
 ---
 # File C
 "
@@ -321,6 +328,7 @@ meta:
   metadata:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
+  sourcePath: ru/sub/folder/index.yaml
 "
 `;
 

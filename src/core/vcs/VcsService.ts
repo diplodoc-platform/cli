@@ -1,8 +1,10 @@
 import type {Run as BaseRun} from '~/core/run';
+import type {MetaService} from '~/core/meta';
 import type {TocService} from '~/core/toc';
 import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
 
-import {memoize, normalizePath} from '~/core/utils';
+import {join} from 'node:path';
+import {all, bounded, memoize} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultVcsConnector} from './connector';
@@ -77,11 +79,8 @@ export class VcsService implements VcsConnector {
 
         const result: VcsMetadata = {};
 
-        // TODO: resolve meta.vcsPath || meta.sourcePath on server side
         if (addVCSPath) {
-            const sourcePath = normalizePath(
-                meta.vcsPath || meta.sourcePath || this.realpath(file),
-            );
+            const sourcePath = await this.realpath(file);
             result.vcsPath = sourcePath;
             result.sourcePath = sourcePath;
         }
@@ -108,15 +107,18 @@ export class VcsService implements VcsConnector {
         path: RelativePath,
         deps: RelativePath[] = [],
     ): Promise<Contributor[]> {
-        return this.connector.getContributorsByPath(this.run.normalize(path), deps);
+        return this.connector.getContributorsByPath(
+            await this.realpath(path),
+            await all(deps.map(this.realpath)),
+        );
     }
 
     async getModifiedTimeByPath(path: RelativePath) {
-        return this.connector.getModifiedTimeByPath(this.run.normalize(path));
+        return this.connector.getModifiedTimeByPath(await this.realpath(path));
     }
 
     async getAuthorByPath(path: RelativePath) {
-        return this.connector.getAuthorByPath(this.run.normalize(path));
+        return this.connector.getAuthorByPath(await this.realpath(path));
     }
 
     async getUserByLogin(author: string) {
@@ -158,8 +160,7 @@ export class VcsService implements VcsConnector {
         const files = [path].concat(deps);
 
         for (const file of files) {
-            const realpath = await this.realpath(file);
-            const mtime = await this.getModifiedTimeByPath(realpath);
+            const mtime = await this.getModifiedTimeByPath(file);
 
             if (typeof mtime === 'number') {
                 mtimes.push(mtime);
@@ -173,13 +174,19 @@ export class VcsService implements VcsConnector {
         return new Date(Math.max(...mtimes) * 1000).toISOString();
     }
 
-    private realpath(file: NormalizedPath) {
-        const copymap = this.run.toc.copymap;
+    @bounded
+    private async realpath(file: RelativePath): Promise<NormalizedPath> {
+        const base = await this.getBase();
+        const meta = this.run.meta.get(file);
 
-        while (copymap[file]) {
-            file = copymap[file];
+        if (meta.vcsPath) {
+            return this.run.normalize(meta.vcsPath);
         }
 
-        return file;
+        if (meta.sourcePath) {
+            return this.run.normalize(join(base, meta.sourcePath));
+        }
+
+        return this.run.normalize(join(base, file));
     }
 }
