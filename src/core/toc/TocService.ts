@@ -280,6 +280,9 @@ export class TocService {
                 const [from, to] = pair.map((path) =>
                     normalizePath(relative(this.run.input, path)),
                 );
+                const sourcePath = this.meta.get(from).sourcePath || from;
+                this.meta.add(to, {sourcePath});
+
                 this.logger.copy(pair[0], pair[1]);
                 this._copymap[from] = to;
             }
