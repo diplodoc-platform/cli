@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.4.1](https://github.com/diplodoc-platform/cli/compare/v5.4.0...v5.4.1) (2025-08-18)
+
+
+### Bug Fixes
+
+* add flat to deps in contributers ([839d408](https://github.com/diplodoc-platform/cli/commit/839d4082011fb305cac1c1b5be63500aee435004))
+* Revert "fix: add flat to deps in contributers" ([f8300ac](https://github.com/diplodoc-platform/cli/commit/f8300acc8903344919a945ef18c39d477e115635))
+
 ## [5.4.0](https://github.com/diplodoc-platform/cli/compare/v5.3.2...v5.4.0) (2025-08-14)
 
 
