@@ -38,6 +38,7 @@ export function hooks(name: string) {
             `${name}.Included`,
         ),
         Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
+        Filtered: new AsyncSeriesHook<[NormalizedPath]>(['path'], `${name}.Filtered`),
     };
 }
 

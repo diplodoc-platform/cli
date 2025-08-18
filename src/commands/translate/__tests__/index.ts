@@ -5,6 +5,7 @@ import {expect, it, vi} from 'vitest';
 import {parse} from '~/commands/parser';
 import {Translate} from '..';
 import {Run} from '../run';
+import {Extract} from '../commands/extract';
 
 // eslint-disable-next-line no-var
 var resolveConfig: Mock;
@@ -31,6 +32,18 @@ export async function runTranslate(argv: string) {
     await translate.parse(rawArgs);
 
     return translate;
+}
+
+export async function runTranslateExtract(argv: string) {
+    const extract = new Extract();
+    vi.spyOn(Run.prototype, 'prepareRun').mockImplementation(async () => undefined);
+    const rawArgs = ['node', 'index'].concat(argv.split(' '));
+    const args = parse(rawArgs, 'extract');
+
+    await extract.init(args);
+    await extract.parse(rawArgs);
+
+    return extract;
 }
 
 export function testConfig<Config = TranslateConfig>(defaultArgs: string) {
