@@ -1,5 +1,7 @@
 export function getFaviconType(faviconSrc: string): string | undefined {
-    if (!faviconSrc) return undefined;
+    if (!faviconSrc) {
+        return undefined;
+    }
 
     const cleanSrc = faviconSrc.split(/[?#]/)[0];
 
