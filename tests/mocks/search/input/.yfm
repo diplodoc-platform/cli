@@ -1,0 +1,12 @@
+allowHTML: true
+langs: ['en','ru']
+
+interface:
+  toc-header: false
+  favicon-src: https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased
+  
