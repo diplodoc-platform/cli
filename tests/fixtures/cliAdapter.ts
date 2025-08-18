@@ -34,10 +34,33 @@ class Build {
     }
 }
 
+class Extract {
+    private readonly runner: Runner;
+
+    constructor(runner: Runner) {
+        this.runner = runner;
+    }
+
+    run(input: string, output: string, args: string[]) {
+        return this.runner.runYfmDocs([
+            'translate',
+            'extract',
+            '--input',
+            input,
+            '--output',
+            output,
+            '--quiet',
+            ...args,
+        ]);
+    }
+}
+
 export class CliTestAdapter {
     readonly runner: Runner = createRunner();
 
     readonly build = new Build(this.runner);
+
+    readonly extract = new Extract(this.runner);
 
     async testBuildPass(
         inputPath: string,

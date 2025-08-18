@@ -1,6 +1,6 @@
 import type {YandexTranslationConfig} from './providers/yandex';
 import {describe, expect, it, vi} from 'vitest';
-import {runTranslate as run, testConfig} from './__tests__';
+import {runTranslate as run, runTranslateExtract as runExtract, testConfig} from './__tests__';
 
 describe('Translate command', () => {
     describe('config', () => {
@@ -339,5 +339,25 @@ describe('Translate command', () => {
         expect(hasOpenApiIncluder).toBe(true);
 
         expect(extensionSpy).toHaveBeenCalled();
+    });
+
+    it('should call translate extract with option --filter', async () => {
+        const instance = await runExtract('-o output --source ru --target en --filter');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                filter: true,
+            }),
+        );
+    });
+
+    it('should call translate extract without option --filter', async () => {
+        const instance = await runExtract('-o output --source ru --target en');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                filter: false,
+            }),
+        );
     });
 });

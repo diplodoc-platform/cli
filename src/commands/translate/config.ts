@@ -128,6 +128,21 @@ const schema = option({
     parser: toArray,
 });
 
+const filter = option({
+    flags: '--filter',
+    desc: `
+        If enabled translates only resolved files from toc.yaml
+        If disabled translates all files from project.
+
+        Disabled by default.
+
+        Example:
+            {{PROGRAM}} --filter
+
+    `,
+    default: false,
+});
+
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -143,4 +158,5 @@ export const options = {
     useSource,
     useExperimentalParser,
     schema,
+    filter,
 };

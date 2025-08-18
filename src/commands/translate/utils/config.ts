@@ -98,7 +98,7 @@ export function resolveFiles(
     exclude: string[],
     lang: string | null,
     exts: string[],
-    tocEntries: string[] = [],
+    tocEntries: string[] | null,
 ) {
     let result: string[];
     let skipped: [string, string][] = [];
@@ -118,14 +118,13 @@ export function resolveFiles(
             return acc.concat(path);
         }, [] as string[]);
     } else {
-        result =
-            tocEntries.length > 0
-                ? tocEntries
-                : globSync(extmatch, {
-                      cwd: input,
-                      nodir: true,
-                      ignore: ['node_modules/**', '*/node_modules/**'],
-                  });
+        result = tocEntries
+            ? tocEntries
+            : globSync(extmatch, {
+                  cwd: input,
+                  nodir: true,
+                  ignore: ['node_modules/**', '*/node_modules/**'],
+              });
 
         if (exclude.length) {
             [result, skipped] = skip(result, skipped, exclude, 'exclude');
@@ -204,6 +203,7 @@ export function configDefaults() {
             },
         },
         removeHiddenTocItems: false,
+        removeEmptyTocItems: false,
         outputFormat: 'md' as 'md' | 'html',
         // TODO: delete after MarkdownService redundant types delete
         allowHtml: true,
