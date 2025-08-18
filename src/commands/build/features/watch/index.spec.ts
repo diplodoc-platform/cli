@@ -3,19 +3,20 @@ import type {RawToc} from '~/core/toc';
 import type {MockInstance} from 'vitest';
 
 import {join} from 'node:path';
-import {watch as _watch} from 'node:fs/promises';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {run, runBuild, setupBuild} from '../../__tests__';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
+import {run, runBuild, setupBuild} from '../../__tests__';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 
+import * as _watch from './Watcher';
+
 type Event = {
-    eventType: string;
-    filename: string;
+    type: string;
+    file: RelativePath;
 };
 
 const watch = _watch as typeof _watch & {
@@ -32,50 +33,38 @@ vi.mock('node:http', () => ({
         })),
     }),
 }));
-vi.mock('node:fs/promises', async (importOriginal) => ({
-    ...(await importOriginal()),
-    watch: (() => {
-        class Defer<T = any> {
-            promise: Promise<T>;
+vi.mock('./Watcher', () => {
+    class Defer<T = any> {
+        promise: Promise<T>;
 
-            resolve!: (result: T) => void;
+        resolve!: (result: T) => void;
 
-            reject!: (error: unknown) => void;
+        reject!: (error: unknown) => void;
 
-            constructor() {
-                this.promise = new Promise((resolve, reject) => {
-                    this.resolve = resolve;
-                    this.reject = reject;
-                });
-            }
+        constructor() {
+            this.promise = new Promise((resolve, reject) => {
+                this.resolve = resolve;
+                this.reject = reject;
+            });
         }
+    }
 
-        let ready = new Defer<void>();
-        let event = new Defer<Event | null>();
-        let wait = new Defer<void>();
+    let ready = new Defer<void>();
+    let event = new Defer<Event | null>();
+    let wait = new Defer<void>();
 
-        const itr = async function* () {
-            ready.resolve();
-
-            let value: Event | null = null;
-            // eslint-disable-next-line no-cond-assign
-            while ((value = await event.promise)) {
-                event = new Defer();
-
-                yield value;
-
-                wait.resolve();
-                wait = new Defer();
-            }
-        };
-
-        itr.ready = () => ready.promise;
-        itr.reset = () => {
+    return {
+        event: async ({type, file}: Event) => {
+            event.resolve({type, file: normalizePath(file)});
+            return wait.promise;
+        },
+        ready: () => ready.promise,
+        reset: () => {
             event = new Defer();
             ready = new Defer();
             wait = new Defer();
-        };
-        itr.end = (error?: unknown) => {
+        },
+        end: (error?: unknown) => {
             if (error) {
                 wait.reject(error);
             } else {
@@ -85,15 +74,27 @@ vi.mock('node:fs/promises', async (importOriginal) => ({
             if (event) {
                 event.resolve(null);
             }
-        };
-        itr.event = async (_event: Event) => {
-            event.resolve(_event);
-            return wait.promise;
-        };
+        },
+        Watcher: function () {
+            return {
+                events: (async function* () {
+                    ready.resolve();
 
-        return itr;
-    })(),
-}));
+                    let value: Event | null = null;
+                    // eslint-disable-next-line no-cond-assign
+                    while ((value = await event.promise)) {
+                        event = new Defer();
+
+                        yield value;
+
+                        wait.resolve();
+                        wait = new Defer();
+                    }
+                })(),
+            };
+        },
+    };
+});
 
 const args = (...args: string[]) => '-i /dev/null/input -o /dev/null/output -w ' + args.join(' ');
 
@@ -128,17 +129,17 @@ describe('Build watch feature', () => {
 
     async function create(path: RelativePath, content: string | Error) {
         await register(path, content);
-        await watch.event({eventType: 'rename', filename: path});
+        await watch.event({type: 'add', file: path});
     }
 
     async function change(path: RelativePath, content: string | Error) {
         await register(path, content);
-        await watch.event({eventType: 'change', filename: path});
+        await watch.event({type: 'change', file: path});
     }
 
     async function remove(path: RelativePath) {
         await register(path, new Error('ENOENT'));
-        await watch.event({eventType: 'rename', filename: path});
+        await watch.event({type: 'unlink', file: path});
     }
 
     function hasNode(store: 'toc' | 'vars' | 'entry', node: string, value = true) {
@@ -369,8 +370,6 @@ describe('Build watch feature', () => {
                 `,
             );
 
-            await watch.event({eventType: 'change', filename: './toc-i.yaml'});
-
             hasNode('toc', 'toc.yaml', true);
             hasNode('toc', 'toc-i.yaml', true);
             depends('toc', 'toc.yaml', 'toc-i.yaml');
@@ -387,7 +386,7 @@ describe('Build watch feature', () => {
                 .tapPromise('Tests', async (_rawtoc, options) => {
                     const input = normalizePath(options.input);
                     service.relations.addNode(input, {type: 'source', data: undefined});
-                    service.relations.addDependency(options.from, input);
+                    service.relations.addDependency('toc.yaml', input);
 
                     const file = normalizePath(join(run(build).input, options.input));
                     const content = await run(build).read(file as AbsolutePath);
