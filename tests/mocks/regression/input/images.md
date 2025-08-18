@@ -9,3 +9,5 @@
 <!-- ![commented](_assets/4.png) -->
 
 ![with backslash](_assets/5\_1.png)
+
+[![img 3](_assets/{{img_3}})](latex.md)
