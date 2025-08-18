@@ -3,7 +3,6 @@
 exports[`Local search > internal > filelist 1`] = `
 "[
   ".yfm",
-  "_bundle/search-async-1",
   "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
