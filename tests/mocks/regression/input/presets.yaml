@@ -3,6 +3,7 @@ default:
   not-var: not-var-value
   product: root
   user: Bob
+  img_3: 3.png
 
 internal:
   default-var: default-var-internal-value
