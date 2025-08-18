@@ -1,6 +1,6 @@
 import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {Run as BaseRun} from '@diplodoc/cli/lib/run';
-import type {RawToc, TocService} from '@diplodoc/cli/lib/toc';
+import type {EntryTocItem, RawToc, TocService} from '@diplodoc/cli/lib/toc';
 
 import {dirname, join} from 'node:path';
 import {includer} from '@diplodoc/openapi-extension/includer';
@@ -36,7 +36,7 @@ export class Extension implements IExtension {
                         await run.write(join(root, path), content, true);
                     }
 
-                    await run.toc!.walkEntries([toc], async (entry) => {
+                    await run.toc!.walkEntries([toc as unknown as EntryTocItem], async (entry) => {
                         const path = normalizePath(join(dirname(options.path), entry.href));
                         run.toc!.relations.addNode(path, {type: 'entry', data: undefined});
                         run.toc!.relations.addDependency(input, path);

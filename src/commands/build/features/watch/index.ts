@@ -1,21 +1,20 @@
 import type {Server, ServerResponse} from 'node:http';
-import type {FileChangeInfo} from 'node:fs/promises';
 import type {Build, Run} from '~/commands/build';
 import type {Preset} from '~/core/vars';
 import type {Command} from '~/core/config';
-import type {EntryTocItem, Toc} from '~/core/toc';
 
-import {dirname, join} from 'node:path';
-import {watch} from 'node:fs/promises';
+import {join} from 'node:path';
 import {createServer} from 'node:http';
 
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {Graph, bounded, compareJson, normalizePath} from '~/core/utils';
+import {compareJson, normalizePath} from '~/core/utils';
+import * as threads from '~/commands/threads';
 
 import {options} from './config';
-import * as threads from '~/commands/threads';
+import {Watcher} from './Watcher';
+import {WatchState} from './WatchState';
 
 export type WatchArgs = {
     watch: boolean;
@@ -24,143 +23,6 @@ export type WatchArgs = {
 export type WatchConfig = {
     watch: boolean;
 };
-
-class Watcher {
-    readonly events: AsyncIterable<FileChangeInfo<string>>;
-
-    readonly changed = new Set<NormalizedPath>();
-
-    readonly invalide = new Set<NormalizedPath>();
-
-    readonly detachedEntries: Graph = new Graph();
-
-    readonly run: Run;
-
-    readonly logger: Run['logger'];
-
-    private program: Build;
-
-    constructor(program: Build, run: Run) {
-        this.program = program;
-        this.run = run;
-        this.logger = run.logger;
-        this.events = watch(run.originalInput, {
-            recursive: true,
-        });
-    }
-
-    eventType(file: NormalizedPath, event: FileChangeInfo<string>) {
-        const input = normalizePath(join(this.run.originalInput, file)) as AbsolutePath;
-
-        if (event.eventType === 'rename') {
-            return this.run.exists(input) ? 'add' : 'remove';
-        }
-
-        if (event.eventType === 'change') {
-            return 'change';
-        }
-
-        return event.eventType;
-    }
-
-    @bounded invalidateToc(path: NormalizedPath) {
-        this.invalide.add(path);
-    }
-
-    @bounded invalidateEntry(path: NormalizedPath) {
-        const graph = this.run.entry.relations.extract(path);
-        this.invalide.add(path);
-        this.detachedEntries.consume(graph);
-    }
-
-    async processToc(...args: Parameters<Build['processToc']>) {
-        return this.program.processToc(...args);
-    }
-
-    async processEntry(entry: NormalizedPath) {
-        await this.program.processEntry(entry);
-        this.detachedEntries.release(entry);
-    }
-
-    @bounded isKnownEntry(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
-        const data = this.run.toc.relations.getNodeData(path);
-        return data?.type === 'entry';
-    }
-
-    @bounded isKnownToc(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
-        const data = this.run.toc.relations.getNodeData(path);
-        return data?.type === 'toc';
-    }
-
-    @bounded isKnownTocGenerator(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
-        const data = this.run.toc.relations.getNodeData(path);
-        return data?.type === 'generator';
-    }
-
-    @bounded isToc(path: NormalizedPath) {
-        return Boolean(path.match(/(^|\/|\\)toc.yaml$/));
-    }
-
-    @bounded isPreset(path: NormalizedPath) {
-        return Boolean(path.match(/(^|\/|\\)presets.yaml$/));
-    }
-
-    isGraphPart(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
-        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
-        return store.hasNode(node);
-    }
-
-    getParents(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
-        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
-        if (!store.hasNode(node)) {
-            return [];
-        }
-
-        return store.dependantsOf(node) as NormalizedPath[];
-    }
-
-    getChilds(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {
-        const store = graph === 'detached' ? this.detachedEntries : this.run[graph].relations;
-        if (!store.hasNode(node)) {
-            return [];
-        }
-
-        return store.dependenciesOf(node);
-    }
-
-    async getEntries(paths: (NormalizedPath | Toc)[]) {
-        const tocs = paths.map((toc) => {
-            if (typeof toc === 'string') {
-                return this.run.toc.for(toc);
-            }
-
-            return toc;
-        });
-        const entries = new Set<NormalizedPath>();
-
-        for (const toc of tocs) {
-            await this.run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                entries.add(normalizePath(join(dirname(toc.path), item.href)));
-
-                return item;
-            });
-        }
-
-        return [...entries];
-    }
-}
 
 export class Watch {
     private server!: Server;
@@ -234,35 +96,33 @@ export class Watch {
                 }
 
                 const socket = this.server.listen(3000);
-                const watch = new Watcher(program, run);
+                const watch = new Watcher(run);
+                const state = new WatchState(program, run);
 
-                watch.logger.info('Watching for changes...');
+                state.logger.info('Watching for changes...');
 
                 await threads.terminate();
 
-                for await (const event of watch.events) {
-                    const file = normalizePath(event.filename as string);
+                for await (const {file, type} of watch.events) {
                     const origin = normalizePath(join(run.originalInput, file)) as AbsolutePath;
                     const input = normalizePath(join(run.input, file)) as AbsolutePath;
 
                     try {
-                        watch.changed.add(file);
+                        state.changed.add(file);
 
-                        switch (watch.eventType(file, event)) {
+                        switch (type) {
                             case 'add':
                             case 'change':
                                 await run.copy(origin, input);
-                                await this.handleChange(watch);
+                                await this.handleChange(state);
                                 break;
-                            case 'remove':
+                            case 'unlink':
                                 await run.remove(input);
-                                await this.handleChange(watch, {hasNewContent: false});
+                                await this.handleChange(state, {hasNewContent: false});
                                 break;
-                            default:
-                                throw new TypeError('Unknown fs event');
                         }
                     } catch (error) {
-                        watch.logger.error(error);
+                        state.logger.error(error);
                     }
                 }
 
@@ -271,70 +131,70 @@ export class Watch {
         );
     }
 
-    private async handleChange(watch: Watcher, {hasNewContent = true} = {}) {
-        for (const file of watch.changed) {
-            watch.changed.delete(file);
+    private async handleChange(state: WatchState, {hasNewContent = true} = {}) {
+        for (const file of state.changed) {
+            state.changed.delete(file);
 
-            const isTocGraphPart = watch.isGraphPart('toc', file);
-            const isEntryGraphPart = watch.isGraphPart('entry', file);
-            const isDetachedEntryGraphPart = watch.isGraphPart('detached', file);
-            const isVarsGraphPart = watch.isGraphPart('vars', file);
+            const isTocGraphPart = state.isGraphPart('toc', file);
+            const isEntryGraphPart = state.isGraphPart('entry', file);
+            const isDetachedEntryGraphPart = state.isGraphPart('detached', file);
+            const isVarsGraphPart = state.isGraphPart('vars', file);
             const isGraphPart =
                 isTocGraphPart || isEntryGraphPart || isDetachedEntryGraphPart || isVarsGraphPart;
 
             // New file was added.
             // Some kind of new files should be handled.
             if (!isGraphPart) {
-                if (watch.isToc(file)) {
-                    const tocs = await watch.run.toc.init([file]);
+                if (state.isToc(file)) {
+                    const tocs = await state.run.toc.init([file]);
                     for (const toc of tocs) {
-                        await watch.processToc(toc);
+                        await state.processToc(toc);
                     }
 
-                    const entries = await watch.getEntries(tocs);
+                    const entries = await state.getEntries(tocs);
                     for (const entry of entries) {
-                        await watch.processEntry(entry);
+                        await state.processEntry(entry);
                     }
                 }
 
-                if (watch.isPreset(file)) {
-                    await this.handleChangeVars(file, watch);
+                if (state.isPreset(file)) {
+                    await this.handleChangeVars(file, state);
                 }
             }
 
             if (isVarsGraphPart) {
-                await this.handleChangeVars(file, watch, {hasNewContent});
+                await this.handleChangeVars(file, state, {hasNewContent});
             }
 
             if (isTocGraphPart) {
-                await this.handleChangeToc(file, watch, {hasNewContent});
+                await this.handleChangeToc(file, state, {hasNewContent});
             }
 
             if (isEntryGraphPart) {
-                await this.handleChangeEntry(file, watch, {hasNewContent});
+                await this.handleChangeEntry(file, state, {hasNewContent});
             }
 
             if (isDetachedEntryGraphPart) {
-                await this.handleChangeDetachedEntry(file, watch, {hasNewContent});
+                await this.handleChangeDetachedEntry(file, state, {hasNewContent});
             }
 
-            if (watch.invalide.size) {
-                const tocs = [...watch.invalide].filter(watch.isKnownToc);
+            if (state.invalide.size) {
+                const tocs = [...state.invalide].filter(state.isKnownToc);
                 for (const toc of tocs) {
-                    watch.invalide.delete(toc);
-                    await watch.processToc(watch.run.toc.for(toc)).catch(watch.logger.error);
+                    state.invalide.delete(toc);
+                    await state.processToc(state.run.toc.for(toc)).catch(state.logger.error);
                 }
 
-                const entries = [...watch.invalide].filter(watch.isKnownEntry);
+                const entries = [...state.invalide].filter(state.isKnownEntry);
                 for (const entry of entries) {
-                    watch.invalide.delete(entry);
-                    watch.run.entry.release(entry);
-                    watch.run.entry.relations.release(entry);
-                    await watch.processEntry(entry).catch(watch.logger.error);
+                    state.invalide.delete(entry);
+                    state.run.entry.release(entry);
+                    state.run.entry.relations.release(entry);
+                    await state.processEntry(entry).catch(state.logger.error);
                 }
 
-                for (const other of watch.invalide) {
-                    watch.invalide.delete(other);
+                for (const other of state.invalide) {
+                    state.invalide.delete(other);
                 }
             }
 
@@ -347,170 +207,170 @@ export class Watch {
 
     private async handleChangeVars(
         file: NormalizedPath,
-        watch: Watcher,
+        state: WatchState,
         {hasNewContent = true} = {},
     ) {
-        watch.logger.info('Handle vars graph change for', file);
+        state.logger.info('Handle vars graph change for', file);
 
-        if (!watch.isPreset(file)) {
-            watch.run.vars.relations.release(file);
+        if (!state.isPreset(file)) {
+            state.run.vars.relations.release(file);
             return;
         }
 
-        const prev = watch.run.vars.get(file) || {};
+        const prev = state.run.vars.get(file) || {};
         // When we handle removed preset, we handle at first step this preset as empty file.
-        const [next] = hasNewContent ? ((await watch.run.vars.init([file])) as Preset[]) : [{}];
+        const [next] = hasNewContent ? ((await state.run.vars.init([file])) as Preset[]) : [{}];
 
         const diff = compareJson(prev, next);
 
-        const changed = watch.run.vars.getAffectedFiles(file, diff.changed);
-        const specified = watch.run.vars.getSpecifiedFiles(file, diff.added, diff.removed);
+        const changed = state.run.vars.getAffectedFiles(file, diff.changed);
+        const specified = state.run.vars.getSpecifiedFiles(file, diff.added, diff.removed);
         for (const file of [...changed, ...specified]) {
-            watch.changed.add(file as NormalizedPath);
+            state.changed.add(file as NormalizedPath);
         }
 
         // When we handle removed preset, at second step we remove it from vars graph
         if (!hasNewContent) {
-            watch.run.vars.relations.release(file);
+            state.run.vars.relations.release(file);
         }
     }
 
     private async handleChangeToc(
         file: NormalizedPath,
-        watch: Watcher,
+        state: WatchState,
         {hasNewContent = true} = {},
     ) {
-        watch.logger.info('Handle toc graph change for', file);
+        state.logger.info('Handle toc graph change for', file);
 
         const isExistedToc = (path: NormalizedPath) => path !== file || hasNewContent;
-        const isGenerator = watch.isKnownTocGenerator(file);
+        const isGenerator = state.isKnownTocGenerator(file);
 
         // Touched files can be toc or some toc part (like include).
-        const oldFiles = [file, ...watch.getParents('toc', file)] as NormalizedPath[];
+        const oldFiles = [file, ...state.getParents('toc', file)] as NormalizedPath[];
         // This is a list of toc parts.
         // We need to compare list of deps after tocs update and react on diff.
-        const oldDeps = watch.getChilds('toc', file) as NormalizedPath[];
+        const oldDeps = state.getChilds('toc', file) as NormalizedPath[];
         // This is a list of tocs which should be updated.
-        const oldTocsPaths = oldFiles.filter(watch.isKnownToc);
-        const oldEntries = await watch.getEntries(oldTocsPaths);
+        const oldTocsPaths = oldFiles.filter(state.isKnownToc);
+        const oldEntries = await state.getEntries(oldTocsPaths);
 
         // Drop cache for all related files.
         for (const file of oldFiles) {
-            watch.run.toc.release(file);
+            state.run.toc.release(file);
         }
 
         for (const file of oldTocsPaths) {
-            watch.run.toc.relations.release(file);
+            state.run.toc.relations.release(file);
         }
 
         // Reinit touched tocs after cache drop.
         // Do not reinit removed toc.
-        await this.reinitTocs(watch, oldTocsPaths.filter(isExistedToc));
+        await this.reinitTocs(state, oldTocsPaths.filter(isExistedToc));
 
         // List of updated deps. Now we can compare it with old deps list.
-        const newDeps = hasNewContent ? (watch.getChilds('toc', file) as NormalizedPath[]) : [];
+        const newDeps = hasNewContent ? (state.getChilds('toc', file) as NormalizedPath[]) : [];
         const depsDiff = diff(oldDeps, newDeps);
         // On compare we search for previously detached toc includes, which name match toc.yaml
         // This detached toc.yaml now possibly transforms to true tocs.
         const detachedTocsPaths = depsDiff.removed.filter(
-            (dep) => watch.isToc(dep) && !watch.isGraphPart('toc', dep),
+            (dep) => state.isToc(dep) && !state.isGraphPart('toc', dep),
         );
         // Reinit detached toc.yaml to transform them.
-        await this.reinitTocs(watch, detachedTocsPaths);
+        await this.reinitTocs(state, detachedTocsPaths);
 
-        const newTocsPaths = [file, ...detachedTocsPaths, ...watch.getParents('toc', file)]
-            .filter(watch.isKnownToc)
+        const newTocsPaths = [file, ...detachedTocsPaths, ...state.getParents('toc', file)]
+            .filter(state.isKnownToc)
             .filter(isExistedToc);
-        const newEntries = await watch.getEntries(newTocsPaths);
+        const newEntries = await state.getEntries(newTocsPaths);
 
         const entriesDiff = diff(oldEntries, newEntries);
 
         // Update added to toc entries
         // because path for this entries can be changed.
         for (const entry of entriesDiff.added) {
-            watch.invalidateEntry(entry);
+            state.invalidateEntry(entry);
         }
 
         // Update removed from toc entries.
         // Toc path for this entries can be changed.
         for (const entry of entriesDiff.removed) {
             // If entry is not attached to any toc, then we don't need to process it.
-            if (!watch.isGraphPart('toc', entry)) {
-                watch.run.entry.relations.release(entry);
+            if (!state.isGraphPart('toc', entry)) {
+                state.run.entry.relations.release(entry);
                 continue;
             }
 
             // If entry is not exists on graph, then it can't be affected by toc change.
-            if (!watch.isGraphPart('entry', entry)) {
+            if (!state.isGraphPart('entry', entry)) {
                 continue;
             }
 
-            watch.invalidateEntry(entry);
+            state.invalidateEntry(entry);
         }
 
         // If entries was generated, then we expect that any existed entry can be updated.
         if (isGenerator) {
             for (const entry of entriesDiff.rest) {
-                watch.invalidateEntry(entry);
+                state.invalidateEntry(entry);
             }
         }
     }
 
-    private async reinitTocs(watch: Watcher, tocs: NormalizedPath[]) {
+    private async reinitTocs(state: WatchState, tocs: NormalizedPath[]) {
         for (const toc of tocs) {
             try {
-                await watch.run.toc.init([toc]);
-                watch.invalidateToc(toc);
+                await state.run.toc.init([toc]);
+                state.invalidateToc(toc);
             } catch (error) {
-                watch.logger.error(error);
+                state.logger.error(error);
             }
         }
     }
 
     private async handleChangeEntry(
         file: NormalizedPath,
-        watch: Watcher,
+        state: WatchState,
         {hasNewContent = true} = {},
     ) {
-        watch.logger.info('Handle entry graph change for', file);
+        state.logger.info('Handle entry graph change for', file);
 
-        const files = [file, ...watch.getParents('entry', file)] as NormalizedPath[];
-        const entries = files.filter(watch.isKnownEntry);
+        const files = [file, ...state.getParents('entry', file)] as NormalizedPath[];
+        const entries = files.filter(state.isKnownEntry);
 
         for (const entry of entries) {
             for (const file of files) {
-                if (!watch.isKnownEntry(file)) {
+                if (!state.isKnownEntry(file)) {
                     // Release all includes relative to target entry
-                    watch.run.entry.release(file, entry);
+                    state.run.entry.release(file, entry);
                 }
             }
 
             if (file !== entry || hasNewContent) {
-                watch.invalidateEntry(entry);
+                state.invalidateEntry(entry);
             }
         }
     }
 
     private async handleChangeDetachedEntry(
         file: NormalizedPath,
-        watch: Watcher,
+        state: WatchState,
         {hasNewContent = true} = {},
     ) {
-        watch.logger.info('Handle detached graph change for', file);
+        state.logger.info('Handle detached graph change for', file);
 
-        const files = [file, ...watch.getParents('detached', file)] as NormalizedPath[];
-        const entries = files.filter(watch.isKnownEntry);
+        const files = [file, ...state.getParents('detached', file)] as NormalizedPath[];
+        const entries = files.filter(state.isKnownEntry);
 
         for (const entry of entries) {
             for (const file of files) {
-                if (!watch.isKnownEntry(file)) {
+                if (!state.isKnownEntry(file)) {
                     // Release all includes relative to target entry
-                    watch.run.entry.release(file, entry);
+                    state.run.entry.release(file, entry);
                 }
             }
 
             if (file !== entry || hasNewContent) {
-                watch.invalidateEntry(entry);
+                state.invalidateEntry(entry);
             }
         }
     }
