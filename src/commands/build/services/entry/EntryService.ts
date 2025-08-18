@@ -19,6 +19,19 @@ import {getHooks, withHooks} from './hooks';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
+const excludedMetaFields = [
+    'interface',
+    'resources',
+    'contributors',
+    'author',
+    'updatedAt',
+    'sourcePath',
+];
+
+function isPublicMeta(record: {name?: string}) {
+    return record.name && !excludedMetaFields.includes(record.name);
+}
+
 @withHooks
 export class EntryService {
     readonly relations = new Graph<MarkdownGraphInfo | LeadingGraphInfo>();
@@ -124,10 +137,11 @@ export class EntryService {
             metadata.push({name: 'description', content: description});
         }
 
-        metadata.map(template.addMeta);
+        metadata.filter(isPublicMeta).map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
             .map(([name, content]) => ({name, content}))
+            .filter(isPublicMeta)
             .map(template.addMeta);
 
         manifest.app.css

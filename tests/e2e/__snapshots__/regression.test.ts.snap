@@ -1198,7 +1198,6 @@ exports[`Regression > internal 43`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="sourcePath" content="merge-source/merged.md">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
