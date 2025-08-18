@@ -75,7 +75,9 @@ export class Legacy {
 
             if (valuable(allowHTML)) {
                 config.allowHtml = allowHTML;
-                config.lint.config['MD033'] = allowHTML ? LogLevels.DISABLED : LogLevels.ERROR;
+                config.lint.config['MD033'] = {
+                    loglevel: allowHTML ? LogLevels.DISABLED : LogLevels.ERROR
+                };
             }
 
             if (valuable(needToSanitizeHtml)) {

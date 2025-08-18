@@ -1,6 +1,7 @@
 import type {Meta} from '~/core/meta';
-import type {EntryTocItem, Toc} from '~/core/toc';
+import type {EntryTocItem, Toc, GraphData as TocGraphData} from '~/core/toc';
 import type {SyncData as VcsSyncData} from '~/core/vcs';
+import type {Graph} from '~/core/utils';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
 import {basename, dirname, join} from 'node:path';
@@ -17,7 +18,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
-import {normalizePath, setExt} from '~/core/utils';
+import {bounded, normalizePath, setExt} from '~/core/utils';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import * as threads from '~/commands/threads';
@@ -26,7 +27,6 @@ import {getHooks, withHooks} from './hooks';
 import {OutputFormat, normalize, options, validate} from './config';
 import {Run} from './run';
 import {handler} from './handler';
-
 import {Templating} from './features/templating';
 import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
@@ -37,6 +37,7 @@ import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
+import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 
 export type * from './types';
@@ -92,6 +93,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly search = new Search();
 
+    readonly watch = new Watch();
+
     readonly legacy = new Legacy();
 
     readonly command = new Command('build').description('Build documentation in target directory');
@@ -125,6 +128,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.buildManifest,
         this.changelogs,
         this.search,
+        this.watch,
         this.md,
         this.html,
         this.legacy,
@@ -177,12 +181,12 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         });
 
         // Regenerate toc entry names from md titles
-        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc, path) => {
+        getTocHooks(this.run.toc).Loaded.tapPromise('Build', async (toc) => {
             await this.run.toc.walkEntries(
                 toc?.items as EntryTocItem[],
                 async (item: EntryTocItem) => {
                     if (!item.name || item.name === '{#T}') {
-                        const entry = normalizePath(join(dirname(path), item.href));
+                        const entry = normalizePath(join(dirname(toc.path), item.href));
                         const titles = await this.run.markdown.titles(entry);
                         item.name = titles['#'] || setExt(basename(entry), '');
                     }
@@ -194,29 +198,15 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await this.run.toc.init(paths);
 
-        const {tocs, entries, copymap} = this.run.toc;
         const vcs = this.run.vcs.getData();
 
-        await this.sync(tocs, entries, copymap, vcs);
+        await this.sync(this.run.toc.graph, vcs);
 
-        await this.concurrently(tocs, async (raw) => {
-            const toc = await this.run.toc.dump(raw.path, raw);
+        await this.concurrently(this.run.toc.tocs, this.processToc);
 
-            await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
-        });
-
-        await this.concurrently(entries, async (entry, position) => {
+        await this.concurrently(this.run.toc.entries, async (entry) => {
             try {
-                this.run.logger.proc(entry);
-
-                const meta = this.run.meta.get(entry);
-                const info = await this.process(entry, meta);
-
-                await getHooks(this)
-                    .Entry.for(outputFormat)
-                    .promise(this.run, entry, {...info, position});
-
-                this.run.logger.info('Processing finished:', entry);
+                await this.processEntry(entry);
             } catch (error) {
                 console.error(error);
                 this.run.logger.error(`${entry}: ${error}`);
@@ -240,19 +230,34 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @threads.multicast('build.sync')
-    async sync(
-        tocs: Toc[],
-        entries: NormalizedPath[],
-        copymap: Record<NormalizedPath, NormalizedPath>,
-        vcs: VcsSyncData,
-    ) {
+    async sync(tocs: Graph<TocGraphData>, vcs: VcsSyncData) {
         this.run.vcs.setData(vcs);
-        this.run.toc.setEntries(entries);
-        this.run.toc.setCopymap(copymap);
+        this.run.toc.graph.consume(tocs);
+    }
 
-        for (const toc of tocs) {
-            this.run.toc.setToc(toc);
-        }
+    @bounded async processToc(raw: Toc) {
+        const toc = await this.run.toc.dump(raw.path, raw);
+
+        await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
+    }
+
+    @bounded async processEntry(entry: NormalizedPath) {
+        const {outputFormat} = this.config;
+
+        this.run.logger.proc(entry);
+
+        this.run.entry.graph.addNode(entry);
+
+        const meta = this.run.meta.get(entry);
+
+        const info = await this.process(entry, meta);
+
+        this.run.vars.graph.consume(info.varsGraph);
+        this.run.entry.graph.consume(info.entryGraph);
+
+        await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
+
+        this.run.logger.info('Processing finished:', entry);
     }
 
     @threads.threaded('build.process')
@@ -263,7 +268,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await this.run.write(join(this.run.output, result.path), result.toString(), true);
 
-        return result.info;
+        return {
+            ...result.info,
+            entryGraph: result.info.entryGraph,
+            varsGraph: result.info.varsGraph,
+        };
     }
 
     private async prepareInput() {

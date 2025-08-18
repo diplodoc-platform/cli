@@ -18,7 +18,7 @@ export class Extension implements IExtension {
         getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {
             getTocHooks(run.toc)
                 .Includer.for(INCLUDER)
-                .tapPromise(EXTENSION, async () => ({}));
+                .tapPromise(EXTENSION, async (toc) => toc);
         });
     }
 }

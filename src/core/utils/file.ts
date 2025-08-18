@@ -11,7 +11,7 @@ const toString = <T>(data: T) => {
     return JSON.stringify(data);
 };
 
-export class VFile<T extends string | object = string | object> {
+export class VFile<T extends string | object = string | object, Info extends Hash = {}> {
     get path(): NormalizedPath {
         return this._path;
     }
@@ -32,7 +32,7 @@ export class VFile<T extends string | object = string | object> {
         return this._info;
     }
 
-    set info(value: Hash) {
+    set info(value: Info) {
         this._info = value;
     }
 
@@ -40,7 +40,7 @@ export class VFile<T extends string | object = string | object> {
 
     private _data: T;
 
-    private _info: Hash = {};
+    private _info: Info = {} as Info;
 
     private _format: Formatter<T, string>;
 

@@ -2,6 +2,7 @@ import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
 import type {Build, EntryData} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
+import type {IncludeInfo} from '~/core/markdown';
 import type {PageData} from '../../services/entry';
 
 import {basename, dirname, extname, join} from 'node:path';
@@ -15,7 +16,7 @@ import {fallbackLang, flat, isExternalHref, normalizePath, own, setExt, zip} fro
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
@@ -84,8 +85,8 @@ export class OutputHtml {
 
                     const html = await run.entry.page(template, state, toc.data);
                     vfile.path = setExt(vfile.path, '.html');
-                    vfile.info = data;
                     vfile.format(() => html);
+                    Object.assign(vfile.info, data);
                 });
 
                 // Transform Page Constructor yfm blocks

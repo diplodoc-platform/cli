@@ -11,6 +11,7 @@ import {parse} from '~/commands';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 
 export const handler = originalHandler as Mock;
 
@@ -18,6 +19,11 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../handler');
+vi.mock('@diplodoc/search-extension', () => ({
+    Extension: function() {
+        return {apply() {}};
+    }
+}));
 vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -64,7 +70,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
             );
         };
 
-    for (const method of ['glob', 'copy', 'read', 'write', 'remove'] as string[]) {
+    for (const method of ['glob', 'copy', 'read', 'write', 'remove', 'exists'] as string[]) {
         // @ts-ignore
         vi.spyOn(run, method).mockImplementation(impl(method));
     }
@@ -91,16 +97,20 @@ type BuildState = {
 export function setupBuild(state?: BuildState): Build {
     const build = new Build();
 
-    getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
+    getBaseHooks(build).BeforeAnyRun.tap({stage: -1, name: 'Tests'}, (run) => {
         if (!(run as RunSpy)[Mocked]) {
             setupRun({}, run as Run);
         }
 
+        when(run.exists).calledWith(expect.anything()).thenReturn(false);
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
         when(run.copy)
             .calledWith(expect.anything(), expect.anything(), expect.anything())
             .thenResolve();
         when(run.write).calledWith(expect.anything(), expect.anything()).thenResolve();
+        when(run.write)
+            .calledWith(expect.anything(), expect.anything(), expect.anything())
+            .thenResolve();
         when(run.remove).calledWith(expect.anything()).thenResolve();
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
@@ -113,7 +123,9 @@ export function setupBuild(state?: BuildState): Build {
 
         if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.read).calledWith(join(run.input, file)).thenResolve(content);
+                when(run.read)
+                    .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
+                    .thenResolve(content);
             }
         }
     });
@@ -129,6 +141,10 @@ export async function runBuild(argv: string, build?: Build) {
 
     await build.init(args);
     await build.parse(rawArgs);
+
+    if (build.report.code > 0) {
+        throw new Error('Build exit with error');
+    }
 }
 
 export function testConfig(name: string, args: string, result: DeepPartial<BuildConfig>): void;
