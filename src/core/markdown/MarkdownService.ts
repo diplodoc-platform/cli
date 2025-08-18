@@ -121,7 +121,7 @@ export class MarkdownService {
 
         try {
             const raw = await this.run.read(join(this.run.input, file));
-            const vars = this.run.vars.for((from?.[0] || file) as RelativePath);
+            const vars = this.run.vars.for((from || file) as RelativePath);
 
             const context = this.loaderContext(file, raw, vars, this.proxy(key));
             const content = await loader.call(context, raw);
