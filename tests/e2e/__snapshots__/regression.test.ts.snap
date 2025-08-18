@@ -500,7 +500,7 @@ Defines a simple get operation with no inputs and a complex
 
 <div class="openapi__request">
 
-GET {.openapi__method} 
+GET {.openapi__method}
 \`\`\`text translate=no
 http://localhost:8080/test
 \`\`\`
@@ -541,15 +541,15 @@ Generated server url
 
 
 #|||
- **Name** 
+ **Name**
 |
- **Description** 
+ **Description**
 ||
 
 ||
- A {.openapi-table-parameter-name} 
+ A {.openapi-table-parameter-name}
 |
- **Type:** string 
+ **Type:** string
 |||#
 
 </div>
@@ -731,19 +731,19 @@ exports[`Regression > internal 31`] = `
         <base href="./" />
         <title>Redirect to d.md</title>
         <meta http-equiv="refresh" content="0; url=d.md">
-        
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
+
         <script type="application/javascript">
             window.location.replace("d.md");
         </script>
-        
+
     </head>
     <body class="g-root g-root_theme_light">
         If you are not redirected automatically, follow this <a href="d.md">link</a>.
-        
-        
-        
+
+
+
     </body>
 </html>"
 `;
@@ -1065,7 +1065,7 @@ exports[`Regression > internal 43`] = `
         <base href="../" />
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="sourcePath" content="merge-source/merged.md">
+
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
