@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {getFaviconType} from './favicon';
+import {getFaviconType} from './utils';
 
 describe('getFaviconType', () => {
     it('should return svg type for .svg', () => {
