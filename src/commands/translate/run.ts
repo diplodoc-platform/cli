@@ -5,10 +5,10 @@ import {Run as BaseRun} from '~/core/run';
 import {Config} from '~/core/config';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
-import {TocService} from '~/core/toc';
+import {Toc, TocService} from '~/core/toc';
 import {MarkdownService} from '~/core/markdown';
-import {join} from 'node:path';
-import {resolveFiles} from './utils';
+import {extname, join, resolve} from 'node:path';
+import {FileLoader, resolveFiles} from './utils';
 import {isMainThread} from 'node:worker_threads';
 import {ConfigDefaults} from './utils/config';
 
@@ -46,36 +46,36 @@ export class Run extends BaseRun<CommonRunConfig> {
             });
 
             for (const toc of tocs) {
-                await this.toc.load(toc);
                 this.tocYamlList.add(toc);
             }
+
+            await this.toc.init(Array.from(this.tocYamlList) as NormalizedPath[]);
         }
     }
 
-    // TODO: temp disable toc filtration on translate
     async getFiles() {
-        // const allFiles = new Set<string>();
+        const allFiles = new Set<NormalizedPath>();
 
-        // for (const entry of this.toc.entries) {
-        //     allFiles.add(entry);
-        // }
+        for (const entry of this.toc.entries) {
+            allFiles.add(entry);
+        }
 
-        // for (const entry of this.toc.entries) {
-        //     try {
-        //         const deps = await this.markdown.deps(entry as RelativePath);
+        for (const entry of this.toc.entries) {
+            try {
+                const deps = await this.markdown.deps(entry as RelativePath);
 
-        //         for (const dep of deps) {
-        //             if (dep.path.endsWith('.md')) {
-        //                 allFiles.add(dep.path);
-        //             }
-        //         }
-        //     } catch (error) {
-        //         this.logger.warn(error);
-        //         allFiles.delete(entry);
-        //     }
-        // }
+                for (const dep of deps) {
+                    if (dep.path.endsWith('.md')) {
+                        allFiles.add(dep.path);
+                    }
+                }
+            } catch (error) {
+                this.logger.warn(error);
+                allFiles.delete(entry);
+            }
+        }
 
-        // const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
+        const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
 
         return resolveFiles(
             this.config.input,
@@ -84,7 +84,33 @@ export class Run extends BaseRun<CommonRunConfig> {
             this.config.exclude,
             this.config.source.language,
             ['.md', '.yaml'],
-            [],
+            this.config.filter ? allFilesArray : null,
         );
+    }
+
+    async getFileContent(file: NormalizedPath) {
+        const type = extname(file).slice(1);
+
+        if (type === 'md') {
+            return this.markdown.load(file);
+        }
+
+        if (this.tocYamlList.has(file)) {
+            const toc: Partial<Toc> = this.toc.for(file);
+
+            delete toc.path;
+
+            return toc;
+        }
+
+        const path = resolve(this.config.input, file);
+
+        const loader = new FileLoader(path);
+
+        return loader.load();
+    }
+
+    getTocRemovedEntries() {
+        return this.toc.removedEntries;
     }
 }

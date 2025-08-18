@@ -612,6 +612,47 @@ path: toc.yaml
 "
 `;
 
+exports[`Translate command > do not filter files on extract > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/folder1/a1.md.skl",
+  "es/nested/folder1/a1.md.xliff",
+  "es/nested/folder1/toc-i.yaml.skl",
+  "es/nested/folder1/toc-i.yaml.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/not-in-toc.md.skl",
+  "es/nested/not-in-toc.md.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/not-in-toc.md.skl",
+  "es/not-in-toc.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
 exports[`Translate command > extract openapi spec files > filelist 1`] = `
 "[
   "openapi-spec.yaml.skl",
@@ -711,11 +752,7 @@ exports[`Translate command > extract openapi spec files 2`] = `
 exports[`Translate command > extract openapi spec files 3`] = `
 "items:
   - name: '%%%0%%%'
-    include:
-      path: openapi
-      includers:
-        - name: openapi
-          input: openapi-spec.yaml
+    items: []
 "
 `;
 
@@ -731,574 +768,6 @@ exports[`Translate command > extract openapi spec files 4`] = `
     <body>
       <trans-unit id="0">
         <source xml:space="preserve">openapi</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract openapi spec files 5`] = `
-"<div class="openapi">
-
-# %%%0%%%
-
-%%%1%%%
-
-## %%%2%%%
-
-<div class="openapi__requests">
-
-<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
-
-<div class="openapi__request">
-
-%%%3%%% {.openapi__method} 
-\`\`\`text translate=no
-http://localhost:8080/test
-\`\`\`
-
-
-
-</div>
-
-%%%4%%%
-
-</div>
-
-</div>
-
-## %%%5%%%
-
-<div class="openapi__response__code__200">
-
-## %%%6%%%
-
-%%%7%%%
-
-<div class="openapi-entity">
-
-### %%%8%%%
-
-{% cut "%%%9%%%" %}
-
-
-\`\`\`json translate=no
-{
-    "A": "string"
-}
-\`\`\`
-
-
-{% endcut %}
-
-
-#|||
- %%%10%%% 
-|
- %%%11%%% 
-||
-
-||
- %%%12%%% {.openapi-table-parameter-name} 
-|
- %%%13%%% 
-|||#
-
-</div>
-
-</div>
-<!-- markdownlint-disable-file -->
-
-</div>
-
-
-
-[*Deprecated]: %%%14%%%"
-`;
-
-exports[`Translate command > extract openapi spec files 6`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Request</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">GET</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">Generated server url</source>
-      </trans-unit>
-      <trans-unit id="5">
-        <source xml:space="preserve">Responses</source>
-      </trans-unit>
-      <trans-unit id="6">
-        <source xml:space="preserve">200 OK</source>
-      </trans-unit>
-      <trans-unit id="7">
-        <source xml:space="preserve">200!!!!</source>
-      </trans-unit>
-      <trans-unit id="8">
-        <source xml:space="preserve">Body</source>
-      </trans-unit>
-      <trans-unit id="9">
-        <source xml:space="preserve">application/json</source>
-      </trans-unit>
-      <trans-unit id="10">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-4" x-begin="**" x-end="**">Name</g></source>
-      </trans-unit>
-      <trans-unit id="11">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-5" x-begin="**" x-end="**">Description</g></source>
-      </trans-unit>
-      <trans-unit id="12">
-        <source xml:space="preserve">A</source>
-      </trans-unit>
-      <trans-unit id="13">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-6" x-begin="**" x-end="**">Type:</g> string</source>
-      </trans-unit>
-      <trans-unit id="14">
-        <source xml:space="preserve">No longer supported, please use an alternative and newer version.</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract openapi spec files 7`] = `
-"# %%%0%%%
-
-## %%%1%%%
-
-- %%%2%%%
-
-<!-- markdownlint-disable-file -->"
-`;
-
-exports[`Translate command > extract openapi spec files 8`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">test-controller</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Endpoints</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](getWithPayloadResponse.md)" id="g-3" x-begin="[" x-end="](getWithPayloadResponse.md)">Simple get operation. тест новой верстки 3</g></source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract openapi spec files 9`] = `
-"items:
-  - name: '%%%0%%%'
-    include:
-      path: openapi
-      includers:
-        - name: openapi
-          input: openapi-spec.yaml
-"
-`;
-
-exports[`Translate command > extract openapi spec files 10`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">openapi</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/index.yaml.skl 1`] = `
-"blocks:
-  - type: content-layout-block
-    textWidth: l
-    textContent:
-      title: '%%%0%%%'
-      text: |2-
-         %%%1%%%
-         - %%%2%%%
-         - %%%3%%%
-         
-  - type: card-layout-block
-    colSizes:
-      all: 12
-      lg: 4
-      md: 6
-      sm: 12
-      xl: 4
-    indent:
-      bottom: xs
-    title: '%%%4%%%'
-    animated: false
-    children:
-      - type: basic-card
-        title: '%%%5%%%'
-        text: '%%%6%%%'
-        urlTitle: '%%%7%%%'
-        border: shadow
-        controlPosition: content
-        url: management/index
-        target: ''
-        animated: false
-"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/index.yaml.xliff 1`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Введение</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Получать информацию о посещаемости сайта и другие данные.</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">Формировать отчеты, в том числе с помощью сегментации и параметризации.</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">Виды API</source>
-      </trans-unit>
-      <trans-unit id="5">
-        <source xml:space="preserve">API управления</source>
-      </trans-unit>
-      <trans-unit id="6">
-        <source xml:space="preserve">Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).</source>
-      </trans-unit>
-      <trans-unit id="7">
-        <source xml:space="preserve">API управления</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/index-direct.yaml.skl 1`] = `
-"meta:
-  title: '%%%0%%%'
-  description: '%%%1%%%'
-fullScreen: true
-blocks:
-  - type: header-block
-    title: <div class="u-breadcrumbs"></div>
-    breadcrumbs:
-      items:
-        - text: '%%%2%%%'
-          url: https://site.ru/support/
-        - text: '%%%3%%%'
-          url: https://site.ru/support/adv/
-  - type: filter-block
-    centered: false
-    title:
-      text: '%%%4%%%'
-    tags:
-      - id: one
-        label: '%%%5%%%'
-      - id: two
-        label: '%%%6%%%'
-    colSizes:
-      all: 12
-      xl: 4
-      sm: 6
-      md: 4
-    items:
-      - tags:
-          - one
-        card:
-          type: image-card
-          image: https://site.ru/img/orig
-          title: '%%%7%%%'
-          text: <div>%%%8%%%</div><div class="u-card__more">%%%9%%%
-          margins: m
-          border: shadow
-          url: unified-performance-campaign/about.md
-          urlTitle: '%%%10%%%'
-      - tags:
-          - one
-        card:
-          type: image-card
-          image: https://site.ru/img2/orig
-          title: '%%%11%%%'
-          text: <div>%%%12%%%</div><div class="u-card__more">%%%13%%%
-          margins: m
-          border: shadow
-          url: campaign-master/product-campaign.md
-          urlTitle: '%%%14%%%'
-      - tags:
-          - one
-        card:
-          type: image-card
-          image: https://site.ru/img2/orig
-          title: '%%%15%%%'
-          text: <div>%%%16%%%</div><div class="u-card__more">%%%17%%%
-          margins: m
-          border: shadow
-          url: efficiency/telegram-ads.md
-          urlTitle: '%%%18%%%'
-      - tags:
-          - one
-        card:
-          type: background-card
-          title: '%%%19%%%'
-          text: ''
-          backgroundColor: '#F3F6FC'
-          border: line
-          links:
-            - text: '%%%20%%%'
-              url: statistics.md
-              arrow: true
-              theme: normal
-            - text: '%%%21%%%'
-              url: feeds/about.md
-              arrow: true
-              theme: normal
-      - tags:
-          - one
-        card:
-          type: background-card
-          title: '%%%22%%%'
-          text: ''
-          backgroundColor: '#F3F6FC'
-          border: line
-          links:
-            - text: '%%%23%%%'
-              url: moderation/adv-rules.md
-              arrow: true
-              theme: normal
-            - text: '%%%24%%%'
-              url: technologies-and-services/technologies-and-services.md
-              arrow: true
-              theme: normal
-            - text: '%%%25%%%'
-              url: troubleshooting/other.md
-              arrow: true
-              theme: normal
-      - tags:
-          - one
-        card:
-          type: background-card
-          title: '%%%26%%%'
-          text: ''
-          backgroundColor: '#F3F6FC'
-          border: line
-          links:
-            - text: '%%%27%%%'
-              url: glossary.md
-              arrow: true
-              theme: normal
-      - tags:
-          - two
-        card:
-          type: image-card
-          image: https://site.ru/img4/orig
-          title: '%%%28%%%'
-          text: <div>%%%29%%%</div><div class="u-card__more">%%%30%%%
-          margins: m
-          border: shadow
-          url: products-automatic/about.md
-          urlTitle: '%%%31%%%'
-animated: false
-"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/index-direct.yaml.xliff 1`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Справка Сервиса</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">В Справке Сервиса собрали всю необходимую информацию.</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Справка</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">Реклама</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">Сервис</source>
-      </trans-unit>
-      <trans-unit id="5">
-        <source xml:space="preserve">Для специалистов</source>
-      </trans-unit>
-      <trans-unit id="6">
-        <source xml:space="preserve">Для предпринимателей</source>
-      </trans-unit>
-      <trans-unit id="7">
-        <source xml:space="preserve">Единая перфоманс-кампания</source>
-      </trans-unit>
-      <trans-unit id="8">
-        <source xml:space="preserve">Комплексно решайте любые перфоманс-задачи в рамках одной кампании</source>
-      </trans-unit>
-      <trans-unit id="9">
-        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
-      </trans-unit>
-      <trans-unit id="10">
-        <source xml:space="preserve">Подробнее</source>
-      </trans-unit>
-      <trans-unit id="11">
-        <source xml:space="preserve">Товарная кампания</source>
-      </trans-unit>
-      <trans-unit id="12">
-        <source xml:space="preserve">Используйте простой инструмент для продвижения товаров интернете</source>
-      </trans-unit>
-      <trans-unit id="13">
-        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
-      </trans-unit>
-      <trans-unit id="14">
-        <source xml:space="preserve">Подробнее</source>
-      </trans-unit>
-      <trans-unit id="15">
-        <source xml:space="preserve">Реклама в Telegram</source>
-      </trans-unit>
-      <trans-unit id="16">
-        <source xml:space="preserve">Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ</source>
-      </trans-unit>
-      <trans-unit id="17">
-        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
-      </trans-unit>
-      <trans-unit id="18">
-        <source xml:space="preserve">Подробнее</source>
-      </trans-unit>
-      <trans-unit id="19">
-        <source xml:space="preserve">Часто ищут</source>
-      </trans-unit>
-      <trans-unit id="20">
-        <source xml:space="preserve">Статистика</source>
-      </trans-unit>
-      <trans-unit id="21">
-        <source xml:space="preserve">Управление фидами</source>
-      </trans-unit>
-      <trans-unit id="22">
-        <source xml:space="preserve">Сервисные функции</source>
-      </trans-unit>
-      <trans-unit id="23">
-        <source xml:space="preserve">Правила и модерация</source>
-      </trans-unit>
-      <trans-unit id="24">
-        <source xml:space="preserve">Технологии и сервисы</source>
-      </trans-unit>
-      <trans-unit id="25">
-        <source xml:space="preserve">Поддержка 24/7</source>
-      </trans-unit>
-      <trans-unit id="26">
-        <source xml:space="preserve">Полезные ссылки</source>
-      </trans-unit>
-      <trans-unit id="27">
-        <source xml:space="preserve">Глоссарий</source>
-      </trans-unit>
-      <trans-unit id="28">
-        <source xml:space="preserve">Простой старт</source>
-      </trans-unit>
-      <trans-unit id="29">
-        <source xml:space="preserve">Минимум ручных настроек: достаточно указать ссылку на сайт</source>
-      </trans-unit>
-      <trans-unit id="30">
-        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
-      </trans-unit>
-      <trans-unit id="31">
-        <source xml:space="preserve">Подробнее</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/toc.yaml.skl 1`] = `
-"title: '%%%0%%%'
-href: index.yaml
-items:
-  - name: '%%%4%%%'
-  - href: index-direct.yaml
-navigation:
-  header:
-    leftItems:
-      - text: '%%%2%%%'
-        type: dropdown
-        items:
-          - text: '%%%3%%%'
-            type: link
-            href: menu/item
-  logo:
-    light:
-      icon: https://icon.link/logo.svg
-      url: https://site.ru
-      urlTitle: '%%%1%%%'
-"
-`;
-
-exports[`Translate command > extract yaml scheme files > en/toc.yaml.xliff 1`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Заголовок</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">На сайт сервиса</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Инструменты</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">Пункт меню</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">Дочерняя страница</source>
       </trans-unit>
     </body>
   </file>
@@ -1686,12 +1155,12 @@ exports[`Translate command > filter files on extract > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",
   "es/_includes/test.md.xliff",
-  "es/_no-translate/exclude.md.skl",
-  "es/_no-translate/exclude.md.xliff",
   "es/aboba.md.skl",
   "es/aboba.md.xliff",
   "es/index.md.skl",
   "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
   "es/nested/index-yfm.md.skl",
   "es/nested/index-yfm.md.xliff",
   "es/nested/index.yaml.skl",
@@ -1702,6 +1171,10 @@ exports[`Translate command > filter files on extract > filelist 1`] = `
   "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
@@ -1715,6 +1188,8 @@ exports[`Translate command > filter files on extract with extra exclude option >
   "es/aboba.md.xliff",
   "es/index.md.skl",
   "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
   "es/nested/index-yfm.md.skl",
   "es/nested/index-yfm.md.xliff",
   "es/nested/index.yaml.skl",
@@ -1725,12 +1200,45 @@ exports[`Translate command > filter files on extract with extra exclude option >
   "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is > filelist 1`] = `
+exports[`Translate command > filter files on extract with extra vars option > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > test no-translate directive > filelist 1`] = `
 "[
   "index.md.skl",
   "index.md.xliff",
@@ -1743,7 +1251,7 @@ exports[`Translate command > removes no-translate directive and leaves content a
 ]"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 1`] = `
+exports[`Translate command > test no-translate directive 1`] = `
 "## %%%0%%%
 
 ::no-translate  [adsfasdfasdfasdfasdf]
@@ -1753,7 +1261,7 @@ exports[`Translate command > removes no-translate directive and leaves content a
 %%%2%%%"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 2`] = `
+exports[`Translate command > test no-translate directive 2`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1777,48 +1285,60 @@ exports[`Translate command > removes no-translate directive and leaves content a
 </xliff>"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 3`] = `
+exports[`Translate command > test no-translate directive 3`] = `
 "# %%%0%%%
 
 ## %%%1%%%
 :::no-translate
 ### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
 Should not be translated.
 Can use **markup** inside.
 :::
 
-## %%%2%%%
+
+%%%2%%%
+
+## %%%3%%%
 
 ::no-translate [## /usr/local/bin/application]
 ::no-translate[**C:/Program Files/Application/config.ini**]
 ::no-translate [~/Documents/project/src/main.rs]
 
 
-- :no-translate[GET /api/v1/users] %%%3%%%
-- :no-translate[POST /api/v1/auth/login] %%%4%%%
-- :no-translate[PUT /api/v1/users/{id}] %%%5%%%
+- :no-translate[GET /api/v1/users] %%%4%%%
+- :no-translate[POST /api/v1/auth/login] %%%5%%%
+- :no-translate[PUT /api/v1/users/{id}] %%%6%%%
 
-## %%%6%%%
-%%%7%%%
-:no-translate[The default port is unless specified.] %%%8%%%
-%%%9%%%
+## %%%7%%%
+%%%8%%%
+:no-translate[The default port is unless specified.] %%%9%%%
+%%%10%%%
 
-## %%%10%%%
-%%%11%%%
+## %%%11%%%
 %%%12%%%
 %%%13%%%
+%%%14%%%
 
-## %%%14%%%
-%%%15%%%
+## %%%15%%%
+%%%16%%%
 
-## %%%16%%%
-%%%17%%%
+## %%%17%%%
+%%%18%%%
 
 
 "
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 4`] = `
+exports[`Translate command > test no-translate directive 4`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1835,59 +1355,62 @@ exports[`Translate command > removes no-translate directive and leaves content a
         <source xml:space="preserve">Block directive</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">Leaf directive</source>
+        <source xml:space="preserve">::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-2"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-3"/>::: no-translate<x ctype="lb" equiv-text="&amp;#10;" id="x-4"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-5"/>::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/>nested content<x ctype="lb" equiv-text="&amp;#10;" id="x-7"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-8"/>:::</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">— get all users</source>
+        <source xml:space="preserve">Leaf directive</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">— authorization</source>
+        <source xml:space="preserve">— get all users</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">— update users data</source>
+        <source xml:space="preserve">— authorization</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">Simple case leaf</source>
+        <source xml:space="preserve">— update users data</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve">Install using command.</source>
+        <source xml:space="preserve">Simple case leaf</source>
       </trans-unit>
       <trans-unit id="8">
-        <source xml:space="preserve">Next sentence.</source>
+        <source xml:space="preserve">Install using command.</source>
       </trans-unit>
       <trans-unit id="9">
-        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
+        <source xml:space="preserve">Next sentence.</source>
       </trans-unit>
       <trans-unit id="10">
-        <source xml:space="preserve">Simple case inline</source>
+        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
       </trans-unit>
       <trans-unit id="11">
-        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-2"/> command.</source>
+        <source xml:space="preserve">Simple case inline</source>
       </trans-unit>
       <trans-unit id="12">
-        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-3"/> unless specified.</source>
+        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-9"/> command.</source>
       </trans-unit>
       <trans-unit id="13">
-        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-4"/> for production builds.</source>
+        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-10"/> unless specified.</source>
       </trans-unit>
       <trans-unit id="14">
-        <source xml:space="preserve">Few inline directives</source>
+        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-11"/> for production builds.</source>
       </trans-unit>
       <trans-unit id="15">
-        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-5"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-6"/> to create.</source>
+        <source xml:space="preserve">Few inline directives</source>
       </trans-unit>
       <trans-unit id="16">
-        <source xml:space="preserve">Empty inline directive</source>
+        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-12"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-13"/> to create.</source>
       </trans-unit>
       <trans-unit id="17">
-        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-7"/> directive.</source>
+        <source xml:space="preserve">Empty inline directive</source>
+      </trans-unit>
+      <trans-unit id="18">
+        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-14"/> directive.</source>
       </trans-unit>
     </body>
   </file>
 </xliff>"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 5`] = `
+exports[`Translate command > test no-translate directive 5`] = `
 "openapi: 3.0.1
 info:
   title: '%%%0%%%'
@@ -1927,7 +1450,7 @@ components:
 "
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 6`] = `
+exports[`Translate command > test no-translate directive 6`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1947,7 +1470,7 @@ exports[`Translate command > removes no-translate directive and leaves content a
         <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-15"/> operation with no inputs and a complex</source>
       </trans-unit>
       <trans-unit id="4">
         <source xml:space="preserve">200!!!!</source>
@@ -1957,288 +1480,18 @@ exports[`Translate command > removes no-translate directive and leaves content a
 </xliff>"
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 7`] = `
+exports[`Translate command > test no-translate directive 7`] = `
 "title: '%%%0%%%'
 href: index.md
 items:
   - name: '%%%1%%%'
     href: no-translate.md
   - name: '%%%2%%%'
-    include:
-      path: openapi
-      includers:
-        - name: openapi
-          input: openapi-spec.yaml
+    items: []
 "
 `;
 
-exports[`Translate command > removes no-translate directive and leaves content as is 8`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Test123</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Не переводить</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">openapi</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > skip no-translate marked content > filelist 1`] = `
-"[
-  "index.md.skl",
-  "index.md.xliff",
-  "no-translate.md.skl",
-  "no-translate.md.xliff",
-  "openapi-spec.yaml.skl",
-  "openapi-spec.yaml.xliff",
-  "toc.yaml.skl",
-  "toc.yaml.xliff"
-]"
-`;
-
-exports[`Translate command > skip no-translate marked content 1`] = `
-"## %%%0%%%
-
-::no-translate  [adsfasdfasdfasdfasdf]
-
-%%%1%%%
-
-%%%2%%%"
-`;
-
-exports[`Translate command > skip no-translate marked content 2`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Index header</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">lorem</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">asdfasdfasdf</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > skip no-translate marked content 3`] = `
-"# %%%0%%%
-
-## %%%1%%%
-:::no-translate
-### No-translate header
-Should not be translated.
-Can use **markup** inside.
-:::
-
-## %%%2%%%
-
-::no-translate [## /usr/local/bin/application]
-::no-translate[**C:/Program Files/Application/config.ini**]
-::no-translate [~/Documents/project/src/main.rs]
-
-
-- :no-translate[GET /api/v1/users] %%%3%%%
-- :no-translate[POST /api/v1/auth/login] %%%4%%%
-- :no-translate[PUT /api/v1/users/{id}] %%%5%%%
-
-## %%%6%%%
-%%%7%%%
-:no-translate[The default port is unless specified.] %%%8%%%
-%%%9%%%
-
-## %%%10%%%
-%%%11%%%
-%%%12%%%
-%%%13%%%
-
-## %%%14%%%
-%%%15%%%
-
-## %%%16%%%
-%%%17%%%
-
-
-"
-`;
-
-exports[`Translate command > skip no-translate marked content 4`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">No-translate directive</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Block directive</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Leaf directive</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">— get all users</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">— authorization</source>
-      </trans-unit>
-      <trans-unit id="5">
-        <source xml:space="preserve">— update users data</source>
-      </trans-unit>
-      <trans-unit id="6">
-        <source xml:space="preserve">Simple case leaf</source>
-      </trans-unit>
-      <trans-unit id="7">
-        <source xml:space="preserve">Install using command.</source>
-      </trans-unit>
-      <trans-unit id="8">
-        <source xml:space="preserve">Next sentence.</source>
-      </trans-unit>
-      <trans-unit id="9">
-        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
-      </trans-unit>
-      <trans-unit id="10">
-        <source xml:space="preserve">Simple case inline</source>
-      </trans-unit>
-      <trans-unit id="11">
-        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-2"/> command.</source>
-      </trans-unit>
-      <trans-unit id="12">
-        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-3"/> unless specified.</source>
-      </trans-unit>
-      <trans-unit id="13">
-        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-4"/> for production builds.</source>
-      </trans-unit>
-      <trans-unit id="14">
-        <source xml:space="preserve">Few inline directives</source>
-      </trans-unit>
-      <trans-unit id="15">
-        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-5"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-6"/> to create.</source>
-      </trans-unit>
-      <trans-unit id="16">
-        <source xml:space="preserve">Empty inline directive</source>
-      </trans-unit>
-      <trans-unit id="17">
-        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-7"/> directive.</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > skip no-translate marked content 5`] = `
-"openapi: 3.0.1
-info:
-  title: '%%%0%%%'
-  version: v0
-servers:
-  - url: http://localhost:8080
-    description: '%%%1%%%'
-paths:
-  /test:
-    get:
-      tags:
-        - test-controller
-      summary: '%%%2%%%'
-      description: '%%%3%%%'
-      operationId: getWithPayloadResponse
-      responses:
-        '200':
-          description: '%%%4%%%'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RecurceTop'
-components:
-  schemas:
-    RecurceTop:
-      type: object
-      properties:
-        A:
-          type: string
-    RecurceMiddle:
-      type: object
-      properties:
-        B:
-          type: array
-          items:
-            $ref: '#/components/schemas/RecurceTop'
-"
-`;
-
-exports[`Translate command > skip no-translate marked content 6`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">OpenAPI definition</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Generated server url</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">200!!!!</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > skip no-translate marked content 7`] = `
-"title: '%%%0%%%'
-href: index.md
-items:
-  - name: '%%%1%%%'
-    href: no-translate.md
-  - name: '%%%2%%%'
-    include:
-      path: openapi
-      includers:
-        - name: openapi
-          input: openapi-spec.yaml
-"
-`;
-
-exports[`Translate command > skip no-translate marked content 8`] = `
+exports[`Translate command > test no-translate directive 8`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
