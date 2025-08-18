@@ -11,11 +11,11 @@ import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
 import {Template} from '~/core/template';
-import {fallbackLang, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
+import {fallbackLang, flat, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {ASSETS_FOLDER} from '~/constants';
@@ -146,7 +146,7 @@ export class OutputHtml {
 
                 // Transform markdown to html
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Html', async (vfile) => {
-                    const deps = await run.markdown.deps(vfile.path);
+                    const deps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
                     const assets = await run.markdown.assets(vfile.path);
                     const [result, env] = await run.transform(vfile.path, vfile.data, {
                         deps,

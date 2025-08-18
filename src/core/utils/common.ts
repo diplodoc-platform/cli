@@ -18,6 +18,10 @@ export function zip<T = unknown>(keys: string[], values: T[]) {
     }, {} as Hash<T>);
 }
 
+export function flat<T>(array: unknown[]): T[] {
+    return array.flat(Infinity) as T[];
+}
+
 export function own<V = unknown, T extends string = string>(
     box: unknown,
     field: T,
