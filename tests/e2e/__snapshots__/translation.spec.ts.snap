@@ -739,14 +739,44 @@ exports[`Translate command > do not resolve liquid conditions if vars not specif
 `;
 
 exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 1`] = `
-"#|
-||
-%%%0%%%
-||
-||
-%%%1%%%{% endif %}
-||
-|#"
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
 `;
 
 exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 2`] = `
@@ -760,10 +790,40 @@ exports[`Translate command > do not resolve liquid conditions if vars not specif
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-2"/>- <g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-3"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-4"/>- электронной коммерции<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-5"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot;%}" id="x-7"/>- <g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-8"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;zh&quot; or tld == &quot;tr&quot; %}" id="x-9"/>- по параметрам посетителей<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-10"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-11"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-12"/>- <g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-13"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-14"/>- по параметрам визитов</source>
+        <source xml:space="preserve">Test text</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">inner test text</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">1.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Item</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
       </trans-unit>
     </body>
   </file>
@@ -1695,6 +1755,92 @@ exports[`Translate command > filter files on extract with extra vars option > fi
 ]"
 `;
 
+exports[`Translate command > remove falsy liquid conditions structures > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+
+
+
+
+#### %%%1%%%
+
+{% if list contains "item" %}
+
+    %%%2%%%
+
+{% endif %}
+
+#### %%%3%%%
+
+"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted > filelist 1`] = `
 "[
   "index.md.skl",
@@ -1705,17 +1851,44 @@ exports[`Translate command > resolve liquid conditions if vars specified, liquid
 `;
 
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 1`] = `
-"#|
-||
-%%%0%%%
-||
-||
-%%%1%%%
-- %%%2%%%
-- %%%3%%%
-- %%%4%%%
-||
-|#"
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
 `;
 
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 2`] = `
@@ -1729,19 +1902,40 @@ exports[`Translate command > resolve liquid conditions if vars specified, liquid
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:</source>
+        <source xml:space="preserve">Test text</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g>;</source>
+        <source xml:space="preserve">inner test text</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g>;</source>
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g></source>
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">1.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Item</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
       </trans-unit>
     </body>
   </file>
@@ -1758,6 +1952,137 @@ items:
 `;
 
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Test text</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">inner test text</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">1.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Item</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 4`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">

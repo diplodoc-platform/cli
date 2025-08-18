@@ -31,7 +31,7 @@ type MarkdownServiceConfig = {
         legacyConditions: boolean;
         features: {
             substitutions: boolean;
-            conditions: boolean | string;
+            conditions?: boolean | 'strict';
         };
         scopes: {
             code: boolean;
@@ -411,6 +411,7 @@ export class MarkdownService {
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
                 legacyConditions: this.config.template.legacyConditions,
+                keepConditionSyntaxOnTrue: this.options.mode === 'translate',
             },
             options: {
                 disableLiquid: !this.config.template.enabled,

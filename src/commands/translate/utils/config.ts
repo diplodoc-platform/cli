@@ -200,8 +200,8 @@ export function configDefaults() {
             keepNotVar: false,
             legacyConditions: false,
             features: {
-                conditions: 'strict',
-                substitutions: true,
+                conditions: 'strict' as const,
+                substitutions: false,
             },
             scopes: {
                 code: false,
