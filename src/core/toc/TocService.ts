@@ -68,6 +68,11 @@ type Run = BaseRun<TocServiceConfig> & {
     meta: MetaService;
 };
 
+type Options = {
+    skipMissingVars: boolean;
+    mode: 'translate' | 'build';
+};
+
 @withHooks
 export class TocService {
     readonly name = 'Toc';
@@ -88,6 +93,8 @@ export class TocService {
 
     private config: TocServiceConfig;
 
+    private options;
+
     private get vars() {
         return this.run.vars;
     }
@@ -96,10 +103,11 @@ export class TocService {
         return this.run.meta;
     }
 
-    constructor(run: Run) {
+    constructor(run: Run, options: Options = {skipMissingVars: false, mode: 'build'}) {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
+        this.options = options;
     }
 
     async init(paths: NormalizedPath[]) {
@@ -450,6 +458,8 @@ export class TocService {
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,
                 removeEmptyItems: this.config.removeEmptyTocItems,
+                skipMissingVars: this.options.skipMissingVars,
+                mode: this.options.mode,
             },
         };
     }

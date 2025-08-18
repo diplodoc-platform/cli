@@ -4,4 +4,10 @@ items:
   - name: Aboba
     href: aboba.md
   - name: Не переводить
+    when: skip == 'prod'
     href: _no-translate/exclude.md
+  - name: Нет переменной в vars
+    when: novar == 'test'
+    href: no-var-page.md
+  - name: exclude-test
+    href: to-be-excluded.md
