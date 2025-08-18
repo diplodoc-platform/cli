@@ -19,6 +19,11 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../handler');
+vi.mock('@diplodoc/search-extension', () => ({
+    Extension: function() {
+        return {apply() {}};
+    }
+}));
 vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
