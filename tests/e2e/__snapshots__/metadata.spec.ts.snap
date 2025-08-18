@@ -2,7 +2,8 @@
 
 exports[`Allow load custom resources > md2html with metadata > filelist 1`] = `
 "[
-  "_bundle/934.js",
+  "_bundle/search-async-1",
+  "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
   "_bundle/app-css-3",
