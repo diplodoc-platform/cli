@@ -5,4 +5,4 @@ items:
       includers:
         - name: openapi
           input: openapi-spec.yaml
-
+      mode: link

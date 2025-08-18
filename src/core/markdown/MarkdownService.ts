@@ -139,7 +139,7 @@ export class MarkdownService {
 
             // TODO: this may trigger uncaught exceptions
             // But if we move this two lines above, then program exits unexpectedly
-            await getHooks(this).Resolved.promise(raw, file);
+            await getHooks(this).Resolved.promise(content, file);
         } catch (error) {
             defer.reject(error);
         }

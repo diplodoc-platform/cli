@@ -13,7 +13,7 @@ import type {
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
 import {omit} from 'lodash';
-import {evaluate, liquidSnippet} from '@diplodoc/liquid';
+import {NoValue, evaluate, liquidSnippet} from '@diplodoc/liquid';
 
 import {normalizePath, own} from '~/core/utils';
 
@@ -33,6 +33,8 @@ export type LoaderContext = LiquidContext & {
     options: {
         removeHiddenItems: boolean;
         removeEmptyItems: boolean;
+        skipMissingVars?: boolean;
+        mode: string;
     };
     toc: TocService;
 };
@@ -145,7 +147,7 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
  * Also drops hidden items if needed.
  */
 async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    const {removeHiddenItems} = this.options;
+    const {removeHiddenItems, skipMissingVars} = this.options;
     const {conditions, substitutions} = this.settings;
 
     if (!conditions && !substitutions) {
@@ -156,10 +158,18 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         let when = true;
 
         if (conditions) {
-            when =
-                typeof item.when === 'string'
-                    ? Boolean(evaluate(item.when, this.vars))
-                    : item.when !== false;
+            if (typeof item.when === 'string') {
+                const evalResult = evaluate(item.when, this.vars, skipMissingVars);
+
+                if (evalResult === NoValue && skipMissingVars) {
+                    when = true;
+                } else {
+                    when = Boolean(evalResult);
+                }
+            } else {
+                when = item.when !== false;
+            }
+
             delete item.when;
         }
 
@@ -168,7 +178,19 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             delete item.hidden;
         }
 
-        return when ? item : undefined;
+        if (when) {
+            return item;
+        }
+
+        if ('href' in item) {
+            const resolvedItemHref = normalizePath(
+                join(dirname(this.path as string), item.href as string),
+            );
+
+            getHooks(this.toc).Filtered.call(resolvedItemHref);
+        }
+
+        return undefined;
     });
 
     return toc;
@@ -179,10 +201,17 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  * Then merges result in original place in `named` or `inline` mode.
  */
 async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const rawToc = toc;
+    const isTranslateMode = this.options.mode === 'translate';
+
     toc.items = await this.toc.walkItems(toc.items, async (item) => {
         item = await getHooks(this.toc).Item.promise(item, this.path);
 
-        if (!item || !own(item, 'include')) {
+        if (
+            !item ||
+            !own(item, 'include') ||
+            (isTranslateMode && item.include.path === 'openapi')
+        ) {
             return item;
         }
 
@@ -213,6 +242,8 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                 const options = {
                     ...includer,
                     path: tocPath,
+                    rawToc,
+                    include,
                 };
 
                 toc = await hook.promise(toc, options, this.path);
