@@ -1,5 +1,8 @@
 import type {Extract} from '../commands/extract';
+<<<<<<< HEAD
 import type {Run} from '../run';
+=======
+>>>>>>> f50fed0c (fix: add --filter option, warning feature)
 
 import {getHooks as getExtractHooks} from '../commands/hooks';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
@@ -7,7 +10,10 @@ import {getHooks as getTocHooks} from '~/core/toc';
 
 export class FilterExtract {
     private removedEntries: Set<NormalizedPath> = new Set();
+<<<<<<< HEAD
     private missedEntries: Set<[string, string]> = new Set();
+=======
+>>>>>>> f50fed0c (fix: add --filter option, warning feature)
 
     apply(program: Extract) {
         getExtractHooks(program).BeforeRun.tap('FilterExtract', (run) => {

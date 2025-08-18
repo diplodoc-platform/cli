@@ -95,6 +95,8 @@ export class TocService {
 
     private options;
 
+    private options;
+
     private get vars() {
         return this.run.vars;
     }

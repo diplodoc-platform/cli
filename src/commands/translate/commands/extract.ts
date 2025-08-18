@@ -6,7 +6,6 @@ import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import liquid from '@diplodoc/transform/lib/liquid';
 // @ts-ignore
 import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
@@ -214,7 +213,7 @@ export type PipelineParameters = {
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars, useExperimentalParser, schema} = params;
+    const {input, output, source, target, useExperimentalParser, schema} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -229,14 +228,6 @@ function pipeline(params: PipelineParameters) {
 
             return join(outputRoot, targetPath);
         };
-
-        if (Object.keys(vars).length && typeof content === 'string') {
-            content = liquid(content, vars, inputPath, {
-                conditions: 'strict',
-                substitutions: false,
-                cycles: false,
-            });
-        }
 
         const {schemas, ajvOptions} = await resolveSchemas({
             content,
