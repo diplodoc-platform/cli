@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.5.0](https://github.com/diplodoc-platform/cli/compare/v5.4.1...v5.5.0) (2025-08-18)
+
+
+### Features
+
+* Static search results page ([#1314](https://github.com/diplodoc-platform/cli/issues/1314)) ([4852daf](https://github.com/diplodoc-platform/cli/commit/4852daff644dd016ee8a217193a6e709feb71fb9))
+
+
+### Bug Fixes
+
+* add flat to deps in contributers ([679d102](https://github.com/diplodoc-platform/cli/commit/679d102199b3b0aa38d0d24554221d5c8625b830))
+* exclude titles with from includes, add test ([a4926d4](https://github.com/diplodoc-platform/cli/commit/a4926d4bab3bd16d7ed480d0f36e6e07ca052711))
+* from not array ([6082282](https://github.com/diplodoc-platform/cli/commit/6082282f2beb72394bdca82a4c69498027a9ba04))
+
+
+### Dependency update
+
+* Update @diplodoc/search-extension to 2.1.0 ([#1341](https://github.com/diplodoc-platform/cli/issues/1341)) ([f40afd8](https://github.com/diplodoc-platform/cli/commit/f40afd8a98518ded4b9becfc6aa0f13e288f1343))
+* updated client to 3.9.0 ([3e1c179](https://github.com/diplodoc-platform/cli/commit/3e1c1796f349016a389de946699dd328c9037a6f))
+
 ## [5.4.1](https://github.com/diplodoc-platform/cli/compare/v5.4.0...v5.4.1) (2025-08-18)
 
 
