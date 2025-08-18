@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">aboba</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Общение в issues и pull requests в GitHub на русском и преимущественно английском языке.- Презентация/продвижение продукта на разных <g ctype="bold" equiv-text="**{{text}}**" id="g-9" x-begin="**" x-end="**"><g ctype="image" equiv-text="![{{text}}](./complex/_images/camera.svg)" id="g-10" x-begin="![" x-end="](./complex/_images/camera.svg)">i</g> <g ctype="link" equiv-text="[{{text}}](*conference)" id="g-11" x-begin="[" x-end="](*conference)">конференциях</g></g><x ctype="liquid_Attributes" equiv-text="{.photo}" id="x-3"/> и <g ctype="bold" equiv-text="**{{text}}**" id="g-12" x-begin="**" x-end="**"><g ctype="image" equiv-text="![{{text}}](./complex/_images/camera.svg)" id="g-13" x-begin="![" x-end="](./complex/_images/camera.svg)">i</g> <g ctype="link" equiv-text="[{{text}}](*meetup)" id="g-14" x-begin="[" x-end="](*meetup)">митапах</g></g><x ctype="liquid_Attributes" equiv-text="{.photo}" id="x-4"/>.</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">абоба тест</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Описание</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve"><g ctype="image" equiv-text="![{{text}}](./_images/highload.png)" id="g-15" x-begin="![" x-end="](./_images/highload.png)">i</g></source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve"><g ctype="image" equiv-text="![{{text}}](./_images/highload.png)" id="g-16" x-begin="![" x-end="](./_images/highload.png)">i</g></source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

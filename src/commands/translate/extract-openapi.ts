@@ -12,7 +12,6 @@ type Run = BaseRun & {
 const EXTENSION = 'OpenapiIncluder';
 const INCLUDER = 'openapi';
 
-// TODO: move to openapi-extension on major
 export class Extension implements IExtension {
     apply(program: BaseProgram) {
         getBaseHooks(program).BeforeAnyRun.tap(EXTENSION, (run: Run) => {

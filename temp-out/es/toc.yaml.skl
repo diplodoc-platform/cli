@@ -1,0 +1,9 @@
+title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: aboba.md
+  - name: '%%%2%%%'
+    href: no-var-page.md
+  - name: '%%%3%%%'
+    href: to-be-excluded.md

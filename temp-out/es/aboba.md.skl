@@ -1,0 +1,5 @@
+## %%%0%%%
+
+<!-- [ссылка на файл не в toc.yaml](./aboba-not-in-toc.md) -->
+
+{% include [%%%1%%%](./_includes/test.md) %}

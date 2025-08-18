@@ -1,0 +1,17 @@
+title: '%%%0%%%'
+href: index.yaml
+items:
+  - name: '%%%1%%%'
+    href: index.yaml
+  - name: '%%%2%%%'
+    href: a1.md
+  - name: '%%%3%%%'
+    href: index-yfm.md
+    items:
+      - name: '%%%4%%%'
+        items:
+          - name: '%%%5%%%'
+            href: syntax/base.md
+          - name: '%%%6%%%'
+            href: syntax/lists.md
+          - name: '%%%7%%%'

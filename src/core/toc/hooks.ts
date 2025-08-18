@@ -1,7 +1,13 @@
 import type {VFile} from '~/core/utils';
 import {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
-import {AsyncParallelHook, AsyncSeriesHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {
+    AsyncParallelHook,
+    AsyncSeriesHook,
+    AsyncSeriesWaterfallHook,
+    HookMap,
+    SyncHook,
+} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
@@ -32,6 +38,7 @@ export function hooks(name: string) {
             `${name}.Included`,
         ),
         Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
+        Filtered: new SyncHook<[NormalizedPath]>(['path'], `${name}.Filtered`),
     };
 }
 

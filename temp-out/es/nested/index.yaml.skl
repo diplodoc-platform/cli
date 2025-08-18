@@ -1,0 +1,21 @@
+title: '%%%0%%%'
+description: '%%%1%%%'
+meta:
+  title: '%%%2%%%'
+  noIndex: true
+links:
+  - title: '%%%3%%%'
+    description: '%%%4%%%'
+    href: api-design-guide
+  - title: '%%%5%%%'
+    description: '%%%6%%%'
+    href: /api-design-guide
+  - title: '%%%7%%%'
+    description: '%%%8%%%'
+    href: about.md
+  - title: '%%%9%%%'
+    description: '%%%10%%%'
+    href: how-it-work.md
+  - title: '%%%11%%%'
+    description: '%%%12%%%'
+    href: index-yfm.md
