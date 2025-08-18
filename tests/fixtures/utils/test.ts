@@ -5,6 +5,11 @@ export function platformless(text: string): string {
 
     return hashless(text)
         .replace(/\r\n/g, '\n')
+        // Fix for XML equiv-text attributes in Windows - handle various patterns
+        .replace(/equiv-text="[\r\n]+&#10;"/g, 'equiv-text="&#10;"')
+        .replace(/equiv-text="[\r\n]+&amp;#10;"/g, 'equiv-text="&amp;#10;"')
+        // Also normalize any other attributes that might have line ending issues
+        .replace(/(ctype|id)="[\r\n]+(.*?)"/g, '$1="$2"')
         .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
         .replace(
             /(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+)?/g,
