@@ -389,11 +389,11 @@ metadata:
 ---
 Text
 
-{% include [user](includes/user-hash.md) %}d usageMermaid usagemd) %}
+{% include [user](includes/user-hash.md) %}
 
 {% include [test](includes/test-hash.md) %}
 
-Link after incMermaid usagelude
+Link after include
 [Title](./1.md)
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
@@ -416,7 +416,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 7`] = `
 exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
 "- list item
 
-  {% include [user](./sub/userWithIndent-hash.md) %}Indent.md) %}
+  {% include [user](./sub/userWithIndent-hash.md) %}
 
 Link to mermaid diagram from 1 level
 [Mermaid usage](../mermaid.md)"

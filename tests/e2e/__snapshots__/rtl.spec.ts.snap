@@ -3,7 +3,7 @@
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > filelist 1`] = `
 "[
   ".yfm",
-  "_bundle/934.js",
+  "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
   "_bundle/app-css-3",
@@ -106,7 +106,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > filelist 1`] = `
 "[
   ".yfm",
-  "_bundle/934.js",
+  "_bundle/search-async-0",
   "_bundle/app-css-1",
   "_bundle/app-js-1",
   "_bundle/app-css-3",
