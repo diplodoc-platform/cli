@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.5.1](https://github.com/diplodoc-platform/cli/compare/v5.5.0...v5.5.1) (2025-08-19)
+
+
+### Dependency update
+
+* updated client in cli/tests ([#1345](https://github.com/diplodoc-platform/cli/issues/1345)) ([e920b4a](https://github.com/diplodoc-platform/cli/commit/e920b4a2b7b37e503e932a06dc21c14aef65fa99))
+
 ## [5.5.0](https://github.com/diplodoc-platform/cli/compare/v5.4.1...v5.5.0) (2025-08-18)
 
 
