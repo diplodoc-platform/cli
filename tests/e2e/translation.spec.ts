@@ -42,6 +42,7 @@ const buildFilesYamlTestTemplate = (
         await TestAdapter.testBuildPass(inputPath, outputPath, {md2html, md2md});
 
         await compareDirectories(outputPath);
+        console.log(true);
     });
 };
 
