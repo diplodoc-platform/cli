@@ -20,6 +20,9 @@ export function hashless(text: string): string {
 export function bundleless(text: string): string {
     const assets = require('@diplodoc/client/manifest') as Record<string, Record<string, string[]>>;
 
+    console.log('qwerty')
+    console.log(assets)
+
     for (const [entryKey, entry] of Object.entries(assets)) {
         for (const [typeKey, type] of Object.entries(entry)) {
             for (let index = 0; index < type.length; index++) {
