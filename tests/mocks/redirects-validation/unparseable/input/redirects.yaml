@@ -2,6 +2,10 @@ common:
   - from: /foo.md
     to: /bar.md
 
+<<<<<<< HEAD
+
   - from: /barbar.md
     to: /baz.md
 
+=======
+>>>>>>> merge-branch
