@@ -63,7 +63,7 @@ exports[`Local search > internal 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico"},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico","toc":null,"feedback":true,"search":true},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
