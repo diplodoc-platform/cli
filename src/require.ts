@@ -6,4 +6,5 @@ Module.prototype.require = ((original, map) =>
         return original.call(this, map[name] || name);
     }, original))(Module.prototype.require, {
     '@diplodoc/cli': resolve(__dirname, '..'),
+    punycode: 'punycode/',
 } as Hash);
