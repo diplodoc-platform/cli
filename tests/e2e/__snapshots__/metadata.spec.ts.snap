@@ -47,7 +47,7 @@ exports[`Allow load custom resources > md2html with metadata 1`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -88,7 +88,7 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -128,7 +128,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}]},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
