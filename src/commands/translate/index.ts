@@ -21,6 +21,7 @@ import {Extension as YandexTranslation} from './providers/yandex';
 import {resolveSource, resolveTargets, resolveVars} from './utils';
 import {Run} from './run';
 import {ConfigDefaults, configDefaults} from './utils/config';
+import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
 
 export {getHooks};
 
@@ -83,7 +84,12 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     readonly compose = new Compose();
 
-    protected readonly modules: ICallable[] = [this.extract, this.compose, new YandexTranslation()];
+    protected readonly modules: ICallable[] = [
+        this.extract,
+        this.compose,
+        new YandexTranslation(),
+        new ExtractOpenapiIncluderFakeExtension(),
+    ];
 
     private run!: Run;
 
@@ -123,6 +129,8 @@ export class Translate extends BaseProgram<TranslateConfig, TranslateArgs> {
 
     async action() {
         this.run = new Run(this.config);
+
+        await getBaseHooks(this).BeforeAnyRun.promise(this.run);
 
         await this.run.prepareRun();
         const [files, skipped] = await this.run.getFiles();
