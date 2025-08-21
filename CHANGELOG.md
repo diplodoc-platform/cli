@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.5.2](https://github.com/diplodoc-platform/cli/compare/v5.5.1...v5.5.2) (2025-08-21)
+
+
+### Bug Fixes
+
+* add test checking includer is added ([b037fdb](https://github.com/diplodoc-platform/cli/commit/b037fdb05b77b04a0a7c526efbc030388c5d7ab6))
+* openapi includer error ([9ea9e0a](https://github.com/diplodoc-platform/cli/commit/9ea9e0a7c591f5a1c71612b19e09eaae71d8925e))
+* resolve warning punycode ([37caec4](https://github.com/diplodoc-platform/cli/commit/37caec4e98e57e82ec7d05f4991c0608728ba507))
+
 ## [5.5.1](https://github.com/diplodoc-platform/cli/compare/v5.5.0...v5.5.1) (2025-08-19)
 
 
