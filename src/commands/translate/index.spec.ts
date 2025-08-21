@@ -1,5 +1,5 @@
 import type {YandexTranslationConfig} from './providers/yandex';
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {runTranslate as run, testConfig} from './__tests__';
 
 describe('Translate command', () => {
@@ -321,5 +321,23 @@ describe('Translate command', () => {
                 output: expect.stringMatching(/^(\/|[A-Z]:\\).*?/),
             }),
         );
+    });
+
+    it('should register OpenAPI includer during initialization', async () => {
+        const {Extension} = await import('./extract-openapi');
+
+        vi.restoreAllMocks();
+
+        const extensionSpy = vi.spyOn(Extension.prototype, 'apply');
+
+        const translate = await run('-o output --folder 1 --source ru --target en --auth y0_1');
+
+        // @ts-ignore - accessing protected property for testing
+        const modules = translate.modules;
+        const hasOpenApiIncluder = modules.some((module) => module instanceof Extension);
+
+        expect(hasOpenApiIncluder).toBe(true);
+
+        expect(extensionSpy).toHaveBeenCalled();
     });
 });
