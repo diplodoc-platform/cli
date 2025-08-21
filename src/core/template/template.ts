@@ -3,8 +3,7 @@ import {getCSP} from 'csp-header';
 
 import {RTL_LANGS} from '~/constants';
 import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
-import {getFaviconType} from '../utils/favicon';
-import {filterMeta} from '../utils/meta';
+import {getFaviconType} from './utils';
 
 enum ScriptPosition {
     Leading = 'leading',
@@ -160,7 +159,6 @@ export class Template {
         const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
-        const filteredMeta = filterMeta(this.meta);
 
         return dedent`
             <!DOCTYPE html>
@@ -170,7 +168,7 @@ export class Template {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <base href="${base}" />
                     <title>${title}</title>
-                    ${filteredMeta.map(meta).join('\n')}
+                    ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
                     ${faviconSrc && `<link rel="icon" type="${faviconType}" href="${faviconSrc}">`}

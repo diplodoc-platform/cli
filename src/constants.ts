@@ -58,6 +58,4 @@ export enum ResourceType {
     csp = 'csp',
 }
 
-export const excludedMetaFields = ['interface', 'resources'];
-
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;
