@@ -18,8 +18,8 @@ type Options = {
 
 export default ((md, opts) => {
     const plugin = (state: StateCore) => {
-        walkLinks(state, (_link, href, tokens, idx) => {
-            const {path, log, titles} = opts;
+        walkLinks(state, (link, href, tokens, idx) => {
+            const {path, titles} = opts;
             const nextToken = tokens[idx + 1];
 
             const isEmptyLink = nextToken.type === 'link_close';
@@ -33,6 +33,8 @@ export default ((md, opts) => {
             }
 
             if (!(file in titles)) {
+                link.attrSet('YFM010', `Title not found: ${bold(href)} in ${bold(path)}`);
+
                 return;
             }
 
@@ -43,7 +45,7 @@ export default ((md, opts) => {
                 titleToken.content = title;
                 tokens.splice(idx + 1, isEmptyLink ? 0 : 1, titleToken);
             } else {
-                log.warn(`Title not found: ${bold(href)} in ${bold(path)}`);
+                link.attrSet('YFM010', `Title not found: ${bold(href)} in ${bold(path)}`);
             }
         });
     };

@@ -102,7 +102,7 @@
     "@diplodoc/search-extension": "^2.1.0",
     "@diplodoc/transform": "^4.60.0",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@diplodoc/yfmlint": "^1.2.5",
+    "@diplodoc/yfmlint": "^1.2.8",
     "@octokit/core": "4.2.4",
     "@types/async": "3.2.15",
     "@types/chalk": "2.2.0",
