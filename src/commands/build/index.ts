@@ -33,6 +33,7 @@ import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
 import {Lint} from './features/linter';
 import {BuildManifest} from './features/build-manifest';
+import {SkipHtml} from './features/skip-html';
 import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
@@ -99,6 +100,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly command = new Command('build').description('Build documentation in target directory');
 
+    readonly skipHtml = new SkipHtml();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -137,6 +140,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
+        this.skipHtml,
     ];
 
     /**
