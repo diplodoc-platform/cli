@@ -14,7 +14,6 @@ function test(path: string, expect: Function) {
 
         const md = await TestAdapter.build.run(inputPath, outputPath, ['-j2', '-f', 'md']);
         const html = await TestAdapter.build.run(inputPath, outputPath + '-html', ['-j2', '-f', 'html']);
-
         return expect({md, html});
     });
 }
@@ -28,10 +27,26 @@ describe('Errors', () => {
     });
 });
 
+describe('Warnings', () => {
+    test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
+        expectWarnings(html, [
+            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "[Unreachable autotitle anchor: "link.html#unknown_yfm010"][{#T}](./link.md#unknown_yfm010)"]',
+        ]);
+    });
+});
+
 function expectErrors(report: Report, errors: string[]) {
     expect(report.code).toEqual(1);
 
     for (const error of errors) {
         expect(report.errors).toContain(error);
+    }
+}
+
+function expectWarnings(report: Report, warnings: string[]) {
+    expect(report.warns.length).toEqual(warnings.length);
+
+    for (const warn of warnings) {
+        expect(report.warns).toContain(warn);
     }
 }
