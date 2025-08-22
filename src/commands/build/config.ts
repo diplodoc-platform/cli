@@ -159,16 +159,16 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
         (acc, prop) => {
             acc[prop] = true;
 
-            const configValue = defined(prop, configInterface);
-            if (configValue !== null) {
-                acc[prop] = configValue;
-            }
-
             const argProp =
                 `interface${prop.charAt(0).toUpperCase() + prop.slice(1)}` as keyof BuildArgs;
             const argValue = defined(argProp, args);
             if (argValue !== null) {
                 acc[prop] = argValue;
+            }
+
+            const configValue = defined(prop, configInterface);
+            if (configValue !== null) {
+                acc[prop] = configValue;
             }
 
             return acc;
