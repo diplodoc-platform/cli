@@ -11,7 +11,10 @@ export function platformless(text: string): string {
             `$1vDIPLODOC-VERSION`,
         )
         .replace(/(\\(?![/"'])){1,2}/g, '/')
-        .replace(/id=\\"(?=[\w\d]{8}\\")(?:[a-zA-Z]*\d+[a-zA-Z\d]*)\\"/g, () => `id="inline-code-id-${index++}"`);
+        .replace(
+            /id=\\"inline-code-id-[a-zA-Z0-9]{8}\\"/g,
+            () => `id="inline-code-id-${index++}"`
+        )
 }
 
 export function hashless(text: string): string {
