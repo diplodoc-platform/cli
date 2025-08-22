@@ -1,6 +1,8 @@
 import {readFileSync} from 'node:fs';
 
 export function platformless(text: string): string {
+    let index = 1;
+
     return hashless(text)
         .replace(/\r\n/g, '\n')
         .replace(/\w{8}-\w{4}-\w{4}-\w{4}-\w{12}/g, 'UUID')
@@ -8,7 +10,8 @@ export function platformless(text: string): string {
             /(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+)?/g,
             `$1vDIPLODOC-VERSION`,
         )
-        .replace(/(\\(?![/"'])){1,2}/g, '/');
+        .replace(/(\\(?![/"'])){1,2}/g, '/')
+        .replace(/id=\\"(?=[\w\d]{8}\\")(?:[a-zA-Z]*\d+[a-zA-Z\d]*)\\"/g, () => `id="inline-code-id-${index++}"`);
 }
 
 export function hashless(text: string): string {
