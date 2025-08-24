@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.5.3](https://github.com/diplodoc-platform/cli/compare/v5.5.2...v5.5.3) (2025-08-22)
+
+
+### Bug Fixes
+
+* pass yfm interface props ([fdc35d4](https://github.com/diplodoc-platform/cli/commit/fdc35d4fd83289fb7c393efbcb5c383ff8f03fb8))
+* update snapshots ([519d5c0](https://github.com/diplodoc-platform/cli/commit/519d5c045ac4f7ebe9c570c90d333c8c747613ba))
+
 ## [5.5.2](https://github.com/diplodoc-platform/cli/compare/v5.5.1...v5.5.2) (2025-08-21)
 
 

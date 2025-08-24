@@ -8,7 +8,7 @@ describe('Local search', () => {
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: false,
             md2html: true,
-            args: '-j2 --search',
+            args: '-j2 --search --interface-toc',
         });
         await compareDirectories(outputPath);
     });
