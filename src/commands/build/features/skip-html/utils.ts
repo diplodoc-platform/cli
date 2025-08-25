@@ -49,9 +49,9 @@ export function prettifyLink(href: string): string {
     
     let prettyFilename = filename;
 
-    if (filename === 'index.html') {
+    if (filename === 'index.html' || filename === 'index') {
         prettyFilename = '';
-    } else if (filename.endsWith('.html') && filename !== 'index.html') {
+    } else if (filename.endsWith('.html')) {
         prettyFilename = filename.slice(0, -5);
     } else {
         prettyFilename = filename;
