@@ -32,6 +32,19 @@ export class SkipHtml {
             return config;
         });
 
+        getBaseHooks(program).Config.tap('Search', (config) => {
+            if (!config.skipHtmlExtension) return config;
+
+            const search = {
+                ...config.search,
+                skipHtmlExtension: config.skipHtmlExtension,
+            };
+
+            config.search = search;
+
+            return config;
+        });
+
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
