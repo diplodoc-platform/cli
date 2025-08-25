@@ -19,7 +19,7 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../handler');
-vi.mock('@diplodoc/search-extension', () => ({
+vi.mock('~/extensions/local-search', () => ({
     Extension: function() {
         return {apply() {}};
     }

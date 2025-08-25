@@ -38,6 +38,10 @@ export class Template {
         return RTL_LANGS.includes(this.lang);
     }
 
+    get base() {
+        return getDepthPath(getDepth(this.path) - 1);
+    }
+
     readonly path: NormalizedPath;
 
     readonly lang: string;
@@ -157,8 +161,7 @@ export class Template {
     }
 
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
-        const base = getDepthPath(getDepth(this.path) - 1);
+        const {lang, title, styles, scripts, base, body, bodyClass, faviconSrc} = this;
         const faviconType = getFaviconType(faviconSrc);
         const filteredMeta = filterMeta(this.meta);
 

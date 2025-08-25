@@ -63,8 +63,6 @@ export class EntryService {
             data,
             router: {
                 pathname: setExt(path, ''),
-                // TODO: remove in favor of base
-                depth: getDepth(path),
                 base: getDepthPath(getDepth(path) - 1),
             },
             lang,
