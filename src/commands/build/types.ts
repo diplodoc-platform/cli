@@ -13,6 +13,7 @@ import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy'
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {OutputFormat} from './config';
 import type {PageData} from './services/entry';
+import {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';
@@ -57,6 +58,7 @@ export type BuildArgs = ProgramArgs &
         TemplatingArgs &
             ContributorsArgs &
             SinglePageArgs &
+            SkipHtmlArgs &
             LintArgs &
             BuildManifestArgs &
             OutputMdArgs &
@@ -73,6 +75,7 @@ export type BuildRawConfig = BaseArgs &
     TemplatingRawConfig &
     ContributorsConfig &
     SinglePageConfig &
+    SkipHtmlConfig &
     LintRawConfig &
     OutputMdConfig &
     ChangelogsConfig &
@@ -88,6 +91,7 @@ export type BuildConfig = Config<
         TemplatingConfig &
         ContributorsConfig &
         SinglePageConfig &
+        SkipHtmlConfig &
         LintConfig &
         BuildManifestConfig &
         OutputMdConfig &
