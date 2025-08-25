@@ -53,7 +53,7 @@ exports[`Local search > internal 2`] = `
         <base href="./" />
         <title>Header</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
+        <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
         

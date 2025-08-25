@@ -6,7 +6,6 @@ import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 import {basename, dirname, join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
-import {Extension as LocalSearchExtension} from '@diplodoc/search-extension';
 
 import {
     BaseProgram,
@@ -18,6 +17,7 @@ import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
 import {normalizePath, setExt} from '~/core/utils';
+import {Extension as LocalSearchExtension} from '~/extensions/local-search';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import * as threads from '~/commands/threads';
