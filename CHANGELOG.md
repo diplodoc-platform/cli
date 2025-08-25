@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.6.1](https://github.com/diplodoc-platform/cli/compare/v5.6.0...v5.6.1) (2025-08-25)
+
+
+### Bug Fixes
+
+* Add sourcePath to copied files ([c741140](https://github.com/diplodoc-platform/cli/commit/c741140fcf7636016973115b759e6a6d16c370a7))
+* Move search extension bootstrap to CLI ([9fcbdca](https://github.com/diplodoc-platform/cli/commit/9fcbdca115955ca59d217eb980becb8d0c6dfb5b))
+
 ## [5.6.0](https://github.com/diplodoc-platform/cli/compare/v5.5.3...v5.6.0) (2025-08-25)
 
 
