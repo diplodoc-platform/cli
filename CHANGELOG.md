@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.6.0](https://github.com/diplodoc-platform/cli/compare/v5.5.3...v5.6.0) (2025-08-25)
+
+
+### Features
+
+* added inline-code plugin ([#1354](https://github.com/diplodoc-platform/cli/issues/1354)) ([44dd6c5](https://github.com/diplodoc-platform/cli/commit/44dd6c56b916ebbc00e5a1f65c99a4bb746ec5d3))
+
+
+### Bug Fixes
+
+* add YFM010 warning for autotitles ([1e5ca85](https://github.com/diplodoc-platform/cli/commit/1e5ca85dea3afd323d0c3249687cf46de5e7e754))
+
 ## [5.5.3](https://github.com/diplodoc-platform/cli/compare/v5.5.2...v5.5.3) (2025-08-22)
 
 
