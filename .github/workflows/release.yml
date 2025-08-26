@@ -17,8 +17,6 @@ jobs:
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
-      - run: npm ci
-        shell: bash
       - uses: codex-team/action-nodejs-package-info@v1
         id: package
       - uses: GoogleCloudPlatform/release-please-action@v3
@@ -29,7 +27,7 @@ jobs:
           package-name: ${{steps.package.outputs.name}}
           changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false},{"type":"deps","section":"Dependency update","hidden":false}]'
           bump-minor-pre-major: true
-      - run: npm publish
+      - run: npm ci && npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
         if: ${{ steps.release.outputs.release_created }}
