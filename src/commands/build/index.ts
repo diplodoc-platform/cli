@@ -134,10 +134,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.md,
         this.html,
         this.legacy,
+        this.skipHtml,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
-        this.skipHtml,
     ];
 
     /**

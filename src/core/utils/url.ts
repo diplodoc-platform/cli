@@ -9,6 +9,32 @@ export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
+export function prettifyLink(href: string): string {
+    if (isExternalHref(href)) {
+        return href;
+    }
+
+    const [pathWithoutHash, hash] = href.split('#', 2);
+    const [path, query] = pathWithoutHash.split('?', 2);
+
+    let result = path
+        .replace(/\\/g, '/')
+        .replace(/\/index\.html$/, '/')
+        .replace(/\/index$/, '/')
+        .replace(/^index\.html$/, '.')
+        .replace(/^index$/, '.')
+        .replace(/\.html$/, '');
+
+    if (result === '' || result === './') {
+        result = '.';
+    }
+
+    if (query) result += '?' + query;
+    if (hash) result += '#' + hash;
+
+    return result;
+}
+
 const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
 
 // TODO: should we deprecate this?

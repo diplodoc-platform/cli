@@ -4,6 +4,7 @@ import type {Config} from '~/core/config';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
+import type {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {OutputMdArgs, OutputMdConfig, PreprocessConfig} from './features/output-md';
 import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
@@ -13,7 +14,6 @@ import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy'
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {OutputFormat} from './config';
 import type {PageData} from './services/entry';
-import {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';

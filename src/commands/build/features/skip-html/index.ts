@@ -1,16 +1,16 @@
 import type {Build} from '~/commands/build';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks, Toc, TocItem} from '~/core/toc';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {isExternalHref, normalizePath, own} from '~/core/utils';
 import {getHooks as getBaseHooks} from '~/core/program';
-import {Command} from '~/core/config';
+import {normalizePath, own} from '~/core/utils';
+import {Command, defined} from '~/core/config';
 import {options} from './config';
-import {defined} from '~/core/config';
-import {getBaseMdItPlugins, prettifyLink} from './utils';
+import type {Toc, TocItem} from '~/core/toc';
+import {getHref} from './utils';
 import {join} from 'node:path';
-
+import skipHtmlLinks from './plugins/skipHtmlLinks';
 
 export type SkipHtmlArgs = {
     skipHtmlExtension: boolean;
@@ -32,76 +32,50 @@ export class SkipHtml {
             return config;
         });
 
-        getBaseHooks(program).Config.tap('Search', (config) => {
-            if (!config.skipHtmlExtension) return config;
-
-            const search = {
-                ...config.search,
-                skipHtmlExtension: config.skipHtmlExtension,
-            };
-
-            config.search = search;
-
-            return config;
-        });
-
         getBuildHooks(program)
             .BeforeRun.for('html')
-            .tap('Html', async (run) => {
-                const skipHtmlExtension = run.config.skipHtmlExtension;
+            .tap('SkipHtml', async (run) => {
+                if (!run.config.skipHtmlExtension) {
+                    return;
+                }
 
-                getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
-                    if (!skipHtmlExtension) return;
-
+                // Link handling in TOC
+                getTocHooks(run.toc).Dump.tapPromise('SkipHtml', async (vfile) => {
                     await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
-                        if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                            const newHref = prettifyLink(item.href);
-
-                            item.href = normalizePath(newHref);
+                        if (own<string, 'href'>(item, 'href')) {
+                            item.href = normalizePath(getHref(item.href));
                         }
 
                         return item;
                     });
                 });
 
-                getMarkdownHooks(run.markdown).Plugins.tap('Html', (plugins) => {      
-                    if (!skipHtmlExtension) return plugins;
-
-                    return plugins.concat(getBaseMdItPlugins());
+                // Connecting a plugin to bypass links
+                getMarkdownHooks(run.markdown).Plugins.tap('SkipHtml', (plugins) => {
+                    return plugins.concat(skipHtmlLinks);
                 });
 
-                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
-                    if (!skipHtmlExtension) return;
-                    
-                    vfile.data = await run.leading.walkLinks(
-                        vfile.data,
-                        getHref(),
-                    );
+                getLeadingHooks(run.leading).Dump.tapPromise('SkipHtml', async (vfile) => {
+                    vfile.data = await run.leading.walkLinks(vfile.data, (link: string) => {
+                        return getHref(link);
+                    });
                 });
             });
 
+        // Generate redirects without index.html
         getBuildHooks(program)
             .AfterRun.for('html')
-            .tapPromise('Html', async (run) => {
-                const skipHtmlExtension = run.config.skipHtmlExtension;
+            .tapPromise('SkipHtml', async (run) => {
+                if (!run.config.skipHtmlExtension) {
+                    return;
+                }
 
-                // separatrix: тут неправильно каждый раз перезаписывать
-                const newTo = !skipHtmlExtension ? 'index.html' : '';
-                const langRelativePath: RelativePath = `./${run.config.lang}/${newTo}`;
+                const langRelativePath: RelativePath = `./${run.config.lang}`;
                 const pagePath = join(run.output, 'index.html');
 
+                // Generate root lang redirect without index.html
                 const content = await run.redirects.page('./', langRelativePath);
                 await run.write(pagePath, content, true);
             });
     }
-}
-
-function getHref() {
-    return function (href: string) {
-        if (isExternalHref(href)) {
-            return href;
-        }
-
-        return prettifyLink(href);
-    };
 }
