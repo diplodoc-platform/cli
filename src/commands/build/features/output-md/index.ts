@@ -1,7 +1,8 @@
 import type {Build, Run} from '~/commands/build';
+import type {IncludeInfo} from '~/core/markdown';
 import type {Command} from '~/core/config';
 import type {VFile} from '~/core/utils';
-import type {EntryGraph, IncludeInfo} from '~/core/markdown';
+import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
@@ -13,7 +14,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
-import {Sheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
+import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 
 import {options} from './config';
 import {rehashIncludes} from './plugins/resolve-deps';
@@ -76,7 +77,6 @@ export class OutputMd {
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     {name: 'Build.Md', stage: -Infinity},
                     async (vfile) => {
-                        const processed = new Map();
                         const titles = new Map();
 
                         const config = run.config.preprocess;
@@ -91,42 +91,26 @@ export class OutputMd {
                             [info, deps]: Dep | Entry,
                             from?: NormalizedPath,
                             write = false,
-                        ) {
-                            if (processed.has(info.path)) {
-                                return processed.get(info.path);
-                            }
-
+                        ): Promise<HashedGraphNode> {
                             const _deps = await all(
-                                deps.map((dep) => {
-                                    if (Array.isArray(dep)) {
-                                        return dump(dep as Dep, from || info.path, true);
-                                    } else {
-                                        return dump([dep, []], from || info.path, true);
-                                    }
-                                }),
+                                deps.map((dep) => dump(dep, from || info.path, true)),
                             );
-                            let content = await run.markdown.load(info.path, from); //info.content;
-                            const sheduler = new Sheduler();
+                            const scheduler = new Scheduler([
+                                config.hashIncludes && !config.mergeIncludes && rehashIncludes(run, _deps),
+                                config.mergeAutotitles && mergeAutotitles(run, titles),
+                            ]);
 
-                            if (!config.mergeIncludes && config.hashIncludes) {
-                                sheduler.addStep(rehashIncludes(run, _deps));
-                            }
+                            await scheduler.schedule(info.path);
 
-                            if (config.mergeAutotitles) {
-                                sheduler.addStep(mergeAutotitles(run, titles));
-                            }
-
-                            await sheduler.shedule(info as EntryGraph);
-                            content = await sheduler.process(content);
+                            const raw = await run.markdown.load(info.path, from); //info.content;
+                            const content = await scheduler.process(raw);
 
                             const hash = config.hashIncludes ? rehashContent(content) : '';
                             const link = signlink(info.path, hash);
                             const hashed = {...info, content, hash};
 
-                            processed.set(info.path, hashed);
-
                             if (copiedIncludes.has(link) || !write) {
-                                return hashed;
+                                return hashed as HashedGraphNode;
                             }
                             copiedIncludes.add(link);
 
@@ -138,7 +122,7 @@ export class OutputMd {
                                 run.logger.warn(`Unable to copy dependency ${info.path}.`, error);
                             }
 
-                            return hashed;
+                            return hashed as HashedGraphNode;
                         }
                     },
                 );

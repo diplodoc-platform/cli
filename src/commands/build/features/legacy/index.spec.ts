@@ -245,7 +245,9 @@ describe('Build legacy feature', () => {
                 lint: {
                     enabled: true,
                     config: {
-                        MD033: LogLevels.DISABLED,
+                        MD033: {
+                            loglevel: LogLevels.DISABLED
+                        },
                     },
                 },
             });
