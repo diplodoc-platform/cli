@@ -1,12 +1,12 @@
 import {readFileSync} from 'node:fs';
+import {rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {glob} from 'glob';
 import {bundleless, hashless, platformless} from './test';
 import {expect} from 'vitest';
-import {$} from 'execa';
 
 export function getFileContent(filePath: string) {
-    return bundleless(platformless(readFileSync(filePath, 'utf8')));
+    return platformless(bundleless(readFileSync(filePath, 'utf8')));
 }
 
 const uselessFile = (file: string) =>
@@ -21,9 +21,9 @@ export async function compareDirectories(outputPath: string, ignoreFileContent =
             nodir: true,
             posix: true,
         })
-    ).sort();
+    ).map(bundleless).sort();
 
-    expect(hashless(bundleless(JSON.stringify(filesFromOutput, null, 2)))).toMatchSnapshot('filelist');
+    expect(hashless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {
         filesFromOutput.filter(uselessFile).forEach((filePath) => {
@@ -46,5 +46,5 @@ export function getTestPaths(testRootPath: string): TestPaths {
 }
 
 export function cleanupDirectory(path: string) {
-    return $`rm -rf ${path}`;
+    return rm(path, {recursive: true, force: true});
 }

@@ -5,22 +5,23 @@ exports[`Allow load custom resources > md2html single page with custom resources
   ".yfm",
   "_assets/script/test1.js",
   "_assets/style/test.css",
-  "_bundle/search-async-0",
   "_bundle/app-css-1",
-  "_bundle/app-js-1",
-  "_bundle/app-css-3",
+  "_bundle/app-js-2",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
-  "_bundle/search-js-0",
+  "_bundle/search-async-0",
+  "_bundle/search-async-1",
   "_bundle/search-css-0",
-  "_bundle/search-js-1",
-  "_bundle/search-css-3",
   "_bundle/search-css-1",
-  "_bundle/search-js-2",
   "_bundle/search-css-2",
+  "_bundle/search-css-3",
+  "_bundle/search-css-4",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-js-2",
   "index.html",
   "page.html",
   "project/config.html",
@@ -54,7 +55,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -71,9 +72,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -95,7 +96,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -112,9 +113,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -134,7 +135,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -151,9 +152,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -177,7 +178,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -194,9 +195,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="single-page-toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -212,22 +213,23 @@ exports[`Allow load custom resources > md2html with custom resources > filelist 
   ".yfm",
   "_assets/script/test1.js",
   "_assets/style/test.css",
-  "_bundle/search-async-0",
   "_bundle/app-css-1",
-  "_bundle/app-js-1",
-  "_bundle/app-css-3",
+  "_bundle/app-js-2",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
-  "_bundle/search-js-0",
+  "_bundle/search-async-0",
+  "_bundle/search-async-1",
   "_bundle/search-css-0",
-  "_bundle/search-js-1",
-  "_bundle/search-css-3",
   "_bundle/search-css-1",
-  "_bundle/search-js-2",
   "_bundle/search-css-2",
+  "_bundle/search-css-3",
+  "_bundle/search-css-4",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-js-2",
   "index.html",
   "page.html",
   "project/config.html",
@@ -258,7 +260,7 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -275,9 +277,9 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -299,7 +301,7 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -316,9 +318,9 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -338,7 +340,7 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
         <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
@@ -355,9 +357,9 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>

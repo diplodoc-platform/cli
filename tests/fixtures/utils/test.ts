@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import assets from '@diplodoc/cli/manifest';
 
 export function platformless(text: string): string {
     let index = 1;
@@ -24,8 +24,6 @@ export function hashless(text: string): string {
 }
 
 export function bundleless(text: string): string {
-    const assets = require('@diplodoc/client/manifest') as Record<string, Record<string, string[]>>;
-
     for (const [entryKey, entry] of Object.entries(assets)) {
         for (const [typeKey, type] of Object.entries(entry)) {
             for (let index = 0; index < type.length; index++) {
@@ -41,6 +39,3 @@ export function bundleless(text: string): string {
     return text;
 }
 
-export function getNormalizedContent(filePath: string): string {
-    return bundleless(platformless(readFileSync(filePath, 'utf8')));
-}

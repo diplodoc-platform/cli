@@ -1,5 +1,5 @@
-const {basename, dirname, resolve} = require('node:path');
-const {chmod} = require('node:fs/promises');
+const {basename, dirname, join} = require('node:path');
+const {chmod, copyFile, mkdir} = require('node:fs/promises');
 const esbuild = require('esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
@@ -87,6 +87,11 @@ const extension = async (entry, outfile, format) => {
     await esbuild.build(config);
 };
 
+const copy = async (from, to) => {
+    await mkdir(dirname(join(__dirname, '../build', to)), {recursive: true});
+    await copyFile(from, join(__dirname, '../build', to));
+};
+
 const builds = [
     ['src/index.ts', 'index'],
 ];
@@ -98,12 +103,17 @@ const extensions = [
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
 
+const files = [
+    [require.resolve('@diplodoc/client/manifest'), 'manifest.json']
+];
+
 Promise.all([
     ...libs.map((entry) => lib(entry, 'esm')),
     ...libs.map((entry) => lib(entry, 'cjs')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
-    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs'))
+    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
+    ...files.map(([from, to]) => copy(from, to)),
 ]).then(() => {
     for (const dep of externals) {
         if (!dependencies[dep]) {

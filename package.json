@@ -31,6 +31,7 @@
       "default": "./lib/*/index.mjs"
     },
     "./package": "./package.json",
+    "./manifest": "./build/manifest.json",
     "./mdit-plugins": "./build/mdit-plugins.js",
     "./github-vcs": "./build/github-vcs.js"
   },
@@ -72,7 +73,7 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^3.9.0",
+    "@diplodoc/client": "^3.10.0",
     "@diplodoc/liquid": "^1.3.1",
     "@diplodoc/translation": "^1.7.17",
     "chalk": "^4.1.2",
