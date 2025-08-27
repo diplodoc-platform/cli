@@ -1,5 +1,28 @@
 # Changelog
 
+## [5.7.0](https://github.com/diplodoc-platform/cli/compare/v5.6.0...v5.7.0) (2025-08-27)
+
+
+### Features
+
+* Change TocService hooks API ([95fe98a](https://github.com/diplodoc-platform/cli/commit/95fe98aff5e7fd2275c8cbc0e82e8db399105ca3))
+
+
+### Bug Fixes
+
+* Add sourcePath to copied files ([c741140](https://github.com/diplodoc-platform/cli/commit/c741140fcf7636016973115b759e6a6d16c370a7))
+* Fix private TocService.load method usage in translate ([14d671e](https://github.com/diplodoc-platform/cli/commit/14d671e6fae8e8b18c4c764e71a7fc97335b775d))
+* Fix VERSION interpolation in code ([65786a0](https://github.com/diplodoc-platform/cli/commit/65786a02c9353eeaf5d56d29c93bb49c67dcbaa8))
+* Merge vfile info instead of override it ([bd6ece1](https://github.com/diplodoc-platform/cli/commit/bd6ece15a80a9a4bcccfb77be3f0c0f4717bc35c))
+* Move search extension bootstrap to CLI ([9fcbdca](https://github.com/diplodoc-platform/cli/commit/9fcbdca115955ca59d217eb980becb8d0c6dfb5b))
+
+
+### Dependency update
+
+* Update client to 3.10.0 ([4c22ce8](https://github.com/diplodoc-platform/cli/commit/4c22ce81a24e374322eacbf2c8e33b93c57fcddf))
+* Update client to 4.10.1 ([72a407d](https://github.com/diplodoc-platform/cli/commit/72a407d932459e77145d34841cb80db989924bfd))
+* Update transform to 4.60.4 ([3921e96](https://github.com/diplodoc-platform/cli/commit/3921e96539ec6df8ca024b92cbf05bdb3d9ba5c2))
+
 ## [5.6.0](https://github.com/diplodoc-platform/cli/compare/v5.5.3...v5.6.0) (2025-08-25)
 
 
