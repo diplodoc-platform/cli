@@ -184,6 +184,7 @@ export class OutputHtml {
                 const pagePath = join(run.output, 'index.html');
 
                 // Generate root lang redirect if it doesn't exists
+                // TODO: regenerate redirect if link changed
                 if (!run.exists(pagePath) && run.exists(langPath)) {
                     const content = await run.redirects.page('./', langRelativePath);
                     await run.write(pagePath, content, true);

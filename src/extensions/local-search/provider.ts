@@ -2,10 +2,10 @@ import type {WorkerConfig} from '@diplodoc/search-extension';
 import type {BuildRun, EntryInfo, SearchProvider} from '@diplodoc/cli';
 
 import {Indexer, langs} from '@diplodoc/search-extension';
+import {prettifyLink} from '@diplodoc/cli/lib/utils';
 
 import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
-import {prettifyLink} from '~/core/utils';
 
 export type ProviderConfig = Pick<WorkerConfig, 'tolerance' | 'confidence'> & {
     enabled: boolean;
