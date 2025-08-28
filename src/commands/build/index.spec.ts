@@ -365,7 +365,7 @@ describe('Build command', () => {
                 preprocess: {
                     hashIncludes: true,
                     mergeIncludes: false,
-                    mergeAutotitles: false,
+                    mergeAutotitles: true,
                 },
             });
 
