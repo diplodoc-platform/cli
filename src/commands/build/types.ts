@@ -12,6 +12,7 @@ import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
+import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
 import type {OutputFormat} from './config';
 import type {PageData} from './services/entry';
 
@@ -36,8 +37,6 @@ type BaseConfig = {
     addSystemMeta: boolean;
     // TODO(minor): we can generate this file all time
     addMapFile: boolean;
-    // TODO(major): can this be solved by `when` prop in toc?
-    removeHiddenTocItems: boolean;
     mergeIncludes: boolean;
     // TODO(major): use as default behavior
     staticContent: boolean;
@@ -66,6 +65,7 @@ export type BuildArgs = ProgramArgs &
             SearchArgs &
             LegacyArgs &
             CustomResourcesArgs &
+            TocFilteringArgs &
             VcsArgs
     >;
 
@@ -82,6 +82,7 @@ export type BuildRawConfig = BaseArgs &
     SearchRawConfig &
     LegacyRawConfig &
     CustomResourcesConfig &
+    TocFilteringConfig &
     PreprocessConfig;
 
 export type BuildConfig = Config<
@@ -99,6 +100,7 @@ export type BuildConfig = Config<
         SearchConfig &
         LegacyConfig &
         CustomResourcesConfig &
+        TocFilteringConfig &
         PreprocessConfig
 >;
 

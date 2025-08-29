@@ -212,6 +212,25 @@ describe('toc-loader', () => {
     );
 
     it(
+        'should remove empty items (no children and no href)',
+        test(
+            dedent`
+                items:
+                  - name: Item with href
+                    href: page.md
+                  - name: Empty item
+                  - name: Item with children
+                    items:
+                      - name: Child item
+                        href: child.md
+                  - name: Another empty item
+            `,
+            {removeEmptyTocItems: true},
+            {},
+        ),
+    );
+
+    it(
         'should interpolate item name',
         test(
             dedent`
