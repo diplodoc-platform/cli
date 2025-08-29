@@ -1,7 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {EntryTocItem, IncludeInfo, RawToc, Toc, WithItems} from './types';
+import type {EntryTocItem, IncludeInfo, RawToc, RawTocItem, Toc, WithItems} from './types';
 import type {LoaderContext} from './loader';
 
 import {basename, dirname, join, relative} from 'node:path';
@@ -38,6 +38,7 @@ export type TocServiceConfig = {
         };
     };
     removeHiddenTocItems: boolean;
+    removeEmptyTocItems: boolean;
 };
 
 type WalkStepResult<I> = I | I[] | null | undefined;
@@ -411,6 +412,7 @@ export class TocService {
             },
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,
+                removeEmptyItems: this.config.removeEmptyTocItems,
             },
         };
     }

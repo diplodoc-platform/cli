@@ -131,6 +131,7 @@ export async function runBuild(argv: string, build?: Build) {
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
     const args = parse(rawArgs, 'build');
 
+    // Apply modules by calling init
     await build.init(args);
     await build.parse(rawArgs);
 

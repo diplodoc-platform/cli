@@ -32,6 +32,7 @@ export type LoaderContext = LiquidContext & {
     include: (path: RelativePath, include: IncludeInfo) => Promise<Toc | undefined>;
     options: {
         removeHiddenItems: boolean;
+        removeEmptyItems: boolean;
     };
     toc: TocService;
 };
@@ -84,6 +85,9 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
 
     // Fix item href extensions
     toc = await normalizeItems.call(this, toc);
+
+    // Remove empty items (no children and no href) if needed
+    toc = await removeEmptyItems.call(this, toc);
 
     return toc;
 }
@@ -332,6 +336,31 @@ async function normalizeItems(this: LoaderContext, toc: RawToc): Promise<RawToc>
         item.href = href as YfmString & NormalizedPath;
         return item;
     });
+
+    return toc;
+}
+
+/**
+ * Removes empty items (no children and no href) if needed.
+ */
+async function removeEmptyItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const {removeEmptyItems} = this.options;
+
+    if (!removeEmptyItems) {
+        return toc;
+    }
+
+    const removeEmpty = (item: RawTocItem) => {
+        // An item is empty if it has no children (no items property or empty items array) AND no href
+        const hasChildren = item.items && item.items.length > 0;
+
+        if (!hasChildren && !own(item, 'href')) {
+            return null;
+        }
+        return item;
+    };
+
+    toc.items = await this.toc.walkItems(toc.items, removeEmpty);
 
     return toc;
 }

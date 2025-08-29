@@ -245,3 +245,15 @@ exports[`toc-loader > should not interpolate title if substitutions is disabled 
 path: toc.yaml
 "
 `;
+
+exports[`toc-loader > should remove empty items (no children and no href) 1`] = `
+"items:
+  - name: Item with href
+    href: page.md
+  - name: Item with children
+    items:
+      - name: Child item
+        href: child.md
+path: toc.yaml
+"
+`;

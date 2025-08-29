@@ -101,11 +101,6 @@ const addMapFile = option({
     desc: 'Should add all paths of documentation into file.json.',
 });
 
-const removeHiddenTocItems = option({
-    flags: '--remove-hidden-toc-items',
-    desc: 'Remove from Toc all items marked as hidden.',
-});
-
 const staticContent = option({
     flags: '--static-content',
     desc: 'Allow loading custom resources into statically generated pages.',
@@ -228,7 +223,6 @@ export const options = {
     allowHtml,
     sanitizeHtml,
     addMapFile,
-    removeHiddenTocItems,
     staticContent,
     ignore,
     ignoreStage,

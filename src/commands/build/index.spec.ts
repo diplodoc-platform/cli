@@ -434,7 +434,6 @@ describe('Build command', () => {
         });
 
         testBooleanFlag('addMapFile', '--add-map-file', false);
-        testBooleanFlag('removeHiddenTocItems', '--remove-hidden-toc-items', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);

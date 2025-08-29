@@ -38,6 +38,7 @@ import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
 import {Legacy} from './features/legacy';
+import {TocFiltering} from './features/toc-filtering';
 
 export type * from './types';
 
@@ -63,6 +64,7 @@ const command = 'Build';
             sanitizeHtml: true,
             addMapFile: false,
             removeHiddenTocItems: false,
+            removeEmptyTocItems: false,
             staticContent: false,
             ignoreStage: [Stage.SKIP],
             addSystemMeta: false,
@@ -94,6 +96,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly legacy = new Legacy();
 
+    readonly tocFiltering = new TocFiltering();
+
     readonly command = new Command('build').description('Build documentation in target directory');
 
     readonly options = [
@@ -106,7 +110,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.allowHtml,
         options.sanitizeHtml,
         options.addMapFile,
-        options.removeHiddenTocItems,
         options.staticContent,
         options.addSystemMeta,
         options.ignore,
@@ -131,6 +134,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.md,
         this.html,
         this.legacy,
+        this.tocFiltering,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
