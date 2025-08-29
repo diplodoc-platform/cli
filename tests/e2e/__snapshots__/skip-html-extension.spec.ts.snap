@@ -1,0 +1,211 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Skip html extension > transforms links correctly > filelist 1`] = `
+"[
+  ".yfm",
+  "_bundle/app-css-1",
+  "_bundle/app-js-2",
+  "_bundle/latex-extension.css",
+  "_bundle/latex-extension.js",
+  "_bundle/mermaid-extension.js",
+  "_bundle/page-constructor-extension.css",
+  "_bundle/page-constructor-extension.js",
+  "_bundle/search-async-0",
+  "_bundle/search-async-1",
+  "_bundle/search-css-0",
+  "_bundle/search-css-1",
+  "_bundle/search-css-2",
+  "_bundle/search-css-3",
+  "_bundle/search-css-4",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-js-2",
+  "folder/index.html",
+  "index-test-html/index.html",
+  "index.html",
+  "page1.html",
+  "page2.html",
+  "toc.js"
+]"
+`;
+
+exports[`Skip html extension > transforms links correctly 1`] = `
+"allowHTML: true
+"
+`;
+
+exports[`Skip html extension > transforms links correctly 2`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Page 3 | Skip html extension</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
+        
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Page 3"},"router":{"pathname":"folder/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
+        
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > transforms links correctly 3`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Folder | Skip html extension</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
+        
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Folder"},"router":{"pathname":"index-test-html/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
+        
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > transforms links correctly 4`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Redirect to ./ru</title>
+        <meta http-equiv="refresh" content="0; url=./ru">
+        
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
+        <script type="application/javascript">
+            window.location.replace("./ru");
+        </script>
+        
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./ru">link</a>.
+        
+        
+        
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > transforms links correctly 5`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Page 1 | Skip html extension</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
+        
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page2#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
+        
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > transforms links correctly 6`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Page 2 | Skip html extension</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        
+        
+        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"page2#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"folder/\\"&gt;Link&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"hash","href":"page2.html#hash","level":2}],"title":"Page 2"},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
+        
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > transforms links correctly 7`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":".","items":[{"name":"Title 1","href":"page1","id":"UUID"},{"name":"Title 2","href":"page2","id":"UUID"},{"name":"Title 3","href":"folder/","id":"UUID"},{"name":"Title 4","href":"index-test-html/","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

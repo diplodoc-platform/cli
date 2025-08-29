@@ -2,6 +2,7 @@ import type {WorkerConfig} from '@diplodoc/search-extension';
 import type {BuildRun, EntryInfo, SearchProvider} from '@diplodoc/cli';
 
 import {Indexer, langs} from '@diplodoc/search-extension';
+import {prettifyLink} from '@diplodoc/cli/lib/utils';
 
 import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -38,9 +39,12 @@ export class LocalSearchProvider implements SearchProvider {
             return;
         }
 
-        const url = path.replace(extname(path), '') + '.html';
+        const skipHtmlExtension = this.run.config.skipHtmlExtension;
 
-        this.indexer.add(lang, url, info);
+        const url = path.replace(extname(path), '') + '.html';
+        const prettyUrl = skipHtmlExtension ? prettifyLink(url) : url;
+
+        this.indexer.add(lang, prettyUrl, info);
     }
 
     async release() {
@@ -83,11 +87,16 @@ export class LocalSearchProvider implements SearchProvider {
     }
 
     config(lang: string) {
+        const skipHtmlExtension = this.run.config.skipHtmlExtension;
+
+        const link = this.pageLink(lang);
+        const prettyLink = skipHtmlExtension ? prettifyLink(link) : link;
+
         return {
             ...this._config,
             api: this.apiLink,
             provider: 'local',
-            link: this.pageLink(lang),
+            link: prettyLink,
         };
     }
 
@@ -122,7 +131,7 @@ export class LocalSearchProvider implements SearchProvider {
     }
 
     private pageLink(lang: string) {
-        return join(this.outputDir, lang, `index.html`);
+        return join(this.outputDir, lang, 'index.html');
     }
 }
 
