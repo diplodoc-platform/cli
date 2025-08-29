@@ -102,7 +102,7 @@
     "@diplodoc/page-constructor-extension": "^0.5.0",
     "@diplodoc/prettier-config": "^2.0.0",
     "@diplodoc/search-extension": "^3.0.0",
-    "@diplodoc/transform": "^4.60.4",
+    "@diplodoc/transform": "^4.61.0",
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.8",
     "@octokit/core": "4.2.4",
