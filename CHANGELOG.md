@@ -1,5 +1,20 @@
 # Changelog
 
+## [5.8.0](https://github.com/diplodoc-platform/cli/compare/v5.7.1...v5.8.0) (2025-08-29)
+
+
+### Features
+
+* Add `--remove-empty-toc-items` flag to build command ([7cd9f29](https://github.com/diplodoc-platform/cli/commit/7cd9f299b31629aab07c2bc36a3648918233dcc0))
+* added support for disabling .html ([#1353](https://github.com/diplodoc-platform/cli/issues/1353)) ([fd52d80](https://github.com/diplodoc-platform/cli/commit/fd52d80b05a138f475846be551ad0d532ac01f7c))
+
+
+### Dependency update
+
+* Update @diplodoc/client to 3.10.2 ([f4c2098](https://github.com/diplodoc-platform/cli/commit/f4c2098bd3213eb40ab8b982373fff7e0d361dff))
+* Update @diplodoc/client to 3.10.3 ([b87a48e](https://github.com/diplodoc-platform/cli/commit/b87a48ef73a3d5f91e9fe31a0e36c9f670a498b0))
+* Update @diplodoc/transform to 4.61.0 ([5af3812](https://github.com/diplodoc-platform/cli/commit/5af3812492f7af7c073413a31fc9f2f36c1e680e))
+
 ## [5.7.1](https://github.com/diplodoc-platform/cli/compare/v5.7.0...v5.7.1) (2025-08-28)
 
 
