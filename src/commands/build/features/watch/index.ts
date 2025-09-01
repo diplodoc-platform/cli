@@ -6,6 +6,7 @@ import type {Command} from '~/core/config';
 import {join} from 'node:path';
 import {createServer} from 'node:http';
 
+import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
@@ -93,6 +94,11 @@ export class Watch {
             async (run) => {
                 if (!run.config.watch) {
                     return;
+                }
+
+                if (process.env.NODE_ENV !== 'test') {
+                    // eslint-disable-next-line no-console
+                    console.timeEnd(MAIN_TIMER_ID);
                 }
 
                 const socket = this.server.listen(3000);

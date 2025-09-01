@@ -6,12 +6,11 @@ import './require';
 
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
+import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console} from '~/core/utils';
 
 export * from '~/commands';
-
-const MAIN_TIMER_ID = 'Build time';
 
 export const run = async (argv: string[]) => {
     const program = new Program();
