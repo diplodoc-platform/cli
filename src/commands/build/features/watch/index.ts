@@ -122,6 +122,7 @@ export class Watch {
                                 break;
                         }
                     } catch (error) {
+                        console.error(error);
                         state.logger.error(error);
                     }
                 }
@@ -188,8 +189,6 @@ export class Watch {
                 const entries = [...state.invalide].filter(state.isKnownEntry);
                 for (const entry of entries) {
                     state.invalide.delete(entry);
-                    state.run.entry.release(entry);
-                    state.run.entry.relations.release(entry);
                     await state.processEntry(entry).catch(state.logger.error);
                 }
 
@@ -301,9 +300,9 @@ export class Watch {
             }
 
             // If entry is not exists on graph, then it can't be affected by toc change.
-            if (!state.isGraphPart('entry', entry)) {
-                continue;
-            }
+            // if (!state.isGraphPart('entry', entry)) {
+            //     continue;
+            // }
 
             state.invalidateEntry(entry);
         }
@@ -322,6 +321,7 @@ export class Watch {
                 await state.run.toc.init([toc]);
                 state.invalidateToc(toc);
             } catch (error) {
+                console.error(error);
                 state.logger.error(error);
             }
         }
@@ -334,19 +334,41 @@ export class Watch {
     ) {
         state.logger.info('Handle entry graph change for', file);
 
-        const files = [file, ...state.getParents('entry', file)] as NormalizedPath[];
-        const entries = files.filter(state.isKnownEntry);
+        const deps = state.getParents('entry', file);
+        const entries = [file, ...deps].filter(state.isKnownEntry);
 
-        for (const entry of entries) {
-            for (const file of files) {
-                if (!state.isKnownEntry(file)) {
+        if (state.isEntryResource(file)) {
+            if (hasNewContent) {
+                await state.run.copy(join(state.run.input, file), join(state.run.output, file));
+            } else {
+                await state.run.remove(join(state.run.output, file));
+            }
+
+            entries.map(state.invalidateEntry);
+        } else {
+            const sources = [file, ...deps].filter(state.isEntrySource);
+            const oldResources = [file, ...deps].filter(state.isEntryResource);
+
+            for (const entry of entries) {
+                for (const file of sources) {
                     // Release all includes relative to target entry
                     state.run.entry.release(file, entry);
                 }
+
+                const isRemovedEntry = file === entry && !hasNewContent;
+                if (!isRemovedEntry) {
+                    await state.processEntry(entry);
+                }
             }
 
-            if (file !== entry || hasNewContent) {
-                state.invalidateEntry(entry);
+            const newResources = state.getParents('entry', file).filter(state.isEntryResource);
+            const resources = diff(oldResources, newResources);
+
+            for (const resource of resources.added) {
+                await state.run.copy(
+                    join(state.run.input, resource),
+                    join(state.run.output, resource),
+                );
             }
         }
     }

@@ -13,7 +13,7 @@ import type {
     Plugin,
 } from './types';
 
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {SourceMap} from '@diplodoc/liquid';
 
 import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
@@ -47,7 +47,7 @@ type Options = {
 
 type GraphEntryInfo = {type: 'entry'; path: NormalizedPath};
 
-type GraphAssetInfo = {type: 'asset'};
+type GraphAssetInfo = {type: 'resource' | 'source'};
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
     return `${path}${from ? '+' + from : ''}`;
@@ -301,15 +301,33 @@ export class MarkdownService {
         await all(
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 graph.consume(await this._relations(dep.path, from || path));
-                graph.setNodeData(dep.path, dep);
+                graph.setNodeData(dep.path, {type: 'source'});
                 graph.addDependency(path, dep.path);
             }),
         );
+
         (this.pathToAssets.get(key) || []).map(async (asset) => {
-            graph.addNode(asset.path);
-            graph.setNodeData(asset.path, {type: 'asset'});
-            graph.addDependency(path, asset.path);
+            if (['image', 'video'].includes(asset.type)) {
+                graph.addNode(asset.path);
+                graph.setNodeData(asset.path, {type: 'resource'});
+                graph.addDependency(path, asset.path);
+            }
+
+            if (['link'].includes(asset.type) && asset.autotitle) {
+                graph.addNode(asset.path);
+                graph.setNodeData(asset.path, {type: 'source'});
+                graph.addDependency(path, asset.path);
+            }
         });
+
+        const meta = this.run.meta.get(path);
+        const resources = ([] as string[]).concat(meta.script || [], meta.style || []);
+        for (const resource of resources) {
+            const file = normalizePath(join(dirname(path), resource));
+            graph.addNode(file);
+            graph.setNodeData(file, {type: 'resource'});
+            graph.addDependency(path, file);
+        }
 
         return graph;
     }

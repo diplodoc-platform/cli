@@ -107,7 +107,7 @@ export class Run extends BaseRun<BuildConfig> {
             titles: await remap(titles, this.titles),
             assets: await remap(assets.map(get('path')), async (path) => {
                 if (path?.endsWith('.svg')) {
-                    return this.read(join(this.input, path));
+                    return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
                 } else {
                     return true;
                 }
