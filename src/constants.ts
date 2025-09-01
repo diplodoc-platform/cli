@@ -1,6 +1,7 @@
 import {resolve} from 'node:path';
 
 export const VERSION = global.VERSION ? global.VERSION : '0.0.0';
+export const MAIN_TIMER_ID = 'Build time';
 export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
 export const YFM_CONFIG_FILENAME = '.yfm';
