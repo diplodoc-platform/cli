@@ -38,31 +38,21 @@ export class WatchState {
     }
 
     async processEntry(entry: NormalizedPath) {
+        this.run.entry.release(entry);
+        this.run.entry.relations.release(entry);
         await this.program.processEntry(entry);
         this.detachedEntries.release(entry);
     }
 
     @bounded isKnownEntry(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
         return this.run.toc.isEntry(path);
     }
 
     @bounded isKnownToc(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
         return this.run.toc.isToc(path);
     }
 
     @bounded isKnownTocGenerator(path: NormalizedPath) {
-        if (!this.isGraphPart('toc', path)) {
-            return false;
-        }
-
         return this.run.toc.isGenerator(path);
     }
 
@@ -72,6 +62,14 @@ export class WatchState {
 
     @bounded isPreset(path: NormalizedPath) {
         return Boolean(path.match(/(^|\/|\\)presets.yaml$/));
+    }
+
+    @bounded isEntrySource(path: NormalizedPath) {
+        return this.run.entry.isSource(path);
+    }
+
+    @bounded isEntryResource(path: NormalizedPath) {
+        return this.run.entry.isResource(path);
     }
 
     isGraphPart(graph: 'toc' | 'vars' | 'entry' | 'detached', node: NormalizedPath) {

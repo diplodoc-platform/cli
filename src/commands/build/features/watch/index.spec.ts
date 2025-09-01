@@ -103,7 +103,10 @@ describe('Build watch feature', () => {
 
     async function setup() {
         build = setupBuild();
-        promise = runBuild(args('-f', 'html', '--vars-preset', 'internal'), build);
+        promise = runBuild(
+            args('-f', 'html', '--vars-preset', 'internal', '--allow-custom-resources'),
+            build,
+        );
 
         promise.catch(watch.end);
 
@@ -160,9 +163,10 @@ describe('Build watch feature', () => {
     }
 
     function nodeData(store: 'toc' | 'vars' | 'entry', node: string, value: object) {
-        expect(run(build)[store].relations.hasNode(node), `Node ${node} exists in ${store} graph`).toBe(
-            true,
-        );
+        expect(
+            run(build)[store].relations.hasNode(node),
+            `Node ${node} exists in ${store} graph`,
+        ).toBe(true);
         expect(run(build)[store].relations.getNodeData(node)).toMatchObject(value);
     }
 
@@ -1229,6 +1233,151 @@ describe('Build watch feature', () => {
             expect(processEntry).toBeCalledTimes(2);
         });
 
+        it('should handle asset change without releasing markdown includes', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register('./index.md', '![alt](./image.png)\n{% include [](./include1.md) %}');
+            await register('./include1.md', 'Title 1');
+            await register('./image.png', 'binary-image-data');
+            await create('./toc.yaml', 'href: index.md');
+            expect(processEntry).toBeCalledTimes(1);
+
+            // Check that image is properly tracked as asset
+            hasNode('entry', 'index.md', true);
+            hasNode('entry', 'image.png', true);
+            hasNode('entry', 'include1.md', true);
+            depends('entry', 'index.md', 'image.png', true);
+            depends('entry', 'index.md', 'include1.md', true);
+            nodeData('entry', 'image.png', {type: 'resource'});
+
+            // Mock the release method to verify it's not called for assets
+            const releaseIncludeSpy = vi.spyOn(run(build).entry, 'release');
+
+            await change('./image.png', 'updated-binary-image-data');
+
+            // Entry should be reprocessed when asset changes
+            expect(processEntry).toBeCalledTimes(2);
+            expect(processEntry).toHaveBeenLastCalledWith('index.md');
+
+            // Verify that release was not called for asset files
+            // (because isAssetChange check should prevent this)
+            expect(releaseIncludeSpy).not.toHaveBeenCalledWith('image.png', 'index.md');
+        });
+
+        it('should handle multiple asset types', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register(
+                './index.md',
+                dedent`
+                ---
+                script:
+                  - test.js
+                style:
+                  - test.css
+                ---
+                # Title
+                ![png](./image.png)
+                ![jpg](./photo.jpg)
+                ![svg](./icon.svg)
+                ![webp](./modern.webp)
+            `,
+            );
+            await register('./image.png', 'png-data');
+            await register('./photo.jpg', 'jpg-data');
+            await register('./icon.svg', '<svg></svg>');
+            await register('./modern.webp', 'webp-data');
+            await register('./test.js', 'js-data');
+            await register('./test.css', 'css-data');
+            await create('./toc.yaml', 'href: index.md');
+            expect(processEntry).toBeCalledTimes(1);
+
+            // Verify all assets are tracked
+            hasNode('entry', 'index.md', true);
+            hasNode('entry', 'image.png', true);
+            hasNode('entry', 'photo.jpg', true);
+            hasNode('entry', 'icon.svg', true);
+            hasNode('entry', 'modern.webp', true);
+
+            depends('entry', 'index.md', 'image.png', true);
+            depends('entry', 'index.md', 'photo.jpg', true);
+            depends('entry', 'index.md', 'icon.svg', true);
+            depends('entry', 'index.md', 'modern.webp', true);
+
+            nodeData('entry', 'image.png', {type: 'resource'});
+            nodeData('entry', 'photo.jpg', {type: 'resource'});
+            nodeData('entry', 'icon.svg', {type: 'resource'});
+            nodeData('entry', 'modern.webp', {type: 'resource'});
+            nodeData('entry', 'test.js', {type: 'resource'});
+            nodeData('entry', 'test.css', {type: 'resource'});
+
+            // Change each asset and verify entry is reprocessed
+            await change('./image.png', 'updated-png-data');
+            expect(processEntry).toBeCalledTimes(2);
+
+            await change('./photo.jpg', 'updated-jpg-data');
+            expect(processEntry).toBeCalledTimes(3);
+
+            await change('./icon.svg', '<svg><circle/></svg>');
+            expect(processEntry).toBeCalledTimes(4);
+
+            await change('./modern.webp', 'updated-webp-data');
+            expect(processEntry).toBeCalledTimes(5);
+        });
+
+        it('should handle asset removal', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register('./index.md', '![alt](./image.png)');
+            await register('./image.png', 'binary-data');
+            await create('./toc.yaml', 'href: index.md');
+            expect(processEntry).toBeCalledTimes(1);
+
+            hasNode('entry', 'index.md', true);
+            hasNode('entry', 'image.png', true);
+            depends('entry', 'index.md', 'image.png', true);
+
+            await remove('./image.png');
+
+            // Entry should be reprocessed when asset is removed
+            expect(processEntry).toBeCalledTimes(2);
+            expect(processEntry).toHaveBeenLastCalledWith('index.md');
+        });
+
+        it('should differentiate between asset and markdown file changes', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register(
+                './index.md',
+                dedent`
+                ![alt](./image.png)
+                {% include [](./include.md) %}
+            `,
+            );
+            await register('./image.png', 'binary-data');
+            await register('./include.md', 'Include content');
+            await create('./toc.yaml', 'href: index.md');
+            expect(processEntry).toBeCalledTimes(1);
+
+            // Verify both dependencies exist with correct types
+            hasNode('entry', 'index.md', true);
+            hasNode('entry', 'image.png', true);
+            hasNode('entry', 'include.md', true);
+            nodeData('entry', 'image.png', {type: 'resource'});
+
+            const releaseIncludeSpy = vi.spyOn(run(build).entry, 'release');
+
+            // Change asset - should not release includes
+            await change('./image.png', 'updated-binary-data');
+            expect(processEntry).toBeCalledTimes(2);
+            expect(releaseIncludeSpy).not.toHaveBeenCalledWith('image.png', 'index.md');
+
+            // Change markdown include - should release includes normally
+            await change('./include.md', 'Updated include content');
+            expect(processEntry).toBeCalledTimes(3);
+            expect(releaseIncludeSpy).toHaveBeenCalledWith('include.md', 'index.md');
+        });
+
         it('should not handle entry detached include update', async () => {
             expect(processEntry).not.toBeCalled();
 
@@ -1245,6 +1394,138 @@ describe('Build watch feature', () => {
 
             await change('./include1.md', 'Title 4');
             expect(processEntry).toBeCalledTimes(3);
+        });
+
+        it('should handle YAML page with resources', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register(
+                './index.yaml',
+                dedent`
+                meta:
+                  script:
+                    - main.js
+                    - analytics.js
+                  style:
+                    - theme.css
+                    - custom.css
+                links: []
+            `,
+            );
+            await register('./main.js', 'console.log("main");');
+            await register('./analytics.js', 'console.log("analytics");');
+            await register('./theme.css', 'body { color: red; }');
+            await register('./custom.css', 'body { font-size: 16px; }');
+            await create('./toc.yaml', 'href: index.yaml');
+            expect(processEntry).toBeCalledTimes(1);
+
+            // Verify all resources are tracked
+            hasNode('entry', 'index.yaml', true);
+            hasNode('entry', 'main.js', true);
+            hasNode('entry', 'analytics.js', true);
+            hasNode('entry', 'theme.css', true);
+            hasNode('entry', 'custom.css', true);
+
+            depends('entry', 'index.yaml', 'main.js', true);
+            depends('entry', 'index.yaml', 'analytics.js', true);
+            depends('entry', 'index.yaml', 'theme.css', true);
+            depends('entry', 'index.yaml', 'custom.css', true);
+
+            nodeData('entry', 'main.js', {type: 'resource'});
+            nodeData('entry', 'analytics.js', {type: 'resource'});
+            nodeData('entry', 'theme.css', {type: 'resource'});
+            nodeData('entry', 'custom.css', {type: 'resource'});
+
+            // Change each resource and verify entry is reprocessed
+            await change('./main.js', 'console.log("updated main");');
+            expect(processEntry).toBeCalledTimes(2);
+
+            await change('./analytics.js', 'console.log("updated analytics");');
+            expect(processEntry).toBeCalledTimes(3);
+
+            await change('./theme.css', 'body { color: blue; }');
+            expect(processEntry).toBeCalledTimes(4);
+
+            await change('./custom.css', 'body { font-size: 18px; }');
+            expect(processEntry).toBeCalledTimes(5);
+        });
+
+        it('should handle YAML page with mixed resources and images', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register(
+                './index.yaml',
+                dedent`
+                meta:
+                  script:
+                    - app.js
+                  style:
+                    - styles.css
+                links:
+                  - title: "Page with image"
+                    href: "page.md"
+            `,
+            );
+            await register('./app.js', 'const app = {};');
+            await register('./styles.css', '.container { margin: 0; }');
+            await create('./toc.yaml', 'href: index.yaml');
+            expect(processEntry).toBeCalledTimes(1);
+
+            // Verify all resources and images are tracked
+            hasNode('entry', 'index.yaml', true);
+            hasNode('entry', 'app.js', true);
+            hasNode('entry', 'styles.css', true);
+
+            depends('entry', 'index.yaml', 'app.js', true);
+            depends('entry', 'index.yaml', 'styles.css', true);
+
+            nodeData('entry', 'app.js', {type: 'resource'});
+            nodeData('entry', 'styles.css', {type: 'resource'});
+
+            const releaseIncludeSpy = vi.spyOn(run(build).entry, 'release');
+
+            // Change YAML resources - should not release includes
+            await change('./app.js', 'const app = { version: "1.0" };');
+            expect(processEntry).toBeCalledTimes(2);
+            expect(releaseIncludeSpy).not.toHaveBeenCalledWith('app.js', 'index.yaml');
+
+            await change('./styles.css', '.container { margin: 10px; }');
+            expect(processEntry).toBeCalledTimes(3);
+            expect(releaseIncludeSpy).not.toHaveBeenCalledWith('styles.css', 'index.yaml');
+        });
+
+        it('should handle YAML page resource removal', async () => {
+            expect(processEntry).not.toBeCalled();
+
+            await register(
+                './index.yaml',
+                dedent`
+                meta:
+                  script:
+                    - old.js
+                  style:
+                    - old.css
+                links: []
+            `,
+            );
+            await register('./old.js', 'console.log("old");');
+            await register('./old.css', 'body { old: true; }');
+            await create('./toc.yaml', 'href: index.yaml');
+            expect(processEntry).toBeCalledTimes(1);
+
+            hasNode('entry', 'index.yaml', true);
+            hasNode('entry', 'old.js', true);
+            hasNode('entry', 'old.css', true);
+
+            // Remove script resource
+            await remove('./old.js');
+            expect(processEntry).toBeCalledTimes(2);
+            expect(processEntry).toHaveBeenLastCalledWith('index.yaml');
+
+            // Remove style resource
+            await remove('./old.css');
+            expect(processEntry).toBeCalledTimes(3);
+            expect(processEntry).toHaveBeenLastCalledWith('index.yaml');
         });
     });
 });

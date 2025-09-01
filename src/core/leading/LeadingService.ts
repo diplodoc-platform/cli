@@ -5,7 +5,7 @@ import type {VcsService} from '~/core/vcs';
 import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
-import {join} from 'node:path';
+import {dirname, join} from 'node:path';
 import {dump, load} from 'js-yaml';
 
 import {
@@ -153,10 +153,19 @@ export class LeadingService {
         await all(
             (this.pathToDeps.get(file) || []).map(async (dep) => {
                 graph.consume(await this.relations(dep.path));
-                // graph.setNodeData(dep.path, dep);
+                graph.setNodeData(dep.path, {type: 'source'});
                 graph.addDependency(path, dep.path);
             }),
         );
+
+        const meta = this.run.meta.get(path);
+        const resources = ([] as string[]).concat(meta.script || [], meta.style || []);
+        for (const resource of resources) {
+            const file = normalizePath(join(dirname(path), resource));
+            graph.addNode(file);
+            graph.setNodeData(file, {type: 'resource'});
+            graph.addDependency(path, file);
+        }
 
         return graph;
     }

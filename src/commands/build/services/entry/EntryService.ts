@@ -164,6 +164,26 @@ export class EntryService {
         return template.dump();
     }
 
+    isSource(path: NormalizedPath) {
+        if (!this.relations.hasNode(path)) {
+            return false;
+        }
+
+        const {type} = this.relations.getNodeData(path) || {};
+
+        return type === 'source';
+    }
+
+    isResource(path: NormalizedPath) {
+        if (!this.relations.hasNode(path)) {
+            return false;
+        }
+
+        const {type} = this.relations.getNodeData(path) || {};
+
+        return type === 'resource';
+    }
+
     private async load(path: NormalizedPath) {
         // Add generator meta tag with versions
         this.run.meta.add(path, {
