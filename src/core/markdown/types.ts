@@ -44,10 +44,12 @@ export type EntryGraph = {
     path: NormalizedPath;
     content: string;
     deps: EntryGraphNode[];
+    assets: AssetInfo[];
 };
 
 export type EntryGraphNode = {
     path: NormalizedPath;
     content: string;
     deps: EntryGraphNode[];
+    assets: AssetInfo[];
 } & IncludeInfo;
