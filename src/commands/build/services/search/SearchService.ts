@@ -3,7 +3,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {EntryInfo, OutputFormat} from '../..';
 import type {SearchProvider} from './types';
 
-import {basename, join} from 'node:path';
+import {join} from 'node:path';
 import manifest from '@diplodoc/client/manifest';
 
 import {bounded, normalizePath} from '~/core/utils';
@@ -14,9 +14,7 @@ import {DefaultSearchProvider} from './provider';
 import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
 import dedent from 'ts-dedent';
 
-const SEARCH_PAGE_DEPTH = 2;
-
-const rebase = (url: string) => join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url);
+const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 export type SearchServiceConfig = {
     outputFormat: `${OutputFormat}`;
@@ -104,14 +102,18 @@ export class SearchService implements SearchProvider<RelativePath> {
 
     @bounded async page(lang: string) {
         const isRTL = RTL_LANGS.includes(lang);
-        const template = new Template('_search' as NormalizedPath, lang);
+        const template = new Template(`_search/${lang}/index.html` as NormalizedPath, lang);
         const config = this.run.config;
         const baseInterface = config.interface;
         const faviconSrc = (baseInterface && baseInterface['favicon-src']) || '';
 
         const state = {
             lang,
-            ...this.config(lang),
+            router: {
+                base: template.base,
+                pathname: template.path
+            },
+            search: this.config(lang),
         };
 
         const title = lang === 'ru' ? 'Поиск' : 'Search';
@@ -138,23 +140,13 @@ export class SearchService implements SearchProvider<RelativePath> {
         template.addScript(
             dedent`
                 const data = document.querySelector('script#diplodoc-state');
-                window.__DATA__ = {
-                    search: JSON.parse((function ${template.unescape.toString()})(data.innerText)),
-                }
+                window.__DATA__ = JSON.parse((function ${template.unescape.toString()})(data.innerText));
             `,
             {
                 inline: true,
                 position: 'state',
             },
         );
-
-        const resourcesLink = this.provider.resourcesLink?.(lang);
-
-        if (resourcesLink) {
-            const resourcesLinkBase = basename(resourcesLink);
-
-            template.addScript(resourcesLinkBase);
-        }
 
         await getHooks(this).Page.promise(template);
 

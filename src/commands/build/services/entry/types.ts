@@ -42,7 +42,6 @@ export type PageState = {
     data: PageData & Hash;
     router: {
         pathname: NormalizedPath;
-        depth: number;
         base: string;
     };
     search?: {
