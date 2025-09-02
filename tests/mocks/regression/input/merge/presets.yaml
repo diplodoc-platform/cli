@@ -1,2 +1,5 @@
 default:
   product: merge
+  tools:
+    - Hammer
+    - Laser
