@@ -10,7 +10,7 @@ import {Observable, Subject} from 'threads/observable';
 // @ts-ignore
 import {expose} from 'threads/worker';
 
-import {Defer, Graph, all} from '~/core/utils';
+import {Defer, Graph, all, console} from '~/core/utils';
 import {LogLevel} from '~/core/logger';
 import {Program, parse} from '~/commands';
 
@@ -129,6 +129,8 @@ export async function init(_program: Program, runargv: string[]) {
         return;
     }
 
+    console.log(`Init ${jobs} processing threads`);
+
     program = _program;
     argv = runargv;
     threads = Array(jobs)
@@ -152,6 +154,12 @@ export async function init(_program: Program, runargv: string[]) {
 }
 
 export async function setup() {
+    if (!threads.length) {
+        return;
+    }
+
+    console.log('Wait for threads setup');
+
     await all(
         threads.map(async (defer) => {
             const thread = await defer.promise;
