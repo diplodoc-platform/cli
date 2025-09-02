@@ -298,7 +298,9 @@ exports[`Regression > internal 13`] = `
 `;
 
 exports[`Regression > internal 14`] = `
-"Tool Hammer
+"# Loops
+
+Tool Hammer
 Tool Laser
 "
 `;
@@ -1172,7 +1174,7 @@ exports[`Regression > internal 42`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"merge/merged.html\\"&gt;merged&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Tool Hammer&lt;br /&gt;/nTool Laser&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Should use merged item"},"router":{"pathname":"merge/merge","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"merge/merged.html\\"&gt;merged&lt;/a&gt;&lt;/p&gt;/n&lt;h1&gt;Loops&lt;/h1&gt;/n&lt;p&gt;Tool Hammer&lt;br /&gt;/nTool Laser&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[],"title":"Should use merged item"},"router":{"pathname":"merge/merge","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
