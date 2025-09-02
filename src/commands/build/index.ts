@@ -16,7 +16,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
-import {normalizePath, setExt} from '~/core/utils';
+import {console, normalizePath, setExt} from '~/core/utils';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -170,9 +170,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await getHooks(this).BeforeRun.for(outputFormat).promise(this.run);
 
         if (isMainThread) {
+            console.log('Prepare build input');
             await this.prepareInput();
         }
 
+        console.log('Prepare build runtime');
         await this.prepareRun();
 
         if (!isMainThread) {
@@ -181,6 +183,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await threads.setup();
 
+        console.log('Collect project files info');
         const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
         const paths = await this.run.glob('**/toc.yaml', {
             cwd: this.run.input,
@@ -208,6 +211,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {tocs, entries, copymap} = this.run.toc;
         const vcs = this.run.vcs.getData();
 
+        console.log('Sync project data');
         await this.sync(tocs, entries, copymap, vcs);
 
         await this.concurrently(tocs, async (raw) => {
@@ -216,6 +220,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             await this.run.write(join(this.run.output, toc.path), toc.toString(), true);
         });
 
+        console.log('Process project files');
         await this.concurrently(entries, async (entry) => {
             try {
                 this.run.logger.proc(entry);
@@ -234,12 +239,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await handler(this.run);
 
+        console.log('Aggregate build artifacts');
         await this.releaseRun();
 
         await getHooks(this).AfterRun.for(outputFormat).promise(this.run);
         await getBaseHooks(this).AfterAnyRun.promise(this.run);
 
-        await this.releaseOutput();
+        console.log('Cleanup build results');
+        await this.cleanup();
     }
 
     async concurrently<T>(items: T[], iterator: (item: T, index: number) => Promise<void>) {
@@ -279,10 +286,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {originalInput, input} = this.run;
         await this.cleanup();
         await this.run.copy(originalInput, input, ['node_modules/**', '*/node_modules/**']);
-    }
-
-    private async releaseOutput() {
-        await this.cleanup();
     }
 
     private async prepareRun() {

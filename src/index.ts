@@ -7,6 +7,7 @@ import './require';
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
 import {stats} from '~/core/logger';
+import {console} from '~/core/utils';
 
 export * from '~/commands';
 
@@ -42,27 +43,25 @@ if (isMainThread && require.main === module) {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
-        if (global.VERSION && process.env.NODE_ENV !== 'test') {
+        if (global.VERSION) {
             // eslint-disable-next-line no-console
             console.log(`Using v${global.VERSION} version`);
         }
 
         const report = await run(process.argv);
 
-        if (process.env.NODE_ENV !== 'test') {
-            // eslint-disable-next-line no-console
-            console.timeEnd(MAIN_TIMER_ID);
+        // eslint-disable-next-line no-console
+        console.timeEnd(MAIN_TIMER_ID);
 
-            if (report.code) {
-                // eslint-disable-next-line no-console
-                console.log(
-                    red(dedent`
+        if (report.code) {
+            // eslint-disable-next-line no-console
+            console.log(
+                red(dedent`
                         ================================
                         YFM build completed with ERRORS!
                         ================================
                     `),
-                );
-            }
+            );
         }
 
         process.exit(report.code);
