@@ -20,8 +20,8 @@ export function hooks(name: string) {
          */
         Includer: new HookMap(
             (type: string) =>
-                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions]>(
-                    ['Toc', 'options'],
+                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, NormalizedPath]>(
+                    ['Toc', 'options', 'from'],
                     `${name}.Includer(${type})`,
                 ),
         ),

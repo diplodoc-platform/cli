@@ -215,7 +215,7 @@ async function processItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
                     path: tocPath,
                 };
 
-                toc = await hook.promise(toc, options);
+                toc = await hook.promise(toc, options, this.path);
             }
 
             toc = (await this.include(tocPath, {
