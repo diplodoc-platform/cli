@@ -4,7 +4,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 "[
   ".yfm",
   "_bundle/app-css-1",
-  "_bundle/app-js-0",
+  "_bundle/app-js-2",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
@@ -110,7 +110,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
 "[
   ".yfm",
   "_bundle/app-css-1",
-  "_bundle/app-js-0",
+  "_bundle/app-js-2",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
