@@ -37,7 +37,7 @@ const buildFilesYamlTestTemplate = (
 ) => {
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        const {md2md, md2html} =buildProps;
+        const {md2md, md2html} = buildProps;
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {md2html, md2md});
 

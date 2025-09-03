@@ -47,6 +47,6 @@ export const RTL_LANGS = [
     'yi',
 ];
 
-export const excludedMetaFields = ['interface', 'resources'];
+export const excludedMetaFields = ['interface', 'resources', 'availableLangs'];
 
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;

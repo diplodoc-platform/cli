@@ -47,7 +47,7 @@ exports[`Regression > internal > filelist 2`] = `
   "_assets/5_1.png",
   "_assets/empty.pdf",
   "_bundle/app-css-1",
-  "_bundle/app-js-2",
+  "_bundle/app-js-0",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
@@ -709,9 +709,9 @@ exports[`Regression > internal 29`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -746,9 +746,9 @@ exports[`Regression > internal 30`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -809,9 +809,9 @@ exports[`Regression > internal 32`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -846,9 +846,9 @@ exports[`Regression > internal 33`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -883,9 +883,9 @@ exports[`Regression > internal 34`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -920,9 +920,9 @@ exports[`Regression > internal 35`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -957,9 +957,9 @@ exports[`Regression > internal 36`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -994,9 +994,9 @@ exports[`Regression > internal 37`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1031,9 +1031,9 @@ exports[`Regression > internal 38`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1068,9 +1068,9 @@ exports[`Regression > internal 39`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1105,9 +1105,9 @@ exports[`Regression > internal 40`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1143,9 +1143,9 @@ exports[`Regression > internal 41`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_bundle/latex-extension.js"></script>
         
     </body>
@@ -1181,9 +1181,9 @@ exports[`Regression > internal 42`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="merge/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1219,9 +1219,9 @@ exports[`Regression > internal 43`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="merge/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1258,9 +1258,9 @@ exports[`Regression > internal 45`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_bundle/mermaid-extension.js"></script>
         
     </body>
@@ -1297,9 +1297,9 @@ exports[`Regression > internal 46`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
         
     </body>
@@ -1336,9 +1336,9 @@ exports[`Regression > internal 47`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
         
     </body>
@@ -1374,9 +1374,9 @@ exports[`Regression > internal 48`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -1411,9 +1411,9 @@ exports[`Regression > internal 49`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"

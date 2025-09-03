@@ -178,6 +178,47 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    buildLangsMap(entries: NormalizedPath[], langs: string[]) {
+        const langsMap = new Map<string, string[]>();
+
+        for (const entry of entries) {
+            const idx = entry.indexOf('/');
+
+            if (idx === -1) continue;
+
+            const basePath = entry.slice(idx + 1);
+            const lang = entry.slice(0, idx);
+
+            if (!langs.includes(lang)) continue;
+
+            if (!langsMap.has(basePath)) langsMap.set(basePath, []);
+
+            langsMap.get(basePath)!.push(lang);
+        }
+
+        return langsMap;
+    }
+
+    addAvailableLangs(entries: NormalizedPath[], langs: string[]) {
+        const langsMap = this.buildLangsMap(entries, langs);
+
+        for (const entry of entries) {
+            const idx = entry.indexOf('/');
+
+            if (idx === -1) continue;
+
+            const basePath = entry.slice(idx + 1);
+            const availableLangs = langsMap.get(basePath) || [];
+
+            if (!availableLangs.length) continue;
+
+            const meta = this.meta.get(entry) || this.initialMeta();
+            meta.availableLangs = availableLangs;
+
+            this.meta.set(entry, meta);
+        }
+    }
+
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
         const file = normalizePath(path);
 
