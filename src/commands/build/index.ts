@@ -164,7 +164,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     async action() {
-        const {outputFormat} = this.config;
+        const {langs, outputFormat} = this.config;
 
         this.run = new Run(this.config);
 
@@ -219,9 +219,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         const {entries} = this.run.toc;
 
-        this.run.meta.addAvailableLangs(entries);
+        this.run.meta.addAvailableLangs(entries, langs);
 
         await this.concurrently(this.run.toc.tocs, this.processToc);
+        this.run.meta.addAvailableLangs(entries, langs);
+
 
         console.log('Process project files');
         await this.concurrently(entries, async (entry) => {
