@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.8.3](https://github.com/diplodoc-platform/cli/compare/v5.8.2...v5.8.3) (2025-09-03)
+
+
+### Bug Fixes
+
+* Fix autotitles resolving in headings ([caf9c02](https://github.com/diplodoc-platform/cli/commit/caf9c02ef8144558943eb03a322a788584a16897))
+* Fix error message logging in threading mode ([41c4685](https://github.com/diplodoc-platform/cli/commit/41c4685869c25924beb8b77fb8140be65c71c3ef))
+
 ## [5.8.2](https://github.com/diplodoc-platform/cli/compare/v5.8.1...v5.8.2) (2025-09-02)
 
 
