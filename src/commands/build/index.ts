@@ -160,7 +160,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     async action() {
-        const {outputFormat} = this.config;
+        const {langs, outputFormat} = this.config;
 
         this.run = new Run(this.config);
 
@@ -211,11 +211,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {tocs, entries, copymap} = this.run.toc;
         const vcs = this.run.vcs.getData();
 
-        this.run.meta.addAvailableLangs(entries);
+        this.run.meta.addAvailableLangs(entries, langs);
 
         console.log('Sync project data');
 
-      
         await this.sync(tocs, entries, copymap, vcs);
 
         await this.concurrently(tocs, async (raw) => {

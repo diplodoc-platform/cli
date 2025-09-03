@@ -178,7 +178,7 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
-    buildLangsMap(entries: NormalizedPath[]) {
+    buildLangsMap(entries: NormalizedPath[], langs: string[]) {
         const langsMap = new Map<string, string[]>();
 
         for (const entry of entries) {
@@ -189,6 +189,8 @@ export class MetaService {
             const basePath = entry.slice(idx + 1);
             const lang = entry.slice(0, idx);
 
+            if (!langs.includes(lang)) continue;
+
             if (!langsMap.has(basePath)) langsMap.set(basePath, []);
 
             langsMap.get(basePath)!.push(lang);
@@ -197,8 +199,8 @@ export class MetaService {
         return langsMap;
     }
 
-    addAvailableLangs(entries: NormalizedPath[]) {
-        const langsMap = this.buildLangsMap(entries);
+    addAvailableLangs(entries: NormalizedPath[], langs: string[]) {
+        const langsMap = this.buildLangsMap(entries, langs);
 
         for (const entry of entries) {
             const idx = entry.indexOf('/');
@@ -207,8 +209,13 @@ export class MetaService {
 
             const basePath = entry.slice(idx + 1);
             const availableLangs = langsMap.get(basePath) || [];
-            const metaOld = this.get(entry);
-            this.set(entry, {...metaOld, availableLangs});
+
+            if (!availableLangs.length) continue;
+
+            const meta = this.meta.get(entry) || this.initialMeta();
+            meta.availableLangs = availableLangs;
+
+            this.meta.set(entry, meta);
         }
     }
 
@@ -231,7 +238,6 @@ export class MetaService {
             style: [],
             script: [],
             csp: [],
-            availableLangs: [],
         };
     }
 }
