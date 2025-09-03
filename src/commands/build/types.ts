@@ -1,6 +1,7 @@
 import type {DocAnalytics} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {Config} from '~/core/config';
+import type {Graph} from '~/core/utils';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
@@ -13,6 +14,7 @@ import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search'
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
+import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {PageData} from './services/entry';
 
@@ -66,7 +68,8 @@ export type BuildArgs = ProgramArgs &
             LegacyArgs &
             CustomResourcesArgs &
             TocFilteringArgs &
-            VcsArgs
+            VcsArgs &
+            WatchArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -83,7 +86,8 @@ export type BuildRawConfig = BaseArgs &
     LegacyRawConfig &
     CustomResourcesConfig &
     TocFilteringConfig &
-    PreprocessConfig;
+    PreprocessConfig &
+    WatchConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -101,7 +105,8 @@ export type BuildConfig = Config<
         LegacyConfig &
         CustomResourcesConfig &
         TocFilteringConfig &
-        PreprocessConfig
+        PreprocessConfig &
+        WatchConfig
 >;
 
 export type EntryInfo = Partial<PageData> & {

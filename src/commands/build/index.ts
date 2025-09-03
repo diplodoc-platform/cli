@@ -27,7 +27,6 @@ import {getHooks, withHooks} from './hooks';
 import {OutputFormat, normalize, options, validate} from './config';
 import {Run} from './run';
 import {handler} from './handler';
-
 import {Templating} from './features/templating';
 import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
@@ -39,6 +38,7 @@ import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
 import {OutputHtml} from './features/output-html';
 import {Search} from './features/search';
+import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
 
@@ -96,6 +96,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly search = new Search();
 
+    readonly watch = new Watch();
+
     readonly legacy = new Legacy();
 
     readonly tocFiltering = new TocFiltering();
@@ -135,6 +137,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.buildManifest,
         this.changelogs,
         this.search,
+        this.watch,
         this.md,
         this.html,
         this.legacy,
