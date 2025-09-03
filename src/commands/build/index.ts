@@ -217,10 +217,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         console.log('Sync project data');
         await this.sync(this.run.toc.relations, vcs);
 
+        const {entries} = this.run.toc;
+
+        this.run.meta.addAvailableLangs(entries);
+
         await this.concurrently(this.run.toc.tocs, this.processToc);
 
         console.log('Process project files');
-        await this.concurrently(this.run.toc.entries, async (entry) => {
+        await this.concurrently(entries, async (entry) => {
             try {
                 await this.processEntry(entry);
             } catch (error) {
