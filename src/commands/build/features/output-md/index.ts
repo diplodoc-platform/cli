@@ -14,7 +14,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
 import {all, isMediaLink} from '~/core/utils';
 
-import {Sheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
+import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 
 import {options} from './config';
 import {rehashIncludes} from './plugins/resolve-deps';
@@ -92,32 +92,23 @@ export class OutputMd {
                                 return processed.get(graph.path);
                             }
 
-                            const {deps, assets, content} = graph;
-
-                            const hashedDeps: HashedGraphNode[] = await all(
-                                deps.map((dep) => dump(dep, true)),
+                            const deps: HashedGraphNode[] = await all(
+                                graph.deps.map((dep) => dump(dep, true)),
                             );
-                            const sheduler = new Sheduler();
+                            const scheduler = new Scheduler([
+                                config.hashIncludes &&
+                                    !config.mergeIncludes &&
+                                    rehashIncludes(run, deps),
+                                config.mergeAutotitles &&
+                                    mergeAutotitles(run, titles, graph.assets),
+                            ]);
 
-                            if (!config.mergeIncludes && config.hashIncludes) {
-                                sheduler.addStep(rehashIncludes(run, hashedDeps));
-                            }
+                            await scheduler.schedule(graph.path);
+                            const content = await scheduler.process(graph.content);
 
-                            if (config.mergeAutotitles) {
-                                sheduler.addStep(mergeAutotitles(run, titles, assets));
-                            }
-
-                            await sheduler.shedule(graph);
-                            const processedContent = await sheduler.process(content);
-
-                            const hash = config.hashIncludes ? rehashContent(processedContent) : '';
+                            const hash = config.hashIncludes ? rehashContent(content) : '';
                             const link = signlink(graph.path, hash);
-                            const hashed = {
-                                ...graph,
-                                deps: hashedDeps,
-                                content: processedContent,
-                                hash,
-                            };
+                            const hashed = {...graph, deps, content, hash};
 
                             processed.set(graph.path, hashed);
 

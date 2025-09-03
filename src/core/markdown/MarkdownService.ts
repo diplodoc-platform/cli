@@ -279,10 +279,7 @@ export class MarkdownService {
 
         await this.load(file, from);
 
-        const assets: AssetInfo[] = (this.pathToAssets.get(key) || []).map((asset) => ({
-            ...asset,
-            from,
-        }));
+        const assets = this.pathToAssets.get(key) || [];
         const internals: AssetInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
                 return this._assets(path, from || file);

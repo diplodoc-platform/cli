@@ -1,4 +1,4 @@
-# Autotitles
+# Autotitles ![](_assets/1.svg)
 
 Empty title
 [](./1.md)

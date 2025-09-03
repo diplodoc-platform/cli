@@ -3,3 +3,5 @@
 Item 1 text
 
 [{#T}](../../images.md)
+
+[{#T}](../../autotitle.md)

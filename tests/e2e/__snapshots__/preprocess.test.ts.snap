@@ -5,12 +5,15 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
   ".yfm",
   "1.md",
   "_assets/1.png",
+  "_assets/1.svg",
   "autotitle.md",
   "images.md",
   "included-item.md",
   "includes.md",
   "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
   "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
   "includes/test-hash.md",
   "includes/user-hash.md",
   "latex.md",
@@ -21,8 +24,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 1`] = `
-"preprocess:
-  mergeAutotitles: false
+"allowHtml: true
 "
 `;
 
@@ -52,13 +54,13 @@ default-var-value
 
 ## Subtitle {#subtitle}
 
-[{#T}](./mermaid.md)
+[{#T}](mermaid.md)
 
-[{#T}](./mermaid.md#info)
+[{#T}](mermaid.md#info)
 
-[](./latex.md)
+[](latex.md)
 
-[noext-link](./includes)
+[noext-link](includes)
 
 {% include [user](includes/user-hash.md) %}
 "
@@ -70,7 +72,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 ---
-# Autotitles
+# Autotitles ![](_assets/1.svg)
 
 Empty title
 [](./1.md)
@@ -149,32 +151,54 @@ Link after include
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
 {% include [For includes/deep-hash.md](includes/deep-hash.md) %}
 
+Include with big indent
+
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
+
 Link after include
 [{#T}](./1.md#subtitle)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 7`] = `
-"{% include [user](./sub/user-hash.md) %}
+"{% include [user](sub/user-hash.md) %}
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 8`] = `
-"Bob
+"- list item
+
+  {% include [user](sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[](../mermaid.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 9`] = `
-"Test
-"
-`;
-
-exports[`Preprocess > HashIncludes=true,Autotitles=false 10`] = `
 "Bob
 "
 `;
 
+exports[`Preprocess > HashIncludes=true,Autotitles=false 10`] = `
+"Link to mermaid diagram from 2 level
+[](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
 exports[`Preprocess > HashIncludes=true,Autotitles=false 11`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
 "---
 metadata:
   - name: generator
@@ -186,7 +210,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
 "---
 metadata:
   - name: generator
@@ -208,7 +232,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
 "---
 metadata:
   - name: generator
@@ -219,10 +243,12 @@ metadata:
 Item 1 text
 
 [{#T}](../../images.md)
+
+[{#T}](../../autotitle.md)
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 16`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -253,6 +279,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
   ".yfm",
   "1.md",
   "_assets/1.png",
+  "_assets/1.svg",
   "autotitle.md",
   "images.md",
   "included-item.md",
@@ -271,8 +298,7 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 1`] = `
-"preprocess:
-  mergeAutotitles: true
+"allowHtml: true
 "
 `;
 
@@ -302,13 +328,13 @@ default-var-value
 
 ## Subtitle {#subtitle}
 
-[Mermaid usage](./mermaid.md)
+[Mermaid usage](mermaid.md)
 
-[Mermaid info](./mermaid.md#info)
+[Mermaid info](mermaid.md#info)
 
-[Latex usage](./latex.md)
+[Latex usage](latex.md)
 
-[noext-link](./includes)
+[noext-link](includes)
 
 {% include [user](includes/user-hash.md) %}
 "
@@ -320,7 +346,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 ---
-# Autotitles
+# Autotitles ![](_assets/1.svg)
 
 Empty title
 [Title](./1.md)
@@ -409,17 +435,18 @@ Link after include
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 7`] = `
-"{% include [user](./sub/user-hash.md) %}
+"{% include [user](sub/user-hash.md) %}
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
 "- list item
 
-  {% include [user](./sub/userWithIndent-hash.md) %}
+  {% include [user](sub/userWithIndent-hash.md) %}
 
 Link to mermaid diagram from 1 level
-[Mermaid usage](../mermaid.md)"
+[Mermaid usage](../mermaid.md)
+"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 9`] = `
@@ -490,6 +517,8 @@ metadata:
 Item 1 text
 
 [Images](../../images.md)
+
+[Autotitles ![../../_assets/1.svg](../../autotitle.md)
 "
 `;
 

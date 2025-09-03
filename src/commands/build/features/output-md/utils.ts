@@ -1,4 +1,4 @@
-import type {AssetInfo, Collect, EntryGraph, EntryGraphNode, Location} from '~/core/markdown';
+import type {Collect, IncludeInfo, Location} from '~/core/markdown';
 
 import {extname} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -13,17 +13,15 @@ type Plugin = {
 };
 
 export type StepFunction = {
-    (sheduler: Sheduler, entry: EntryGraph): Promise<void>;
+    (scheduler: Scheduler, path: NormalizedPath): Promise<void>;
 };
-export type StepActor = {
-    (content: string, context: StepContext): Promise<string>;
+
+export type StepActor<Context extends Hash = Hash> = {
+    (content: string, context: Context): Promise<string>;
 };
-export type StepContext = {
-    dep?: HashedGraphNode;
-    link?: AssetInfo;
-};
-export type HashedGraphNode = EntryGraphNode & {
-    link: string;
+
+export type HashedGraphNode = IncludeInfo & {
+    content: string;
     hash: string;
 };
 
@@ -83,19 +81,24 @@ export function signlink(link: string, sign: string) {
     return `${name}-${sign}${ext}${hash ? '#' + hash : ''}`;
 }
 
-export class Sheduler {
-    private entries: Array<[Location, StepActor, StepContext]> = [];
-    private steps: Array<StepFunction> = [];
+export class Scheduler {
+    private entries: Array<[Location, StepActor, Hash]> = [];
 
-    add(location: Location, actor: StepActor, context: StepContext): void {
-        this.entries.push([location, actor, context]);
+    private steps: Array<StepFunction>;
+
+    constructor(steps: (StepFunction | false | undefined)[]) {
+        this.steps = steps.filter(Boolean) as StepFunction[];
     }
 
-    addStep(step: StepFunction): void {
-        this.steps.push(step);
+    add<Context extends Hash>(
+        location: Location,
+        actor: StepActor<Context>,
+        context: Context,
+    ): void {
+        this.entries.push([location, actor as StepActor, context]);
     }
 
-    async shedule(entry: EntryGraph): Promise<void> {
+    async schedule(entry: NormalizedPath): Promise<void> {
         for (const step of this.steps) {
             await step(this, entry);
         }
