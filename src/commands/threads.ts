@@ -2,7 +2,7 @@ import type {LogConsumer, LogRecord} from '~/core/logger';
 
 import os from 'node:os';
 import {isMainThread} from 'node:worker_threads';
-import {get} from 'lodash';
+import {get, omit} from 'lodash';
 // @ts-ignore
 import {Pool, Worker, registerSerializer, spawn} from 'threads';
 // @ts-ignore
@@ -33,6 +33,9 @@ function writer(subject: Subject<LogRecord>, level: string) {
 
 registerSerializer({
     deserialize(message: any, defaultHandler: Function) {
+        if (isError(message)) {
+            return Object.assign(new Error(message.message), omit(message, '__type'));
+        }
         if (Graph.is(message)) {
             return Graph.deserialize(message as any);
         } else if (Array.isArray(message)) {
@@ -60,7 +63,14 @@ registerSerializer({
         }
     },
     serialize(message: any, defaultHandler: Function) {
-        if (message instanceof Graph) {
+        if (isError(message)) {
+            return defaultHandler({
+                ...message,
+                message: message.message,
+                stack: message.stack,
+                __type: '$$Error',
+            });
+        } else if (message instanceof Graph) {
             return defaultHandler(message.serialize());
         } else if (Array.isArray(message)) {
             return defaultHandler(
@@ -231,4 +241,11 @@ export function multicast(call: string) {
             }
         });
     };
+}
+
+function isError(data: unknown) {
+    return Boolean(
+        data instanceof Error ||
+            (data && typeof data === 'object' && '__type' in data && data.__type === '$$Error'),
+    );
 }
