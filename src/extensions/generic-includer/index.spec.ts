@@ -58,6 +58,7 @@ describe('Generic includer', () => {
                     input: './test',
                     path: './test/toc.yaml',
                 },
+                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();
@@ -86,6 +87,7 @@ describe('Generic includer', () => {
                 {
                     path: './path/test/toc.yaml',
                 },
+                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();
@@ -116,6 +118,7 @@ describe('Generic includer', () => {
                     path: './test/toc.yaml',
                     autotitle: false,
                 },
+                'toc.yaml' as NormalizedPath,
             );
 
         expect(dump(result)).toMatchSnapshot();

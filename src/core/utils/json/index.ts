@@ -34,55 +34,21 @@ export function compareJson(oldObj: object, newObj: object): JsonDiff {
  * @param removed - массив для удалённых свойств
  */
 function compareObjects(
-    oldObj: any,
-    newObj: any,
+    oldObj: unknown,
+    newObj: unknown,
     path: string,
     added: string[],
     changed: string[],
     removed: string[],
 ): void {
-    // Если оба объекта null/undefined, различий нет
     if (isNullable(oldObj) && isNullable(newObj)) {
         return;
     }
 
-    // Если ключ есть в обоих, но значения отличаются (включая null/undefined)
-    if ((isNullable(oldObj) || isNullable(newObj)) && !(isNullable(oldObj) && isNullable(newObj))) {
-        changed.push(path);
-        return;
-    }
-
-    // Если типы объектов разные
-    if (typeof oldObj !== typeof newObj) {
-        changed.push(path);
-        return;
-    }
-
-    // Если это примитивы, сравниваем значения
-    if (typeof oldObj !== 'object' || typeof newObj !== 'object') {
-        if (oldObj !== newObj) {
-            changed.push(path);
-        }
-        return;
-    }
-
-    // Если это массивы
-    if (Array.isArray(oldObj) && Array.isArray(newObj)) {
-        compareArrays(oldObj, newObj, path, added, changed, removed);
-        return;
-    }
-
-    // Если это объекты
-    if (!Array.isArray(oldObj) && !Array.isArray(newObj)) {
-        compareObjectProperties(oldObj, newObj, path, added, changed, removed);
-        return;
-    }
-
-    // Если один массив, а другой объект
-    changed.push(path);
+    compareEntity(oldObj, newObj, path, added, changed, removed);
 }
 
-function addAllPaths(obj: any, path: string, arr: string[]): void {
+function addAllPaths(obj: unknown, path: string, arr: string[]): void {
     if (path) {
         arr.push(path);
     }
@@ -101,7 +67,7 @@ function addAllPaths(obj: any, path: string, arr: string[]): void {
 
     for (const key of Object.keys(obj)) {
         const currentPath = path ? `${path}.${key}` : key;
-        addAllPaths(obj[key], currentPath, arr);
+        addAllPaths((obj as Hash)[key], currentPath, arr);
     }
 }
 
@@ -109,8 +75,8 @@ function addAllPaths(obj: any, path: string, arr: string[]): void {
  * Сравнивает два массива
  */
 function compareArrays(
-    oldArr: any[],
-    newArr: any[],
+    oldArr: unknown[],
+    newArr: unknown[],
     path: string,
     added: string[],
     changed: string[],
@@ -137,8 +103,8 @@ function compareArrays(
  * Сравнивает свойства двух объектов
  */
 function compareObjectProperties(
-    oldObj: Record<string, any>,
-    newObj: Record<string, any>,
+    oldObj: Hash,
+    newObj: Hash,
     path: string,
     added: string[],
     changed: string[],
@@ -156,29 +122,39 @@ function compareObjectProperties(
         } else if (!(key in newObj)) {
             addAllPaths(oldValue, currentPath, removed);
         } else {
-            // Если значения отличаются (включая null/undefined)
-            if (
-                (isNullable(oldValue) || isNullable(newValue)) &&
-                !(isNullable(oldValue) && isNullable(newValue))
-            ) {
-                changed.push(currentPath);
-            } else if (typeof oldValue !== typeof newValue) {
-                changed.push(currentPath);
-            } else if (typeof oldValue !== 'object' || typeof newValue !== 'object') {
-                if (oldValue !== newValue) {
-                    changed.push(currentPath);
-                }
-            } else if (Array.isArray(oldValue) && Array.isArray(newValue)) {
-                compareArrays(oldValue, newValue, currentPath, added, changed, removed);
-            } else if (!Array.isArray(oldValue) && !Array.isArray(newValue)) {
-                compareObjectProperties(oldValue, newValue, currentPath, added, changed, removed);
-            } else {
-                changed.push(currentPath);
-            }
+            compareEntity(oldValue, newValue, currentPath, added, changed, removed);
         }
     }
 }
 
-function isNullable(value: any): value is null | undefined {
+function compareEntity(
+    oldValue: unknown,
+    newValue: unknown,
+    path: string,
+    added: string[],
+    changed: string[],
+    removed: string[],
+) {
+    if (
+        (isNullable(oldValue) || isNullable(newValue)) &&
+        !(isNullable(oldValue) && isNullable(newValue))
+    ) {
+        changed.push(path);
+    } else if (typeof oldValue !== typeof newValue) {
+        changed.push(path);
+    } else if (typeof oldValue !== 'object' || typeof newValue !== 'object') {
+        if (oldValue !== newValue) {
+            changed.push(path);
+        }
+    } else if (Array.isArray(oldValue) && Array.isArray(newValue)) {
+        compareArrays(oldValue, newValue, path, added, changed, removed);
+    } else if (!Array.isArray(oldValue) && !Array.isArray(newValue)) {
+        compareObjectProperties(oldValue as Hash, newValue as Hash, path, added, changed, removed);
+    } else {
+        changed.push(path);
+    }
+}
+
+function isNullable(value: unknown): value is null | undefined {
     return value === null || value === undefined;
 }

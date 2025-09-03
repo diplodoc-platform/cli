@@ -32,7 +32,7 @@ export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     title: string;
     autotitle: boolean;
     location: Location;
-    from: NormalizedPath | undefined;
+    from?: NormalizedPath;
 };
 
 export type HeadingInfo = {
@@ -44,10 +44,12 @@ export type EntryGraph = {
     path: NormalizedPath;
     content: string;
     deps: EntryGraphNode[];
+    assets: AssetInfo[];
 };
 
 export type EntryGraphNode = {
     path: NormalizedPath;
     content: string;
     deps: EntryGraphNode[];
+    assets: AssetInfo[];
 } & IncludeInfo;

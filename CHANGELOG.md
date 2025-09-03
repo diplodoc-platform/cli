@@ -1,5 +1,24 @@
 # Changelog
 
+## [5.8.2](https://github.com/diplodoc-platform/cli/compare/v5.8.1...v5.8.2) (2025-09-02)
+
+
+### Bug Fixes
+
+* Fix autotitles merging in includes ([7aadddc](https://github.com/diplodoc-platform/cli/commit/7aadddcd3b4a1f93b54b86f7d5d11d2821bd6d27))
+
+## [5.8.1](https://github.com/diplodoc-platform/cli/compare/v5.8.0...v5.8.1) (2025-09-02)
+
+
+### Bug Fixes
+
+* Return `from` param to TocService.Includer hook ([5fa947e](https://github.com/diplodoc-platform/cli/commit/5fa947e155281e0318ca1f1662372b3e59367410))
+
+
+### Dependency update
+
+* Update @diplodoc/page-constructor-extension to 0.10.0 ([078e7ef](https://github.com/diplodoc-platform/cli/commit/078e7ef3566978ef0992bc5681c8d4d726070b91))
+
 ## [5.8.0](https://github.com/diplodoc-platform/cli/compare/v5.7.1...v5.8.0) (2025-08-29)
 
 

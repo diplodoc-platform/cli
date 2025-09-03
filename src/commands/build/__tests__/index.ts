@@ -11,6 +11,7 @@ import {parse} from '~/commands';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 
 export const handler = originalHandler as Mock;
 
@@ -18,6 +19,11 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../handler');
+vi.mock('~/extensions/local-search', () => ({
+    Extension: function () {
+        return {apply() {}};
+    },
+}));
 vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -117,7 +123,9 @@ export function setupBuild(state?: BuildState): Build {
 
         if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.read).calledWith(join(run.input, file)).thenResolve(content);
+                when(run.read)
+                    .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
+                    .thenResolve(content);
             }
         }
     });

@@ -6,7 +6,8 @@ function isAutotitle(asset: AssetInfo) {
     return asset.autotitle === true && asset.type === 'link' && !asset.from;
 }
 
-export function mergeAutotitles(run: Run, titleList: Map<string, string>) {
+export function mergeAutotitles(run: Run, titleList: Map<string, string>, assets: AssetInfo[]) {
+    const links = assets.filter(isAutotitle);
     const getTitle = async function (link: string, entry: EntryGraph) {
         if (link.startsWith('#')) {
             link = `${entry.path}${link}`;
@@ -29,9 +30,6 @@ export function mergeAutotitles(run: Run, titleList: Map<string, string>) {
     };
 
     return async function (sheduler: Sheduler, entry: EntryGraph): Promise<void> {
-        const assets = await run.markdown.assets(entry.path);
-        const links = assets.filter(isAutotitle);
-
         const actor = async function (content: string, {link}: StepContext): Promise<string> {
             const {path, hash, location, title} = link as AssetInfo;
             const url = (path || '') + (hash || '');

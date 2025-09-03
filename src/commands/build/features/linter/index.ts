@@ -1,4 +1,4 @@
-import type {RawLintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
+import type {LintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
@@ -9,9 +9,9 @@ import {LogLevels, getLogLevel, log, normalizeConfig} from '@diplodoc/yfmlint';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {IncludeInfo, getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
-import {flat, isExternalHref} from '~/core/utils';
+import {isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
 import {options} from './config';
 
@@ -95,7 +95,11 @@ export class Lint {
                 config.lint.config = normalizeConfig(levels, config.lint.config);
             }
 
-            config.lint.config['MD033'] = config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR;
+            config.lint.config['MD033'] = config.allowHtml
+                ? false
+                : {
+                      loglevel: config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR,
+                  };
 
             return config;
         });
@@ -108,7 +112,7 @@ export class Lint {
                         return;
                     }
 
-                    const deps = flat<IncludeInfo>(await run.markdown.deps(vfile.path));
+                    const deps = await run.markdown.deps(vfile.path);
                     const assets = await run.markdown.assets(vfile.path);
                     const errors = await run.lint(vfile.path, vfile.data, {deps, assets});
 

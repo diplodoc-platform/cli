@@ -122,8 +122,9 @@ export class VarsService {
 
         this.logger.proc(file);
 
+        const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
         return getHooks(this).PresetsLoaded.promise(
-            load((await this.run.read(join(this.run.input, file))) || '{}') as Presets,
+            load((await this.run.read(source)) || '{}') as Presets,
             file,
         );
     }

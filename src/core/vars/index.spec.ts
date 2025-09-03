@@ -8,6 +8,7 @@ import {dedent} from 'ts-dedent';
 import {setupRun} from '~/commands/build/__tests__';
 
 import {VarsService} from './VarsService';
+import {normalizePath} from '~/core/utils';
 
 type Options = Partial<VarsServiceConfig>;
 
@@ -62,7 +63,9 @@ function prepare(options: Options = {}) {
         .thenResolve(Object.keys(content) as NormalizedPath[]);
 
     for (const [file, data] of Object.entries(content)) {
-        when(run.read).calledWith(join(run.input, file)).thenResolve(data);
+        when(run.read)
+            .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
+            .thenResolve(data);
     }
 
     return service;

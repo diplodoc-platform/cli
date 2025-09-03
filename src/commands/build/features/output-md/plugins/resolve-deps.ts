@@ -1,4 +1,6 @@
-import {HashedGraphNode, Sheduler, StepContext, StepFunction, signlink} from '../utils';
+import type {HashedGraphNode, Sheduler, StepContext, StepFunction} from '../utils';
+
+import {signlink} from '../utils';
 import {replaceAll} from '~/core/utils';
 
 import {Run} from '../../..';

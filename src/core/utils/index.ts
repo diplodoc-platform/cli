@@ -1,4 +1,5 @@
 export * from './common';
+export * from './console';
 export * from './decorators';
 export * from './extension';
 export * from './path';
