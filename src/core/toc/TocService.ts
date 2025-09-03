@@ -270,8 +270,8 @@ export class TocService {
             context.from = include.from;
 
             const files = await this.run.copy(
-                join(this.run.input, from),
-                join(this.run.input, to),
+                normalizePath(join(this.run.input, from)) as AbsolutePath,
+                normalizePath(join(this.run.input, to)) as AbsolutePath,
                 [basename(file), '**/toc.yaml'],
             );
 
@@ -420,7 +420,8 @@ export class TocService {
 
 async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc> {
     try {
-        return load((await run.read(join(run.input, path))) || '{}') as RawToc;
+        const source = normalizePath(join(run.input, path)) as AbsolutePath;
+        return load((await run.read(source)) || '{}') as RawToc;
     } catch (error) {
         throw new Error(dedent`
             Unable to resolve ${path}${from ? ' from ' + from : ''}.

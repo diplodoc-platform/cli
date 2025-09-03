@@ -76,7 +76,8 @@ export class LeadingService {
         this.cache[file] = defer.promise;
 
         try {
-            const raw = await this.run.read(join(this.run.input, file));
+            const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
+            const raw = await this.run.read(source);
             const vars = this.run.vars.for(path);
             const yaml = load(raw || '{}') as RawLeadingPage;
 

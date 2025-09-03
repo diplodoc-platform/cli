@@ -117,7 +117,8 @@ export class MarkdownService {
         this.cache[key] = defer.promise;
 
         try {
-            const raw = await this.run.read(join(this.run.input, file));
+            const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
+            const raw = await this.run.read(source);
             const vars = this.run.vars.for((from || file) as RelativePath);
 
             const context = this.loaderContext(file, raw, vars, this.proxy(key));

@@ -11,6 +11,7 @@ import {parse} from '~/commands';
 import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
+import {normalizePath} from '~/core/utils';
 
 export const handler = originalHandler as Mock;
 
@@ -122,7 +123,9 @@ export function setupBuild(state?: BuildState): Build {
 
         if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.read).calledWith(join(run.input, file)).thenResolve(content);
+                when(run.read)
+                    .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
+                    .thenResolve(content);
             }
         }
     });
