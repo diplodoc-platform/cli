@@ -31,6 +31,8 @@ exports[`Local search > internal 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Header</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>

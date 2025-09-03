@@ -711,6 +711,8 @@ exports[`Regression > internal 29`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Title</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -739,6 +741,8 @@ exports[`Regression > internal 30`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Autotitles</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -767,6 +771,8 @@ exports[`Regression > internal 31`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Redirect to d.md</title>
+        <link rel="canonical" href="./">
+        
         <meta http-equiv="refresh" content="0; url=d.md">
         
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -793,6 +799,8 @@ exports[`Regression > internal 32`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Note 1</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -821,6 +829,8 @@ exports[`Regression > internal 33`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Note 1</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -849,6 +859,8 @@ exports[`Regression > internal 34`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title></title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -877,6 +889,8 @@ exports[`Regression > internal 35`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
         <title>Sub note 1</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -905,6 +919,8 @@ exports[`Regression > internal 36`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
         <title>Sub note 2</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -933,6 +949,8 @@ exports[`Regression > internal 37`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Images</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -961,6 +979,8 @@ exports[`Regression > internal 38`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Included item</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -989,6 +1009,8 @@ exports[`Regression > internal 39`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title></title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1017,6 +1039,8 @@ exports[`Regression > internal 40`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title></title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1045,6 +1069,8 @@ exports[`Regression > internal 41`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Latex usage</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1073,6 +1099,8 @@ exports[`Regression > internal 42`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Should use merged item</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1101,6 +1129,8 @@ exports[`Regression > internal 43`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Merged item</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1131,6 +1161,8 @@ exports[`Regression > internal 45`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Mermaid usage</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1159,6 +1191,8 @@ exports[`Regression > internal 46`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>OpenAPI definition</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
@@ -1189,6 +1223,8 @@ exports[`Regression > internal 47`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
         <title></title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
@@ -1219,6 +1255,8 @@ exports[`Regression > internal 48`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
         <title>test-controller</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -1247,6 +1285,8 @@ exports[`Regression > internal 49`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../../" />
         <title>Item 1</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>

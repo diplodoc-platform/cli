@@ -59,6 +59,10 @@ export class Template {
 
     private faviconSrc = '';
 
+    private canonical = '';
+
+    private alternates: Hash[] = [];
+
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
         this.lang = lang;
@@ -155,8 +159,21 @@ export class Template {
         return this;
     }
 
+    @bounded setCanonical(canonical: string) {
+        this.canonical = canonical;
+
+        return this;
+    }
+
+    @bounded setAlternate(alternates: Hash[]) {
+        this.alternates = alternates;
+
+        return this;
+    }
+
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
+        const {lang, title, styles, scripts, body, bodyClass, faviconSrc, canonical, alternates} =
+            this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
 
@@ -168,6 +185,8 @@ export class Template {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <base href="${base}" />
                     <title>${title}</title>
+                    <link rel="canonical" href="./${canonical}">
+                    ${alternates.map(alternate).join('\n')}
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -200,6 +219,10 @@ function trailing<T extends PositionInfo>(array: T[]) {
 
 function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
+}
+
+function alternate(record: Hash<string>) {
+    return `<link rel="alternate" hreflang="${record.hreflang}" href="${record.href}" />`;
 }
 
 function csp(directives: Hash<string[]> | undefined) {

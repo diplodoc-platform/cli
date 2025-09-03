@@ -178,6 +178,67 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    parseEntry(entry: string) {
+        const idx = entry.indexOf('/');
+
+        if (idx === -1) {
+            return null;
+        }
+
+        const lang = entry.slice(0, idx);
+        const path = entry.slice(idx + 1);
+        const basePath = path.replace(/\.[^.]+$/, '');
+        const canonical = `${lang}/${basePath}`;
+
+        return {lang, path, basePath, canonical};
+    }
+
+    buildLangsMap(entries: NormalizedPath[], langs: string[]) {
+        const langsMap = new Map<string, string[]>();
+
+        for (const entry of entries) {
+            const parsed = this.parseEntry(entry);
+
+            if (!parsed || !langs.includes(parsed.lang)) {
+                continue;
+            }
+
+            if (!langsMap.has(parsed.path)) {
+                langsMap.set(parsed.path, []);
+            }
+
+            langsMap.get(parsed.path)!.push(parsed.canonical);
+        }
+
+        return langsMap;
+    }
+
+    addAlternate(entries: NormalizedPath[], langs: string[]) {
+        const langsMap = this.buildLangsMap(entries, langs);
+
+        for (const entry of entries) {
+            const parsed = this.parseEntry(entry);
+
+            if (!parsed) {
+                continue;
+            }
+
+            const availableLangs = langsMap.get(parsed.path) || [];
+
+            if (!availableLangs.length) {
+                continue;
+            }
+
+            const alternate = availableLangs.filter((a) => a !== parsed.canonical);
+
+            const meta = this.meta.get(entry) || this.initialMeta();
+            meta.canonical = parsed.canonical;
+            meta.alternate = alternate;
+
+            this.meta.set(entry, meta);
+        }
+    }
+
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
         const file = normalizePath(path);
 

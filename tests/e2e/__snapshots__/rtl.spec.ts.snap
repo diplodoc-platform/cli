@@ -19,6 +19,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -47,6 +49,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -92,13 +96,16 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation | Documentation</title>
+        <link rel="canonical" href="./ar/index">
+        <link rel="alternate" hreflang="ar" href="./ar/index" />
+        <link rel="alternate" hreflang="en" href="./en/index" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"ar/index.yaml","sourcePath":"ar/index.yaml"},"title":"Documentation"},"router":{"pathname":"ar/index","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"title":"Documentation","links":[{"title":"Documentation","href":"ar/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"canonical":"ar/index","alternate":["en/index"],"vcsPath":"ar/index.yaml","sourcePath":"ar/index.yaml"},"title":"Documentation"},"router":{"pathname":"ar/index","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -120,13 +127,16 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
+        <link rel="canonical" href="./ar/page">
+        <link rel="alternate" hreflang="ar" href="./ar/page" />
+        <link rel="alternate" hreflang="en" href="./en/page" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;توثيق&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"ar/page.md","sourcePath":"ar/page.md"},"headings":[],"title":""},"router":{"pathname":"ar/page","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;توثيق&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"canonical":"ar/page","alternate":["en/page"],"vcsPath":"ar/page.md","sourcePath":"ar/page.md"},"headings":[],"title":""},"router":{"pathname":"ar/page","depth":2,"base":"../"},"lang":"ar","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -150,13 +160,16 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation | Documentation</title>
+        <link rel="canonical" href="./en/index">
+        <link rel="alternate" hreflang="en" href="./en/index" />
+        <link rel="alternate" hreflang="ar" href="./ar/index" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"title":"Documentation","noIndex":true,"vcsPath":"en/index.yaml","sourcePath":"en/index.yaml"},"title":"Documentation"},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"en/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"canonical":"en/index","alternate":["ar/index"],"title":"Documentation","noIndex":true,"vcsPath":"en/index.yaml","sourcePath":"en/index.yaml"},"title":"Documentation"},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -178,6 +191,9 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
+        <link rel="canonical" href="./en/page">
+        <link rel="alternate" hreflang="en" href="./en/page" />
+        <link rel="alternate" hreflang="ar" href="./ar/page" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -185,7 +201,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"vcsPath":"en/page.md","sourcePath":"en/page.md"},"headings":[],"title":""},"router":{"pathname":"en/page","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder"}],"canonical":"en/page","alternate":["ar/page"],"vcsPath":"en/page.md","sourcePath":"en/page.md"},"headings":[],"title":""},"router":{"pathname":"en/page","depth":2,"base":"../"},"lang":"en","langs":["ar","en"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -209,6 +225,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Redirect to ./ar/index.html</title>
+        <link rel="canonical" href="./">
         <meta http-equiv="refresh" content="0; url=./ar/index.html">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <script type="application/javascript">

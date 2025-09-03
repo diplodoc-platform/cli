@@ -17,6 +17,8 @@ exports[`Allow load custom resources > md2html with metadata 1`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
@@ -47,6 +49,8 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page Title | Documentation</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
@@ -80,6 +84,8 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
+        <link rel="canonical" href="./">
+        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">

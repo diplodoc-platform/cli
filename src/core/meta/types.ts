@@ -32,6 +32,8 @@ export type Meta = {
     vcsPath?: string;
     resources?: Resources;
     'restricted-access'?: string[][];
+    canonical?: string;
+    alternate?: string[];
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;
