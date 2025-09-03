@@ -178,6 +178,40 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    buildLangsMap(entries: NormalizedPath[]) {
+        const langsMap = new Map<string, string[]>();
+
+        for (const entry of entries) {
+            const idx = entry.indexOf('/');
+
+            if (idx === -1) continue;
+
+            const basePath = entry.slice(idx + 1);
+            const lang = entry.slice(0, idx);
+
+            if (!langsMap.has(basePath)) langsMap.set(basePath, []);
+
+            langsMap.get(basePath)!.push(lang);
+        }
+
+        return langsMap;
+    }
+
+    addAvailableLangs(entries: NormalizedPath[]) {
+        const langsMap = this.buildLangsMap(entries);
+
+        for (const entry of entries) {
+            const idx = entry.indexOf('/');
+
+            if (idx === -1) continue;
+
+            const basePath = entry.slice(idx + 1);
+            const availableLangs = langsMap.get(basePath) || [];
+            const metaOld = this.get(entry);
+            this.set(entry, {...metaOld, availableLangs});
+        }
+    }
+
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
         const file = normalizePath(path);
 
@@ -197,6 +231,7 @@ export class MetaService {
             style: [],
             script: [],
             csp: [],
+            availableLangs: [],
         };
     }
 }

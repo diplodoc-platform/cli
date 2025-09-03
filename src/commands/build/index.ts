@@ -208,6 +208,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {tocs, entries, copymap} = this.run.toc;
         const vcs = this.run.vcs.getData();
 
+        this.run.meta.addAvailableLangs(entries);
+
         await this.sync(tocs, entries, copymap, vcs);
 
         await this.concurrently(tocs, async (raw) => {
