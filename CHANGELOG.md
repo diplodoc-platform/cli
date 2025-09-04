@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.8.4](https://github.com/diplodoc-platform/cli/compare/v5.8.3...v5.8.4) (2025-09-04)
+
+
+### Bug Fixes
+
+* **threads:** Add timeout for threads init ([744de06](https://github.com/diplodoc-platform/cli/commit/744de068cb9fcdef693227ce1ca9d924a27cc9bd))
+
 ## [5.8.3](https://github.com/diplodoc-platform/cli/compare/v5.8.2...v5.8.3) (2025-09-03)
 
 
