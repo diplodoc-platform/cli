@@ -204,8 +204,8 @@ export class Run<TConfig = BaseConfig> {
     }
 
     private async assertProjectScope(path: AbsolutePath) {
-        const scopes = [...this.scopes.values()];
-        const realpath = await this.realpath(path);
+        const scopes = [...this.scopes.values()].map(normalizePath) as AbsolutePath[];
+        const realpath = normalizePath(await this.realpath(path)) as AbsolutePath;
         const isInScope = scopes.some((scope) => realpath.startsWith(scope));
         ok(isInScope, new InsecureAccessError(path, realpath, scopes));
     }
