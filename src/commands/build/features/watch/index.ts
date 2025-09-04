@@ -10,7 +10,7 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {compareJson, normalizePath} from '~/core/utils';
+import {compareJson, console, normalizePath} from '~/core/utils';
 import * as threads from '~/commands/threads';
 
 import {options} from './config';
@@ -105,7 +105,7 @@ export class Watch {
                 const watch = new Watcher(run);
                 const state = new WatchState(program, run);
 
-                state.logger.info('Watching for changes...');
+                console.log('Watching for changes...');
 
                 await threads.terminate();
 
@@ -128,7 +128,7 @@ export class Watch {
                                 break;
                         }
                     } catch (error) {
-                        console.error(error);
+                        console.log(error);
                         state.logger.error(error);
                     }
                 }
@@ -327,7 +327,7 @@ export class Watch {
                 await state.run.toc.init([toc]);
                 state.invalidateToc(toc);
             } catch (error) {
-                console.error(error);
+                console.log(error);
                 state.logger.error(error);
             }
         }
