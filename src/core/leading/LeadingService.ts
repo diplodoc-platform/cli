@@ -2,7 +2,7 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
-import type {AssetInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {AssetInfo, GraphInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
 import type {LoaderContext} from './loader';
 
 import {dirname, join} from 'node:path';
@@ -145,9 +145,9 @@ export class LeadingService {
 
     async relations(path: RelativePath): Promise<Graph> {
         const file = normalizePath(path);
-        const graph = new Graph();
+        const graph = new Graph<GraphInfo>();
 
-        graph.addNode(path);
+        graph.addNode(file, {type: 'entry'});
 
         await this.load(path);
         await all(

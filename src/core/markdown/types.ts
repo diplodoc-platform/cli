@@ -57,3 +57,11 @@ export type EntryInfo = {
     title: string;
     headings: string[];
 };
+
+type GraphEntryInfo = {type: 'entry'};
+
+type GraphMissedInfo = {type: 'missed'};
+
+type GraphAssetInfo = {type: 'resource' | 'source'};
+
+export type GraphInfo = GraphEntryInfo | GraphMissedInfo | GraphAssetInfo;
