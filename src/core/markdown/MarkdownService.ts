@@ -7,6 +7,7 @@ import type {
     Collect,
     EntryGraph,
     EntryInfo,
+    GraphInfo,
     HeadingInfo,
     IncludeInfo,
     Location,
@@ -44,10 +45,6 @@ type Run = BaseRun<MarkdownServiceConfig> & {
 type Options = {
     mode: 'build' | 'translate';
 };
-
-type GraphEntryInfo = {type: 'entry'; path: NormalizedPath};
-
-type GraphAssetInfo = {type: 'resource' | 'source'};
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
     return `${path}${from ? '+' + from : ''}`;
@@ -291,11 +288,11 @@ export class MarkdownService {
     private async _relations(
         path: NormalizedPath,
         from?: NormalizedPath,
-    ): Promise<Graph<GraphEntryInfo | GraphAssetInfo | IncludeInfo>> {
+    ): Promise<Graph<GraphInfo>> {
         const key = hash(path, from);
-        const graph = new Graph<GraphEntryInfo | GraphAssetInfo | IncludeInfo>();
+        const graph = new Graph<GraphInfo>();
 
-        graph.addNode(path, {path} as GraphEntryInfo);
+        graph.addNode(path, {type: 'entry'});
 
         await this.load(path, from);
         await all(

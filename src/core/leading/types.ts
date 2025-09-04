@@ -64,3 +64,11 @@ export type Plugin = (
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
 };
+
+type GraphEntryInfo = {type: 'entry'};
+
+type GraphMissedInfo = {type: 'missed'};
+
+type GraphAssetInfo = {type: 'resource' | 'source'};
+
+export type GraphInfo = GraphEntryInfo | GraphMissedInfo | GraphAssetInfo;

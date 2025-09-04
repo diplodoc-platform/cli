@@ -4,7 +4,7 @@ import type {SyncData as VcsSyncData} from '~/core/vcs';
 import type {Graph} from '~/core/utils';
 import type {BuildArgs, BuildConfig, EntryInfo} from './types';
 
-import {basename, dirname, join} from 'node:path';
+import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
@@ -17,7 +17,7 @@ import {
 import {getHooks as getTocHooks} from '~/core/toc';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {Command} from '~/core/config';
-import {bounded, console, normalizePath, setExt} from '~/core/utils';
+import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -224,6 +224,14 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             try {
                 await this.processEntry(entry);
             } catch (error) {
+                if (own<string>(error, 'code') && error.code === 'ENOENT') {
+                    const path = normalizePath(relative(this.run.input, error.path));
+                    if (path !== entry) {
+                        this.run.entry.relations.addNode(entry, {type: 'entry'});
+                        this.run.entry.relations.addNode(path, {type: 'missed'});
+                    }
+                }
+
                 console.error(error);
                 this.run.logger.error(`${entry}: ${error}`);
             }

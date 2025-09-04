@@ -1,5 +1,7 @@
 import type {Meta} from '~/core/meta';
 import type {Toc} from '~/core/toc';
+import type {GraphInfo as MarkdownGraphInfo} from '~/core/markdown';
+import type {GraphInfo as LeadingGraphInfo} from '~/core/leading';
 import type {EntryInfo, Run} from '~/commands/build';
 import type {EntryData, PageData, PageState} from './types';
 
@@ -19,7 +21,7 @@ const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 @withHooks
 export class EntryService {
-    readonly relations = new Graph();
+    readonly relations = new Graph<MarkdownGraphInfo | LeadingGraphInfo>();
 
     private run: Run;
 
