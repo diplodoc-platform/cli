@@ -1,5 +1,28 @@
 # Changelog
 
+## [5.9.0](https://github.com/diplodoc-platform/cli/compare/v5.8.4...v5.9.0) (2025-09-04)
+
+
+### Features
+
+* Implement relations API in EntryService ([f860587](https://github.com/diplodoc-platform/cli/commit/f860587ef48db61c59a31bde23ac88bee58dd436))
+* Implement relations API in LeadingService ([992265d](https://github.com/diplodoc-platform/cli/commit/992265df7693d134f689a98c886ea04ba4905363))
+* Implement relations API in MarkdownService ([4ec7b18](https://github.com/diplodoc-platform/cli/commit/4ec7b1893e3701d569e02de5e78c3b5f40d9111f))
+* Implement relations API in TocService ([210d619](https://github.com/diplodoc-platform/cli/commit/210d6194dc7e6a1bba01f76caa07da85753e738b))
+* Implement relations API in VarsService ([599120b](https://github.com/diplodoc-platform/cli/commit/599120b15f7fcb9b6b9ff9582ec3931aafec6e0c))
+* Implement watch mode feature ([fdd31d8](https://github.com/diplodoc-platform/cli/commit/fdd31d8f66b918f9b192ba411d8eac8b5d9cbce1))
+
+
+### Bug Fixes
+
+* Compare normalized paths on project scope check ([73ab04e](https://github.com/diplodoc-platform/cli/commit/73ab04e9dadd4e22c2c2d278ed6edac04f49518f))
+* **watch:** Handle `move` event ([f6f0623](https://github.com/diplodoc-platform/cli/commit/f6f06237b7e855fe7667206acefed99e2c8de9a9))
+* **watch:** Handle changed generated entries ([5744fb0](https://github.com/diplodoc-platform/cli/commit/5744fb0bdb09c23d3a044bb03647f0fd4ffbc1ea))
+* **watch:** Handle entry resources ([992d100](https://github.com/diplodoc-platform/cli/commit/992d100e8dde051e53b2912466dcb31db46ebf58))
+* **watch:** Handle initially broken entries ([8a6c823](https://github.com/diplodoc-platform/cli/commit/8a6c823c1d3ffd7cfd3b81afecea3e756c6d3a08))
+* **watch:** Handle update entries with errors ([810bc42](https://github.com/diplodoc-platform/cli/commit/810bc42ab0444d4408a94b228f98bac09f15345c))
+* **watch:** Implement watch on removed files ([0b161ce](https://github.com/diplodoc-platform/cli/commit/0b161ce9d74ebf4dfac689fc838caeedb85329e1))
+
 ## [5.8.4](https://github.com/diplodoc-platform/cli/compare/v5.8.3...v5.8.4) (2025-09-04)
 
 
