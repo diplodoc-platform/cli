@@ -10,7 +10,7 @@ import {Observable, Subject} from 'threads/observable';
 // @ts-ignore
 import {expose} from 'threads/worker';
 
-import {Defer, Graph, all, console} from '~/core/utils';
+import {Defer, Graph, all, console, race, wait} from '~/core/utils';
 import {LogLevel} from '~/core/logger';
 import {Program, parse} from '~/commands';
 
@@ -170,15 +170,21 @@ export async function setup() {
 
     console.log('Wait for threads setup');
 
-    await all(
-        threads.map(async (defer) => {
-            const thread = await defer.promise;
+    await race([
+        all(
+            threads.map(async (defer) => {
+                const thread = await defer.promise;
 
-            await thread.init(argv);
+                await thread.init(argv);
 
-            program.logger.subscribe(thread.logger());
+                program.logger.subscribe(thread.logger());
+            }),
+        ),
+        wait(5000, () => {
+            console.log('Threads setup timed out');
+            threads.length = 0;
         }),
-    );
+    ]);
 }
 
 export async function terminate(force = false) {
@@ -199,7 +205,7 @@ export function threaded(call: string) {
 
             if (isMainThread) {
                 this[methodName] = function (...args: unknown[]) {
-                    if (pool) {
+                    if (pool && threads.length) {
                         return pool.queue((thread: ThreadAPI) => {
                             return thread.call(call, args);
                         });
@@ -224,7 +230,7 @@ export function multicast(call: string) {
 
             if (isMainThread) {
                 this[methodName] = function (...args: unknown[]) {
-                    if (pool) {
+                    if (pool && threads.length) {
                         return all(
                             threads.map(async (defer) => {
                                 const thread = await defer.promise;
