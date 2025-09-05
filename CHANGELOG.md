@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.1](https://github.com/diplodoc-platform/cli/compare/v5.9.0...v5.9.1) (2025-09-05)
+
+
+### Bug Fixes
+
+* add --filter option, warning feature ([2935d9f](https://github.com/diplodoc-platform/cli/commit/2935d9fdafc4aa3791aaf25898ae983d85e2b959))
+
 ## [5.9.0](https://github.com/diplodoc-platform/cli/compare/v5.8.4...v5.9.0) (2025-09-04)
 
 
