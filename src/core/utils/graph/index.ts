@@ -23,6 +23,10 @@ export class Graph<Data = {type: string}> extends DepGraph<Data> {
         return new Graph().consume(message);
     }
 
+    constructor() {
+        super({circular: true});
+    }
+
     /**
      * Extracts a subgraph related to the specified node
      * @param nodeName - name of the node for which to extract the subgraph

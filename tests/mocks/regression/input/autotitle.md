@@ -18,6 +18,9 @@ Empty local title
 Special local title
 [{#T}](#header)
 
+Circular title
+[{#T}](./autotitle.md#header)
+
 ## Header {#header}
 
 Content

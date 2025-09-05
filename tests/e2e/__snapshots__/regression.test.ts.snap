@@ -157,6 +157,9 @@ Empty local title
 Special local title
 [Header](#header)
 
+Circular title
+[Header](./autotitle.md#header)
+
 ## Header {#header}
 
 Content
@@ -736,7 +739,7 @@ exports[`Regression > internal 30`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Circular title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
