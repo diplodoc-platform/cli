@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.4](https://github.com/diplodoc-platform/cli/compare/v5.9.3...v5.9.4) (2025-09-05)
+
+
+### Bug Fixes
+
+* Fix pseudo circular deps resolving ([7742d74](https://github.com/diplodoc-platform/cli/commit/7742d74c26487a0ad6d05e2340af410ed76a70f5))
+
 ## [5.9.3](https://github.com/diplodoc-platform/cli/compare/v5.9.2...v5.9.3) (2025-09-05)
 
 
