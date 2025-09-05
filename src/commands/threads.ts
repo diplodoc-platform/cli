@@ -152,9 +152,10 @@ export async function init(_program: Program, runargv: string[]) {
         // eslint-disable-next-line new-cap
         pool = Pool(
             async () => {
+                const defer = threads[index++];
                 const thread = await spawn<ThreadAPI>(new Worker('./index'));
 
-                threads[index++].resolve(thread);
+                defer.resolve(thread);
 
                 return thread;
             },
@@ -180,7 +181,7 @@ export async function setup() {
                 program.logger.subscribe(thread.logger());
             }),
         ),
-        wait(5000, () => {
+        wait(30000, () => {
             console.log('Threads setup timed out');
             threads.length = 0;
         }),
