@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.9.2](https://github.com/diplodoc-platform/cli/compare/v5.9.1...v5.9.2) (2025-09-05)
+
+
+### Bug Fixes
+
+* Fix threads timeout handling ([8a4ab54](https://github.com/diplodoc-platform/cli/commit/8a4ab54a151f099b48bc382a279e7e739a89c770))
+
 ## [5.9.1](https://github.com/diplodoc-platform/cli/compare/v5.9.0...v5.9.1) (2025-09-05)
 
 
