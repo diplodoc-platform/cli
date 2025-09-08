@@ -79,3 +79,23 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
         return null;
     }
 }
+
+export function buildAlterantes(rootPath: string, lang: string, availableLangs: string[], pathname: string) {
+    if (!rootPath) return [];
+    
+    const alternates = [];
+    const alterateLangs = availableLangs.filter(l => l !== lang);
+    const divider = rootPath.at(-1) === '/' ? '' : '/';
+
+
+    for (const alternateLang of alterateLangs) {
+        const alternatePathname = pathname.replace(/^[a-z]{2}\//, `${alternateLang}/`);
+
+        alternates.push({
+            hreflang: alternateLang,
+            href: `${rootPath}${divider}${alternatePathname}`,
+        });
+    }
+
+    return alternates;
+}

@@ -732,6 +732,7 @@ exports[`Regression > internal 31`] = `
         <title>Redirect to d.md</title>
         <meta http-equiv="refresh" content="0; url=d.md">
         
+        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         
         <script type="application/javascript">

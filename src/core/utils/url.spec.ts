@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {isExternalHref, prettifyLink} from './url';
+import {buildAlterantes, isExternalHref, prettifyLink} from './url';
 
 describe('url utils', () => {
     describe('isExternalHref', () => {
@@ -100,6 +100,139 @@ describe('url utils', () => {
             expect(prettifyLink('./folder/index.html')).toBe('./folder/');
             expect(prettifyLink('../folder/index')).toBe('../folder/');
             expect(prettifyLink('../index')).toBe('../');
+        });
+    });
+
+    describe('buildAlterantes', () => {
+        it('should return alternate link object for another language (rootPath with trailing slash)', () => {
+            const result = buildAlterantes(
+                'http://127.0.0.1:5000/',
+                'en',
+                ['en', 'ru'],
+                'en/path'
+            );
+            
+            expect(result).toEqual([
+                {
+                    hreflang: 'ru',
+                    href: 'http://127.0.0.1:5000/ru/path'
+                }
+            ]);
+        });
+
+        it('should return alternate link object for another language (rootPath without trailing slash)', () => {
+            const result = buildAlterantes(
+                'http://127.0.0.1:5000',
+                'en',
+                ['en', 'ru'],
+                'en/path'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'ru',
+                    href: 'http://127.0.0.1:5000/ru/path'
+                }
+            ]);
+        });
+
+        it('should work with more than two languages', () => {
+            const result = buildAlterantes(
+                'https://example.com/',
+                'en',
+                ['en', 'ru', 'fr'],
+                'en/page'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'ru',
+                    href: 'https://example.com/ru/page'
+                },
+                {
+                    hreflang: 'fr',
+                    href: 'https://example.com/fr/page'
+                }
+            ]);
+        });
+
+        it('should remove only a language prefix at the start of pathname', () => {
+            const result = buildAlterantes(
+                'https://foo.bar/',
+                'ru',
+                ['en', 'ru', 'fr'],
+                'ru/somepage'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'en',
+                    href: 'https://foo.bar/en/somepage'
+                },
+                {
+                    hreflang: 'fr',
+                    href: 'https://foo.bar/fr/somepage'
+                }
+            ]);
+        });
+
+        it('should not change pathname if it does not start with language prefix', () => {
+            const result = buildAlterantes(
+                'https://baz.com/',
+                'en',
+                ['en', 'ru'],
+                'about'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'ru',
+                    href: 'https://baz.com/about'
+                }
+            ]);
+        });
+
+        it('should support root path (/) pathname', () => {
+            const result = buildAlterantes(
+                '/',
+                'en',
+                ['en', 'ru'],
+                'en/'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'ru',
+                    href: '/ru/'
+                }
+            ]);
+        });
+
+        it('should return empty array if only one language', () => {
+            const result = buildAlterantes(
+                '/root',
+                'en',
+                ['en'],
+                'en/page'
+            );
+
+            expect(result).toEqual([]);
+        });
+
+        it('should handle pathnames with multiple slashes or nested language codes', () => {
+            const result = buildAlterantes(
+                '/site',
+                'ru',
+                ['en', 'ru'],
+                'ru/docs/en/page'
+            );
+
+            expect(result).toEqual([
+                {
+                    hreflang: 'en',
+                    href: '/site/en/docs/en/page'
+                }
+            ]);
         });
     });
 });
