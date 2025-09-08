@@ -91,10 +91,25 @@ export class Defer<T = any> {
     }
 }
 
-export function wait(delay: number, action = () => {}) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay);
-    }).then(action);
+type CancelAPI = {
+    cancel: () => void;
+    skip: () => void;
+};
+
+export function wait(delay: number, action = () => {}): Promise<void> & CancelAPI {
+    let timeout: NodeJS.Timeout;
+    const promise = new Promise((resolve) => {
+        timeout = setTimeout(resolve, delay);
+    }).then(() => action());
+
+    Object.assign(promise, {
+        cancel: () => clearTimeout(timeout),
+        skip: () => {
+            action = () => {};
+        },
+    });
+
+    return promise as Promise<void> & CancelAPI;
 }
 
 export type Bucket<T> = {

@@ -171,6 +171,11 @@ export async function setup() {
 
     console.log('Wait for threads setup');
 
+    const reset = wait(30000, () => {
+        console.log('Threads setup timed out');
+        threads.length = 0;
+    });
+
     await race([
         all(
             threads.map(async (defer) => {
@@ -180,11 +185,8 @@ export async function setup() {
 
                 program.logger.subscribe(thread.logger());
             }),
-        ),
-        wait(30000, () => {
-            console.log('Threads setup timed out');
-            threads.length = 0;
-        }),
+        ).then(reset.skip),
+        reset,
     ]);
 }
 
