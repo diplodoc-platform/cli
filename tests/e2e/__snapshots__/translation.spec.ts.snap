@@ -1,5 +1,16 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Translate command > build translated md files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
+`;
+
 exports[`Translate command > build translated md files and remove no-translate directives 1`] = `
 "---
 metadata:
@@ -293,6 +304,17 @@ items:
             name: Simple get operation. тест новой верстки 3
 path: toc.yaml
 "
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
 `;
 
 exports[`Translate command > build translated static files and remove no-translate directives 1`] = `
@@ -590,6 +612,56 @@ path: toc.yaml
 "
 `;
 
+exports[`Translate command > do not filter files on extract > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/folder1/a1.md.skl",
+  "es/nested/folder1/a1.md.xliff",
+  "es/nested/folder1/toc-i.yaml.skl",
+  "es/nested/folder1/toc-i.yaml.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/not-in-toc.md.skl",
+  "es/nested/not-in-toc.md.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/not-in-toc.md.skl",
+  "es/not-in-toc.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract openapi spec files > filelist 1`] = `
+"[
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
 exports[`Translate command > extract openapi spec files 1`] = `
 "openapi: 3.0.1
 info:
@@ -705,6 +777,17 @@ exports[`Translate command > extract openapi spec files 4`] = `
     </body>
   </file>
 </xliff>"
+`;
+
+exports[`Translate command > extract yaml scheme files > filelist 1`] = `
+"[
+  "en/index-direct.yaml.skl",
+  "en/index-direct.yaml.xliff",
+  "en/index.yaml.skl",
+  "en/index.yaml.xliff",
+  "en/toc.yaml.skl",
+  "en/toc.yaml.xliff"
+]"
 `;
 
 exports[`Translate command > extract yaml scheme files 1`] = `
@@ -1071,6 +1154,106 @@ exports[`Translate command > extract yaml scheme files 6`] = `
     </body>
   </file>
 </xliff>"
+`;
+
+exports[`Translate command > filter files on extract > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > filter files on extract with extra exclude option > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > filter files on extract with extra vars option > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > test no-translate directive > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
 `;
 
 exports[`Translate command > test no-translate directive 1`] = `

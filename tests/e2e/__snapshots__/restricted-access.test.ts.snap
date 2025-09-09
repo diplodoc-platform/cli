@@ -1,5 +1,13 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Restricted access > Nested restricted access > filelist 1`] = `
+"[
+  "plugins/index.md",
+  "project/index.md",
+  "toc.yaml"
+]"
+`;
+
 exports[`Restricted access > Nested restricted access 1`] = `
 "---
 metadata:
@@ -48,6 +56,15 @@ items:
           - userB
 path: toc.yaml
 "
+`;
+
+exports[`Restricted access > Nested toc restricted access > filelist 1`] = `
+"[
+  "a1.md",
+  "folder1/a1.md",
+  "folder1/folder2/a1.md",
+  "toc.yaml"
+]"
 `;
 
 exports[`Restricted access > Nested toc restricted access 1`] = `
@@ -113,6 +130,17 @@ exports[`Restricted access > Nested toc restricted access 4`] = `
               - userBtoc3
 path: toc.yaml
 "
+`;
+
+exports[`Restricted access > Simple restricted access > filelist 1`] = `
+"[
+  "index.md",
+  "plugins/index.md",
+  "plugins/index2.md",
+  "plugins/index3.md",
+  "plugins/index4.md",
+  "toc.yaml"
+]"
 `;
 
 exports[`Restricted access > Simple restricted access 1`] = `

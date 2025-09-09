@@ -10,6 +10,6 @@ describe('Check bundles', () => {
             md2html: true,
             args: '-j2',
         });
-        await compareDirectories(outputPath, true, true);
+        await compareDirectories(outputPath, false, true);
     });
 });

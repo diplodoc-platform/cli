@@ -1,5 +1,14 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang > filelist 1`] = `
+"[
+  ".yfm",
+  "index.html",
+  "page.html",
+  "toc.js"
+]"
+`;
+
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang 1`] = `"langs: ['he']"`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang 2`] = `
@@ -11,13 +20,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="./" />
         <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-3"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-4"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -32,10 +35,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -49,13 +48,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="./" />
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-3"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-4"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -70,15 +63,24 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with only one rtl lang 4`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+
+exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs > filelist 1`] = `
+"[
+  ".yfm",
+  "ar/index.html",
+  "ar/page.html",
+  "ar/toc.js",
+  "en/index.html",
+  "en/page.html",
+  "en/toc.js",
+  "index.html"
+]"
+`;
 
 exports[`Generate html document with correct lang and dir attributes. Load correct bundles. > documentation with rtl and ltr langs 1`] = `"langs: ['ar', 'en']"`;
 
@@ -91,13 +93,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-3"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-4"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -112,10 +108,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ar/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -129,13 +121,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-2"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-3"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-4"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -150,10 +136,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ar/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -170,12 +152,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -190,10 +167,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -208,12 +181,7 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -228,10 +196,6 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -247,19 +211,13 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="./" />
         <title>Redirect to ./ar/index.html</title>
         <meta http-equiv="refresh" content="0; url=./ar/index.html">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
         <script type="application/javascript">
             window.location.replace("./ar/index.html");
         </script>
-        
     </head>
     <body class="g-root g-root_theme_light">
         If you are not redirected automatically, follow this <a href="./ar/index.html">link</a>.
-        
-        
-        
     </body>
 </html>"
 `;

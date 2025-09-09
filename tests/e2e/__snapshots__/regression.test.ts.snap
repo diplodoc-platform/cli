@@ -1,5 +1,65 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Regression > internal > filelist 1`] = `
+"[
+  ".yfm",
+  "1.md",
+  "autotitle.md",
+  "generic/1.md",
+  "generic/2.md",
+  "generic/3.md",
+  "generic/Sub notes/1.md",
+  "generic/Sub notes/2.md",
+  "images.md",
+  "included-item.md",
+  "includes.md",
+  "includes/deep-hash.md",
+  "includes/test-hash.md",
+  "includes/tools-hash.md",
+  "includes/user-hash.md",
+  "index.yaml",
+  "latex.md",
+  "merge/merge.md",
+  "merge/merged.md",
+  "merge/toc.yaml",
+  "mermaid.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "redirects.yaml",
+  "sub/folder/item-1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Regression > internal > filelist 2`] = `
+"[
+  ".yfm",
+  "1.html",
+  "autotitle.html",
+  "c.md",
+  "generic/1.html",
+  "generic/2.html",
+  "generic/3.html",
+  "generic/Sub notes/1.html",
+  "generic/Sub notes/2.html",
+  "images.html",
+  "included-item.html",
+  "includes.html",
+  "index.html",
+  "latex.html",
+  "merge/merge.html",
+  "merge/merged.html",
+  "merge/toc.js",
+  "mermaid.html",
+  "openapi/index.html",
+  "openapi/test-controller/getWithPayloadResponse.html",
+  "openapi/test-controller/index.html",
+  "sub/folder/item-1.html",
+  "toc.js"
+]"
+`;
+
 exports[`Regression > internal 1`] = `
 "preprocess:
   mergeAutotitles: true
@@ -605,12 +665,7 @@ exports[`Regression > internal 29`] = `
         <base href="./" />
         <title>Title</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -625,10 +680,6 @@ exports[`Regression > internal 29`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -642,12 +693,7 @@ exports[`Regression > internal 30`] = `
         <base href="./" />
         <title>Autotitles</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -662,10 +708,6 @@ exports[`Regression > internal 30`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -705,12 +747,7 @@ exports[`Regression > internal 32`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -725,10 +762,6 @@ exports[`Regression > internal 32`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -742,12 +775,7 @@ exports[`Regression > internal 33`] = `
         <base href="../" />
         <title>Note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -762,10 +790,6 @@ exports[`Regression > internal 33`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -779,12 +803,7 @@ exports[`Regression > internal 34`] = `
         <base href="../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -799,10 +818,6 @@ exports[`Regression > internal 34`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -816,12 +831,7 @@ exports[`Regression > internal 35`] = `
         <base href="../../" />
         <title>Sub note 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -836,10 +846,6 @@ exports[`Regression > internal 35`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -853,12 +859,7 @@ exports[`Regression > internal 36`] = `
         <base href="../../" />
         <title>Sub note 2</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -873,10 +874,6 @@ exports[`Regression > internal 36`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -890,12 +887,7 @@ exports[`Regression > internal 37`] = `
         <base href="./" />
         <title>Images</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -910,10 +902,6 @@ exports[`Regression > internal 37`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -927,12 +915,7 @@ exports[`Regression > internal 38`] = `
         <base href="./" />
         <title>Included item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -947,10 +930,6 @@ exports[`Regression > internal 38`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -964,12 +943,7 @@ exports[`Regression > internal 39`] = `
         <base href="./" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -984,10 +958,6 @@ exports[`Regression > internal 39`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -1001,12 +971,7 @@ exports[`Regression > internal 40`] = `
         <base href="./" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1021,10 +986,6 @@ exports[`Regression > internal 40`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -1038,13 +999,7 @@ exports[`Regression > internal 41`] = `
         <base href="./" />
         <title>Latex usage</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/latex-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1059,11 +1014,6 @@ exports[`Regression > internal 41`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/latex-extension.js"></script>
-        
     </body>
 </html>"
 `;
@@ -1077,12 +1027,7 @@ exports[`Regression > internal 42`] = `
         <base href="../" />
         <title>Should use merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1097,10 +1042,6 @@ exports[`Regression > internal 42`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="merge/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -1115,12 +1056,7 @@ exports[`Regression > internal 43`] = `
         <title>Merged item</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="sourcePath" content="merge-source/merged.md">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1135,10 +1071,6 @@ exports[`Regression > internal 43`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="merge/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -1154,12 +1086,7 @@ exports[`Regression > internal 45`] = `
         <base href="./" />
         <title>Mermaid usage</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1174,11 +1101,6 @@ exports[`Regression > internal 45`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/mermaid-extension.js"></script>
-        
     </body>
 </html>"
 `;
@@ -1192,13 +1114,7 @@ exports[`Regression > internal 46`] = `
         <base href="../" />
         <title>OpenAPI definition</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
-        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1213,11 +1129,6 @@ exports[`Regression > internal 46`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
-        
     </body>
 </html>"
 `;
@@ -1231,13 +1142,7 @@ exports[`Regression > internal 47`] = `
         <base href="../../" />
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
-        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1252,11 +1157,6 @@ exports[`Regression > internal 47`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
-        
     </body>
 </html>"
 `;
@@ -1270,12 +1170,7 @@ exports[`Regression > internal 48`] = `
         <base href="../../" />
         <title>test-controller</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1290,10 +1185,6 @@ exports[`Regression > internal 48`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -1307,12 +1198,7 @@ exports[`Regression > internal 49`] = `
         <base href="../../" />
         <title>Item 1</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1327,10 +1213,6 @@ exports[`Regression > internal 49`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        
     </body>
 </html>"
 `;
