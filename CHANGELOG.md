@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.9.5](https://github.com/diplodoc-platform/cli/compare/v5.9.4...v5.9.5) (2025-09-09)
+
+
+### Bug Fixes
+
+* Fix threads init race condition ([eabdf0b](https://github.com/diplodoc-platform/cli/commit/eabdf0b996dc0ce984eb44d549f79b8d49bf5d02))
+* single-page.json html prop ([827bf82](https://github.com/diplodoc-platform/cli/commit/827bf828d03937a6b8d1f80038137128b75208c3))
+
 ## [5.9.4](https://github.com/diplodoc-platform/cli/compare/v5.9.3...v5.9.4) (2025-09-05)
 
 
