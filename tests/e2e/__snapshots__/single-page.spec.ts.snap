@@ -140,7 +140,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 6`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation"},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;h2 data-original-article=\"ru/page.html\"&gt;Page Title&lt;a class=\"yfm-anchor\" aria-hidden=\"true\" href=\"ru/single-page.html#ru_page\" id=\"ru_page\"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lorem&lt;/p&gt;/n&lt;hr class=\"yfm-page__delimeter\"&gt;&lt;p&gt;Lorem&lt;/p&gt;/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation"},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

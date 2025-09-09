@@ -4,7 +4,7 @@ exports[`Check bundles > bundles list is correct > filelist 1`] = `
 "[
   ".yfm",
   "_bundle/app-css-1",
-  "_bundle/app-js-0",
+  "_bundle/app-js-2",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
