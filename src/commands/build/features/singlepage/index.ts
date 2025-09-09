@@ -12,6 +12,7 @@ import {Template} from '~/core/template';
 
 import {options} from './config';
 import {getSinglePageUrl, joinSinglePageResults} from './utils';
+import {normalizePath} from '~/core/utils';
 
 const SINGLE_PAGE_FILENAME = 'single-page.html';
 
@@ -101,7 +102,9 @@ export class SinglePage {
                 for (const toc of run.toc.tocs) {
                     const entries: SinglePageResult[] = [];
                     await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                        entries.push(results[item.href]);
+                        const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+
+                        entries.push(results[rebasedItemHref]);
 
                         return item;
                     });
