@@ -1,0 +1,34 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Check bundles > bundles list is correct > filelist 1`] = `
+"[
+  ".yfm",
+  "_bundle/app-css-1",
+  "_bundle/app-js-0",
+  "_bundle/latex-extension.css",
+  "_bundle/latex-extension.js",
+  "_bundle/mermaid-extension.js",
+  "_bundle/page-constructor-extension.css",
+  "_bundle/page-constructor-extension.js",
+  "_bundle/search-async-0",
+  "_bundle/search-async-1",
+  "_bundle/search-css-0",
+  "_bundle/search-css-1",
+  "_bundle/search-css-2",
+  "_bundle/search-css-3",
+  "_bundle/search-css-4",
+  "_bundle/search-js-0",
+  "_bundle/search-js-1",
+  "_bundle/search-js-2",
+  "_search/api.js",
+  "_search/ru/hash-resources.js",
+  "_search/ru/hash-index.js",
+  "_search/ru/hash-registry.js",
+  "_search/ru/index.html",
+  "_search/ru/language.js",
+  "index.html",
+  "page1.html",
+  "page2.html",
+  "toc.js"
+]"
+`;

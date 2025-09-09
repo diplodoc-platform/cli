@@ -1,21 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Include toc > Nested toc inclusions with mixed including modes > filelist 1`] = `
-"[
-  "product1/_includes/inc-hash.md",
-  "product1/article1.md",
-  "product1/toc.yaml",
-  "product2/overlay1/_includes/inc-hash.md",
-  "product2/overlay1/article1.md",
-  "product2/overlay2/_includes/inc-hash.md",
-  "product2/overlay2/article1.md",
-  "product2/overlay3/_includes/inc-hash.md",
-  "product2/overlay3/article1.md",
-  "product2/p2.md",
-  "product2/toc.yaml"
-]"
-`;
-
 exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `"This is the core include."`;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
@@ -29,12 +13,6 @@ This is the core content of Article 1.
 
 {% include [x](_includes/inc-hash.md) %}
 "
-`;
-
-exports[`Include toc > Nested toc inclusions with mixed including modes 2 > filelist 1`] = `
-"[
-  "toc.yaml"
-]"
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 2 1`] = `
@@ -148,15 +126,6 @@ path: product2/toc.yaml
 "
 `;
 
-exports[`Include toc > Toc is included in link mode > filelist 1`] = `
-"[
-  "a1.md",
-  "folder1/a1.md",
-  "folder1/folder2/a1.md",
-  "toc.yaml"
-]"
-`;
-
 exports[`Include toc > Toc is included in link mode 1`] = `
 "---
 metadata:
@@ -201,18 +170,6 @@ exports[`Include toc > Toc is included in link mode 4`] = `
             href: folder1/folder2/a1.md
 path: toc.yaml
 "
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section > filelist 1`] = `
-"[
-  ".yfm",
-  "file1.md",
-  "fileA.md",
-  "fileB.md",
-  "fileC.md",
-  "fileX.md",
-  "toc.yaml"
-]"
 `;
 
 exports[`Include toc > Toc is included inline, not as a new section 1`] = `
@@ -305,14 +262,6 @@ path: toc.yaml
 "
 `;
 
-exports[`Include toc > Toc root merge on non root dir > filelist 1`] = `
-"[
-  ".yfm",
-  "ru/index.yaml",
-  "ru/toc.yaml"
-]"
-`;
-
 exports[`Include toc > Toc root merge on non root dir 1`] = `
 "allowHtml: true
 "
@@ -339,14 +288,6 @@ items:
     href: index.yaml
 path: ru/toc.yaml
 "
-`;
-
-exports[`Include toc > Toc with expressions > filelist 1`] = `
-"[
-  "a1.md",
-  "index.yaml",
-  "toc.yaml"
-]"
 `;
 
 exports[`Include toc > Toc with expressions 1`] = `
@@ -383,17 +324,6 @@ items:
     href: a1.md
 path: toc.yaml
 "
-`;
-
-exports[`Include toc > Toc with generic includer > filelist 1`] = `
-"[
-  "test/index.md",
-  "test/sub/sub-1.md",
-  "test/sub/sub-2.md",
-  "test/sub/sub/sub-3.md",
-  "test/test.md",
-  "toc.yaml"
-]"
 `;
 
 exports[`Include toc > Toc with generic includer 1`] = `

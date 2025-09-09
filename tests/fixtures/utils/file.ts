@@ -12,7 +12,7 @@ export function getFileContent(filePath: string) {
 const uselessFile = (file: string) =>
     !['_bundle/', '_assets/', '_search/'].some((part) => file.includes(part));
 
-export async function compareDirectories(outputPath: string, ignoreFileContent = false) {
+export async function compareDirectories(outputPath: string, ignoreFileContent = false, checkBundle = false) {
     const filesFromOutput = (
         await glob(`**/*`, {
             cwd: outputPath,
@@ -23,7 +23,9 @@ export async function compareDirectories(outputPath: string, ignoreFileContent =
         })
     ).map(bundleless).sort();
 
-    expect(hashless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
+    if (checkBundle) {
+        expect(hashless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
+    }
 
     if (!ignoreFileContent) {
         filesFromOutput.filter(uselessFile).forEach((filePath) => {

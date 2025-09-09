@@ -1,0 +1,13 @@
+allowHTML: true
+
+meta:
+  rootPath: http://127.0.0.1:5000/
+
+interface:
+  toc-header: false
+  favicon-src: https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased

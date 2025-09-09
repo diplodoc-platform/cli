@@ -1,28 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
-"[
-  ".yfm",
-  "1.md",
-  "_assets/1.png",
-  "_assets/1.svg",
-  "autotitle.md",
-  "images.md",
-  "included-item.md",
-  "includes.md",
-  "includes/deep-hash.md",
-  "includes/deepWithIndent-hash.md",
-  "includes/sub/user-hash.md",
-  "includes/sub/userWithIndent-hash.md",
-  "includes/test-hash.md",
-  "includes/user-hash.md",
-  "latex.md",
-  "mermaid.md",
-  "sub/folder/item-1.md",
-  "toc.yaml"
-]"
-`;
-
 exports[`Preprocess > HashIncludes=true,Autotitles=false 1`] = `
 "allowHtml: true
 "
@@ -272,29 +249,6 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 16`] = `
     href: includes.md
 path: toc.yaml
 "
-`;
-
-exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
-"[
-  ".yfm",
-  "1.md",
-  "_assets/1.png",
-  "_assets/1.svg",
-  "autotitle.md",
-  "images.md",
-  "included-item.md",
-  "includes.md",
-  "includes/deep-hash.md",
-  "includes/deepWithIndent-hash.md",
-  "includes/sub/user-hash.md",
-  "includes/sub/userWithIndent-hash.md",
-  "includes/test-hash.md",
-  "includes/user-hash.md",
-  "latex.md",
-  "mermaid.md",
-  "sub/folder/item-1.md",
-  "toc.yaml"
-]"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 1`] = `

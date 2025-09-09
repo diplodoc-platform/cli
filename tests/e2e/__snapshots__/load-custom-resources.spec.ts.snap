@@ -1,37 +1,5 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Allow load custom resources > md2html single page with custom resources > filelist 1`] = `
-"[
-  ".yfm",
-  "_assets/script/test1.js",
-  "_assets/style/test.css",
-  "_bundle/app-css-1",
-  "_bundle/app-js-2",
-  "_bundle/latex-extension.css",
-  "_bundle/latex-extension.js",
-  "_bundle/mermaid-extension.js",
-  "_bundle/page-constructor-extension.css",
-  "_bundle/page-constructor-extension.js",
-  "_bundle/search-async-0",
-  "_bundle/search-async-1",
-  "_bundle/search-css-0",
-  "_bundle/search-css-1",
-  "_bundle/search-css-2",
-  "_bundle/search-css-3",
-  "_bundle/search-css-4",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search-js-2",
-  "index.html",
-  "page.html",
-  "project/config.html",
-  "single-page-toc.js",
-  "single-page.html",
-  "single-page.json",
-  "toc.js"
-]"
-`;
-
 exports[`Allow load custom resources > md2html single page with custom resources 1`] = `
 "resources:
   style:
@@ -72,9 +40,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -113,9 +81,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -152,9 +120,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -195,9 +163,9 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="single-page-toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -207,35 +175,6 @@ exports[`Allow load custom resources > md2html single page with custom resources
 exports[`Allow load custom resources > md2html single page with custom resources 7`] = `"{"data":{"leading":false,"html":"<h2 data-original-article=\\"page.html\\">Page Title<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#page\\" id=\\"page\\"></a></h2><p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"style":["_assets/style/test.css"],"script":["_assets/script/test1.js"],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation","toc":{"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"single-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}"`;
 
 exports[`Allow load custom resources > md2html single page with custom resources 8`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Allow load custom resources > md2html with custom resources > filelist 1`] = `
-"[
-  ".yfm",
-  "_assets/script/test1.js",
-  "_assets/style/test.css",
-  "_bundle/app-css-1",
-  "_bundle/app-js-2",
-  "_bundle/latex-extension.css",
-  "_bundle/latex-extension.js",
-  "_bundle/mermaid-extension.js",
-  "_bundle/page-constructor-extension.css",
-  "_bundle/page-constructor-extension.js",
-  "_bundle/search-async-0",
-  "_bundle/search-async-1",
-  "_bundle/search-css-0",
-  "_bundle/search-css-1",
-  "_bundle/search-css-2",
-  "_bundle/search-css-3",
-  "_bundle/search-css-4",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search-js-2",
-  "index.html",
-  "page.html",
-  "project/config.html",
-  "toc.js"
-]"
-`;
 
 exports[`Allow load custom resources > md2html with custom resources 1`] = `
 "resources:
@@ -277,9 +216,9 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -318,9 +257,9 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -357,9 +296,9 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         <script type="application/javascript" defer src="_assets/script/test1.js"></script>
         
     </body>
@@ -367,18 +306,6 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
 `;
 
 exports[`Allow load custom resources > md2html with custom resources 5`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"index.html","items":[{"name":"Documentation","href":"page.html","id":"UUID"},{"name":"Config","href":"project/config.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Allow load custom resources > md2md with custom resources > filelist 1`] = `
-"[
-  ".yfm",
-  "_assets/script/test1.js",
-  "_assets/style/test.css",
-  "index.yaml",
-  "page.md",
-  "project/config.md",
-  "toc.yaml"
-]"
-`;
 
 exports[`Allow load custom resources > md2md with custom resources 1`] = `
 "resources:
