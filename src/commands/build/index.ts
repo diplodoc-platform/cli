@@ -227,7 +227,6 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await this.concurrently(this.run.toc.tocs, this.processToc);
         this.run.meta.addAvailableLangs(entries, langs);
 
-
         console.log('Process project files');
         await this.concurrently(entries, async (entry) => {
             try {
