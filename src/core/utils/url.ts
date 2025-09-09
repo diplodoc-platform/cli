@@ -80,13 +80,17 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
     }
 }
 
-export function buildAlterantes(rootPath: string, lang: string, availableLangs: string[], pathname: string) {
+export function buildAlterantes(
+    rootPath: string,
+    lang: string,
+    availableLangs: string[],
+    pathname: string,
+) {
     if (!rootPath) return [];
-    
-    const alternates = [];
-    const alterateLangs = availableLangs.filter(l => l !== lang);
-    const divider = rootPath.at(-1) === '/' ? '' : '/';
 
+    const alternates = [];
+    const alterateLangs = availableLangs.filter((l) => l !== lang);
+    const divider = rootPath.at(-1) === '/' ? '' : '/';
 
     for (const alternateLang of alterateLangs) {
         const alternatePathname = pathname.replace(/^[a-z]{2}\//, `${alternateLang}/`);

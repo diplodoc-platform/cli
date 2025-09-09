@@ -105,34 +105,24 @@ describe('url utils', () => {
 
     describe('buildAlterantes', () => {
         it('should return alternate link object for another language (rootPath with trailing slash)', () => {
-            const result = buildAlterantes(
-                'http://127.0.0.1:5000/',
-                'en',
-                ['en', 'ru'],
-                'en/path'
-            );
-            
+            const result = buildAlterantes('http://127.0.0.1:5000/', 'en', ['en', 'ru'], 'en/path');
+
             expect(result).toEqual([
                 {
                     hreflang: 'ru',
-                    href: 'http://127.0.0.1:5000/ru/path'
-                }
+                    href: 'http://127.0.0.1:5000/ru/path',
+                },
             ]);
         });
 
         it('should return alternate link object for another language (rootPath without trailing slash)', () => {
-            const result = buildAlterantes(
-                'http://127.0.0.1:5000',
-                'en',
-                ['en', 'ru'],
-                'en/path'
-            );
+            const result = buildAlterantes('http://127.0.0.1:5000', 'en', ['en', 'ru'], 'en/path');
 
             expect(result).toEqual([
                 {
                     hreflang: 'ru',
-                    href: 'http://127.0.0.1:5000/ru/path'
-                }
+                    href: 'http://127.0.0.1:5000/ru/path',
+                },
             ]);
         });
 
@@ -141,18 +131,18 @@ describe('url utils', () => {
                 'https://example.com/',
                 'en',
                 ['en', 'ru', 'fr'],
-                'en/page'
+                'en/page',
             );
 
             expect(result).toEqual([
                 {
                     hreflang: 'ru',
-                    href: 'https://example.com/ru/page'
+                    href: 'https://example.com/ru/page',
                 },
                 {
                     hreflang: 'fr',
-                    href: 'https://example.com/fr/page'
-                }
+                    href: 'https://example.com/fr/page',
+                },
             ]);
         });
 
@@ -161,77 +151,57 @@ describe('url utils', () => {
                 'https://foo.bar/',
                 'ru',
                 ['en', 'ru', 'fr'],
-                'ru/somepage'
+                'ru/somepage',
             );
 
             expect(result).toEqual([
                 {
                     hreflang: 'en',
-                    href: 'https://foo.bar/en/somepage'
+                    href: 'https://foo.bar/en/somepage',
                 },
                 {
                     hreflang: 'fr',
-                    href: 'https://foo.bar/fr/somepage'
-                }
+                    href: 'https://foo.bar/fr/somepage',
+                },
             ]);
         });
 
         it('should not change pathname if it does not start with language prefix', () => {
-            const result = buildAlterantes(
-                'https://baz.com/',
-                'en',
-                ['en', 'ru'],
-                'about'
-            );
+            const result = buildAlterantes('https://baz.com/', 'en', ['en', 'ru'], 'about');
 
             expect(result).toEqual([
                 {
                     hreflang: 'ru',
-                    href: 'https://baz.com/about'
-                }
+                    href: 'https://baz.com/about',
+                },
             ]);
         });
 
         it('should support root path (/) pathname', () => {
-            const result = buildAlterantes(
-                '/',
-                'en',
-                ['en', 'ru'],
-                'en/'
-            );
+            const result = buildAlterantes('/', 'en', ['en', 'ru'], 'en/');
 
             expect(result).toEqual([
                 {
                     hreflang: 'ru',
-                    href: '/ru/'
-                }
+                    href: '/ru/',
+                },
             ]);
         });
 
         it('should return empty array if only one language', () => {
-            const result = buildAlterantes(
-                '/root',
-                'en',
-                ['en'],
-                'en/page'
-            );
+            const result = buildAlterantes('/root', 'en', ['en'], 'en/page');
 
             expect(result).toEqual([]);
         });
 
         it('should handle pathnames with multiple slashes or nested language codes', () => {
-            const result = buildAlterantes(
-                '/site',
-                'ru',
-                ['en', 'ru'],
-                'ru/docs/en/page'
-            );
+            const result = buildAlterantes('/site', 'ru', ['en', 'ru'], 'ru/docs/en/page');
 
             expect(result).toEqual([
                 {
                     hreflang: 'en',
-                    href: '/site/en/docs/en/page'
-                }
+                    href: '/site/en/docs/en/page',
+                },
             ]);
         });
     });

@@ -12,7 +12,16 @@ import {render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
-import {Graph, VFile, buildAlterantes, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
+import {
+    Graph,
+    VFile,
+    buildAlterantes,
+    copyJson,
+    getDepth,
+    getDepthPath,
+    langFromPath,
+    setExt,
+} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';

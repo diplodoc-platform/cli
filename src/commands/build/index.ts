@@ -221,6 +221,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         this.run.meta.addAvailableLangs(entries, langs);
 
+        console.log('Sync project data');
+        await this.sync(this.run.toc.relations, vcs);
+
         await this.concurrently(this.run.toc.tocs, this.processToc);
         this.run.meta.addAvailableLangs(entries, langs);
 
