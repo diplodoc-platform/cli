@@ -29,7 +29,7 @@ type MarkdownServiceConfig = {
         enabled: boolean;
         features: {
             substitutions: boolean;
-            conditions: boolean;
+            conditions?: boolean | 'strict';
         };
         scopes: {
             code: boolean;
@@ -396,6 +396,7 @@ export class MarkdownService {
                 conditions: this.config.template.features.conditions,
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.outputFormat === 'md',
+                keepConditionSyntaxOnTrue: this.options.mode === 'translate',
             },
             options: {
                 disableLiquid: !this.config.template.enabled,
