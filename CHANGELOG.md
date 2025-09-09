@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.0](https://github.com/diplodoc-platform/cli/compare/v5.9.5...v5.10.0) (2025-09-09)
+
+
+### Features
+
+* added checkBundle to compareDirectories ([#1391](https://github.com/diplodoc-platform/cli/issues/1391)) ([c3793ee](https://github.com/diplodoc-platform/cli/commit/c3793eeef8f5448fc6da0c8b17500db6cf81f927))
+
 ## [5.9.5](https://github.com/diplodoc-platform/cli/compare/v5.9.4...v5.9.5) (2025-09-09)
 
 
