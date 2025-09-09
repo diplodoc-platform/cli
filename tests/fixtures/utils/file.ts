@@ -5,14 +5,38 @@ import {glob} from 'glob';
 import {bundleless, hashless, platformless} from './test';
 import {expect} from 'vitest';
 
+const SYSTEM_DIRS = ['_bundle/', '_search/'];
+
 export function getFileContent(filePath: string) {
     return platformless(bundleless(readFileSync(filePath, 'utf8')));
 }
 
-const uselessFile = (file: string) =>
-    !['_bundle/', '_assets/', '_search/'].some((part) => file.includes(part));
+const uselessFile = (file: string, dirs: string[]) =>
+    !dirs.some((part) => file.includes(part));
 
-export async function compareDirectories(outputPath: string, ignoreFileContent = false) {
+export function stripSystemLinks(content: string) {
+    const dirPattern = SYSTEM_DIRS.map(d => d.replace('/', '\\/')).join('|');
+
+    content = content.replace(
+        new RegExp(`<script[^>]+src="(?:${dirPattern})[^"]*"[^>]*></script>`, 'g'),
+        ''
+    );
+
+    content = content.replace(
+        new RegExp(`<link[^>]+href="(?:${dirPattern})[^"]*"[^>]*\\/?>`, 'g'),
+        ''
+    );
+
+    content = content.replace(/^[ \t]*\r?\n/gm, '');
+
+    return content;
+}
+
+export async function compareDirectories(
+    outputPath: string,
+    ignoreFileContent = false,
+    checkBundle = false,
+) {
     const filesFromOutput = (
         await glob(`**/*`, {
             cwd: outputPath,
@@ -23,11 +47,24 @@ export async function compareDirectories(outputPath: string, ignoreFileContent =
         })
     ).map(bundleless).sort();
 
-    expect(hashless(JSON.stringify(filesFromOutput, null, 2))).toMatchSnapshot('filelist');
+    let filesForSnapshot;
+
+    if (checkBundle) {
+        filesForSnapshot = filesFromOutput;
+    } else {
+        filesForSnapshot = filesFromOutput.filter(file => uselessFile(file, SYSTEM_DIRS));
+    }
+
+    expect(hashless(JSON.stringify(filesForSnapshot, null, 2))).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {
-        filesFromOutput.filter(uselessFile).forEach((filePath) => {
-            const content = getFileContent(resolve(outputPath, filePath));
+        filesFromOutput.filter(file => uselessFile(file, ['_assets/', ...SYSTEM_DIRS])).forEach((filePath) => {
+            let content = getFileContent(resolve(outputPath, filePath));
+
+            if (!checkBundle && filePath.endsWith('.html')) {
+                content = stripSystemLinks(content);
+            }
+
             expect(content).toMatchSnapshot();
         });
     }
