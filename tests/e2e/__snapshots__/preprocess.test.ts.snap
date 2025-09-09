@@ -4,6 +4,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
 "[
   ".yfm",
   "1.md",
+  "_assets/1.png",
+  "_assets/1.svg",
   "autotitle.md",
   "images.md",
   "included-item.md",
@@ -276,6 +278,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
 "[
   ".yfm",
   "1.md",
+  "_assets/1.png",
+  "_assets/1.svg",
   "autotitle.md",
   "images.md",
   "included-item.md",

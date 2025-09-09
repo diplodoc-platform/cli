@@ -3,6 +3,8 @@
 exports[`Allow load custom resources > md2html single page with custom resources > filelist 1`] = `
 "[
   ".yfm",
+  "_assets/script/test1.js",
+  "_assets/style/test.css",
   "index.html",
   "page.html",
   "project/config.html",
@@ -33,6 +35,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -47,6 +50,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -64,6 +68,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="description" content="Some test description">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -78,6 +83,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -92,6 +98,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -106,6 +113,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -125,6 +133,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="description" content="Some test description">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -139,6 +148,7 @@ exports[`Allow load custom resources > md2html single page with custom resources
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="single-page-toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -150,6 +160,8 @@ exports[`Allow load custom resources > md2html single page with custom resources
 exports[`Allow load custom resources > md2html with custom resources > filelist 1`] = `
 "[
   ".yfm",
+  "_assets/script/test1.js",
+  "_assets/style/test.css",
   "index.html",
   "page.html",
   "project/config.html",
@@ -177,6 +189,7 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -191,6 +204,7 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -208,6 +222,7 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
         <meta name="description" content="Some test description">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -222,6 +237,7 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -236,6 +252,7 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -250,6 +267,7 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/script/test1.js"></script>
     </body>
 </html>"
 `;
@@ -259,6 +277,8 @@ exports[`Allow load custom resources > md2html with custom resources 5`] = `"win
 exports[`Allow load custom resources > md2md with custom resources > filelist 1`] = `
 "[
   ".yfm",
+  "_assets/script/test1.js",
+  "_assets/style/test.css",
   "index.yaml",
   "page.md",
   "project/config.md",

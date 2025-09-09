@@ -5,14 +5,14 @@ import {glob} from 'glob';
 import {bundleless, hashless, platformless} from './test';
 import {expect} from 'vitest';
 
-const SYSTEM_DIRS = ['_bundle/', '_assets/', '_search/'];
+const SYSTEM_DIRS = ['_bundle/', '_search/'];
 
 export function getFileContent(filePath: string) {
     return platformless(bundleless(readFileSync(filePath, 'utf8')));
 }
 
-const uselessFile = (file: string) =>
-    !SYSTEM_DIRS.some((part) => file.includes(part));
+const uselessFile = (file: string, dirs: string[]) =>
+    !dirs.some((part) => file.includes(part));
 
 export function stripSystemLinks(content: string) {
     const dirPattern = SYSTEM_DIRS.map(d => d.replace('/', '\\/')).join('|');
@@ -52,13 +52,13 @@ export async function compareDirectories(
     if (checkBundle) {
         filesForSnapshot = filesFromOutput;
     } else {
-        filesForSnapshot = filesFromOutput.filter(uselessFile);
+        filesForSnapshot = filesFromOutput.filter(file => uselessFile(file, SYSTEM_DIRS));
     }
 
     expect(hashless(JSON.stringify(filesForSnapshot, null, 2))).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {
-        filesFromOutput.filter(uselessFile).forEach((filePath) => {
+        filesFromOutput.filter(file => uselessFile(file, ['_assets/', ...SYSTEM_DIRS])).forEach((filePath) => {
             let content = getFileContent(resolve(outputPath, filePath));
 
             if (!checkBundle && filePath.endsWith('.html')) {

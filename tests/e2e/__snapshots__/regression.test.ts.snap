@@ -4,6 +4,11 @@ exports[`Regression > internal > filelist 1`] = `
 "[
   ".yfm",
   "1.md",
+  "_assets/1.png",
+  "_assets/2.png",
+  "_assets/3.png",
+  "_assets/5_1.png",
+  "_assets/empty.pdf",
   "autotitle.md",
   "generic/1.md",
   "generic/2.md",
@@ -36,6 +41,11 @@ exports[`Regression > internal > filelist 2`] = `
 "[
   ".yfm",
   "1.html",
+  "_assets/1.png",
+  "_assets/2.png",
+  "_assets/3.png",
+  "_assets/5_1.png",
+  "_assets/empty.pdf",
   "autotitle.html",
   "c.md",
   "generic/1.html",
@@ -1115,6 +1125,7 @@ exports[`Regression > internal 46`] = `
         <title>OpenAPI definition</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1129,6 +1140,7 @@ exports[`Regression > internal 46`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
     </body>
 </html>"
 `;
@@ -1143,6 +1155,7 @@ exports[`Regression > internal 47`] = `
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -1157,6 +1170,7 @@ exports[`Regression > internal 47`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
+        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
     </body>
 </html>"
 `;
