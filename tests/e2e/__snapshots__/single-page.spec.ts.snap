@@ -2,23 +2,6 @@
 
 exports[`Single page mode > simple md2html single page with lang dirs > filelist 1`] = `
 "[
-  "_bundle/app-css-1",
-  "_bundle/app-js-2",
-  "_bundle/latex-extension.css",
-  "_bundle/latex-extension.js",
-  "_bundle/mermaid-extension.js",
-  "_bundle/page-constructor-extension.css",
-  "_bundle/page-constructor-extension.js",
-  "_bundle/search-async-0",
-  "_bundle/search-async-1",
-  "_bundle/search-css-0",
-  "_bundle/search-css-1",
-  "_bundle/search-css-2",
-  "_bundle/search-css-3",
-  "_bundle/search-css-4",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search-js-2",
   "index.html",
   "ru/index.html",
   "ru/page.html",
@@ -39,19 +22,13 @@ exports[`Single page mode > simple md2html single page with lang dirs 1`] = `
         <base href="./" />
         <title>Redirect to ./ru/index.html</title>
         <meta http-equiv="refresh" content="0; url=./ru/index.html">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
         <script type="application/javascript">
             window.location.replace("./ru/index.html");
         </script>
-        
     </head>
     <body class="g-root g-root_theme_light">
         If you are not redirected automatically, follow this <a href="./ru/index.html">link</a>.
-        
-        
-        
     </body>
 </html>"
 `;
@@ -66,12 +43,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 2`] = `
         <title>Documentation | Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="noIndex" content="true">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -86,10 +58,6 @@ exports[`Single page mode > simple md2html single page with lang dirs 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -105,12 +73,8 @@ exports[`Single page mode > simple md2html single page with lang dirs 3`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -125,10 +89,6 @@ exports[`Single page mode > simple md2html single page with lang dirs 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -142,12 +102,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 4`] = `
         <base href="../../" />
         <title>Documentation</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -162,10 +117,6 @@ exports[`Single page mode > simple md2html single page with lang dirs 4`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
-        
     </body>
 </html>"
 `;
@@ -183,17 +134,13 @@ exports[`Single page mode > simple md2html single page with lang dirs 6`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
-        
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 data-original-article=\\"ru/page.html\\"&gt;Page Title&lt;a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"ru/single-page.html#ru_page\\" id=\\"ru_page\\"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;Lorem&lt;/p&gt;/n&lt;hr class=\\"yfm-page__delimeter\\"&gt;&lt;p&gt;Lorem&lt;/p&gt;/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation"},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation"},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -203,14 +150,10 @@ exports[`Single page mode > simple md2html single page with lang dirs 6`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="ru/single-page-toc.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
-        
     </body>
 </html>"
 `;
 
-exports[`Single page mode > simple md2html single page with lang dirs 7`] = `"{"data":{"leading":false,"html":"<h2 data-original-article=\\"ru/page.html\\">Page Title<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"ru/single-page.html#ru_page\\" id=\\"ru_page\\"></a></h2><p>Lorem</p>/n<hr class=\\"yfm-page__delimeter\\"><p>Lorem</p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation","toc":{"title":"Documentation","href":"ru/index.html","items":[{"name":"Documentation","href":"ru/page.html","id":"UUID"},{"name":"Config","href":"ru/project/config.html","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"}},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}"`;
+exports[`Single page mode > simple md2html single page with lang dirs 7`] = `"{"data":{"leading":false,"html":"","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"}},"title":"Documentation","toc":{"title":"Documentation","href":"ru/index.html","items":[{"name":"Documentation","href":"ru/page.html","id":"UUID"},{"name":"Config","href":"ru/project/config.html","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"}},"router":{"pathname":"ru/single-page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}"`;
 
 exports[`Single page mode > simple md2html single page with lang dirs 8`] = `"window.__DATA__.data.toc = {"title":"Documentation","href":"ru/index.html","items":[{"name":"Documentation","href":"ru/page.html","id":"UUID"},{"name":"Config","href":"ru/project/config.html","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
