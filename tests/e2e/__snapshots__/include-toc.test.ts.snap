@@ -24,6 +24,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product1/core/article1.md
+vcsPath: product1/core/article1.md
 ---
 This is the core content of Article 1.
 
@@ -72,6 +73,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay1/product/article1.md
+vcsPath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -90,6 +92,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay2/product/article1.md
+vcsPath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -108,6 +111,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/core/article1.md
+vcsPath: product2/core/article1.md
 ---
 This is the core content of Article 1.
 
@@ -120,6 +124,8 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 10`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: product2/p2.md
+sourcePath: product2/p2.md
 ---
 This is the product 2 specific article.
 
@@ -162,6 +168,8 @@ exports[`Include toc > Toc is included in link mode 1`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+sourcePath: a1.md
 ---
 This is the /a1.md file content.
 "
@@ -172,6 +180,8 @@ exports[`Include toc > Toc is included in link mode 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: folder1/a1.md
+sourcePath: folder1/a1.md
 ---
 This is the /folder1/a1.md file content.
 "
@@ -182,6 +192,8 @@ exports[`Include toc > Toc is included in link mode 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: folder1/folder2/a1.md
+sourcePath: folder1/folder2/a1.md
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -225,6 +237,8 @@ exports[`Include toc > Toc is included inline, not as a new section 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: file1.md
+sourcePath: file1.md
 ---
 # File 1
 "
@@ -238,6 +252,7 @@ metadata:
 sourcePath: folder/fileA.md
 title: File A
 description: YFM description
+vcsPath: folder/fileA.md
 ---
 # File A
 
@@ -255,6 +270,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/fileB.md
+vcsPath: folder/fileB.md
 ---
 # File B
 
@@ -274,6 +290,7 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/folder/fileC.md
+vcsPath: folder/folder/fileC.md
 ---
 # File C
 "
@@ -284,6 +301,8 @@ exports[`Include toc > Toc is included inline, not as a new section 6`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: fileX.md
+sourcePath: fileX.md
 ---
 # File X
 "
@@ -329,6 +348,7 @@ meta:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
   sourcePath: ru/sub/folder/index.yaml
+  vcsPath: ru/sub/folder/index.yaml
 "
 `;
 
@@ -354,6 +374,8 @@ exports[`Include toc > Toc with expressions 1`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+sourcePath: a1.md
 ---
 This is the /a1.md file content.
 "
@@ -368,6 +390,8 @@ meta:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
   title: Meta A
+  vcsPath: index.yaml
+  sourcePath: index.yaml
 links:
   - title: A1
     description: A1 desc
@@ -401,6 +425,8 @@ exports[`Include toc > Toc with generic includer 1`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+sourcePath: test/index.md
 ---
 # H1
 
@@ -414,6 +440,8 @@ exports[`Include toc > Toc with generic includer 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+sourcePath: test/sub/sub-1.md
 ---
 # H1
 
@@ -428,6 +456,8 @@ exports[`Include toc > Toc with generic includer 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+sourcePath: test/sub/sub-2.md
 ---
 # H1"
 `;
@@ -437,6 +467,8 @@ exports[`Include toc > Toc with generic includer 4`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+sourcePath: test/sub/sub/sub-3.md
 ---
 # H1"
 `;
@@ -446,6 +478,8 @@ exports[`Include toc > Toc with generic includer 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+sourcePath: test/test.md
 ---
 # H1"
 `;

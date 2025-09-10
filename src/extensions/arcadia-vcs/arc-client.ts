@@ -1,9 +1,9 @@
+import type {LogConfig} from './types';
+
 import {relative} from 'node:path';
 import {execa} from 'execa';
 import {minimatch} from 'minimatch';
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
-
-import type {LogConfig} from './types';
 
 export interface AuthorInfo {
     login: string;
@@ -22,7 +22,7 @@ export class ArcClient {
 
     @memoize()
     async getBase() {
-        const root = await arc('root');
+        const root = await this.run('root');
         return normalizePath(relative(root, this.root)) || ('.' as NormalizedPath);
     }
 
@@ -201,7 +201,7 @@ export class ArcClient {
     }
 
     private async lastCommit() {
-        const record = await arc('log', '-n1', '--oneline');
+        const record = await this.run('log', '-n1', '--oneline');
         const [commit] = record.split(' ');
         return commit;
     }
@@ -211,15 +211,21 @@ export class ArcClient {
         if (this.config.vcs.initialCommit) {
             filter.unshift(`${await this.lastCommit()}..${this.config.vcs.initialCommit}`);
         }
-        return arc('log', '--name-status', ...filter);
+        return this.run('log', '--name-status', ...filter);
+    }
+
+    private async run(...args: string[]) {
+        const cwd = await arc(this.root, 'root');
+
+        return arc(cwd, ...args);
     }
 }
 
 //
 
-async function arc(...args: string[]) {
+async function arc(cwd: string, ...args: string[]) {
     const {stdout, stderr} = await execa('arc', args, {
-        cwd: (await execa('arc', ['root'])).stdout,
+        cwd,
         buffer: true,
         maxBuffer: 1024 * 1024 * 64,
     });

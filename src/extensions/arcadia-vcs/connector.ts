@@ -2,8 +2,10 @@ import type {Run} from '@diplodoc/cli/lib/run';
 import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
+import {dirname} from 'node:path';
 import {uniqBy} from 'lodash';
 import {bounded, normalizePath} from '@diplodoc/cli/lib/utils';
+import {configPath} from '@diplodoc/cli/lib/config';
 
 import {ArcClient} from './arc-client';
 
@@ -20,7 +22,7 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     constructor(run: Run<Config>) {
         this.config = run.config;
-        this.arc = new ArcClient(this.config, run.originalInput);
+        this.arc = new ArcClient(run.config, dirname(run.config[configPath] as AbsolutePath));
     }
 
     async init() {
