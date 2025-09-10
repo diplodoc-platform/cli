@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.1](https://github.com/diplodoc-platform/cli/compare/v5.10.0...v5.10.1) (2025-09-10)
+
+
+### Bug Fixes
+
+* sorted filesForSnapshot ([#1393](https://github.com/diplodoc-platform/cli/issues/1393)) ([fd9b5c1](https://github.com/diplodoc-platform/cli/commit/fd9b5c18a72e3995175075689bae37e3cfe9b652))
+
 ## [5.10.0](https://github.com/diplodoc-platform/cli/compare/v5.9.5...v5.10.0) (2025-09-09)
 
 
