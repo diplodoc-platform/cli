@@ -105,7 +105,7 @@ describe('url utils', () => {
 
     describe('buildAlterantes', () => {
         it('should return alternate link object for another language (rootPath with trailing slash)', () => {
-            const result = buildAlterantes('http://127.0.0.1:5000/', 'en', ['en', 'ru'], 'en/path');
+            const result = buildAlterantes('http://127.0.0.1:5000/', 'en', 'en/path', ['en', 'ru']);
 
             expect(result).toEqual([
                 {
@@ -116,7 +116,7 @@ describe('url utils', () => {
         });
 
         it('should return alternate link object for another language (rootPath without trailing slash)', () => {
-            const result = buildAlterantes('http://127.0.0.1:5000', 'en', ['en', 'ru'], 'en/path');
+            const result = buildAlterantes('http://127.0.0.1:5000', 'en', 'en/path', ['en', 'ru']);
 
             expect(result).toEqual([
                 {
@@ -130,8 +130,8 @@ describe('url utils', () => {
             const result = buildAlterantes(
                 'https://example.com/',
                 'en',
-                ['en', 'ru', 'fr'],
                 'en/page',
+                ['en', 'ru', 'fr'],
             );
 
             expect(result).toEqual([
@@ -150,8 +150,8 @@ describe('url utils', () => {
             const result = buildAlterantes(
                 'https://foo.bar/',
                 'ru',
-                ['en', 'ru', 'fr'],
                 'ru/somepage',
+                ['en', 'ru', 'fr'],
             );
 
             expect(result).toEqual([
@@ -167,7 +167,7 @@ describe('url utils', () => {
         });
 
         it('should not change pathname if it does not start with language prefix', () => {
-            const result = buildAlterantes('https://baz.com/', 'en', ['en', 'ru'], 'about');
+            const result = buildAlterantes('https://baz.com/', 'en', 'about', ['en', 'ru']);
 
             expect(result).toEqual([
                 {
@@ -178,7 +178,7 @@ describe('url utils', () => {
         });
 
         it('should support root path (/) pathname', () => {
-            const result = buildAlterantes('/', 'en', ['en', 'ru'], 'en/');
+            const result = buildAlterantes('/', 'en', 'en/', ['en', 'ru']);
 
             expect(result).toEqual([
                 {
@@ -189,13 +189,13 @@ describe('url utils', () => {
         });
 
         it('should return empty array if only one language', () => {
-            const result = buildAlterantes('/root', 'en', ['en'], 'en/page');
+            const result = buildAlterantes('/root', 'en', 'en/page', ['en']);
 
             expect(result).toEqual([]);
         });
 
         it('should handle pathnames with multiple slashes or nested language codes', () => {
-            const result = buildAlterantes('/site', 'ru', ['en', 'ru'], 'ru/docs/en/page');
+            const result = buildAlterantes('/site', 'ru', 'ru/docs/en/page', ['en', 'ru']);
 
             expect(result).toEqual([
                 {
