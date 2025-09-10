@@ -114,7 +114,7 @@ export class EntryService {
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
-        const alternates = buildAlterantes(rootPath, lang, availableLangs, pathname);
+        const alternates = buildAlterantes(rootPath, lang, pathname, availableLangs);
 
         const html = staticContent
             ? render({

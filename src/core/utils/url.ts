@@ -81,23 +81,23 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
 }
 
 export function buildAlterantes(
-    rootPath: string,
+    origin: string,
     lang: string,
-    availableLangs: string[],
     pathname: string,
+    availableLangs: string[],
 ) {
-    if (!rootPath) return [];
+    if (!origin) return [];
 
     const alternates = [];
     const alterateLangs = availableLangs.filter((l) => l !== lang);
-    const divider = rootPath.at(-1) === '/' ? '' : '/';
+    const divider = origin.at(-1) === '/' ? '' : '/';
 
     for (const alternateLang of alterateLangs) {
         const alternatePathname = pathname.replace(/^[a-z]{2}\//, `${alternateLang}/`);
 
         alternates.push({
             hreflang: alternateLang,
-            href: `${rootPath}${divider}${alternatePathname}`,
+            href: `${origin}${divider}${alternatePathname}`,
         });
     }
 
