@@ -55,9 +55,9 @@ export async function compareDirectories(
         filesForSnapshot = filesFromOutput.filter(file => uselessFile(file, SYSTEM_DIRS));
     }
 
-    filesForSnapshot.sort();
+    filesForSnapshot = filesForSnapshot.map(hashless).sort(); 
 
-    expect(hashless(JSON.stringify(filesForSnapshot, null, 2))).toMatchSnapshot('filelist');
+    expect(JSON.stringify(filesForSnapshot, null, 2)).toMatchSnapshot('filelist');
 
     if (!ignoreFileContent) {
         filesFromOutput.filter(file => uselessFile(file, ['_assets/', ...SYSTEM_DIRS])).forEach((filePath) => {
