@@ -15,7 +15,7 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, get, langFromPath, normalizePath, zip} from '~/core/utils';
+import {all, bounded, get, langFromPath, memoize, normalizePath, zip} from '~/core/utils';
 
 import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
@@ -150,9 +150,14 @@ export class Run extends BaseRun<BuildConfig> {
             getPublicPath,
             extractTitle: true,
             log: this.logger,
-            entries: this.toc.entries,
+            entries: this.getEntries(),
             existsInProject: this.existsInProject,
         };
+    }
+
+    @memoize()
+    private getEntries() {
+        return this.toc.entries;
     }
 
     @bounded
