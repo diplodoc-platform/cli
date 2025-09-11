@@ -3,6 +3,7 @@ import type StateCore from 'markdown-it/lib/rules_core/state_core';
 
 import url from 'url';
 import {filterTokens, isExternalHref, prettifyLink} from '~/core/utils';
+import {Heading} from '@diplodoc/transform/lib/typings';
 
 export function getHrefTokenAttr(token: Token) {
     const href = token.attrGet('href') || '';
@@ -40,10 +41,10 @@ export function getHref(href: string) {
     return prettifyLink(href);
 }
 
-export function mapHeadings(headings: any) {
+export function mapHeadings(headings: Heading[]) {
     if (!headings) return;
 
-    return headings.map((heading: any) => {
+    return headings.map((heading: Heading) => {
         const newHeading = {...heading};
 
         if (newHeading.href) {
