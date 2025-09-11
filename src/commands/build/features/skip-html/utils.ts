@@ -1,6 +1,5 @@
 import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {EntryData, PageData} from '~/commands/build';
 
 import url from 'url';
 import {filterTokens, isExternalHref, prettifyLink} from '~/core/utils';
@@ -41,7 +40,9 @@ export function getHref(href: string) {
     return prettifyLink(href);
 }
 
-function mapHeadings(headings: any) {
+export function mapHeadings(headings: any) {
+    if (!headings) return;
+
     return headings.map((heading: any) => {
         const newHeading = {...heading};
 
@@ -55,25 +56,4 @@ function mapHeadings(headings: any) {
 
         return newHeading;
     });
-}
-
-export function getStateData(entry: EntryData): PageData {
-    if (entry.type === 'yaml') {
-        return {
-            leading: true,
-            data: entry.content.data,
-            meta: entry.meta,
-            title: entry.content.data.title || entry.meta.title || '',
-        };
-    } else {
-        const prettifiedHeadings = mapHeadings(entry.info.headings);
-
-        return {
-            leading: false,
-            html: entry.content.toString(),
-            meta: entry.meta,
-            headings: prettifiedHeadings,
-            title: entry.info.title || entry.meta.title || '',
-        };
-    }
 }
