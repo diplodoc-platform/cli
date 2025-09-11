@@ -43,7 +43,7 @@ export function getHref(href: string) {
 
 function mapHeadings(headings: any) {
     return headings.map((heading: any) => {
-        const newHeading = { ...heading };
+        const newHeading = {...heading};
 
         if (newHeading.href) {
             newHeading.href = prettifyLink(newHeading.href);
@@ -57,7 +57,6 @@ function mapHeadings(headings: any) {
     });
 }
 
-
 export function getStateData(entry: EntryData): PageData {
     if (entry.type === 'yaml') {
         return {
@@ -68,7 +67,7 @@ export function getStateData(entry: EntryData): PageData {
         };
     } else {
         const prettifiedHeadings = mapHeadings(entry.info.headings);
-        
+
         return {
             leading: false,
             html: entry.content.toString(),

@@ -57,14 +57,14 @@ export class SkipHtml {
                 // Transform any entry to final html page without .html
                 getEntryHooks(run.entry).Dump.tapPromise('SkipHtml', async (vfile) => {
                     const toc = await run.toc.dump(vfile.path);
-                
+
                     const data = getStateData(vfile.data);
 
                     data.toc = toc.data;
 
                     const state = await run.entry.state(vfile.path, data);
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
-                
+
                     const html = await run.entry.page(template, state, toc.data);
                     vfile.format(() => html);
                     Object.assign(vfile.info, data);
