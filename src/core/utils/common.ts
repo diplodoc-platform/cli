@@ -5,6 +5,8 @@ export const all = Promise.all.bind(Promise);
 
 export const race = Promise.race.bind(Promise);
 
+export function noop() {}
+
 export function get<K extends string>(key: K) {
     return function <T extends Record<K, any>>(
         object: T,

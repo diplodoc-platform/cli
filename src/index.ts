@@ -8,7 +8,7 @@ import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
 import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
-import {console} from '~/core/utils';
+import {console, noop} from '~/core/utils';
 
 export * from '~/commands';
 
@@ -31,7 +31,7 @@ export const run = async (argv: string[]) => {
         console.error(error);
         program.report.code = 1;
     } finally {
-        await threads.terminate(true);
+        await threads.terminate(true).catch(noop);
     }
 
     return program.report;
