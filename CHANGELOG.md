@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.10.2](https://github.com/diplodoc-platform/cli/compare/v5.10.1...v5.10.2) (2025-09-11)
+
+
+### Bug Fixes
+
+* Fix performance leak ([af3e9ac](https://github.com/diplodoc-platform/cli/commit/af3e9ac35e37181a71e68bc0c1a024329617ee64))
+* Fix theads termination error handling ([76ad23f](https://github.com/diplodoc-platform/cli/commit/76ad23ff414f9e20466b408cc190013fa3acdaba))
+
 ## [5.10.1](https://github.com/diplodoc-platform/cli/compare/v5.10.0...v5.10.1) (2025-09-10)
 
 
