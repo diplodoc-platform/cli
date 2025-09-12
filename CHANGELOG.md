@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.4](https://github.com/diplodoc-platform/cli/compare/v5.10.3...v5.10.4) (2025-09-12)
+
+
+### Bug Fixes
+
+* headings processing ([#1388](https://github.com/diplodoc-platform/cli/issues/1388)) ([fc8ca10](https://github.com/diplodoc-platform/cli/commit/fc8ca10a4ec979c8ca1a61c4a631aaa379d30678))
+
 ## [5.10.3](https://github.com/diplodoc-platform/cli/compare/v5.10.2...v5.10.3) (2025-09-12)
 
 
