@@ -4,11 +4,12 @@ import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getEntryHooks} from '../../services/entry';
 import {normalizePath, own} from '~/core/utils';
 import {Command, defined} from '~/core/config';
 import {options} from './config';
 import type {Toc, TocItem} from '~/core/toc';
-import {getHref} from './utils';
+import {getHref, mapHeadings} from './utils';
 import {join} from 'node:path';
 import skipHtmlLinks from './plugins/skipHtmlLinks';
 
@@ -48,6 +49,13 @@ export class SkipHtml {
 
                         return item;
                     });
+                });
+
+                // Handling headers without html
+                getEntryHooks(run.entry).State.tap('SkipHtml', (state) => {
+                    const prettyHeadings = mapHeadings(state.data.headings);
+
+                    state.data.headings = prettyHeadings;
                 });
 
                 // Connecting a plugin to bypass links
