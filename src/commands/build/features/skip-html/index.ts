@@ -52,7 +52,7 @@ export class SkipHtml {
                 });
 
                 // Handling headers without html
-                getEntryHooks(run.entry).State.tap('SkipHtml', (state: any) => {
+                getEntryHooks(run.entry).State.tap('SkipHtml', (state) => {
                     const prettyHeadings = mapHeadings(state.data.headings);
 
                     state.data.headings = prettyHeadings;

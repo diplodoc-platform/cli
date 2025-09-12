@@ -42,7 +42,9 @@ export function getHref(href: string) {
 }
 
 export function mapHeadings(headings: Heading[]) {
-    if (!headings) return;
+    if (!headings) {
+        return;
+    }
 
     return headings.map((heading: Heading) => {
         const newHeading = {...heading};
