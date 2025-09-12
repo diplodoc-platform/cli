@@ -1,5 +1,4 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {
   },
   "postCreateCommand": "npm ci && npm run build && npm run lint && npm run test",
