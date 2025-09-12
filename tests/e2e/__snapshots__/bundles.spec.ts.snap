@@ -59,7 +59,8 @@ exports[`Check bundles > bundles list is correct 2`] = `
         <base href="./" />
         <title>Header | Skip html extension</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <link rel="alternate" hreflang="en" href="http://127.0.0.1:5000/index" />
+        <meta name="availableLangs" content="en,ru">
+        
         <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">

@@ -100,7 +100,6 @@ export class EntryService {
             title: metaTitle,
             description,
             resources: metaResources,
-            canonical,
             alternate = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
