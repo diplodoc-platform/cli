@@ -46,7 +46,7 @@ export function proxy<T extends object>(path: RelativePath, resolve: Resolver, p
 
                 const {value, scope, track, missed} = resolve(prop);
 
-                if (value === undefined) {
+                if (value === undefined && typeof prop !== 'symbol') {
                     missed(path, full(prefix, prop));
                     return undefined;
                 }
