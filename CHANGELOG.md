@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.10.3](https://github.com/diplodoc-platform/cli/compare/v5.10.2...v5.10.3) (2025-09-12)
+
+
+### Bug Fixes
+
+* prop symbol case ([2b6a3a3](https://github.com/diplodoc-platform/cli/commit/2b6a3a3bff8921e16e7b4d94df7e85d10a50d4b5))
+
 ## [5.10.2](https://github.com/diplodoc-platform/cli/compare/v5.10.1...v5.10.2) (2025-09-11)
 
 
