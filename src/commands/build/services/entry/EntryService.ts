@@ -12,7 +12,16 @@ import {render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
-import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
+import {
+    Graph,
+    VFile,
+    copyJson,
+    getDepth,
+    getDepthPath,
+    langFromPath,
+    processAlternate,
+    setExt,
+} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
@@ -52,7 +61,7 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface} = this.config;
+        const {langs, analytics, interface: baseInterface, meta} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
 
@@ -73,6 +82,7 @@ export class EntryService {
             langs,
             analytics,
             viewerInterface,
+            meta,
         };
 
         await getHooks(this).State.promise(state);
@@ -90,6 +100,7 @@ export class EntryService {
             title: metaTitle,
             description,
             resources: metaResources,
+            alternate = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -99,6 +110,8 @@ export class EntryService {
         const metaCsp = metaResources?.csp;
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
+
+        const processedAlternate = processAlternate(alternate);
 
         const html = staticContent
             ? render({
@@ -114,6 +127,7 @@ export class EntryService {
         template.setTitle(title);
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
+        template.setAlternate(processedAlternate);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);

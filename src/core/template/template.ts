@@ -60,6 +60,8 @@ export class Template {
 
     private faviconSrc = '';
 
+    private alternates: Hash[] = [];
+
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
         this.lang = lang;
@@ -156,8 +158,14 @@ export class Template {
         return this;
     }
 
+    @bounded setAlternate(alternates: Hash[]) {
+        this.alternates = alternates;
+
+        return this;
+    }
+
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
+        const {lang, title, styles, scripts, body, bodyClass, faviconSrc, alternates} = this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
         const filteredMeta = filterMeta(this.meta);
@@ -171,6 +179,7 @@ export class Template {
                     <base href="${base}" />
                     <title>${title}</title>
                     ${filteredMeta.map(meta).join('\n')}
+                    ${alternates.map(alternate).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
                     ${faviconSrc && `<link rel="icon" type="${faviconType}" href="${faviconSrc}">`}
@@ -202,6 +211,10 @@ function trailing<T extends PositionInfo>(array: T[]) {
 
 function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
+}
+
+function alternate(record: Hash<string>) {
+    return `<link rel="alternate" hreflang="${record.hreflang}" href="${record.href}" />`;
 }
 
 function csp(directives: Hash<string[]> | undefined) {

@@ -79,3 +79,18 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
         return null;
     }
 }
+
+export function processAlternate(alternate: string[]) {
+    const processedAlternate = [];
+
+    for (const alternateHref of alternate) {
+        const hreflang = alternateHref.split('/')[0];
+
+        processedAlternate.push({
+            hreflang,
+            href: `./${alternateHref}`,
+        });
+    }
+
+    return processedAlternate;
+}

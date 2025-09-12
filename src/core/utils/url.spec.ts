@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {isExternalHref, prettifyLink} from './url';
+import {isExternalHref, prettifyLink, processAlternate} from './url';
 
 describe('url utils', () => {
     describe('isExternalHref', () => {
@@ -100,6 +100,46 @@ describe('url utils', () => {
             expect(prettifyLink('./folder/index.html')).toBe('./folder/');
             expect(prettifyLink('../folder/index')).toBe('../folder/');
             expect(prettifyLink('../index')).toBe('../');
+        });
+    });
+
+    describe('processAlternate', () => {
+        it('should extract hreflang and prefixed href', () => {
+            const input = ['en/page', 'ru/page'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/page'},
+                {hreflang: 'ru', href: './ru/page'},
+            ]);
+        });
+
+        it('should work with multiple languages and different paths', () => {
+            const input = ['en/home', 'ru/main', 'fr/accueil'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/home'},
+                {hreflang: 'ru', href: './ru/main'},
+                {hreflang: 'fr', href: './fr/accueil'},
+            ]);
+        });
+
+        it('should handle single language', () => {
+            const input = ['en/page'];
+            expect(processAlternate(input)).toEqual([{hreflang: 'en', href: './en/page'}]);
+        });
+
+        it('should handle entries with deeper paths', () => {
+            const input = ['en/docs/getting-started', 'ru/docs/getting-started'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/docs/getting-started'},
+                {hreflang: 'ru', href: './ru/docs/getting-started'},
+            ]);
+        });
+
+        it('should work with path without slash (just lang)', () => {
+            const input = ['en', 'ru'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en'},
+                {hreflang: 'ru', href: './ru'},
+            ]);
         });
     });
 });
