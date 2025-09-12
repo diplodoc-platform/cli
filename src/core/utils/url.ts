@@ -80,26 +80,17 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
     }
 }
 
-export function buildAlterantes(
-    origin: string,
-    lang: string,
-    pathname: string,
-    availableLangs: string[],
-) {
-    if (!origin) return [];
+export function processAlternate(alternate: string[]) {
+    const processedAlternate = [];
 
-    const alternates = [];
-    const alterateLangs = availableLangs.filter((l) => l !== lang);
-    const divider = origin.at(-1) === '/' ? '' : '/';
+    for (const alternateHref of alternate) {
+        const hreflang = alternateHref.split('/')[0];
 
-    for (const alternateLang of alterateLangs) {
-        const alternatePathname = pathname.replace(/^[a-z]{2}\//, `${alternateLang}/`);
-
-        alternates.push({
-            hreflang: alternateLang,
-            href: `${origin}${divider}${alternatePathname}`,
+        processedAlternate.push({
+            hreflang,
+            href: `./${alternateHref}`,
         });
     }
 
-    return alternates;
+    return processedAlternate;
 }

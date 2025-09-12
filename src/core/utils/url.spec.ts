@@ -1,5 +1,5 @@
 import {describe, expect, it} from 'vitest';
-import {buildAlterantes, isExternalHref, prettifyLink} from './url';
+import {isExternalHref, prettifyLink, processAlternate} from './url';
 
 describe('url utils', () => {
     describe('isExternalHref', () => {
@@ -103,105 +103,42 @@ describe('url utils', () => {
         });
     });
 
-    describe('buildAlterantes', () => {
-        it('should return alternate link object for another language (rootPath with trailing slash)', () => {
-            const result = buildAlterantes('http://127.0.0.1:5000/', 'en', 'en/path', ['en', 'ru']);
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'ru',
-                    href: 'http://127.0.0.1:5000/ru/path',
-                },
+    describe('processAlternate', () => {
+        it('should extract hreflang and prefixed href', () => {
+            const input = ['en/page', 'ru/page'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/page'},
+                {hreflang: 'ru', href: './ru/page'},
             ]);
         });
 
-        it('should return alternate link object for another language (rootPath without trailing slash)', () => {
-            const result = buildAlterantes('http://127.0.0.1:5000', 'en', 'en/path', ['en', 'ru']);
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'ru',
-                    href: 'http://127.0.0.1:5000/ru/path',
-                },
+        it('should work with multiple languages and different paths', () => {
+            const input = ['en/home', 'ru/main', 'fr/accueil'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/home'},
+                {hreflang: 'ru', href: './ru/main'},
+                {hreflang: 'fr', href: './fr/accueil'},
             ]);
         });
 
-        it('should work with more than two languages', () => {
-            const result = buildAlterantes(
-                'https://example.com/',
-                'en',
-                'en/page',
-                ['en', 'ru', 'fr'],
-            );
+        it('should handle single language', () => {
+            const input = ['en/page'];
+            expect(processAlternate(input)).toEqual([{hreflang: 'en', href: './en/page'}]);
+        });
 
-            expect(result).toEqual([
-                {
-                    hreflang: 'ru',
-                    href: 'https://example.com/ru/page',
-                },
-                {
-                    hreflang: 'fr',
-                    href: 'https://example.com/fr/page',
-                },
+        it('should handle entries with deeper paths', () => {
+            const input = ['en/docs/getting-started', 'ru/docs/getting-started'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en/docs/getting-started'},
+                {hreflang: 'ru', href: './ru/docs/getting-started'},
             ]);
         });
 
-        it('should remove only a language prefix at the start of pathname', () => {
-            const result = buildAlterantes(
-                'https://foo.bar/',
-                'ru',
-                'ru/somepage',
-                ['en', 'ru', 'fr'],
-            );
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'en',
-                    href: 'https://foo.bar/en/somepage',
-                },
-                {
-                    hreflang: 'fr',
-                    href: 'https://foo.bar/fr/somepage',
-                },
-            ]);
-        });
-
-        it('should not change pathname if it does not start with language prefix', () => {
-            const result = buildAlterantes('https://baz.com/', 'en', 'about', ['en', 'ru']);
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'ru',
-                    href: 'https://baz.com/about',
-                },
-            ]);
-        });
-
-        it('should support root path (/) pathname', () => {
-            const result = buildAlterantes('/', 'en', 'en/', ['en', 'ru']);
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'ru',
-                    href: '/ru/',
-                },
-            ]);
-        });
-
-        it('should return empty array if only one language', () => {
-            const result = buildAlterantes('/root', 'en', 'en/page', ['en']);
-
-            expect(result).toEqual([]);
-        });
-
-        it('should handle pathnames with multiple slashes or nested language codes', () => {
-            const result = buildAlterantes('/site', 'ru', 'ru/docs/en/page', ['en', 'ru']);
-
-            expect(result).toEqual([
-                {
-                    hreflang: 'en',
-                    href: '/site/en/docs/en/page',
-                },
+        it('should work with path without slash (just lang)', () => {
+            const input = ['en', 'ru'];
+            expect(processAlternate(input)).toEqual([
+                {hreflang: 'en', href: './en'},
+                {hreflang: 'ru', href: './ru'},
             ]);
         });
     });

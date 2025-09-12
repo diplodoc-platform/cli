@@ -220,7 +220,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {entries} = this.run.toc;
 
         await this.concurrently(this.run.toc.tocs, this.processToc);
-        this.run.meta.addAvailableLangs(entries, langs);
+
+        this.run.meta.addAlternate(entries, langs);
 
         console.log('Process project files');
         await this.concurrently(entries, async (entry) => {

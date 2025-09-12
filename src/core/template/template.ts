@@ -158,7 +158,7 @@ export class Template {
         return this;
     }
 
-    @bounded setAlternates(alternates: Hash[]) {
+    @bounded setAlternate(alternates: Hash[]) {
         this.alternates = alternates;
 
         return this;

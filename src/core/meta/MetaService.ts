@@ -178,42 +178,62 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    parseEntry(entry: string) {
+        const idx = entry.indexOf('/');
+
+        if (idx === -1) {
+            return null;
+        }
+
+        const lang = entry.slice(0, idx);
+        const path = entry.slice(idx + 1);
+        const basePath = path.replace(/\.[^.]+$/, '');
+        const canonical = `${lang}/${basePath}`;
+
+        return {lang, path, basePath, canonical};
+    }
+
     buildLangsMap(entries: NormalizedPath[], langs: string[]) {
         const langsMap = new Map<string, string[]>();
 
         for (const entry of entries) {
-            const idx = entry.indexOf('/');
+            const parsed = this.parseEntry(entry);
 
-            if (idx === -1) continue;
+            if (!parsed || !langs.includes(parsed.lang)) {
+                continue;
+            }
 
-            const basePath = entry.slice(idx + 1);
-            const lang = entry.slice(0, idx);
+            if (!langsMap.has(parsed.path)) {
+                langsMap.set(parsed.path, []);
+            }
 
-            if (!langs.includes(lang)) continue;
-
-            if (!langsMap.has(basePath)) langsMap.set(basePath, []);
-
-            langsMap.get(basePath)!.push(lang);
+            langsMap.get(parsed.path)!.push(parsed.canonical);
         }
 
         return langsMap;
     }
 
-    addAvailableLangs(entries: NormalizedPath[], langs: string[]) {
+    addAlternate(entries: NormalizedPath[], langs: string[]) {
         const langsMap = this.buildLangsMap(entries, langs);
 
         for (const entry of entries) {
-            const idx = entry.indexOf('/');
+            const parsed = this.parseEntry(entry);
 
-            if (idx === -1) continue;
+            if (!parsed) {
+                continue;
+            }
 
-            const basePath = entry.slice(idx + 1);
-            const availableLangs = langsMap.get(basePath) || [];
+            const availableLangs = langsMap.get(parsed.path) || [];
 
-            if (!availableLangs.length) continue;
+            if (!availableLangs.length) {
+                continue;
+            }
+
+            const alternate = availableLangs.filter((a) => a !== parsed.canonical);
 
             const meta = this.meta.get(entry) || this.initialMeta();
-            meta.availableLangs = availableLangs;
+            meta.canonical = parsed.canonical;
+            meta.alternate = alternate;
 
             this.meta.set(entry, meta);
         }

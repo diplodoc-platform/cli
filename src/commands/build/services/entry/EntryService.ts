@@ -15,11 +15,11 @@ import {Template} from '~/core/template';
 import {
     Graph,
     VFile,
-    buildAlterantes,
     copyJson,
     getDepth,
     getDepthPath,
     langFromPath,
+    processAlternate,
     setExt,
 } from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
@@ -100,21 +100,19 @@ export class EntryService {
             title: metaTitle,
             description,
             resources: metaResources,
-            availableLangs = [],
+            canonical,
+            alternate = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
-        const lang = state.lang;
-        const pathname = state.router?.pathname;
         const baseTitle = metaTitle || state.data.title;
         const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
-        const rootPath = state.meta?.rootPath;
         const metaCsp = metaResources?.csp;
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
-        const alternates = buildAlterantes(rootPath, lang, pathname, availableLangs);
+        const processedAlternate = processAlternate(alternate);
 
         const html = staticContent
             ? render({
@@ -130,7 +128,7 @@ export class EntryService {
         template.setTitle(title);
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
-        template.setAlternates(alternates);
+        template.setAlternate(processedAlternate);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
