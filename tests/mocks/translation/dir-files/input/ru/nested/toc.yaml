@@ -5,15 +5,15 @@ items:
     href: index.yaml
   - include: {mode: merge, path: folder1/toc-i.yaml}
   - name: Yandex Flavored Markdown
-    href: index-yfm.md
+    href:
     items:
       - name: Синтаксис
         items:
           - name: Обзор
             href: syntax/index.md
-            when: test == "nested"
           - name: Базовая разметка
             href: syntax/base.md
           - name: Списки
             href: syntax/lists.md
-          - name: Таблицы
+  - name: Was filtered above
+    href: use_filtered_above.md
