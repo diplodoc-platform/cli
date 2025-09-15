@@ -5,6 +5,7 @@ import type {Args, Config} from './connector';
 
 import {ok} from 'node:assert';
 import simpleGit from 'simple-git';
+import {Build} from '@diplodoc/cli';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getVcsHooks} from '@diplodoc/cli/lib/vcs';
 import {setExt} from '@diplodoc/cli/lib/utils';
@@ -18,6 +19,10 @@ type Run = BaseRun<Config> & {
 
 export class Extension implements IExtension {
     apply(program: BaseProgram<BaseConfig & Config, BaseArgs & Args>) {
+        if (!Build.is(program)) {
+            return;
+        }
+
         getBaseHooks<Run>(program).BeforeAnyRun.tap('GithubVcsConnector', (run) => {
             getVcsHooks(run.vcs).VcsConnector.tapPromise(
                 'GithubVcsConnector',
@@ -44,7 +49,7 @@ export class Extension implements IExtension {
                 return config;
             }
 
-            config.vcs.endpoint = args.vcsEndpoint || config.vcs.endpoint || remote.endpoint || '';
+            config.vcs.endpoint = args.vcsEndpoint || config.vcs.endpoint;
             config.vcs.owner = args.vcsOwner || config.vcs.owner || remote.owner || '';
             config.vcs.repo = args.vcsRepo || config.vcs.repo || remote.repo || '';
             config.vcs.branch = args.vcsBranch || config.vcs.branch;
@@ -60,7 +65,7 @@ export class Extension implements IExtension {
 
 async function resolveRemote(gitOptions: {baseDir: AbsolutePath}) {
     try {
-        const remote = await simpleGit(gitOptions).raw('remote', 'get-url', 'origin');
+        const remote = (await simpleGit(gitOptions).raw('remote', 'get-url', 'origin')).trim();
 
         if (!remote) {
             return {};

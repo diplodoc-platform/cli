@@ -70,7 +70,8 @@ export class GithubClient {
             )) as CommitsInfo[];
 
             return joinResults(results);
-        } catch {
+        } catch (error) {
+            console.error(error);
             return [];
         }
     }
