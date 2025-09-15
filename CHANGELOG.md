@@ -1,5 +1,23 @@
 # Changelog
 
+## [5.11.0](https://github.com/diplodoc-platform/cli/compare/v5.10.3...v5.11.0) (2025-09-15)
+
+
+### Features
+
+* Add arcadia-vcs extension ([d8be840](https://github.com/diplodoc-platform/cli/commit/d8be8408fae79acac8bbe54f67caeb8980b27dc6))
+* Add required `getBase` method to VCSConnector interface ([e2ce3e5](https://github.com/diplodoc-platform/cli/commit/e2ce3e51666c45d2fdf20c97b51d58ed0a386f79))
+
+
+### Bug Fixes
+
+* Fix arc root resolving ([f941309](https://github.com/diplodoc-platform/cli/commit/f941309c44acaca6ed27caab72a0cc78080b7fe3))
+* headings processing ([#1388](https://github.com/diplodoc-platform/cli/issues/1388)) ([fc8ca10](https://github.com/diplodoc-platform/cli/commit/fc8ca10a4ec979c8ca1a61c4a631aaa379d30678))
+* Normalize ignore lists for contributors ([5cffee3](https://github.com/diplodoc-platform/cli/commit/5cffee31e8437565250fcef3754470079d56ceaa))
+* Remove meta structure knowlegle from lib ([e523cdb](https://github.com/diplodoc-platform/cli/commit/e523cdba19e175362672321e5bb257b3825e0b56))
+* **singlepage:** Fix page title resolving ([bbd7ab3](https://github.com/diplodoc-platform/cli/commit/bbd7ab30e1bc85b009723a821421981d2ae3c084))
+* Use relative to git root paths in github-vcs ([3bf5728](https://github.com/diplodoc-platform/cli/commit/3bf5728585a0d56e9b0e855281a3ef20bf185f6f))
+
 ## [5.10.3](https://github.com/diplodoc-platform/cli/compare/v5.10.2...v5.10.3) (2025-09-12)
 
 
