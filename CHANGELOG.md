@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.11.1](https://github.com/diplodoc-platform/cli/compare/v5.11.0...v5.11.1) (2025-09-15)
+
+
+### Bug Fixes
+
+* empty href prop on filtered hook, add warning ([ee63d6d](https://github.com/diplodoc-platform/cli/commit/ee63d6da7b49b06d860ffbf208300b9da9cc983e))
+
 ## [5.11.0](https://github.com/diplodoc-platform/cli/compare/v5.10.3...v5.11.0) (2025-09-15)
 
 
