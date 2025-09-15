@@ -1,3 +1,5 @@
+import type {Resources} from '~/core/meta';
+
 export interface SyncData {
     mtimes: Record<NormalizedPath, number>;
     authors: Record<NormalizedPath, Contributor>;
@@ -12,9 +14,10 @@ export interface VcsConnector {
     getAuthorByPath(path: RelativePath): Promise<Contributor | null>;
     getContributorsByPath(path: RelativePath, deps: RelativePath[]): Promise<Contributor[]>;
     getModifiedTimeByPath(path: RelativePath): Promise<number | null>;
+    getResourcesByPath?(path: RelativePath, meta: VcsMetadata): Promise<Resources>;
 }
 
-export interface VcsMetadata {
+export interface VcsMetadata extends Partial<Resources> {
     vcsPath?: NormalizedPath;
     sourcePath?: NormalizedPath;
     updatedAt?: string;

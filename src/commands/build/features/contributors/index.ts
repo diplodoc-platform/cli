@@ -70,6 +70,7 @@ export class Contributors {
                     const meta = await run.vcs.metadata(vfile.path, deps);
 
                     run.meta.add(vfile.path, meta);
+                    run.meta.addResources(vfile.path, meta);
                 },
             );
         });

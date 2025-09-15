@@ -75,6 +75,8 @@ export class VcsService implements VcsConnector {
         result.contributors = contributors.length ? contributors : undefined;
         result.updatedAt = updatedAt || undefined;
 
+        Object.assign(result, await this.getResources(file, result));
+
         return result;
     }
 
@@ -103,6 +105,10 @@ export class VcsService implements VcsConnector {
 
     async getUserByLogin(author: string) {
         return this.connector.getUserByLogin(author);
+    }
+
+    private async getResources(path: RelativePath, meta: VcsMetadata) {
+        return this.connector.getResourcesByPath?.(path, meta) || {};
     }
 
     private async getAuthor(
