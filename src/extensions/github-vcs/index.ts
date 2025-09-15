@@ -44,7 +44,7 @@ export class Extension implements IExtension {
                 return config;
             }
 
-            config.vcs.endpoint = args.vcsEndpoint || config.vcs.endpoint;
+            config.vcs.endpoint = args.vcsEndpoint || config.vcs.endpoint || remote.endpoint || '';
             config.vcs.owner = args.vcsOwner || config.vcs.owner || remote.owner || '';
             config.vcs.repo = args.vcsRepo || config.vcs.repo || remote.repo || '';
             config.vcs.branch = args.vcsBranch || config.vcs.branch;
@@ -64,6 +64,12 @@ async function resolveRemote(gitOptions: {baseDir: AbsolutePath}) {
 
         if (!remote) {
             return {};
+        }
+
+        if (remote.startsWith('https://')) {
+            const [endpoint, owner, repo] = remote.slice(8).split(':');
+
+            return {endpoint, owner, repo};
         }
 
         const [endpoint, rest] = remote.split(':');
