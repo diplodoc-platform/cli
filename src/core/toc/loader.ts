@@ -182,9 +182,15 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             return item;
         }
 
+        if ('href' in item && item['href'] === null) {
+            this.logger.warn(
+                `Empty href property in item with name: ${item.name} in toc: ${this.path}`,
+            );
+        }
+
         if ('href' in item) {
             const resolvedItemHref = normalizePath(
-                join(dirname(this.path as string), item.href as string),
+                join(dirname(this.path as string), item.href || ''),
             );
 
             getHooks(this.toc).Filtered.call(resolvedItemHref);
