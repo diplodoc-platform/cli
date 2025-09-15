@@ -188,14 +188,6 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
             );
         }
 
-        if ('href' in item) {
-            const resolvedItemHref = normalizePath(
-                join(dirname(this.path as string), item.href || ''),
-            );
-
-            getHooks(this.toc).Filtered.call(resolvedItemHref);
-        }
-
         return undefined;
     });
 
