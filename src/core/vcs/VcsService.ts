@@ -15,23 +15,6 @@ export type VcsServiceConfig = {
     contributors: {enabled: boolean; ignore: string[]};
     vcs: {
         enabled: boolean;
-        /**
-         * Externally accessible base URI for a resource where a particular documentation
-         * source is hosted.
-         *
-         * This configuration parameter is used to directly control the Edit button behaviour
-         * in the Diplodoc documentation viewer(s).
-         *
-         * For example, if the following applies:
-         * - Repo with doc source is hosted on GitHub (say, https://github.com/foo-org/bar),
-         * - Within that particular repo, the directory that is being passed as an `--input`
-         *   parameter to the CLI is located at `docs/`,
-         * - Whenever the Edit button is pressed, you wish to direct your readers to the
-         *   respective document's source on `main` branch
-         *
-         * you should pass `https://github.com/foo-org/bar/tree/main/docs` as a value for this parameter.
-         */
-        remoteBase?: string;
     } & Hash;
 };
 
@@ -75,15 +58,12 @@ export class VcsService implements VcsConnector {
     async metadata(path: RelativePath, deps: NormalizedPath[] = []) {
         const file = normalizePath(path);
         const meta = this.run.meta.get(file);
-        const addVCSPath = Boolean(this.config.vcs.remoteBase);
 
         const result: VcsMetadata = {};
 
-        if (addVCSPath) {
-            const sourcePath = await this.realpath(file);
-            result.vcsPath = sourcePath;
-            result.sourcePath = sourcePath;
-        }
+        const sourcePath = await this.realpath(file);
+        result.vcsPath = sourcePath;
+        result.sourcePath = sourcePath;
 
         const [author, contributors, updatedAt] = await Promise.all([
             this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
@@ -184,7 +164,7 @@ export class VcsService implements VcsConnector {
         }
 
         if (meta.sourcePath) {
-            return normalizePath(join(base, meta.sourcePath));
+            return normalizePath(meta.sourcePath);
         }
 
         return normalizePath(join(base, file));

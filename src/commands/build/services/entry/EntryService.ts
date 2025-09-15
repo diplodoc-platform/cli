@@ -26,6 +26,8 @@ const excludedMetaFields = [
     'author',
     'updatedAt',
     'sourcePath',
+    'vcsPath',
+    'noIndex',
 ];
 
 function isPublicMeta(record: {name?: string}) {

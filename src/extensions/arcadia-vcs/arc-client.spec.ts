@@ -1,13 +1,12 @@
-import {join} from 'node:path';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 
 import {execa} from 'execa';
 import {dedent} from 'ts-dedent';
 
-import {ArcClient} from '../arc-client';
+import {ArcClient} from './arc-client';
 
-const baseDir = join(__dirname, '..');
+const baseDir = __dirname;
 
 // Mock at module level
 vi.mock('execa', () => ({
@@ -523,6 +522,7 @@ describe('ArcClient', () => {
                 argv.includes('--name-status'),
         ) as Array<[string, string[]]>;
         expect(calls.length).toBe(2);
+
         const argsList = calls.map(([, argv]) => argv);
         const hasBaseScope = argsList.some(
             (argv) =>

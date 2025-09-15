@@ -16,6 +16,8 @@ exports[`Translate command > build translated md files and remove no-translate d
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+sourcePath: index.md
 ---
 ## Index header
 
@@ -31,6 +33,8 @@ exports[`Translate command > build translated md files and remove no-translate d
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: no-translate.md
+sourcePath: no-translate.md
 ---
 # No-translate directive
 
@@ -93,6 +97,8 @@ exports[`Translate command > build translated md files and remove no-translate d
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/index.md
+sourcePath: openapi/index.md
 ---
 # OpenAPI definition
 
@@ -192,6 +198,8 @@ exports[`Translate command > build translated md files and remove no-translate d
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/getWithPayloadResponse.md
+sourcePath: openapi/test-controller/getWithPayloadResponse.md
 ---
 <div class="openapi">
 
@@ -276,6 +284,8 @@ exports[`Translate command > build translated md files and remove no-translate d
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/index.md
+sourcePath: openapi/test-controller/index.md
 ---
 # test-controller
 
@@ -322,6 +332,8 @@ exports[`Translate command > build translated static files and remove no-transla
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+sourcePath: index.md
 ---
 ## Index header
 
@@ -337,6 +349,8 @@ exports[`Translate command > build translated static files and remove no-transla
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: no-translate.md
+sourcePath: no-translate.md
 ---
 # No-translate directive
 
@@ -399,6 +413,8 @@ exports[`Translate command > build translated static files and remove no-transla
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/index.md
+sourcePath: openapi/index.md
 ---
 # OpenAPI definition
 
@@ -498,6 +514,8 @@ exports[`Translate command > build translated static files and remove no-transla
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/getWithPayloadResponse.md
+sourcePath: openapi/test-controller/getWithPayloadResponse.md
 ---
 <div class="openapi">
 
@@ -582,6 +600,8 @@ exports[`Translate command > build translated static files and remove no-transla
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/index.md
+sourcePath: openapi/test-controller/index.md
 ---
 # test-controller
 
