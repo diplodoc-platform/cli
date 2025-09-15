@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.11.2](https://github.com/diplodoc-platform/cli/compare/v5.11.1...v5.11.2) (2025-09-15)
+
+
+### Bug Fixes
+
+* Update release-please-action ([50a4135](https://github.com/diplodoc-platform/cli/commit/50a41350ad6f5ac39f31b36fefd1e4913e224a9c))
+* **vcs:** Fix vcs `owner` and `repo` detection for https remote ([a75c435](https://github.com/diplodoc-platform/cli/commit/a75c435108e0df96efaa2881e427604c5f530579))
+
 ## [5.11.1](https://github.com/diplodoc-platform/cli/compare/v5.11.0...v5.11.1) (2025-09-15)
 
 
