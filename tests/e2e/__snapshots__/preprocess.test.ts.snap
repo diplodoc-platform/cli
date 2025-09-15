@@ -33,6 +33,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: 1.md
+sourcePath: 1.md
 ---
 # Title
 
@@ -71,6 +73,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: autotitle.md
+sourcePath: autotitle.md
 ---
 # Autotitles ![](_assets/1.svg)
 
@@ -103,6 +107,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 4`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: images.md
+sourcePath: images.md
 ---
 # Images
 
@@ -117,6 +123,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: included-item.md
+sourcePath: included-item.md
 ---
 # Included item
 
@@ -138,6 +146,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 6`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: includes.md
+sourcePath: includes.md
 ---
 Text
 
@@ -203,6 +213,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: latex.md
+sourcePath: latex.md
 ---
 # Latex usage
 
@@ -215,6 +227,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: mermaid.md
+sourcePath: mermaid.md
 ---
 # Mermaid usage
 
@@ -237,6 +251,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: sub/folder/item-1.md
+sourcePath: sub/folder/item-1.md
 ---
 # Item 1
 
@@ -307,6 +323,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: 1.md
+sourcePath: 1.md
 ---
 # Title
 
@@ -345,6 +363,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: autotitle.md
+sourcePath: autotitle.md
 ---
 # Autotitles ![](_assets/1.svg)
 
@@ -377,6 +397,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 4`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: images.md
+sourcePath: images.md
 ---
 # Images
 
@@ -391,6 +413,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: included-item.md
+sourcePath: included-item.md
 ---
 # Included item
 
@@ -412,6 +436,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 6`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: includes.md
+sourcePath: includes.md
 ---
 Text
 
@@ -477,6 +503,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: latex.md
+sourcePath: latex.md
 ---
 # Latex usage
 
@@ -489,6 +517,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: mermaid.md
+sourcePath: mermaid.md
 ---
 # Mermaid usage
 
@@ -511,6 +541,8 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: sub/folder/item-1.md
+sourcePath: sub/folder/item-1.md
 ---
 # Item 1
 

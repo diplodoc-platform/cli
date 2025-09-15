@@ -18,6 +18,8 @@ restricted-access:
     - manager
   - - userA
     - userB
+vcsPath: plugins/index.md
+sourcePath: plugins/index.md
 ---
 "
 `;
@@ -30,6 +32,8 @@ metadata:
 restricted-access:
   - - userA
     - userB
+vcsPath: project/index.md
+sourcePath: project/index.md
 ---
 "
 `;
@@ -72,6 +76,8 @@ exports[`Restricted access > Nested toc restricted access 1`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+sourcePath: a1.md
 ---
 This is the /a1.md file content.
 "
@@ -87,6 +93,8 @@ restricted-access:
     - userB
   - - userAtoc2
     - userBtoc2
+vcsPath: folder1/a1.md
+sourcePath: folder1/a1.md
 ---
 This is the /folder1/a1.md file content.
 "
@@ -102,6 +110,8 @@ restricted-access:
     - userB
   - - userAtoc3
     - userBtoc3
+vcsPath: folder1/folder2/a1.md
+sourcePath: folder1/folder2/a1.md
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -150,6 +160,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
+vcsPath: index.md
+sourcePath: index.md
 ---
 "
 `;
@@ -161,6 +173,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
+vcsPath: plugins/index.md
+sourcePath: plugins/index.md
 ---
 "
 `;
@@ -174,6 +188,8 @@ restricted-access:
   - - admin
   - - admin
     - user
+vcsPath: plugins/index2.md
+sourcePath: plugins/index2.md
 ---
 "
 `;
@@ -185,6 +201,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 restricted-access:
   - - admin
+vcsPath: plugins/index3.md
+sourcePath: plugins/index3.md
 ---
 "
 `;
@@ -197,6 +215,8 @@ metadata:
 restricted-access:
   - - admin
   - - customInFile
+vcsPath: plugins/index4.md
+sourcePath: plugins/index4.md
 ---
 "
 `;
