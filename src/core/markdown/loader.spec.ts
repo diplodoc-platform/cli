@@ -39,6 +39,7 @@ function loaderContext(
         emitFile: vi.fn(),
         readFile: vi.fn(),
         api: {
+            blockCodes: bucket(),
             deps: bucket(),
             assets: bucket(),
             meta: bucket(),
@@ -119,6 +120,245 @@ describe('Markdown loader', () => {
 
             expect(context.api.meta.set).toBeCalledWith({prop: '{{text}}'});
             expect(result).toEqual('Simple text');
+        });
+    });
+
+    describe('resolveBlockCodes', () => {
+        it('should skip assets in fenced code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect asset in inline code with text', async () => {
+            const content = dedent`
+                Simple text with \`![img](./some.png)\` in the middle
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect asset in multiline definition list', async () => {
+            const content = dedent`
+                Term
+                :   Definition with 
+                
+                    ![img](./some.png)
+                    and more text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks inside multiline definition list', async () => {
+            const content = dedent`
+                Term
+                :   Definition with code:
+                    \`\`\`
+                    ![img](./some.png)
+                    \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with mixed indentation', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                    \`\`\`
+                    ![img](./some2.png)
+                        ![img](./some3.png)
+                    \`\`\`
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with special characters', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                const regex = /[\w]+/g;
+                const str = 'Hello {name}!';
+                console.log(\`Result: \${str}\`);
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle empty code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in fenced code blocks with tildes', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                ~~~
+                ![img](./some2.png)
+                ~~~
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle code blocks with only whitespace', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                    
+                     
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks inside lists', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                - Item 1
+                    \`\`\`
+                    ![img](./some2.png)
+                    \`\`\`
+                - Item 2 
+                  ![img](./some3.png)
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle adjacent code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                code block 1
+                \`\`\`
+                \`\`\`
+                code block 2
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in indented code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                    ![img](./some2.png)
+                    ![img](./some3.png)
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in inline code with double backticks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`![img](./some2.png)\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with language specification', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`javascript
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in inline code', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`![img](./some2.png)\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
         });
     });
 
@@ -488,11 +728,40 @@ describe('Markdown loader', () => {
         it('should work with deflists', async () => {
             const content = dedent`
                 **Term 1**
-
                 :   Definition 1
 
                     ![](image.jpeg)
 
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect asset with long fence', async () => {
+            const content = dedent`
+                Simple text
+                \`\`\`\`\`\`\`\`\`
+                ![img](./some.png)
+                \`\`\`\`\`\`\`\`\`
+                Simple text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect asset with language and translate=no directive', async () => {
+            const content = dedent`
+                Simple text
+                \`\`\`javascript translate=no
+                ![img](./some.png)
+                \`\`\`
+                Simple text
             `;
             const context = loaderContext(content, {});
 

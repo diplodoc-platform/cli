@@ -15,6 +15,7 @@ import {resolveDependencies} from './loader/resolve-deps';
 import {resolveAssets} from './loader/resolve-assets';
 import {resolveHeadings} from './loader/resolve-headings';
 import {resolveNoTranslate} from './loader/resolve-no-translate';
+import {resolveBlockCodes} from './loader/resolve-code';
 
 export enum TransformMode {
     Html = 'html',
@@ -22,6 +23,7 @@ export enum TransformMode {
 }
 
 export class LoaderAPI {
+    blockCodes: Bucket<Location[]>;
     comments: Bucket<Location[]>;
     deps: Bucket<IncludeInfo[]>;
     assets: Bucket<AssetInfo[]>;
@@ -30,6 +32,7 @@ export class LoaderAPI {
     sourcemap: Bucket<Record<number | string, string>>;
 
     constructor(proxy: Partial<LoaderAPI> = {}) {
+        this.blockCodes = proxy.blockCodes || bucket();
         this.deps = proxy.deps || bucket();
         this.assets = proxy.assets || bucket();
         this.meta = proxy.meta || bucket();
@@ -59,6 +62,7 @@ export async function loader(this: LoaderContext, content: string) {
     content = resolveNoTranslate.call(this, content);
     content = templateContent.call(this, content);
     content = await applyCollectPlugins.call(this, content);
+    content = resolveBlockCodes.call(this, content);
     content = resolveComments.call(this, content);
     content = resolveDependencies.call(this, content);
     content = resolveAssets.call(this, content);
