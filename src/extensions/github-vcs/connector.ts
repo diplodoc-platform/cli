@@ -1,5 +1,6 @@
 import type {Run} from '@diplodoc/cli/lib/run';
-import type {Contributor, SyncData, VcsConnector} from '@diplodoc/cli/lib/vcs';
+import type {Resources} from '@diplodoc/cli/lib/meta';
+import type {Contributor, SyncData, VcsConnector, VcsMetadata} from '@diplodoc/cli/lib/vcs';
 import type {Config} from './types';
 
 import {join} from 'node:path';
@@ -10,6 +11,8 @@ import {Defer, bounded, memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
 import {GitClient} from './git-client';
 import {GithubClient} from './github-client';
+
+const GITHUB_AVATARS_DOMAIN = 'https://avatars.githubusercontent.com';
 
 export type * from './types';
 
@@ -147,6 +150,17 @@ export class GithubVcsConnector implements VcsConnector {
         await this.ready;
 
         return this.mtimeByPath[normalizePath(path)] ?? null;
+    }
+
+    @bounded
+    async getResourcesByPath(_path: RelativePath, meta: VcsMetadata): Promise<Resources> {
+        if (!meta.author && !meta.contributors) {
+            return {};
+        }
+
+        return {
+            csp: [{'img-src': [GITHUB_AVATARS_DOMAIN]}],
+        };
     }
 
     private async fillContributors(baseDir: AbsolutePath) {
