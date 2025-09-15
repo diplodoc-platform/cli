@@ -19,14 +19,11 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - uses: codex-team/action-nodejs-package-info@v1
         id: package
-      - uses: GoogleCloudPlatform/release-please-action@v3
+      - uses: googleapis/release-please-action@v4
         id: release
         with:
           token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
           release-type: node
-          package-name: ${{steps.package.outputs.name}}
-          changelog-types: '[{"type":"feat","section":"Features","hidden":false},{"type":"fix","section":"Bug Fixes","hidden":false},{"type":"perf","section":"Performance Improvements","hidden":false},{"type":"deps","section":"Dependency update","hidden":false}]'
-          bump-minor-pre-major: true
       - run: npm ci && npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
