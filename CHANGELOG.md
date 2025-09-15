@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.11.4](https://github.com/diplodoc-platform/cli/compare/v5.11.3...v5.11.4) (2025-09-15)
+
+
+### Bug Fixes
+
+* use toc entries to check filtered files, update tests ([520db4c](https://github.com/diplodoc-platform/cli/commit/520db4cc1973dd9536393534bc00e1e4fabd102f))
+* **vcs:** Fix vcs `owner` and `repo` detection for https remote ([69efb76](https://github.com/diplodoc-platform/cli/commit/69efb7660122cca42029cb6eb5c83016dcabc01e))
+
 ## [5.11.3](https://github.com/diplodoc-platform/cli/compare/v5.11.2...v5.11.3) (2025-09-15)
 
 
