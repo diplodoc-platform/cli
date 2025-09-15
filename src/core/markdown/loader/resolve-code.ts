@@ -2,9 +2,9 @@ import type {LoaderContext} from '../loader';
 
 export function resolveBlockCodes(this: LoaderContext, content: string) {
     const CODE_CONTENTS =
-        /(?:(?:^|\n)[ \t]*(?:`{3,}|~{3,})[\s\S]*?(?:`{3,}|~{3,})(?:\n|$))|(?:`[^`\n]+?`)|(?:^(?: {4}|\t).*$(?:\n^(?: {4}|\t).*$)*)/gm;
+        /(?:(?:^|\n)[ \t]*(`{3,}|~{3,})[\s\S]*?\1(?:\n|$))|(?:`[^`\n]+?`)|(?:^(?: {4}|\t).*$(?:\n^(?: {4}|\t).*$)*)/gm;
     const NO_CODE_CONTENTS =
-        /(^\s*[^:\n]+\n:\s+[^\n]+(?:\n(?!\s*[^:\n]+\n:|^\s*\d+\.|^#|^<!--|^- |^\s*```).*)*$)/gm;
+        /(^\s*[^:\r\n]+\r?\n(?:\r?\n)?:(?:\r?\n)?\s+[^\r\n]+(?:\r?\n(?!\s*[^:\r\n]+\r?\n:|^\s*\d+\.|^#|^<!--|^- |^\s*```).*)*$)/gm;
 
     const allCodes: Array<[number, number]> = [];
     const noCodes: Array<[number, number]> = [];

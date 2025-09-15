@@ -728,6 +728,7 @@ describe('Markdown loader', () => {
         it('should work with deflists', async () => {
             const content = dedent`
                 **Term 1**
+
                 :   Definition 1
 
                     ![](image.jpeg)
@@ -737,6 +738,24 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in nested code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`\`
+                \`\`\`
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+                \`\`\`\`
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 

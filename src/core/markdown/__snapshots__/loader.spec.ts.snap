@@ -131,6 +131,37 @@ exports[`Markdown loader > resolveAssets > should not detect asset with long fen
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should skip assets in nested code blocks 1`] = `
+[
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      17,
+      31,
+    ],
+    "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      95,
+      109,
+    ],
+    "path": "some4.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should skip commented content 1`] = `
 [
   [
@@ -210,8 +241,8 @@ exports[`Markdown loader > resolveAssets > should work with deflists 1`] = `
       "autotitle": false,
       "hash": null,
       "location": [
-        35,
-        48,
+        36,
+        49,
       ],
       "path": "image.jpeg",
       "search": null,
