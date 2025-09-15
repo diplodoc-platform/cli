@@ -67,7 +67,7 @@ async function resolveRemote(gitOptions: {baseDir: AbsolutePath}) {
         }
 
         if (remote.startsWith('https://')) {
-            const [endpoint, owner, repo] = remote.slice(8).split(':');
+            const [endpoint, owner, repo] = remote.slice(8).split('/');
 
             return {endpoint, owner, repo};
         }
