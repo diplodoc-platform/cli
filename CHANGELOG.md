@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.11.5](https://github.com/diplodoc-platform/cli/compare/v5.11.4...v5.11.5) (2025-09-15)
+
+
+### Bug Fixes
+
+* **vcs:** Add csp for github avatars ([f2b460f](https://github.com/diplodoc-platform/cli/commit/f2b460f9da94750738effedcf02a5c8e43c10310))
+* **vcs:** Add vcs resources control ([2da39ab](https://github.com/diplodoc-platform/cli/commit/2da39ab7d55f081042c006c593cf5bbfc74b807b))
+
 ## [5.11.4](https://github.com/diplodoc-platform/cli/compare/v5.11.3...v5.11.4) (2025-09-15)
 
 
