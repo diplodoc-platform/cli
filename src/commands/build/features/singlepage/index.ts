@@ -50,9 +50,10 @@ export class SinglePage {
                 }
 
                 const toc = run.toc.for(entry);
+                const meta = info.meta || {};
 
-                run.meta.add(toc.path, info.meta || {});
-                run.meta.addResources(toc.path, info.meta || {});
+                run.meta.addMetadata(toc.path, meta.metadata);
+                run.meta.addResources(toc.path, meta);
 
                 results[entry] = results[entry] || [];
                 results[entry] = {
