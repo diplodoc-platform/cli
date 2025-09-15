@@ -25,7 +25,7 @@ export function findLink(content: string): string | undefined {
 }
 
 export function findLinksInfo(content: string): AssetInfo[] {
-    return find(/]\(\s*/g, content, (match, rx) => {
+    const links = find(/]\(\s*/g, content, (match, rx) => {
         const link = parseLinkDestination(content, rx.lastIndex);
         const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
 
@@ -49,15 +49,52 @@ export function findLinksInfo(content: string): AssetInfo[] {
         return {
             ...parsed,
             type,
+            subtype: 'image',
             title,
             autotitle: type === 'link' && (!title || title === '{#T}'),
         };
     });
+
+    const referenceLinks = find(/]\[\s*/g, content, (match, rx) => {
+        let link = parseLinkDestination(content, rx.lastIndex);
+        if (link !== null && link.indexOf(']') > -1) {
+            link = link.substring(0, link.indexOf(']'));
+        }
+        const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+
+        // TODO: add more precise filter for unix compatible paths
+        if (link === null || title === null || link.match(/[${}]/)) {
+            return undefined;
+        }
+
+        const parsed = parseLocalUrl(link || title);
+        if (!parsed) {
+            return undefined;
+        }
+
+        const modifier = content[
+            rx.lastIndex - match[0].length - title.length - 2
+        ] as AssetModifier;
+        const type = modifiers[modifier] || 'link';
+
+        rx.lastIndex += link.length + 1;
+
+        return {
+            ...parsed,
+            type,
+            subtype: 'reference',
+            code: link || title,
+            title,
+            autotitle: type === 'link' && (!title || title === '{#T}'),
+        };
+    });
+
+    return [...links, ...referenceLinks];
 }
 
 export function findDefs(content: string): AssetInfo[] {
-    return find(/^\s*\[.*?]:\s*([^\s]+)/gm, content, (match) => {
-        const parsed = parseLocalUrl(match[1]);
+    return find(/^\s*\[(.*?)]:\s*([^\s]+)/gm, content, (match) => {
+        const parsed = parseLocalUrl(match[2]);
         if (!parsed) {
             return undefined;
         }
@@ -65,6 +102,7 @@ export function findDefs(content: string): AssetInfo[] {
         return {
             ...parsed,
             type: 'def',
+            code: match[1] || undefined,
             title: '',
             autotitle: true,
         };
