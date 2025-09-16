@@ -17,7 +17,7 @@ export class Extension implements IExtension {
     apply(program: BaseProgram<BaseConfig & Config, BaseArgs & Args>) {
         getBaseHooks<Run>(program).BeforeAnyRun.tap('ArcadiaVcsConnector', (run) => {
             getVcsHooks(run.vcs).VcsConnector.tapPromise(
-                'ArcadiaVcsConnector',
+                {name: 'ArcadiaVcsConnector', stage: 10},
                 async (_connector) => {
                     const connector = new ArcadiaVcsConnector(run);
 
@@ -26,12 +26,12 @@ export class Extension implements IExtension {
             );
         });
 
-        getBaseHooks(program).Command.tap('ArcadiaVcsConnector', async (command) => {
+        getBaseHooks(program).Command.tap('ArcadiaVcsConnector', (command) => {
             command.addOption(options.vcsScopes);
             command.addOption(options.vcsInitialCommit);
         });
 
-        getBaseHooks(program).Config.tapPromise('ArcadiaVcsConnector', async (config, args) => {
+        getBaseHooks(program).Config.tap('ArcadiaVcsConnector', (config, args) => {
             if (!config.vcs.enabled) {
                 return config;
             }
