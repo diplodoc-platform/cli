@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.11.6](https://github.com/diplodoc-platform/cli/compare/v5.11.5...v5.11.6) (2025-09-16)
+
+
+### Bug Fixes
+
+* Bump arcadia-vcs extension priority ([bae9be8](https://github.com/diplodoc-platform/cli/commit/bae9be818491503bbdf434a39fdde82c5b8fb73e))
+
 ## [5.11.5](https://github.com/diplodoc-platform/cli/compare/v5.11.4...v5.11.5) (2025-09-15)
 
 
