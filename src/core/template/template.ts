@@ -1,8 +1,11 @@
+import type {Alternate} from '~/core/meta';
+
+import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
 import {RTL_LANGS} from '~/constants';
-import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
+import {bounded, get, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {getFaviconType} from './utils';
 
 enum ScriptPosition {
@@ -61,7 +64,7 @@ export class Template {
 
     private canonical = '';
 
-    private alternates: Hash[] = [];
+    private alternates: Alternate[] = [];
 
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
@@ -165,8 +168,8 @@ export class Template {
         return this;
     }
 
-    @bounded setAlternate(alternates: Hash[]) {
-        this.alternates = alternates;
+    @bounded addAlternates(alternates: Alternate[]) {
+        this.alternates = uniqBy(this.alternates.concat(alternates), get('href'));
 
         return this;
     }
@@ -185,8 +188,8 @@ export class Template {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <base href="${base}" />
                     <title>${title}</title>
-                    <link rel="canonical" href="./${canonical}">
-                    ${alternates.map(alternate).join('\n')}
+                    ${canonical ? `<link rel="canonical" href="${canonical}">` : ''}
+                    ${Object.values(alternates).map(alternate).join('\n')}
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -221,8 +224,8 @@ function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
 }
 
-function alternate(record: Hash<string>) {
-    return `<link rel="alternate" hreflang="${record.hreflang}" href="${record.href}" />`;
+function alternate({href, hreflang}: Alternate) {
+    return `<link ${attributes({rel: 'alternate', href, hreflang})} />`;
 }
 
 function csp(directives: Hash<string[]> | undefined) {

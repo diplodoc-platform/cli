@@ -32,8 +32,6 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
@@ -64,8 +62,6 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page Title | Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
@@ -99,8 +95,6 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
@@ -133,8 +127,6 @@ exports[`Allow load custom resources > md2html single page with custom resources
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
@@ -192,8 +184,6 @@ exports[`Allow load custom resources > md2html with custom resources 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>
@@ -224,8 +214,6 @@ exports[`Allow load custom resources > md2html with custom resources 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page Title | Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
@@ -259,8 +247,6 @@ exports[`Allow load custom resources > md2html with custom resources 4`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <link rel="canonical" href="./">
-        <link rel="alternate" hreflang="" href="./" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link type="text/css" rel="stylesheet" href="_assets/style/test.css"/>

@@ -164,7 +164,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     async action() {
-        const {langs, outputFormat} = this.config;
+        const {outputFormat} = this.config;
 
         this.run = new Run(this.config);
 
@@ -217,14 +217,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         console.log('Sync project data');
         await this.sync(this.run.toc.relations, vcs);
 
-        const {entries} = this.run.toc;
-
         await this.concurrently(this.run.toc.tocs, this.processToc);
 
-        this.run.meta.addAlternate(entries, langs);
-
         console.log('Process project files');
-        await this.concurrently(entries, async (entry) => {
+        await this.concurrently(this.run.toc.entries, async (entry) => {
             try {
                 await this.processEntry(entry);
             } catch (error) {

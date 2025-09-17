@@ -1,9 +1,9 @@
 import type {Run} from '~/core/run';
-import type {Meta, RawResources} from './types';
+import type {Alternate, Meta, RawResources} from './types';
 
 import {omit, uniq} from 'lodash';
 
-import {copyJson, normalizePath} from '~/core/utils';
+import {copyJson, get, normalizePath, zip} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -64,7 +64,14 @@ export class MetaService {
             meta[field] = uniq(meta[field] as string[]).filter(Boolean);
         }
 
-        for (const field of ['script', 'style', 'keywords', 'contributors', 'csp'] as const) {
+        for (const field of [
+            'script',
+            'style',
+            'keywords',
+            'contributors',
+            'csp',
+            'alternate',
+        ] as const) {
             if (!meta[field]?.length) {
                 delete meta[field];
             }
@@ -112,6 +119,7 @@ export class MetaService {
         this.meta.set(file, result);
 
         this.addMetadata(path, record.metadata);
+        this.addAlternates(path, record.alternate);
         this.addSystemVars(path, record.__system);
 
         return meta;
@@ -178,65 +186,29 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
-    parseEntry(entry: string) {
-        const idx = entry.indexOf('/');
+    addAlternates(path: RelativePath, alternates: (NormalizedPath | Alternate)[] | undefined) {
+        const file = normalizePath(path);
+        const normalized = (alternates || []).map((item) => {
+            if (typeof item === 'string') {
+                return {href: item};
+            }
 
-        if (idx === -1) {
-            return null;
+            return item;
+        });
+
+        const meta = this.meta.get(file) || this.initialMeta();
+        const curr = zip(meta.alternate!.map(get('href')), meta.alternate!);
+        const next = zip(normalized.map(get('href')), normalized);
+
+        for (const alternate of Object.values(next)) {
+            if (curr[alternate.href]) {
+                Object.assign(curr[alternate.href], alternate);
+            } else {
+                meta.alternate!.push(alternate);
+            }
         }
 
-        const lang = entry.slice(0, idx);
-        const path = entry.slice(idx + 1);
-        const basePath = path.replace(/\.[^.]+$/, '');
-        const canonical = `${lang}/${basePath}`;
-
-        return {lang, path, basePath, canonical};
-    }
-
-    buildLangsMap(entries: NormalizedPath[], langs: string[]) {
-        const langsMap = new Map<string, string[]>();
-
-        for (const entry of entries) {
-            const parsed = this.parseEntry(entry);
-
-            if (!parsed || !langs.includes(parsed.lang)) {
-                continue;
-            }
-
-            if (!langsMap.has(parsed.path)) {
-                langsMap.set(parsed.path, []);
-            }
-
-            langsMap.get(parsed.path)!.push(parsed.canonical);
-        }
-
-        return langsMap;
-    }
-
-    addAlternate(entries: NormalizedPath[], langs: string[]) {
-        const langsMap = this.buildLangsMap(entries, langs);
-
-        for (const entry of entries) {
-            const parsed = this.parseEntry(entry);
-
-            if (!parsed) {
-                continue;
-            }
-
-            const availableLangs = langsMap.get(parsed.path) || [];
-
-            if (!availableLangs.length) {
-                continue;
-            }
-
-            const alternate = availableLangs.filter((a) => a !== parsed.canonical);
-
-            const meta = this.meta.get(entry) || this.initialMeta();
-            meta.canonical = parsed.canonical;
-            meta.alternate = alternate;
-
-            this.meta.set(entry, meta);
-        }
+        this.meta.set(file, meta);
     }
 
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
@@ -255,6 +227,7 @@ export class MetaService {
     private initialMeta(): Meta {
         return {
             metadata: [],
+            alternate: [],
             style: [],
             script: [],
             csp: [],

@@ -1,16 +1,21 @@
 import type {Build} from '~/commands/build';
+import type {Command} from '~/core/config';
+import type {Toc, TocItem} from '~/core/toc';
+
+import {join} from 'node:path';
+
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getBaseHooks} from '~/core/program';
+import {defined} from '~/core/config';
+import {normalizePath, own, prettifyLink} from '~/core/utils';
+
 import {getHooks as getEntryHooks} from '../../services/entry';
-import {normalizePath, own} from '~/core/utils';
-import {Command, defined} from '~/core/config';
 import {options} from './config';
-import type {Toc, TocItem} from '~/core/toc';
 import {getHref, mapHeadings} from './utils';
-import {join} from 'node:path';
 import skipHtmlLinks from './plugins/skipHtmlLinks';
 
 export type SkipHtmlArgs = {
@@ -40,7 +45,7 @@ export class SkipHtml {
                     return;
                 }
 
-                // Link handling in TOC
+                // Trim .html in TOC links
                 getTocHooks(run.toc).Dump.tapPromise('SkipHtml', async (vfile) => {
                     await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
                         if (own<string, 'href'>(item, 'href')) {
@@ -51,22 +56,35 @@ export class SkipHtml {
                     });
                 });
 
-                // Handling headers without html
-                getEntryHooks(run.entry).State.tap('SkipHtml', (state) => {
-                    const prettyHeadings = mapHeadings(state.data.headings);
+                // Trim .html in metadata
+                getMetaHooks(run.meta).Dump.tap('SkipHtml', (meta) => {
+                    if (meta.canonical) {
+                        meta.canonical = prettifyLink(meta.canonical);
+                    }
 
-                    state.data.headings = prettyHeadings;
+                    if (meta.alternate?.length) {
+                        meta.alternate = meta.alternate.map((item) => ({
+                            ...item,
+                            href: prettifyLink(item.href),
+                        }));
+                    }
+
+                    return meta;
                 });
 
-                // Connecting a plugin to bypass links
+                // Trim .html in MiniTOC links
+                getEntryHooks(run.entry).State.tap('SkipHtml', (state) => {
+                    state.data.headings = mapHeadings(state.data.headings);
+                });
+
+                // Trim .html in Doc Page links
                 getMarkdownHooks(run.markdown).Plugins.tap('SkipHtml', (plugins) => {
                     return plugins.concat(skipHtmlLinks);
                 });
 
+                // Trim .html in Leading Page links
                 getLeadingHooks(run.leading).Dump.tapPromise('SkipHtml', async (vfile) => {
-                    vfile.data = await run.leading.walkLinks(vfile.data, (link: string) => {
-                        return getHref(link);
-                    });
+                    vfile.data = await run.leading.walkLinks(vfile.data, getHref);
                 });
             });
 

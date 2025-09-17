@@ -21,6 +21,11 @@ export type Resources = {
     csp?: Hash<string[]>[];
 };
 
+export type Alternate = {
+    href: string;
+    hreflang?: string;
+};
+
 export type Meta = {
     title?: string;
     description?: string;
@@ -33,7 +38,7 @@ export type Meta = {
     resources?: Resources;
     'restricted-access'?: string[][];
     canonical?: string;
-    alternate?: string[];
+    alternate?: Alternate[];
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;

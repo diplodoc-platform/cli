@@ -12,16 +12,7 @@ import {render} from '@diplodoc/client/ssr';
 import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
-import {
-    Graph,
-    VFile,
-    copyJson,
-    getDepth,
-    getDepthPath,
-    langFromPath,
-    processAlternate,
-    setExt,
-} from '~/core/utils';
+import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
@@ -78,7 +69,7 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface, meta} = this.config;
+        const {langs, analytics, interface: baseInterface} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
 
@@ -99,7 +90,6 @@ export class EntryService {
             langs,
             analytics,
             viewerInterface,
-            meta,
         };
 
         await getHooks(this).State.promise(state);
@@ -129,8 +119,6 @@ export class EntryService {
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
-        const processedAlternate = processAlternate([canonical, ...alternate]);
-
         const html = staticContent
             ? render({
                   ...state,
@@ -146,7 +134,7 @@ export class EntryService {
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
         template.setCanonical(canonical);
-        template.setAlternate(processedAlternate);
+        template.addAlternates(alternate);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
@@ -227,6 +215,12 @@ export class EntryService {
                 generator: `Diplodoc Platform v${VERSION}`,
             },
         });
+
+        const canonical = setExt(path, 'html');
+        const alternate = this.run.alternates(path);
+        if (alternate.length > 1) {
+            this.run.meta.add(path, {canonical, alternate});
+        }
 
         const type = extname(path).slice(1);
         const result = {type, path} as EntryData;
