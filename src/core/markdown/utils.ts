@@ -49,25 +49,24 @@ export function findLinksInfo(content: string): AssetInfo[] {
         return {
             ...parsed,
             type,
-            subtype: 'image',
+            subtype: type === 'image' ? 'image' : null,
             title,
             autotitle: type === 'link' && (!title || title === '{#T}'),
         };
     });
 
     const referenceLinks = find(/]\[\s*/g, content, (match, rx) => {
-        let link = parseLinkDestination(content, rx.lastIndex);
-        if (link !== null && link.indexOf(']') > -1) {
-            link = link.substring(0, link.indexOf(']'));
-        }
-        const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+        let link = parseLinkDestination(content, rx.lastIndex, ['[', ']']);
+        let title = parseLinkTitle(content, rx.lastIndex - match[0].length);
 
         // TODO: add more precise filter for unix compatible paths
-        if (link === null || title === null || link.match(/[${}]/)) {
+        if ((link === null && title === null) || link?.match(/[${}]/)) {
             return undefined;
         }
+        title = title || '';
+        link = link || title;
 
-        const parsed = parseLocalUrl(link || title);
+        const parsed = parseLocalUrl(link);
         if (!parsed) {
             return undefined;
         }
@@ -83,7 +82,7 @@ export function findLinksInfo(content: string): AssetInfo[] {
             ...parsed,
             type,
             subtype: 'reference',
-            code: link || title,
+            code: link,
             title,
             autotitle: type === 'link' && (!title || title === '{#T}'),
         };
@@ -135,8 +134,9 @@ function find(
     return links;
 }
 
-function parseLinkDestination(str: string, start: number) {
+function parseLinkDestination(str: string, start: number, symbols = ['(', ')']) {
     const max = str.length;
+    const [symbolStart, symbolEnd] = symbols.map((symbol) => symbol.charCodeAt(0));
 
     let code,
         level = 0,
@@ -166,14 +166,14 @@ function parseLinkDestination(str: string, start: number) {
             continue;
         }
 
-        if (code === 0x28 /* ( */) {
+        if (code === symbolStart /* ( or ] */) {
             level++;
             if (level > 32) {
                 return null;
             }
         }
 
-        if (code === 0x29 /* ) */) {
+        if (code === symbolEnd /* ) or ] */) {
             if (level === 0) {
                 break;
             }
