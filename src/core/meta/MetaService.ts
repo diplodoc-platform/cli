@@ -1,9 +1,9 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {omit, uniq} from 'lodash';
+import {flow, omit, uniq} from 'lodash';
 
-import {copyJson, get, normalizePath, zip} from '~/core/utils';
+import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -113,7 +113,7 @@ export class MetaService {
 
         const result = Object.assign(
             meta,
-            omit(record, ['script', 'style', 'csp', 'metadata', '__system', 'restricted-access']),
+            omit(record, ['script', 'style', 'csp', 'metadata', 'alternate', '__system', 'restricted-access']),
         );
 
         this.meta.set(file, result);
@@ -196,14 +196,13 @@ export class MetaService {
             return item;
         });
 
+        const hash = flow(get('href'), shortLink);
         const meta = this.meta.get(file) || this.initialMeta();
-        const curr = zip(meta.alternate!.map(get('href')), meta.alternate!);
-        const next = zip(normalized.map(get('href')), normalized);
+        const curr = zip(meta.alternate!.map(hash), meta.alternate!);
+        const next = zip(normalized.map(hash), normalized);
 
-        for (const alternate of Object.values(next)) {
-            if (curr[alternate.href]) {
-                Object.assign(curr[alternate.href], alternate);
-            } else {
+        for (const [key, alternate] of Object.entries(next)) {
+            if (!curr[key]) {
                 meta.alternate!.push(alternate);
             }
         }

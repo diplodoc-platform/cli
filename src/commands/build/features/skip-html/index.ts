@@ -11,7 +11,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-import {normalizePath, own, prettifyLink} from '~/core/utils';
+import {normalizePath, own, shortLink} from '~/core/utils';
 
 import {getHooks as getEntryHooks} from '../../services/entry';
 import {options} from './config';
@@ -59,13 +59,13 @@ export class SkipHtml {
                 // Trim .html in metadata
                 getMetaHooks(run.meta).Dump.tap('SkipHtml', (meta) => {
                     if (meta.canonical) {
-                        meta.canonical = prettifyLink(meta.canonical);
+                        meta.canonical = shortLink(meta.canonical);
                     }
 
                     if (meta.alternate?.length) {
                         meta.alternate = meta.alternate.map((item) => ({
                             ...item,
-                            href: prettifyLink(item.href),
+                            href: shortLink(item.href),
                         }));
                     }
 
