@@ -19,17 +19,20 @@ import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './uti
 import {options} from './config';
 import {rehashIncludes} from './plugins/resolve-deps';
 import {mergeAutotitles} from './plugins/merge-autotitles';
+import {mergeSvg} from './plugins/merge-svg';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
     mergeIncludes: boolean;
     mergeAutotitles: boolean;
+    mergeSvg: boolean;
 };
 
 export type OutputMdConfig = {
     hashIncludes: boolean;
     mergeIncludes: boolean;
     mergeAutotitles: boolean;
+    mergeSvg: boolean;
 };
 
 export type PreprocessConfig = {
@@ -42,6 +45,7 @@ export class OutputMd {
             command.addOption(options.hashIncludes);
             command.addOption(options.mergeIncludes);
             command.addOption(options.mergeAutotitles);
+            command.addOption(options.mergeSvg);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
@@ -54,11 +58,15 @@ export class OutputMd {
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
                 mergeAutotitles: true,
             });
+            const mergeSvg = defined('mergeSvg', args, config.preprocess || {}, {
+                mergeSvg: false,
+            });
             return Object.assign(config, {
                 preprocess: {
                     hashIncludes,
                     mergeIncludes,
                     mergeAutotitles,
+                    mergeSvg,
                 },
             });
         });
@@ -79,6 +87,7 @@ export class OutputMd {
                     async (vfile) => {
                         const processed = new Map();
                         const titles = new Map();
+                        const svgList = new Map();
 
                         const config = run.config.preprocess;
                         const graph = await run.markdown.graph(vfile.path);
@@ -101,6 +110,7 @@ export class OutputMd {
                                     rehashIncludes(run, deps),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
+                                config.mergeSvg && mergeSvg(run, svgList, graph.assets),
                             ]);
 
                             await scheduler.schedule(graph.path);
