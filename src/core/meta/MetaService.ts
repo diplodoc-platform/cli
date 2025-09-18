@@ -113,7 +113,15 @@ export class MetaService {
 
         const result = Object.assign(
             meta,
-            omit(record, ['script', 'style', 'csp', 'metadata', 'alternate', '__system', 'restricted-access']),
+            omit(record, [
+                'script',
+                'style',
+                'csp',
+                'metadata',
+                'alternate',
+                '__system',
+                'restricted-access',
+            ]),
         );
 
         this.meta.set(file, result);

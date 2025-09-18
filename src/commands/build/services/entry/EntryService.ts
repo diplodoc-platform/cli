@@ -16,6 +16,7 @@ import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} fr
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
+import {getTitle} from './utils/seo';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
@@ -218,7 +219,7 @@ export class EntryService {
 
         const canonical = setExt(path, 'html');
         const alternate = this.run.alternates(path);
-        if (alternate.length > 1) {
+        if (alternate.length > 0) {
             this.run.meta.add(path, {canonical, alternate});
         }
 
@@ -250,12 +251,4 @@ export class EntryService {
             return this.run.markdown;
         }
     }
-}
-
-function getTitle(tocTitle: string, dataTitle: string) {
-    if (dataTitle && tocTitle) {
-        return `${dataTitle} | ${tocTitle}`;
-    }
-
-    return tocTitle || dataTitle || '';
 }
