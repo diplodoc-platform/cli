@@ -3,9 +3,13 @@ import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 
 import {dirname, join, relative} from 'node:path';
+import {normalizePath} from '~/core/utils';
 
 function isAutotitle(asset: AssetInfo) {
     return asset.type === 'link' && asset.autotitle === true;
+}
+function isDef(asset: AssetInfo) {
+    return asset.type === 'def' && asset.autotitle === true;
 }
 
 function rebaseAssets(
@@ -16,13 +20,15 @@ function rebaseAssets(
 ) {
     const base = relative(dirname(to), dirname(from));
     return assets.reduceRight((content, {path, location}) => {
-        const link = join(base, path);
-        return content.slice(0, location[0]) + link + content.slice(location[1]);
+        const link = normalizePath(join(base, path));
+        return content.slice(0, location[0] + 2) + link + content.slice(location[1] - 1);
     }, content);
 }
 
 export function mergeAutotitles(run: Run, titleList: Map<string, string>, assets: AssetInfo[]) {
     const links = assets.filter(isAutotitle);
+    const defs = assets.filter(isDef);
+
     const getTitle = async function (link: string, path: NormalizedPath) {
         if (link.startsWith('#')) {
             link = `${path}${link}`;
@@ -49,7 +55,15 @@ export function mergeAutotitles(run: Run, titleList: Map<string, string>, assets
         type StepContext = {link: AssetInfo};
 
         const actor = async function (content: string, {link}: StepContext): Promise<string> {
-            const {path, hash, location, title} = link as AssetInfo;
+            let {path, hash} = link;
+            const {location, title, subtype, code} = link;
+
+            // replace deps
+            if (subtype === 'reference') {
+                path = defs.filter((def) => def.code === code)[0]?.path || path;
+                hash = defs.filter((def) => def.code === code)[0]?.hash || hash;
+            }
+
             const url = (path || '') + (hash || '');
             const newTitle = await getTitle(url, entry);
 

@@ -18,7 +18,7 @@ import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './uti
 
 import {options} from './config';
 import {rehashIncludes} from './plugins/resolve-deps';
-import {mergeAutotitles} from './plugins/links-autotitles';
+import {mergeAutotitles} from './plugins/merge-autotitles';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
