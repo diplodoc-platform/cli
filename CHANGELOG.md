@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.12.0](https://github.com/diplodoc-platform/cli/compare/v5.11.6...v5.12.0) (2025-09-18)
+
+
+### Features
+
+* added availableLinks to meta ([#1375](https://github.com/diplodoc-platform/cli/issues/1375)) ([e7a864a](https://github.com/diplodoc-platform/cli/commit/e7a864a1d11a5d3a67c54a0435bb2459199cc749))
+* merge svg on md2md step ([c74401b](https://github.com/diplodoc-platform/cli/commit/c74401bd717c892cab9b0fc25fe762764f6f34fb))
+
+
+### Bug Fixes
+
+* add support reference links in assets ([a62f7ea](https://github.com/diplodoc-platform/cli/commit/a62f7eaefeb4f06808d0b8ab549736d61db34411))
+* autotitle in header non 1 level ([933684c](https://github.com/diplodoc-platform/cli/commit/933684c311edbf413c0ab79d6f090b58cb18fcf6))
+* detect codeblocks ([82f9361](https://github.com/diplodoc-platform/cli/commit/82f93619ac59bdf1e2a11b5cc626e4df69a9ed2e))
+* detect reference assets for image ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
+* extend image assets for fields: subtype, code ([df8ce90](https://github.com/diplodoc-platform/cli/commit/df8ce905bf358a6ca7bda18505b6eb5a0cedc76d))
+* incorrect lastIndex when empty link in reference ([55d00cb](https://github.com/diplodoc-platform/cli/commit/55d00cb99a8b7c2d90e0a37bc8322c3a525a498a))
+* incorrect rebased ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
+* support reference links in autotitles ([c9f80c0](https://github.com/diplodoc-platform/cli/commit/c9f80c05cefa534e7a1c115b865ad54794828a7e))
+
 ## [5.11.6](https://github.com/diplodoc-platform/cli/compare/v5.11.5...v5.11.6) (2025-09-16)
 
 
