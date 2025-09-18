@@ -9,7 +9,36 @@ export function isExternalHref(href: string) {
     return /^(\w{1,10}:)?\/\//.test(href) || /^([+\w]{1,10}:)/.test(href);
 }
 
-export function prettifyLink(href: string): string {
+export function longLink(href: string) {
+    if (isExternalHref(href)) {
+        return href;
+    }
+
+    const [pathWithoutHash, hash] = href.split('#', 2);
+    const [path, query] = pathWithoutHash.split('?', 2);
+
+    let result = path;
+
+    if (result.endsWith('/')) {
+        result += 'index.html';
+    }
+
+    if (result.match(/\.[^/\\]+$/)) {
+        result += '.html';
+    }
+
+    if (query) {
+        result += '?' + query;
+    }
+
+    if (hash) {
+        result += '#' + hash;
+    }
+
+    return result;
+}
+
+export function shortLink(href: string): string {
     if (isExternalHref(href)) {
         return href;
     }
@@ -29,8 +58,13 @@ export function prettifyLink(href: string): string {
         result = '.';
     }
 
-    if (query) result += '?' + query;
-    if (hash) result += '#' + hash;
+    if (query) {
+        result += '?' + query;
+    }
+
+    if (hash) {
+        result += '#' + hash;
+    }
 
     return result;
 }

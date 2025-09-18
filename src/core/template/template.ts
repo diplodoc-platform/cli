@@ -1,8 +1,11 @@
+import type {Alternate} from '~/core/meta';
+
+import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
 import {RTL_LANGS} from '~/constants';
-import {bounded, getDepth, getDepthPath, normalizePath} from '~/core/utils';
+import {bounded, get, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 import {getFaviconType} from './utils';
 
 enum ScriptPosition {
@@ -58,6 +61,10 @@ export class Template {
     private bodyClass: string[] = ['g-root', 'g-root_theme_light'];
 
     private faviconSrc = '';
+
+    private canonical = '';
+
+    private alternates: Alternate[] = [];
 
     constructor(path: RelativePath, lang: string, signs: symbol[] = []) {
         this.path = normalizePath(path);
@@ -155,8 +162,21 @@ export class Template {
         return this;
     }
 
+    @bounded setCanonical(canonical: string) {
+        this.canonical = canonical;
+
+        return this;
+    }
+
+    @bounded addAlternates(alternates: Alternate[]) {
+        this.alternates = uniqBy(this.alternates.concat(alternates), get('href'));
+
+        return this;
+    }
+
     dump() {
-        const {lang, title, styles, scripts, body, bodyClass, faviconSrc} = this;
+        const {lang, title, styles, scripts, body, bodyClass, faviconSrc, canonical, alternates} =
+            this;
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
 
@@ -168,6 +188,8 @@ export class Template {
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <base href="${base}" />
                     <title>${title}</title>
+                    ${canonical ? `<link rel="canonical" href="${canonical}">` : ''}
+                    ${Object.values(alternates).map(alternate).join('\n')}
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
@@ -200,6 +222,10 @@ function trailing<T extends PositionInfo>(array: T[]) {
 
 function meta(record: Hash<string>) {
     return `<meta ${attributes(record)}>`;
+}
+
+function alternate({href, hreflang}: Alternate) {
+    return `<link ${attributes({rel: 'alternate', href, hreflang})} />`;
 }
 
 function csp(directives: Hash<string[]> | undefined) {

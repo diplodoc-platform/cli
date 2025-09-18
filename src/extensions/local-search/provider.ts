@@ -2,7 +2,7 @@ import type {WorkerConfig} from '@diplodoc/search-extension';
 import type {BuildRun, EntryInfo, SearchProvider} from '@diplodoc/cli';
 
 import {Indexer, langs} from '@diplodoc/search-extension';
-import {prettifyLink} from '@diplodoc/cli/lib/utils';
+import {shortLink} from '@diplodoc/cli/lib/utils';
 
 import {extname, join} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -42,7 +42,7 @@ export class LocalSearchProvider implements SearchProvider {
         const skipHtmlExtension = this.run.config.skipHtmlExtension;
 
         const url = path.replace(extname(path), '') + '.html';
-        const prettyUrl = skipHtmlExtension ? prettifyLink(url) : url;
+        const prettyUrl = skipHtmlExtension ? shortLink(url) : url;
 
         this.indexer.add(lang, prettyUrl, info);
     }
@@ -90,7 +90,7 @@ export class LocalSearchProvider implements SearchProvider {
         const skipHtmlExtension = this.run.config.skipHtmlExtension;
 
         const link = this.pageLink(lang);
-        const prettyLink = skipHtmlExtension ? prettifyLink(link) : link;
+        const prettyLink = skipHtmlExtension ? shortLink(link) : link;
 
         return {
             ...this._config,

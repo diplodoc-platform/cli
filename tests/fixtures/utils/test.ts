@@ -1,3 +1,4 @@
+
 import assets from '@diplodoc/cli/manifest';
 
 export function platformless(text: string): string {

@@ -2,7 +2,7 @@ import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 
 import url from 'url';
-import {filterTokens, isExternalHref, prettifyLink} from '~/core/utils';
+import {filterTokens, isExternalHref, shortLink} from '~/core/utils';
 import {Heading} from '@diplodoc/transform/lib/typings';
 
 export function getHrefTokenAttr(token: Token) {
@@ -38,7 +38,7 @@ export function getHref(href: string) {
         return href;
     }
 
-    return prettifyLink(href);
+    return shortLink(href);
 }
 
 export function mapHeadings(headings: Heading[]) {
@@ -50,7 +50,7 @@ export function mapHeadings(headings: Heading[]) {
         const newHeading = {...heading};
 
         if (newHeading.href) {
-            newHeading.href = prettifyLink(newHeading.href);
+            newHeading.href = shortLink(newHeading.href);
         }
 
         if (Array.isArray(newHeading.items)) {

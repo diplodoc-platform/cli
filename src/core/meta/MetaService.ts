@@ -1,9 +1,9 @@
 import type {Run} from '~/core/run';
-import type {Meta, RawResources} from './types';
+import type {Alternate, Meta, RawResources} from './types';
 
-import {omit, uniq} from 'lodash';
+import {flow, omit, uniq} from 'lodash';
 
-import {copyJson, normalizePath} from '~/core/utils';
+import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
@@ -64,7 +64,14 @@ export class MetaService {
             meta[field] = uniq(meta[field] as string[]).filter(Boolean);
         }
 
-        for (const field of ['script', 'style', 'keywords', 'contributors', 'csp'] as const) {
+        for (const field of [
+            'script',
+            'style',
+            'keywords',
+            'contributors',
+            'csp',
+            'alternate',
+        ] as const) {
             if (!meta[field]?.length) {
                 delete meta[field];
             }
@@ -106,12 +113,21 @@ export class MetaService {
 
         const result = Object.assign(
             meta,
-            omit(record, ['script', 'style', 'csp', 'metadata', '__system', 'restricted-access']),
+            omit(record, [
+                'script',
+                'style',
+                'csp',
+                'metadata',
+                'alternate',
+                '__system',
+                'restricted-access',
+            ]),
         );
 
         this.meta.set(file, result);
 
         this.addMetadata(path, record.metadata);
+        this.addAlternates(path, record.alternate);
         this.addSystemVars(path, record.__system);
 
         return meta;
@@ -178,6 +194,30 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    addAlternates(path: RelativePath, alternates: (NormalizedPath | Alternate)[] | undefined) {
+        const file = normalizePath(path);
+        const normalized = (alternates || []).map((item) => {
+            if (typeof item === 'string') {
+                return {href: item};
+            }
+
+            return item;
+        });
+
+        const hash = flow(get('href'), shortLink);
+        const meta = this.meta.get(file) || this.initialMeta();
+        const curr = zip(meta.alternate!.map(hash), meta.alternate!);
+        const next = zip(normalized.map(hash), normalized);
+
+        for (const [key, alternate] of Object.entries(next)) {
+            if (!curr[key]) {
+                meta.alternate!.push(alternate);
+            }
+        }
+
+        this.meta.set(file, meta);
+    }
+
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
         const file = normalizePath(path);
 
@@ -194,6 +234,7 @@ export class MetaService {
     private initialMeta(): Meta {
         return {
             metadata: [],
+            alternate: [],
             style: [],
             script: [],
             csp: [],

@@ -1,0 +1,905 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Alternates > internal > filelist 1`] = `
+"[
+  ".yfm",
+  "az/about.md",
+  "az/deep/test.md",
+  "az/index.yaml",
+  "az/toc.yaml",
+  "en/about.md",
+  "en/deep/test.md",
+  "en/index.yaml",
+  "en/toc.yaml",
+  "ru/about.md",
+  "ru/deep/test.md",
+  "ru/index.yaml",
+  "ru/toc.yaml"
+]"
+`;
+
+exports[`Alternates > internal > filelist 2`] = `
+"[
+  ".yfm",
+  "az/about.html",
+  "az/deep/test.html",
+  "az/index.html",
+  "az/toc.js",
+  "en/about.html",
+  "en/deep/test.html",
+  "en/index.html",
+  "en/toc.js",
+  "index.html",
+  "ru/about.html",
+  "ru/deep/test.html",
+  "ru/index.html",
+  "ru/toc.js"
+]"
+`;
+
+exports[`Alternates > internal 1`] = `
+"langs: ['ru', 'en', 'az']
+"
+`;
+
+exports[`Alternates > internal 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/about
+  - en/about
+  - ru/about
+canonical: az/about.html
+vcsPath: az/about.md
+sourcePath: az/about.md
+---
+# About
+
+Content
+"
+`;
+
+exports[`Alternates > internal 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/deep/test
+  - en/deep/test
+  - ru/deep/test
+canonical: az/deep/test.html
+vcsPath: az/deep/test.md
+sourcePath: az/deep/test.md
+---
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 4`] = `
+"links:
+  - url: ./about
+    name: About
+meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform vDIPLODOC-VERSION
+  alternate:
+    - az/
+    - en/
+    - ru/
+  canonical: az/index.html
+  vcsPath: az/index.yaml
+  sourcePath: az/index.yaml
+"
+`;
+
+exports[`Alternates > internal 5`] = `
+"href: index.yaml
+items:
+  - href: about.md
+    name: About
+  - href: deep/test.md
+    name: Test
+path: az/toc.yaml
+"
+`;
+
+exports[`Alternates > internal 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/about
+  - en/about
+  - ru/about
+canonical: en/about.html
+vcsPath: en/about.md
+sourcePath: en/about.md
+---
+# About
+
+Content
+"
+`;
+
+exports[`Alternates > internal 7`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/deep/test
+  - en/deep/test
+  - ru/deep/test
+canonical: en/deep/test.html
+vcsPath: en/deep/test.md
+sourcePath: en/deep/test.md
+---
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 8`] = `
+"links:
+  - url: ./about
+    name: About
+meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform vDIPLODOC-VERSION
+  alternate:
+    - az/
+    - en/
+    - ru/
+  canonical: en/index.html
+  vcsPath: en/index.yaml
+  sourcePath: en/index.yaml
+"
+`;
+
+exports[`Alternates > internal 9`] = `
+"href: index.yaml
+items:
+  - href: about.md
+    name: About
+  - href: deep/test.md
+    name: Test
+path: en/toc.yaml
+"
+`;
+
+exports[`Alternates > internal 10`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/about
+  - en/about
+  - ru/about
+  - https://my-other-site.com/about
+canonical: ru/about.html
+vcsPath: ru/about.md
+sourcePath: ru/about.md
+---
+
+# About
+
+Content
+"
+`;
+
+exports[`Alternates > internal 11`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+alternate:
+  - az/deep/test
+  - en/deep/test
+  - ru/deep/test
+canonical: ru/deep/test.html
+vcsPath: ru/deep/test.md
+sourcePath: ru/deep/test.md
+---
+# Test
+
+Content
+"
+`;
+
+exports[`Alternates > internal 12`] = `
+"links:
+  - url: ./about
+    name: About
+meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform vDIPLODOC-VERSION
+  alternate:
+    - az/
+    - en/
+    - ru/
+  canonical: ru/index.html
+  vcsPath: ru/index.yaml
+  sourcePath: ru/index.yaml
+"
+`;
+
+exports[`Alternates > internal 13`] = `
+"href: index.yaml
+items:
+  - href: about.md
+    name: About
+  - href: deep/test.md
+    name: Test
+path: ru/toc.yaml
+"
+`;
+
+exports[`Alternates > internal 14`] = `
+"langs: ['ru', 'en', 'az']
+"
+`;
+
+exports[`Alternates > internal 15`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="az/about.html">
+        <link rel="alternate" href="az/about.html" hreflang="az" />
+        <link rel="alternate" href="en/about.html" hreflang="en" />
+        <link rel="alternate" href="ru/about.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"az/about.html","vcsPath":"az/about.md","sourcePath":"az/about.md"},"headings":[],"title":"About"},"router":{"pathname":"az/about","depth":2,"base":"../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 16`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="az/deep/test.html">
+        <link rel="alternate" href="az/deep/test.html" hreflang="az" />
+        <link rel="alternate" href="en/deep/test.html" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"az/deep/test.html","vcsPath":"az/deep/test.md","sourcePath":"az/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"az/deep/test","depth":3,"base":"../../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 17`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="az/index.html">
+        <link rel="alternate" href="az/index.html" hreflang="az" />
+        <link rel="alternate" href="en/index.html" hreflang="en" />
+        <link rel="alternate" href="ru/index.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"az/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"az/index.html","vcsPath":"az/index.yaml","sourcePath":"az/index.yaml"},"title":""},"router":{"pathname":"az/index","depth":2,"base":"../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 18`] = `"window.__DATA__.data.toc = {"href":"az/index.html","items":[{"href":"az/about.html","name":"About","id":"UUID"},{"href":"az/deep/test.html","name":"Test","id":"UUID"}],"path":"az/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > internal 19`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="en/about.html">
+        <link rel="alternate" href="az/about.html" hreflang="az" />
+        <link rel="alternate" href="en/about.html" hreflang="en" />
+        <link rel="alternate" href="ru/about.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"en/about.html","vcsPath":"en/about.md","sourcePath":"en/about.md"},"headings":[],"title":"About"},"router":{"pathname":"en/about","depth":2,"base":"../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 20`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="en/deep/test.html">
+        <link rel="alternate" href="az/deep/test.html" hreflang="az" />
+        <link rel="alternate" href="en/deep/test.html" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"en/deep/test.html","vcsPath":"en/deep/test.md","sourcePath":"en/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"en/deep/test","depth":3,"base":"../../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 21`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="en/index.html">
+        <link rel="alternate" href="az/index.html" hreflang="az" />
+        <link rel="alternate" href="en/index.html" hreflang="en" />
+        <link rel="alternate" href="ru/index.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"en/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"en/index.html","vcsPath":"en/index.yaml","sourcePath":"en/index.yaml"},"title":""},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 22`] = `"window.__DATA__.data.toc = {"href":"en/index.html","items":[{"href":"en/about.html","name":"About","id":"UUID"},{"href":"en/deep/test.html","name":"Test","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > internal 23`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Redirect to ./ru/index.html</title>
+        <meta http-equiv="refresh" content="0; url=./ru/index.html">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <script type="application/javascript">
+            window.location.replace("./ru/index.html");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./ru/index.html">link</a>.
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 24`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="ru/about.html">
+        <link rel="alternate" href="az/about.html" hreflang="az" />
+        <link rel="alternate" href="en/about.html" hreflang="en" />
+        <link rel="alternate" href="ru/about.html" hreflang="ru" />
+        <link rel="alternate" href="https://my-other-site.com/about" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"ru/about.html","hreflang":"ru"},{"href":"https://my-other-site.com/about"}],"canonical":"ru/about.html","vcsPath":"ru/about.md","sourcePath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 25`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="ru/deep/test.html">
+        <link rel="alternate" href="az/deep/test.html" hreflang="az" />
+        <link rel="alternate" href="en/deep/test.html" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test.html","hreflang":"az"},{"href":"en/deep/test.html","hreflang":"en"},{"href":"ru/deep/test.html","hreflang":"ru"}],"canonical":"ru/deep/test.html","vcsPath":"ru/deep/test.md","sourcePath":"ru/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"ru/deep/test","depth":3,"base":"../../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 26`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="ru/index.html">
+        <link rel="alternate" href="az/index.html" hreflang="az" />
+        <link rel="alternate" href="en/index.html" hreflang="en" />
+        <link rel="alternate" href="ru/index.html" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"ru/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/index.html","hreflang":"az"},{"href":"en/index.html","hreflang":"en"},{"href":"ru/index.html","hreflang":"ru"}],"canonical":"ru/index.html","vcsPath":"ru/index.yaml","sourcePath":"ru/index.yaml"},"title":""},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > internal 27`] = `"window.__DATA__.data.toc = {"href":"ru/index.html","items":[{"href":"ru/about.html","name":"About","id":"UUID"},{"href":"ru/deep/test.html","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > skip-html-extension > filelist 1`] = `
+"[
+  ".yfm",
+  "az/about.html",
+  "az/deep/test.html",
+  "az/index.html",
+  "az/toc.js",
+  "en/about.html",
+  "en/deep/test.html",
+  "en/index.html",
+  "en/toc.js",
+  "index.html",
+  "ru/about.html",
+  "ru/deep/test.html",
+  "ru/index.html",
+  "ru/toc.js"
+]"
+`;
+
+exports[`Alternates > skip-html-extension 1`] = `
+"langs: ['ru', 'en', 'az']
+"
+`;
+
+exports[`Alternates > skip-html-extension 2`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="az/about">
+        <link rel="alternate" href="az/about" hreflang="az" />
+        <link rel="alternate" href="en/about" hreflang="en" />
+        <link rel="alternate" href="ru/about" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about","hreflang":"az"},{"href":"en/about","hreflang":"en"},{"href":"ru/about","hreflang":"ru"}],"canonical":"az/about","vcsPath":"az/about.md","sourcePath":"az/about.md"},"headings":[],"title":"About"},"router":{"pathname":"az/about","depth":2,"base":"../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 3`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="az/deep/test">
+        <link rel="alternate" href="az/deep/test" hreflang="az" />
+        <link rel="alternate" href="en/deep/test" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test","hreflang":"az"},{"href":"en/deep/test","hreflang":"en"},{"href":"ru/deep/test","hreflang":"ru"}],"canonical":"az/deep/test","vcsPath":"az/deep/test.md","sourcePath":"az/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"az/deep/test","depth":3,"base":"../../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 4`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="az/">
+        <link rel="alternate" href="az/" hreflang="az" />
+        <link rel="alternate" href="en/" hreflang="en" />
+        <link rel="alternate" href="ru/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"az/about/","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/","hreflang":"az"},{"href":"en/","hreflang":"en"},{"href":"ru/","hreflang":"ru"}],"canonical":"az/","vcsPath":"az/index.yaml","sourcePath":"az/index.yaml"},"title":""},"router":{"pathname":"az/index","depth":2,"base":"../"},"lang":"az","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 5`] = `"window.__DATA__.data.toc = {"href":"az/","items":[{"href":"az/about","name":"About","id":"UUID"},{"href":"az/deep/test","name":"Test","id":"UUID"}],"path":"az/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > skip-html-extension 6`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="en/about">
+        <link rel="alternate" href="az/about" hreflang="az" />
+        <link rel="alternate" href="en/about" hreflang="en" />
+        <link rel="alternate" href="ru/about" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about","hreflang":"az"},{"href":"en/about","hreflang":"en"},{"href":"ru/about","hreflang":"ru"}],"canonical":"en/about","vcsPath":"en/about.md","sourcePath":"en/about.md"},"headings":[],"title":"About"},"router":{"pathname":"en/about","depth":2,"base":"../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 7`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="en/deep/test">
+        <link rel="alternate" href="az/deep/test" hreflang="az" />
+        <link rel="alternate" href="en/deep/test" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test","hreflang":"az"},{"href":"en/deep/test","hreflang":"en"},{"href":"ru/deep/test","hreflang":"ru"}],"canonical":"en/deep/test","vcsPath":"en/deep/test.md","sourcePath":"en/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"en/deep/test","depth":3,"base":"../../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 8`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="en/">
+        <link rel="alternate" href="az/" hreflang="az" />
+        <link rel="alternate" href="en/" hreflang="en" />
+        <link rel="alternate" href="ru/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"en/about/","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/","hreflang":"az"},{"href":"en/","hreflang":"en"},{"href":"ru/","hreflang":"ru"}],"canonical":"en/","vcsPath":"en/index.yaml","sourcePath":"en/index.yaml"},"title":""},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 9`] = `"window.__DATA__.data.toc = {"href":"en/","items":[{"href":"en/about","name":"About","id":"UUID"},{"href":"en/deep/test","name":"Test","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates > skip-html-extension 10`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Redirect to ./ru</title>
+        <meta http-equiv="refresh" content="0; url=./ru">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <script type="application/javascript">
+            window.location.replace("./ru");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./ru">link</a>.
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 11`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="canonical" href="ru/about">
+        <link rel="alternate" href="az/about" hreflang="az" />
+        <link rel="alternate" href="en/about" hreflang="en" />
+        <link rel="alternate" href="ru/about" hreflang="ru" />
+        <link rel="alternate" href="https://my-other-site.com/about" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about","hreflang":"az"},{"href":"en/about","hreflang":"en"},{"href":"ru/about","hreflang":"ru"},{"href":"https://my-other-site.com/about"}],"canonical":"ru/about","vcsPath":"ru/about.md","sourcePath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 12`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <link rel="canonical" href="ru/deep/test">
+        <link rel="alternate" href="az/deep/test" hreflang="az" />
+        <link rel="alternate" href="en/deep/test" hreflang="en" />
+        <link rel="alternate" href="ru/deep/test" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/deep/test","hreflang":"az"},{"href":"en/deep/test","hreflang":"en"},{"href":"ru/deep/test","hreflang":"ru"}],"canonical":"ru/deep/test","vcsPath":"ru/deep/test.md","sourcePath":"ru/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"ru/deep/test","depth":3,"base":"../../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 13`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <link rel="canonical" href="ru/">
+        <link rel="alternate" href="az/" hreflang="az" />
+        <link rel="alternate" href="en/" hreflang="en" />
+        <link rel="alternate" href="ru/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"ru/about/","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/","hreflang":"az"},{"href":"en/","hreflang":"en"},{"href":"ru/","hreflang":"ru"}],"canonical":"ru/","vcsPath":"ru/index.yaml","sourcePath":"ru/index.yaml"},"title":""},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru","en","az"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates > skip-html-extension 14`] = `"window.__DATA__.data.toc = {"href":"ru/","items":[{"href":"ru/about","name":"About","id":"UUID"},{"href":"ru/deep/test","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;

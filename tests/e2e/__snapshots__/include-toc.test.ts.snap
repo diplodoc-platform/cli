@@ -347,7 +347,10 @@ meta:
   metadata:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
+  alternate:
+    - ru/
   sourcePath: ru/sub/folder/index.yaml
+  canonical: ru/index.html
   vcsPath: ru/sub/folder/index.yaml
 "
 `;

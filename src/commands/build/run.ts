@@ -1,5 +1,6 @@
 import type {BuildConfig} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
+import type {Alternate} from '~/core/meta';
 
 import {join, resolve} from 'node:path';
 import {uniq} from 'lodash';
@@ -15,7 +16,7 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, get, langFromPath, memoize, normalizePath, zip} from '~/core/utils';
+import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
 import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
@@ -139,6 +140,18 @@ export class Run extends BaseRun<BuildConfig> {
         });
     }
 
+    alternates(file: NormalizedPath) {
+        const langs = this.config.langs;
+        const alternates = this.getAlternateMap();
+        const [lang, base] = extractLang(file, langs);
+
+        if (!lang) {
+            return [];
+        }
+
+        return alternates[base] || [];
+    }
+
     private transformConfig(path: NormalizedPath) {
         return {
             allowHTML: this.config.allowHtml,
@@ -158,6 +171,25 @@ export class Run extends BaseRun<BuildConfig> {
     @memoize()
     private getEntries() {
         return this.toc.entries;
+    }
+
+    @memoize()
+    private getAlternateMap() {
+        const map: Hash<Alternate[]> = {};
+        const langs = this.config.langs;
+        const entries = this.getEntries();
+
+        for (const entry of entries) {
+            const [hreflang, base] = extractLang(entry, langs);
+            const href = setExt(entry, 'html');
+
+            if (hreflang) {
+                map[base] = map[base] || [];
+                map[base].push({href, hreflang});
+            }
+        }
+
+        return map;
     }
 
     @bounded
@@ -188,6 +220,16 @@ export class Run extends BaseRun<BuildConfig> {
 
         return this.markdown.titles(path);
     }
+}
+
+function extractLang(file: NormalizedPath, langs: string[]) {
+    const [lang, ...rest] = file.split('/');
+
+    if (!langs.includes(lang)) {
+        return [];
+    }
+
+    return [lang, rest.join('/')];
 }
 
 function needAutotitle(asset: AssetInfo) {

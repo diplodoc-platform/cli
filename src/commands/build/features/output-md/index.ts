@@ -6,13 +6,15 @@ import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
 import {dump} from 'js-yaml';
+import {flow} from 'lodash';
 
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
-import {all, isMediaLink} from '~/core/utils';
+import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
 import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 
@@ -72,6 +74,14 @@ export class OutputMd {
 
                 const copiedIncludes = new Set<string>();
                 const copiedAssets = new Set<string>();
+
+                getMetaHooks(run.meta).Dump.tap('Build.Md', (meta) => {
+                    if (meta.alternate) {
+                        meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
+                    }
+
+                    return meta;
+                });
 
                 // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise(

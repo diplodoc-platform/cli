@@ -16,6 +16,7 @@ import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} fr
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
+import {getTitle} from './utils/seo';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
@@ -28,6 +29,8 @@ const excludedMetaFields = [
     'sourcePath',
     'vcsPath',
     'noIndex',
+    'canonical',
+    'alternate',
 ];
 
 function isPublicMeta(record: {name?: string}) {
@@ -105,6 +108,8 @@ export class EntryService {
             title: metaTitle,
             description,
             resources: metaResources,
+            canonical = '',
+            alternate = [],
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -129,6 +134,8 @@ export class EntryService {
         template.setTitle(title);
         template.addBody(`<div id="root">${html}</div>`);
         template.setFaviconSrc(faviconSrc);
+        template.setCanonical(canonical);
+        template.addAlternates(alternate);
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);
@@ -210,6 +217,12 @@ export class EntryService {
             },
         });
 
+        const canonical = setExt(path, 'html');
+        const alternate = this.run.alternates(path);
+        if (alternate.length > 0) {
+            this.run.meta.add(path, {canonical, alternate});
+        }
+
         const type = extname(path).slice(1);
         const result = {type, path} as EntryData;
 
@@ -238,12 +251,4 @@ export class EntryService {
             return this.run.markdown;
         }
     }
-}
-
-function getTitle(tocTitle: string, dataTitle: string) {
-    if (dataTitle && tocTitle) {
-        return `${dataTitle} | ${tocTitle}`;
-    }
-
-    return tocTitle || dataTitle || '';
 }
