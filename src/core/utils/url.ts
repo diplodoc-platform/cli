@@ -23,7 +23,7 @@ export function longLink(href: string) {
         result += 'index.html';
     }
 
-    if (result.match(/\.[^\/\\]+$/)) {
+    if (result.match(/\.[^/\\]+$/)) {
         result += '.html';
     }
 
