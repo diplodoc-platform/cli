@@ -129,7 +129,7 @@
     "minimatch": "9.0.3",
     "node-html-parser": "6.1.5",
     "simple-git": "3.22.0",
-    "slugify": "1.6.5",
+    "slugify": "1.6.6",
     "svgo": "3.3.2",
     "ts-patch": "3.3.0",
     "typescript": "5.4.5",
