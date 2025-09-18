@@ -18,6 +18,15 @@ Empty local title
 Special local title
 [{#T}](#header)
 
+Reference link
+[{#T}][link]
+
+Reference link with hash
+[{#T}][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
 ## Header {#header}
 
 Content
