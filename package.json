@@ -123,7 +123,7 @@
     "chokidar": "^4.0.1",
     "esbuild": "^0.23.1",
     "html-escaper": "^3.0.3",
-    "husky": "8.0.3",
+    "husky": "9.1.7",
     "lint-staged": "12.5.0",
     "mime-types": "2.1.35",
     "minimatch": "9.0.3",
