@@ -18,8 +18,15 @@ const mergeAutotitles = option({
     desc: 'Merge autotitles syntax during md to md processing.',
 });
 
+const mergeSvg = option({
+    flags: '--merge-svg',
+    hidden: true,
+    desc: 'Merge svg images during md to md processing.',
+});
+
 export const options = {
     hashIncludes,
     mergeIncludes,
     mergeAutotitles,
+    mergeSvg,
 };

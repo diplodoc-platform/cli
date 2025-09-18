@@ -123,11 +123,102 @@ metadata:
 vcsPath: images.md
 sourcePath: images.md
 ---
-# Images
+# Images ![svg image 1](_assets/1.svg)
 
 ![simple image](_assets/1.png)
 
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
 
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 10.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 10.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 10.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 10.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 10.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 10.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
 "
 `;
 
@@ -426,11 +517,102 @@ metadata:
 vcsPath: images.md
 sourcePath: images.md
 ---
-# Images
+# Images ![svg image 1](_assets/1.svg)
 
 ![simple image](_assets/1.png)
 
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+![svg image 11](_assets/1.svg)
 
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+![svg image 2](_assets/1.svg "Mountain" =100x200)
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+![reference image 3][image1]
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[![svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[![svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)
+
+
+7. \`![title][code]{width=100 height=200}\`
+![title][code]{width=100 height=200}
+
+8. \`![code][]{width=100}\`
+![code][]{width=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[![Source Code][badge-source]][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    ![img](_assets/1.svg)
+    and more text
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 10.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 10.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 10.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 10.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 10.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 10.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
 "
 `;
 
@@ -574,13 +756,407 @@ sourcePath: sub/folder/item-1.md
 
 Item 1 text
 
-[Images](../../images.md)
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
 
 [Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
 "
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 16`] = `
+"items:
+  - name: Md item with not_var syntax
+    href: 1.md
+  - name: Md item named without extension
+    href: 1.md
+  - name: Included Item
+    href: included-item.md
+  - name: Named include (items is Object here - this is not an error)
+    items:
+      - name: Item 1
+        href: sub/folder/item-1.md
+  - href: mermaid.md
+    name: Mermaid usage
+  - name: Latex usage
+    href: latex.md
+  - name: Images
+    href: images.md
+  - name: Autotitle
+    href: autotitle.md
+  - name: includes
+    href: includes.md
+path: toc.yaml
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true > filelist 1`] = `
+"[
+  ".yfm",
+  "1.md",
+  "_assets/1.png",
+  "_assets/1.svg",
+  "autotitle.md",
+  "images.md",
+  "included-item.md",
+  "includes.md",
+  "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
+  "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
+  "latex.md",
+  "mermaid.md",
+  "sub/folder/item-1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 1`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: 1.md
+sourcePath: 1.md
+---
+# Title
+
+Text not_var{{not-var}} not_var{{skip()}} default-var-value
+
+Text \`not_var{{not-var}}\` \`not_var{{skip()}}\` \`default-var-value\`
+
+Text
+\`\`\`
+not_var{{not-var}}
+
+not_var{{skip()}}
+
+default-var-value
+\`\`\`
+
+
+\`[not a link](./path/to/relative/file.md)\`
+
+## Subtitle {#subtitle}
+
+[Mermaid usage](mermaid.md)
+
+[Mermaid info](mermaid.md#info)
+
+[Latex usage](latex.md)
+
+[noext-link](includes)
+
+{% include [user](includes/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: autotitle.md
+sourcePath: autotitle.md
+---
+# Autotitles <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+Empty title
+[Title](./1.md)
+
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
+Empty subtitle
+[Subtitle](./1.md#subtitle)
+
+Special title
+[Title](./1.md)
+
+Special subtitle
+[Subtitle](./1.md#subtitle)
+
+Empty local title
+[Header](#header)
+
+Special local title
+[Header](#header)
+
+Reference link
+[Mermaid usage][link]
+
+Reference link with hash
+[Subtitle][link-with-hash]
+
+[link]: ./mermaid.md
+[link-with-hash]: ./1.md#subtitle
+
+## Header {#header}
+
+Content
+
+#### Step 1. Follow the steps described in the [Uploading Attributes via Import File](#create-attribute-with-template) section
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: images.md
+sourcePath: images.md
+---
+# Images <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+![simple image](_assets/1.png)
+
+<!-- ![comm svg image 1](_assets/1.svg) -->
+1. \`![code svg image 1](_assets/1.svg)\`
+<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+<!-- ![comm svg image 2](_assets/1.svg "Mountain" =100x200) -->
+2. \`![code svg image 2](_assets/1.svg "Mountain" =100x200)\`
+<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+<!-- ![comm reference image 3][image1] -->
+3. \`![code reference image 3][image1]\`
+<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+4. \`![code image1][]\`
+![image1][]
+
+[image1]: _assets/1.svg "Svg"
+
+<!-- [![comm svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain) -->
+5. \`[![code svg image 4](_assets/1.svg)](https://yandex.com/images/search?text=mountain)\`
+[<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>](https://yandex.com/images/search?text=mountain)
+
+<!-- [![comm svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain) -->
+6. \`[![code svg image 5](_assets/1.svg "Title"){width=100 height=200}](https://yandex.com/images/search?text=mountain)\`
+[<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>](https://yandex.com/images/search?text=mountain)
+
+
+7. \`![title][code]{width=100 height=200}\`
+<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+
+8. \`![code][]{width=100}\`
+<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>th=100}
+
+[code]: _assets/1.svg
+
+9. \`[![code Source Code][badge-source]][source]\`
+[<svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>][source]
+
+10. \`![no inline for reference][png]\`
+![no inline for reference][png]
+
+[badge-source]: _assets/1.svg
+[png]: _assets/1.png
+[source]: https://github.com/ramsey/uuid/tree/3.x
+
+11. Definition list 
+Term
+:   Definition with 
+
+    <svg width="22" height="21" viewBox="0 0 22 21" fill="none" xmlns="http://www.w3.org/2000/svg"><mask id="rnd-hash__mask0_131_57" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="22" height="21"><path d="M11 21C17.0751 21 22 16.299 22 10.5C22 4.70101 17.0751 0 11 0C4.92487 0 0 4.70101 0 10.5C0 16.299 4.92487 21 11 21Z" fill="white"/></mask><g mask="url(#rnd-hash__mask0_131_57)"><path d="M22.0002 0.0249023H0.000244141V21.0249H22.0002V0.0249023Z" fill="url(#rnd-hash__paint0_linear_131_57)"/><path d="M5.24867 14.1518C6.14929 15 8.55037 15.5078 10.9996 15.5176C13.4471 15.5078 15.8482 15 16.7488 14.1518C18.9884 12.0469 13.5451 3.97666 11.0013 3.96436C8.45242 3.97666 3.00742 12.0469 5.24867 14.1518Z" fill="white"/></g><defs><linearGradient id="rnd-hash__paint0_linear_131_57" x1="0.000244096" y1="13.3603" x2="21.9989" y2="13.5363" gradientUnits="userSpaceOnUse"><stop stop-color="#E459E8"/><stop offset="1" stop-color="#005F82"/></linearGradient></defs></svg>
+    and more text
+
+20. Сodeblocks - no inline svg
+\`\`\`
+Codeblock fence
+![code svg image 10.1](_assets/1.svg)
+\`\`\`
+
+\`\`\`\`
+Codeblock in codeblock
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`
+![code svg image 10.2](_assets/1.svg)
+\`\`\`\`
+
+~~~
+Codeblock tilda
+![code svg image 10.3](_assets/1.svg)
+~~~
+
+\`\`\`\`\`\`\`md translate=no
+Codeblock 10 fence
+![code svg image 10.4](_assets/1.svg)
+\`\`\`\`\`\`\`
+
+    Codeblock 4 spaces
+    ![code svg image 10.5](_assets/1.svg)
+    row 3
+
+1. Codeblock 4 spaces in list
+
+        ![code svg image 10.6](_assets/1.svg)
+1. Codeblock fence in list with bad gap
+  \`\`\`
+  ![code svg image 10.7](_assets/1.svg)
+  \`\`\`
+
+\`\`\`md
+Codeblock with inline code
+   \`![code svg image 22](_assets/1.svg)\`
+1. ![code svg image 23](_assets/1.svg)
+\`\`\`
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: included-item.md
+sourcePath: included-item.md
+---
+# Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: includes.md
+sourcePath: includes.md
+---
+Text
+
+{% include [user](includes/user-hash.md) %}
+
+{% include [test](includes/test-hash.md) %}
+
+Link after include
+[Title](./1.md)
+
+<!--{% include [For includes/deep.md](includes/deep.md) %}-->
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
+
+Include with big indent
+
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
+
+Link after include
+[Subtitle](./1.md#subtitle)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 7`] = `
+"{% include [user](sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 8`] = `
+"- list item
+
+  {% include [user](sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](../mermaid.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 9`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 10`] = `
+"Link to mermaid diagram from 2 level
+[Mermaid usage](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 11`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 12`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: latex.md
+sourcePath: latex.md
+---
+# Latex usage
+
+$/sqrt{3x-1}+(1+x)^2$
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 14`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: mermaid.md
+sourcePath: mermaid.md
+---
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: sub/folder/item-1.md
+sourcePath: sub/folder/item-1.md
+---
+# Item 1
+
+Item 1 text
+
+[Images ![svg image 1](../../_assets/1.svg)](../../images.md)
+
+[Autotitles ![](../../_assets/1.svg)](../../autotitle.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 16`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md

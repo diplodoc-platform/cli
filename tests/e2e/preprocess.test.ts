@@ -29,5 +29,9 @@ describe('Preprocess', () => {
 
     generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true', 'mocks/preprocess');
 
+    generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true,Svg=true', 'mocks/preprocess', [
+        '--merge-svg'
+    ]);
+
     // generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/preprocess/test3');
 });
