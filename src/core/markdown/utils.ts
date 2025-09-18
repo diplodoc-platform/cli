@@ -76,7 +76,7 @@ export function findLinksInfo(content: string): AssetInfo[] {
         ] as AssetModifier;
         const type = modifiers[modifier] || 'link';
 
-        rx.lastIndex += link.length + 1;
+        rx.lastIndex += (content[rx.lastIndex] === ']' ? 0 : link.length) + 1;
 
         return {
             ...parsed,
