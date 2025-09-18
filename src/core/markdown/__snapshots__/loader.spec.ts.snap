@@ -336,7 +336,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "hash": null,
       "location": [
         55,
-        62,
+        58,
       ],
       "path": "code",
       "search": null,
@@ -384,7 +384,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "hash": null,
       "location": [
         33,
-        40,
+        36,
       ],
       "path": "code",
       "search": null,
