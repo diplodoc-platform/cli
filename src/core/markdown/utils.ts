@@ -294,7 +294,7 @@ export function parseHeading(content: string) {
         content = content.replace(/\n[-=]+$/, '');
     }
 
-    const ANCHOR = /{(#[^}]+)}/g;
+    const ANCHOR = /[^[]{(#[^}]+)}/g;
 
     let match;
     // eslint-disable-next-line no-cond-assign

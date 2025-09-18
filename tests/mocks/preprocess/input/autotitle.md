@@ -3,6 +3,8 @@
 Empty title
 [](./1.md)
 
+### Uploading Attributes via Import File {#create-attribute-with-template}
+
 Empty subtitle
 [](./1.md#subtitle)
 
@@ -30,3 +32,5 @@ Reference link with hash
 ## Header {#header}
 
 Content
+
+#### Step 1. Follow the steps described in the [{#T}](#create-attribute-with-template) section
