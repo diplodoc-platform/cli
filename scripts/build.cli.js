@@ -15,6 +15,7 @@ const baseConfig = {
     target: 'node18',
     sourcemap: true,
     bundle: true,
+    logLevel: 'error',
     define: {
         'global.VERSION': JSON.stringify(version),
     },
