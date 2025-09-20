@@ -52,3 +52,11 @@ declare module 'node:fs/promises' {
 interface Error {
     code?: string;
 }
+
+type Pages = {
+    [pageKey: string]: {
+        [langKey: string]: {
+            text: string;
+        };
+    };
+};
