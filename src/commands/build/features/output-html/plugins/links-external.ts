@@ -24,7 +24,7 @@ export default ((md) => {
 
     try {
         md.core.ruler.before('links', 'links-external', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('links-external', plugin);
     }
 }) as MarkdownItPluginCb<Options>;

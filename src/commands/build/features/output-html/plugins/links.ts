@@ -61,7 +61,7 @@ export default ((md, opts) => {
 
     try {
         md.core.ruler.before('includes', 'links', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('links', plugin);
     }
 }) as MarkdownItPluginCb<Options>;

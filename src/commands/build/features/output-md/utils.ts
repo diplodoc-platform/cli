@@ -56,7 +56,7 @@ export function getCustomCollectPlugins(): Collect[] {
             .map((plugin) => plugin.collect);
 
         return collects.filter(Boolean) as Collect[];
-    } catch (e) {
+    } catch {
         return [];
     }
 }

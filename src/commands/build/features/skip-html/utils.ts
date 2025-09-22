@@ -10,7 +10,7 @@ export function getHrefTokenAttr(token: Token) {
     const href = token.attrGet('href') || '';
     try {
         return decodeURI(href);
-    } catch (e) {}
+    } catch {}
 
     return href;
 }

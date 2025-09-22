@@ -16,7 +16,7 @@ export default ((md) => {
 
     try {
         md.core.ruler.after('anchors', 'skipHtmlLinks', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('skipHtmlLinks', plugin);
     }
 }) as MarkdownItPluginCb<Options>;

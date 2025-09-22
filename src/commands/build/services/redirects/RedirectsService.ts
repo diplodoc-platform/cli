@@ -118,7 +118,7 @@ export class RedirectsService {
                 try {
                     getRegexpFromRedirect(from);
                     getRegexpFromRedirect(to);
-                } catch (error) {
+                } catch {
                     this.run.logger.error(
                         formatMessage(
                             `Redirects configuration results in a non-valid regular expression.`,
