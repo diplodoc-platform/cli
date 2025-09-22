@@ -1,0 +1,59 @@
+name: Deprecate version
+run-name: Deprecate ${{ inputs.version }} version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Package version'
+        required: true
+        type: string
+      message:
+        description: 'Deprecation message'
+        required: true
+        type: string
+      latest:
+        description: 'New latest version'
+        type: string
+
+jobs:
+  update-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      - uses: codex-team/action-nodejs-package-info@v1
+        id: package
+      - name: Deprecate target version
+        env:
+          GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          PACKAGE="${{ steps.package.outputs.name }}"
+          LATEST="$(npm view $PACKAGE@latest | grep -e "$PACKAGE@[0-9.]*" -o)"
+          VERSION="${{ inputs.version }}"
+          MESSAGE="${{ inputs.message }}"
+          TARGET="$PACKAGE@$VERSION"
+
+          if [[ $LATEST == $TARGET ]]; then
+            if [[ -z "${{ inputs.latest }}" ]]; then
+              echo "::error::Param 'latest' should be configured to previous version, to deprecate latest version"
+              exit 1
+            fi
+          fi
+
+          if [[ -n $VERSION ]]; then
+            echo "::notice::Set latest tag to $PACKAGE@$VERSION"
+            npm dist-tag add $PACKAGE@$VERSION latest
+          fi
+
+          echo "::notice::Deprecate $TARGET release. Reason: $MESSAGE"
+          npm deprecate "$TARGET" "$MESSAGE"
+
+
