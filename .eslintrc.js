@@ -1,11 +1,8 @@
 module.exports = {
-    extends: ['@diplodoc/eslint-config'],
     root: true,
+    extends: require.resolve('@diplodoc/lint/eslint-config'),
     parserOptions: {
         tsconfigRootDir: __dirname,
         project: true,
-    },
-    env: {
-        node: true,
     },
 };
