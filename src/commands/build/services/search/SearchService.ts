@@ -2,14 +2,14 @@ import type {EntryInfo, OutputFormat, Run} from '~/commands/build';
 import type {SearchProvider} from './types';
 
 import {basename, join} from 'node:path';
+import dedent from 'ts-dedent';
 
 import {bounded, normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
+import {BUNDLE_FOLDER} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
-import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
-import dedent from 'ts-dedent';
 
 const SEARCH_PAGE_DEPTH = 2;
 
@@ -98,7 +98,6 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded async page(lang: string) {
-        const isRTL = RTL_LANGS.includes(lang);
         const template = new Template('_search' as NormalizedPath, lang);
         const config = this.run.config;
         const baseInterface = config.interface;
@@ -116,7 +115,7 @@ export class SearchService implements SearchProvider<RelativePath> {
         template.addMeta({robots: 'noindex'});
 
         this.run.manifest.search.css
-            .filter((file: string) => isRTL === file.includes('.rtl.css'))
+            .filter((file: string) => template.isRTL === file.includes('.rtl.css'))
             .map(rebase)
             .map(template.addStyle);
 

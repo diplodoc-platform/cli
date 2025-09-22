@@ -32,12 +32,12 @@ function writer(subject: Subject<LogRecord>, level: string) {
 }
 
 registerSerializer({
-    deserialize(message: any, defaultHandler: Function) {
+    deserialize(message: unknown, defaultHandler: Function) {
         if (isError(message)) {
             return Object.assign(new Error(message.message), omit(message, '__type'));
         }
         if (Graph.is(message)) {
-            return Graph.deserialize(message as any);
+            return Graph.deserialize(message);
         } else if (Array.isArray(message)) {
             return defaultHandler(
                 message.map((item: unknown) => {
@@ -48,10 +48,10 @@ registerSerializer({
                     return item;
                 }),
             );
-        } else if (typeof message === 'object') {
-            const graphs = Object.keys(message).filter((key) => Graph.is(message[key]));
+        } else if (isObject(message)) {
+            const graphs = Object.entries(message).filter(([, value]) => Graph.is(value));
             const parsed = Object.fromEntries(
-                graphs.map((key) => [key, Graph.deserialize(message[key])]),
+                graphs.map(([key, value]) => [key, Graph.deserialize(value)]),
             );
 
             return defaultHandler({
@@ -62,7 +62,7 @@ registerSerializer({
             return defaultHandler(message);
         }
     },
-    serialize(message: any, defaultHandler: Function) {
+    serialize(message: unknown, defaultHandler: Function) {
         if (isError(message)) {
             return defaultHandler({
                 ...message,
@@ -82,10 +82,10 @@ registerSerializer({
                     return item;
                 }),
             );
-        } else if (typeof message === 'object') {
-            const graphs = Object.keys(message).filter((key) => message[key] instanceof Graph);
+        } else if (isObject(message)) {
+            const graphs = Object.entries(message).filter(([, value]) => value instanceof Graph);
             const serialized = Object.fromEntries(
-                graphs.map((key) => [key, message[key].serialize()]),
+                graphs.map(([key, value]) => [key, value.serialize()]),
             );
 
             return defaultHandler({
@@ -252,7 +252,11 @@ export function multicast(call: string) {
     };
 }
 
-function isError(data: unknown) {
+function isObject(data: unknown): data is Object {
+    return Boolean(data && typeof data === 'object');
+}
+
+function isError(data: unknown): data is Error {
     return Boolean(
         data instanceof Error ||
             (data && typeof data === 'object' && '__type' in data && data.__type === '$$Error'),

@@ -29,6 +29,12 @@ type TransformOptions = {
     assets: AssetInfo[];
 };
 
+type Manifest = Hash<{
+    js: string[];
+    css: string[];
+    async: string[];
+}>;
+
 const TMP_INPUT_FOLDER = '.tmp_input';
 
 export type TransformConfig = ReturnType<Run['transformConfig']>;
@@ -75,7 +81,7 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     get manifest() {
-        return require(join(__dirname, 'manifest.json'));
+        return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
     constructor(config: BuildConfig) {

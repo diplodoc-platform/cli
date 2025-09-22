@@ -3,6 +3,7 @@ import type {BaseProgram, IExtension} from '@diplodoc/cli/lib/program';
 import type {MarkdownService, Plugin} from '@diplodoc/cli/lib/markdown';
 
 import {join} from 'node:path';
+
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getMarkdownHooks} from '@diplodoc/cli/lib/markdown';
 
@@ -45,23 +46,20 @@ export class Extension implements IExtension {
                 for (const pluginConfig of this.plugins) {
                     const {name, exportName = 'default', options = {}, resolver} = pluginConfig;
 
-                    let pluginResolver: Plugin;
+                    const pluginModule =
+                        resolver && isRelative(resolver)
+                            ? require(join(run.originalInput, resolver))
+                            : require(name);
 
-                    if (resolver && isRelative(resolver)) {
-                        pluginResolver = require(join(run.originalInput, resolver));
-                    } else {
-                        pluginResolver = (md, pluginOptions) => {
-                            const pluginModule = require(name);
+                    const pluginResolver: Plugin = (md, pluginOptions) => {
+                        if (typeof pluginModule === 'function') {
+                            return pluginModule(md, pluginOptions);
+                        }
 
-                            if (typeof pluginModule === 'function') {
-                                return pluginModule(md, pluginOptions);
-                            }
+                        return pluginModule[exportName](md, pluginOptions);
+                    };
 
-                            return pluginModule[exportName](md, pluginOptions);
-                        };
-                    }
-
-                    plugins.push((md) => pluginResolver(md, options));
+                    plugins.push((md, opts) => pluginResolver(md, {...opts, ...options}));
                 }
 
                 return plugins;

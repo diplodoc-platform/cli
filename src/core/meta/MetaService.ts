@@ -206,14 +206,17 @@ export class MetaService {
 
         const hash = flow(get('href'), shortLink);
         const meta = this.meta.get(file) || this.initialMeta();
-        const curr = zip(meta.alternate!.map(hash), meta.alternate!);
+        const alternate = (meta.alternate = meta.alternate || []);
+        const curr = zip(alternate.map(hash), alternate);
         const next = zip(normalized.map(hash), normalized);
 
-        for (const [key, alternate] of Object.entries(next)) {
+        for (const [key, value] of Object.entries(next)) {
             if (!curr[key]) {
-                meta.alternate!.push(alternate);
+                alternate.push(value);
             }
         }
+
+        meta.alternate = alternate;
 
         this.meta.set(file, meta);
     }

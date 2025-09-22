@@ -1,14 +1,13 @@
 import type {BaseArgs} from '~/core/program';
 import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
 import type {Locale} from '../utils';
+import type {ConfigDefaults} from '../utils/config';
 
 import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 import liquid from '@diplodoc/transform/lib/liquid';
-// @ts-ignore
-import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
 import {
     BaseProgram,
@@ -18,6 +17,8 @@ import {
 } from '~/core/program';
 import {Command, defined} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+import {normalizePath} from '~/core/utils';
+
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 import {FilterExtract} from '../features/filter-extract';
 import {options} from '../config';
@@ -34,8 +35,8 @@ import {
     resolveVars,
 } from '../utils';
 import {Run} from '../run';
-import {ConfigDefaults, configDefaults} from '../utils/config';
-import {normalizePath} from '~/core/utils';
+import {configDefaults} from '../utils/config';
+
 import {getHooks, withHooks} from './hooks';
 
 const MAX_CONCURRENCY = 50;
@@ -47,7 +48,6 @@ export type ExtractArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     vars?: Hash;
-    useExperimentalParser?: boolean;
     filter?: boolean;
 };
 
@@ -60,17 +60,13 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     vars: Hash;
-    useExperimentalParser?: boolean;
     schema?: string;
     filter?: boolean;
 } & ConfigDefaults;
 
 @withHooks
 @withConfigScope('translate.extract', {strict: true})
-@withConfigDefaults(() => ({
-    useExperimentalParser: false,
-    ...configDefaults(),
-}))
+@withConfigDefaults(() => configDefaults())
 export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
     readonly name = 'Translate.Extract';
 
@@ -86,7 +82,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         options.exclude,
         options.vars,
         options.config(YFM_CONFIG_FILENAME),
-        options.useExperimentalParser,
         options.schema,
         options.filter,
     ];
@@ -127,22 +122,13 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 include,
                 exclude,
                 vars,
-                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
                 filter,
             });
         });
     }
 
     async action() {
-        const {
-            input,
-            output,
-            source,
-            target: targets,
-            vars,
-            useExperimentalParser,
-            schema,
-        } = this.config;
+        const {input, output, source, target: targets, vars, schema} = this.config;
 
         this.logger.setup(this.config);
 
@@ -154,6 +140,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         await this.run.prepareRun();
 
         const [files, skipped] = await this.run.getFiles();
+        const exit = process.exit;
 
         for (const target of targets) {
             ok(source.language && source.locale, 'Invalid source language-locale config');
@@ -165,7 +152,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 input,
                 output,
                 vars,
-                useExperimentalParser,
                 schema,
             });
 
@@ -191,7 +177,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                             this.logger.extractError(file, `${error.message}`);
 
                             if (error.fatal) {
-                                process.exit(1);
+                                exit(1);
                             }
                         } else {
                             this.logger.error(file, error);
@@ -209,12 +195,11 @@ export type PipelineParameters = {
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
     vars: Hash;
-    useExperimentalParser?: boolean;
     schema?: ExtractOptions['schema'];
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars, useExperimentalParser, schema} = params;
+    const {input, output, source, target, vars, schema} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -248,22 +233,14 @@ function pipeline(params: PipelineParameters) {
             source,
             target,
             schemas,
-            useExperimentalParser,
             ajvOptions,
         });
 
-        let xliffResult = xliff;
-        if (useExperimentalParser && units === undefined) {
-            const expXliff = xliff as unknown as Xliff;
-            xliffResult = expXliff.toString();
-            if (!expXliff.transUnits.length) {
-                throw new EmptyTokensError();
-            }
-        } else if (!units.length) {
+        if (!units.length) {
             throw new EmptyTokensError();
         }
 
-        const xlf = new FileLoader(inputPath).set(xliffResult);
+        const xlf = new FileLoader(inputPath).set(xliff);
         const skl = new FileLoader(inputPath).set(skeleton);
 
         await Promise.all([

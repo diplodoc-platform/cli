@@ -109,13 +109,6 @@ const useSource = option({
     `,
 });
 
-const useExperimentalParser = option({
-    flags: '--use-experimental-parser',
-    desc: `
-        Use experimental parser for markdown documents.
-    `,
-});
-
 const schema = option({
     flags: '--schema <path...>',
     desc: `
@@ -156,7 +149,6 @@ export const options = {
     vars,
     dryRun,
     useSource,
-    useExperimentalParser,
     schema,
     filter,
 };

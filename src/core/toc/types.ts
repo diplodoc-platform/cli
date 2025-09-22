@@ -87,7 +87,7 @@ export type Toc = {
     label?: {
         title: string;
         description?: string;
-        theme?: any;
+        theme?: string;
     };
     stage?: string;
     href?: NormalizedPath;

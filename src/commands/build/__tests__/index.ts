@@ -104,7 +104,7 @@ export function setupBuild(state?: BuildState): Build {
             setupRun({}, run as Run);
         }
 
-        vi.spyOn(run, 'manifest', 'get').mockReturnValue({
+        vi.spyOn(run as RunSpy, 'manifest', 'get').mockReturnValue({
             app: {js: [], css: [], async: []},
             search: {js: [], css: [], async: []},
         });

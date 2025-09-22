@@ -1,3 +1,4 @@
+import type {Heading} from '@diplodoc/transform/lib/typings';
 import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
@@ -8,35 +9,38 @@ export type EntryData = (
     | {
           type: 'md';
           content: VFile<string>;
+          info: EntryInfo<MarkdownData>;
       }
     | {
           type: 'yaml';
           content: VFile<LeadingPage>;
+          info: EntryInfo<LeadingData>;
       }
 ) & {
     path: NormalizedPath;
     meta: Meta;
-    info: EntryInfo;
 };
 
-export type PageData = (
-    | {
-          leading: true;
-          data: LeadingPage;
-          html?: never;
-          headings?: never;
-      }
-    | {
-          leading: false;
-          html: string;
-          data?: never;
-          headings: any;
-      }
-) & {
-    toc?: Toc;
-    meta: Meta;
-    title: string;
+export type LeadingData = {
+    leading: true;
+    data: LeadingPage;
+    html?: never;
+    headings?: never;
 };
+
+export type MarkdownData = {
+    leading: false;
+    html: string;
+    data?: never;
+    headings: Heading[];
+};
+
+export type PageData<Extras extends LeadingData | MarkdownData = LeadingData | MarkdownData> =
+    Extras & {
+        toc?: Toc;
+        meta: Meta;
+        title: string;
+    };
 
 export type PageState = {
     data: PageData & Hash;
