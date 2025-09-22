@@ -1,1 +1,1 @@
-module.exports = require('@diplodoc/prettier-config');
+module.exports = require('@diplodoc/lint/prettier-config');
