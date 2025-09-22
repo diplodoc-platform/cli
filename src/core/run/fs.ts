@@ -9,7 +9,6 @@ import {
     unlink,
     writeFile,
 } from 'node:fs/promises';
-
 import {statSync} from 'node:fs';
 
 export type FileSystem = {

@@ -1,6 +1,7 @@
 import type {TextFilter} from './types';
 
 import {evaluate} from '@diplodoc/liquid';
+
 import {isExternalHref, own} from '~/core/utils';
 
 export function isRelative(path: AnyPath): path is RelativePath {

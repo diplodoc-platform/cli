@@ -13,6 +13,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
 import {isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
+
 import {options} from './config';
 
 const EXTENSIONS = /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/;

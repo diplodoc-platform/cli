@@ -2,6 +2,7 @@ import type {IncludeInfo} from '../types';
 import type {LoaderContext} from '../loader';
 
 import {parseLocalUrl, rebasePath} from '~/core/utils';
+
 import {filterRanges, findLink} from '../utils';
 
 export function resolveDependencies(this: LoaderContext, content: string) {

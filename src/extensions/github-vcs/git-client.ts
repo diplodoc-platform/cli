@@ -3,6 +3,7 @@ import type {SimpleGitOptions} from 'simple-git';
 import {relative} from 'node:path';
 import simpleGit from 'simple-git';
 import {minimatch} from 'minimatch';
+
 import {normalizePath as _normalizePath} from '@diplodoc/cli/lib/utils';
 
 type AuthorInfo = {
@@ -45,6 +46,7 @@ export class GitClient {
             await cleanup();
             await simpleGit(options).raw('worktree', 'add', '-b', branch, dir, origin);
         } catch (error) {
+            // eslint-disable-next-line no-console
             console.error(error);
         }
 

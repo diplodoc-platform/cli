@@ -20,6 +20,7 @@ import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension';
+import {noTranslate} from '@diplodoc/translation';
 
 import {filterTokens} from '~/core/utils';
 
@@ -29,7 +30,6 @@ import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
 import images from './plugins/images';
-import {noTranslate} from '@diplodoc/translation';
 
 export function getBaseMdItPlugins() {
     return [

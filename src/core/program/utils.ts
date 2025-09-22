@@ -1,6 +1,7 @@
-import {isAbsolute} from 'node:path';
 import type {BaseArgs, BaseConfig} from '~/core/program/types';
-import {BaseProgram} from '~/core/program/index';
+import type {BaseProgram} from '~/core/program/index';
+
+import {isAbsolute} from 'node:path';
 
 export function isRelative(path: string | undefined) {
     return /^\.{1,2}\//.test(path || '');

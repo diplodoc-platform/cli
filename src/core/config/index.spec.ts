@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
+import {readFile} from 'node:fs/promises';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {resolveConfig, toggleable} from '.';
@@ -11,8 +12,6 @@ vi.mock('node:fs/promises', () => ({
 vi.mock('js-yaml', () => ({
     load: vi.fn((content) => JSON.parse(content)),
 }));
-
-import {readFile} from 'node:fs/promises';
 
 describe('config utils', () => {
     describe('toggleable', () => {

@@ -1,6 +1,8 @@
+import type {LogConfig} from './types';
+import type {Result} from 'execa';
+
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-
 import {execa} from 'execa';
 import {dedent} from 'ts-dedent';
 
@@ -14,8 +16,8 @@ vi.mock('execa', () => ({
 }));
 
 // Helper functions for data preparation
-function createClientWithSampleData(sample: string, config: any = {vcs: {}}) {
-    vi.mocked(execa).mockResolvedValue({stdout: sample} as any);
+function createClientWithSampleData(sample: string, config: LogConfig = {vcs: {}}) {
+    vi.mocked(execa).mockResolvedValue({stdout: sample} as Result);
     return new ArcClient(config, baseDir);
 }
 
@@ -473,13 +475,13 @@ describe('ArcClient', () => {
     it('should pass initialCommit range to arc log', async () => {
         const mocked = vi.mocked(execa);
 
-        arc(['root']).thenResolve({stdout: baseDir} as any);
+        arc(['root']).thenResolve({stdout: baseDir} as Result);
         arc(['log', '-n1', '--oneline'], expect.anything()).thenResolve({
             stdout: 'commit3 some message',
-        } as any);
+        } as Result);
         arc(['log', '--name-status', 'commit3..commit2', '.'], expect.anything()).thenResolve({
             stdout: MULTIPLE_COMMITS_SAMPLE,
-        } as any);
+        } as Result);
 
         const client = new ArcClient({vcs: {initialCommit: 'commit2', scopes: []}}, baseDir);
         await client.getAuthors();
@@ -500,16 +502,16 @@ describe('ArcClient', () => {
     it('should include scopes when calling arc log', async () => {
         const mocked = vi.mocked(execa);
 
-        arc(['root']).thenResolve({stdout: baseDir} as any);
+        arc(['root']).thenResolve({stdout: baseDir} as Result);
         arc(['log', '-n1', '--oneline'], expect.anything()).thenResolve({
             stdout: 'commit3 msg',
-        } as any);
+        } as Result);
         arc(['log', '--name-status', 'commit3..commit2', '.'], expect.anything()).thenResolve({
             stdout: MULTIPLE_COMMITS_SAMPLE,
-        } as any);
+        } as Result);
         arc(['log', '--name-status', 'commit3..commit2', 'docs'], expect.anything()).thenResolve({
             stdout: MULTIPLE_COMMITS_SAMPLE,
-        } as any);
+        } as Result);
 
         const client = new ArcClient({vcs: {initialCommit: 'commit2', scopes: ['docs']}}, baseDir);
         await client.getAuthors();

@@ -1,5 +1,6 @@
-import {LogLevel, Logger} from '~/core/logger';
 import {gray} from 'chalk';
+
+import {LogLevel, Logger} from '~/core/logger';
 
 export class TranslateLogger extends Logger {
     readonly extract = this.topic(LogLevel.INFO, 'EXTRACT', gray);

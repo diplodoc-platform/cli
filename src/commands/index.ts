@@ -2,11 +2,11 @@ import type {ExtensionInfo} from '~/core/program';
 
 import {Command} from '~/core/config';
 import {VERSION, YFM_CONFIG_FILENAME} from '~/constants';
+import {BaseProgram, withConfigDefaults} from '~/core/program';
+
 import {Build} from './build';
 import {Publish} from './publish';
 import {Translate} from './translate';
-import {BaseProgram, withConfigDefaults} from '~/core/program';
-
 import {NAME, USAGE, options} from './config';
 
 export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';

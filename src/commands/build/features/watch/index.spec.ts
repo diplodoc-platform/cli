@@ -8,9 +8,10 @@ import {when} from 'vitest-when';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
-import {run, runBuild, setupBuild} from '../../__tests__';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
+
+import {run, runBuild, setupBuild} from '../../__tests__';
 
 import * as _watch from './Watcher';
 
@@ -34,7 +35,7 @@ vi.mock('node:http', () => ({
     }),
 }));
 vi.mock('./Watcher', () => {
-    class Defer<T = any> {
+    class Defer<T> {
         promise: Promise<T>;
 
         resolve!: (result: T) => void;

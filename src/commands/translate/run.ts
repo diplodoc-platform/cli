@@ -1,16 +1,19 @@
 import type {TranslateConfig} from './index';
 import type {ExtractConfig} from './commands/extract';
+import type {ConfigDefaults} from './utils/config';
+import type {Config} from '~/core/config';
+import type {Toc} from '~/core/toc';
+
+import {extname, join, resolve} from 'node:path';
+import {isMainThread} from 'node:worker_threads';
 
 import {Run as BaseRun} from '~/core/run';
-import {Config} from '~/core/config';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
-import {Toc, TocService} from '~/core/toc';
+import {TocService} from '~/core/toc';
 import {MarkdownService} from '~/core/markdown';
-import {extname, join, resolve} from 'node:path';
+
 import {FileLoader, resolveFiles} from './utils';
-import {isMainThread} from 'node:worker_threads';
-import {ConfigDefaults} from './utils/config';
 
 type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
 

@@ -1,11 +1,10 @@
 import type {Run} from './run';
 import type {EntryInfo} from './types';
+import type {OutputFormat} from './config';
 
 import {AsyncSeriesHook, HookMap} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
-
-import {OutputFormat} from './config';
 
 export function hooks(name: string) {
     return {

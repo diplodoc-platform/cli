@@ -3,6 +3,7 @@ import type {LogConfig} from './types';
 import {relative} from 'node:path';
 import {execa} from 'execa';
 import {minimatch} from 'minimatch';
+
 import {memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
 export interface AuthorInfo {
@@ -113,6 +114,8 @@ export class ArcClient {
 
         type Commit = {sha: string; login: string; unixtime: number; paths: string[]};
         const commits: Commit[] = [];
+
+        const initialCommit = this.config.vcs.initialCommit;
         let currentCommit: Commit | null = null;
         let state: 'header' | 'message' | 'paths' = 'header';
 
@@ -184,10 +187,8 @@ export class ArcClient {
         }
 
         // Optionally trim by initialCommit: process commits from newest to oldest and stop at initialCommit (inclusive)
-        if (this.config.vcs.initialCommit) {
-            const commitIndex = commits.findIndex((commit) =>
-                commit.sha.startsWith(this.config.vcs.initialCommit!),
-            );
+        if (initialCommit) {
+            const commitIndex = commits.findIndex((commit) => commit.sha.startsWith(initialCommit));
             if (commitIndex !== -1) {
                 // Keep only commits from start to initialCommit (inclusive)
                 // Log already goes from newest to oldest, so take from 0 to idx+1

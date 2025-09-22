@@ -5,6 +5,7 @@ import {LogLevels} from '@diplodoc/yfmlint';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
+
 import {options} from './config';
 
 export type LegacyArgs = {

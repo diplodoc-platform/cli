@@ -7,6 +7,7 @@ import {join} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
+
 import {Defer, bounded, memoize, normalizePath} from '@diplodoc/cli/lib/utils';
 
 import {GitClient} from './git-client';

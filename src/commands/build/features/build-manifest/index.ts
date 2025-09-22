@@ -1,10 +1,10 @@
 import type {Build, Run} from '~/commands/build';
 import type {Redirects} from '../../services/redirects';
-import {type Command, valuable} from '~/core/config';
 
 import {join, parse} from 'node:path';
 import {load} from 'js-yaml';
 
+import {type Command, valuable} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 

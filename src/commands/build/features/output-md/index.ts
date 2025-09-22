@@ -1,6 +1,5 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {VFile} from '~/core/utils';
 import type {EntryGraph} from '~/core/markdown';
 import type {HashedGraphNode} from './utils';
 
@@ -17,7 +16,6 @@ import {configPath, defined} from '~/core/config';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
 import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
-
 import {options} from './config';
 import {rehashIncludes} from './plugins/resolve-deps';
 import {mergeAutotitles} from './plugins/merge-autotitles';
@@ -85,6 +83,8 @@ export class OutputMd {
 
                 getMetaHooks(run.meta).Dump.tap('Build.Md', (meta) => {
                     if (meta.alternate) {
+                        // Expected type missing, to be compatible with old formats
+                        // @ts-ignore
                         meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
                     }
 
@@ -191,7 +191,7 @@ export class OutputMd {
     }
 
     private copyAssets(run: Run, service: Run['leading'] | Run['markdown'], cache: Set<string>) {
-        return async (vfile: VFile<any>) => {
+        return async (vfile: {path: NormalizedPath}) => {
             const assets = await service.assets(vfile.path);
 
             await all(

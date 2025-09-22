@@ -5,6 +5,7 @@ import type {Config} from '~/core/config';
 import {join} from 'node:path';
 import {expect, vi} from 'vitest';
 import {when} from 'vitest-when';
+
 import {Run} from '~/core/run';
 
 export type RunSpy<C extends BaseConfig = BaseConfig> = Run<C> & {

@@ -1,8 +1,9 @@
 import type {Run} from '../../..';
 import type {HashedGraphNode, StepFunction} from '../utils';
 
-import {signlink} from '../utils';
 import {replaceAll} from '~/core/utils';
+
+import {signlink} from '../utils';
 
 function rehashInclude(include: HashedGraphNode) {
     return replaceAll(include.match, include.link, signlink(include.link, include.hash));

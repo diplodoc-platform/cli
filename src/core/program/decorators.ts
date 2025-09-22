@@ -1,6 +1,6 @@
-import {merge} from 'lodash';
-
 import type {BaseConfig} from '~/core/program/types';
+
+import {merge} from 'lodash';
 
 const configDefaults = Symbol('defaultConfig');
 

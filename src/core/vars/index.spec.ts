@@ -6,9 +6,9 @@ import {when} from 'vitest-when';
 import {dedent} from 'ts-dedent';
 
 import {setupRun} from '~/commands/build/__tests__';
+import {normalizePath} from '~/core/utils';
 
 import {VarsService} from './VarsService';
-import {normalizePath} from '~/core/utils';
 
 type Options = Partial<VarsServiceConfig>;
 

@@ -5,6 +5,7 @@ import type {Bucket} from '~/core/utils';
 
 import {get, set} from 'lodash';
 import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
+
 import {bucket, parseLocalUrl, rebasePath} from '~/core/utils';
 
 import {walkLinks} from './utils';

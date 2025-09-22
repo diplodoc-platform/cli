@@ -3,6 +3,7 @@ import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 
 import {dirname, join, relative} from 'node:path';
+
 import {normalizePath} from '~/core/utils';
 
 function isAutotitle(asset: AssetInfo) {

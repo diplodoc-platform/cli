@@ -55,7 +55,7 @@ export function proxy<T extends object>(path: RelativePath, resolve: Resolver, p
                     return value;
                 }
 
-                track(path, scope, full(prefix, prop));
+                track(path, scope as string, full(prefix, prop));
 
                 if (value && typeof value === 'object' && !Array.isArray(value)) {
                     return proxy(

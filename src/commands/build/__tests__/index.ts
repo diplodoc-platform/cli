@@ -5,13 +5,15 @@ import {join} from 'node:path';
 import {merge} from 'lodash';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {Build} from '..';
-import {Run} from '../run';
+
 import {parse} from '~/commands';
-import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
 import {normalizePath} from '~/core/utils';
+
+import {handler as originalHandler} from '../handler';
+import {Run} from '../run';
+import {Build} from '..';
 
 export const handler = originalHandler as Mock;
 

@@ -9,10 +9,10 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
 import {Template} from '~/core/template';
+import {normalizePath} from '~/core/utils';
 
 import {options} from './config';
 import {getSinglePageUrl, joinSinglePageResults} from './utils';
-import {normalizePath} from '~/core/utils';
 
 const SINGLE_PAGE_FILENAME = 'single-page.html';
 

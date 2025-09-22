@@ -51,7 +51,7 @@ export class Graph<Data = {type: string}> extends DepGraph<Data> {
     /**
      * Consumes a serialized graph
      */
-    consume(graph: Graph<any> | SerializedGraph<Data> | undefined): this {
+    consume(graph: Graph<Data> | SerializedGraph<Data> | undefined): this {
         if (!graph) {
             return this;
         }

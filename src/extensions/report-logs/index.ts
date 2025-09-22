@@ -1,4 +1,5 @@
 import type {BaseProgram} from '@diplodoc/cli/lib/program';
+
 import {getHooks as getLoggerHooks} from '@diplodoc/cli/lib/logger';
 
 export class Extension {

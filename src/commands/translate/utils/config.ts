@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
+
 import {defined} from '~/core/config';
 
 type PartialLocale = {
@@ -98,7 +99,7 @@ export function resolveFiles(
     exclude: string[],
     lang: string | null,
     exts: string[],
-    tocEntries: string[] | null,
+    tocEntries?: string[] | null,
 ) {
     let result: string[];
     let skipped: [string, string][] = [];

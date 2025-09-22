@@ -1,7 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
-import type {LoaderContext} from './loader';
+import type {LoaderContext, TransformMode} from './loader';
 import type {
     AssetInfo,
     Collect,
@@ -20,7 +20,7 @@ import {SourceMap} from '@diplodoc/liquid';
 import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {LoaderAPI, TransformMode, loader} from './loader';
+import {LoaderAPI, loader} from './loader';
 import {parseHeading} from './utils';
 
 type MarkdownServiceConfig = {

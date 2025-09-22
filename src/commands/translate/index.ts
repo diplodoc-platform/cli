@@ -1,5 +1,6 @@
 import type {BaseArgs, ICallable} from '~/core/program';
 import type {Locale} from './utils';
+import type {ConfigDefaults} from './utils/config';
 
 import {ok} from 'assert';
 import {pick} from 'lodash';
@@ -20,7 +21,7 @@ import {Compose} from './commands/compose';
 import {Extension as YandexTranslation} from './providers/yandex';
 import {resolveSource, resolveTargets, resolveVars} from './utils';
 import {Run} from './run';
-import {ConfigDefaults, configDefaults} from './utils/config';
+import {configDefaults} from './utils/config';
 import {Extension as ExtractOpenapiIncluderFakeExtension} from './extract-openapi';
 
 export {getHooks};

@@ -1,4 +1,5 @@
 import {isObject} from 'lodash';
+
 import {bounded} from './decorators';
 
 export const all = Promise.all.bind(Promise);
@@ -8,6 +9,7 @@ export const race = Promise.race.bind(Promise);
 export function noop() {}
 
 export function get<K extends string>(key: K) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return function <T extends Record<K, any>>(
         object: T,
     ): T extends Record<K, infer V> ? V : never {

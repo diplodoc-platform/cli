@@ -6,8 +6,9 @@ import url from 'url';
 import {bold} from 'chalk';
 import {dirname, isAbsolute, join} from 'node:path';
 
-import {walkLinks} from '../utils';
 import {normalizePath} from '~/core/utils';
+
+import {walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
 

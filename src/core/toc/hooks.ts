@@ -1,5 +1,5 @@
 import type {VFile} from '~/core/utils';
-import {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
+import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
 import {
     AsyncParallelHook,

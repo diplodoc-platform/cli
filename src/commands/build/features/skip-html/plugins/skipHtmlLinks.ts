@@ -1,5 +1,6 @@
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
 import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
+
 import {getHref, walkLinks} from '../utils';
 
 type Options = {

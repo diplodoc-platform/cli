@@ -1,8 +1,10 @@
 import type {Run} from './run';
+
 import {join} from 'path';
 import {asyncify, mapLimit} from 'async';
 import walkSync from 'walk-sync';
 import mime from 'mime-types';
+
 import {LogLevel} from '~/core/logger';
 
 export async function upload(run: Run): Promise<void> {

@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+
 import {isExternalHref, shortLink} from './url';
 
 describe('url utils', () => {

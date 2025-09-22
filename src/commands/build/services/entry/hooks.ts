@@ -1,6 +1,6 @@
 import type {Template} from '~/core/template';
 import type {VFile} from '~/core/utils';
-import {EntryData, PageState} from './types';
+import type {EntryData, PageState} from './types';
 
 import {AsyncSeriesHook} from 'tapable';
 

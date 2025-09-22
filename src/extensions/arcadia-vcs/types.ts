@@ -1,6 +1,6 @@
 export interface LogConfig {
     vcs: {
-        scopes: string[];
+        scopes?: string[];
         initialCommit?: string;
     };
     authors?: {

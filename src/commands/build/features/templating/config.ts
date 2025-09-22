@@ -1,4 +1,5 @@
 import {bold, cyan, green} from 'chalk';
+
 import {option} from '~/core/config';
 
 const template = option({

@@ -1,13 +1,19 @@
 import type {TranslateConfig} from '~/commands/translate';
 import type {YandexTranslationConfig} from '.';
+import type {AxiosResponse} from 'axios';
+import type {Logger} from '~/core/logger';
+
 import {extname, join, resolve} from 'node:path';
 import {asyncify, eachLimit} from 'async';
-import axios, {AxiosError, AxiosResponse} from 'axios';
-import {LogLevel, Logger} from '~/core/logger';
-import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
-import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
+import axios, {AxiosError} from 'axios';
 import liquid from '@diplodoc/transform/lib/liquid';
+
+import {LogLevel} from '~/core/logger';
+
+import {FileLoader, TranslateError, compose, extract, resolveSchemas} from '../../utils';
 import {TranslateLogger} from '../../logger';
+
+import {AuthError, Defer, LimitExceed, RequestError, bytes} from './utils';
 
 const REQUESTS_LIMIT = 15;
 const BYTES_LIMIT = 10000;
@@ -99,7 +105,7 @@ type TranslatorParams = {
     output: string;
     sourceLanguage: string;
     targetLanguage: string;
-    vars: Record<string, any>;
+    vars: Hash;
     // yandexCloudTranslateGlossaryPairs: YandexCloudTranslateGlossaryPair[];
 };
 
@@ -225,7 +231,9 @@ function requester(params: RequesterParams, cache: Cache) {
                                 throw new RequestError(status, statusText, data);
                         }
                     } else {
+                        // eslint-disable-next-line no-console
                         console.error(error.code);
+                        // eslint-disable-next-line no-console
                         console.error(error.cause);
                     }
                 }

@@ -15,6 +15,8 @@ export type Collect = {
         | Promise<string | [string | undefined, Meta | undefined]>;
 };
 
+// TODO: We need to specify more precise type in Build.Run
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Plugin = MarkdownItPluginCb<any>;
 
 export type Location = [number, number];
