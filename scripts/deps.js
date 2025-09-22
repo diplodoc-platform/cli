@@ -2,7 +2,7 @@ module.exports = (externals) => {
     return {
         name: 'deps',
         setup(build) {
-            build.onResolve({ filter: /.*/ }, ({path, kind}) => {
+            build.onResolve({filter: /.*/}, ({path, kind}) => {
                 const isExternal = !path.startsWith('.') && !path.startsWith('~');
                 const isNodeOwned = path.startsWith('node:') || ['process', 'os'].includes(path);
                 if (isExternal && !isNodeOwned) {

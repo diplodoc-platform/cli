@@ -1,6 +1,6 @@
 const {join, resolve, dirname} = require('node:path');
 const {rmSync, mkdirSync, copyFileSync} = require('node:fs');
-const {sync: glob} = require('glob')
+const {sync: glob} = require('glob');
 const clientManifest = require('@diplodoc/client/manifest');
 
 const ASSETS_PATH = resolve(__dirname, '..', 'assets');
@@ -8,7 +8,9 @@ const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
 const MERMAID_PATH = dirname(require.resolve('@diplodoc/mermaid-extension/runtime'));
 const LATEX_PATH = dirname(require.resolve('@diplodoc/latex-extension/runtime'));
 const SEARCH_PATH = dirname(require.resolve('@diplodoc/search-extension/worker'));
-const PAGE_CONSTRUCTOR_PATH = dirname(require.resolve('@diplodoc/page-constructor-extension/runtime'));
+const PAGE_CONSTRUCTOR_PATH = dirname(
+    require.resolve('@diplodoc/page-constructor-extension/runtime'),
+);
 
 const assets = [
     ...clientManifest.app.js,
@@ -16,7 +18,7 @@ const assets = [
     ...clientManifest.app.async,
     ...clientManifest.search.js,
     ...clientManifest.search.css,
-    ...clientManifest.search.async
+    ...clientManifest.search.async,
 ];
 
 const langs = glob('langs/*.js', {cwd: SEARCH_PATH});
@@ -30,8 +32,14 @@ copyFileSync(join(MERMAID_PATH, 'index-node.js'), join(ASSETS_PATH, 'mermaid-ext
 copyFileSync(join(LATEX_PATH, 'index.js'), join(ASSETS_PATH, 'latex-extension.js'));
 copyFileSync(join(LATEX_PATH, 'index.css'), join(ASSETS_PATH, 'latex-extension.css'));
 copyFileSync(join(SEARCH_PATH, 'index.js'), join(ASSETS_PATH, 'search-extension/api.js'));
-copyFileSync(join(PAGE_CONSTRUCTOR_PATH, 'index.js'), join(ASSETS_PATH, 'page-constructor-extension.js'));
-copyFileSync(join(PAGE_CONSTRUCTOR_PATH, '../', 'index.css'), join(ASSETS_PATH, 'page-constructor-extension.css'));
+copyFileSync(
+    join(PAGE_CONSTRUCTOR_PATH, 'index.js'),
+    join(ASSETS_PATH, 'page-constructor-extension.js'),
+);
+copyFileSync(
+    join(PAGE_CONSTRUCTOR_PATH, '../', 'index.css'),
+    join(ASSETS_PATH, 'page-constructor-extension.css'),
+);
 
 for (const lang of langs) {
     copyFileSync(join(SEARCH_PATH, lang), join(ASSETS_PATH, 'search-extension', lang));
