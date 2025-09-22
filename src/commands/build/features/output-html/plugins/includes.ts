@@ -43,7 +43,7 @@ export default ((md, options) => {
 
     try {
         md.core.ruler.before('curly_attributes', 'includes', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('includes', plugin);
     }
 }) as MarkdownItPluginCb<Options>;

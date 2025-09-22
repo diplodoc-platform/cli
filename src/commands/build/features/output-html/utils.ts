@@ -81,7 +81,7 @@ export function getCustomMdItPlugins() {
     try {
         const customPlugins = require(require.resolve('./plugins'));
         return Array.isArray(customPlugins) ? customPlugins : [];
-    } catch (e) {
+    } catch {
         return [];
     }
 }
@@ -90,7 +90,7 @@ export function getHrefTokenAttr(token: Token) {
     const href = token.attrGet('href') || '';
     try {
         return decodeURI(href);
-    } catch (e) {}
+    } catch {}
 
     return href;
 }

@@ -52,7 +52,7 @@ export default ((md, opts) => {
 
     try {
         md.core.ruler.before('links', 'links-autotitles', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('links-autotitles', plugin);
     }
 }) as MarkdownItPluginCb<Options>;

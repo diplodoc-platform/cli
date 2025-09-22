@@ -86,7 +86,7 @@ export default ((md, opts) => {
 
     try {
         md.core.ruler.before('includes', 'images', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('images', plugin);
     }
 

@@ -201,7 +201,7 @@ export class MarkdownService {
                     titles[anchor] = title;
                 }
             }
-        } catch (error) {
+        } catch {
             // This is acceptable.
             // If this is a real file and someone depends on his titles,
             // then we throw exception in md plugin.
