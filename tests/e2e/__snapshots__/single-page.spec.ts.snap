@@ -49,7 +49,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"ru/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"ru/index.html","hreflang":"ru"}],"canonical":"ru/index.html","title":"Documentation","noIndex":true,"vcsPath":"ru/index.yaml","sourcePath":"ru/index.yaml"},"title":"Documentation"},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"ru/page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"ru/index.html","hreflang":"ru"}],"canonical":"ru/index.html","title":"Documentation","noIndex":true,"vcsPath":"ru/index.yaml"},"title":"Documentation"},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -82,7 +82,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"alternate":[{"href":"ru/page.html","hreflang":"ru"}],"canonical":"ru/page.html","title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"ru/page.md","sourcePath":"ru/page.md"},"headings":[],"title":"Page Title"},"router":{"pathname":"ru/page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"alternate":[{"href":"ru/page.html","hreflang":"ru"}],"canonical":"ru/page.html","title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"ru/page.md"},"headings":[],"title":"Page Title"},"router":{"pathname":"ru/page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -112,7 +112,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 4`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"ru/project/config.html","hreflang":"ru"}],"canonical":"ru/project/config.html","vcsPath":"ru/project/config.md","sourcePath":"ru/project/config.md"},"headings":[],"title":""},"router":{"pathname":"ru/project/config","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"ru/project/config.html","hreflang":"ru"}],"canonical":"ru/project/config.html","vcsPath":"ru/project/config.md"},"headings":[],"title":""},"router":{"pathname":"ru/project/config","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

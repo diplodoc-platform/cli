@@ -17,7 +17,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: index.md
-sourcePath: index.md
 ---
 ## Index header
 
@@ -34,7 +33,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: no-translate.md
-sourcePath: no-translate.md
 ---
 # No-translate directive
 
@@ -98,7 +96,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
-sourcePath: openapi/index.md
 ---
 # OpenAPI definition
 
@@ -199,7 +196,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/getWithPayloadResponse.md
-sourcePath: openapi/test-controller/getWithPayloadResponse.md
 ---
 <div class="openapi">
 
@@ -285,7 +281,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/index.md
-sourcePath: openapi/test-controller/index.md
 ---
 # test-controller
 
@@ -333,7 +328,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: index.md
-sourcePath: index.md
 ---
 ## Index header
 
@@ -350,7 +344,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: no-translate.md
-sourcePath: no-translate.md
 ---
 # No-translate directive
 
@@ -414,7 +407,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
-sourcePath: openapi/index.md
 ---
 # OpenAPI definition
 
@@ -515,7 +507,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/getWithPayloadResponse.md
-sourcePath: openapi/test-controller/getWithPayloadResponse.md
 ---
 <div class="openapi">
 
@@ -601,7 +592,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/test-controller/index.md
-sourcePath: openapi/test-controller/index.md
 ---
 # test-controller
 

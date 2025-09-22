@@ -31,7 +31,7 @@ exports[`Skip html extension > transforms links correctly 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"folder/index.md","sourcePath":"folder/index.md"},"headings":[],"title":"Page 3"},"router":{"pathname":"folder/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"folder/index.md"},"headings":[],"title":"Page 3"},"router":{"pathname":"folder/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -59,7 +59,7 @@ exports[`Skip html extension > transforms links correctly 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index-test-html/index.md","sourcePath":"index-test-html/index.md"},"headings":[],"title":"Folder"},"router":{"pathname":"index-test-html/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index-test-html/index.md"},"headings":[],"title":"Folder"},"router":{"pathname":"index-test-html/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -107,7 +107,7 @@ exports[`Skip html extension > transforms links correctly 5`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page2#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md","sourcePath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page2#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -135,7 +135,7 @@ exports[`Skip html extension > transforms links correctly 6`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"page2#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"folder/\\"&gt;Link&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page2.md","sourcePath":"page2.md"},"headings":[{"title":"hash","href":"page2#hash","level":2}],"title":"Page 2"},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"page2#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"folder/\\"&gt;Link&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page2.md"},"headings":[{"title":"hash","href":"page2#hash","level":2}],"title":"Page 2"},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
