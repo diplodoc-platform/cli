@@ -41,7 +41,7 @@ jobs:
 
           # Добавляем изменения и создаем коммит
           git add package-lock.json
-          git commit -m "chore: Update package-lock"
-          
+          git commit -m "chore: Update package-lock" --no-verify
+
           # Пушим изменения в ветку PR
           git push origin HEAD:${BRANCH_NAME}
