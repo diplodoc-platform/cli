@@ -1,4 +1,5 @@
 import {describe, test} from 'vitest';
+
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateFilesYamlTestTemplate = (
@@ -9,7 +10,7 @@ const generateFilesYamlTestTemplate = (
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
         await TestAdapter.testBuildPass(inputPath, outputPath, {
-            md2md:true,
+            md2md: true,
             md2html: false,
             args: args.join(' '),
         });
@@ -24,14 +25,16 @@ const generateFilesYamlTestTemplate = (
 
 describe('Preprocess', () => {
     generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=false', 'mocks/preprocess', [
-        '--no-merge-autotitles'
+        '--no-merge-autotitles',
     ]);
 
     generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true', 'mocks/preprocess');
 
-    generateFilesYamlTestTemplate('HashIncludes=true,Autotitles=true,Svg=true', 'mocks/preprocess', [
-        '--merge-svg'
-    ]);
+    generateFilesYamlTestTemplate(
+        'HashIncludes=true,Autotitles=true,Svg=true',
+        'mocks/preprocess',
+        ['--merge-svg'],
+    );
 
     // generateFilesYamlTestTemplate('Nested toc restricted access', 'mocks/preprocess/test3');
 });

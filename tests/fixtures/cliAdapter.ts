@@ -1,4 +1,6 @@
-import {Runner, createRunner} from './runners';
+import type {Runner} from './runners';
+
+import {createRunner} from './runners';
 import {cleanupDirectory} from './utils/file';
 
 export interface BuildRunArgs {
@@ -76,8 +78,10 @@ export class CliTestAdapter {
         const tasks = [];
 
         if (md2md && md2html) {
-            tasks.push(() => this.build.run(inputPath, outputPath,[...baseArgs, '-f', 'md']));
-            tasks.push(() => this.build.run(inputPath, `${outputPath}-html`, [...baseArgs, '-f', 'html']));
+            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md']));
+            tasks.push(() =>
+                this.build.run(inputPath, `${outputPath}-html`, [...baseArgs, '-f', 'html']),
+            );
         } else if (md2md) {
             tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md']));
         } else {

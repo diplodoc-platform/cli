@@ -1,4 +1,5 @@
 import {describe, test} from 'vitest';
+
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 describe('Include toc', () => {

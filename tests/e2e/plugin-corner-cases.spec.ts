@@ -1,4 +1,5 @@
 import {describe, it} from 'vitest';
+
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 describe('plugin corner cases:', () => {

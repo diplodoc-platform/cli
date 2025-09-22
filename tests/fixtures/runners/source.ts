@@ -8,7 +8,7 @@ export class SourceRunner {
 
         const baseArgs = ['node', this.MODULE_PATH, ...argv];
 
-        const report = await run(baseArgs) as Report;
+        const report = (await run(baseArgs)) as Report;
 
         return report;
     }
