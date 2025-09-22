@@ -121,13 +121,41 @@ exports[`Markdown loader > resolveAssets > should detect link to anchor 1`] = `
 
 exports[`Markdown loader > resolveAssets > should not detect asset with language and translate=no directive 1`] = `
 [
-  [],
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        44,
+        57,
+      ],
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "img",
+      "type": "image",
+    },
+  ],
 ]
 `;
 
 exports[`Markdown loader > resolveAssets > should not detect asset with long fence 1`] = `
 [
-  [],
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        27,
+        40,
+      ],
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "img",
+      "type": "image",
+    },
+  ],
 ]
 `;
 
@@ -141,6 +169,32 @@ exports[`Markdown loader > resolveAssets > should skip assets in nested code blo
       31,
     ],
     "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      46,
+      60,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      70,
+      84,
+    ],
+    "path": "some3.png",
     "search": null,
     "subtype": "image",
     "title": "img",
@@ -510,7 +564,21 @@ exports[`Markdown loader > resolveAssets > should work with spaced images 1`] = 
 
 exports[`Markdown loader > resolveBlockCodes > should detect asset in inline code with text 1`] = `
 [
-  [],
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        23,
+        36,
+      ],
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "img",
+      "type": "image",
+    },
+  ],
 ]
 `;
 
@@ -646,6 +714,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "autotitle": false,
     "hash": null,
     "location": [
+      58,
+      72,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
       98,
       112,
     ],
@@ -673,7 +754,21 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
 
 exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks inside multiline definition list 1`] = `
 [
-  [],
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        48,
+        61,
+      ],
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "img",
+      "type": "image",
+    },
+  ],
 ]
 `;
 
@@ -687,6 +782,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
       31,
     ],
     "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      51,
+      65,
+    ],
+    "path": "some2.png",
     "search": null,
     "subtype": "image",
     "title": "img",
@@ -718,6 +826,32 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
       31,
     ],
     "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      49,
+      63,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      77,
+      91,
+    ],
+    "path": "some3.png",
     "search": null,
     "subtype": "image",
     "title": "img",
@@ -789,6 +923,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
     "autotitle": false,
     "hash": null,
     "location": [
+      41,
+      55,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
       65,
       79,
     ],
@@ -811,6 +958,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
       31,
     ],
     "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      41,
+      55,
+    ],
+    "path": "some2.png",
     "search": null,
     "subtype": "image",
     "title": "img",
@@ -851,6 +1011,32 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in indented co
     "autotitle": false,
     "hash": null,
     "location": [
+      41,
+      55,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      65,
+      79,
+    ],
+    "path": "some3.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
       85,
       99,
     ],
@@ -882,6 +1068,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
     "autotitle": false,
     "hash": null,
     "location": [
+      38,
+      52,
+    ],
+    "path": "some2.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
       59,
       73,
     ],
@@ -904,6 +1103,19 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
       31,
     ],
     "path": "some1.png",
+    "search": null,
+    "subtype": "image",
+    "title": "img",
+    "type": "image",
+  },
+  {
+    "autotitle": false,
+    "hash": null,
+    "location": [
+      39,
+      53,
+    ],
+    "path": "some2.png",
     "search": null,
     "subtype": "image",
     "title": "img",
