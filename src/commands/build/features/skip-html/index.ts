@@ -14,6 +14,7 @@ import {defined} from '~/core/config';
 import {normalizePath, own, shortLink} from '~/core/utils';
 
 import {getHooks as getEntryHooks} from '../../services/entry';
+
 import {options} from './config';
 import {getHref, mapHeadings} from './utils';
 import skipHtmlLinks from './plugins/skipHtmlLinks';

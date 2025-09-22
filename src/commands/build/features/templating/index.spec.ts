@@ -1,7 +1,8 @@
 import {describe, expect, it} from 'vitest';
-import {run, runBuild, setupBuild, testConfig as test} from '../../__tests__';
 import {resolve} from 'node:path';
 import {dedent} from 'ts-dedent';
+
+import {run, runBuild, setupBuild, testConfig as test} from '../../__tests__';
 
 describe('Build template feature', () => {
     describe('config', () => {

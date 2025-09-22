@@ -1,6 +1,7 @@
-import {option} from '~/core/config';
 import {bold} from 'chalk';
 import dedent from 'ts-dedent';
+
+import {option} from '~/core/config';
 
 const buildManifest = option({
     flags: '--build-manifest',

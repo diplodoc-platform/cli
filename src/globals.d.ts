@@ -39,7 +39,7 @@ type Require = {
 };
 
 declare module 'node:fs/promises' {
-    import {EncodingOption} from 'node:fs';
+    import type {EncodingOption} from 'node:fs';
 
     export function readFile(path: AbsolutePath, options: EncodingOption): Promise<string>;
 

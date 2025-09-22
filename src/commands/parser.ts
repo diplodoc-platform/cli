@@ -2,6 +2,7 @@ import type {BaseArgs} from '~/core/program';
 
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {NAME, options} from './config';
 
 /**

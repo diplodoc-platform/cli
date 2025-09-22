@@ -2,6 +2,7 @@ import type {Build, Run} from '~/commands/build';
 import type {EntryTocItem, Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
+
 import {Graph, bounded, normalizePath} from '~/core/utils';
 
 export class WatchState {

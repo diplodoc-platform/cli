@@ -1,5 +1,7 @@
 import type {YandexTranslationConfig} from './providers/yandex';
+
 import {describe, expect, it, vi} from 'vitest';
+
 import {runTranslate as run, runTranslateExtract as runExtract, testConfig} from './__tests__';
 
 describe('Translate command', () => {

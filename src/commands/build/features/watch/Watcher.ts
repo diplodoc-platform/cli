@@ -3,6 +3,7 @@ import type {FSWatcher} from 'chokidar';
 
 import {relative} from 'node:path';
 import chokidar from 'chokidar';
+
 import {Defer, normalizePath} from '~/core/utils';
 
 type Event = {

@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+
 import {runPublish as run, testConfig as test} from './__tests__';
 
 describe('Publish command', () => {

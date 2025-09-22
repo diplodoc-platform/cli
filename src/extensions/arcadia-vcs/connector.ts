@@ -4,6 +4,7 @@ import type {Config} from './types';
 
 import {dirname} from 'node:path';
 import {uniqBy} from 'lodash';
+
 import {bounded, normalizePath} from '@diplodoc/cli/lib/utils';
 import {configPath} from '@diplodoc/cli/lib/config';
 

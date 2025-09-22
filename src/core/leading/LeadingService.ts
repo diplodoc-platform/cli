@@ -143,7 +143,7 @@ export class LeadingService {
         return [...this.pathToAssets.get(file)];
     }
 
-    async relations(path: RelativePath): Promise<Graph> {
+    async relations(path: RelativePath): Promise<Graph<GraphInfo>> {
         const file = normalizePath(path);
         const graph = new Graph<GraphInfo>();
 

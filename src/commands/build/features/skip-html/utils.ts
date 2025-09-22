@@ -1,9 +1,10 @@
 import type Token from 'markdown-it/lib/token';
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
+import type {Heading} from '@diplodoc/transform/lib/typings';
 
 import url from 'url';
+
 import {filterTokens, isExternalHref, shortLink} from '~/core/utils';
-import {Heading} from '@diplodoc/transform/lib/typings';
 
 export function getHrefTokenAttr(token: Token) {
     const href = token.attrGet('href') || '';
@@ -41,7 +42,7 @@ export function getHref(href: string) {
     return shortLink(href);
 }
 
-export function mapHeadings(headings: Heading[]) {
+export function mapHeadings(headings: Heading[] | undefined) {
     if (!headings) {
         return;
     }

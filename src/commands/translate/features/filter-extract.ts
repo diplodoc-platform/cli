@@ -1,8 +1,9 @@
 import type {Extract} from '../commands/extract';
 import type {Run} from '../run';
 
-import {getHooks as getExtractHooks} from '../commands/hooks';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+
+import {getHooks as getExtractHooks} from '../commands/hooks';
 
 export class FilterExtract {
     private missedEntries: Set<[string, string]> = new Set();

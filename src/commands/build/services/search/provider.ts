@@ -1,4 +1,4 @@
-import {SearchProvider} from './types';
+import type {SearchProvider} from './types';
 
 export class DefaultSearchProvider implements SearchProvider {
     async add() {}

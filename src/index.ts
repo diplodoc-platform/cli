@@ -2,6 +2,7 @@ import {isMainThread} from 'node:worker_threads';
 import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
+// eslint-disable-next-line import/order
 import './require';
 
 import * as threads from '~/commands/threads';

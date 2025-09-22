@@ -1,9 +1,10 @@
+import type {PublishConfig} from './index';
+
 import {join, resolve} from 'path';
 import {createReadStream} from 'fs';
 import {Upload} from '@aws-sdk/lib-storage';
 import {S3Client} from '@aws-sdk/client-s3';
 
-import type {PublishConfig} from './index';
 import {Logger} from '~/core/logger';
 import {normalizePath} from '~/core/utils';
 

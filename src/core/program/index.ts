@@ -187,7 +187,7 @@ export class BaseProgram<
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
 
-        config.extensions = this.normalizeExtensions(config, args);
+        config.extensions = this.normalizeExtensions(config as Config<BaseConfig>, args);
 
         return config;
     }
@@ -238,7 +238,7 @@ export class BaseProgram<
         }
     }
 
-    private normalizeExtensions(config: Config<TConfig>, args: TArgs) {
+    private normalizeExtensions(config: Config<BaseConfig>, args: BaseArgs) {
         const argsExtensions: ExtensionConfig[] = (args.extensions || []).map((ext) => {
             const name = isRelative(ext) ? resolve(ext) : ext;
             const options = {};

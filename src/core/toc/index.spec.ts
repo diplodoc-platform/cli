@@ -1,5 +1,7 @@
 import type {RunSpy} from '~/commands/build/__tests__';
 import type {RawToc} from './types';
+import type {TocServiceConfig} from './TocService';
+import type {Preset} from '~/core/vars';
 
 import {join} from 'node:path';
 import {describe, expect, it, vi} from 'vitest';
@@ -7,11 +9,10 @@ import {when} from 'vitest-when';
 import {dedent} from 'ts-dedent';
 
 import {setupRun} from '~/commands/build/__tests__';
-
-import {TocService, TocServiceConfig} from './TocService';
-import {getHooks} from './hooks';
-import {Preset} from '~/core/vars';
 import {normalizePath} from '~/core/utils';
+
+import {TocService} from './TocService';
+import {getHooks} from './hooks';
 
 type Options = DeepPartial<TocServiceConfig>;
 

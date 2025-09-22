@@ -1,5 +1,8 @@
+import type {LintConfig} from '@diplodoc/yfmlint';
+
 import {describe, vi} from 'vitest';
-import {LintConfig, LogLevels} from '@diplodoc/yfmlint';
+import {LogLevels} from '@diplodoc/yfmlint';
+
 import {testConfig as test} from '../../__tests__';
 
 vi.mock('~/cmd/publish/upload');

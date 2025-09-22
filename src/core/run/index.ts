@@ -12,7 +12,6 @@ import {bounded, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
 import {InsecureAccessError} from './errors';
-
 import {fs} from './fs';
 
 type GlobOptions = {

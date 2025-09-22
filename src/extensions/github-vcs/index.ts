@@ -5,6 +5,7 @@ import type {Args, Config} from './connector';
 
 import {ok} from 'node:assert';
 import simpleGit from 'simple-git';
+
 import {Build} from '@diplodoc/cli';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getVcsHooks} from '@diplodoc/cli/lib/vcs';

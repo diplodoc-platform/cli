@@ -1,5 +1,4 @@
 import {describe, expect, it} from 'vitest';
-
 import {join, sep} from 'node:path';
 
 import {normalizePath} from './path';

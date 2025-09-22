@@ -1,11 +1,13 @@
 import type {BuildConfig} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
+import type {Lang} from '@diplodoc/transform/lib/typings';
 
 import {join, resolve} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 
 import {configPath} from '~/core/config';
 import {ASSETS_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
@@ -20,9 +22,7 @@ import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} fr
 
 import {EntryService} from './services/entry';
 import {SearchService} from './services/search';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
 import {RedirectsService} from './services/redirects';
-import {Lang} from '@diplodoc/transform/lib/typings';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -30,6 +30,8 @@ type TransformOptions = {
 };
 
 const TMP_INPUT_FOLDER = '.tmp_input';
+
+export type TransformConfig = ReturnType<Run['transformConfig']>;
 
 /**
  * This is transferable context for build command.

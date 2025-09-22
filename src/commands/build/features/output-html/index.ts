@@ -1,8 +1,7 @@
 import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
-import type {Build, EntryData} from '~/commands/build';
+import type {Build, EntryData, PageData} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
-import type {PageData} from '../../services/entry';
 
 import {basename, dirname, extname, join} from 'node:path';
 import {v4 as uuid} from 'uuid';
@@ -16,9 +15,10 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {ASSETS_FOLDER} from '~/constants';
+
 import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
-import {ASSETS_FOLDER} from '~/constants';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 

@@ -2,7 +2,9 @@ import type {Mock} from 'vitest';
 import type {TranslateConfig} from '..';
 
 import {expect, it, vi} from 'vitest';
+
 import {parse} from '~/commands/parser';
+
 import {Translate} from '..';
 import {Run} from '../run';
 import {Extract} from '../commands/extract';

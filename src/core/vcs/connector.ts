@@ -1,9 +1,8 @@
 import type {Run} from '~/core/run';
 import type {VcsServiceConfig} from '~/core/vcs/VcsService';
+import type {VcsConnector} from './types';
 
 import {join} from 'node:path';
-
-import {VcsConnector} from './types';
 
 export class DefaultVcsConnector implements VcsConnector {
     private run: Run<VcsServiceConfig>;

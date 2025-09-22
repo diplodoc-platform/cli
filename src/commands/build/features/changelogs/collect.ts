@@ -2,7 +2,6 @@ import type {LoaderContext} from '~/core/markdown/loader';
 import type {ChangelogItem} from '.';
 
 import {bold} from 'chalk';
-
 import transform from '@diplodoc/transform';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import changelog from '@diplodoc/transform/lib/plugins/changelog';

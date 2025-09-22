@@ -5,6 +5,7 @@ import type {Config as GithubVcsConfig} from './types';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
+
 import {setupRun} from '@diplodoc/cli/lib/test';
 
 import {GithubVcsConnector} from './connector';

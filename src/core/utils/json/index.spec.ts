@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+
 import {compareJson} from './index';
 
 describe('json utils', () => {
@@ -224,7 +225,7 @@ describe('json utils', () => {
         });
 
         it('should handle empty arrays', () => {
-            const oldArr: any[] = [];
+            const oldArr: number[] = [];
             const newArr = [1, 2, 3];
 
             const result = compareJson(oldArr, newArr);

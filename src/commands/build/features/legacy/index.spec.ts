@@ -1,4 +1,5 @@
 import {describe} from 'vitest';
+
 import {testConfig as test} from '../../__tests__';
 
 describe('Build legacy feature', () => {
