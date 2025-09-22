@@ -3,6 +3,7 @@
   "compilerOptions": {
     "paths": {
       "~/core/*": ["./src/core/*"],
+      "~/constants": ["./src/constants.ts"],
     },
     "plugins": [
       { "transform": "typescript-transform-paths", "afterDeclarations": true },

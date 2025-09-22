@@ -1,5 +1,8 @@
+import type {TranslateRunArgs} from '../fixtures';
+
 import {describe, test} from 'vitest';
-import {TestAdapter, TranslateRunArgs, compareDirectories, getTestPaths} from '../fixtures';
+
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -46,9 +49,17 @@ const buildFilesYamlTestTemplate = (
 };
 
 describe('Translate command', () => {
-    buildFilesYamlTestTemplate('build translated md files and remove no-translate directives', 'mocks/translation/no-translate', {md2md: true});
+    buildFilesYamlTestTemplate(
+        'build translated md files and remove no-translate directives',
+        'mocks/translation/no-translate',
+        {md2md: true},
+    );
 
-    buildFilesYamlTestTemplate('build translated static files and remove no-translate directives', 'mocks/translation/no-translate', {md2html: true});
+    buildFilesYamlTestTemplate(
+        'build translated static files and remove no-translate directives',
+        'mocks/translation/no-translate',
+        {md2html: true},
+    );
 
     generateFilesYamlTestTemplate('extract openapi spec files', 'mocks/translation/openapi', {
         subcommand: 'extract',
@@ -66,7 +77,7 @@ describe('Translate command', () => {
         subcommand: 'extract',
         source: 'ru-RU',
         target: 'es-ES',
-        additionalArgs: '--filter'
+        additionalArgs: '--filter',
     });
 
     generateMapTestTemplate(
@@ -80,7 +91,7 @@ describe('Translate command', () => {
         },
     );
 
-    const vars = {skip: 'prod'}
+    const vars = {skip: 'prod'};
     generateMapTestTemplate(
         'filter files on extract with extra vars option',
         'mocks/translation/dir-files',
@@ -98,7 +109,7 @@ describe('Translate command', () => {
         {
             subcommand: 'extract',
             source: 'ru-RU',
-            target: 'es-ES',            
+            target: 'es-ES',
         },
         false,
     );

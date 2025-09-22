@@ -1,4 +1,5 @@
 import {describe, expect, it} from 'vitest';
+
 import {TestAdapter, getTestPaths} from '../fixtures';
 
 describe('Redirects validation', () => {
@@ -38,7 +39,9 @@ describe('Redirects validation', () => {
     });
 
     it('should emit an error when a redirect is malformed', async () => {
-        const {inputPath, outputPath} = getTestPaths('mocks/redirects-validation/malformed-redirect');
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/redirects-validation/malformed-redirect',
+        );
 
         const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'md']);
 
@@ -54,8 +57,6 @@ describe('Redirects validation', () => {
         const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'md']);
 
         expect(report.code).toBe(1);
-        expect(report.errors).toContainEqual(
-            expect.stringMatching(/Parameters must be different/),
-        );
+        expect(report.errors).toContainEqual(expect.stringMatching(/Parameters must be different/));
     });
 });

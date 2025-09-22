@@ -1,4 +1,5 @@
-import {Runner} from './types';
+import type {Runner} from './types';
+
 import {execa} from 'execa';
 import strip from 'strip-ansi';
 
@@ -20,6 +21,7 @@ export class BinaryRunner implements Runner {
         const restLog = fillLog(/^(?!INFO|WARN|ERR)/, stderr);
         if (restLog.length) {
             for (const line of restLog) {
+                // eslint-disable-next-line no-console
                 console.log(line);
             }
         }
@@ -29,7 +31,8 @@ export class BinaryRunner implements Runner {
 }
 
 function fillLog(filter: RegExp, source: string) {
-    return source.split('\n')
+    return source
+        .split('\n')
         .map((line) => strip(line).trim())
         .filter(Boolean)
         .filter((line) => line.match(filter));

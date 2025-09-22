@@ -1,5 +1,6 @@
 import {describe, it} from 'vitest';
 import {dedent} from 'ts-dedent';
+
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 function test(_description: string) {

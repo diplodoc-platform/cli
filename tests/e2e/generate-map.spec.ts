@@ -1,7 +1,8 @@
 import {describe, expect, test} from 'vitest';
-import {TestAdapter, bundleless, getFileContent, getTestPaths} from '../fixtures';
 import {join} from 'node:path';
 import {readFile} from 'node:fs/promises';
+
+import {TestAdapter, bundleless, getFileContent, getTestPaths} from '../fixtures';
 
 const generateMapTestTemplate = (
     testTitle: string,
@@ -19,7 +20,10 @@ const generateMapTestTemplate = (
         });
 
         const content = getFileContent(join(outputPath, 'files.json'));
-        const manifestContent = await readFile(join(outputPath, 'yfm-build-manifest.json'), 'utf-8');
+        const manifestContent = await readFile(
+            join(outputPath, 'yfm-build-manifest.json'),
+            'utf-8',
+        );
 
         expect(bundleless(content)).toMatchSnapshot();
         expect(JSON.parse(manifestContent)).toMatchSnapshot();
