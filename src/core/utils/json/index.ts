@@ -116,13 +116,15 @@ function compareObjectProperties(
         const currentPath = path ? `${path}.${key}` : key;
         const oldValue = oldObj[key];
         const newValue = newObj[key];
+        const isOldMember = key in oldObj;
+        const isNewMember = key in newObj;
 
-        if (!(key in oldObj)) {
-            addAllPaths(newValue, currentPath, added);
-        } else if (!(key in newObj)) {
-            addAllPaths(oldValue, currentPath, removed);
-        } else {
+        if (isOldMember && isNewMember) {
             compareEntity(oldValue, newValue, currentPath, added, changed, removed);
+        } else if (isNewMember) {
+            addAllPaths(newValue, currentPath, added);
+        } else if (isOldMember) {
+            addAllPaths(oldValue, currentPath, removed);
         }
     }
 }

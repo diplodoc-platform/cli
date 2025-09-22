@@ -4,13 +4,13 @@ import type {GraphInfo as MarkdownGraphInfo} from '~/core/markdown';
 import type {GraphInfo as LeadingGraphInfo} from '~/core/leading';
 import type {EntryInfo, Run} from '~/commands/build';
 import type {EntryData, PageData, PageState} from './types';
+import type {Template} from '~/core/template';
 
 import {extname, join} from 'node:path';
 import {isEmpty} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
-import {Template} from '~/core/template';
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
 import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
@@ -122,9 +122,12 @@ export class EntryService {
         const html = staticContent
             ? render({
                   ...state,
+                  // TODO: https://github.com/diplodoc-platform/cli/issues/1433
+                  // @ts-ignore
                   data: {
                       ...state.data,
                       // TODO: stop to modify toc in client code. Omit copyJson here.
+                      // @ts-ignore
                       toc: copyJson(toc),
                   },
               })
@@ -222,23 +225,22 @@ export class EntryService {
             this.run.meta.add(path, {canonical, alternate});
         }
 
-        const type = extname(path).slice(1);
-        const result = {type, path} as EntryData;
-
         const service = this.getService(path);
         const vfile = await service.dump(path);
         const entryGraph = await service.relations(path);
-        const varsGraph = await this.run.vars.relations.extract(path);
+        const varsGraph = this.run.vars.relations.extract(path);
 
-        result.content = vfile;
-        result.info = {
-            ...vfile.info,
-            entryGraph,
-            varsGraph,
-        };
-        result.meta = await this.run.meta.dump(path);
-
-        return result;
+        return {
+            type: extname(path).slice(1),
+            path,
+            content: vfile,
+            info: {
+                ...vfile.info,
+                entryGraph,
+                varsGraph,
+            },
+            meta: await this.run.meta.dump(path),
+        } as EntryData;
     }
 
     private getService(path: NormalizedPath) {

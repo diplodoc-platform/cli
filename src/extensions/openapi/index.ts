@@ -24,10 +24,12 @@ export class Extension implements IExtension {
                 .Includer.for(INCLUDER)
                 .tapPromise(EXTENSION, async (rawtoc, options, from) => {
                     const input = normalizePath(options.input);
-                    run.toc!.relations.addNode(input, {type: 'generator', data: undefined});
+                    const service = run.toc as TocService;
+
+                    service.relations.addNode(input, {type: 'generator', data: undefined});
                     // TODO: We need to add this node in TocService only
-                    run.toc!.relations.addNode(rawtoc.path, {type: 'source', data: undefined});
-                    run.toc!.relations.addDependency(rawtoc.path, input);
+                    service.relations.addNode(rawtoc.path, {type: 'source', data: undefined});
+                    service.relations.addDependency(rawtoc.path, input);
                     // @ts-ignore
                     const {toc, files} = await includer(run, options, from);
 
@@ -36,10 +38,10 @@ export class Extension implements IExtension {
                         await run.write(join(root, path), content, true);
                     }
 
-                    await run.toc!.walkEntries([toc as unknown as EntryTocItem], async (entry) => {
+                    await service.walkEntries([toc as unknown as EntryTocItem], async (entry) => {
                         const path = normalizePath(join(dirname(options.path), entry.href));
-                        run.toc!.relations.addNode(path, {type: 'entry', data: undefined});
-                        run.toc!.relations.addDependency(input, path);
+                        service.relations.addNode(path, {type: 'entry', data: undefined});
+                        service.relations.addDependency(input, path);
 
                         return entry;
                     });

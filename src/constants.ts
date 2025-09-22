@@ -31,21 +31,4 @@ export enum Lang {
     EN = 'en',
 }
 
-export const RTL_LANGS = [
-    'ar',
-    'arc',
-    'ckb',
-    'dv',
-    'fa',
-    'ha',
-    'he',
-    'khw',
-    'ks',
-    'ps',
-    'sd',
-    'ur',
-    'uz_AF',
-    'yi',
-];
-
 export const PAGE_PROCESS_CONCURRENCY = Number(process.env.PAGE_PROCESS_CONCURRENCY) || 300;

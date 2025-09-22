@@ -4,8 +4,8 @@ import {uniqBy} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {getCSP} from 'csp-header';
 
-import {RTL_LANGS} from '~/constants';
 import {bounded, get, getDepth, getDepthPath, normalizePath} from '~/core/utils';
+
 import {getFaviconType} from './utils';
 
 enum ScriptPosition {
@@ -34,6 +34,23 @@ type ScriptInfo = PositionInfo & {
     inline: boolean;
     attrs: Hash<string | undefined>;
 };
+
+const RTL_LANGS = [
+    'ar',
+    'arc',
+    'ckb',
+    'dv',
+    'fa',
+    'ha',
+    'he',
+    'khw',
+    'ks',
+    'ps',
+    'sd',
+    'ur',
+    'uz_AF',
+    'yi',
+];
 
 export class Template {
     get isRTL() {

@@ -4,8 +4,6 @@ import type {ComposeOptions} from '@diplodoc/translation';
 import {extname, join} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-// @ts-ignore
-import {ComposeOutput as MdExpComposeOutput} from '@diplodoc/translation/lib/experiment/adapter/types';
 
 import {
     BaseProgram,
@@ -27,7 +25,6 @@ export type ComposeArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     useSource?: boolean;
-    useExperimentalParser?: boolean;
 };
 
 export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
@@ -37,13 +34,11 @@ export type ComposeConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     files: string[];
     skipped: [string, string][];
     useSource: boolean;
-    useExperimentalParser?: boolean;
 };
 
 @withConfigScope('translate.compose', {strict: true})
 @withConfigDefaults(() => ({
     useSource: false,
-    useExperimentalParser: false,
 }))
 export class Compose extends BaseProgram<ComposeConfig, ComposeArgs> {
     readonly name = 'Translate.Compose';
@@ -57,7 +52,6 @@ export class Compose extends BaseProgram<ComposeConfig, ComposeArgs> {
         options.exclude,
         options.config(YFM_CONFIG_FILENAME),
         options.useSource,
-        options.useExperimentalParser,
     ];
 
     readonly logger = new TranslateLogger();
@@ -93,17 +87,16 @@ export class Compose extends BaseProgram<ComposeConfig, ComposeArgs> {
                 include,
                 exclude,
                 useSource: defined('useSource', args, config) || false,
-                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
             });
         });
     }
 
     async action() {
-        const {input, output, files, skipped, useSource, useExperimentalParser} = this.config;
+        const {input, output, files, skipped, useSource} = this.config;
 
         this.logger.setup(this.config);
 
-        const configuredPipeline = pipeline(input, output, {useSource, useExperimentalParser});
+        const configuredPipeline = pipeline(input, output, {useSource});
         const pairs = files.reduce(
             (acc, file) => {
                 const ext = extname(file);
@@ -150,11 +143,7 @@ type FileInfo = {
     ext: string;
 };
 
-function pipeline(
-    input: AbsolutePath,
-    output: AbsolutePath,
-    {useSource, useExperimentalParser}: ComposeOptions,
-) {
+function pipeline(input: AbsolutePath, output: AbsolutePath, {useSource}: ComposeOptions) {
     return async function pipeline(file: FileInfo) {
         const skeleton = new FileLoader(join(input, file.skl));
         const xliff = new FileLoader<string>(join(input, file.xliff));
@@ -168,18 +157,12 @@ function pipeline(
         });
 
         const result = compose(skeleton.data, xliff.data, {
-            useExperimentalParser,
             useSource,
             schemas,
             ajvOptions,
         });
-        let contentData = result;
-        if (useExperimentalParser && typeof result === 'object') {
-            const extResult = result as MdExpComposeOutput;
-            contentData = extResult.document;
-        }
 
-        content.set(contentData);
+        content.set(result);
 
         await content.dump();
     };
