@@ -125,7 +125,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: product2/p2.md
-sourcePath: product2/p2.md
 ---
 This is the product 2 specific article.
 
@@ -169,7 +168,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: a1.md
-sourcePath: a1.md
 ---
 This is the /a1.md file content.
 "
@@ -181,7 +179,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: folder1/a1.md
-sourcePath: folder1/a1.md
 ---
 This is the /folder1/a1.md file content.
 "
@@ -193,7 +190,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: folder1/folder2/a1.md
-sourcePath: folder1/folder2/a1.md
 ---
 This is the /folder1/folder1/a1.md file content.
 "
@@ -238,7 +234,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: file1.md
-sourcePath: file1.md
 ---
 # File 1
 "
@@ -302,7 +297,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: fileX.md
-sourcePath: fileX.md
 ---
 # File X
 "
@@ -378,7 +372,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: a1.md
-sourcePath: a1.md
 ---
 This is the /a1.md file content.
 "
@@ -394,7 +387,6 @@ meta:
       content: Diplodoc Platform vDIPLODOC-VERSION
   title: Meta A
   vcsPath: index.yaml
-  sourcePath: index.yaml
 links:
   - title: A1
     description: A1 desc
@@ -429,7 +421,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/index.md
-sourcePath: test/index.md
 ---
 # H1
 
@@ -444,7 +435,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-1.md
-sourcePath: test/sub/sub-1.md
 ---
 # H1
 
@@ -460,7 +450,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub-2.md
-sourcePath: test/sub/sub-2.md
 ---
 # H1"
 `;
@@ -471,7 +460,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/sub/sub/sub-3.md
-sourcePath: test/sub/sub/sub-3.md
 ---
 # H1"
 `;
@@ -482,7 +470,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: test/test.md
-sourcePath: test/test.md
 ---
 # H1"
 `;

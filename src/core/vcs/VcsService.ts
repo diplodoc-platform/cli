@@ -4,6 +4,7 @@ import type {MetaService} from '~/core/meta';
 import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
 
 import {join} from 'node:path';
+
 import {all, bounded, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
@@ -61,9 +62,7 @@ export class VcsService implements VcsConnector {
 
         const result: VcsMetadata = {};
 
-        const sourcePath = await this.realpath(file);
-        result.vcsPath = sourcePath;
-        result.sourcePath = sourcePath;
+        result.vcsPath = await this.realpath(file);
 
         const [author, contributors, updatedAt] = await Promise.all([
             this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
