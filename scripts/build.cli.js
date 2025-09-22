@@ -22,19 +22,20 @@ const baseConfig = {
 };
 
 const externals = new Set();
-const lib = (entry, format) => esbuild.build({
-    ...baseConfig,
-    format,
-    outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
-    entryPoints: [entry],
-    packages: 'external',
-    plugins:[
-        deps(externals),
-        alias({
-            '~/core': ['@diplodoc/cli/lib', true],
-        }),
-    ]
-});
+const lib = (entry, format) =>
+    esbuild.build({
+        ...baseConfig,
+        format,
+        outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
+        entryPoints: [entry],
+        packages: 'external',
+        plugins: [
+            deps(externals),
+            alias({
+                '~/core': ['@diplodoc/cli/lib', true],
+            }),
+        ],
+    });
 const build = async (entry, outfile, format) => {
     const file = `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`;
     const config = {
@@ -81,9 +82,7 @@ const extension = async (entry, outfile, format) => {
         outfile: file,
     };
 
-    config.external = [
-        '@diplodoc/cli',
-    ];
+    config.external = ['@diplodoc/cli'];
 
     await esbuild.build(config);
 };
@@ -93,9 +92,7 @@ const copy = async (from, to) => {
     await copyFile(from, join(__dirname, '../build', to));
 };
 
-const builds = [
-    ['src/index.ts', 'index'],
-];
+const builds = [['src/index.ts', 'index']];
 
 const extensions = [
     ['src/extensions/mdit-plugins/index.ts', 'mdit-plugins'],
@@ -105,9 +102,7 @@ const extensions = [
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
 
-const files = [
-    [require.resolve('@diplodoc/client/manifest'), 'manifest.json']
-];
+const files = [[require.resolve('@diplodoc/client/manifest'), 'manifest.json']];
 
 Promise.all([
     ...libs.map((entry) => lib(entry, 'esm')),
