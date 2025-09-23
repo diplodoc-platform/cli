@@ -120,7 +120,7 @@ export class OutputMd {
                                     rehashIncludes(run, deps),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
-                                config.mergeSvg && mergeSvg(run, svgList, graph.assets),
+                                mergeSvg(run, svgList, graph.assets, config.mergeSvg),
                             ]);
 
                             await scheduler.schedule(graph.path);
