@@ -9,7 +9,6 @@ import {extname, join} from 'node:path';
 import {isEmpty} from 'lodash';
 import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
-import manifest from '@diplodoc/client/manifest';
 
 import {Template} from '~/core/template';
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
@@ -153,7 +152,7 @@ export class EntryService {
             .filter(isPublicMeta)
             .map(template.addMeta);
 
-        manifest.app.css
+        this.run.manifest.app.css
             .filter((file: string) => template.isRTL === file.includes('.rtl.css'))
             .map(rebase)
             .map(template.addStyle);
@@ -180,7 +179,7 @@ export class EntryService {
             },
         );
 
-        manifest.app.js.map(rebase).map(template.addScript);
+        this.run.manifest.app.js.map(rebase).map(template.addScript);
 
         script.map(template.addScript);
 

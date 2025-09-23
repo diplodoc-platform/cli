@@ -72,6 +72,10 @@ export class Run extends BaseRun<BuildConfig> {
         return join(ASSETS_FOLDER);
     }
 
+    get manifest() {
+        return require(join(__dirname, 'manifest.json'));
+    }
+
     constructor(config: BuildConfig) {
         super(config);
 
