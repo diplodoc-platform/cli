@@ -15,11 +15,11 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
-import {options} from './config';
-import {rehashIncludes} from './plugins/resolve-deps';
-import {mergeAutotitles} from './plugins/merge-autotitles';
 import {mergeSvg} from './plugins/merge-svg';
+import {mergeAutotitles} from './plugins/merge-autotitles';
+import {rehashIncludes} from './plugins/resolve-deps';
+import {options} from './config';
+import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;

@@ -1,4 +1,5 @@
 import type {AssetInfo, Location} from './types';
+import type {ImageOptions} from '@diplodoc/transform/lib/typings';
 
 import {parseLocalUrl} from '~/core/utils';
 
@@ -28,6 +29,7 @@ export function findLinksInfo(content: string): AssetInfo[] {
     const links = find(/]\(\s*/g, content, (match, rx) => {
         const link = parseLinkDestination(content, rx.lastIndex);
         const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+        const options = parseLinkOptions(content, rx.lastIndex + (link?.length || 0) + 1);
 
         // TODO: add more precise filter for unix compatible paths
         if (link === null || title === null || link.match(/[${}]/)) {
@@ -52,12 +54,14 @@ export function findLinksInfo(content: string): AssetInfo[] {
             subtype: type === 'image' ? 'image' : null,
             title,
             autotitle: type === 'link' && (!title || title === '{#T}'),
+            options,
         };
     });
 
     const referenceLinks = find(/]\[\s*/g, content, (match, rx) => {
         let link = parseLinkDestination(content, rx.lastIndex, ['[', ']']);
         let title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+        const options = parseLinkOptions(content, rx.lastIndex + (link?.length || 0) + 1);
 
         // TODO: add more precise filter for unix compatible paths
         if ((link === null && title === null) || link?.match(/[${}]/)) {
@@ -85,6 +89,7 @@ export function findLinksInfo(content: string): AssetInfo[] {
             code: link,
             title,
             autotitle: type === 'link' && (!title || title === '{#T}'),
+            options,
         };
     });
 
@@ -166,7 +171,7 @@ function parseLinkDestination(str: string, start: number, symbols = ['(', ')']) 
             continue;
         }
 
-        if (code === symbolStart /* ( or ] */) {
+        if (code === symbolStart /* ( or [ */) {
             level++;
             if (level > 32) {
                 return null;
@@ -231,6 +236,76 @@ function parseLinkTitle(str: string, start: number) {
     }
 
     return str.slice(pos + 1, start);
+}
+
+function parseLinkOptions(str: string, start: number): ImageOptions {
+    const max = str.length;
+    const options: ImageOptions = {
+        width: undefined,
+        height: undefined,
+        inline: undefined,
+    };
+    let code,
+        level = 0,
+        pos = start,
+        startOption = start;
+
+    if (str[pos - 1] !== ')') {
+        level--;
+    }
+    if (str.charCodeAt(pos) !== 0x7b /* { */ && level === 0) {
+        return options;
+    }
+
+    while (pos < max) {
+        code = str.charCodeAt(pos);
+
+        if (code === 0x29 /* ) */ && level === -1) {
+            if (str.charCodeAt(pos + 1) !== 0x7b) {
+                return options;
+            }
+            level++;
+        }
+
+        if (code === 0x7b /* { */ && level > -1) {
+            level++;
+            startOption = pos + 1;
+            if (level > 32) {
+                return options;
+            }
+        }
+
+        if (code === 0x7d /* } */) {
+            if (level === 1) {
+                level--;
+                break;
+            }
+            level--;
+        }
+
+        pos++;
+    }
+
+    if (start === pos || level !== 0) {
+        return options;
+    }
+
+    const attrRegex = /(\w+)=(?:'([^']*)'|"([^"]*)"|(\S+))/g;
+    const optionsString = str.slice(startOption, pos);
+    let match;
+
+    while ((match = attrRegex.exec(optionsString)) !== null) {
+        const key = match[1] as keyof ImageOptions;
+        const value = match[2] || match[3] || match[4];
+
+        if (key === 'inline') {
+            options[key] = value === 'true';
+        } else {
+            options[key] = value;
+        }
+    }
+
+    return options;
 }
 
 function parseSimpleLink(str: string, start: number) {
