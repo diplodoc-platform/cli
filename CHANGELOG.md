@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.12.1](https://github.com/diplodoc-platform/cli/compare/v5.12.0...v5.12.1) (2025-09-23)
+
+
+### Bug Fixes
+
+* Fix client bundle missing ([b79bbba](https://github.com/diplodoc-platform/cli/commit/b79bbbaa2056bf8b3f1cf1f00acde550958d6e87))
+* rollback resolve codeblock ([3e630fa](https://github.com/diplodoc-platform/cli/commit/3e630faf9ada4111d271832d95778114920136be))
+* Set meta sourcePath only for copied files ([7d214e2](https://github.com/diplodoc-platform/cli/commit/7d214e27d3d55c6c2f5f9cba012afe8d4668252e))
+
 ## [5.12.0](https://github.com/diplodoc-platform/cli/compare/v5.11.6...v5.12.0) (2025-09-18)
 
 
