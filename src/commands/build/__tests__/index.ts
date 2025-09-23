@@ -102,6 +102,11 @@ export function setupBuild(state?: BuildState): Build {
             setupRun({}, run as Run);
         }
 
+        vi.spyOn(run, 'manifest', 'get').mockReturnValue({
+            app: {js: [], css: [], async: []},
+            search: {js: [], css: [], async: []},
+        });
+
         when(run.exists).calledWith(expect.anything()).thenReturn(false);
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
         when(run.copy)

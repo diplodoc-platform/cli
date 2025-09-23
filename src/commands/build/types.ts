@@ -45,7 +45,7 @@ type BaseConfig = {
     // TODO: explicitly handle
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
-    interface: Record<string, boolean>;
+    interface: Hash;
 };
 
 export type VcsArgs = {

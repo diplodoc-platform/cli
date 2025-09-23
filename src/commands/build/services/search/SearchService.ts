@@ -1,10 +1,7 @@
-import type {BaseConfig} from '~/core/program';
-import type {Run as BaseRun} from '~/core/run';
-import type {EntryInfo, OutputFormat} from '../..';
+import type {EntryInfo, OutputFormat, Run} from '~/commands/build';
 import type {SearchProvider} from './types';
 
 import {basename, join} from 'node:path';
-import manifest from '@diplodoc/client/manifest';
 
 import {bounded, normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
@@ -25,8 +22,6 @@ export type SearchServiceConfig = {
         provider: string;
     } & Hash<unknown>;
 };
-
-type Run = BaseRun<BaseConfig & SearchServiceConfig & Hash>;
 
 @withHooks
 export class SearchService implements SearchProvider<RelativePath> {
@@ -107,7 +102,7 @@ export class SearchService implements SearchProvider<RelativePath> {
         const template = new Template('_search' as NormalizedPath, lang);
         const config = this.run.config;
         const baseInterface = config.interface;
-        const faviconSrc = (baseInterface && baseInterface['favicon-src']) || '';
+        const faviconSrc = baseInterface ? baseInterface['favicon-src'] : '';
 
         const state = {
             lang,
@@ -120,12 +115,12 @@ export class SearchService implements SearchProvider<RelativePath> {
         template.setFaviconSrc(faviconSrc);
         template.addMeta({robots: 'noindex'});
 
-        manifest.search.css
+        this.run.manifest.search.css
             .filter((file: string) => isRTL === file.includes('.rtl.css'))
             .map(rebase)
             .map(template.addStyle);
 
-        manifest.search.js.map(rebase).map(template.addScript);
+        this.run.manifest.search.js.map(rebase).map(template.addScript);
 
         template.addScript(template.escape(JSON.stringify(state)), {
             inline: true,
