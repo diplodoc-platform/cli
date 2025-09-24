@@ -1,4 +1,6 @@
-import { getSinglePageUrl, joinSinglePageResults, SinglePageResult} from '../singlepage/utils';
+import type {SinglePageResult} from '../singlepage/utils';
+
+import {getSinglePageUrl, joinSinglePageResults} from '../singlepage/utils';
 
 export const PDF_PAGE_FILENAME = 'pdf-page.html';
 

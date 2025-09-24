@@ -50,7 +50,7 @@ type BaseConfig = {
     hiddenPolicy: Record<string, boolean>;
     'docs-viewer': {
         pdf: boolean;
-    }
+    };
 };
 
 export type VcsArgs = {

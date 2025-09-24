@@ -1,14 +1,14 @@
 import type {Build} from '~/commands/build';
+import type {EntryTocItem} from '~/core/toc';
+import type {PdfPageResult} from './utils';
 
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {normalizePath} from '~/core/utils';
-import {EntryTocItem} from '~/core/toc';
-import {getPdfPageUrl, joinPdfPageResults, PDF_PAGE_FILENAME, PdfPageResult} from './utils';
-import { Template } from '~/core/template';
+import {Template} from '~/core/template';
 
-
+import {PDF_PAGE_FILENAME, getPdfPageUrl, joinPdfPageResults} from './utils';
 
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 
@@ -39,12 +39,12 @@ export class PdfPage {
                 };
             });
 
-            getBuildHooks(program)
-                .BeforeRun.for('html')
-                .tap('PdfPage', (run) => {
-                    if (!run.config['docs-viewer'].pdf) {
-                        return;
-                    }
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('PdfPage', (run) => {
+                if (!run.config['docs-viewer'].pdf) {
+                    return;
+                }
 
                 // Modify and dump toc for pdf page.
                 // Add link to dumped pdf-page-toc.js to html template.
@@ -87,7 +87,9 @@ export class PdfPage {
                         await run.toc.walkItems(toc.items, (item) => {
                             if (item.hidden || !item.href) return;
 
-                            const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+                            const rebasedItemHref = normalizePath(
+                                join(dirname(toc.path), item.href),
+                            );
 
                             entries.push(results[rebasedItemHref]);
 
@@ -95,7 +97,9 @@ export class PdfPage {
                         });
                     } else {
                         await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                            const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+                            const rebasedItemHref = normalizePath(
+                                join(dirname(toc.path), item.href),
+                            );
 
                             entries.push(results[rebasedItemHref]);
 

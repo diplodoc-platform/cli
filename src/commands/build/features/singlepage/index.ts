@@ -12,7 +12,7 @@ import {Template} from '~/core/template';
 import {normalizePath} from '~/core/utils';
 
 import {options} from './config';
-import {getSinglePageUrl, joinSinglePageResults, SINGLE_PAGE_FILENAME} from './utils';
+import {SINGLE_PAGE_FILENAME, getSinglePageUrl, joinSinglePageResults} from './utils';
 
 const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 
@@ -80,7 +80,11 @@ export class SinglePage {
                     const tocPath = join(dirname(template.path), 'toc.yaml');
                     const toc = (await run.toc.dump(tocPath)).copy(file);
                     await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
-                        item.href = getSinglePageUrl(dirname(toc.path), item.href, SINGLE_PAGE_FILENAME);
+                        item.href = getSinglePageUrl(
+                            dirname(toc.path),
+                            item.href,
+                            SINGLE_PAGE_FILENAME,
+                        );
 
                         return item;
                     });
