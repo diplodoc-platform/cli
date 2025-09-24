@@ -1,4 +1,4 @@
-import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
+import type {ImageOptions, MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';
@@ -36,6 +36,7 @@ export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     title: string;
     autotitle: boolean;
     location: Location;
+    options?: ImageOptions;
 };
 
 export type HeadingInfo = {
