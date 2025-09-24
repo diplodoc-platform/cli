@@ -47,6 +47,10 @@ type BaseConfig = {
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
     interface: Hash;
+    hiddenPolicy: Record<string, boolean>;
+    'docs-viewer': {
+        pdf: boolean;
+    }
 };
 
 export type VcsArgs = {

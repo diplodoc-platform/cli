@@ -31,6 +31,7 @@ import {Templating} from './features/templating';
 import {CustomResources} from './features/custom-resources';
 import {Contributors} from './features/contributors';
 import {SinglePage} from './features/singlepage';
+import {PdfPage} from './features/pdf-page';
 import {Lint} from './features/linter';
 import {BuildManifest} from './features/build-manifest';
 import {SkipHtml} from './features/skip-html';
@@ -84,6 +85,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly singlepage = new SinglePage();
 
+    readonly pdfPage = new PdfPage();
+
     readonly linter = new Lint();
 
     readonly buildManifest = new BuildManifest();
@@ -133,6 +136,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.resources,
         this.contributors,
         this.singlepage,
+        this.pdfPage,
         this.linter,
         this.buildManifest,
         this.changelogs,
