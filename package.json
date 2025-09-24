@@ -135,7 +135,7 @@
     "ts-patch": "3.3.0",
     "typescript": "5.4.5",
     "typescript-transform-paths": "3.5.5",
-    "uuid": "11.0.4",
+    "uuid": "13.0.0",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.1",
