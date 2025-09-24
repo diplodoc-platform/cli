@@ -140,7 +140,7 @@
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.2.1",
     "vitest-when": "^0.6.1",
-    "walk-sync": "3.0.0"
+    "walk-sync": "4.0.1"
   },
   "engines": {
     "node": ">=22.*"
