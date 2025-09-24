@@ -29,6 +29,9 @@ Reference link with hash
 [link]: ./mermaid.md
 [link-with-hash]: ./1.md#subtitle
 
+Link another level
+[{#T}](./includes/level11.md)
+
 ## Header {#header}
 
 Content

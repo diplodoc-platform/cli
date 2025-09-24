@@ -2,7 +2,7 @@ import type {AssetInfo} from '~/core/markdown/types';
 import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 
-import {dirname, join, relative} from 'node:path';
+import {join} from 'node:path';
 
 import {normalizePath} from '~/core/utils';
 
@@ -13,13 +13,9 @@ function isDef(asset: AssetInfo) {
     return asset.type === 'def' && asset.autotitle === true;
 }
 
-function rebaseAssets(
-    content: string,
-    assets: AssetInfo[],
-    from: NormalizedPath,
-    to: NormalizedPath,
-) {
-    const base = relative(dirname(to), dirname(from));
+function rebaseAssets(content: string, assets: AssetInfo[], to: NormalizedPath) {
+    const level = to.split('/').length - 1;
+    const base = Array(level).fill('..').join('/');
     return assets.reduceRight((content, {path, location}) => {
         const link = normalizePath(join(base, path));
         return content.slice(0, location[0] + 2) + link + content.slice(location[1] - 1);
@@ -46,7 +42,7 @@ export function mergeAutotitles(run: Run, titleList: Map<string, string>, assets
             const {assets} = await run.markdown.inspect(href, titles[key], {});
             const hash = key === '#' ? href : href + key;
 
-            titleList.set(hash, rebaseAssets(value, assets, href, path));
+            titleList.set(hash, rebaseAssets(value, assets, path));
         }
 
         return titleList.get(link);
