@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.2](https://github.com/diplodoc-platform/cli/compare/v5.12.1...v5.12.2) (2025-09-24)
+
+
+### Bug Fixes
+
+* rebase links in image in autotitles ([14f5364](https://github.com/diplodoc-platform/cli/commit/14f5364c5d50beb2656184ea25de4e49910332ad))
+
 ## [5.12.1](https://github.com/diplodoc-platform/cli/compare/v5.12.0...v5.12.1) (2025-09-23)
 
 
