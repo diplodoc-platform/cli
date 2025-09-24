@@ -1,49 +1,27 @@
 import type {Build} from '~/commands/build';
-import type {EntryTocItem} from '~/core/toc';
-import type {Command} from '~/core/config';
-import type {SinglePageResult} from './utils';
 
 import {dirname, join} from 'node:path';
 
-import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
-import {defined} from '~/core/config';
-import {Template} from '~/core/template';
 import {normalizePath} from '~/core/utils';
+import {EntryTocItem} from '~/core/toc';
+import {getPdfPageUrl, joinPdfPageResults, PDF_PAGE_FILENAME, PdfPageResult} from './utils';
+import { Template } from '~/core/template';
 
-import {options} from './config';
-import {getSinglePageUrl, joinSinglePageResults, SINGLE_PAGE_FILENAME} from './utils';
 
-const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 
-export type SinglePageArgs = {
-    singlePage: boolean;
-};
+const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 
-export type SinglePageConfig = {
-    singlePage: boolean;
-};
+const __PdfPage__ = Symbol('isPdfPage');
 
-const __SinglePage__ = Symbol('isSinglePage');
-
-export class SinglePage {
+export class PdfPage {
     apply(program: Build) {
-        getBaseHooks(program).Command.tap('SinglePage', (command: Command) => {
-            command.addOption(options.singlePage);
-        });
-
-        getBaseHooks(program).Config.tap('SinglePage', (config, args) => {
-            config.singlePage = defined('singlePage', args, config) || false;
-
-            return config;
-        });
-
-        const results: Record<NormalizedPath, SinglePageResult> = {};
+        const results: Record<NormalizedPath, PdfPageResult> = {};
 
         getBuildHooks(program)
             .Entry.for('html')
-            .tap('SinglePage', (run, entry, info) => {
-                if (!run.config.singlePage || !info.html) {
+            .tap('PdfPage', (run, entry, info) => {
+                if (!run.config['docs-viewer'].pdf || !info.html) {
                     return;
                 }
 
@@ -61,26 +39,27 @@ export class SinglePage {
                 };
             });
 
-        getBuildHooks(program)
-            .BeforeRun.for('html')
-            .tap('SinglePage', (run) => {
-                if (!run.config.singlePage) {
-                    return;
-                }
-
-                // Modify and dump toc for single page.
-                // Add link to dumped single-page-toc.js to html template.
-                getEntryHooks(run.entry).Page.tapPromise('Html', async (template) => {
-                    if (!template.is(__SinglePage__)) {
+            getBuildHooks(program)
+                .BeforeRun.for('html')
+                .tap('PdfPage', (run) => {
+                    if (!run.config['docs-viewer'].pdf) {
                         return;
                     }
 
-                    const file = join(dirname(template.path), 'single-page-toc.js');
+                // Modify and dump toc for pdf page.
+                // Add link to dumped pdf-page-toc.js to html template.
+                getEntryHooks(run.entry).Page.tapPromise('Html', async (template) => {
+                    if (!template.is(__PdfPage__)) {
+                        return;
+                    }
+
+                    const file = join(dirname(template.path), 'pdf-page-toc.js');
 
                     const tocPath = join(dirname(template.path), 'toc.yaml');
                     const toc = (await run.toc.dump(tocPath)).copy(file);
+
                     await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
-                        item.href = getSinglePageUrl(dirname(toc.path), item.href, SINGLE_PAGE_FILENAME);
+                        item.href = getPdfPageUrl(dirname(toc.path), item.href);
 
                         return item;
                     });
@@ -93,31 +72,47 @@ export class SinglePage {
 
         getBuildHooks(program)
             .AfterRun.for('html')
-            .tapPromise('SinglePage', async (run) => {
-                if (!run.config.singlePage) {
+            .tapPromise('PdfPage', async (run) => {
+                if (!run.config['docs-viewer'].pdf) {
                     return;
                 }
 
                 for (const toc of run.toc.tocs) {
-                    const entries: SinglePageResult[] = [];
-                    await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                        const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+                    const entries: PdfPageResult[] = [];
 
-                        entries.push(results[rebasedItemHref]);
+                    const hiddenPolicy = run.config.hiddenPolicy;
+                    const isHiddenPolicy = hiddenPolicy?.pdf ?? true;
 
-                        return item;
-                    });
+                    if (isHiddenPolicy) {
+                        await run.toc.walkItems(toc.items, (item) => {
+                            if (item.hidden || !item.href) return;
+
+                            const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+
+                            entries.push(results[rebasedItemHref]);
+
+                            return item;
+                        });
+                    } else {
+                        await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
+                            const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+
+                            entries.push(results[rebasedItemHref]);
+
+                            return item;
+                        });
+                    }
 
                     if (!entries.length) {
                         return;
                     }
 
                     const tocDir = dirname(toc.path);
-                    const htmlPath = join(tocDir, SINGLE_PAGE_FILENAME);
-                    const dataPath = join(tocDir, SINGLE_PAGE_DATA_FILENAME);
+                    const htmlPath = join(tocDir, PDF_PAGE_FILENAME);
+                    const pdfDataPath = join(tocDir, PDF_PAGE_DATA_FILENAME);
 
                     try {
-                        const singlePageBody = joinSinglePageResults(
+                        const pdfPageBody = joinPdfPageResults(
                             entries.filter(Boolean),
                             tocDir as NormalizedPath,
                         );
@@ -128,19 +123,19 @@ export class SinglePage {
 
                         const data = {
                             leading: false as const,
-                            html: singlePageBody,
+                            html: pdfPageBody,
                             headings: [],
                             meta: await run.meta.dump(toc.path),
                             title: toc.title || '',
                         };
 
                         const state = await run.entry.state(htmlPath, data);
-                        const template = new Template(htmlPath, state.lang, [__SinglePage__]);
+                        const template = new Template(htmlPath, state.lang, [__PdfPage__]);
                         const page = await run.entry.page(template, state, tocData);
 
                         state.data.toc = tocData;
 
-                        await run.write(join(run.output, dataPath), JSON.stringify(state), true);
+                        await run.write(join(run.output, pdfDataPath), JSON.stringify(state), true);
                         await run.write(join(run.output, htmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);
