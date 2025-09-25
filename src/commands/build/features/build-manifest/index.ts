@@ -87,7 +87,11 @@ export class BuildManifest {
                     yfmConfig,
                 };
 
-                await run.write(join(run.output, MANIFEST_FILENAME), JSON.stringify(manifest));
+                await run.write(
+                    join(run.output, MANIFEST_FILENAME),
+                    JSON.stringify(manifest),
+                    true,
+                );
             });
     }
 
@@ -151,13 +155,18 @@ export class BuildManifest {
 
             if (lastHead[name]?.file) {
                 const pathToReport = path.replace(/\..+$/, '');
+                const existingExt = lastHead[name]?.file?.ext;
+                const shouldReplace = this.shouldReplaceFile(existingExt, ext);
 
-                run.logger.error(
-                    `BuildManifest: Attepmted to commit a file with extension \`${ext}\` at path \`${pathToReport}\` which already exists with extension \`${lastHead[name]?.file?.ext}\`. This behavior is not supported.`,
-                );
+                if (!shouldReplace) {
+                    run.logger.warn(
+                        `BuildManifest: Skipping file with extension \`${ext}\` at path \`${pathToReport}\` because file with extension \`${existingExt}\` already exists and has higher priority.`,
+                    );
+                    return;
+                }
 
-                throw new Error(
-                    `File object at path ${pathToReport} already exists in prefix tree.`,
+                run.logger.warn(
+                    `BuildManifest: Replacing file with extension \`${existingExt}\` at path \`${pathToReport}\` with file with extension \`${ext}\` due to priority.`,
                 );
             }
 
@@ -176,6 +185,20 @@ export class BuildManifest {
                 Object.entries(reverseTocMapping).map(([k, v]) => [v, k]),
             ),
         };
+    }
+
+    private shouldReplaceFile(existingExt: string, newExt: string): boolean {
+        const priority: Record<string, number> = {
+            '.md': 3,
+            '.yaml': 2,
+            '.yml': 2,
+            '.html': 1,
+        };
+
+        const existingPriority = priority[existingExt] || 0;
+        const newPriority = priority[newExt] || 0;
+
+        return newPriority > existingPriority;
     }
 
     private nextId() {
