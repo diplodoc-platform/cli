@@ -48,9 +48,7 @@ type BaseConfig = {
     supportGithubAnchors?: boolean;
     interface: Hash;
     hiddenPolicy: Record<string, boolean>;
-    'docs-viewer': {
-        pdf: boolean;
-    };
+    preparePdf: boolean;
 };
 
 export type VcsArgs = {

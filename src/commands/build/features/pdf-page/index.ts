@@ -12,6 +12,8 @@ import {PDF_PAGE_FILENAME, getPdfPageUrl, joinPdfPageResults} from './utils';
 
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 
+const PDF_TOC_FILENAME = 'pdf-page-toc.js';
+
 const __PdfPage__ = Symbol('isPdfPage');
 
 export class PdfPage {
@@ -21,7 +23,7 @@ export class PdfPage {
         getBuildHooks(program)
             .Entry.for('html')
             .tap('PdfPage', (run, entry, info) => {
-                if (!run.config['docs-viewer'].pdf || !info.html) {
+                if (!run.config.preparePdf || !info.html) {
                     return;
                 }
 
@@ -42,7 +44,7 @@ export class PdfPage {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('PdfPage', (run) => {
-                if (!run.config['docs-viewer'].pdf) {
+                if (!run.config.preparePdf) {
                     return;
                 }
 
@@ -53,7 +55,7 @@ export class PdfPage {
                         return;
                     }
 
-                    const file = join(dirname(template.path), 'pdf-page-toc.js');
+                    const file = join(dirname(template.path), PDF_TOC_FILENAME);
 
                     const tocPath = join(dirname(template.path), 'toc.yaml');
                     const toc = (await run.toc.dump(tocPath)).copy(file);
@@ -73,7 +75,7 @@ export class PdfPage {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('PdfPage', async (run) => {
-                if (!run.config['docs-viewer'].pdf) {
+                if (!run.config.preparePdf) {
                     return;
                 }
 
@@ -83,29 +85,19 @@ export class PdfPage {
                     const hiddenPolicy = run.config.hiddenPolicy;
                     const isHiddenPolicy = hiddenPolicy?.pdf ?? true;
 
-                    if (isHiddenPolicy) {
-                        await run.toc.walkItems(toc.items, (item) => {
-                            if (item.hidden || !item.href) return;
+                    await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
+                        if (item.hidden && isHiddenPolicy) {
+                            return;
+                        }
 
-                            const rebasedItemHref = normalizePath(
-                                join(dirname(toc.path), item.href),
-                            );
+                        const rebasedItemHref = normalizePath(
+                            join(dirname(toc.path), item.href),
+                        );
 
-                            entries.push(results[rebasedItemHref]);
+                        entries.push(results[rebasedItemHref]);
 
-                            return item;
-                        });
-                    } else {
-                        await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                            const rebasedItemHref = normalizePath(
-                                join(dirname(toc.path), item.href),
-                            );
-
-                            entries.push(results[rebasedItemHref]);
-
-                            return item;
-                        });
-                    }
+                        return item;
+                    });
 
                     if (!entries.length) {
                         return;
