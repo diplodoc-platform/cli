@@ -1,0 +1,7 @@
+allowHTML: true
+
+hiddenPolicy:
+  pdf: true
+
+docs-viewer:
+  pdf: true

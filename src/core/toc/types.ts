@@ -104,6 +104,7 @@ export type EntryTocItem = {
     name: string;
     href: NormalizedPath;
     'restricted-access'?: string[];
+    hidden?: boolean;
 };
 
 export type NamedTocItem = {

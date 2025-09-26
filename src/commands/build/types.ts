@@ -47,6 +47,8 @@ type BaseConfig = {
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
     interface: Hash;
+    hiddenPolicy: Record<string, boolean>;
+    preparePdf: boolean;
 };
 
 export type VcsArgs = {
