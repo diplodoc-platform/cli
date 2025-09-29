@@ -8,11 +8,12 @@ import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
 
-import {PDF_PAGE_FILENAME, getPdfPageUrl, joinPdfPageResults} from './utils';
+import {PDF_PAGE_FILENAME, getPdfPageUrl, isEntryHidden, joinPdfPageResults, removeTags} from './utils';
 
+const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
-
 const PDF_TOC_FILENAME = 'pdf-page-toc.js';
+const CLASSES_TO_REMOVE = ['inline_code_tooltip'];
 
 const __PdfPage__ = Symbol('isPdfPage');
 
@@ -27,8 +28,16 @@ export class PdfPage {
                     return;
                 }
 
+                const hiddenPolicy = run.config.hiddenPolicy;
+                const isHiddenPolicy = hiddenPolicy?.pdf ?? true;
+
                 const toc = run.toc.for(entry);
                 const meta = info.meta || {};
+
+                // Removing all hidden items, including child ones
+                if (isHiddenPolicy && isEntryHidden(toc, entry)) {
+                    return;
+                }
 
                 run.meta.addMetadata(toc.path, meta.metadata);
                 run.meta.addResources(toc.path, meta);
@@ -55,7 +64,8 @@ export class PdfPage {
                         return;
                     }
 
-                    const file = join(dirname(template.path), PDF_TOC_FILENAME);
+                    const pdfTocPath = `${PDF_DIRNAME}/${PDF_TOC_FILENAME}`;
+                    const file = join(dirname(template.path), pdfTocPath);
 
                     const tocPath = join(dirname(template.path), 'toc.yaml');
                     const toc = (await run.toc.dump(tocPath)).copy(file);
@@ -82,19 +92,17 @@ export class PdfPage {
                 for (const toc of run.toc.tocs) {
                     const entries: PdfPageResult[] = [];
 
-                    const hiddenPolicy = run.config.hiddenPolicy;
-                    const isHiddenPolicy = hiddenPolicy?.pdf ?? true;
-
                     await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                        if (item.hidden && isHiddenPolicy) {
-                            return;
+                        const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
+
+                        // Results have already been filtered
+                        const entry = results[rebasedItemHref];
+
+                        if (entry) {
+                            // Processing the final HTML, removing tags with the specified classes
+                            entry.content = removeTags(entry.content, CLASSES_TO_REMOVE);
+                            entries.push(entry);
                         }
-
-                        const rebasedItemHref = normalizePath(
-                            join(dirname(toc.path), item.href),
-                        );
-
-                        entries.push(results[rebasedItemHref]);
 
                         return item;
                     });
@@ -103,9 +111,10 @@ export class PdfPage {
                         return;
                     }
 
+                    const pdfPath = `${PDF_DIRNAME}/${PDF_PAGE_DATA_FILENAME}`;
                     const tocDir = dirname(toc.path);
                     const htmlPath = join(tocDir, PDF_PAGE_FILENAME);
-                    const pdfDataPath = join(tocDir, PDF_PAGE_DATA_FILENAME);
+                    const pdfDataPath = join(tocDir, pdfPath);
 
                     try {
                         const pdfPageBody = joinPdfPageResults(
