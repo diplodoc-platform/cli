@@ -117,10 +117,9 @@ export class PdfPage {
                         return;
                     }
 
-                    const pdfPath = `${PDF_DIRNAME}/${PDF_PAGE_DATA_FILENAME}`;
                     const tocDir = dirname(toc.path);
                     const htmlPath = join(tocDir, PDF_PAGE_FILENAME);
-                    const pdfDataPath = join(tocDir, pdfPath);
+                    const pdfDataPath = join(tocDir, PDF_DIRNAME, PDF_PAGE_DATA_FILENAME);
 
                     try {
                         const pdfPageBody = joinPdfPageResults(
@@ -146,8 +145,10 @@ export class PdfPage {
 
                         state.data.toc = tocData;
 
+                        const pdfHtmlPath = join(tocDir, PDF_DIRNAME, PDF_PAGE_FILENAME);
+
                         await run.write(join(run.output, pdfDataPath), JSON.stringify(state), true);
-                        await run.write(join(run.output, htmlPath), page, true);
+                        await run.write(join(run.output, pdfHtmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);
                     }
