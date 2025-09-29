@@ -1,8 +1,10 @@
+import type {Toc} from '~/core/toc';
+
+import {dirname, join} from 'node:path';
+
 import {normalizePath} from '~/core/utils';
-import {Toc} from '~/core/toc';
 
 import {getSinglePageUrl, joinSinglePageResults} from '../singlepage/utils';
-import {dirname, join} from 'node:path';
 
 export const PDF_PAGE_FILENAME = 'pdf-page.html';
 
@@ -24,20 +26,25 @@ export function joinPdfPageResults(
     return joinSinglePageResults(pdfPageResults, tocDir);
 }
 
-function checkItems(toc: Toc, entryPath: string, items: any[], parentHidden: boolean): boolean | null {
+function checkItems(
+    toc: Toc,
+    entryPath: string,
+    items: any[],
+    parentHidden: boolean,
+): boolean | null {
     if (!items) return null;
-        
+
     for (const item of items) {
         const isCurrentHidden = item.hidden || parentHidden;
-            
+
         if (item.href) {
             const itemPath = normalizePath(join(dirname(toc.path), item.href));
-                
+
             if (itemPath === entryPath) {
                 return isCurrentHidden;
             }
         }
-            
+
         if (item.items && item.items.length > 0) {
             const result = checkItems(toc, entryPath, item.items, isCurrentHidden);
 
@@ -46,13 +53,13 @@ function checkItems(toc: Toc, entryPath: string, items: any[], parentHidden: boo
             }
         }
     }
-        
+
     return null;
 }
 
 export function isEntryHidden(toc: Toc, entryPath: NormalizedPath): boolean {
     const result = checkItems(toc, entryPath, toc.items || [], false);
-    
+
     return result === true;
 }
 
@@ -61,15 +68,14 @@ export function removeTags(html: string, classList?: string[]) {
         return html;
     }
 
-    const classes = classList.map(cls => cls.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+    const classes = classList.map((cls) => cls.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
 
-    const classPattern = classes.length === 1
-        ? `\\b${classes[0]}\\b`
-        : `\\b(?:${classes.join('|')})\\b`;
+    const classPattern =
+        classes.length === 1 ? `\\b${classes[0]}\\b` : `\\b(?:${classes.join('|')})\\b`;
 
     const re = new RegExp(
-      `<([a-zA-Z0-9]+)([^>]*)\\bclass\\s*=\\s*(['"])([^'"]*${classPattern}[^'"]*)\\3[^>]*>[\\s\\S]*?<\\/\\1>`,
-      'gi'
+        `<([a-zA-Z0-9]+)([^>]*)\\bclass\\s*=\\s*(['"])([^'"]*${classPattern}[^'"]*)\\3[^>]*>[\\s\\S]*?<\\/\\1>`,
+        'gi',
     );
 
     return html.replace(re, '');

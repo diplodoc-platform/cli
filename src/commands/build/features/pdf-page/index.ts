@@ -8,7 +8,13 @@ import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
 
-import {PDF_PAGE_FILENAME, getPdfPageUrl, isEntryHidden, joinPdfPageResults, removeTags} from './utils';
+import {
+    PDF_PAGE_FILENAME,
+    getPdfPageUrl,
+    isEntryHidden,
+    joinPdfPageResults,
+    removeTags,
+} from './utils';
 
 const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
