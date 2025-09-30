@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.3](https://github.com/diplodoc-platform/cli/compare/v5.12.2...v5.12.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* Added a pdf-page feature to assist with pdf generation ([#1447](https://github.com/diplodoc-platform/cli/issues/1447)) ([d6e187c](https://github.com/diplodoc-platform/cli/commit/d6e187ccd745b3a52d6267d60575aaab9f1ec770))
+
 ## [5.12.2](https://github.com/diplodoc-platform/cli/compare/v5.12.1...v5.12.2) (2025-09-24)
 
 
