@@ -30,12 +30,11 @@ export class PdfPage {
         getBuildHooks(program)
             .Entry.for('html')
             .tap('PdfPage', (run, entry, info) => {
-                if (!run.config.preparePdf || !info.html) {
+                if (!run.config?.pdf?.enabled || !info.html) {
                     return;
                 }
 
-                const hiddenPolicy = run.config.hiddenPolicy;
-                const isHiddenPolicy = hiddenPolicy?.pdf ?? true;
+                const isHiddenPolicy = run.config?.pdf?.hiddenPolicy ?? true;
 
                 const toc = run.toc.for(entry);
                 const meta = info.meta || {};
@@ -59,7 +58,7 @@ export class PdfPage {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('PdfPage', (run) => {
-                if (!run.config.preparePdf) {
+                if (!run.config?.pdf?.enabled) {
                     return;
                 }
 
@@ -91,7 +90,7 @@ export class PdfPage {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('PdfPage', async (run) => {
-                if (!run.config.preparePdf) {
+                if (!run.config?.pdf?.enabled) {
                     return;
                 }
 
