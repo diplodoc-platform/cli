@@ -468,8 +468,8 @@ exports[`Alternates > internal 24`] = `
         <link rel="canonical" href="ru/about.html">
         <link rel="alternate" href="az/about.html" hreflang="az" />
         <link rel="alternate" href="en/about.html" hreflang="en" />
-        <link rel="alternate" href="ru/about.html" hreflang="ru" />
         <link rel="alternate" href="https://my-other-site.com/about" />
+        <link rel="alternate" href="ru/about.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -807,8 +807,8 @@ exports[`Alternates > skip-html-extension 11`] = `
         <link rel="canonical" href="ru/about">
         <link rel="alternate" href="az/about" hreflang="az" />
         <link rel="alternate" href="en/about" hreflang="en" />
-        <link rel="alternate" href="ru/about" hreflang="ru" />
         <link rel="alternate" href="https://my-other-site.com/about" />
+        <link rel="alternate" href="ru/about" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>

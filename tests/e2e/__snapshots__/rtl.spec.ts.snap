@@ -93,8 +93,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation | Documentation</title>
         <link rel="canonical" href="ar/index.html">
-        <link rel="alternate" href="en/index.html" hreflang="en" />
         <link rel="alternate" href="ar/index.html" hreflang="ar" />
+        <link rel="alternate" href="en/index.html" hreflang="en" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -124,8 +124,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation</title>
         <link rel="canonical" href="ar/page.html">
-        <link rel="alternate" href="en/page.html" hreflang="en" />
         <link rel="alternate" href="ar/page.html" hreflang="ar" />
+        <link rel="alternate" href="en/page.html" hreflang="en" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -157,8 +157,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation | Documentation</title>
         <link rel="canonical" href="en/index.html">
-        <link rel="alternate" href="en/index.html" hreflang="en" />
         <link rel="alternate" href="ar/index.html" hreflang="ar" />
+        <link rel="alternate" href="en/index.html" hreflang="en" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
@@ -188,8 +188,8 @@ exports[`Generate html document with correct lang and dir attributes. Load corre
         <base href="../" />
         <title>Documentation</title>
         <link rel="canonical" href="en/page.html">
-        <link rel="alternate" href="en/page.html" hreflang="en" />
         <link rel="alternate" href="ar/page.html" hreflang="ar" />
+        <link rel="alternate" href="en/page.html" hreflang="en" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
