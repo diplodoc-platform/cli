@@ -7,9 +7,6 @@ exports[`Pdf page mode > transforms links correctly > filelist 1`] = `
   "page1.html",
   "page2.html",
   "page3.html",
-  "pdf-page-toc.js",
-  "pdf-page.html",
-  "pdf-page.json",
   "toc.js"
 ]"
 `;
@@ -39,7 +36,7 @@ exports[`Pdf page mode > transforms links correctly 2`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"page1.html\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2.html\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md","sourcePath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"page1.html\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2.html\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -67,7 +64,7 @@ exports[`Pdf page mode > transforms links correctly 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page2.html#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md","sourcePath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"page2.html#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -95,7 +92,7 @@ exports[`Pdf page mode > transforms links correctly 4`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"page2.html#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page2.md","sourcePath":"page2.md"},"headings":[{"title":"hash","href":"page2.html#hash","level":2}],"title":"Page 2"},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"page2.html#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page2.md"},"headings":[{"title":"hash","href":"page2.html#hash","level":2}],"title":"Page 2"},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -123,7 +120,7 @@ exports[`Pdf page mode > transforms links correctly 5`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page3.md","sourcePath":"page3.md"},"headings":[],"title":"Page 3"},"router":{"pathname":"page3","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page3.md"},"headings":[],"title":"Page 3"},"router":{"pathname":"page3","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -137,36 +134,4 @@ exports[`Pdf page mode > transforms links correctly 5`] = `
 </html>"
 `;
 
-exports[`Pdf page mode > transforms links correctly 6`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":"#index","items":[{"name":"Title 1","href":"#page1","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
-
-exports[`Pdf page mode > transforms links correctly 7`] = `
-"<!DOCTYPE html>
-<html lang="ru" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <base href="./" />
-        <title>Skip html extension | Skip html extension</title>
-        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-    </head>
-    <body class="g-root g-root_theme_light">
-        <div id="root"></div>
-        <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 data-original-article=\\"page1.html\\"&gt;Page 1&lt;a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#page1\\" id=\\"page1\\"&gt;&lt;/a&gt;&lt;/h2&gt;&lt;p&gt;&lt;a href=\\"page2.html#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"Skip html extension"},"router":{"pathname":"pdf-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
-        </script>
-        <script type="application/javascript">
-            const data = document.querySelector('script#diplodoc-state');
-            window.__DATA__ = JSON.parse((function unescape(string) {
-                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
-              })(data.innerText));
-            window.STATIC_CONTENT = false;
-        </script>
-        <script type="application/javascript" defer src="pdf-page-toc.js"></script>
-    </body>
-</html>"
-`;
-
-exports[`Pdf page mode > transforms links correctly 8`] = `"{"data":{"leading":false,"html":"<h2 data-original-article=\\"page1.html\\">Page 1<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#page1\\" id=\\"page1\\"></a></h2><p><a href=\\"page2.html#hash\\">Link</a></p>/n","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"Skip html extension","toc":{"title":"Skip html extension","href":"index.html","items":[{"name":"Title 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"pdf-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}"`;
-
-exports[`Pdf page mode > transforms links correctly 9`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":"index.html","items":[{"name":"Title 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Pdf page mode > transforms links correctly 6`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":"index.html","items":[{"name":"Title 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
