@@ -5,14 +5,15 @@ import type {SinglePageResult} from './utils';
 
 import {dirname, join} from 'node:path';
 
+import {options} from './config';
+import {SINGLE_PAGE_FILENAME, getSinglePageUrl, joinSinglePageResults} from './utils';
+
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {defined} from '~/core/config';
 import {Template} from '~/core/template';
 import {normalizePath} from '~/core/utils';
 
-import {options} from './config';
-import {SINGLE_PAGE_FILENAME, getSinglePageUrl, joinSinglePageResults} from './utils';
 
 const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 

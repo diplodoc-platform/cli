@@ -1,31 +1,48 @@
 import type {Build} from '~/commands/build';
-import type {EntryTocItem} from '~/core/toc';
 import type {PdfPageResult} from './utils';
+import type { EntryTocItem} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 
-import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
-import {normalizePath} from '~/core/utils';
-import {Template} from '~/core/template';
+import {PDF_PAGE_FILENAME, getPdfPageUrl, isEntryHidden, joinPdfPageResults} from './utils';
 
-import {
-    PDF_PAGE_FILENAME,
-    getPdfPageUrl,
-    isEntryHidden,
-    joinPdfPageResults,
-    removeTags,
-} from './utils';
+import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
+import {getHooks as getTocHooks} from '~/core/toc';
+import {Template} from '~/core/template';
+import { normalizePath } from '~/core/utils';
 
 const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 const PDF_TOC_FILENAME = 'pdf-page-toc.js';
-const CLASSES_TO_REMOVE = ['inline_code_tooltip'];
 
 const __PdfPage__ = Symbol('isPdfPage');
 
 export class PdfPage {
+    results: Record<NormalizedPath, PdfPageResult> = {};
+    pdfLinks: string[] = [];
+
     apply(program: Build) {
-        const results: Record<NormalizedPath, PdfPageResult> = {};
+        getBuildHooks(program)
+            .BeforeRun.for('html')
+            .tap('Pdf', (run) => {
+                getTocHooks(run.toc).Loaded.tapPromise({name: 'pdf'}, async (toc) => {
+                    const isHiddenPolicy = run.config?.pdf?.hiddenPolicy ?? true;
+
+                    const path = toc.path;
+
+                    await run.toc.walkEntries(toc?.items as EntryTocItem[],  async (item) => {
+                        if (isHiddenPolicy && item.hidden) {
+                            return;
+                        }
+
+                        const entryPath = normalizePath(join(dirname(path), item.href));
+                        this.pdfLinks.push(entryPath);
+
+                        return item
+                    })
+                })
+            })
+            
 
         getBuildHooks(program)
             .Entry.for('html')
@@ -47,8 +64,8 @@ export class PdfPage {
                 run.meta.addMetadata(toc.path, meta.metadata);
                 run.meta.addResources(toc.path, meta);
 
-                results[entry] = results[entry] || [];
-                results[entry] = {
+                this.results[entry] = this.results[entry] || [];
+                this.results[entry] = {
                     path: entry,
                     content: info.html,
                     title: info.title || '',
@@ -97,24 +114,9 @@ export class PdfPage {
                 for (const toc of run.toc.tocs) {
                     const entries: PdfPageResult[] = [];
 
-                    await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
-                        const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
-
-                        // Results have already been filtered
-                        const entry = results[rebasedItemHref];
-
-                        if (entry) {
-                            // Processing the final HTML, removing tags with the specified classes
-                            entry.content = removeTags(entry.content, CLASSES_TO_REMOVE);
-                            entries.push(entry);
-                        }
-
-                        return item;
-                    });
-
-                    if (!entries.length) {
-                        return;
-                    }
+                    // if (!entries.length) {
+                    //     return;
+                    // }
 
                     const tocDir = dirname(toc.path);
                     const htmlPath = join(tocDir, PDF_PAGE_FILENAME);
@@ -124,6 +126,7 @@ export class PdfPage {
                         const pdfPageBody = joinPdfPageResults(
                             entries.filter(Boolean),
                             tocDir as NormalizedPath,
+                            this.pdfLinks,
                         );
 
                         const tocData = (await run.toc.dump(toc.path, toc)).data;
