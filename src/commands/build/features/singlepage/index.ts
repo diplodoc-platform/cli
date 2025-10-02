@@ -11,8 +11,8 @@ import {defined} from '~/core/config';
 import {Template} from '~/core/template';
 import {normalizePath} from '~/core/utils';
 
-import {options} from './config';
 import {SINGLE_PAGE_FILENAME, getSinglePageUrl, joinSinglePageResults} from './utils';
+import {options} from './config';
 
 const SINGLE_PAGE_DATA_FILENAME = 'single-page.json';
 
