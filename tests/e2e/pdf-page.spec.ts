@@ -11,6 +11,7 @@ describe('Pdf page mode', () => {
             md2html: true,
             args: '-j2',
         });
-        await compareDirectories(outputPath);
+
+        await compareDirectories(`${outputPath}/pdf`);
     });
 });

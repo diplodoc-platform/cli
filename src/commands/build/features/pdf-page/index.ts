@@ -5,27 +5,34 @@ import type {PdfPageResult} from './utils';
 import {dirname, join} from 'node:path';
 
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
+import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getTocHooks} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
+import {defined} from '~/core/config';
 
-import {
-    PDF_PAGE_FILENAME,
-    getPdfPageUrl,
-    isEntryHidden,
-    joinPdfPageResults,
-    removeTags,
-} from './utils';
+import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults} from './utils';
 
 const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 const PDF_TOC_FILENAME = 'pdf-page-toc.js';
-const CLASSES_TO_REMOVE = ['inline_code_tooltip'];
 
 const __PdfPage__ = Symbol('isPdfPage');
 
 export class PdfPage {
     apply(program: Build) {
         const results: Record<NormalizedPath, PdfPageResult> = {};
+        const pdfLinks: NormalizedPath[] = [];
+
+        getBaseHooks(program).Config.tap('Pdf', (config, args) => {
+            config.pdf = defined('pdf', args, config) || {
+                pdf: {
+                    enabled: false,
+                },
+            };
+
+            return config;
+        });
 
         getBuildHooks(program)
             .Entry.for('html')
@@ -62,6 +69,23 @@ export class PdfPage {
                     return;
                 }
 
+                getTocHooks(run.toc).Loaded.tapPromise({name: 'pdf'}, async (toc) => {
+                    const isHiddenPolicy = run.config?.pdf?.hiddenPolicy ?? true;
+
+                    const path = toc.path;
+
+                    await run.toc.walkEntries(toc?.items as EntryTocItem[], async (item) => {
+                        if (isHiddenPolicy && item.hidden) {
+                            return;
+                        }
+
+                        const entryPath = normalizePath(join(dirname(path), item.href));
+                        pdfLinks.push(entryPath);
+
+                        return item;
+                    });
+                });
+
                 // Modify and dump toc for pdf page.
                 // Add link to dumped pdf-page-toc.js to html template.
                 getEntryHooks(run.entry).Page.tapPromise('Html', async (template) => {
@@ -76,12 +100,12 @@ export class PdfPage {
                     const toc = (await run.toc.dump(tocPath)).copy(file);
 
                     await run.toc.walkEntries([toc.data as {href: NormalizedPath}], (item) => {
-                        item.href = getPdfPageUrl(dirname(toc.path), item.href);
+                        item.href = getPdfUrl('.', item.href);
 
                         return item;
                     });
 
-                    template.addScript(file, {position: 'state'});
+                    template.addScript(PDF_PAGE_FILENAME, {position: 'state'});
 
                     await run.write(join(run.output, toc.path), toc.toString(), true);
                 });
@@ -90,7 +114,7 @@ export class PdfPage {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('PdfPage', async (run) => {
-                if (!run.config?.pdf?.enabled) {
+                if (!run.config.pdf.enabled) {
                     return;
                 }
 
@@ -104,8 +128,6 @@ export class PdfPage {
                         const entry = results[rebasedItemHref];
 
                         if (entry) {
-                            // Processing the final HTML, removing tags with the specified classes
-                            entry.content = removeTags(entry.content, CLASSES_TO_REMOVE);
                             entries.push(entry);
                         }
 
@@ -124,6 +146,7 @@ export class PdfPage {
                         const pdfPageBody = joinPdfPageResults(
                             entries.filter(Boolean),
                             tocDir as NormalizedPath,
+                            pdfLinks,
                         );
 
                         const tocData = (await run.toc.dump(toc.path, toc)).data;
@@ -148,6 +171,28 @@ export class PdfPage {
 
                         await run.write(join(run.output, pdfDataPath), JSON.stringify(state), true);
                         await run.write(join(run.output, pdfHtmlPath), page, true);
+
+                        // Копирование папок _bundle и _assets в папку pdf
+                        // const bundlePath = join(run.output, '_bundle');
+                        // const assetsPath = join(run.output, '_assets');
+                        // const pdfDirPath = join(run.output, tocDir, PDF_DIRNAME);
+
+                        // try {
+                        //     // Копируем папки
+                        //     if (run.exists(bundlePath)) {
+                        //         const bundleTargetPath = join(pdfDirPath, '_bundle');
+                        //         await run.copy(bundlePath, bundleTargetPath);
+                        //         run.logger.info(`Copied _bundle to ${join(tocDir, PDF_DIRNAME, '_bundle')}`);
+                        //     }
+
+                        //     if (run.exists(assetsPath)) {
+                        //         const assetsTargetPath = join(pdfDirPath, '_assets');
+                        //         await run.copy(assetsPath, assetsTargetPath);
+                        //         run.logger.info(`Copied _assets to ${join(tocDir, PDF_DIRNAME, '_assets')}`);
+                        //     }
+                        // } catch (copyError) {
+                        //     run.logger.error(`Error copying assets: ${copyError}`);
+                        // }
                     } catch (error) {
                         run.logger.error(error);
                     }
