@@ -1,14 +1,16 @@
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/lib/typings';
+import type {
+    ImageOptions,
+    MarkdownItPluginCb,
+    MarkdownItPluginOpts,
+} from '@diplodoc/transform/lib/typings';
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {optimize} from 'svgo';
+import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 
 import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
-
-import {ImageOptions} from '@diplodoc/transform/lib/typings';
-import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 
 type Options = MarkdownItPluginOpts & {
     path: NormalizedPath;

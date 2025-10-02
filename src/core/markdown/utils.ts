@@ -1,5 +1,5 @@
 import type {AssetInfo, Location} from './types';
-import {ImageOptions} from '@diplodoc/transform/lib/typings';
+import type {ImageOptions} from '@diplodoc/transform/lib/typings';
 
 import {parseLocalUrl} from '~/core/utils';
 
