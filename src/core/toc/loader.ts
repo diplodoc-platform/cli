@@ -69,6 +69,9 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
     // Apply when filter in some toc fields
     toc = await resolveFields.call(this, toc);
 
+    // validate toc to [object Object] in fields
+    toc = await validateToc.call(this, toc);
+
     // Apply when filter in toc.items
     // Drop hidden items
     toc = await resolveItems.call(this, toc);
@@ -103,6 +106,51 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
         const value = toc[field];
         if (value) {
             toc[field] = getFirstValuable<YfmString>(value, this.vars);
+        }
+    }
+
+    return toc;
+}
+
+/**
+ * Checks table of contents items for invalid object values.
+ * Recursively checks nested items.
+ */
+function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
+    const errors: string[] = [];
+    const CHECK_FIELDS = ['name', 'href', 'title', 'label', 'navigation'] as const;
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const currentPath = `${path}[${i}]`;
+
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            for (const field of CHECK_FIELDS) {
+                if (
+                    item[field as keyof RawTocItem] !== undefined &&
+                    item[field as keyof RawTocItem]?.toString() === '[object Object]'
+                ) {
+                    errors.push(`${currentPath}.${field}`);
+                }
+            }
+
+            if (item.items && Array.isArray(item.items)) {
+                const nestedErrors = checkTocItems(item.items, `${currentPath}.items`);
+                errors.push(...nestedErrors);
+            }
+        }
+    }
+    return errors;
+}
+
+async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    if (toc.items && Array.isArray(toc.items)) {
+        const errors = checkTocItems(toc.items);
+        const path = this.from ? this.from + ' -> ' + this.path : this.path;
+        for (const error of errors) {
+            this.logger.error(
+                `Invalid toc structure in ${path.toString()} at ${error}: found [object Object] value`,
+            );
         }
     }
 

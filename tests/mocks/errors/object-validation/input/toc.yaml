@@ -1,0 +1,14 @@
+items:
+  - name: Valid Item
+    href: valid.md
+  - name: {{some-var}}
+    href: invalid-name.md
+  - name: Invalid Href Item
+    href: {{some-var}}
+  - name: Parent Item
+    items:
+      - name: {{some-var}}
+        href: nested-invalid.md
+  - title: {{some-var}}
+  - label: {{some-var}}
+  - navigation: {{some-var}}
