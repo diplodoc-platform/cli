@@ -1,4 +1,3 @@
-
 import {option} from '~/core/config';
 
 const pdf = option({

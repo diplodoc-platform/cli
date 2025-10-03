@@ -1,6 +1,7 @@
 import type {Build} from '~/commands/build';
 import type {EntryTocItem} from '~/core/toc';
 import type {PdfPageResult} from './utils';
+import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
 
@@ -9,7 +10,6 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
-import {Command} from '~/core/config';
 
 import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults} from './utils';
 import {options} from './config';
