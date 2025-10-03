@@ -9,7 +9,7 @@ describe('Pdf page mode', () => {
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: false,
             md2html: true,
-            args: '-j2',
+            args: '-j2 --pdf',
         });
 
         await compareDirectories(`${outputPath}/pdf`);
