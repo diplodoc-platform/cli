@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.5](https://github.com/diplodoc-platform/cli/compare/v5.12.4...v5.12.5) (2025-10-03)
+
+
+### Bug Fixes
+
+* incorrect vars in toc ([93a2ea3](https://github.com/diplodoc-platform/cli/commit/93a2ea343b1461ccb28b2d0ca01d301e23c16155))
+
 ## [5.12.4](https://github.com/diplodoc-platform/cli/compare/v5.12.3...v5.12.4) (2025-10-03)
 
 
