@@ -1,9 +1,14 @@
 import type StateCore from 'markdown-it/lib/rules_core/state_core';
-import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform/lib/typings';
+import type {
+    ImageOptions,
+    MarkdownItPluginCb,
+    MarkdownItPluginOpts,
+} from '@diplodoc/transform/lib/typings';
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
 import {optimize} from 'svgo';
+import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 
 import {filterTokens, isExternalHref, normalizePath} from '~/core/utils';
 
@@ -13,26 +18,14 @@ type Options = MarkdownItPluginOpts & {
     inlineSvg?: boolean;
 };
 
-function prefix() {
-    const value = Math.floor(Math.random() * 1e9);
-
-    return 'r' + value.toString(16);
-}
-
-function convertSvg(file: NormalizedPath, state: StateCore, {assets}: Options) {
-    const result = optimize(assets[file] as string, {
-        plugins: [
-            {
-                name: 'prefixIds',
-                params: {
-                    prefix: prefix(),
-                    prefixClassNames: false,
-                },
-            },
-        ],
-    });
-
-    const content = result.data;
+function convertSvg(
+    file: NormalizedPath,
+    state: StateCore,
+    {assets}: Options,
+    imageOpts: ImageOptions,
+) {
+    const result = optimize(assets[file] as string);
+    const content = result.data === '' ? '' : replaceSvgContent(result.data, imageOpts);
     const svgToken = new state.Token('image_svg', '', 0);
     svgToken.attrSet('content', content);
 
@@ -60,7 +53,15 @@ export default ((md, opts) => {
                 }
 
                 const imgSrc = image.attrGet('src') || '';
-                const shouldInlineSvg = opts.inlineSvg !== false;
+                const shouldInlineSvg =
+                    image.attrGet('inline') === null
+                        ? opts.inlineSvg !== false
+                        : image.attrGet('inline') === 'true';
+                const imageOpts = {
+                    width: image.attrGet('width'),
+                    height: image.attrGet('height'),
+                    inline: shouldInlineSvg,
+                };
 
                 if (isExternalHref(imgSrc)) {
                     return;
@@ -75,7 +76,7 @@ export default ((md, opts) => {
                 }
 
                 if (imgSrc.endsWith('.svg') && shouldInlineSvg) {
-                    childrenTokens[index] = convertSvg(file, state, opts);
+                    childrenTokens[index] = convertSvg(file, state, opts, imageOpts);
                 } else {
                     image.attrSet('src', file);
                     image.attrSet('yfm_patched', '1');
