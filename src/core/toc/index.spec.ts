@@ -673,4 +673,84 @@ describe('toc-loader', () => {
             expect(vfile.toString()).toMatchSnapshot();
         });
     });
+
+    describe('object validation', () => {
+        it('should not throw error when toc item name is [object Object] but log it', async () => {
+            const content = dedent`
+                items:
+                  - name: {{some_var}}
+                    href: page.md
+            `;
+
+            // Проверяем, что метод не выбрасывает исключение, а возвращает undefined
+            const {run, toc} = setupService({});
+            const files = {'toc.yaml': content};
+            mockData(run, '', {}, files, []);
+
+            const result = await toc.init(['toc.yaml'] as NormalizedPath[]);
+            // При наличии ошибок в файле toc, метод init должен вернуть пустой массив
+            expect(result).toMatchSnapshot();
+        });
+
+        it('should not throw error when toc item items is [object Object] but log it', async () => {
+            const content = dedent`
+                items:
+                  - name: Parent
+                    items: {{some_var}}
+            `;
+
+            // Проверяем, что метод не выбрасывает исключение, а возвращает undefined
+            const {run, toc} = setupService({});
+            const files = {'toc.yaml': content};
+            mockData(run, '', {}, files, []);
+
+            const result = await toc.init(['toc.yaml'] as NormalizedPath[]);
+            // При наличии ошибок в файле toc, метод init должен вернуть пустой массив
+            expect(result).toMatchSnapshot();
+        });
+
+        it('should not throw error when nested toc item has [object Object] values but log it', async () => {
+            const content = dedent`
+                items:
+                  - name: Parent
+                    items:
+                      - name: {{some_var}}
+                        href: page.md
+            `;
+
+            // Проверяем, что метод не выбрасывает исключение, а возвращает undefined
+            const {run, toc} = setupService({});
+            const files = {'toc.yaml': content};
+            mockData(run, '', {}, files, []);
+
+            const result = await toc.init(['toc.yaml'] as NormalizedPath[]);
+            // При наличии ошибок в файле toc, метод init должен вернуть пустой массив
+            expect(result).toMatchSnapshot();
+        });
+
+        it('should not throw error when other toc item property is [object Object]', async () => {
+            const content = dedent`
+                items:
+                  - name: Valid Name
+                    custom: {{some_var}}
+                    href: page.md
+            `;
+
+            await expect(test(content)()).resolves.not.toThrow();
+        });
+
+        it('should not throw error when toc items are valid', async () => {
+            const content = dedent`
+                items:
+                  - name: Valid Item
+                    href: page.md
+                  - name: Parent
+                    items:
+                      - name: Valid Child
+                        href: child.md
+            `;
+
+            await expect(test(content)()).resolves.not.toThrow();
+        });
+    });
 });

@@ -31,6 +31,17 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/object-validation', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[1].name: found [object Object] value',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[2].href: found [object Object] value',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[3].items[0].name: found [object Object] value',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[4].title: found [object Object] value',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[5].label: found [object Object] value',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[6].navigation: found [object Object] value',
+        ]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 

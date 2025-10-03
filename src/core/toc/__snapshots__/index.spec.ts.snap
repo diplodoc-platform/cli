@@ -102,6 +102,83 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > object validation > should not throw error when nested toc item has [object Object] values but log it 1`] = `
+[
+  {
+    "items": [
+      {
+        "items": [
+          {
+            "href": "page.md",
+            "name": {
+              "[object Object]": null,
+            },
+          },
+        ],
+        "name": "Parent",
+      },
+    ],
+    "path": "toc.yaml",
+  },
+]
+`;
+
+exports[`toc-loader > object validation > should not throw error when other toc item property is [object Object] 1`] = `
+"items:
+  - name: Valid Name
+    custom:
+      '[object Object]': null
+    href: page.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > object validation > should not throw error when toc item items is [object Object] but log it 1`] = `
+[
+  {
+    "items": [
+      {
+        "items": [
+          {
+            "[object Object]": null,
+          },
+        ],
+        "name": "Parent",
+      },
+    ],
+    "path": "toc.yaml",
+  },
+]
+`;
+
+exports[`toc-loader > object validation > should not throw error when toc item name is [object Object] but log it 1`] = `
+[
+  {
+    "items": [
+      {
+        "href": "page.md",
+        "name": {
+          "[object Object]": null,
+        },
+      },
+    ],
+    "path": "toc.yaml",
+  },
+]
+`;
+
+exports[`toc-loader > object validation > should not throw error when toc items are valid 1`] = `
+"items:
+  - name: Valid Item
+    href: page.md
+  - name: Parent
+    items:
+      - name: Valid Child
+        href: child.md
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > should filter hidden item 1`] = `
 "items:
   - name: Visible Item 1
