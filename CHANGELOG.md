@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.12.4](https://github.com/diplodoc-platform/cli/compare/v5.12.3...v5.12.4) (2025-10-03)
+
+
+### Bug Fixes
+
+* pdf link ([d8becaa](https://github.com/diplodoc-platform/cli/commit/d8becaaf146926a1cd2df45708d72e004ac0c1fc))
+
 ## [5.12.3](https://github.com/diplodoc-platform/cli/compare/v5.12.2...v5.12.3) (2025-09-30)
 
 
