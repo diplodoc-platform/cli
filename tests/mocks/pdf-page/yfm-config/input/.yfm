@@ -1,0 +1,5 @@
+allowHTML: true
+
+pdf:
+  enabled: true
+  hddenPolicy: true

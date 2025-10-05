@@ -5,7 +5,7 @@ import type {Config} from '~/core/config';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
-import type {PdfPageArgs, PdfPageConfig} from './features/pdf-page';
+import type {PdfPageArgs} from './features/pdf-page';
 import type {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {OutputMdArgs, OutputMdConfig, PreprocessConfig} from './features/output-md';
@@ -82,7 +82,6 @@ export type BuildRawConfig = BaseArgs &
     TemplatingRawConfig &
     ContributorsConfig &
     SinglePageConfig &
-    PdfPageConfig &
     SkipHtmlConfig &
     LintRawConfig &
     OutputMdConfig &
@@ -101,7 +100,6 @@ export type BuildConfig = Config<
         TemplatingConfig &
         ContributorsConfig &
         SinglePageConfig &
-        PdfPageConfig &
         SkipHtmlConfig &
         LintConfig &
         BuildManifestConfig &

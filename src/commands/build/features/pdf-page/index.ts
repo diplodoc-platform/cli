@@ -18,10 +18,6 @@ export type PdfPageArgs = {
     pdf: boolean;
 };
 
-export type PdfPageConfig = {
-    singlePage: Record<string, boolean>;
-};
-
 const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
 const PDF_TOC_FILENAME = 'pdf-page-toc.js';
