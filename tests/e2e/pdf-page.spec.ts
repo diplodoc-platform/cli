@@ -2,12 +2,7 @@ import {describe, test} from 'vitest';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
-
-const generateMapTestTemplate = (
-    testTitle: string,
-    testRootPath: string,
-    args: string,
-) => {
+const generateMapTestTemplate = (testTitle: string, testRootPath: string, args: string) => {
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
@@ -21,9 +16,16 @@ const generateMapTestTemplate = (
     });
 };
 
-
 describe('Pdf page mode', () => {
-    generateMapTestTemplate('creates a pdf folder when the --pdf flag is specified', 'mocks/pdf-page/flag-enabled', '-j2 --pdf');
+    generateMapTestTemplate(
+        'creates a pdf folder when the --pdf flag is specified',
+        'mocks/pdf-page/flag-enabled',
+        '-j2 --pdf',
+    );
 
-    generateMapTestTemplate('creates a pdf folder when the .yfm option is specified', 'mocks/pdf-page/yfm-config', '-j2');
+    generateMapTestTemplate(
+        'creates a pdf folder when the .yfm option is specified',
+        'mocks/pdf-page/yfm-config',
+        '-j2',
+    );
 });

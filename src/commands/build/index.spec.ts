@@ -437,12 +437,12 @@ describe('Build command', () => {
         describe('pdf', () => {
             test('should handle default', '', {
                 pdf: {
-                    enabled: false
+                    enabled: false,
                 },
             });
 
             test('should enable pdf when flag is present', '--pdf', {
-                pdf: { enabled: true },
+                pdf: {enabled: true},
             });
         });
 
