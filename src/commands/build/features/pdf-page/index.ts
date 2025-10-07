@@ -1,6 +1,7 @@
 import type {Build} from '~/commands/build';
 import type {EntryTocItem} from '~/core/toc';
 import type {PdfPageResult} from './utils';
+import type {Command} from '~/core/config';
 
 import {dirname, join} from 'node:path';
 
@@ -9,9 +10,13 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
-import {defined} from '~/core/config';
 
 import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults} from './utils';
+import {options} from './config';
+
+export type PdfPageArgs = {
+    pdf: boolean;
+};
 
 const PDF_DIRNAME = 'pdf';
 const PDF_PAGE_DATA_FILENAME = 'pdf-page.json';
@@ -24,11 +29,18 @@ export class PdfPage {
         const results: Record<NormalizedPath, PdfPageResult> = {};
         const pdfLinks: NormalizedPath[] = [];
 
+        getBaseHooks(program).Command.tap('Pdf', (command: Command) => {
+            command.addOption(options.pdf);
+        });
+
         getBaseHooks(program).Config.tap('Pdf', (config, args) => {
-            config.pdf = defined('pdf', args, config) || {
-                pdf: {
-                    enabled: false,
-                },
+            const pdfArg = args.pdf || false;
+            const pdfEnabled = config?.pdf?.enabled || false;
+            const hiddenPolicy = config?.pdf?.hiddenPolicy ?? true;
+
+            config.pdf = {
+                enabled: pdfArg || pdfEnabled,
+                hiddenPolicy,
             };
 
             return config;
@@ -37,11 +49,11 @@ export class PdfPage {
         getBuildHooks(program)
             .Entry.for('html')
             .tap('PdfPage', (run, entry, info) => {
-                if (!run.config?.pdf?.enabled || !info.html) {
+                if (!run.config.pdf.enabled || !info.html) {
                     return;
                 }
 
-                const isHiddenPolicy = run.config?.pdf?.hiddenPolicy ?? true;
+                const isHiddenPolicy = run.config.pdf.hiddenPolicy;
 
                 const toc = run.toc.for(entry);
                 const meta = info.meta || {};
@@ -65,12 +77,12 @@ export class PdfPage {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('PdfPage', (run) => {
-                if (!run.config?.pdf?.enabled) {
+                if (!run.config.pdf.enabled) {
                     return;
                 }
 
                 getTocHooks(run.toc).Loaded.tapPromise({name: 'pdf'}, async (toc) => {
-                    const isHiddenPolicy = run.config?.pdf?.hiddenPolicy ?? true;
+                    const isHiddenPolicy = run.config.pdf.hiddenPolicy;
 
                     const path = toc.path;
 

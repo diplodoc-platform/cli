@@ -434,6 +434,18 @@ describe('Build command', () => {
             );
         });
 
+        describe('pdf', () => {
+            test('should handle default', '', {
+                pdf: {
+                    enabled: false,
+                },
+            });
+
+            test('should enable pdf when flag is present', '--pdf', {
+                pdf: {enabled: true},
+            });
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
