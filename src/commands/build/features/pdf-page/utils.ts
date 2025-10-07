@@ -45,7 +45,9 @@ export function getAnchorId(tocDir: string, path: string) {
 
 export function replacePdfLink(root: HTMLElement, entries: string[]) {
     for (const node of elements(root, 'a:not(.yfm-anchor):not([target="_blank"])')) {
-        const href = node.getAttribute('href') || '';
+        // Dummy way to fix bug which originally belongs to MD parser
+        // TODO: fix transform method packages/cli/src/commands/build/run.ts -> packages/transform/src/transform/md.ts:140
+        const href = (node.getAttribute('href') || '').replace(/(\/[^/]+)\1+/g, '$1');
 
         if (entries.includes(href.replace('html', 'md').replace(/#.*$/, ''))) {
             node.setAttribute('href', getPdfUrl('.', href));
