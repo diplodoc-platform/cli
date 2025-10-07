@@ -2,6 +2,8 @@ title: Skip html extension
 href: index.md
 
 items:
+  - name: Syntax
+    href: ./syntax/test.md
   - name: Title 1
     href: page1.md
   - name: Title 2
