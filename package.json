@@ -107,7 +107,7 @@
     "@diplodoc/transform": "^4.63.2",
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.8",
-    "@octokit/core": "4.2.4",
+    "@octokit/core": "7.0.5",
     "@types/async": "3.2.15",
     "@types/chalk": "2.2.0",
     "@types/html-escaper": "3.0.0",
