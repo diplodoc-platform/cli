@@ -121,26 +121,31 @@ export class SearchService implements SearchProvider<RelativePath> {
 
         this.run.manifest.search.js.map(rebase).map(template.addScript);
 
-        template.addScript(template.escape(JSON.stringify(state)), {
-            inline: true,
-            position: 'state',
-            attrs: {
-                type: 'application/json',
-                id: 'diplodoc-state',
-            },
-        });
-        template.addScript(
-            dedent`
-                const data = document.querySelector('script#diplodoc-state');
-                window.__DATA__ = {
-                    search: JSON.parse((function ${template.unescape.toString()})(data.innerText)),
-                }
-            `,
-            {
+        const provider = this.run.config.search.provider;
+
+        // Algolia automatically sets the window.__DATA__
+        if (provider !== 'algolia') {
+            template.addScript(template.escape(JSON.stringify(state)), {
                 inline: true,
                 position: 'state',
-            },
-        );
+                attrs: {
+                    type: 'application/json',
+                    id: 'diplodoc-state',
+                },
+            });
+            template.addScript(
+                dedent`
+                    const data = document.querySelector('script#diplodoc-state');
+                    window.__DATA__ = {
+                        search: JSON.parse((function ${template.unescape.toString()})(data.innerText)),
+                    }
+                `,
+                {
+                    inline: true,
+                    position: 'state',
+                },
+            );
+        }
 
         const resourcesLink = this.provider.resourcesLink?.(lang);
 
