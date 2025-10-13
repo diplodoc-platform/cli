@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.13.1](https://github.com/diplodoc-platform/cli/compare/v5.13.0...v5.13.1) (2025-10-13)
+
+
+### Bug Fixes
+
+* fixed redirects file ([#1461](https://github.com/diplodoc-platform/cli/issues/1461)) ([dfc4847](https://github.com/diplodoc-platform/cli/commit/dfc4847fc5a7ab1273812a773c088025aaf0b0b2))
+
 ## [5.13.0](https://github.com/diplodoc-platform/cli/compare/v5.12.5...v5.13.0) (2025-10-13)
 
 
