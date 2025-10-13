@@ -12,7 +12,7 @@ import {expose} from 'threads/worker';
 
 import {Defer, Graph, all, console, race, wait} from '~/core/utils';
 import {LogLevel} from '~/core/logger';
-import {Program, parse} from '~/commands';
+import {Program, parse, profile} from '~/commands';
 
 let pool: Pool;
 let program: Program;
@@ -110,11 +110,20 @@ if (!isMainThread) {
         async init(argv: string[]) {
             const args = parse(argv);
 
+            const dump = args.profile ? await profile() : null;
+            if (typeof args.profile === 'number' && dump) {
+                setTimeout(dump.stop, args.profile * 1000);
+            }
+
             program = new Program();
             program.logger.pipe(logger);
 
             await program.init(args);
             await program.parse(argv);
+
+            if (args.profile === true && dump) {
+                await dump.stop();
+            }
         },
         async call(call: string, args: unknown[]) {
             const method = get(program, call);

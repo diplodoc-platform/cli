@@ -6,7 +6,7 @@ import dedent from 'ts-dedent';
 import './require';
 
 import * as threads from '~/commands/threads';
-import {Program, parse} from '~/commands';
+import {Program, parse, profile} from '~/commands';
 import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console, noop} from '~/core/utils';
@@ -18,9 +18,19 @@ export const run = async (argv: string[]) => {
 
     try {
         const args = parse(argv);
+
+        const dump = args.profile ? await profile() : null;
+        if (typeof args.profile === 'number' && dump) {
+            setTimeout(dump.stop, args.profile * 1000);
+        }
+
         await threads.init(program, argv);
         await program.init(args);
         await program.parse(argv);
+
+        if (args.profile === true && dump) {
+            await dump.stop();
+        }
 
         const stat = stats(program.logger);
 

@@ -36,7 +36,7 @@ const strict = option({
 });
 
 const jobs = option({
-    flags: '-j, --jobs [number]>',
+    flags: '-j, --jobs [number]',
     desc: `
         Run program in <number> parallel threads.
         This can speedup CPU bound operations.
@@ -48,6 +48,19 @@ const jobs = option({
             {{PROGRAM}} build -i . -o ../build -j
     `,
     default: 0,
+});
+
+const profile = option({
+    flags: '--profile [seconds]',
+    desc: `
+        Enable CPU profiling for debug purpose.
+        Works also for threading mode.
+    `,
+    default: false,
+    hidden: true,
+    parser: (value) => {
+        return parseInt(value, 10);
+    },
 });
 
 const extensions = option({
@@ -112,6 +125,7 @@ export const options = {
     quiet,
     strict,
     jobs,
+    profile,
     extensions,
     config,
     input,

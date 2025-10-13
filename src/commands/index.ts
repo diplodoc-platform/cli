@@ -12,6 +12,7 @@ import {NAME, USAGE, options} from './config';
 export type {EntryInfo, SearchProvider, SearchServiceConfig} from './build';
 
 export {parse} from './parser';
+export {profile} from './profiler';
 export {
     Build,
     Run as BuildRun,
@@ -47,6 +48,7 @@ export class Program extends BaseProgram {
         options.quiet,
         options.strict,
         options.jobs,
+        options.profile,
     ];
 
     protected readonly modules = [this.build, this.publish, this.translate];

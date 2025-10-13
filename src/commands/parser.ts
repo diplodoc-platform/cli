@@ -14,6 +14,7 @@ export const parse = (argv: string[], name = NAME): BaseArgs => {
         .addOption(options.strict)
         .addOption(options.quiet)
         .addOption(options.jobs)
+        .addOption(options.profile)
         .addOption(options.config(YFM_CONFIG_FILENAME))
         .addOption(options.extensions)
         .helpOption(false)
