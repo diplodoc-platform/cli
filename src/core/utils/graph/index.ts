@@ -128,7 +128,10 @@ export class Graph<Data = {type: string}> extends DepGraph<Data> {
             const nodeData = this.getNodeData(nodeName);
             nodes.push({
                 name: nodeName,
-                data: nodeData,
+                // Some data srtuctures can be Proxy objects,
+                // which can't be serialized by threads defaultSerializer.
+                // So, read data from this Proxy objects and write it as raw json.
+                data: JSON.parse(JSON.stringify(nodeData)),
             });
         }
 
