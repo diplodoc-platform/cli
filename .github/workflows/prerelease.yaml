@@ -1,4 +1,7 @@
-on: workflow_dispatch
+on:
+  workflow_dispatch: {}
+  pull_request:
+    branches: ['**']
 
 name: prerelease
 
@@ -6,6 +9,8 @@ jobs:
   prerelease:
     runs-on: ubuntu-latest
     if: github.ref_protected != true
+    outputs:
+      text: 'blabla'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node 22
@@ -15,7 +20,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
       - run: npm ci
-      - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+      - name: Set prerelease version
+        id: set_version
+        run: |
+          npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - run: npm publish --no-tag
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
@@ -27,3 +37,8 @@ jobs:
         run: npm publish --no-tag
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
+      - name: Run prerelease check
+        if: github.event_name == 'workflow_dispatch'
+        uses: ./actions/prerelease-check
+        with:
+          version: ${{ env.VERSION }}
