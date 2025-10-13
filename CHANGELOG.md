@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.13.0](https://github.com/diplodoc-platform/cli/compare/v5.12.5...v5.13.0) (2025-10-13)
+
+
+### Features
+
+* svg inline options ([07dd380](https://github.com/diplodoc-platform/cli/commit/07dd3805d57ade57af554441e743079da6b8ff48))
+
+
+### Bug Fixes
+
+* links withing include md files ([3ec1c9e](https://github.com/diplodoc-platform/cli/commit/3ec1c9e7a57fa1b37f92449ab3a8de1a3df2e794))
+
 ## [5.12.5](https://github.com/diplodoc-platform/cli/compare/v5.12.4...v5.12.5) (2025-10-07)
 
 
