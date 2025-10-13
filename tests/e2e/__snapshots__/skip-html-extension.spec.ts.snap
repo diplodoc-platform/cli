@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Skip html extension > transforms links correctly > filelist 1`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs > filelist 1`] = `
 "[
   ".yfm",
   "folder/index.html",
@@ -12,12 +12,12 @@ exports[`Skip html extension > transforms links correctly > filelist 1`] = `
 ]"
 `;
 
-exports[`Skip html extension > transforms links correctly 1`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 1`] = `
 "allowHTML: true
 "
 `;
 
-exports[`Skip html extension > transforms links correctly 2`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 2`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -45,7 +45,7 @@ exports[`Skip html extension > transforms links correctly 2`] = `
 </html>"
 `;
 
-exports[`Skip html extension > transforms links correctly 3`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 3`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -73,27 +73,35 @@ exports[`Skip html extension > transforms links correctly 3`] = `
 </html>"
 `;
 
-exports[`Skip html extension > transforms links correctly 4`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 4`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
-        <title>Redirect to ./ru</title>
-        <meta http-equiv="refresh" content="0; url=./ru">
+        <title>Header | Skip html extension</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        <script type="application/javascript">
-            window.location.replace("./ru");
-        </script>
     </head>
     <body class="g-root g-root_theme_light">
-        If you are not redirected automatically, follow this <a href="./ru">link</a>.
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
     </body>
 </html>"
 `;
 
-exports[`Skip html extension > transforms links correctly 5`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 5`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -121,7 +129,7 @@ exports[`Skip html extension > transforms links correctly 5`] = `
 </html>"
 `;
 
-exports[`Skip html extension > transforms links correctly 6`] = `
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 6`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -149,4 +157,363 @@ exports[`Skip html extension > transforms links correctly 6`] = `
 </html>"
 `;
 
-exports[`Skip html extension > transforms links correctly 7`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":".","items":[{"name":"Title 1","href":"page1","id":"UUID"},{"name":"Title 2","href":"page2","id":"UUID"},{"name":"Title 3","href":"folder/","id":"UUID"},{"name":"Title 4","href":"index-test-html/","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 7`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":".","items":[{"name":"Title 1","href":"page1","id":"UUID"},{"name":"Title 2","href":"page2","id":"UUID"},{"name":"Title 3","href":"folder/","id":"UUID"},{"name":"Title 4","href":"index-test-html/","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs > filelist 1`] = `
+"[
+  ".yfm",
+  "en/folder/index.html",
+  "en/index-test-html/index.html",
+  "en/index.html",
+  "en/page1.html",
+  "en/page2.html",
+  "en/toc.js",
+  "index.html",
+  "ru/folder/index.html",
+  "ru/index-test-html/index.html",
+  "ru/index.html",
+  "ru/page1.html",
+  "ru/page2.html",
+  "ru/toc.js"
+]"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 1`] = `
+"allowHTML: true
+langs: ['en','ru']
+"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 2`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Page 3 | Skip html extension</title>
+        <link rel="canonical" href="en/folder/">
+        <link rel="alternate" href="en/folder/" hreflang="en" />
+        <link rel="alternate" href="ru/folder/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/folder/","hreflang":"en"},{"href":"ru/folder/","hreflang":"ru"}],"canonical":"en/folder/","vcsPath":"en/folder/index.md"},"headings":[],"title":"Page 3"},"router":{"pathname":"en/folder/index","depth":3,"base":"../../"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 3`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Folder | Skip html extension</title>
+        <link rel="canonical" href="en/index-test-html/">
+        <link rel="alternate" href="en/index-test-html/" hreflang="en" />
+        <link rel="alternate" href="ru/index-test-html/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"en/page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"en/page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/index-test-html/","hreflang":"en"},{"href":"ru/index-test-html/","hreflang":"ru"}],"canonical":"en/index-test-html/","vcsPath":"en/index-test-html/index.md"},"headings":[],"title":"Folder"},"router":{"pathname":"en/index-test-html/index","depth":3,"base":"../../"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 4`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Header | Skip html extension</title>
+        <link rel="canonical" href="en/">
+        <link rel="alternate" href="en/" hreflang="en" />
+        <link rel="alternate" href="ru/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"en/page1\\"&gt;Link 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"en/page2\\"&gt;Link 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/","hreflang":"en"},{"href":"ru/","hreflang":"ru"}],"canonical":"en/","vcsPath":"en/index.md"},"headings":[],"title":"Header"},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 5`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Page 1 | Skip html extension</title>
+        <link rel="canonical" href="en/page1">
+        <link rel="alternate" href="en/page1" hreflang="en" />
+        <link rel="alternate" href="ru/page1" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"en/page2#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page1","hreflang":"en"},{"href":"ru/page1","hreflang":"ru"}],"canonical":"en/page1","vcsPath":"en/page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"en/page1","depth":2,"base":"../"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 6`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Page 2 | Skip html extension</title>
+        <link rel="canonical" href="en/page2">
+        <link rel="alternate" href="en/page2" hreflang="en" />
+        <link rel="alternate" href="ru/page2" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hash\\"&gt;&lt;a href=\\"en/page2#hash\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;hash&lt;/span&gt;&lt;/a&gt;hash&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"en/folder/\\"&gt;Link&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;External link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page2","hreflang":"en"},{"href":"ru/page2","hreflang":"ru"}],"canonical":"en/page2","vcsPath":"en/page2.md"},"headings":[{"title":"hash","href":"en/page2#hash","level":2}],"title":"Page 2"},"router":{"pathname":"en/page2","depth":2,"base":"../"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 7`] = `"window.__DATA__.data.toc = {"title":"Skip html extension","href":"en/","items":[{"name":"Title 1","href":"en/page1","id":"UUID"},{"name":"Title 2","href":"en/page2","id":"UUID"},{"name":"Title 3","href":"en/folder/","id":"UUID"},{"name":"Title 4","href":"en/index-test-html/","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 8`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Redirect to ./en</title>
+        <meta http-equiv="refresh" content="0; url=./en">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <script type="application/javascript">
+            window.location.replace("./en");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./en">link</a>.
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 9`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Страница 3 | Пропустить расширение HTMLы</title>
+        <link rel="canonical" href="ru/folder/">
+        <link rel="alternate" href="en/folder/" hreflang="en" />
+        <link rel="alternate" href="ru/folder/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/folder/","hreflang":"en"},{"href":"ru/folder/","hreflang":"ru"}],"canonical":"ru/folder/","vcsPath":"ru/folder/index.md"},"headings":[],"title":"Страница 3"},"router":{"pathname":"ru/folder/index","depth":3,"base":"../../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 10`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Папка | Пропустить расширение HTMLы</title>
+        <link rel="canonical" href="ru/index-test-html/">
+        <link rel="alternate" href="en/index-test-html/" hreflang="en" />
+        <link rel="alternate" href="ru/index-test-html/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"ru/page1\\"&gt;Ссылка 1&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"ru/page2\\"&gt;Ссылка 2&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/index-test-html/","hreflang":"en"},{"href":"ru/index-test-html/","hreflang":"ru"}],"canonical":"ru/index-test-html/","vcsPath":"ru/index-test-html/index.md"},"headings":[],"title":"Папка"},"router":{"pathname":"ru/index-test-html/index","depth":3,"base":"../../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 11`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Хэдер | Пропустить расширение HTMLы</title>
+        <link rel="canonical" href="ru/">
+        <link rel="alternate" href="en/" hreflang="en" />
+        <link rel="alternate" href="ru/" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Контент&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"ru/page1\\"&gt;Ссылка 1&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/","hreflang":"en"},{"href":"ru/","hreflang":"ru"}],"canonical":"ru/","vcsPath":"ru/index.md"},"headings":[],"title":"Хэдер"},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 12`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Страница 1 | Пропустить расширение HTMLы</title>
+        <link rel="canonical" href="ru/page1">
+        <link rel="alternate" href="en/page1" hreflang="en" />
+        <link rel="alternate" href="ru/page1" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;a href=\\"ru/page2#hash\\"&gt;Link&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page1","hreflang":"en"},{"href":"ru/page1","hreflang":"ru"}],"canonical":"ru/page1","vcsPath":"ru/page1.md"},"headings":[],"title":"Страница 1"},"router":{"pathname":"ru/page1","depth":2,"base":"../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 13`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>Страница 2 | Пропустить расширение HTMLы</title>
+        <link rel="canonical" href="ru/page2">
+        <link rel="alternate" href="en/page2" hreflang="en" />
+        <link rel="alternate" href="ru/page2" hreflang="ru" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hesh\\"&gt;&lt;a href=\\"ru/page2#hesh\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;хэш&lt;/span&gt;&lt;/a&gt;хэш&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"ru/folder/\\"&gt;Ссылка&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;Внешняя ссылка&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page2","hreflang":"en"},{"href":"ru/page2","hreflang":"ru"}],"canonical":"ru/page2","vcsPath":"ru/page2.md"},"headings":[{"title":"хэш","href":"ru/page2#hesh","level":2}],"title":"Страница 2"},"router":{"pathname":"ru/page2","depth":2,"base":"../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 14`] = `"window.__DATA__.data.toc = {"title":"Пропустить расширение HTMLы","href":"ru/","items":[{"name":"Заголовок 1","href":"ru/page1","id":"UUID"},{"name":"Заголовок 2","href":"ru/page2","id":"UUID"},{"name":"Заголовок 3","href":"ru/folder/","id":"UUID"},{"name":"Заголовок 4","href":"ru/index-test-html/","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;

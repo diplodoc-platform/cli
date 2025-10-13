@@ -98,11 +98,14 @@ export class SkipHtml {
                 }
 
                 const langRelativePath: RelativePath = `./${run.config.lang}`;
+                const langPath = join(run.output, langRelativePath);
                 const pagePath = join(run.output, 'index.html');
 
                 // Generate root lang redirect without index.html
-                const content = await run.redirects.page('./', langRelativePath);
-                await run.write(pagePath, content, true);
+                if (run.exists(langPath)) {
+                    const content = await run.redirects.page('./', langRelativePath);
+                    await run.write(pagePath, content, true);
+                }
             });
     }
 }
