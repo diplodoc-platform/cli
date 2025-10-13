@@ -22,13 +22,15 @@ type Run = BaseRun<VarsServiceConfig>;
 export class VarsService {
     readonly name = 'Vars';
 
-    readonly relations = new Graph<{type: string; data: Preset | undefined}>();
+    readonly relations = new Graph<{type: string}>();
 
     private run: Run;
 
     private logger: Run['logger'];
 
     private config: VarsServiceConfig;
+
+    private presets: Hash<Preset> = {};
 
     private usePresets = true;
 
@@ -63,7 +65,7 @@ export class VarsService {
             return undefined;
         }
 
-        return this.relations.getNodeData(path).data as Preset | undefined;
+        return this.presets[path] as Preset | undefined;
     }
 
     for(path: RelativePath, from?: NormalizedPath): Preset {
@@ -226,7 +228,8 @@ export class VarsService {
             file,
         );
 
-        this.relations.setNodeData(file, {type: 'preset', data});
+        this.relations.setNodeData(file, {type: 'preset'});
+        this.presets[file] = data;
 
         return data;
     }
