@@ -1,7 +1,4 @@
-on:
-  workflow_dispatch: {}
-  pull_request:
-    branches: ['**']
+on: workflow_dispatch
 
 name: prerelease
 
@@ -9,8 +6,6 @@ jobs:
   prerelease:
     runs-on: ubuntu-latest
     if: github.ref_protected != true
-    outputs:
-      text: 'blabla'
     steps:
       - uses: actions/checkout@v4
       - name: Setup Node 22
