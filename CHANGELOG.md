@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.13.2](https://github.com/diplodoc-platform/cli/compare/v5.13.1...v5.13.2) (2025-10-16)
+
+
+### Bug Fixes
+
+* Fix threading mode for tocs with navigation from presets ([b3e0b93](https://github.com/diplodoc-platform/cli/commit/b3e0b93368bea8466480e1dbadb85bca2db62e27))
+
+
+### Performance Improvements
+
+* Do not store large presets on build graph ([a430b64](https://github.com/diplodoc-platform/cli/commit/a430b642c278d68c85e9a2969c28ea7ce29719be))
+
 ## [5.13.1](https://github.com/diplodoc-platform/cli/compare/v5.13.0...v5.13.1) (2025-10-13)
 
 
