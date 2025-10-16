@@ -32,8 +32,3 @@ jobs:
         run: npm publish --no-tag
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
-      - name: Run prerelease check
-        if: github.event_name == 'workflow_dispatch'
-        uses: ./actions/prerelease-check
-        with:
-          version: ${{ env.VERSION }}
