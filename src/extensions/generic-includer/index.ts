@@ -8,7 +8,7 @@ import type {
     YfmString,
 } from '@diplodoc/cli/lib/toc';
 
-import {dirname, extname, join} from 'node:path';
+import {dirname, extname, join, sep} from 'node:path';
 
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
@@ -41,8 +41,32 @@ export class Extension implements IExtension {
                         cwd: join(run.input, input),
                     });
 
-                    return fillToc(toc, graph(files), options);
+                    return fillToc(toc, graph(this.sortGlobResult(files)), options);
                 });
+        });
+    }
+
+    sortGlobResult(files: NormalizedPath[]): NormalizedPath[] {
+        return files.sort((a, b) => {
+            // index.md should be the first
+            if (b === 'index.md') {
+                return 1;
+            }
+
+            // First compare by number of segments
+            const segmentsA = a.split(sep).length;
+            const segmentsB = b.split(sep).length;
+
+            if (segmentsA !== segmentsB) {
+                return segmentsA - segmentsB;
+            }
+
+            // If same depth, sort alphabetically
+            if (a === b) {
+                return 0;
+            }
+
+            return a > b ? 1 : -1;
         });
     }
 }
