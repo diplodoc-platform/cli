@@ -17,8 +17,7 @@ jobs:
       - run: npm ci
       - name: Set prerelease version
         id: set_version
-        run: |
-          npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+        run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
       - run: npm publish --no-tag
         env:
           NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
