@@ -63,6 +63,19 @@ export type EntryInfo = {
     headings: string[];
 };
 
+export interface PageConstructor {
+    blocks: PageConstructorBlock[];
+}
+
+export interface PageConstructorBlock {
+    type?: string;
+    title?: string;
+    image?: string;
+    icon?: string;
+    children?: PageConstructorBlock[];
+    [key: string]: unknown;
+}
+
 type GraphEntryInfo = {type: 'entry'};
 
 type GraphMissedInfo = {type: 'missed'};

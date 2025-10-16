@@ -1,5 +1,7 @@
-import type {AssetInfo, Location} from './types';
+import type {AssetInfo, Location, PageConstructor, PageConstructorBlock} from './types';
 import type {ImageOptions} from '@diplodoc/transform/lib/typings';
+
+import {load as yamlLoad} from 'js-yaml';
 
 import {parseLocalUrl} from '~/core/utils';
 
@@ -23,6 +25,73 @@ export function findLink(content: string): string | undefined {
     rx.lastIndex += link.length + 1;
 
     return link;
+}
+
+export function parsePcBlocks(blocks: PageConstructorBlock[], images: string[]): string[] {
+    for (const block of blocks || []) {
+        const image = block.image;
+        const icon = block.icon;
+
+        if (image) {
+            images.push(image);
+        }
+
+        if (icon) {
+            images.push(icon);
+        }
+
+        if (Array.isArray(block.children)) {
+            parsePcBlocks(block.children, images);
+        }
+    }
+
+    return images;
+}
+
+export function getPcIconTitle(iconPath: string): string {
+    const file = iconPath.split('/').pop() || iconPath;
+
+    return file.replace(/\.[^.]+$/, '');
+}
+
+export function findPcImages(content: string): AssetInfo[] {
+    const pcImages: AssetInfo[] = [];
+    const regex = /:::\s*page-constructor([\s\S]*?):::/g;
+
+    let match;
+
+    while ((match = regex.exec(content))) {
+        let data: PageConstructor;
+
+        try {
+            data = yamlLoad(match[1]) as PageConstructor;
+        } catch {
+            continue;
+        }
+
+        const images = parsePcBlocks(data?.blocks, []);
+
+        for (const img of images) {
+            const parsed = parseLocalUrl(img);
+
+            if (!parsed) {
+                continue;
+            }
+
+            pcImages.push({
+                ...parsed,
+                type: 'image',
+                subtype: 'image',
+                title: getPcIconTitle(img),
+                autotitle: false,
+                hash: null,
+                search: null,
+                location: [match.index, match.index + match[0].length],
+            });
+        }
+    }
+
+    return pcImages;
 }
 
 export function findLinksInfo(content: string): AssetInfo[] {
