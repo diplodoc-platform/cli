@@ -154,11 +154,7 @@ export class GithubVcsConnector implements VcsConnector {
     }
 
     @bounded
-    async getResourcesByPath(_path: RelativePath, meta: VcsMetadata): Promise<Resources> {
-        if (!meta.author && !meta.contributors) {
-            return {};
-        }
-
+    async getResourcesByPath(_path: RelativePath, _meta: VcsMetadata): Promise<Resources> {
         return {
             csp: [{'img-src': [GITHUB_AVATARS_DOMAIN]}],
         };
