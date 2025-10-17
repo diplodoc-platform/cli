@@ -28,7 +28,7 @@ export function findLink(content: string): string | undefined {
     return link;
 }
 
-export function extractAllImages(block: ConstructorBlock | string): string[] {
+export function extractImages(block: ConstructorBlock | string): string[] {
     if (!block) {
         return [];
     }
@@ -39,18 +39,21 @@ export function extractAllImages(block: ConstructorBlock | string): string[] {
         if (MEDIA_FORMATS.test(trimmedBlock) && trimmedBlock.split(/\s+/).length === 1) {
             return [trimmedBlock];
         }
+
         return [];
     }
 
     if (Array.isArray(block)) {
-        return block.flatMap(extractAllImages);
+        return block.flatMap(extractImages);
     }
 
     if (typeof block === 'object') {
         let res: string[] = [];
+
         for (const value of Object.values(block as Record<string, unknown>)) {
-            res = res.concat(extractAllImages(value as ConstructorBlock));
+            res = res.concat(extractImages(value as ConstructorBlock));
         }
+
         return res;
     }
 
@@ -59,7 +62,7 @@ export function extractAllImages(block: ConstructorBlock | string): string[] {
 
 export function parsePcBlocks(blocks: ConstructorBlock[], images: string[] = []): string[] {
     for (const block of blocks) {
-        images.push(...extractAllImages(block));
+        images.push(...extractImages(block));
     }
 
     return images;
