@@ -3,7 +3,7 @@ import type {AssetInfo} from '../types';
 
 import {rebasePath} from '~/core/utils';
 
-import {filterRanges, findDefs, findLinksInfo} from '../utils';
+import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
 
 export function resolveAssets(this: LoaderContext, content: string) {
     const assets: AssetInfo[] = [];
@@ -15,12 +15,14 @@ export function resolveAssets(this: LoaderContext, content: string) {
 
     const defs = filterRanges(exclude, findDefs(content));
     const links = filterRanges(exclude, findLinksInfo(content));
+    const pcImages = filterRanges(exclude, findPcImages(content));
 
-    for (const info of [...defs, ...links]) {
+    for (const info of [...defs, ...links, ...pcImages]) {
         try {
             if (info.path !== null) {
                 info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
             }
+
             assets.push(info);
         } catch {}
     }

@@ -69,7 +69,7 @@ export function shortLink(href: string): string {
     return result;
 }
 
-const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
+export const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
 
 // TODO: should we deprecate this?
 const DOC_FORMATS = /\.(txt|pdf|docx|xlsx|vsd)$/i;
