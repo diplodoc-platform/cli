@@ -1,9 +1,10 @@
-import type {AssetInfo, Location, PageConstructor, PageConstructorBlock} from './types';
+import type {AssetInfo, Location} from './types';
 import type {ImageOptions} from '@diplodoc/transform/lib/typings';
+import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-extension';
 
 import {load as yamlLoad} from 'js-yaml';
 
-import {parseLocalUrl} from '~/core/utils';
+import {MEDIA_FORMATS, parseLocalUrl} from '~/core/utils';
 
 type AssetModifier = '!' | '@' | '';
 
@@ -27,22 +28,38 @@ export function findLink(content: string): string | undefined {
     return link;
 }
 
-export function parsePcBlocks(blocks: PageConstructorBlock[], images: string[]): string[] {
-    for (const block of blocks || []) {
-        const image = block.image;
-        const icon = block.icon;
+export function extractAllImages(block: ConstructorBlock | string): string[] {
+    if (!block) {
+        return [];
+    }
 
-        if (image) {
-            images.push(image);
-        }
+    if (typeof block === 'string') {
+        const trimmedBlock = block.trim();
 
-        if (icon) {
-            images.push(icon);
+        if (MEDIA_FORMATS.test(trimmedBlock) && trimmedBlock.split(/\s+/).length === 1) {
+            return [trimmedBlock];
         }
+        return [];
+    }
 
-        if (Array.isArray(block.children)) {
-            parsePcBlocks(block.children, images);
+    if (Array.isArray(block)) {
+        return block.flatMap(extractAllImages);
+    }
+
+    if (typeof block === 'object') {
+        let res: string[] = [];
+        for (const value of Object.values(block as Record<string, unknown>)) {
+            res = res.concat(extractAllImages(value as ConstructorBlock));
         }
+        return res;
+    }
+
+    return [];
+}
+
+export function parsePcBlocks(blocks: ConstructorBlock[], images: string[] = []): string[] {
+    for (const block of blocks) {
+        images.push(...extractAllImages(block));
     }
 
     return images;
@@ -61,15 +78,15 @@ export function findPcImages(content: string): AssetInfo[] {
     let match;
 
     while ((match = regex.exec(content))) {
-        let data: PageConstructor;
+        let data: PageContent;
 
         try {
-            data = yamlLoad(match[1]) as PageConstructor;
+            data = yamlLoad(match[1]) as PageContent;
         } catch {
             continue;
         }
 
-        const images = parsePcBlocks(data?.blocks, []);
+        const images = parsePcBlocks(data?.blocks as ConstructorBlock[], []);
 
         for (const img of images) {
             const parsed = parseLocalUrl(img);
