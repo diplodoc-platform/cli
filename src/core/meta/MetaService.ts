@@ -13,6 +13,7 @@ type Config = {
 
 type MetaItem = {
     name: string;
+    property?: string;
     content: string;
 };
 
@@ -184,7 +185,8 @@ export class MetaService {
             if (
                 !meta.metadata?.find(
                     (metaItem: Hash<MetaItem>) =>
-                        metaItem.name === item.name && metaItem.content === item.content,
+                        (metaItem.name === item.name && metaItem.content === item.content) ||
+                        (metaItem.property === item.property && metaItem.content === item.content),
                 )
             ) {
                 meta.metadata?.push(item);
