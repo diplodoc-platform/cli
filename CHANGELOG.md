@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.13.3](https://github.com/diplodoc-platform/cli/compare/v5.13.2...v5.13.3) (2025-10-17)
+
+
+### Bug Fixes
+
+* Always add github img-src to resources ([e63cf68](https://github.com/diplodoc-platform/cli/commit/e63cf68f7655ee17f084686e2c6d5445f003949e))
+
 ## [5.13.2](https://github.com/diplodoc-platform/cli/compare/v5.13.1...v5.13.2) (2025-10-16)
 
 
