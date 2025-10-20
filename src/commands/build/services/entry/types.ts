@@ -55,4 +55,23 @@ export type PageState = {
     lang: string;
     langs: string[];
     analytics: Hash;
+    neuroExpert?: NeuroExpert;
 } & Hash;
+
+type BaseNeuroExpert = {
+    hasOutsideClick?: boolean;
+    isInternal?: boolean;
+    parentId?: string | null;
+    zIndex?: number;
+};
+
+export type NeuroExpertSettings = BaseNeuroExpert & {
+    projectId: string;
+};
+
+export type NeuroExpert = BaseNeuroExpert & {
+    projectId?: {
+        [key: string]: string;
+    };
+    isDisabled?: boolean;
+};
