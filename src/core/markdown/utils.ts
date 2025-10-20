@@ -4,7 +4,7 @@ import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-ext
 
 import {load as yamlLoad} from 'js-yaml';
 
-import {MEDIA_FORMATS, parseLocalUrl} from '~/core/utils';
+import {MEDIA_FORMATS, parseLocalUrl, walkLinks} from '~/core/utils';
 
 type AssetModifier = '!' | '@' | '';
 
@@ -29,35 +29,29 @@ export function findLink(content: string): string | undefined {
 }
 
 export function extractImages(block: ConstructorBlock | string): string[] {
+    const images: string[] = [];
+
     if (!block) {
-        return [];
+        return images;
     }
 
     if (typeof block === 'string') {
         const trimmedBlock = block.trim();
 
         if (MEDIA_FORMATS.test(trimmedBlock) && trimmedBlock.split(/\s+/).length === 1) {
-            return [trimmedBlock];
+            images.push(trimmedBlock);
         }
 
-        return [];
+        return images;
     }
 
-    if (Array.isArray(block)) {
-        return block.flatMap(extractImages);
-    }
-
-    if (typeof block === 'object') {
-        let res: string[] = [];
-
-        for (const value of Object.values(block as Record<string, unknown>)) {
-            res = res.concat(extractImages(value as ConstructorBlock));
+    walkLinks(block, (value) => {
+        if (MEDIA_FORMATS.test(value) && value.split(/\s+/).length === 1) {
+            images.push(value);
         }
+    });
 
-        return res;
-    }
-
-    return [];
+    return images;
 }
 
 export function parsePcBlocks(blocks: ConstructorBlock[] = [], images: string[] = []): string[] {

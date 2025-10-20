@@ -33,7 +33,7 @@ describe('parsePcBlocks', () => {
 
         const images = parsePcBlocks(input, []);
 
-        expect(images).toEqual(['a.jpg', 'z.svg', 'b.gif', 'logo.webp']);
+        expect(images).toEqual(['a.jpg', 'z.svg', 'logo.webp']);
     });
 
     it('should find images in device/theme branches', () => {
@@ -60,15 +60,15 @@ describe('parsePcBlocks', () => {
         expect(images).toEqual(['light-desktop.svg', 'light-mobile.svg', 'dark-desktop.svg']);
     });
 
-    it('should find img as string and as data prop', () => {
+    it('should find image as string but not as data prop', () => {
         const input = [
-            {img: 'plain.svg'},
-            {img: {data: 'nested.png'}},
+            {image: 'plain.svg'},
+            {image: {data: 'nested.png'}},
         ] as unknown as ConstructorBlock[];
 
         const images = parsePcBlocks(input, []);
 
-        expect(images).toEqual(['plain.svg', 'nested.png']);
+        expect(images).toEqual(['plain.svg']);
     });
 
     it('should ignore non-media strings and numbers', () => {
@@ -116,8 +116,8 @@ describe('findPcImages', () => {
                 - children:
                     - icon: rocket.svg
                     - buttons:
-                        - img: icon1.png
-                        - img: inner-folder/btn.svg
+                        - previewImg: icon1.png
+                        - avatar: inner-folder/btn.svg
             :::
         `;
 
@@ -211,13 +211,16 @@ describe('findPcImages', () => {
                 blocks:
                 - icon: a.svg
                 - title: "Text ::: inside"
-                - img: b.png
+                - light:
+                    image: b.png
+                - dark:
+                    image: c.jpeg
             :::
         `;
 
         const results = findPcImages(content);
 
-        expect(results.map((a) => a.path)).toEqual(['a.svg', 'b.png']);
+        expect(results.map((a) => a.path)).toEqual(['a.svg', 'b.png', 'c.jpeg']);
     });
 
     it('should skip ::: inline (not at line start) as closing', () => {
@@ -227,7 +230,7 @@ describe('findPcImages', () => {
                 - icon: hello.svg
                 - text: "Some text
                   in markdown with inline ::: inside"
-                - img: test.png
+                - url: test.png
             :::
         `;
 

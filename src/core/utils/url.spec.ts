@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {isExternalHref, shortLink} from './url';
+import {isExternalHref, shortLink, walkLinks} from './url';
 
 describe('url utils', () => {
     describe('isExternalHref', () => {
@@ -102,5 +102,94 @@ describe('url utils', () => {
             expect(shortLink('../folder/index')).toBe('../folder/');
             expect(shortLink('../index')).toBe('../');
         });
+    });
+});
+
+describe('walkLinks', () => {
+    it('should modify top-level link keys', () => {
+        const obj = {
+            url: 'foo/bar.html',
+            href: 'hello',
+            title: 'not changed',
+        };
+
+        const res = walkLinks(obj, (v) => v.toUpperCase());
+
+        expect(res.url).toBe('FOO/BAR.HTML');
+        expect(res.href).toBe('HELLO');
+        expect(res.title).toBe('not changed');
+    });
+
+    it('should modify nested link keys', () => {
+        const obj = {
+            icon: 'icon.svg',
+            data: {
+                image: 'img.png',
+                nested: {
+                    logo: 'logo.webp',
+                },
+            },
+        };
+
+        const res = walkLinks(obj, (v) => v.replace(/\./g, '-') + '!');
+
+        expect(res.icon).toBe('icon-svg!');
+        expect(res.data.image).toBe('img-png!');
+        expect(res.data.nested.logo).toBe('logo-webp!');
+    });
+
+    it('should modify links in arrays of objects', () => {
+        const obj = {
+            items: [{href: 'a.html'}, {url: 'b.doc'}, {no: 'change'}],
+        };
+
+        const res = walkLinks(obj, (v) => v + '_x');
+
+        expect(res.items[0].href).toBe('a.html_x');
+        expect(res.items[1].url).toBe('b.doc_x');
+        expect(res.items[2].no).toBe('change');
+    });
+
+    it('should modify links deeply nested in arrays/objects', () => {
+        const obj = {
+            content: [
+                {
+                    sections: [{image: 'pic.gif', caption: 'notlink'}, {avatar: 'avatar.jpg'}],
+                },
+            ],
+            notlink: 123,
+        };
+
+        const res = walkLinks(obj, (v) => 'found:' + v);
+
+        expect(res.content[0].sections[0].image).toBe('found:pic.gif');
+        expect(res.content[0].sections[0].caption).toBe('notlink');
+        expect(res.content[0].sections[1].avatar).toBe('found:avatar.jpg');
+        expect(res.notlink).toBe(123);
+    });
+
+    it('should not modify keys not in LINK_KEYS', () => {
+        const obj = {
+            text: 'nope',
+            description: 'no',
+            foo: 'nope',
+        };
+
+        const res = walkLinks(obj, () => 'oops');
+
+        expect(res).toEqual(obj);
+    });
+
+    it('should work with empty object', () => {
+        const res = walkLinks({}, (v) => v + '!');
+
+        expect(res).toEqual({});
+    });
+
+    it('should work with objects without link keys', () => {
+        const obj = {foo: 'bar', bar: 42, arr: [1, 2]};
+        const res = walkLinks(obj, (v) => v + '!');
+
+        expect(res).toEqual(obj);
     });
 });
