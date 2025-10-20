@@ -16,6 +16,7 @@ import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
+import {getNeuroExpertScript} from './utils/neuro-expert';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
@@ -69,13 +70,24 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface} = this.config;
+        const {
+            langs,
+            analytics,
+            interface: baseInterface,
+            neuroExpert: baseNeuroExpert,
+        } = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
+        const {neuroExpert: metaNeuroExpert} = data.meta;
 
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
+        };
+
+        const neuroExpert = {
+            ...(baseNeuroExpert ?? {}),
+            ...(metaNeuroExpert ?? {}),
         };
 
         const state: PageState = {
@@ -90,6 +102,7 @@ export class EntryService {
             langs,
             analytics,
             viewerInterface,
+            neuroExpert,
         };
 
         await getHooks(this).State.promise(state);
@@ -181,6 +194,15 @@ export class EntryService {
                 position: 'state',
             },
         );
+
+        const neScript = getNeuroExpertScript(state.lang, state.neuroExpert);
+
+        if (neScript) {
+            template.addScript(neScript, {
+                inline: true,
+                position: 'state',
+            });
+        }
 
         this.run.manifest.app.js.map(rebase).map(template.addScript);
 

@@ -18,7 +18,13 @@ import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filterin
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
-import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
+import type {
+    EntryService,
+    LeadingData,
+    MarkdownData,
+    NeuroExpert,
+    PageData,
+} from './services/entry';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';
@@ -49,6 +55,7 @@ type BaseConfig = {
     supportGithubAnchors?: boolean;
     interface?: Hash;
     pdf: Record<string, boolean>;
+    neuroExpert?: NeuroExpert;
 };
 
 export type VcsArgs = {
