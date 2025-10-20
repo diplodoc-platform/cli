@@ -204,4 +204,102 @@ describe('findPcImages', () => {
         expect(asset.hash).toBeNull();
         expect(asset.search).toBeNull();
     });
+
+    it('should not break on ::: inside YAML string value', () => {
+        const content = `
+            ::: page-constructor
+                blocks:
+                - icon: a.svg
+                - title: "Text ::: inside"
+                - img: b.png
+            :::
+        `;
+
+        const results = findPcImages(content);
+
+        expect(results.map((a) => a.path)).toEqual(['a.svg', 'b.png']);
+    });
+
+    it('should skip ::: inline (not at line start) as closing', () => {
+        const content = `
+            ::: page-constructor
+                blocks:
+                - icon: hello.svg
+                - text: "Some text
+                  in markdown with inline ::: inside"
+                - img: test.png
+            :::
+        `;
+
+        const results = findPcImages(content);
+
+        expect(results.map((a) => a.path)).toEqual(['hello.svg', 'test.png']);
+    });
+
+    it('should not match closing ::: with different indent', () => {
+        const content = `
+            ::: page-constructor
+                blocks:
+                - icon: a.svg
+             :::
+        `;
+
+        expect(findPcImages(content)).toEqual([]);
+    });
+
+    it('should allow windows-style line endings', () => {
+        const content = '::: page-constructor\r\nblocks:\r\n  - icon: a.svg\r\n:::\r\n';
+        const results = findPcImages(content);
+
+        expect(results.map((a) => a.path)).toEqual(['a.svg']);
+    });
+
+    it('should not catch ::: closing from next block', () => {
+        const content = `
+            ::: page-constructor
+                blocks:
+                - icon: foo1.svg
+            :::
+            ::: page-constructor
+                blocks:
+                - icon: foo2.svg
+            :::
+        `;
+
+        const results = findPcImages(content);
+
+        expect(results.map((a) => a.path)).toEqual(['foo1.svg', 'foo2.svg']);
+    });
+
+    it('should ignore empty blocks', () => {
+        const content = `
+            ::: page-constructor
+            :::
+        `;
+        expect(findPcImages(content)).toEqual([]);
+    });
+
+    it('should handle deeply indented open/close :::', () => {
+        const content = `
+                ::: page-constructor
+                    blocks:
+                    - icon: a.svg
+                :::
+        `;
+
+        const results = findPcImages(content);
+
+        expect(results.map((a) => a.path)).toEqual(['a.svg']);
+    });
+
+    it('should ignore blocks not matching page-constructor', () => {
+        const content = `
+            ::: other-directive
+                blocks:
+                - icon: a.svg
+            :::
+        `;
+
+        expect(findPcImages(content)).toEqual([]);
+    });
 });

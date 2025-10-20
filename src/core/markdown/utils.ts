@@ -60,7 +60,7 @@ export function extractImages(block: ConstructorBlock | string): string[] {
     return [];
 }
 
-export function parsePcBlocks(blocks: ConstructorBlock[], images: string[] = []): string[] {
+export function parsePcBlocks(blocks: ConstructorBlock[] = [], images: string[] = []): string[] {
     for (const block of blocks) {
         images.push(...extractImages(block));
     }
@@ -76,15 +76,28 @@ export function getPcIconTitle(iconPath: string): string {
 
 export function findPcImages(content: string): AssetInfo[] {
     const pcImages: AssetInfo[] = [];
-    const regex = /:::\s*page-constructor([\s\S]*?):::/g;
+    const openRegex = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/gm;
 
-    let match;
+    let match: RegExpExecArray | null;
 
-    while ((match = regex.exec(content))) {
+    while ((match = openRegex.exec(content))) {
+        const indent = match[1] || '';
+        const startIdx = openRegex.lastIndex;
+        const closeRegex = new RegExp(`^${indent}:::[ \\t]*$`, 'mg');
+
+        closeRegex.lastIndex = startIdx;
+
+        const closeMatch = closeRegex.exec(content);
+
+        if (!closeMatch) {
+            continue;
+        }
+
+        const rawBlock = content.slice(startIdx, closeMatch.index);
         let data: PageContent;
 
         try {
-            data = yamlLoad(match[1]) as PageContent;
+            data = yamlLoad(rawBlock) as PageContent;
         } catch {
             continue;
         }
@@ -106,9 +119,11 @@ export function findPcImages(content: string): AssetInfo[] {
                 autotitle: false,
                 hash: null,
                 search: null,
-                location: [match.index, match.index + match[0].length],
+                location: [match.index, closeRegex.lastIndex],
             });
         }
+
+        openRegex.lastIndex = closeRegex.lastIndex;
     }
 
     return pcImages;
