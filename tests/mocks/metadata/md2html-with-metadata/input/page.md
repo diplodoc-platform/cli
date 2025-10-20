@@ -9,6 +9,8 @@ interface:
 metadata:
   - name: yfm
     content: builder in page
+  - property: og:title
+    content: Some kind of headline
 ---
 
 Lorem
