@@ -43,6 +43,11 @@ export function stripSystemLinks(content: string) {
         '<meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">',
     );
 
+    content = content.replace(
+        new RegExp(`"updatedAt":"\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z"`, 'g'),
+        '"updatedAt":"2025-10-15T00:00:00.000Z"',
+    );
+
     content = content.replace(/^[ \t]*\r?\n/gm, '');
 
     return content;
