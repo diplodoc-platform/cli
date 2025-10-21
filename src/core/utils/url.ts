@@ -1,7 +1,7 @@
 import type {UrlWithStringQuery} from 'node:url';
 
 import {parse} from 'node:url';
-import {pick} from 'lodash';
+import {cloneDeepWith, isString, pick} from 'lodash';
 
 import {normalizePath} from './path';
 
@@ -69,7 +69,7 @@ export function shortLink(href: string): string {
     return result;
 }
 
-const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
+export const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
 
 // TODO: should we deprecate this?
 const DOC_FORMATS = /\.(txt|pdf|docx|xlsx|vsd)$/i;
@@ -112,4 +112,37 @@ export function parseLocalUrl<T = LocalUrlInfo>(url: string | undefined) {
     } catch {
         return null;
     }
+}
+
+export const LINK_KEYS_LEADING_CONFIG = ['href'];
+export const LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG = [
+    'src',
+    'url',
+    'href',
+    'icon',
+    'image',
+    'desktop',
+    'mobile',
+    'tablet',
+    'previewImg',
+    'image',
+    'avatar',
+    'logo',
+    'light',
+    'dark',
+];
+
+export const LINK_KEYS = [
+    ...new Set([...LINK_KEYS_LEADING_CONFIG, ...LINK_KEYS_PAGE_CONSTRUCTOR_CONFIG]),
+];
+
+export function walkLinks(object: object, modify: (value: string) => string | void) {
+    // Clone the object deeply with a customizer function that modifies matching keys
+    return cloneDeepWith(object, (value: unknown, key) => {
+        if (LINK_KEYS.includes(key as string) && isString(value)) {
+            return modify(value);
+        }
+
+        return undefined;
+    });
 }

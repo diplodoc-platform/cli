@@ -18,11 +18,11 @@ import {
     fullPath,
     langFromPath,
     normalizePath,
+    walkLinks,
 } from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, loader} from './loader';
-import {walkLinks} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;

@@ -1,7 +1,10 @@
 import type {AssetInfo, Location} from './types';
 import type {ImageOptions} from '@diplodoc/transform/lib/typings';
+import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-extension';
 
-import {parseLocalUrl} from '~/core/utils';
+import {load as yamlLoad} from 'js-yaml';
+
+import {MEDIA_FORMATS, parseLocalUrl, walkLinks} from '~/core/utils';
 
 type AssetModifier = '!' | '@' | '';
 
@@ -23,6 +26,101 @@ export function findLink(content: string): string | undefined {
     rx.lastIndex += link.length + 1;
 
     return link;
+}
+
+export function extractImages(block: ConstructorBlock | string): string[] {
+    const images: string[] = [];
+
+    if (!block) {
+        return images;
+    }
+
+    if (typeof block === 'string') {
+        const trimmedBlock = block.trim();
+
+        if (MEDIA_FORMATS.test(trimmedBlock) && trimmedBlock.split(/\s+/).length === 1) {
+            images.push(trimmedBlock);
+        }
+
+        return images;
+    }
+
+    walkLinks(block, (value) => {
+        if (MEDIA_FORMATS.test(value) && value.split(/\s+/).length === 1) {
+            images.push(value);
+        }
+    });
+
+    return images;
+}
+
+export function parsePcBlocks(blocks: ConstructorBlock[] = [], images: string[] = []): string[] {
+    for (const block of blocks) {
+        images.push(...extractImages(block));
+    }
+
+    return images;
+}
+
+export function getPcIconTitle(iconPath: string): string {
+    const file = iconPath.split('/').pop() || iconPath;
+
+    return file.replace(/\.[^.]+$/, '');
+}
+
+export function findPcImages(content: string): AssetInfo[] {
+    const pcImages: AssetInfo[] = [];
+    const openRegex = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/gm;
+
+    let match: RegExpExecArray | null;
+
+    while ((match = openRegex.exec(content))) {
+        const indent = match[1] || '';
+        const startIdx = openRegex.lastIndex;
+        const closeRegex = new RegExp(`^${indent}:::[ \\t]*$`, 'mg');
+
+        closeRegex.lastIndex = startIdx;
+
+        const closeMatch = closeRegex.exec(content);
+
+        if (!closeMatch) {
+            continue;
+        }
+
+        const rawBlock = content.slice(startIdx, closeMatch.index);
+        let data: PageContent;
+
+        try {
+            data = yamlLoad(rawBlock) as PageContent;
+        } catch {
+            continue;
+        }
+
+        const images = parsePcBlocks(data?.blocks as ConstructorBlock[], []);
+
+        for (const img of images) {
+            const parsed = parseLocalUrl(img);
+
+            if (!parsed) {
+                continue;
+            }
+
+            pcImages.push({
+                ...parsed,
+                type: 'image',
+                subtype: 'image',
+                title: getPcIconTitle(img),
+                autotitle: false,
+                hash: null,
+                search: null,
+                location: [match.index, closeRegex.lastIndex],
+            });
+        }
+
+        openRegex.lastIndex = closeRegex.lastIndex;
+    }
+
+    return pcImages;
 }
 
 export function findLinksInfo(content: string): AssetInfo[] {
