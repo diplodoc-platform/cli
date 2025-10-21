@@ -360,6 +360,46 @@ describe('Markdown loader', () => {
             expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
+
+        it('should add assets in definition list', async () => {
+            const content = dedent`
+                Title
+                :   Simple text:
+                
+                    ![img](./some1.png)
+
+                    #|
+                    || ![img](./some2.png) | col2
+
+                    ||
+                    |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should add assets in definition list with note', async () => {
+            const content = dedent`
+                {% note warning %}
+                Text warning. 
+
+                ![img](./some1.png)
+
+                \`\`\`shell
+                some text in block
+                ![img](./some2.png)
+                \`\`\`
+                {% endnote %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
     });
 
     describe('findComments', () => {
@@ -865,6 +905,38 @@ describe('Markdown loader', () => {
                 ![code][]{width=100}
                 
                 [code]: ./some.png
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images with title backtick', async () => {
+            const content = dedent`
+                Simple text
+                ![Text link \`backtick\`](./some1.png "Text link title \`backtick\`"){ width="800" }
+
+                ![Text link \`backtick\`](./some2.png "Text link title \`backtick\`"){ width="800" }
+                Text on next row with inline code \`backtick\`.
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images in yfm table after code block', async () => {
+            const content = dedent`
+                #|
+                || **col1** | **col2** | **col3** ||
+                || col1 | 
+                \`\`\`swift 
+                some code
+                \`\`\` | ![](./some.png =120x) ||
+                |#
             `;
             const context = loaderContext(content, {});
 

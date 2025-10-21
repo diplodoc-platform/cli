@@ -11,6 +11,7 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const exclude = [
         ...this.api.deps.get().map(({location}) => location),
         ...this.api.comments.get(),
+        ...this.api.blockCodes.get(),
     ];
 
     const defs = filterRanges(exclude, findDefs(content));
@@ -24,7 +25,9 @@ export function resolveAssets(this: LoaderContext, content: string) {
             }
 
             assets.push(info);
-        } catch {}
+        } catch (error) {
+            this.logger.error(`Error processing asset: ${error}`);
+        }
     }
 
     this.api.assets.set([...assets]);
