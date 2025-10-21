@@ -74,7 +74,7 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
             let includedTokens;
             if (hash) {
                 // TODO: add warning about missed block
-                includedTokens = findBlockTokens(fileTokens, hash);
+                includedTokens = cutTokens(fileTokens, hash);
             } else {
                 includedTokens = fileTokens;
             }
@@ -95,44 +95,52 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
     });
 }
 
-function findBlockTokens(tokens: Token[], id: string) {
-    let blockTokens: Token[] = [];
-    let i = 0,
-        startToken,
-        start,
-        end;
-    while (i < tokens.length) {
-        const token = tokens[i];
-
-        if (typeof start === 'number' && startToken) {
-            if (startToken.type === 'paragraph_open' && token.type === 'paragraph_close') {
-                end = i + 1;
-                break;
-            } else if (startToken.type === 'heading_open') {
-                if (token.type === 'heading_open' && token.tag === startToken.tag) {
-                    end = i;
-                    break;
-                } else if (i === tokens.length - 1) {
-                    end = tokens.length;
-                }
-            }
-        }
-
-        if (
+function cutTokens(tokens: Token[], id: string) {
+    const start = tokens.findIndex((token) => {
+        return (
             (token.type === 'paragraph_open' || token.type === 'heading_open') &&
-            token.attrGet('id') === id &&
-            typeof start === 'undefined'
-        ) {
-            startToken = token;
-            start = i;
+            token.attrGet('id') === id
+        );
+    });
+
+    if (start === -1) {
+        return [];
+    }
+
+    const startToken = tokens[start];
+
+    switch (startToken.type) {
+        case 'paragraph_open':
+            return cutParagraph(tokens, start);
+        case 'heading_open':
+            return cutHeading(tokens, start);
+        default:
+            return [];
+    }
+}
+
+function cutParagraph(tokens: Token[], start: number) {
+    const end = tokens.findIndex((token, index) => {
+        return token.type === 'paragraph_close' && index > start;
+    });
+
+    if (end === -1) {
+        return [];
+    }
+
+    return tokens.slice(start, end + 1);
+}
+
+function cutHeading(tokens: Token[], start: number) {
+    const level = Number(tokens[start].tag.slice(1));
+
+    for (let index = start + 1; index < tokens.length; index++) {
+        const token = tokens[index];
+
+        if (token.type === 'heading_open' && level >= Number(token.tag.slice(1))) {
+            return tokens.slice(start, index);
         }
-
-        i++;
     }
 
-    if (typeof start === 'number' && typeof end === 'number') {
-        blockTokens = tokens.slice(start, end);
-    }
-
-    return blockTokens;
+    return tokens.slice(start);
 }
