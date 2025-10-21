@@ -59,7 +59,7 @@ export class OutputMd {
                 mergeAutotitles: true,
             });
             const mergeSvg = defined('mergeSvg', args, config.preprocess || {}, {
-                mergeSvg: false,
+                mergeSvg: true,
             });
             return Object.assign(config, {
                 preprocess: {

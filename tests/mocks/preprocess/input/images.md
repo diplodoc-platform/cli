@@ -64,6 +64,13 @@ Term
 15. `![code svg image 15][code]{inline=true}`
 ![svg image 15][code]{inline=true}
 
+16. `![svg with xml header](_assets/2.svg)`
+![svg with xml header](_assets/2.svg)
+
+17. Text link `backtick`.
+![Text link `backtick`](_assets/1.svg "Text link title `backtick`"){ width="100" }
+Text link `backtick`.
+
 20. Сodeblocks - no inline svg
 ```
 Codeblock fence
@@ -105,3 +112,50 @@ Codeblock with inline code
    `![code svg image 22](_assets/1.svg)`
 1. ![code svg image 23](_assets/1.svg)
 ```
+
+1. Codeblock in table with asset
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+```swift 
+some code ![svg image 24](_assets/1.svg =120x)
+``` | ![svg image 24](_assets/1.svg =120x) ||
+|#
+
+1. Codeblock in cat
+
+{% cut "first level" %}
+
+![svg image 25](_assets/1.svg)
+```md
+![code svg image 25](_assets/1.svg)
+```
+  {% cut "second level" %}
+
+  ![svg image 25](_assets/1.svg)
+
+  ```md
+  ![code svg image 26](_assets/1.svg)
+  ```
+
+  {% endcut %}
+
+{% endcut %}
+
+1. Codeblock in tabs
+
+{% list tabs %}
+- first
+
+  ![svg image 25](_assets/1.svg)
+  ```md
+  ![code svg image 25](_assets/1.svg)
+  ```
+- second
+
+  ![svg image 25](_assets/1.svg)
+  ```md
+  ![code svg image 25](_assets/1.svg)
+  ```
+{% endlist %}
