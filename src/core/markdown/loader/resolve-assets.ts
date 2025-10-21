@@ -1,9 +1,10 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
+import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
+
 import {rebasePath} from '~/core/utils';
 
-import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
 
 export function resolveAssets(this: LoaderContext, content: string) {
     const assets: AssetInfo[] = [];
@@ -11,6 +12,7 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const exclude = [
         ...this.api.deps.get().map(({location}) => location),
         ...this.api.comments.get(),
+        ...this.api.blockCodes.get(),
     ];
 
     const defs = filterRanges(exclude, findDefs(content));
