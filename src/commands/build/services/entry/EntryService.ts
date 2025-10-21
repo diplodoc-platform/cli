@@ -71,26 +71,15 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {
-            langs,
-            analytics,
-            interface: baseInterface,
-            neuroExpert: baseNeuroExpert,
-        } = this.config;
+        const {langs, analytics, interface: baseInterface, neuroExpert} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
-        const {neuroExpert: metaNeuroExpert} = data.meta;
 
         // console.log(this.config)
 
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
-        };
-
-        const neuroExpert = {
-            ...(baseNeuroExpert ?? {}),
-            ...(metaNeuroExpert ?? {}),
         };
 
         const state: PageState = {

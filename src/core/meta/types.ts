@@ -1,5 +1,4 @@
 import type {VcsMetadata} from '~/core/vcs';
-import type {NeuroExpert} from '~/commands/build/services/entry';
 
 export type RawResources = {
     script?: string[];
@@ -40,7 +39,6 @@ export type Meta = {
     'restricted-access'?: string[][];
     canonical?: string;
     alternate?: Alternate[];
-    neuroExpert?: NeuroExpert;
 } & VcsMetadata &
     Resources &
     Record<string, unknown>;
