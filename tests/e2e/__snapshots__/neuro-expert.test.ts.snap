@@ -242,15 +242,6 @@ exports[`Skip html extension > Neuro-expert 9`] = `
               })(data.innerText));
             window.STATIC_CONTENT = false;
         </script>
-        <script type="application/javascript">
-            const neScript = document.createElement('script');
-            neScript.type = "module";
-            neScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            neScript.onload = () => {
-                window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"isInternal":false,"parentId":null,"zIndex":1000});
-            };
-            document.body.appendChild(neScript);
-        </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
     </body>
 </html>"
@@ -282,15 +273,6 @@ exports[`Skip html extension > Neuro-expert 10`] = `
                 return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
               })(data.innerText));
             window.STATIC_CONTENT = false;
-        </script>
-        <script type="application/javascript">
-            const neScript = document.createElement('script');
-            neScript.type = "module";
-            neScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            neScript.onload = () => {
-                window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"isInternal":false,"parentId":null,"zIndex":1000});
-            };
-            document.body.appendChild(neScript);
         </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
     </body>
@@ -324,15 +306,6 @@ exports[`Skip html extension > Neuro-expert 11`] = `
               })(data.innerText));
             window.STATIC_CONTENT = false;
         </script>
-        <script type="application/javascript">
-            const neScript = document.createElement('script');
-            neScript.type = "module";
-            neScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            neScript.onload = () => {
-                window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"isInternal":false,"parentId":null,"zIndex":1000});
-            };
-            document.body.appendChild(neScript);
-        </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
     </body>
 </html>"
@@ -365,15 +338,6 @@ exports[`Skip html extension > Neuro-expert 12`] = `
               })(data.innerText));
             window.STATIC_CONTENT = false;
         </script>
-        <script type="application/javascript">
-            const neScript = document.createElement('script');
-            neScript.type = "module";
-            neScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            neScript.onload = () => {
-                window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"isInternal":false,"parentId":null,"zIndex":1000});
-            };
-            document.body.appendChild(neScript);
-        </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
     </body>
 </html>"
@@ -405,15 +369,6 @@ exports[`Skip html extension > Neuro-expert 13`] = `
                 return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
               })(data.innerText));
             window.STATIC_CONTENT = false;
-        </script>
-        <script type="application/javascript">
-            const neScript = document.createElement('script');
-            neScript.type = "module";
-            neScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            neScript.onload = () => {
-                window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"isInternal":false,"parentId":null,"zIndex":1000});
-            };
-            document.body.appendChild(neScript);
         </script>
         <script type="application/javascript" defer src="ru/toc.js"></script>
     </body>
