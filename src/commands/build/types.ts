@@ -1,4 +1,4 @@
-import type {DocAnalytics} from '@diplodoc/client';
+import type {DocAnalytics, NeuroExpert} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
@@ -18,13 +18,7 @@ import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filterin
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
-import type {
-    EntryService,
-    LeadingData,
-    MarkdownData,
-    NeuroExpert,
-    PageData,
-} from './services/entry';
+import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';

@@ -1,5 +1,4 @@
 import type {Heading} from '@diplodoc/transform/lib/typings';
-import type {NeuroExpert} from '@diplodoc/client';
 import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
@@ -56,5 +55,4 @@ export type PageState = {
     lang: string;
     langs: string[];
     analytics: Hash;
-    neuroExpert?: NeuroExpert;
 } & Hash;
