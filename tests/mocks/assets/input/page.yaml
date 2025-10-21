@@ -1,0 +1,7 @@
+blocks:
+  - type: 'basic-card'
+    title: 'Заголовок'
+    text: 'Текст'
+    border: 'shadow'
+    controlPosition: 'content'
+    image: '_images/mountain.jpg'

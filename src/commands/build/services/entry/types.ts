@@ -1,4 +1,5 @@
 import type {Heading} from '@diplodoc/transform/lib/typings';
+import type {NeuroExpert} from '@diplodoc/client';
 import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
@@ -57,21 +58,3 @@ export type PageState = {
     analytics: Hash;
     neuroExpert?: NeuroExpert;
 } & Hash;
-
-type BaseNeuroExpert = {
-    hasOutsideClick?: boolean;
-    isInternal?: boolean;
-    parentId?: string | null;
-    zIndex?: number;
-};
-
-export type NeuroExpertSettings = BaseNeuroExpert & {
-    projectId: string;
-};
-
-export type NeuroExpert = BaseNeuroExpert & {
-    projectId?: {
-        [key: string]: string;
-    };
-    isDisabled?: boolean;
-};
