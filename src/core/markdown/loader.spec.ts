@@ -360,6 +360,26 @@ describe('Markdown loader', () => {
             expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
+
+        it('should add assets in definition list', async () => {
+            const content = dedent`
+                Title
+                :   Simple text:
+                
+                    ![img](./some1.png)
+
+                    #|
+                    || ![img](./some2.png) | col2
+
+                    ||
+                    |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
     });
 
     describe('findComments', () => {

@@ -1,10 +1,9 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
-import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
-
 import {rebasePath} from '~/core/utils';
 
+import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
 
 export function resolveAssets(this: LoaderContext, content: string) {
     const assets: AssetInfo[] = [];
