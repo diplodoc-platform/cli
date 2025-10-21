@@ -23,8 +23,8 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Documentation | Documentation</title>
-        <meta http-equiv="last-modified" content="2025-10-21T12:09:39.000Z">
-        <meta property="article:modified_time" content="2025-10-21T12:09:39.000Z">
+        <meta http-equiv="last-modified" content="2025-10-15T00:00:00.000Z">
+        <meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
@@ -55,8 +55,8 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page Title | Documentation</title>
-        <meta http-equiv="last-modified" content="2025-10-21T11:48:28.000Z">
-        <meta property="article:modified_time" content="2025-10-21T11:48:28.000Z">
+        <meta http-equiv="last-modified" content="2025-10-15T00:00:00.000Z">
+        <meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
@@ -90,8 +90,8 @@ exports[`Allow load custom resources > md2html with metadata 4`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="../" />
         <title>Documentation</title>
-        <meta http-equiv="last-modified" content="2025-10-20T14:05:15.000Z">
-        <meta property="article:modified_time" content="2025-10-20T14:05:15.000Z">
+        <meta http-equiv="last-modified" content="2025-10-15T00:00:00.000Z">
+        <meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">

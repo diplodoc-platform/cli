@@ -27,6 +27,22 @@ export function stripSystemLinks(content: string) {
         '',
     );
 
+    content = content.replace(
+        new RegExp(
+            `<meta http-equiv="last-modified" content="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z">`,
+            'g',
+        ),
+        '<meta http-equiv="last-modified" content="2025-10-15T00:00:00.000Z">',
+    );
+
+    content = content.replace(
+        new RegExp(
+            `<meta property="article:modified_time" content="\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}Z">`,
+            'g',
+        ),
+        '<meta property="article:modified_time" content="2025-10-15T00:00:00.000Z">',
+    );
+
     content = content.replace(/^[ \t]*\r?\n/gm, '');
 
     return content;
