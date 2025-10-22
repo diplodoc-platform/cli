@@ -32,14 +32,14 @@ exports[`Local search > internal 2`] = `
         <base href="./" />
         <title>Header</title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico","toc":false,"search":true,"feedback":true},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico","toc":false,"search":true,"feedback":true},"neuroExpert":{},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

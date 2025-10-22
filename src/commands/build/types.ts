@@ -1,4 +1,4 @@
-import type {DocAnalytics} from '@diplodoc/client';
+import type {DocAnalytics, NeuroExpert} from '@diplodoc/client';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
@@ -49,6 +49,7 @@ type BaseConfig = {
     supportGithubAnchors?: boolean;
     interface?: Hash;
     pdf: Record<string, boolean>;
+    neuroExpert?: NeuroExpert;
 };
 
 export type VcsArgs = {

@@ -28,12 +28,13 @@ exports[`Allow load custom resources > md2html with metadata 2`] = `
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true,"vcsPath":"index.yaml","updatedAt":"2025-10-15T00:00:00.000Z"},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":true,"data":{"title":"Documentation","description":"","links":[{"title":"Getting started with Documentation","description":"This guide will show you the basics of working with Documentation","href":"page.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"}],"title":"Documentation","noIndex":true,"vcsPath":"index.yaml","updatedAt":"2025-10-15T00:00:00.000Z"},"title":"Documentation"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true},"neuroExpert":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -62,13 +63,14 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="yfm-config" content="config test">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"page.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"page.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"},"neuroExpert":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -96,12 +98,13 @@ exports[`Allow load custom resources > md2html with metadata 4`] = `
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
         <meta name="yfm" value="builder in config">
+        <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}],"vcsPath":"project/config.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","value":"builder in config"}],"vcsPath":"project/config.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":""},"router":{"pathname":"project/config","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true},"neuroExpert":{}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

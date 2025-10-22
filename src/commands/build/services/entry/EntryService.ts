@@ -12,10 +12,11 @@ import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
-import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
+import {BUNDLE_FOLDER, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
+import {getNeuroExpertCsp, mergeCsp} from './utils/csp';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
@@ -30,6 +31,7 @@ const excludedMetaFields = [
     'noIndex',
     'canonical',
     'alternate',
+    'neuroExpert',
 ];
 
 function isPublicMeta(record: {name?: string}) {
@@ -69,13 +71,23 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface} = this.config;
+        const {
+            langs,
+            analytics,
+            interface: baseInterface,
+            neuroExpert: baseNeuroExpert,
+        } = this.config;
         const lang = langFromPath(path, this.config);
-        const {interface: metaInterface} = data.meta;
+        const {interface: metaInterface, neuroExpert: metaNeuroExpert} = data.meta;
 
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
+        };
+
+        const neuroExpert = {
+            ...(baseNeuroExpert ?? {}),
+            ...(metaNeuroExpert ?? {}),
         };
 
         const state: PageState = {
@@ -90,6 +102,7 @@ export class EntryService {
             langs,
             analytics,
             viewerInterface,
+            neuroExpert,
         };
 
         await getHooks(this).State.promise(state);
@@ -98,15 +111,14 @@ export class EntryService {
     }
 
     async page(template: Template, state: PageState, toc: Toc) {
-        const {staticContent} = this.config;
+        const {staticContent, resources} = this.config;
         const {
             style = [],
             script = [],
-            csp: baseCsp,
+            csp: metaCsp,
             metadata = [],
             title: metaTitle,
             description,
-            resources: metaResources,
             canonical = '',
             alternate = [],
             ...restYamlConfigMeta
@@ -115,9 +127,13 @@ export class EntryService {
         const baseTitle = metaTitle || state.data.title;
         const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
-        const metaCsp = metaResources?.csp;
+        const neuroExpert = state.neuroExpert;
 
-        const csp = [...(baseCsp || []), ...(metaCsp || [])];
+        const baseCsp = resources?.csp;
+        const neuroExpertCsp = getNeuroExpertCsp(neuroExpert);
+
+        const csp = [...(baseCsp || []), ...(metaCsp || []), ...neuroExpertCsp];
+        const mergedCsp = mergeCsp(csp);
 
         const html = staticContent
             ? render({
@@ -139,9 +155,8 @@ export class EntryService {
         template.setCanonical(canonical);
         template.addAlternates(alternate);
 
-        if (csp && !isEmpty(csp)) {
-            template.addCsp(DEFAULT_CSP_SETTINGS);
-            csp.map(template.addCsp);
+        if (mergedCsp && !isEmpty(mergedCsp)) {
+            mergedCsp.map(template.addCsp);
         }
 
         if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
