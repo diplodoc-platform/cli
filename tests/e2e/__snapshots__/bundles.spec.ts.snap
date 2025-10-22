@@ -83,8 +83,8 @@ exports[`Check bundles > bundles list is correct 2`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
@@ -123,8 +123,8 @@ exports[`Check bundles > bundles list is correct 3`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
@@ -163,8 +163,8 @@ exports[`Check bundles > bundles list is correct 4`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
         <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
