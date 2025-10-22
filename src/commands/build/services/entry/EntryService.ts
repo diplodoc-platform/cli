@@ -75,8 +75,6 @@ export class EntryService {
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
 
-        // console.log(this.config)
-
         const viewerInterface = {
             ...(baseInterface ?? {}),
             ...(metaInterface ?? {}),
