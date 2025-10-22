@@ -38,7 +38,7 @@ export function mergeCsp(csp: Hash<string[]>[]): Hash<string[]>[] {
 }
 
 export function getNeuroExpertCsp(neuroExpert?: NeuroExpert): Hash<string[]>[] {
-    if (!neuroExpert || neuroExpert.disabled || !neuroExpert.parentId) {
+    if (!neuroExpert || neuroExpert.disabled || !neuroExpert.projectId) {
         return [];
     }
 
