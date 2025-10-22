@@ -148,6 +148,17 @@ export class EntryService {
             metadata.push({name: 'description', content: description});
         }
 
+        if (restYamlConfigMeta.updatedAt) {
+            template.addMeta({
+                'http-equiv': 'last-modified',
+                content: restYamlConfigMeta.updatedAt,
+            });
+            template.addMeta({
+                property: 'article:modified_time',
+                content: restYamlConfigMeta.updatedAt,
+            });
+        }
+
         metadata.filter(isPublicMeta).map(template.addMeta);
 
         Object.entries(restYamlConfigMeta)
