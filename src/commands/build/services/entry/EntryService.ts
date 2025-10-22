@@ -32,8 +32,11 @@ const excludedMetaFields = [
     'alternate',
 ];
 
-function isPublicMeta(record: {name?: string}) {
-    return record.name && !excludedMetaFields.includes(record.name);
+function isPublicMeta(record: {name?: string; property?: string}) {
+    return (
+        (record.name && !excludedMetaFields.includes(record.name)) ||
+        (record.property && !excludedMetaFields.includes(record.property))
+    );
 }
 
 @withHooks

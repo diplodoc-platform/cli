@@ -61,6 +61,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
         <meta name="test-yfm" content="inline test">
         <meta name="yfm-config" content="config test">
         <meta name="yfm" content="builder in page">
+        <meta property="og:title" content="Some kind of headline">
         <meta name="description" content="Some test description">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="/favicon.ico">
@@ -68,7 +69,7 @@ exports[`Allow load custom resources > md2html with metadata 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"page.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"test-yfm","content":"inline test"},{"name":"yfm-config","content":"config test"},{"name":"yfm","content":"builder in page"},{"property":"og:title","content":"Some kind of headline"},{"name":"description","content":"Some test description"}],"title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"page.md","updatedAt":"2025-10-15T00:00:00.000Z"},"headings":[],"title":"Page Title"},"router":{"pathname":"page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
