@@ -26,7 +26,6 @@ describe('Includes', () => {
 
         // Test md2md transformation should fail
         const mdReport = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'md']);
-        console.log(mdReport);
         expect(mdReport.code).toBeGreaterThan(0);
 
         // Test md2html transformation should fail
