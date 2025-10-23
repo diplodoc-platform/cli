@@ -385,6 +385,31 @@ exports[`Markdown loader > resolveAssets > should work with images with paramete
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should work with images with title backtick 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        34,
+        47,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": "800",
+      },
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "Text link \`backtick\`",
+      "type": "image",
+    },
+  ],
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should work with inline svg images 1`] = `
 [
   [

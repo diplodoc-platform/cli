@@ -3,7 +3,7 @@ import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 import type {ImageOptions} from '@diplodoc/transform/lib/typings';
 
-import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
+// import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 import path from 'node:path';
 
 function isDef(asset: AssetInfo) {
@@ -11,6 +11,34 @@ function isDef(asset: AssetInfo) {
 }
 function isImage(asset: AssetInfo) {
     return asset.type === 'image' && (asset.path.endsWith('.svg') || asset.subtype === 'reference');
+}
+
+function replaceSvgContent(content: string, options: ImageOptions) {
+    // monoline
+    content = content.replace(/\n/g, '');
+
+    // width, height
+    let svgRoot = content.replace(/.*?<svg([^>]*)>.*/g, '$1');
+
+    const {width, height} = svgRoot
+        .match(/(?:width="(.*?)")|(?:height="(.*?)")/g)
+        ?.reduce((acc: {[key: string]: string}, val) => {
+            const [key, value] = val.split('=');
+            acc[key] = value;
+            return acc;
+        }, {}) || {width: undefined, height: undefined};
+
+    if (!width && options.width) {
+        svgRoot = `${svgRoot} width="${options.width.toString()}"`;
+    }
+    if (!height && options.height) {
+        svgRoot = `${svgRoot} height="${options.height.toString()}"`;
+    }
+    if ((!width && options.width) || (!height && options.height)) {
+        content = content.replace(/.*?<svg([^>]*)>/, `<svg${svgRoot}>`);
+    }
+
+    return content;
 }
 
 export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetInfo[]) {

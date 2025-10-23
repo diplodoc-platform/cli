@@ -78,23 +78,47 @@ function processInlineCode(
     content: string,
     parentStartPos: number,
     codes: Array<[number, number]>,
+    lineStarts: number[],
+    lines: string[],
 ): number {
     // Guard clause for missing markup or content
     if (!token.markup || !token.content) {
         return parentStartPos;
     }
 
-    // For inline code, we need to search for it in the content
-    // We search for the markup + content + markup pattern
-    // We start searching from the parent's start position to avoid finding wrong matches
-    const searchPattern = token.markup + token.content + token.markup;
-    const startIndex = content.indexOf(searchPattern, parentStartPos);
+    // Use token's position information if available
+    if (token.map && token.map.length === 2) {
+        // For inline code, we can use the map to get more accurate positions
+        const [startLine, _endLine] = token.map;
+        const start = lineToCharPosition(startLine, lineStarts, lines, content);
 
-    if (startIndex !== -1) {
-        const endIndex = startIndex + searchPattern.length;
-        codes.push([startIndex, endIndex]);
-        // Update parentStartPos to avoid finding the same match again
-        return endIndex;
+        // Find the exact position of the inline code within the line
+        const lineContent = lines[startLine] || '';
+        const searchPattern = token.markup + token.content + token.markup;
+        const patternIndex = lineContent.indexOf(searchPattern);
+
+        if (patternIndex !== -1) {
+            const startIndex = start + patternIndex;
+            const endIndex = startIndex + searchPattern.length;
+            codes.push([startIndex, endIndex]);
+
+            // Update parentStartPos to avoid finding the same match again
+            return Math.max(parentStartPos, endIndex);
+        }
+    } else {
+        // Fallback to original search method if map is not available
+        // For inline code, we need to search for it in the content
+        // We search for the markup + content + markup pattern
+        // We start searching from the parent's start position to avoid finding wrong matches
+        const searchPattern = token.markup + token.content + token.markup;
+        const startIndex = content.indexOf(searchPattern, parentStartPos);
+
+        if (startIndex !== -1) {
+            const endIndex = startIndex + searchPattern.length;
+            codes.push([startIndex, endIndex]);
+            // Update parentStartPos to avoid finding the same match again
+            return endIndex;
+        }
     }
 
     return parentStartPos;
@@ -160,7 +184,11 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
     const lineStarts = computeLineStarts(content);
     const lines = content.split('\n');
 
-    function extractCodeBlocks(tokens: Token[], parentStartPos = 0) {
+    function extractCodeBlocks(
+        tokens: Token[],
+        parentStartPos = 0,
+        parentType: string | null = null,
+    ) {
         for (const token of tokens) {
             // Skip YFM note tokens entirely
             // if (token.type.startsWith('yfm_note')) {
@@ -184,18 +212,28 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
 
                 // Process children to find code_inline tokens
                 if (token.children && token.children.length > 0) {
-                    extractCodeBlocks(token.children, currentParentStartPos);
+                    extractCodeBlocks(token.children, currentParentStartPos, token.type);
                 }
 
                 // Continue to next token, don't process children again
                 continue;
             } else if (token.type === 'code_inline') {
-                currentParentStartPos = processInlineCode(token, content, parentStartPos, codes);
+                // Skip code_inline tokens that are children of image tokens
+                if (parentType !== 'image') {
+                    currentParentStartPos = processInlineCode(
+                        token,
+                        content,
+                        parentStartPos,
+                        codes,
+                        lineStarts,
+                        lines,
+                    );
+                }
             }
 
             // Recursively process children for all other token types
             if (token.children && token.children.length > 0 && token.type !== 'inline') {
-                extractCodeBlocks(token.children, currentParentStartPos);
+                extractCodeBlocks(token.children, currentParentStartPos, token.type);
             }
         }
     }

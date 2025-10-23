@@ -6,9 +6,10 @@ import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
 import {SourceMap} from '@diplodoc/liquid';
 
+import {loader} from './loader';
+
 import {Logger} from '~/core/logger';
 
-import {loader} from './loader';
 
 vi.mock('~/core/logger');
 
@@ -905,6 +906,18 @@ describe('Markdown loader', () => {
                 ![code][]{width=100}
                 
                 [code]: ./some.png
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images with title backtick', async () => {
+            const content = dedent`
+                Simple text
+                ![Text link \`backtick\`](./some.png "Text link title \`backtick\`"){ width="800" }
             `;
             const context = loaderContext(content, {});
 
