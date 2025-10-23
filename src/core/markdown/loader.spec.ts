@@ -380,6 +380,26 @@ describe('Markdown loader', () => {
             expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
+
+        it('should add assets in definition list with note', async () => {
+            const content = dedent`
+                {% note warning %}
+                Text warning. 
+
+                ![img](./some1.png)
+
+                \`\`\`shell
+                some text in block
+                ![img](./some2.png)
+                \`\`\`
+                {% endnote %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
     });
 
     describe('findComments', () => {

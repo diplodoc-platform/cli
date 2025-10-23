@@ -9,7 +9,7 @@ import meta from 'markdown-it-meta';
 import sup from 'markdown-it-sup';
 // @ts-expect-error
 import deflist from 'markdown-it-deflist';
-import notes from '@diplodoc/transform/lib/plugins/notes';
+// import notes from '@diplodoc/transform/lib/plugins/notes';
 import cut from '@diplodoc/transform/lib/plugins/cut';
 import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 import monospace from '@diplodoc/transform/lib/plugins/monospace';
@@ -132,14 +132,14 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
     };
 
     // Disable some rules like in translation package
-    md.disable('reference');
+    // md.disable('reference');
     md.disable('text_join');
     md.disable('entity');
     // Note: We don't disable 'code' because we need it to detect code blocks
 
     // Add YFM plugins to properly parse YFM-specific syntax
     md.use(meta, diplodocOptions);
-    md.use(notes, diplodocOptions);
+    // md.use(notes, diplodocOptions);
     md.use(cut, diplodocOptions);
     md.use(sup, diplodocOptions);
     md.use(deflist, diplodocOptions);
@@ -162,6 +162,11 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
 
     function extractCodeBlocks(tokens: Token[], parentStartPos = 0) {
         for (const token of tokens) {
+            // Skip YFM note tokens entirely
+            // if (token.type.startsWith('yfm_note')) {
+            //     console.log('Skipping YFM note token');
+            //     continue;
+            // }
             let currentParentStartPos = parentStartPos;
 
             // Process different types of tokens
