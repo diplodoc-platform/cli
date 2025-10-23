@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.14.1](https://github.com/diplodoc-platform/cli/compare/v5.14.0...v5.14.1) (2025-10-23)
+
+
+### Bug Fixes
+
+* fixed types ([#1483](https://github.com/diplodoc-platform/cli/issues/1483)) ([82ea4b5](https://github.com/diplodoc-platform/cli/commit/82ea4b5e7788892277ad8c72c2b333edb6a7c365))
+* liquid on extract ([e7c1230](https://github.com/diplodoc-platform/cli/commit/e7c1230c8a0ea2b6f49a218e58c7bcf409a87ca6))
+
 ## [5.14.0](https://github.com/diplodoc-platform/cli/compare/v5.13.3...v5.14.0) (2025-10-23)
 
 
