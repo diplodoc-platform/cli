@@ -7,17 +7,16 @@ import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import liquid from '@diplodoc/transform/lib/liquid';
 
+import {normalizePath} from '~/core/utils';
+import {YFM_CONFIG_FILENAME} from '~/constants';
+import {Command, defined} from '~/core/config';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
-import {Command, defined} from '~/core/config';
-import {YFM_CONFIG_FILENAME} from '~/constants';
-import {normalizePath} from '~/core/utils';
 
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 import {FilterExtract} from '../features/filter-extract';
@@ -32,7 +31,6 @@ import {
     resolveSchemas,
     resolveSource,
     resolveTargets,
-    resolveVars,
 } from '../utils';
 import {Run} from '../run';
 import {configDefaults} from '../utils/config';
@@ -47,7 +45,6 @@ export type ExtractArgs = BaseArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
-    vars?: Hash;
     filter?: boolean;
 };
 
@@ -59,7 +56,6 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     exclude: string[];
     files: string[];
     skipped: [string, string][];
-    vars: Hash;
     schema?: string;
     filter?: boolean;
 } & ConfigDefaults;
@@ -80,7 +76,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         options.files,
         options.include,
         options.exclude,
-        options.vars,
         options.config(YFM_CONFIG_FILENAME),
         options.schema,
         options.filter,
@@ -109,8 +104,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
 
-            const vars = resolveVars(config, args);
-
             return Object.assign(config, {
                 input,
                 output: output || input,
@@ -121,14 +114,13 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 files,
                 include,
                 exclude,
-                vars,
                 filter,
             });
         });
     }
 
     async action() {
-        const {input, output, source, target: targets, vars, schema} = this.config;
+        const {input, output, source, target: targets, schema} = this.config;
 
         this.logger.setup(this.config);
 
@@ -151,7 +143,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 target,
                 input,
                 output,
-                vars,
                 schema,
             });
 
@@ -194,12 +185,11 @@ export type PipelineParameters = {
     output: string;
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
-    vars: Hash;
     schema?: ExtractOptions['schema'];
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars, schema} = params;
+    const {input, output, source, target, schema} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -214,14 +204,6 @@ function pipeline(params: PipelineParameters) {
 
             return join(outputRoot, targetPath);
         };
-
-        if (Object.keys(vars).length && typeof content === 'string') {
-            content = liquid(content, vars, inputPath, {
-                conditions: 'strict',
-                substitutions: false,
-                cycles: false,
-            });
-        }
 
         const {schemas, ajvOptions} = await resolveSchemas({
             content,

@@ -195,7 +195,7 @@ export function configDefaults() {
         template: {
             enabled: true,
             features: {
-                conditions: true,
+                conditions: 'strict',
                 substitutions: true,
             },
             scopes: {

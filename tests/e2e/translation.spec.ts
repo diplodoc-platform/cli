@@ -103,6 +103,30 @@ describe('Translate command', () => {
         },
     );
 
+    const conditions = {tld: 'ru'};
+    generateMapTestTemplate(
+        'resolve liquid conditions if vars specified, liquid syntax will be deleted',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditions)}`,
+        },
+        false,
+    );
+
+    generateMapTestTemplate(
+        'do not resolve liquid conditions if vars not specified and send content as is for extract',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+        false,
+    );
+
     generateMapTestTemplate(
         'test no-translate directive',
         'mocks/translation/no-translate',

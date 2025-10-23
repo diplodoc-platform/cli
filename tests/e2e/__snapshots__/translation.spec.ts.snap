@@ -665,6 +665,77 @@ exports[`Translate command > do not filter files on extract > filelist 1`] = `
 ]"
 `;
 
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 1`] = `
+"#|
+||
+%%%0%%%
+||
+||
+%%%1%%%{% endif %}
+||
+|#"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-2"/>- <g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-3"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-4"/>- электронной коммерции<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-5"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot;%}" id="x-7"/>- <g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-8"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;zh&quot; or tld == &quot;tr&quot; %}" id="x-9"/>- по параметрам посетителей<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-10"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-11"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-12"/>- <g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-13"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-14"/>- по параметрам визитов</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
 exports[`Translate command > extract openapi spec files > filelist 1`] = `
 "[
   "openapi-spec.yaml.skl",
@@ -1259,6 +1330,89 @@ exports[`Translate command > filter files on extract with extra vars option > fi
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 1`] = `
+"#|
+||
+%%%0%%%
+||
+||
+%%%1%%%
+- %%%2%%%
+- %%%3%%%
+- %%%4%%%
+||
+|#"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g>;</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g>;</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g></source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
 `;
 
 exports[`Translate command > test no-translate directive > filelist 1`] = `
