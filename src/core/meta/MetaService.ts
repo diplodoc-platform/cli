@@ -12,7 +12,7 @@ type Config = {
 };
 
 type MetaItem = {
-    name: string;
+    name?: string;
     property?: string;
     content: string;
 };
