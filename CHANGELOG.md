@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.14.0](https://github.com/diplodoc-platform/cli/compare/v5.13.3...v5.14.0) (2025-10-23)
+
+
+### Features
+
+* add new meta in head ([#1477](https://github.com/diplodoc-platform/cli/issues/1477)) ([1e5fdd6](https://github.com/diplodoc-platform/cli/commit/1e5fdd68b04aaf569f75c156a211ae1125101361))
+* add support for og:* properties in metadata ([#1472](https://github.com/diplodoc-platform/cli/issues/1472)) ([bab1252](https://github.com/diplodoc-platform/cli/commit/bab125275bc2f3057e76bb26f07814489f87d205))
+
+
+### Bug Fixes
+
+* Fix including md part by heading ([e1a72b9](https://github.com/diplodoc-platform/cli/commit/e1a72b9d52bd5e51af492c1ff1ac8db2b806979d))
+* Fix links path resolving in nested includes ([423456e](https://github.com/diplodoc-platform/cli/commit/423456ead3e08a135bb585865f74d8027636114f))
+* fixed faviconSrc ([#1479](https://github.com/diplodoc-platform/cli/issues/1479)) ([e48733b](https://github.com/diplodoc-platform/cli/commit/e48733bcc38a244937a52b936c91c21c35b51994))
+* fixed test ([#1482](https://github.com/diplodoc-platform/cli/issues/1482)) ([b276339](https://github.com/diplodoc-platform/cli/commit/b276339e8fbbfa4f2724353306af3b3b3abed2d2))
+* icons and images in the ::: page-constructor block are included ([#1469](https://github.com/diplodoc-platform/cli/issues/1469)) ([3ed83f5](https://github.com/diplodoc-platform/cli/commit/3ed83f514beaf13338033e596fede8a082a793b9))
+
 ## [5.13.3](https://github.com/diplodoc-platform/cli/compare/v5.13.2...v5.13.3) (2025-10-17)
 
 
