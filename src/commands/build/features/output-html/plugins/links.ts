@@ -37,11 +37,11 @@ export default ((md, opts) => {
                 return;
             }
 
-            if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
-                const file = normalizePath(
-                    pathname ? join(dirname(state.env.path || path), pathname) : path,
-                );
+            const file = normalizePath(
+                pathname ? join(dirname(state.env.path || path), pathname) : path,
+            );
 
+            if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
                 if (!existsInProject(file) || !entries.includes(file)) {
                     link.attrSet('YFM003', file);
                 }
@@ -51,9 +51,7 @@ export default ((md, opts) => {
                 'href',
                 url.format({
                     ...parsed,
-                    pathname: pathname
-                        ? join(dirname(path), pathname.replace(PAGE_LINK_REGEXP, '.html'))
-                        : path.replace(PAGE_LINK_REGEXP, '.html'),
+                    pathname: file.replace(PAGE_LINK_REGEXP, '.html'),
                 }),
             );
         });
