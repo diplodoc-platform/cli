@@ -1,9 +1,10 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
+import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
+
 import {rebasePath} from '~/core/utils';
 
-import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
 
 export function resolveAssets(this: LoaderContext, content: string) {
     const assets: AssetInfo[] = [];
@@ -25,7 +26,10 @@ export function resolveAssets(this: LoaderContext, content: string) {
             }
 
             assets.push(info);
-        } catch {}
+        } catch (error) {
+            // Добавляем логирование ошибок
+            console.error('Error processing asset:', error);
+        }
     }
 
     this.api.assets.set([...assets]);

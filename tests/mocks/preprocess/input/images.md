@@ -110,3 +110,15 @@ Codeblock with inline code
 
 2.svg
 ![](_assets/2.svg)
+
+![Text link `backtick`](_assets/1.png "Text link `backtick`"){ width="800" }
+Text link `backtick`.
+
+#|
+|| **col1** | **col2** | **col3** ||
+|| col1 | 
+```swift 
+some code
+``` | ![](_assets/1.png =120x) ||
+|#
+

@@ -917,7 +917,27 @@ describe('Markdown loader', () => {
         it('should work with images with title backtick', async () => {
             const content = dedent`
                 Simple text
-                ![Text link \`backtick\`](./some.png "Text link title \`backtick\`"){ width="800" }
+                ![Text link \`backtick\`](./some1.png "Text link title \`backtick\`"){ width="800" }
+
+                ![Text link \`backtick\`](./some2.png "Text link title \`backtick\`"){ width="800" }
+                Text on next row with inline code \`backtick\`.
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images in yfm table after code block', async () => {
+            const content = dedent`
+                #|
+                || **col1** | **col2** | **col3** ||
+                || col1 | 
+                \`\`\`swift 
+                some code
+                \`\`\` | ![](./some.png =120x) ||
+                |#
             `;
             const context = loaderContext(content, {});
 

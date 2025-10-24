@@ -324,6 +324,31 @@ exports[`Markdown loader > resolveAssets > should work with deflists 1`] = `
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should work with images in yfm table after code block 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        79,
+        92,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": undefined,
+      },
+      "path": "some.png",
+      "search": null,
+      "subtype": "image",
+      "title": "",
+      "type": "image",
+    },
+  ],
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should work with images with parameters 1`] = `
 [
   [
@@ -393,14 +418,32 @@ exports[`Markdown loader > resolveAssets > should work with images with title ba
       "hash": null,
       "location": [
         34,
-        47,
+        48,
       ],
       "options": {
         "height": undefined,
         "inline": undefined,
         "width": "800",
       },
-      "path": "some.png",
+      "path": "some1.png",
+      "search": null,
+      "subtype": "image",
+      "title": "Text link \`backtick\`",
+      "type": "image",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        116,
+        130,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": "800",
+      },
+      "path": "some2.png",
       "search": null,
       "subtype": "image",
       "title": "Text link \`backtick\`",

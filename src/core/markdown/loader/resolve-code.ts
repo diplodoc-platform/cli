@@ -60,14 +60,35 @@ function processBlockCode(
     // Line numbers in markdown-it are 0-based
     const start = lineToCharPosition(startLine, lineStarts, lines, content);
 
-    // For the end position, we want to include the newline at the end of the last line
-    let end = content.length;
-    if (endLine <= lineStarts.length) {
-        end = endLine === 0 ? 0 : lineStarts[endLine - 1] + lines[endLine - 1].length;
+    // For fenced code blocks, we need to find the exact end position of the closing fence
+    let adjustedEnd: number;
+    if (token.type === 'fence' && endLine <= lines.length) {
+        // For fenced code blocks, find the end of the closing fence
+        const endLineContent = lines[endLine - 1] || '';
+        const fenceEndIndex = endLineContent.indexOf(token.markup);
+        if (fenceEndIndex !== -1) {
+            // Found the closing fence, calculate exact end position
+            const lineStart = lineStarts[endLine - 1] || 0;
+            const fenceEndPos = lineStart + fenceEndIndex + token.markup.length;
+            adjustedEnd = fenceEndPos;
+        } else {
+            // Fallback to original logic if closing fence not found
+            let end = content.length;
+            if (endLine <= lineStarts.length) {
+                end = endLine === 0 ? 0 : lineStarts[endLine - 1] + lines[endLine - 1].length;
+            }
+            // Adjust for the newline character at the end of the code block
+            adjustedEnd = endLine <= lines.length && endLine > 0 ? end + 1 : end;
+        }
+    } else {
+        // For code_block or when fence end not found, use original logic
+        let end = content.length;
+        if (endLine <= lineStarts.length) {
+            end = endLine === 0 ? 0 : lineStarts[endLine - 1] + lines[endLine - 1].length;
+        }
+        // Adjust for the newline character at the end of the code block
+        adjustedEnd = endLine <= lines.length && endLine > 0 ? end + 1 : end;
     }
-
-    // Adjust for the newline character at the end of the code block
-    const adjustedEnd = endLine <= lines.length && endLine > 0 ? end + 1 : end;
 
     codes.push([start, adjustedEnd]);
 }
@@ -100,7 +121,13 @@ function processInlineCode(
         if (patternIndex !== -1) {
             const startIndex = start + patternIndex;
             const endIndex = startIndex + searchPattern.length;
-            codes.push([startIndex, endIndex]);
+            
+            // Проверяем, не находится ли этот код внутри атрибутов изображения
+            const insideAttrs = isInsideImageAttributes(content, startIndex, endIndex);
+            // console.log('Checking code:', content.substring(startIndex, endIndex), 'insideAttrs:', insideAttrs, 'start:', startIndex, 'end:', endIndex);
+            if (!insideAttrs) {
+                codes.push([startIndex, endIndex]);
+            }
 
             // Update parentStartPos to avoid finding the same match again
             return Math.max(parentStartPos, endIndex);
@@ -115,13 +142,130 @@ function processInlineCode(
 
         if (startIndex !== -1) {
             const endIndex = startIndex + searchPattern.length;
-            codes.push([startIndex, endIndex]);
+            
+            // Проверяем, не находится ли этот код внутри атрибутов изображения
+            const insideAttrs = isInsideImageAttributes(content, startIndex, endIndex);
+            // console.log('Checking code (fallback):', content.substring(startIndex, endIndex), 'insideAttrs:', insideAttrs, 'start:', startIndex, 'end:', endIndex);
+            if (!insideAttrs) {
+                codes.push([startIndex, endIndex]);
+            }
+            
             // Update parentStartPos to avoid finding the same match again
             return endIndex;
         }
     }
 
     return parentStartPos;
+}
+
+// Функция для проверки, находится ли код внутри атрибутов изображения
+function isInsideImageAttributes(content: string, start: number, end: number): boolean {
+    // Регулярное выражение для поиска изображений с атрибутами
+    // Ищем паттерн ![...](...) с необязательными "title" и/или {...} атрибутами
+    // Учитываем многострочные изображения с флагом 's' (dotAll)
+    const imageRegex = /!\[[^\]]*\]\([^)]*\)(?:\s*"[^"]*")?(?:\s*{[^}]*})?/gs;
+    
+    // Сначала проверяем, находится ли код внутри атрибутов конкретного изображения
+    let match;
+    while ((match = imageRegex.exec(content)) !== null) {
+        // Начало и конец всего совпадения
+        const matchStart = match.index;
+        const matchEnd = match.index + match[0].length;
+        
+        // Проверяем, попадает ли диапазон кода в это совпадение
+        if (start >= matchStart && end <= matchEnd) {
+            // Теперь проверяем, находится ли код в атрибутах
+            const imagePart = match[0];
+            
+            // Проверяем атрибуты в фигурных скобках {...}
+            const braceAttributesMatch = imagePart.match(/\s*{([^}]*)}/);
+            if (braceAttributesMatch) {
+                const braceStart = matchStart + imagePart.indexOf('{');
+                const braceEnd = braceStart + braceAttributesMatch[0].length;
+                if (start >= braceStart && end <= braceEnd) {
+                    return true;
+                }
+            }
+            
+            // Проверяем атрибут title в кавычках "..."
+            const quoteAttributesMatch = imagePart.match(/\s*"([^"]*)"/);
+            if (quoteAttributesMatch) {
+                const quoteStart = matchStart + imagePart.indexOf('"');
+                const quoteEnd = quoteStart + quoteAttributesMatch[0].length;
+                if (start >= quoteStart && end <= quoteEnd) {
+                    return true;
+                }
+            }
+        }
+    }
+    
+    // Дополнительная проверка: если код находится в атрибутах любого изображения в документе,
+    // то он не должен помечаться как код блок
+    const codeContent = content.substring(start, end);
+    const codeText = codeContent.replace(/`/g, ''); // Убираем backticks
+    
+    // Ищем все изображения в документе
+    const allImagesRegex = /!\[[^\]]*\]\([^)]*\)(?:\s*"[^"]*")?(?:\s*{[^}]*})?/gs;
+    let imageMatch;
+    while ((imageMatch = allImagesRegex.exec(content)) !== null) {
+        // Проверяем, содержится ли код в атрибутах изображения
+        const imagePart = imageMatch[0];
+        
+        // Проверяем атрибуты в фигурных скобках {...}
+        const braceAttributesMatch = imagePart.match(/\s*{([^}]*)}/);
+        if (braceAttributesMatch) {
+            if (braceAttributesMatch[1].includes(codeText)) {
+                return true;
+            }
+        }
+        
+        // Проверяем атрибут title в кавычках "..."
+        const quoteAttributesMatch = imagePart.match(/\s*"([^"]*)"/);
+        if (quoteAttributesMatch) {
+            if (quoteAttributesMatch[1].includes(codeText)) {
+                return true;
+            }
+        }
+    }
+    
+    // Дополнительная проверка для таблиц YFM: если код находится в одной ячейке таблицы,
+    // а изображение в другой ячейке той же строки, то код не должен помечаться как код блок
+    // Проверяем, находится ли код в контексте таблицы YFM
+    const lines = content.split('\n');
+    let lineIndex = 0;
+    let charCount = 0;
+    
+    // Находим строку, в которой находится код
+    for (let i = 0; i < lines.length; i++) {
+        if (charCount <= start && start < charCount + lines[i].length + 1) {
+            lineIndex = i;
+            break;
+        }
+        charCount += lines[i].length + 1;
+    }
+    
+    // Проверяем, находится ли строка в контексте таблицы YFM
+    if (lineIndex > 0 && lineIndex < lines.length - 1) {
+        const prevLine = lines[lineIndex - 1];
+        const currentLine = lines[lineIndex];
+        const nextLine = lines[lineIndex + 1];
+        
+        // Проверяем, является ли предыдущая строка началом таблицы
+        if (prevLine.trim().startsWith('#|')) {
+            // Проверяем, является ли следующая строка концом таблицы
+            if (nextLine.trim().startsWith('|#')) {
+                // Проверяем, содержит ли текущая строка изображение
+                if (currentLine.includes('![') && currentLine.includes('](')) {
+                    // В таблице YFM, если код находится в одной ячейке, а изображение в другой,
+                    // то код не должен помечаться как код блок
+                    // Нам нужно проверить, находится ли код в той же строке, что и изображение
+                    return true;
+                }
+            }
+        }
+    }
+    
+    return false;
 }
 
 // Process inline tokens that may contain inline code
