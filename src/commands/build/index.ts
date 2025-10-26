@@ -42,6 +42,7 @@ import {Search} from './features/search';
 import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
+import {NeuroExpert} from './features/neuro-expert';
 
 export type * from './types';
 
@@ -109,6 +110,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly skipHtml = new SkipHtml();
 
+    readonly neuroExpert = new NeuroExpert();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -147,6 +150,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.legacy,
         this.tocFiltering,
         this.skipHtml,
+        this.neuroExpert,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),

@@ -19,6 +19,7 @@ import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
+import type {NeuroExpertConfig} from './features/neuro-expert';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';
@@ -92,7 +93,8 @@ export type BuildRawConfig = BaseArgs &
     CustomResourcesConfig &
     TocFilteringConfig &
     PreprocessConfig &
-    WatchConfig;
+    WatchConfig &
+    NeuroExpertConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -111,7 +113,8 @@ export type BuildConfig = Config<
         CustomResourcesConfig &
         TocFilteringConfig &
         PreprocessConfig &
-        WatchConfig
+        WatchConfig &
+        NeuroExpertConfig
 >;
 
 export type EntryInfo<Extras extends LeadingData | MarkdownData = LeadingData | MarkdownData> =

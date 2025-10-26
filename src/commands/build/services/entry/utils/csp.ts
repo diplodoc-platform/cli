@@ -1,5 +1,3 @@
-import type {NeuroExpert} from '@diplodoc/client';
-
 import {DEFAULT_CSP_SETTINGS} from '~/constants';
 
 function unique(arr: string[]) {
@@ -35,25 +33,4 @@ export function mergeCsp(csp: Hash<string[]>[]): Hash<string[]>[] {
     }
 
     return Object.keys(merged).map((key) => ({[key]: merged[key]}));
-}
-
-export function getNeuroExpertCsp(neuroExpert?: NeuroExpert): Hash<string[]>[] {
-    if (!neuroExpert || neuroExpert.disabled || !neuroExpert.parentId) {
-        return [];
-    }
-
-    return [
-        {
-            'script-src': ['https://yastatic.net'],
-        },
-        {
-            'connect-src': ['https://browserweb.s3.mdst.yandex.net'],
-        },
-        {
-            'frame-src': ['https://expert.yandex.ru'],
-        },
-        {
-            'font-src': ['https://yastatic.net'],
-        },
-    ];
 }
