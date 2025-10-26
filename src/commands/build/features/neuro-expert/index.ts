@@ -25,12 +25,12 @@ export class NeuroExpert {
     apply(program: Build) {
         getBaseHooks(program).Config.tap('NeuroExpert', (config) => {
             const neuroExpert = config?.neuroExpert;
-            const disabled = neuroExpert.disabled || !neuroExpert.projectId;
+            const disabled = neuroExpert?.disabled || !neuroExpert?.projectId;
 
             config.neuroExpert = {
-                projectId: neuroExpert.projectId,
-                hasOutsideClick: neuroExpert.hasOutsideClick ?? true,
-                parentId: neuroExpert.parentId ?? NEURO_EXPERT_PARENT_ID,
+                projectId: neuroExpert?.projectId,
+                hasOutsideClick: neuroExpert?.hasOutsideClick ?? true,
+                parentId: neuroExpert?.parentId ?? NEURO_EXPERT_PARENT_ID,
                 disabled,
             };
 
