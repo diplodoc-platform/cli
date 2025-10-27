@@ -39,11 +39,18 @@ export function getNeuroExpertScript(projectId: string, neuroExpert: NeuroExpert
         neuroExpertDiv.className = "dc-neuro-expert-widget";
 
         neuroExpertScript.onload = () => {
-            const widgetsDiv = document.getElementById("dc-widgets");
-            
-            widgetsDiv.appendChild(neuroExpertDiv);
+            function tryAppend() {
+                const widgetsDiv = document.getElementById("dc-widgets");
 
-            window.initNeuroexpert(${JSON.stringify(settings)});
+                if (widgetsDiv) {
+                    widgetsDiv.appendChild(neuroExpertDiv);
+                    window.initNeuroexpert(${JSON.stringify(settings)});
+                } else {
+                    setTimeout(tryAppend, 50);
+                }
+            }
+
+            tryAppend();
         };
 
         document.body.appendChild(neuroExpertScript);

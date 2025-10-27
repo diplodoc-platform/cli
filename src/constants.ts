@@ -13,8 +13,6 @@ export const DEFAULT_CSP_SETTINGS: Hash<string[]> = {
     'img-src': ["'self'", 'data:'],
     'font-src': ["'self'", 'data:'],
     'connect-src': ["'self'"],
-    'frame-src': ["'none'"],
-    'object-src': ["'none'"],
     'base-uri': ["'self'"],
     'form-action': ["'self'"],
 };

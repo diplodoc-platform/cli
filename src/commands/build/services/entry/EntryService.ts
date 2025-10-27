@@ -12,11 +12,10 @@ import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
-import {BUNDLE_FOLDER, VERSION} from '~/constants';
+import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
-import {mergeCsp} from './utils/csp';
 
 const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
@@ -119,7 +118,6 @@ export class EntryService {
         const baseCsp = resources?.csp;
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
-        const mergedCsp = mergeCsp(csp);
 
         const html = staticContent
             ? render({
@@ -141,8 +139,9 @@ export class EntryService {
         template.setCanonical(canonical);
         template.addAlternates(alternate);
 
-        if (mergedCsp && !isEmpty(mergedCsp)) {
-            mergedCsp.map(template.addCsp);
+        if (csp && !isEmpty(csp)) {
+            template.addCsp(DEFAULT_CSP_SETTINGS);
+            csp.map(template.addCsp);
         }
 
         if (description && !metadata.some((meta: Hash) => meta.name === 'description')) {
