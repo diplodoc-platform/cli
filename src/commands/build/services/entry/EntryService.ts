@@ -101,15 +101,14 @@ export class EntryService {
     }
 
     async page(template: Template, state: PageState, toc: Toc) {
-        const {staticContent} = this.config;
+        const {staticContent, resources} = this.config;
         const {
             style = [],
             script = [],
-            csp: baseCsp,
+            csp: metaCsp,
             metadata = [],
             title: metaTitle,
             description,
-            resources: metaResources,
             canonical = '',
             alternate = [],
             ...restYamlConfigMeta
@@ -118,7 +117,8 @@ export class EntryService {
         const baseTitle = metaTitle || state.data.title;
         const title = getTitle(toc.title as string, baseTitle);
         const faviconSrc = state.viewerInterface?.['favicon-src'] || '';
-        const metaCsp = metaResources?.csp;
+
+        const baseCsp = resources?.csp;
 
         const csp = [...(baseCsp || []), ...(metaCsp || [])];
 
