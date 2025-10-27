@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.0](https://github.com/diplodoc-platform/cli/compare/v5.14.1...v5.15.0) (2025-10-27)
+
+
+### Features
+
+* neuroexpert support added ([#1473](https://github.com/diplodoc-platform/cli/issues/1473)) ([22ad22b](https://github.com/diplodoc-platform/cli/commit/22ad22bcce357c9117b57195fa049b9fffabccc1))
+
 ## [5.14.1](https://github.com/diplodoc-platform/cli/compare/v5.14.0...v5.14.1) (2025-10-23)
 
 
