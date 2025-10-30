@@ -51,6 +51,7 @@ type BaseConfig = {
     interface?: Hash;
     pdf: Record<string, boolean>;
     neuroExpert?: NeuroExpert;
+    pdfDebug: boolean;
 };
 
 export type VcsArgs = {

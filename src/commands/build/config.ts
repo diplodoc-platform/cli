@@ -146,6 +146,17 @@ const interfaceFeedback = option({
     parser: () => false,
 });
 
+const pdfDebug = option({
+    flags: '--pdf-debug',
+    desc: `
+        Adds to output files from pdf startPages section from toc.yaml
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --pdf-debug
+    `,
+    default: false,
+});
+
 function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
     const interfaceProps = ['toc', 'search', 'feedback'] as const;
     type InterfaceProp = (typeof interfaceProps)[number];
@@ -234,4 +245,5 @@ export const options = {
     interfaceToc,
     interfaceSearch,
     interfaceFeedback,
+    pdfDebug,
 };

@@ -100,7 +100,7 @@ export class Run extends BaseRun<BuildConfig> {
 
         this.vars = new VarsService(this);
         this.meta = new MetaService(this);
-        this.toc = new TocService(this);
+        this.toc = new TocService(this, {pdfDebug: this.config.pdfDebug});
         this.entry = new EntryService(this);
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
