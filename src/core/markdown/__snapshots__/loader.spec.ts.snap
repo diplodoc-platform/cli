@@ -449,6 +449,24 @@ exports[`Markdown loader > resolveAssets > should work with images with title ba
       "title": "Text link \`backtick\`",
       "type": "image",
     },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        245,
+        259,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": undefined,
+      },
+      "path": "some3.png",
+      "search": null,
+      "subtype": "image",
+      "title": "Text link \`backtick1\`",
+      "type": "image",
+    },
   ],
 ]
 `;
@@ -491,6 +509,75 @@ exports[`Markdown loader > resolveAssets > should work with inline svg images 1`
       "subtype": "image",
       "title": "img",
       "type": "image",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should work with popup with % in name or text 1`] = `
+[
+  [
+    {
+      "autotitle": true,
+      "code": "*link1",
+      "hash": null,
+      "location": [
+        36,
+        51,
+      ],
+      "path": "100%",
+      "search": null,
+      "title": "",
+      "type": "def",
+    },
+    {
+      "autotitle": true,
+      "code": "*link2%",
+      "hash": null,
+      "location": [
+        62,
+        77,
+      ],
+      "path": "some",
+      "search": null,
+      "title": "",
+      "type": "def",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        7,
+        16,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": undefined,
+      },
+      "path": "*link1",
+      "search": null,
+      "subtype": null,
+      "title": "link 1",
+      "type": "link",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        25,
+        35,
+      ],
+      "options": {
+        "height": undefined,
+        "inline": undefined,
+        "width": undefined,
+      },
+      "path": "*link2%",
+      "search": null,
+      "subtype": null,
+      "title": "link 2%",
+      "type": "link",
     },
   ],
 ]
