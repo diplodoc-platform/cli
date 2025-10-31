@@ -920,6 +920,8 @@ describe('Markdown loader', () => {
 
                 ![Text link \`backtick\`](./some2.png "Text link title \`backtick\`"){ width="800" }
                 Text on next row with inline code \`backtick\`.
+
+                ![Text link \`backtick1\`](./some3.png "Text link title \`backtick\`" =800x)
             `;
             const context = loaderContext(content, {});
 
@@ -937,6 +939,21 @@ describe('Markdown loader', () => {
                 some code
                 \`\`\` | ![](./some.png =120x) ||
                 |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with popup with % in name or text', async () => {
+            const content = dedent`
+                [link 1](*link1)
+                [link 2%](*link2%)
+
+                [*link1]: 100% text with
+                [*link2%]: some text
             `;
             const context = loaderContext(content, {});
 
