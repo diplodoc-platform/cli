@@ -26,7 +26,7 @@ export function resolveAssets(this: LoaderContext, content: string) {
 
             assets.push(info);
         } catch (error) {
-            this.logger.error(`Error processing asset: ${error}`);
+            this.logger.error(`Error processing asset from ${this.path} to ${info.path}: ${error}`);
         }
     }
 

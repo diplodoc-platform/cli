@@ -1,6 +1,6 @@
 # Header
 
-![_images/versions.png]
+![](_images/versions.png)
 
 ::: page-constructor
 blocks:
@@ -11,9 +11,8 @@ blocks:
     controlPosition: 'content'
   - type: 'basic-card'
     title: 'Заголовок 2'
-    text: '![_images/camera.svg]'
+    text: '![](_images/versions.png)'
     border: 'shadow'
     controlPosition: 'content'
-    image:
-      icon: '_images/icons/bulb.svg'
+    icon: '_images/icons/bulb.svg'
 :::
