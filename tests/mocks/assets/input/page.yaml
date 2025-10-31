@@ -4,4 +4,4 @@ blocks:
     text: 'Текст'
     border: 'shadow'
     controlPosition: 'content'
-    image: '_images/mountain.jpg'
+    icon: '_images/mountain.jpg'

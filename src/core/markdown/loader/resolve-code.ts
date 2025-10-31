@@ -11,7 +11,7 @@ import deflist from 'markdown-it-deflist';
 // import cut from '@diplodoc/transform/lib/plugins/cut';
 // import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
 // import monospace from '@diplodoc/transform/lib/plugins/monospace';
-// import imsize from '@diplodoc/transform/lib/plugins/imsize';
+import imsize from '@diplodoc/transform/lib/plugins/imsize';
 // import file from '@diplodoc/transform/lib/plugins/file';
 // import video from '@diplodoc/transform/lib/plugins/video';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
@@ -326,7 +326,7 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
     md.use(deflist, diplodocOptions);
     // md.use(checkbox, diplodocOptions);
     // md.use(monospace, diplodocOptions);
-    // md.use(imsize, diplodocOptions);
+    md.use(imsize, diplodocOptions);
     // md.use(file, diplodocOptions);
     // md.use(video, diplodocOptions);
     md.use(yfmTable, diplodocOptions);
