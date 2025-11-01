@@ -114,6 +114,8 @@ export function findPcImages(content: string): AssetInfo[] {
                 hash: null,
                 search: null,
                 location: [match.index, closeRegex.lastIndex],
+                // no inline svg inside page-constructor because we hasn't a location for asset
+                options: {width: undefined, height: undefined, inline: false},
             });
         }
 

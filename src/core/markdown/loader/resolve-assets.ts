@@ -11,6 +11,7 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const exclude = [
         ...this.api.deps.get().map(({location}) => location),
         ...this.api.comments.get(),
+        ...this.api.blockCodes.get(),
     ];
 
     const defs = filterRanges(exclude, findDefs(content));
@@ -19,12 +20,14 @@ export function resolveAssets(this: LoaderContext, content: string) {
 
     for (const info of [...defs, ...links, ...pcImages]) {
         try {
-            if (info.path !== null) {
+            if (info.path !== null && !info.path?.startsWith('*') && !info.path?.includes('%')) {
                 info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
             }
 
             assets.push(info);
-        } catch {}
+        } catch (error) {
+            this.logger.error(`Error processing asset from ${this.path} to ${info.path}: ${error}`);
+        }
     }
 
     this.api.assets.set([...assets]);
