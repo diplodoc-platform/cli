@@ -104,7 +104,7 @@
     "@diplodoc/openapi-extension": "^3.0.0",
     "@diplodoc/page-constructor-extension": "^0.10.0",
     "@diplodoc/search-extension": "^3.0.0",
-    "@diplodoc/transform": "^4.63.5",
+    "@diplodoc/transform": "^4.63.6",
     "@diplodoc/tsconfig": "^1.0.2",
     "@diplodoc/yfmlint": "^1.2.8",
     "@octokit/core": "4.2.4",
