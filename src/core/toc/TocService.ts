@@ -68,10 +68,11 @@ type Run = BaseRun<TocServiceConfig> & {
     meta: MetaService;
 };
 
-type Options = {
+type Options = Partial<{
     skipMissingVars: boolean;
     mode: 'translate' | 'build';
-};
+    pdfDebug: boolean;
+}>;
 
 @withHooks
 export class TocService {
@@ -103,11 +104,16 @@ export class TocService {
         return this.run.meta;
     }
 
-    constructor(run: Run, options: Options = {skipMissingVars: false, mode: 'build'}) {
+    constructor(run: Run, options: Options) {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
-        this.options = options;
+        this.options = {
+            skipMissingVars: false,
+            mode: 'build',
+            pdfDebug: false,
+            ...options,
+        };
     }
 
     async init(paths: NormalizedPath[]) {
@@ -281,6 +287,16 @@ export class TocService {
         if (toc.href || toc.items?.length) {
             await this.addEntries(file, toc);
             await this.restrictAccess(file, toc);
+        }
+
+        const pdfStartPages = toc?.pdf?.startPages;
+        const {pdfDebug} = this.options;
+
+        if (pdfStartPages && pdfDebug) {
+            const tocLikeEntries = pdfStartPages.map((page) => ({href: page}));
+
+            // We want to treat pdf start pages as regular entries for puprose of debug
+            this.addEntries(file, {items: tocLikeEntries, path: toc.path} as Toc);
         }
 
         defer.resolve(toc);

@@ -132,6 +132,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceToc,
         options.interfaceSearch,
         options.interfaceFeedback,
+        options.pdfDebug,
     ];
 
     readonly modules = [

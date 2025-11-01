@@ -132,6 +132,17 @@ export class PdfPage {
 
                 for (const toc of run.toc.tocs) {
                     const entries: PdfPageResult[] = [];
+                    const pdfStartPages: PdfPageResult[] = [];
+
+                    // First we want to process pdf title pages
+                    for (const page of toc.pdf?.startPages || []) {
+                        const normalizedPath = normalizePath(page);
+                        const mdPage = await run.markdown.dump(normalizedPath);
+                        pdfStartPages.push({
+                            path: page,
+                            content: mdPage.data,
+                        });
+                    }
 
                     await run.toc.walkEntries([toc as unknown as EntryTocItem], (item) => {
                         const rebasedItemHref = normalizePath(join(dirname(toc.path), item.href));
@@ -155,6 +166,12 @@ export class PdfPage {
                     const pdfDataPath = join(tocDir, PDF_DIRNAME, PDF_PAGE_DATA_FILENAME);
 
                     try {
+                        const pdfStartPagesContent = joinPdfPageResults(
+                            pdfStartPages.filter(Boolean),
+                            tocDir as NormalizedPath,
+                            pdfLinks,
+                        );
+
                         const pdfPageBody = joinPdfPageResults(
                             entries.filter(Boolean),
                             tocDir as NormalizedPath,
@@ -167,6 +184,10 @@ export class PdfPage {
 
                         const data = {
                             leading: false as const,
+                            pdfTitlePages: {
+                                content: pdfStartPagesContent,
+                                pageCount: pdfStartPages.length,
+                            },
                             html: pdfPageBody,
                             headings: [],
                             meta: await run.meta.dump(toc.path),
@@ -183,28 +204,6 @@ export class PdfPage {
 
                         await run.write(join(run.output, pdfDataPath), JSON.stringify(state), true);
                         await run.write(join(run.output, pdfHtmlPath), page, true);
-
-                        // Копирование папок _bundle и _assets в папку pdf
-                        // const bundlePath = join(run.output, '_bundle');
-                        // const assetsPath = join(run.output, '_assets');
-                        // const pdfDirPath = join(run.output, tocDir, PDF_DIRNAME);
-
-                        // try {
-                        //     // Копируем папки
-                        //     if (run.exists(bundlePath)) {
-                        //         const bundleTargetPath = join(pdfDirPath, '_bundle');
-                        //         await run.copy(bundlePath, bundleTargetPath);
-                        //         run.logger.info(`Copied _bundle to ${join(tocDir, PDF_DIRNAME, '_bundle')}`);
-                        //     }
-
-                        //     if (run.exists(assetsPath)) {
-                        //         const assetsTargetPath = join(pdfDirPath, '_assets');
-                        //         await run.copy(assetsPath, assetsTargetPath);
-                        //         run.logger.info(`Copied _assets to ${join(tocDir, PDF_DIRNAME, '_assets')}`);
-                        //     }
-                        // } catch (copyError) {
-                        //     run.logger.error(`Error copying assets: ${copyError}`);
-                        // }
                     } catch (error) {
                         run.logger.error(error);
                     }

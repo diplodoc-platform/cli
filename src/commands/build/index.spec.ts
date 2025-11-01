@@ -446,6 +446,16 @@ describe('Build command', () => {
             });
         });
 
+        describe('--pdf-debug arg', () => {
+            test('should handle default', '', {
+                pdfDebug: false,
+            });
+
+            test('should enable pdfDebug when arg is present', '--pdf-debug', {
+                pdfDebug: true,
+            });
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);

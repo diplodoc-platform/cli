@@ -1,0 +1,12 @@
+title: Pdf title pages
+href: index.md
+pdf:
+  startPages:
+    - ./pdf-titles/pdf-title-page1.md
+    - ./pdf-titles/pdf-title-page2.md
+
+items:
+  - name: Title 1
+    href: page1.md
+  - name: Title 2
+    href: page2.md
