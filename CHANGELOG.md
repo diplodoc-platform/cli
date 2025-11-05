@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.1](https://github.com/diplodoc-platform/cli/compare/v5.15.0...v5.15.1) (2025-11-05)
+
+
+### Bug Fixes
+
+* enable pdf title pages ([0fa794a](https://github.com/diplodoc-platform/cli/commit/0fa794a93980774b74ed15f194c10243d3f54ee3))
+
 ## [5.15.0](https://github.com/diplodoc-platform/cli/compare/v5.14.1...v5.15.0) (2025-10-27)
 
 
