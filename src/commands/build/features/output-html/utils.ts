@@ -30,6 +30,7 @@ import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
 import images from './plugins/images';
+import sourcemap from './plugins/sourcemap';
 
 export function getBaseMdItPlugins() {
     return [
@@ -73,6 +74,7 @@ export function getBaseMdItPlugins() {
         }),
         blockAnchor,
         noTranslate({mode: 'render'}),
+        sourcemap,
     ];
 }
 
