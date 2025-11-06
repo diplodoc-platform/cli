@@ -136,7 +136,7 @@ export class PdfPage {
 
                     // First we want to process pdf title pages
                     for (const page of toc.pdf?.startPages || []) {
-                        const normalizedPath = normalizePath(page);
+                        const normalizedPath = normalizePath(join(dirname(toc.path), page));
                         const mdPage = await run.markdown.dump(normalizedPath);
                         pdfStartPages.push({
                             path: page,
