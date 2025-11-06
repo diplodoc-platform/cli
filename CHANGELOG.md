@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.2](https://github.com/diplodoc-platform/cli/compare/v5.15.1...v5.15.2) (2025-11-06)
+
+
+### Bug Fixes
+
+* add lang path to pdf titles ([db020dc](https://github.com/diplodoc-platform/cli/commit/db020dc765c2ece29604137f4e02723bac747327))
+
 ## [5.15.1](https://github.com/diplodoc-platform/cli/compare/v5.15.0...v5.15.1) (2025-11-05)
 
 
