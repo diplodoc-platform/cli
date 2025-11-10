@@ -217,7 +217,7 @@ export class TocService {
 
         const data = this.relations.getNodeData(path);
 
-        return data.type === 'toc';
+        return data.type === 'toc' && data.data;
     }
 
     @bounded isEntry(path: NormalizedPath) {

@@ -33,7 +33,7 @@ function setupService(options: Options = {}) {
             },
         },
     });
-    const toc = new TocService(run);
+    const toc = new TocService(run, {});
 
     return {run, toc};
 }
@@ -751,6 +751,104 @@ describe('toc-loader', () => {
             `;
 
             await expect(test(content)()).resolves.not.toThrow();
+        });
+    });
+
+    describe('skipped tocs handling', () => {
+        it('should not include skipped tocs in tocs getter', async () => {
+            const {run, toc} = setupService({ignoreStage: ['skip']});
+
+            // Mock valid toc file
+            when(run.read).calledWith(
+                normalizePath(join(run.input, './valid-toc.yaml')) as AbsolutePath,
+            ).thenResolve(dedent`
+                    title: Valid TOC
+                    items:
+                      - name: Item 1
+                        href: page1.md
+                `);
+
+            // Mock skipped toc file
+            when(run.read).calledWith(
+                normalizePath(join(run.input, './skipped-toc.yaml')) as AbsolutePath,
+            ).thenResolve(dedent`
+                    title: Skipped TOC
+                    stage: skip
+                    items:
+                      - name: Item 2
+                        href: page2.md
+                `);
+
+            when(run.vars.for)
+                .calledWith('valid-toc.yaml' as NormalizedPath)
+                .thenReturn({});
+
+            when(run.vars.for)
+                .calledWith('skipped-toc.yaml' as NormalizedPath)
+                .thenReturn({});
+
+            // Initialize both files
+            const result = await toc.init([
+                'valid-toc.yaml',
+                'skipped-toc.yaml',
+            ] as NormalizedPath[]);
+
+            // Check that only valid toc is returned
+            expect(result).toHaveLength(1);
+            expect(result[0].title).toBe('Valid TOC');
+
+            // Check that tocs getter doesn't contain undefined
+            const allTocs = toc.tocs;
+            expect(allTocs.every((t) => t !== undefined)).toBe(true);
+            expect(allTocs).toHaveLength(1);
+        });
+
+        it('should handle case when toc data is undefined', async () => {
+            const {run, toc} = setupService({ignoreStage: ['skip']});
+
+            // Mock skipped toc file
+            when(run.read).calledWith(
+                normalizePath(join(run.input, './skipped-toc.yaml')) as AbsolutePath,
+            ).thenResolve(dedent`
+                    title: Skipped TOC
+                    stage: skip
+                `);
+
+            when(run.vars.for)
+                .calledWith('skipped-toc.yaml' as NormalizedPath)
+                .thenReturn({});
+
+            // Initialize skipped file
+            const result = await toc.init(['skipped-toc.yaml'] as NormalizedPath[]);
+
+            // Should return empty array
+            expect(result).toHaveLength(0);
+
+            // tocs getter should also return empty array
+            const allTocs = toc.tocs;
+            expect(allTocs).toHaveLength(0);
+        });
+
+        it('should handle isToc method correctly for skipped files', async () => {
+            const {run, toc} = setupService({ignoreStage: ['skip']});
+
+            // Mock skipped toc file
+            when(run.read).calledWith(
+                normalizePath(join(run.input, './skipped-toc.yaml')) as AbsolutePath,
+            ).thenResolve(dedent`
+                    title: Skipped TOC
+                    stage: skip
+                `);
+
+            when(run.vars.for)
+                .calledWith('skipped-toc.yaml' as NormalizedPath)
+                .thenReturn({});
+
+            // Initialize skipped file
+            await toc.init(['skipped-toc.yaml'] as NormalizedPath[]);
+
+            // isToc should return falsy for skipped files with undefined data
+            expect(toc.isToc('skipped-toc.yaml' as NormalizedPath)).toBeFalsy();
         });
     });
 });
