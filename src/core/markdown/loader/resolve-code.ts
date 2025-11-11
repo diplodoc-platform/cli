@@ -3,24 +3,15 @@ import type Token from 'markdown-it/lib/token';
 
 import MarkdownIt from 'markdown-it';
 // @ts-ignore
-// import meta from 'markdown-it-meta';
-// @ts-ignore
-// import sup from 'markdown-it-sup';
-// @ts-ignore
 import deflist from 'markdown-it-deflist';
-// import cut from '@diplodoc/transform/lib/plugins/cut';
-// import checkbox from '@diplodoc/transform/lib/plugins/checkbox';
-// import monospace from '@diplodoc/transform/lib/plugins/monospace';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
-// import file from '@diplodoc/transform/lib/plugins/file';
-// import video from '@diplodoc/transform/lib/plugins/video';
 import yfmTable from '@diplodoc/transform/lib/plugins/table';
 
 function computeLineStarts(lines: string[]): number[] {
     const lineStarts: number[] = [0];
     for (let i = 1; i < lines.length; i++) {
-        // const lineEndingLength = lines[i - 1].endsWith('\r') ? 2 : 1;
-        lineStarts[i] = lineStarts[i - 1] + lines[i - 1].length + 1;
+        const lineEndingLength = 1; //lines[i - 1].endsWith('\r') ? 2 : 1;
+        lineStarts[i] = lineStarts[i - 1] + lines[i - 1].length + lineEndingLength;
     }
     return lineStarts;
 }
@@ -272,18 +263,16 @@ function isInsideImageAttributes(content: string, start: number, end: number): b
         const currentLine = lines[lineIndex];
         const nextLine = lines[lineIndex + 1];
 
-        // Check if previous line is table start
-        if (prevLine.trim().startsWith('#|')) {
-            // Check if next line is table end
-            if (nextLine.trim().startsWith('|#')) {
-                // Check if current line contains image
-                if (currentLine.includes('![') && currentLine.includes('](')) {
-                    // In YFM table, if code is in one cell and image in another,
-                    // then code should not be marked as code block
-                    // We need to check if code is in the same line as image
-                    return true;
-                }
-            }
+        // In YFM table, if code is in one cell and image in another,
+        // then code should not be marked as code block
+        // We need to check if code is in the same line as image
+        if (
+            prevLine.trim().startsWith('#|') &&
+            nextLine.trim().startsWith('|#') &&
+            currentLine.includes('![') &&
+            currentLine.includes('](')
+        ) {
+            return true;
         }
     }
 
@@ -317,18 +306,8 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
         path: '',
     };
 
-    // md.disable('text_join');
-    // md.disable('entity');
-
-    // md.use(meta, diplodocOptions);
-    // md.use(cut, diplodocOptions);
-    // md.use(sup, diplodocOptions);
     md.use(deflist, diplodocOptions);
-    // md.use(checkbox, diplodocOptions);
-    // md.use(monospace, diplodocOptions);
     md.use(imsize, diplodocOptions);
-    // md.use(file, diplodocOptions);
-    // md.use(video, diplodocOptions);
     md.use(yfmTable, diplodocOptions);
 
     const tokens = md.parse(content, {});
