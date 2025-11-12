@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.3](https://github.com/diplodoc-platform/cli/compare/v5.15.2...v5.15.3) (2025-11-12)
+
+
+### Bug Fixes
+
+* isToc check for stage ignored toc ([ef38918](https://github.com/diplodoc-platform/cli/commit/ef38918fc755903d991d44829d891b0d98a07ff3))
+
 ## [5.15.2](https://github.com/diplodoc-platform/cli/compare/v5.15.1...v5.15.2) (2025-11-06)
 
 
