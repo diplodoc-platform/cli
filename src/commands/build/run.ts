@@ -243,7 +243,7 @@ export class Run extends BaseRun<BuildConfig> {
 function extractLang(file: NormalizedPath, langs: (string | ExtendedLang)[]) {
     const [lang, ...rest] = file.split('/');
 
-    const matched = langs.find(l => {
+    const matched = langs.find((l) => {
         if (typeof l === 'string') {
             return l === lang;
         } else if (l && typeof l === 'object' && 'lang' in l) {
