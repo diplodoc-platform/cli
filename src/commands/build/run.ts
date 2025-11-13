@@ -35,6 +35,12 @@ type Manifest = Hash<{
     async: string[];
 }>;
 
+type ExtendedLang = {
+    lang: `${Lang}` | Lang;
+    domain: string;
+    href: string;
+};
+
 const TMP_INPUT_FOLDER = '.tmp_input';
 
 export type TransformConfig = ReturnType<Run['transformConfig']>;
@@ -234,10 +240,20 @@ export class Run extends BaseRun<BuildConfig> {
     }
 }
 
-function extractLang(file: NormalizedPath, langs: string[]) {
+function extractLang(file: NormalizedPath, langs: (string | ExtendedLang)[]) {
     const [lang, ...rest] = file.split('/');
 
-    if (!langs.includes(lang)) {
+    const matched = langs.find(l => {
+        if (typeof l === 'string') {
+            return l === lang;
+        } else if (l && typeof l === 'object' && 'lang' in l) {
+            return l.lang === lang;
+        }
+
+        return false;
+    });
+
+    if (!matched) {
         return [];
     }
 
