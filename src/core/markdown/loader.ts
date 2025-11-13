@@ -53,6 +53,7 @@ export type LoaderContext = LiquidContext & {
     sourcemap: SourceMap;
     options: {
         disableLiquid: boolean;
+        mergeContentParts: boolean;
     };
     mode: 'build' | 'translate';
 };

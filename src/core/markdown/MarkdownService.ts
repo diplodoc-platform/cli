@@ -35,6 +35,12 @@ type MarkdownServiceConfig = {
             code: boolean;
         };
     };
+    preprocess: {
+        mergeSvg?: boolean;
+        mergeIncludes?: boolean;
+        hashIncludes?: boolean;
+        mergeAutotitles?: boolean;
+    };
 };
 
 type Run = BaseRun<MarkdownServiceConfig> & {
@@ -399,6 +405,7 @@ export class MarkdownService {
             },
             options: {
                 disableLiquid: !this.config.template.enabled,
+                mergeContentParts: this.config.preprocess?.mergeSvg ?? false,
             },
             mode: this.options.mode,
         };
