@@ -135,9 +135,10 @@ function addCodeAndUpdatePosition(
     content: string,
     codes: Array<[number, number]>,
     parentStartPos: number,
+    lines: string[],
 ): number {
     // Check if this code is inside image attributes
-    const insideAttrs = isInsideImageAttributes(content, startIndex, endIndex);
+    const insideAttrs = isInsideImageAttributes(content, startIndex, endIndex, lines);
     if (!insideAttrs) {
         codes.push([startIndex, endIndex]);
     }
@@ -173,7 +174,14 @@ function processInlineCode(
             const startIndex = start + patternIndex;
             const endIndex = startIndex + searchPattern.length;
 
-            return addCodeAndUpdatePosition(startIndex, endIndex, content, codes, parentStartPos);
+            return addCodeAndUpdatePosition(
+                startIndex,
+                endIndex,
+                content,
+                codes,
+                parentStartPos,
+                lines,
+            );
         }
     } else {
         const searchPattern = token.markup + token.content + token.markup;
@@ -182,7 +190,14 @@ function processInlineCode(
         if (startIndex !== -1) {
             const endIndex = startIndex + searchPattern.length;
 
-            return addCodeAndUpdatePosition(startIndex, endIndex, content, codes, parentStartPos);
+            return addCodeAndUpdatePosition(
+                startIndex,
+                endIndex,
+                content,
+                codes,
+                parentStartPos,
+                lines,
+            );
         }
     }
 
@@ -190,29 +205,40 @@ function processInlineCode(
 }
 
 // Function to check if code is inside image attributes
-function isInsideImageAttributes(content: string, start: number, end: number): boolean {
-    // Regular expression to find images with attributes
-    // Looking for pattern ![...](...) with optional "title" and/or {...} attributes
-    // Considering multiline images with 's' flag (dotAll)
-    const imageRegex = /!\[[^\]]*\]\([^)]*\)(?:\s*"[^"]*")?(?:\s*{[^}]*})?/gs;
+function isInsideImageAttributes(
+    content: string,
+    start: number,
+    end: number,
+    lines: string[],
+): boolean {
+    // Limit regex search to a smaller window around the code for better performance
+    const windowSize = 200; // Reduced window size for better performance
+    const checkStart = Math.max(0, start - windowSize);
+    const checkEnd = Math.min(content.length, end + windowSize);
+    const contentWindow = content.substring(checkStart, checkEnd);
 
-    // First check if code is inside attributes of a specific image
+    // Only search for images in the limited window
+    const imageRegex = /!\[[^\]]*\]\([^)]*\)(?:\s*"[^"]*")?(?:\s*{[^}]*})?/g;
+
     let match;
-    while ((match = imageRegex.exec(content)) !== null) {
-        // Start and end of the entire match
-        const matchStart = match.index;
-        const matchEnd = match.index + match[0].length;
+    while ((match = imageRegex.exec(contentWindow)) !== null) {
+        // Adjust positions to global content positions
+        const matchStart = match.index + checkStart;
+        const matchEnd = matchStart + match[0].length;
 
-        // Check if code range falls within this match
+        // Check if code range falls within this image
         if (start >= matchStart && end <= matchEnd) {
-            // Now check if code is in attributes
+            // Check if code is in attributes
             const imagePart = match[0];
+            // Adjust positions relative to the image part
+            const relativeStart = start - matchStart;
+            const relativeEnd = end - matchStart;
             const {braceMatch, quoteMatch} = checkImageAttributes(
                 imagePart,
                 matchStart,
                 null,
-                start,
-                end,
+                relativeStart,
+                relativeEnd,
             );
             if (braceMatch || quoteMatch) {
                 return true;
@@ -224,11 +250,11 @@ function isInsideImageAttributes(content: string, start: number, end: number): b
     // then it should not be marked as code block
     const codeContent = content.substring(start, end);
     const codeText = codeContent.replace(/`/g, ''); // Remove backticks
-
+    // TODO:goldserg not optimized block (increase time at 6 times)
     // Find all images in the document
     const allImagesRegex = /!\[[^\]]*\]\([^)]*\)(?:\s*"[^"]*")?(?:\s*{[^}]*})?/gs;
     let imageMatch;
-    while ((imageMatch = allImagesRegex.exec(content)) !== null) {
+    while ((imageMatch = allImagesRegex.exec(contentWindow)) !== null) {
         // Check if code is in image attributes
         const imagePart = imageMatch[0];
         const {braceMatch, quoteMatch} = checkImageAttributes(
@@ -244,7 +270,6 @@ function isInsideImageAttributes(content: string, start: number, end: number): b
     // Additional check for YFM tables: if code is in one table cell,
     // and image in another cell of the same row, then code should not be marked as code block
     // Check if code is in YFM table context
-    const lines = content.split('\n');
     let lineIndex = 0;
     let charCount = 0;
 
@@ -300,6 +325,10 @@ function processInlineToken(
 }
 
 export function resolveBlockCodes(this: LoaderContext, content: string) {
+    if (!this.options.mergeContentParts || !content.includes('![')) {
+        this.api.blockCodes.set([]);
+        return content;
+    }
     const md = new MarkdownIt({html: true});
     const diplodocOptions = {
         notesAutotitle: false,
@@ -332,21 +361,15 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
                     token,
                     lineStarts,
                     content,
-                    parentStartPos,
+                    currentParentStartPos,
                 );
-
-                if (token.children && token.children.length > 0) {
-                    extractCodeBlocks(token.children, currentParentStartPos, token.type);
-                }
-
-                continue;
             } else if (token.type === 'code_inline') {
                 // Skip code_inline tokens that are children of image tokens
                 if (parentType !== 'image') {
                     currentParentStartPos = processInlineCode(
                         token,
                         content,
-                        parentStartPos,
+                        currentParentStartPos,
                         codes,
                         lineStarts,
                         lines,
@@ -354,7 +377,7 @@ export function resolveBlockCodes(this: LoaderContext, content: string) {
                 }
             }
 
-            if (token.children && token.children.length > 0 && token.type !== 'inline') {
+            if (token.children && token.children.length > 0) {
                 extractCodeBlocks(token.children, currentParentStartPos, token.type);
             }
         }
