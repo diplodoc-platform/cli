@@ -35,6 +35,12 @@ type MarkdownServiceConfig = {
             code: boolean;
         };
     };
+    preprocess: {
+        mergeSvg?: boolean;
+        mergeIncludes?: boolean;
+        hashIncludes?: boolean;
+        mergeAutotitles?: boolean;
+    };
 };
 
 type Run = BaseRun<MarkdownServiceConfig> & {
@@ -154,6 +160,7 @@ export class MarkdownService {
 
         await getHooks(this).Dump.promise(vfile);
 
+        // console.log('content ', vfile);
         return vfile;
     }
 
@@ -399,8 +406,10 @@ export class MarkdownService {
             },
             options: {
                 disableLiquid: !this.config.template.enabled,
+                mergeContentParts: this.config.preprocess.mergeSvg ?? false,
             },
             mode: this.options.mode,
+            // outputLogs: this.run.outputLogs,
         };
     }
 }

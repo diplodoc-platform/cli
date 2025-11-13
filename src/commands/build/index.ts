@@ -176,6 +176,10 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         const {outputFormat} = this.config;
 
         this.run = new Run(this.config);
+        // this.run.outputLogs = {
+        //     arr: [],
+        //     total: 0
+        // };
 
         this.run.logger.pipe(this.logger);
 
@@ -255,6 +259,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await getBaseHooks(this).AfterAnyRun.promise(this.run);
 
         console.log('Cleanup build results');
+        // console.log(this.run.outputLogs.arr);
+        // console.log('Total filtred: ', this.run.outputLogs.arr.length);
+        // console.log('Total: ', this.run.outputLogs.total);
         await this.cleanup();
     }
 

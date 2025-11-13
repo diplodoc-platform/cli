@@ -53,6 +53,7 @@ function loaderContext(
         settings,
         options: {
             disableLiquid: false,
+            mergeContentParts: true,
             ...options,
         },
         mode: 'build',
