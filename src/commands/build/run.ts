@@ -37,7 +37,7 @@ type Manifest = Hash<{
 
 type ExtendedLang = {
     lang: `${Lang}` | Lang;
-    domain: string;
+    tld: string;
     href: string;
 };
 
