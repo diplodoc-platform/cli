@@ -8,20 +8,20 @@ import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
-import * as threads from '~/commands/threads';
-import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
-import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
-import {Extension as LocalSearchExtension} from '~/extensions/local-search';
-import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
-import {Command} from '~/core/config';
-import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {getHooks as getTocHooks} from '~/core/toc';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
+import {getHooks as getTocHooks} from '~/core/toc';
+import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
+import {Command} from '~/core/config';
+import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
+import {Extension as LocalSearchExtension} from '~/extensions/local-search';
+import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
+import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
+import * as threads from '~/commands/threads';
 
 import {getHooks, withHooks} from './hooks';
 import {OutputFormat, normalize, options, validate} from './config';
@@ -133,6 +133,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceSearch,
         options.interfaceFeedback,
         options.pdfDebug,
+        options.svgInline,
+        options.svgInlineMaxFileSize,
+        options.htmlMaxFileSize,
     ];
 
     readonly modules = [
@@ -279,6 +282,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     @bounded async processEntry(entry: NormalizedPath) {
         const {outputFormat} = this.config;
 
+        const startTime = Date.now();
         this.run.logger.proc(entry);
 
         this.run.entry.relations.addNode(entry);
@@ -292,7 +296,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
 
-        this.run.logger.info('Processing finished:', entry);
+        const time = ((Date.now() - startTime) / 1000).toPrecision(3);
+        this.run.logger.info(`${time}: Processing finished:`, entry);
     }
 
     @threads.threaded('build.process')
