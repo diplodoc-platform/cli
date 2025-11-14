@@ -10,7 +10,7 @@ export interface BuildRunArgs {
 }
 
 export interface TranslateRunArgs {
-    subcommand: 'extract';
+    subcommand: 'extract' | 'compose';
     source: string;
     target: string;
     additionalArgs?: string;

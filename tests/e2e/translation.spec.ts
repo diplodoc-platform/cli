@@ -67,6 +67,24 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
+    generateFilesYamlTestTemplate(
+        'extract openapi spec files with custom openapi schema provided',
+        'mocks/translation/custom-schema',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs:
+                '--schema mocks/translation/custom-schema/custom-openapi-schema-30.yaml',
+        },
+    );
+
+    generateFilesYamlTestTemplate('compose openapi spec files', 'mocks/translation/compose', {
+        subcommand: 'compose',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
+
     generateMapTestTemplate('do not filter files on extract', 'mocks/translation/dir-files', {
         subcommand: 'extract',
         source: 'ru-RU',
