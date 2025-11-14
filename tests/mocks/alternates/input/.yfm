@@ -1,1 +1,1 @@
-langs: ['ru', 'en', 'az']
+langs: ['ru', 'en', {'lang': 'az', 'tld': 'az'}]
