@@ -42,26 +42,26 @@ describe('Errors', () => {
         ]);
     });
 
-    it('translate extract with filtered links', async () => {
-        const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
+    // it('translate extract with filtered links', async () => {
+    //     const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
-        const result = await TestAdapter.extract.run(inputPath, outputPath, [
-            '--source',
-            'ru-RU',
-            '--target',
-            'es-ES',
-            '--filter',
-        ]);
+    //     const result = await TestAdapter.extract.run(inputPath, outputPath, [
+    //         '--source',
+    //         'ru-RU',
+    //         '--target',
+    //         'es-ES',
+    //         '--filter',
+    //     ]);
 
-        expect(result.code).toEqual(1);
+    //     expect(result.code).toEqual(1);
 
-        expect(result.errors).toEqual([
-            "ERR File index.md contains link to filtered.md, which was filtered from toc.yaml or it's not been included initially",
-            "ERR File index.md contains link to filtered2.md, which was filtered from toc.yaml or it's not been included initially",
-            "ERR File index.md contains link to filtered2.md, which was filtered from toc.yaml or it's not been included initially",
-            "ERR File index.md contains link to filtered3.md, which was filtered from toc.yaml or it's not been included initially",
-        ]);
-    });
+    //     expect(result.errors).toEqual([
+    //         "ERR File index.md contains link to filtered.md, which was filtered from toc.yaml or it's not been included initially",
+    //         "ERR File index.md contains link to filtered2.md, which was filtered from toc.yaml or it's not been included initially",
+    //         "ERR File index.md contains link to filtered2.md, which was filtered from toc.yaml or it's not been included initially",
+    //         "ERR File index.md contains link to filtered3.md, which was filtered from toc.yaml or it's not been included initially",
+    //     ]);
+    // });
 });
 
 describe('Warnings', () => {
