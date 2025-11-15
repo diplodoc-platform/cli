@@ -113,6 +113,7 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
 }
 
 /**
+ * Checks table of contents items for invalid object values.
  * Recursively checks nested items.
  */
 function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
