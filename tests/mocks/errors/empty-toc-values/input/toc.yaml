@@ -1,0 +1,11 @@
+items:
+  - name: ""
+    href: valid.md
+  - name: Non-empty item
+    href: ""
+  - name: Parent item
+    items:
+      - name: ""
+        href: nested.md
+
+

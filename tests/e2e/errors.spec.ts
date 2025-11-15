@@ -42,6 +42,14 @@ describe('Errors', () => {
         ]);
     });
 
+    test('mocks/errors/empty-toc-values', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[0].name: empty value is not allowed',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[1].href: empty value is not allowed',
+            'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[2].items[0].name: empty value is not allowed',
+        ]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
