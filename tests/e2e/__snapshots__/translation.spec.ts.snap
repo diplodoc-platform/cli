@@ -624,42 +624,12 @@ path: toc.yaml
 
 exports[`Translate command > do not filter files on extract > filelist 1`] = `
 "[
-  "es/_includes/test.md.skl",
-  "es/_includes/test.md.xliff",
-  "es/_no-translate/exclude.md.skl",
-  "es/_no-translate/exclude.md.xliff",
-  "es/aboba.md.skl",
-  "es/aboba.md.xliff",
-  "es/index.md.skl",
-  "es/index.md.xliff",
-  "es/nested/a1.md.skl",
-  "es/nested/a1.md.xliff",
-  "es/nested/folder1/a1.md.skl",
-  "es/nested/folder1/a1.md.xliff",
   "es/nested/folder1/toc-i.yaml.skl",
   "es/nested/folder1/toc-i.yaml.xliff",
-  "es/nested/index-yfm.md.skl",
-  "es/nested/index-yfm.md.xliff",
   "es/nested/index.yaml.skl",
   "es/nested/index.yaml.xliff",
-  "es/nested/not-in-toc.md.skl",
-  "es/nested/not-in-toc.md.xliff",
-  "es/nested/syntax/base.md.skl",
-  "es/nested/syntax/base.md.xliff",
-  "es/nested/syntax/index.md.skl",
-  "es/nested/syntax/index.md.xliff",
-  "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
-  "es/nested/use_filtered_above.md.skl",
-  "es/nested/use_filtered_above.md.xliff",
-  "es/no-var-page.md.skl",
-  "es/no-var-page.md.xliff",
-  "es/not-in-toc.md.skl",
-  "es/not-in-toc.md.xliff",
-  "es/to-be-excluded.md.skl",
-  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
@@ -667,46 +637,12 @@ exports[`Translate command > do not filter files on extract > filelist 1`] = `
 
 exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract > filelist 1`] = `
 "[
-  "index.md.skl",
-  "index.md.xliff",
   "toc.yaml.skl",
   "toc.yaml.xliff"
 ]"
 `;
 
 exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 1`] = `
-"#|
-||
-%%%0%%%
-||
-||
-%%%1%%%{% endif %}
-||
-|#"
-`;
-
-exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 2`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-2"/>- <g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-3"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-4"/>- электронной коммерции<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-5"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot;%}" id="x-7"/>- <g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-8"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;zh&quot; or tld == &quot;tr&quot; %}" id="x-9"/>- по параметрам посетителей<x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-10"/>;<x ctype="lb" equiv-text="&amp;#10;" id="x-11"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;ru&quot; or tld == &quot;es&quot; or tld == &quot;pt&quot; or tld == &quot;com&quot; or tld == &quot;tr&quot; %}" id="x-12"/>- <g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g><x ctype="liquid_Literal" equiv-text="{% endif %}" id="x-13"/><x ctype="liquid_Literal" equiv-text="{% if tld == &quot;zh&quot; %}" id="x-14"/>- по параметрам визитов</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 3`] = `
 "title: '%%%0%%%'
 href: index.md
 items:
@@ -715,7 +651,7 @@ items:
 "
 `;
 
-exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 4`] = `
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 2`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1241,30 +1177,8 @@ exports[`Translate command > extract yaml scheme files 6`] = `
 
 exports[`Translate command > filter files on extract > filelist 1`] = `
 "[
-  "es/_includes/test.md.skl",
-  "es/_includes/test.md.xliff",
-  "es/aboba.md.skl",
-  "es/aboba.md.xliff",
-  "es/index.md.skl",
-  "es/index.md.xliff",
-  "es/nested/a1.md.skl",
-  "es/nested/a1.md.xliff",
-  "es/nested/index.yaml.skl",
-  "es/nested/index.yaml.xliff",
-  "es/nested/syntax/base.md.skl",
-  "es/nested/syntax/base.md.xliff",
-  "es/nested/syntax/index.md.skl",
-  "es/nested/syntax/index.md.xliff",
-  "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
-  "es/nested/use_filtered_above.md.skl",
-  "es/nested/use_filtered_above.md.xliff",
-  "es/no-var-page.md.skl",
-  "es/no-var-page.md.xliff",
-  "es/to-be-excluded.md.skl",
-  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
@@ -1272,28 +1186,8 @@ exports[`Translate command > filter files on extract > filelist 1`] = `
 
 exports[`Translate command > filter files on extract with extra exclude option > filelist 1`] = `
 "[
-  "es/_includes/test.md.skl",
-  "es/_includes/test.md.xliff",
-  "es/aboba.md.skl",
-  "es/aboba.md.xliff",
-  "es/index.md.skl",
-  "es/index.md.xliff",
-  "es/nested/a1.md.skl",
-  "es/nested/a1.md.xliff",
-  "es/nested/index.yaml.skl",
-  "es/nested/index.yaml.xliff",
-  "es/nested/syntax/base.md.skl",
-  "es/nested/syntax/base.md.xliff",
-  "es/nested/syntax/index.md.skl",
-  "es/nested/syntax/index.md.xliff",
-  "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
-  "es/nested/use_filtered_above.md.skl",
-  "es/nested/use_filtered_above.md.xliff",
-  "es/no-var-page.md.skl",
-  "es/no-var-page.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
@@ -1301,32 +1195,8 @@ exports[`Translate command > filter files on extract with extra exclude option >
 
 exports[`Translate command > filter files on extract with extra vars option > filelist 1`] = `
 "[
-  "es/_includes/test.md.skl",
-  "es/_includes/test.md.xliff",
-  "es/_no-translate/exclude.md.skl",
-  "es/_no-translate/exclude.md.xliff",
-  "es/aboba.md.skl",
-  "es/aboba.md.xliff",
-  "es/index.md.skl",
-  "es/index.md.xliff",
-  "es/nested/a1.md.skl",
-  "es/nested/a1.md.xliff",
-  "es/nested/index.yaml.skl",
-  "es/nested/index.yaml.xliff",
-  "es/nested/syntax/base.md.skl",
-  "es/nested/syntax/base.md.xliff",
-  "es/nested/syntax/index.md.skl",
-  "es/nested/syntax/index.md.xliff",
-  "es/nested/syntax/lists.md.skl",
-  "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
-  "es/nested/use_filtered_above.md.skl",
-  "es/nested/use_filtered_above.md.xliff",
-  "es/no-var-page.md.skl",
-  "es/no-var-page.md.xliff",
-  "es/to-be-excluded.md.skl",
-  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
@@ -1334,58 +1204,12 @@ exports[`Translate command > filter files on extract with extra vars option > fi
 
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted > filelist 1`] = `
 "[
-  "index.md.skl",
-  "index.md.xliff",
   "toc.yaml.skl",
   "toc.yaml.xliff"
 ]"
 `;
 
 exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 1`] = `
-"#|
-||
-%%%0%%%
-||
-||
-%%%1%%%
-- %%%2%%%
-- %%%3%%%
-- %%%4%%%
-||
-|#"
-`;
-
-exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 2`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve"><g ctype="bold" equiv-text="**{{text}}**" id="g-1" x-begin="**" x-end="**">Заголовок</g></source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Доступны в любом отчете в виде <g ctype="link" equiv-text="[{{text}}](../general/goals.md)" id="g-2" x-begin="[" x-end="](../general/goals.md)">целей</g>, а также в отчетах:</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../reports/ecommerce.md)" id="g-3" x-begin="[" x-end="](../reports/ecommerce.md)">электронной коммерции</g>;</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/user-params-data.md)" id="g-4" x-begin="[" x-end="](../data/user-params-data.md)">по параметрам посетителей</g>;</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](../data/visit-params-data.md)" id="g-5" x-begin="[" x-end="](../data/visit-params-data.md)">по параметрам визитов</g></source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 3`] = `
 "title: '%%%0%%%'
 href: index.md
 items:
@@ -1394,7 +1218,7 @@ items:
 "
 `;
 
-exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 4`] = `
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 2`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1417,10 +1241,6 @@ exports[`Translate command > resolve liquid conditions if vars specified, liquid
 
 exports[`Translate command > test no-translate directive > filelist 1`] = `
 "[
-  "index.md.skl",
-  "index.md.xliff",
-  "no-translate.md.skl",
-  "no-translate.md.xliff",
   "openapi-spec.yaml.skl",
   "openapi-spec.yaml.xliff",
   "toc.yaml.skl",
@@ -1429,165 +1249,6 @@ exports[`Translate command > test no-translate directive > filelist 1`] = `
 `;
 
 exports[`Translate command > test no-translate directive 1`] = `
-"## %%%0%%%
-
-::no-translate  [adsfasdfasdfasdfasdf]
-
-%%%1%%%
-
-%%%2%%%"
-`;
-
-exports[`Translate command > test no-translate directive 2`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">Index header</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">lorem</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">asdfasdfasdf</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > test no-translate directive 3`] = `
-"# %%%0%%%
-
-## %%%1%%%
-:::no-translate
-### No-translate header
-
-:::html-block
-testsetsets
-:::
-
-::: any-other-directive
-content test
-:::
-
-Should not be translated.
-Can use **markup** inside.
-:::
-
-
-%%%2%%%
-
-## %%%3%%%
-
-::no-translate [## /usr/local/bin/application]
-::no-translate[**C:/Program Files/Application/config.ini**]
-::no-translate [~/Documents/project/src/main.rs]
-
-
-- :no-translate[GET /api/v1/users] %%%4%%%
-- :no-translate[POST /api/v1/auth/login] %%%5%%%
-- :no-translate[PUT /api/v1/users/{id}] %%%6%%%
-
-## %%%7%%%
-%%%8%%%
-:no-translate[The default port is unless specified.] %%%9%%%
-%%%10%%%
-
-## %%%11%%%
-%%%12%%%
-%%%13%%%
-%%%14%%%
-
-## %%%15%%%
-%%%16%%%
-
-## %%%17%%%
-%%%18%%%
-
-
-"
-`;
-
-exports[`Translate command > test no-translate directive 4`] = `
-"<?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
-    <header>
-      <skeleton>
-        <external-file href="file.skl"></external-file>
-      </skeleton>
-    </header>
-    <body>
-      <trans-unit id="0">
-        <source xml:space="preserve">No-translate directive</source>
-      </trans-unit>
-      <trans-unit id="1">
-        <source xml:space="preserve">Block directive</source>
-      </trans-unit>
-      <trans-unit id="2">
-        <source xml:space="preserve">::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-2"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-3"/>::: no-translate<x ctype="lb" equiv-text="&amp;#10;" id="x-4"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-5"/>::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/>nested content<x ctype="lb" equiv-text="&amp;#10;" id="x-7"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-8"/>:::</source>
-      </trans-unit>
-      <trans-unit id="3">
-        <source xml:space="preserve">Leaf directive</source>
-      </trans-unit>
-      <trans-unit id="4">
-        <source xml:space="preserve">— get all users</source>
-      </trans-unit>
-      <trans-unit id="5">
-        <source xml:space="preserve">— authorization</source>
-      </trans-unit>
-      <trans-unit id="6">
-        <source xml:space="preserve">— update users data</source>
-      </trans-unit>
-      <trans-unit id="7">
-        <source xml:space="preserve">Simple case leaf</source>
-      </trans-unit>
-      <trans-unit id="8">
-        <source xml:space="preserve">Install using command.</source>
-      </trans-unit>
-      <trans-unit id="9">
-        <source xml:space="preserve">Next sentence.</source>
-      </trans-unit>
-      <trans-unit id="10">
-        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
-      </trans-unit>
-      <trans-unit id="11">
-        <source xml:space="preserve">Simple case inline</source>
-      </trans-unit>
-      <trans-unit id="12">
-        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-9"/> command.</source>
-      </trans-unit>
-      <trans-unit id="13">
-        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-10"/> unless specified.</source>
-      </trans-unit>
-      <trans-unit id="14">
-        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-11"/> for production builds.</source>
-      </trans-unit>
-      <trans-unit id="15">
-        <source xml:space="preserve">Few inline directives</source>
-      </trans-unit>
-      <trans-unit id="16">
-        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-12"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-13"/> to create.</source>
-      </trans-unit>
-      <trans-unit id="17">
-        <source xml:space="preserve">Empty inline directive</source>
-      </trans-unit>
-      <trans-unit id="18">
-        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-14"/> directive.</source>
-      </trans-unit>
-    </body>
-  </file>
-</xliff>"
-`;
-
-exports[`Translate command > test no-translate directive 5`] = `
 "openapi: 3.0.1
 info:
   title: '%%%0%%%'
@@ -1627,7 +1288,7 @@ components:
 "
 `;
 
-exports[`Translate command > test no-translate directive 6`] = `
+exports[`Translate command > test no-translate directive 2`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1647,7 +1308,7 @@ exports[`Translate command > test no-translate directive 6`] = `
         <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-15"/> operation with no inputs and a complex</source>
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-1"/> operation with no inputs and a complex</source>
       </trans-unit>
       <trans-unit id="4">
         <source xml:space="preserve">200!!!!</source>
@@ -1657,7 +1318,7 @@ exports[`Translate command > test no-translate directive 6`] = `
 </xliff>"
 `;
 
-exports[`Translate command > test no-translate directive 7`] = `
+exports[`Translate command > test no-translate directive 3`] = `
 "title: '%%%0%%%'
 href: index.md
 items:
@@ -1673,7 +1334,7 @@ items:
 "
 `;
 
-exports[`Translate command > test no-translate directive 8`] = `
+exports[`Translate command > test no-translate directive 4`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
