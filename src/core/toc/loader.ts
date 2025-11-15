@@ -112,21 +112,11 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
     return toc;
 }
 
-type TocValidationError = {
-    path: string;
-    code: 'object' | 'empty';
-};
-
 /**
- * Checks table of contents items for invalid values.
- * Currently validates:
- * - object values in scalar fields (logged as `[object Object]`)
- * - empty string values in scalar fields
- *
  * Recursively checks nested items.
  */
-function checkTocItems(items: RawTocItem[], path = 'items'): TocValidationError[] {
-    const errors: TocValidationError[] = [];
+function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
+    const errors: string[] = [];
     const CHECK_FIELDS = ['name', 'href', 'title', 'label', 'navigation'] as const;
 
     for (let i = 0; i < items.length; i++) {
@@ -138,9 +128,9 @@ function checkTocItems(items: RawTocItem[], path = 'items'): TocValidationError[
                 const value = item[field as keyof RawTocItem];
 
                 if (value !== undefined && value?.toString() === '[object Object]') {
-                    errors.push({path: `${currentPath}.${field}`, code: 'object'});
+                    errors.push(`object:${currentPath}.${field}`);
                 } else if (value === '') {
-                    errors.push({path: `${currentPath}.${field}`, code: 'empty'});
+                    errors.push(`empty:${currentPath}.${field}`);
                 }
             }
 
@@ -160,13 +150,15 @@ async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
         const itemErrors = checkTocItems(toc.items);
 
         for (const error of itemErrors) {
-            if (error.code === 'object') {
+            const [code, errorPath] = error.split(':', 2);
+
+            if (code === 'object') {
                 this.logger.error(
-                    `Invalid toc structure in ${path.toString()} at ${error.path}: found [object Object] value`,
+                    `Invalid toc structure in ${path.toString()} at ${errorPath}: found [object Object] value`,
                 );
-            } else if (error.code === 'empty') {
+            } else if (code === 'empty') {
                 this.logger.error(
-                    `Invalid toc structure in ${path.toString()} at ${error.path}: empty value is not allowed`,
+                    `Invalid toc structure in ${path.toString()} at ${errorPath}: empty value is not allowed`,
                 );
             }
         }
