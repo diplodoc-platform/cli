@@ -112,12 +112,21 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
     return toc;
 }
 
+type TocValidationError = {
+    path: string;
+    code: 'object' | 'empty';
+};
+
 /**
- * Checks table of contents items for invalid object values.
+ * Checks table of contents items for invalid values.
+ * Currently validates:
+ * - object values in scalar fields (logged as `[object Object]`)
+ * - empty string values in scalar fields
+ *
  * Recursively checks nested items.
  */
-function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
-    const errors: string[] = [];
+function checkTocItems(items: RawTocItem[], path = 'items'): TocValidationError[] {
+    const errors: TocValidationError[] = [];
     const CHECK_FIELDS = ['name', 'href', 'title', 'label', 'navigation'] as const;
 
     for (let i = 0; i < items.length; i++) {
@@ -126,11 +135,12 @@ function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
 
         if (item && typeof item === 'object' && !Array.isArray(item)) {
             for (const field of CHECK_FIELDS) {
-                if (
-                    item[field as keyof RawTocItem] !== undefined &&
-                    item[field as keyof RawTocItem]?.toString() === '[object Object]'
-                ) {
-                    errors.push(`${currentPath}.${field}`);
+                const value = item[field as keyof RawTocItem];
+
+                if (value !== undefined && value?.toString() === '[object Object]') {
+                    errors.push({path: `${currentPath}.${field}`, code: 'object'});
+                } else if (value === '') {
+                    errors.push({path: `${currentPath}.${field}`, code: 'empty'});
                 }
             }
 
@@ -144,13 +154,21 @@ function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
 }
 
 async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const path = this.from ? this.from + ' -> ' + this.path : this.path;
+
     if (toc.items && Array.isArray(toc.items)) {
-        const errors = checkTocItems(toc.items);
-        const path = this.from ? this.from + ' -> ' + this.path : this.path;
-        for (const error of errors) {
-            this.logger.error(
-                `Invalid toc structure in ${path.toString()} at ${error}: found [object Object] value`,
-            );
+        const itemErrors = checkTocItems(toc.items);
+
+        for (const error of itemErrors) {
+            if (error.code === 'object') {
+                this.logger.error(
+                    `Invalid toc structure in ${path.toString()} at ${error.path}: found [object Object] value`,
+                );
+            } else if (error.code === 'empty') {
+                this.logger.error(
+                    `Invalid toc structure in ${path.toString()} at ${error.path}: empty value is not allowed`,
+                );
+            }
         }
     }
 
