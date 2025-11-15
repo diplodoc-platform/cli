@@ -31,6 +31,7 @@ export type Meta = {
     description?: string;
     keywords?: string[];
     noIndex?: boolean;
+    refreshTimeout?: number;
     metadata?: Hash;
     __system?: Hash;
     sourcePath?: string;

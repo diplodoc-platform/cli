@@ -30,6 +30,7 @@ const excludedMetaFields = [
     'noIndex',
     'canonical',
     'alternate',
+    'refreshTimeout',
 ];
 
 function isPublicMeta(record: {name?: string; property?: string}) {
@@ -111,6 +112,7 @@ export class EntryService {
             description,
             canonical = '',
             alternate = [],
+            refreshTimeout,
             ...restYamlConfigMeta
         } = (state.data.meta as Meta) || {};
 
@@ -141,6 +143,25 @@ export class EntryService {
         template.setFaviconSrc(faviconSrc);
         template.setCanonical(canonical);
         template.addAlternates(alternate);
+
+        let normalizedRefreshTimeout: number | undefined;
+
+        if (typeof refreshTimeout === 'number') {
+            normalizedRefreshTimeout = refreshTimeout;
+        } else if (typeof refreshTimeout === 'string') {
+            const parsedRefreshTimeout = Number.parseInt(refreshTimeout, 10);
+
+            if (Number.isFinite(parsedRefreshTimeout)) {
+                normalizedRefreshTimeout = parsedRefreshTimeout;
+            }
+        }
+
+        if (normalizedRefreshTimeout && normalizedRefreshTimeout > 0) {
+            template.addMeta({
+                'http-equiv': 'refresh',
+                content: String(normalizedRefreshTimeout),
+            });
+        }
 
         if (csp && !isEmpty(csp)) {
             template.addCsp(DEFAULT_CSP_SETTINGS);

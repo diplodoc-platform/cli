@@ -73,6 +73,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 3`] = `
         <title>Page Title | Documentation</title>
         <link rel="canonical" href="ru/page.html">
         <link rel="alternate" href="ru/page.html" hreflang="ru" />
+        <meta http-equiv="refresh" content="300">
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="yfm" content="builder in page">
         <meta name="description" content="Some test description">
@@ -82,7 +83,7 @@ exports[`Single page mode > simple md2html single page with lang dirs 3`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"alternate":[{"href":"ru/page.html","hreflang":"ru"}],"canonical":"ru/page.html","title":"Page Title","description":"Some test description","interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"ru/page.md"},"headings":[],"title":"Page Title"},"router":{"pathname":"ru/page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Lorem&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"yfm","content":"builder in page"},{"name":"description","content":"Some test description"}],"alternate":[{"href":"ru/page.html","hreflang":"ru"}],"canonical":"ru/page.html","title":"Page Title","description":"Some test description","refreshTimeout":300,"interface":{"toc":false,"favicon-src":"/favicon.ico"},"vcsPath":"ru/page.md"},"headings":[],"title":"Page Title"},"router":{"pathname":"ru/page","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":false,"search":true,"feedback":true,"favicon-src":"/favicon.ico"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
