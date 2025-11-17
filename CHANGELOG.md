@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.4](https://github.com/diplodoc-platform/cli/compare/v5.15.3...v5.15.4) (2025-11-17)
+
+
+### Bug Fixes
+
+* translate json compose ([600376d](https://github.com/diplodoc-platform/cli/commit/600376d7bfe78bc14d34befaee2d9717ba597728))
+
 ## [5.15.3](https://github.com/diplodoc-platform/cli/compare/v5.15.2...v5.15.3) (2025-11-12)
 
 
