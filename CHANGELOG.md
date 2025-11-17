@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.15.5](https://github.com/diplodoc-platform/cli/compare/v5.15.4...v5.15.5) (2025-11-17)
+
+
+### Bug Fixes
+
+* no-inline for image in page-constructor ([8af53b5](https://github.com/diplodoc-platform/cli/commit/8af53b5c06416c2b51c94f7f02771b2077f307b8))
+* parse path for popup link with % ([9de9d7c](https://github.com/diplodoc-platform/cli/commit/9de9d7c0fc6de085e759661183c4d69b4adad9ab))
+* resolve codeblock ([3fdf1b1](https://github.com/diplodoc-platform/cli/commit/3fdf1b196acde12362ced1fcb764fecc88808ab4))
+
 ## [5.15.4](https://github.com/diplodoc-platform/cli/compare/v5.15.3...v5.15.4) (2025-11-17)
 
 
