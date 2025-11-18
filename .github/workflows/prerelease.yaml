@@ -2,6 +2,10 @@ on: workflow_dispatch
 
 name: prerelease
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
   prerelease:
     runs-on: ubuntu-latest
@@ -14,16 +18,14 @@ jobs:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
+      - name: Install latest npm (>= 11.5.1)
+        run: npm install -g npm@latest
       - run: npm ci
       - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
       - run: npm publish --no-tag
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
       - working-directory: tests
         run: npm ci
       - working-directory: tests
         run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
       - working-directory: tests
         run: npm publish --no-tag
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
