@@ -7,6 +7,7 @@ name: release
 permissions:
   contents: write
   pull-requests: write
+  id-token: write
 
 jobs:
   release:
@@ -17,6 +18,8 @@ jobs:
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
+      - name: Install latest npm (>= 11.5.1)
+        run: npm install -g npm@latest
       - uses: codex-team/action-nodejs-package-info@v1
         id: package
       - uses: googleapis/release-please-action@v4
@@ -25,8 +28,6 @@ jobs:
           token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
           release-type: node
       - run: npm ci && npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
         if: ${{ steps.release.outputs.release_created }}
         shell: bash
       - working-directory: tests
@@ -34,7 +35,5 @@ jobs:
           echo Publishing companion package with version ${{steps.package.outputs.version}}
           npm version ${{steps.package.outputs.version}}
           npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.ROBOT_DATAUI_NPM_TOKEN}}
         if: ${{ steps.release.outputs.release_created }}
         shell: bash
