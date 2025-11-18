@@ -57,6 +57,7 @@ export async function compareDirectories(
     outputPath: string,
     ignoreFileContent = false,
     checkBundle = false,
+    ignoreFileList = false,
 ) {
     const filesFromOutput = (
         await glob(`**/*`, {
@@ -84,7 +85,9 @@ export async function compareDirectories(
     // We sort only the final list and put it in the snapshot
     filesForSnapshot = filesForSnapshot.map(hashless).sort();
 
-    expect(JSON.stringify(filesForSnapshot, null, 2)).toMatchSnapshot('filelist');
+    if (!ignoreFileList) {
+        expect(JSON.stringify(filesForSnapshot, null, 2)).toMatchSnapshot('filelist');
+    }
 
     if (!ignoreFileContent) {
         filesFromOutput
