@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.6](https://github.com/diplodoc-platform/cli/compare/v5.15.5...v5.15.6) (2025-11-18)
+
+
+### Bug Fixes
+
+* custom openapi schema test ([53c6dc6](https://github.com/diplodoc-platform/cli/commit/53c6dc630fd5e841fdbf649c1b591824c3461b07))
+
 ## [5.15.5](https://github.com/diplodoc-platform/cli/compare/v5.15.4...v5.15.5) (2025-11-17)
 
 
