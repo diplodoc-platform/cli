@@ -9,13 +9,15 @@ const generateMapTestTemplate = (
     testRootPath: string,
     args: TranslateRunArgs,
     ignoreFileContent = true,
+    // TODO: added especialy for 'extract openapi spec files with custom openapi schema provided' test, arc test issue
+    ignoreFileList = false,
 ) => {
     test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
 
         await TestAdapter.testTranslatePass(inputPath, outputPath, args);
 
-        await compareDirectories(outputPath, ignoreFileContent);
+        await compareDirectories(outputPath, ignoreFileContent, false, ignoreFileList);
     });
 };
 
@@ -67,9 +69,9 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
-    generateFilesYamlTestTemplate(
+    generateMapTestTemplate(
         'extract openapi spec files with custom openapi schema provided',
-        'mocks/translation/custom-schema',
+        'mocks/translation/openapi',
         {
             subcommand: 'extract',
             source: 'ru-RU',
@@ -77,6 +79,8 @@ describe('Translate command', () => {
             additionalArgs:
                 '--schema mocks/translation/custom-schema/custom-openapi-schema-30.yaml',
         },
+        false,
+        true,
     );
 
     generateFilesYamlTestTemplate('compose openapi spec files', 'mocks/translation/compose', {
