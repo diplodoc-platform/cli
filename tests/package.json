@@ -4,6 +4,10 @@
   "bin": {
     "diplodoc-cli-test": "bin.mjs"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:diplodoc-platform/cli.git"
+  },
   "exports": {
     "./fixtures": "./fixtures/index.ts"
   },
