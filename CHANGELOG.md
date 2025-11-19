@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.7](https://github.com/diplodoc-platform/cli/compare/v5.15.6...v5.15.7) (2025-11-19)
+
+
+### Bug Fixes
+
+* logic for determining alternates has been changed ([#1507](https://github.com/diplodoc-platform/cli/issues/1507)) ([3d16a81](https://github.com/diplodoc-platform/cli/commit/3d16a81fb3ae30c135b104900a85e3bda050cab3))
+
 ## [5.15.6](https://github.com/diplodoc-platform/cli/compare/v5.15.5...v5.15.6) (2025-11-18)
 
 
