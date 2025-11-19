@@ -1,4 +1,4 @@
-import type {BuildConfig} from '.';
+import type {BuildConfig, Langs} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
@@ -234,10 +234,20 @@ export class Run extends BaseRun<BuildConfig> {
     }
 }
 
-function extractLang(file: NormalizedPath, langs: string[]) {
+function extractLang(file: NormalizedPath, langs: Langs) {
     const [lang, ...rest] = file.split('/');
 
-    if (!langs.includes(lang)) {
+    const matched = langs.find((l) => {
+        if (typeof l === 'string') {
+            return l === lang;
+        } else if (l && typeof l === 'object' && 'lang' in l) {
+            return l.lang === lang;
+        }
+
+        return false;
+    });
+
+    if (!matched) {
         return [];
     }
 

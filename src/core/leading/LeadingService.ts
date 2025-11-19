@@ -3,6 +3,7 @@ import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
 import type {AssetInfo, GraphInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {Langs} from '~/commands/build/types';
 import type {LoaderContext} from './loader';
 
 import {dirname, join} from 'node:path';
@@ -32,7 +33,7 @@ type Run = BaseRun<LeadingServiceConfig> & {
 
 export type LeadingServiceConfig = {
     lang: string;
-    langs: string[];
+    langs: Langs;
     template: {
         enabled: boolean;
         features: {
