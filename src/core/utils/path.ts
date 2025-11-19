@@ -16,7 +16,9 @@ export function isRelativePath(path: string): path is RelativePath {
 export function langFromPath(path: string, config: {lang?: string; langs: Langs}) {
     const {lang, langs} = config;
     const pathBaseLang = normalizePath(path).split('/')[0];
-    const pathLang = langs.includes(pathBaseLang) && pathBaseLang;
+    const pathLang =
+        langs.some((l) => (typeof l === 'string' ? l === pathBaseLang : l.lang === pathBaseLang)) &&
+        pathBaseLang;
 
     return pathLang || lang || langs[0];
 }
