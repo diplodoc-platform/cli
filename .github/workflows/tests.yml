@@ -24,6 +24,10 @@ jobs:
           node-version: ${{ matrix.node-version }}
           os: ${{ matrix.os }}
           cache: 'npm'
+      - name: Install latest npm (>= 11.5.1)
+        run: |
+          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
+        shell: bash
       - name: Install packages for project
         run: npm ci
       - name: Build project
