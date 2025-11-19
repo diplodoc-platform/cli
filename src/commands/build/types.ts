@@ -1,4 +1,5 @@
 import type {DocAnalytics, NeuroExpert} from '@diplodoc/client';
+import type {Lang} from '@diplodoc/transform/lib/typings';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
@@ -28,10 +29,18 @@ export {OutputFormat, TransformConfig};
 
 type BaseArgs = {output: AbsolutePath};
 
+type ExtendedLang = {
+    lang: `${Lang}` | Lang;
+    tld?: string;
+    href?: string;
+};
+
+export type Langs = (string | ExtendedLang)[];
+
 type BaseConfig = {
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
-    langs: string[];
+    langs: Langs;
     outputFormat: `${OutputFormat}`;
     varsPreset: string;
     vars: Hash;

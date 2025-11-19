@@ -3,7 +3,7 @@ import type {Toc} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 import type {Meta} from '~/core/meta';
 import type {VFile} from '~/core/utils';
-import type {EntryInfo} from '../../';
+import type {EntryInfo, Langs} from '../../';
 
 export type EntryData = (
     | {
@@ -53,6 +53,6 @@ export type PageState = {
         enabled: boolean;
     } & Hash;
     lang: string;
-    langs: string[];
+    langs: Langs;
     analytics: Hash;
 } & Hash;

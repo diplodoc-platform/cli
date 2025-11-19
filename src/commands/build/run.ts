@@ -1,4 +1,4 @@
-import type {BuildConfig} from '.';
+import type {BuildConfig, Langs} from '.';
 import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
@@ -34,12 +34,6 @@ type Manifest = Hash<{
     css: string[];
     async: string[];
 }>;
-
-type ExtendedLang = {
-    lang: `${Lang}` | Lang;
-    tld: string;
-    href: string;
-};
 
 const TMP_INPUT_FOLDER = '.tmp_input';
 
@@ -240,7 +234,7 @@ export class Run extends BaseRun<BuildConfig> {
     }
 }
 
-function extractLang(file: NormalizedPath, langs: (string | ExtendedLang)[]) {
+function extractLang(file: NormalizedPath, langs: Langs) {
     const [lang, ...rest] = file.split('/');
 
     const matched = langs.find((l) => {
