@@ -641,27 +641,23 @@ paths:
   /test:
     get:
       tags:
-        - Перевод 3
-      summary: Перевод 4
-      description: Перевод 5
+        - test-controller
+      summary: Перевод 3
+      description: Перевод 4
       operationId: getWithPayloadResponse
       responses:
         '200':
-          description: Перевод 6
+          description: Перевод 5
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  A:
-                    type: string
-                    description: |
-                      Перевод 7
-                      - Перевод 8
-                      - Перевод 9
-                      - Перевод 10
+                $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        Schema description test Перевод 6
+      type: string
     RecurceTop:
       type: object
       properties:
@@ -678,21 +674,17 @@ components:
         B:
           type: array
           items:
-            type: object
-            properties:
-              A:
-                type: string
-                description: |
-                  Перевод 7
-                  - Перевод 8
-                  - Перевод 9
-                  - Перевод 10
+            $ref: '#/components/schemas/RecurceTop'
+        test:
+          description: |
+            Description with ref Перевод 11
+          $ref: '#/components/schemas/DescriptionRef'
 "
 `;
 
 exports[`Translate command > compose openapi spec files 2`] = `
 "items:
-  - name: Перевод 1
+  - name: Compose openapi 1
     include:
       path: openapi
       includers:
@@ -850,16 +842,20 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        %%%5%%%
+      type: string
     RecurceTop:
       type: object
       properties:
         A:
           type: string
           description: |
-            %%%5%%%
-            - %%%6%%%
+            %%%6%%%
             - %%%7%%%
             - %%%8%%%
+            - %%%9%%%
     RecurceMiddle:
       type: object
       properties:
@@ -867,6 +863,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          title: '%%%10%%%'
+          description: |
+            %%%11%%%
+          $ref: '#/components/schemas/DescriptionRef'
 "
 `;
 
@@ -896,16 +897,25 @@ exports[`Translate command > extract openapi spec files 2`] = `
         <source xml:space="preserve">200!!!!</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">Статус загрузки:</source>
+        <source xml:space="preserve">Schema description test</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+        <source xml:space="preserve">Статус загрузки:</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
       </trans-unit>
       <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="9">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Title</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Description with ref</source>
       </trans-unit>
     </body>
   </file>
@@ -942,15 +952,6 @@ exports[`Translate command > extract openapi spec files 4`] = `
 </xliff>"
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided > filelist 1`] = `
-"[
-  "openapi-spec.yaml.skl",
-  "openapi-spec.yaml.xliff",
-  "toc.yaml.skl",
-  "toc.yaml.xliff"
-]"
-`;
-
 exports[`Translate command > extract openapi spec files with custom openapi schema provided 1`] = `
 "openapi: 3.0.1
 info:
@@ -976,16 +977,20 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        %%%6%%%
+      type: string
     RecurceTop:
       type: object
       properties:
         A:
           type: string
           description: |
-            %%%6%%%
-            - %%%7%%%
+            %%%7%%%
             - %%%8%%%
             - %%%9%%%
+            - %%%10%%%
     RecurceMiddle:
       type: object
       properties:
@@ -993,6 +998,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          title: '%%%11%%%'
+          description: |
+            %%%12%%%
+          $ref: '#/components/schemas/DescriptionRef'
 "
 `;
 
@@ -1025,16 +1035,25 @@ exports[`Translate command > extract openapi spec files with custom openapi sche
         <source xml:space="preserve">200!!!!</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">Статус загрузки:</source>
+        <source xml:space="preserve">Schema description test</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+        <source xml:space="preserve">Статус загрузки:</source>
       </trans-unit>
       <trans-unit id="8">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
       </trans-unit>
       <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="10">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Title</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">Description with ref</source>
       </trans-unit>
     </body>
   </file>

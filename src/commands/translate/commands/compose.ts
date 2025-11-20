@@ -145,7 +145,7 @@ type FileInfo = {
 
 function pipeline(input: AbsolutePath, output: AbsolutePath, {useSource}: ComposeOptions) {
     return async function pipeline(file: FileInfo) {
-        const skeleton = new FileLoader(join(input, file.skl));
+        const skeleton = new FileLoader(join(input, file.skl), false);
         const xliff = new FileLoader<string>(join(input, file.xliff));
 
         await Promise.all([skeleton.load(), xliff.load()]);
