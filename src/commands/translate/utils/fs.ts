@@ -3,7 +3,7 @@ import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translati
 import {dirname, join, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
-import {linkRefs, unlinkRefs} from '@diplodoc/translation';
+import {collectExternalRefs, linkRefs, unlinkRefs} from '@diplodoc/translation';
 
 const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 
@@ -21,7 +21,7 @@ function ext(path: string) {
     return last(parts);
 }
 
-function parseFile(text: string, path: string): JSONObject | string {
+export function parseFile(text: string, path: string): JSONObject | string {
     switch (ext(path)) {
         case 'yaml':
             return load(text) as JSONObject;
@@ -69,6 +69,42 @@ export class FileLoader<T = string | JSONObject> {
         return typeof this.data === 'object';
     }
 
+    // @ts-ignore
+    static async loadJSONData(files, input) {
+        const result = {};
+
+        // @ts-ignore
+        const loader = async (file) => {
+            const path =  resolve(input, file)
+
+            const text = await readFile(path, 'utf8');
+            const content = parseFile(text, path);
+
+            return content as JSONObject
+        }
+
+        for (const file of files) {
+            if (file.includes('.yaml')) {
+                const path =  resolve(input, file)
+                const text = await readFile(path, 'utf8');
+                const content = parseFile(text, path);
+               
+                if (isObject(content) && 'openapi' in content) {           
+
+                    const externalRefs = await collectExternalRefs(content, loader, file);
+
+                    // @ts-ignore
+                    result[content['openapi']] = [...externalRefs];
+                }
+            }
+        }
+
+        
+
+        return result;
+    }
+
+
     private _data: T | null = null;
 
     private parts: Record<string, T> = {};
@@ -82,6 +118,7 @@ export class FileLoader<T = string | JSONObject> {
         this.resolveRefs = resolveRefs;
     }
 
+
     set(data: T) {
         this._data = data;
         this.parts[this.path] = this._data;
@@ -94,6 +131,19 @@ export class FileLoader<T = string | JSONObject> {
             if (!this.parts[path]) {
                 const text = await readFile(path, 'utf8');
                 const content = (this.parts[path] = parseFile(text, path) as T);
+                // const isOpenaApi = 'openapi' in content;
+                // @ts-ignore
+                // const loader = async (ref) => {
+                //         if (!this.parts[ref]) {
+                //             this.parts[ref] = await load(ref as AbsolutePath, false);
+                //         }
+
+                //         return this.parts[ref] as JSONObject;
+                //     }
+
+                // if (isObject(content) && !resolveRefs && 'openapi' in content) {
+                //     await mergeRefs(content, path, content, loader)
+                // }
 
                 if (isObject(content) && resolveRefs) {
                     await linkRefs(content, path, async (ref) => {

@@ -131,7 +131,8 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
 
         await this.run.prepareRun();
 
-        const [files, skipped] = await this.run.getFiles();
+        const [files, skipped, refSchemas] = await this.run.getFiles();
+        
         const exit = process.exit;
 
         for (const target of targets) {
@@ -144,6 +145,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 input,
                 output,
                 schema,
+                refSchemas,
             });
 
             this.logger.skipped(skipped);
@@ -186,10 +188,11 @@ export type PipelineParameters = {
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
     schema?: ExtractOptions['schema'];
+    refSchemas?: Record<string, string[]>;
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, schema} = params;
+    const {input, output, source, target, schema, refSchemas = {}} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
@@ -205,6 +208,14 @@ function pipeline(params: PipelineParameters) {
             return join(outputRoot, targetPath);
         };
 
+        let refSchema;
+
+        for (const spec in refSchemas) {
+            if (refSchemas[spec].includes(path)) {
+                refSchema = spec
+            }
+        }
+
         const {schemas, ajvOptions} = await resolveSchemas({
             content,
             path,
@@ -216,6 +227,7 @@ function pipeline(params: PipelineParameters) {
             target,
             schemas,
             ajvOptions,
+            refSchema,
         });
 
         if (!units.length) {

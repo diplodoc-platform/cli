@@ -1,0 +1,5 @@
+components:
+  schemas:
+    ExternalCommonDescriptionRefCommon2:
+      description: |
+        External Common Schema description test Common2
