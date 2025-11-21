@@ -9,19 +9,23 @@ paths:
   /test:
     get:
       tags:
-        - '%%%2%%%'
-      summary: '%%%3%%%'
-      description: '%%%4%%%'
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
       operationId: getWithPayloadResponse
       responses:
         '200':
-          description: '%%%5%%%'
+          description: '%%%4%%%'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        %%%5%%%
+      type: string
     RecurceTop:
       type: object
       properties:
@@ -39,3 +43,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          description: |
+            %%%10%%%
+          $ref: '#/components/schemas/DescriptionRef'

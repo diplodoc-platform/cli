@@ -22,6 +22,10 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        Schema description test
+      type: string
     RecurceTop:
       type: object
       properties:
@@ -40,3 +44,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          title: Title
+          description: |
+            Description with ref
+          $ref: '#/components/schemas/DescriptionRef'
