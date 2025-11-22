@@ -7,6 +7,7 @@ import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import code from '@diplodoc/transform/lib/plugins/code';
 import cut from '@diplodoc/transform/lib/plugins/cut';
 import deflist from '@diplodoc/transform/lib/plugins/deflist';
+import images from '@diplodoc/transform/lib/plugins/images';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import tabs from '@diplodoc/transform/lib/plugins/tabs';
@@ -29,7 +30,7 @@ import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
-import images from './plugins/images';
+// import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [

@@ -1,4 +1,4 @@
-import type {BuildArgs, BuildConfig} from './types';
+import type {BuildArgs, BuildConfig, ContentConfig} from './types';
 
 import {ok} from 'node:assert';
 import {bold, underline} from 'chalk';
@@ -157,6 +157,61 @@ const pdfDebug = option({
     default: false,
 });
 
+const svgInline = option({
+    flags: '--svg-inline',
+    desc: `
+        Add flag to enable/disable svg inline
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --svg-inline
+    `,
+    default: true,
+});
+
+const svgInlineMaxFileSize = option({
+    flags: '--svg-inline-max-file-size <value>',
+    desc: `
+        Restriction on the maximum file size for inline SVG. 
+        Default: 2MB
+        Max size: 16MB
+        
+        Example:
+            {{PROGRAM}} build -i . -o ../build --svg-inline-max-file-size '128KB'
+    `,
+    default: '2MB',
+    parser: fileSizeConverter({max: '16MB'}),
+});
+
+const htmlMaxFileSize = option({
+    flags: '--html-max-file-size <value>',
+    desc: `
+        Restriction on the maximum file size for rendered html file. 
+        Default: 32MB
+        Max size: 96MB
+        
+        Example:
+            {{PROGRAM}} build -i . -o ../build --html-max-file-size '128KB'
+    `,
+    default: '32MB',
+    parser: fileSizeConverter({max: '96MB'}),
+});
+
+function combineProps<C extends BuildConfig>(config: C, props: Array<string>) {
+    const result = props.reduce<Record<string, unknown>>(
+        (acc, prop: string) => {
+            const configValue = defined(prop, config);
+            if (configValue !== null) {
+                acc[prop] = configValue;
+            }
+
+            return acc;
+        },
+        {} as Record<string, unknown>,
+    );
+
+    return result;
+}
+
 function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
     const interfaceProps = ['toc', 'search', 'feedback'] as const;
     type InterfaceProp = (typeof interfaceProps)[number];
@@ -185,6 +240,28 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
     );
 
     return result;
+}
+
+function fileSizeConverter(opts: Hash) {
+    return function (input: string, defaultValue: string): number | undefined {
+        const units = ['B', 'KB', 'MB'];
+        if (!input) {
+            input = defaultValue;
+        }
+        function convert(input: string): number {
+            const value = parseInt(input, 10);
+            const unitType = input.replace(/\d+/g, '').trim().toUpperCase() || 'B';
+            const unitIndex = units.indexOf(unitType);
+            if (unitIndex === -1) {
+                throw new Error(
+                    `Unknown unit type at config inlineSvgMaxFileSize: ${unitType}. Allowed: B, KB, MB`,
+                );
+            }
+            return value * 1024 ** unitIndex;
+        }
+
+        return Math.min(convert(input), convert(opts.max || '0'));
+    };
 }
 
 export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
@@ -217,6 +294,11 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         ...config.interface,
         ...viewerInterface,
     };
+    config.content = combineProps(config, [
+        'svgInline',
+        'svgInlineMaxFileSize',
+        'htmlMaxFileSize',
+    ]) as ContentConfig;
 
     return config;
 }
@@ -246,4 +328,7 @@ export const options = {
     interfaceSearch,
     interfaceFeedback,
     pdfDebug,
+    svgInline,
+    svgInlineMaxFileSize,
+    htmlMaxFileSize,
 };
