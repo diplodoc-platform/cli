@@ -11,6 +11,8 @@ import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console, noop} from '~/core/utils';
 
+import './suppress-noisy-logs';
+
 export * from '~/commands';
 
 export const run = async (argv: string[]) => {

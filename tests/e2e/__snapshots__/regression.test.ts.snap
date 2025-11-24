@@ -1061,7 +1061,7 @@ exports[`Regression > internal 42`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;&lt;span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22displayMode%22%3Afalse%7D\\"&gt;&lt;/span&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"],"vcsPath":"latex.md"},"headings":[],"title":"Latex usage"},"router":{"pathname":"latex","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;&lt;span class=\\"yfm-latex\\" data-content=\\"%5Csqrt%7B3x-1%7D%2B(1%2Bx)%5E2\\" data-options=\\"%7B%22strict%22%3Afalse%2C%22displayMode%22%3Afalse%7D\\"&gt;&lt;/span&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/latex-extension.css"],"script":["_bundle/latex-extension.js"],"vcsPath":"latex.md"},"headings":[],"title":"Latex usage"},"router":{"pathname":"latex","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
