@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.15.8](https://github.com/diplodoc-platform/cli/compare/v5.15.7...v5.15.8) (2025-11-24)
+
+
+### Bug Fixes
+
+* fixed MaxListenersExceededWarning warning ([#1529](https://github.com/diplodoc-platform/cli/issues/1529)) ([e7b6b3d](https://github.com/diplodoc-platform/cli/commit/e7b6b3da7ff376a978a27b9e116759253bae2126))
+
 ## [5.15.7](https://github.com/diplodoc-platform/cli/compare/v5.15.6...v5.15.7) (2025-11-19)
 
 
