@@ -4,6 +4,7 @@ import dedent from 'ts-dedent';
 
 // eslint-disable-next-line import/order
 import './require';
+import './suppress-noisy-logs';
 
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
