@@ -14,16 +14,6 @@ import {console, noop} from '~/core/utils';
 
 export * from '~/commands';
 
-const originalEmitWarning = process.emitWarning;
-
-process.emitWarning = (warning, options) => {
-    if (typeof warning === 'object' && warning.name === 'MaxListenersExceededWarning') {
-        return;
-    }
-
-    return originalEmitWarning.call(process, warning, options as NodeJS.EmitWarningOptions);
-};
-
 export const run = async (argv: string[]) => {
     const program = new Program();
 
