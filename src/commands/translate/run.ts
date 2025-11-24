@@ -6,6 +6,7 @@ import type {Toc} from '~/core/toc';
 
 import {extname, join, resolve} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
+import {isObject} from 'lodash';
 
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
@@ -15,6 +16,12 @@ import {MarkdownService} from '~/core/markdown';
 
 import {FileLoader, resolveFiles} from './utils';
 
+type RefLikeOpenApi = {
+    openapi: string;
+};
+
+export type RefLikeOpenApiRecord = Record<string, RefLikeOpenApi>;
+
 type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
 
 export class Run extends BaseRun<CommonRunConfig> {
@@ -23,6 +30,7 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly toc: TocService;
     readonly markdown: MarkdownService;
     readonly tocYamlList: Set<string>;
+    externalRefList: RefLikeOpenApiRecord = {};
 
     constructor(config: Config<CommonRunConfig>) {
         super(config);
@@ -110,8 +118,14 @@ export class Run extends BaseRun<CommonRunConfig> {
 
         const path = resolve(this.config.input, file);
 
-        const loader = new FileLoader(path);
+        const loader = new FileLoader(path, false);
 
-        return loader.load();
+        const content = await loader.load();
+
+        if (isObject(content) && 'openapi' in content && loader.externalSchemas) {
+            this.externalRefList = loader.externalSchemas;
+        }
+
+        return content;
     }
 }

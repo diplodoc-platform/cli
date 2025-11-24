@@ -2,21 +2,22 @@ import type {BaseArgs} from '~/core/program';
 import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
 import type {Locale} from '../utils';
 import type {ConfigDefaults} from '../utils/config';
+import type {RefLikeOpenApiRecord} from '../run';
 
 import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
 
-import {normalizePath} from '~/core/utils';
-import {YFM_CONFIG_FILENAME} from '~/constants';
-import {Command, defined} from '~/core/config';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
+import {Command, defined} from '~/core/config';
+import {YFM_CONFIG_FILENAME} from '~/constants';
+import {normalizePath} from '~/core/utils';
 
 import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
 import {FilterExtract} from '../features/filter-extract';
@@ -156,7 +157,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                         this.logger.extract(file);
                         const content = await this.run.getFileContent(file);
 
-                        await configuredPipeline(file, content);
+                        await configuredPipeline(file, content, this.run.externalRefList);
                         this.logger.extracted(file);
                     } catch (error: unknown) {
                         if (error instanceof TranslateError) {
@@ -193,7 +194,11 @@ function pipeline(params: PipelineParameters) {
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async (path: string, content: string | JSONObject) => {
+    return async (
+        path: string,
+        content: string | JSONObject,
+        externalRefSchemas: RefLikeOpenApiRecord,
+    ) => {
         const inputPath = join(inputRoot, path);
         const output = (path: string) => {
             const normalizedPath = normalizePath(path);
@@ -210,12 +215,15 @@ function pipeline(params: PipelineParameters) {
             path,
             customSchemaPath: schema,
         });
+        const externalRefSchema = externalRefSchemas?.[path]?.openapi;
+
         const {xliff, skeleton, units} = extract(content, {
             originalFile: path,
             source,
             target,
             schemas,
             ajvOptions,
+            openapi: externalRefSchema,
         });
 
         if (!units.length) {

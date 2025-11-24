@@ -3,7 +3,7 @@ import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translati
 import {dirname, join, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
-import {linkRefs, unlinkRefs} from '@diplodoc/translation';
+import {getRefSchemas, linkRefs, unlinkRefs} from '@diplodoc/translation';
 
 const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 
@@ -61,6 +61,10 @@ export class FileLoader<T = string | JSONObject> {
         return this._data;
     }
 
+    get externalSchemas() {
+        return this._externalSchemas;
+    }
+
     get isString() {
         return typeof this.data === 'string';
     }
@@ -70,6 +74,8 @@ export class FileLoader<T = string | JSONObject> {
     }
 
     private _data: T | null = null;
+
+    private _externalSchemas: Record<string, {openapi: string}> | null = null;
 
     private parts: Record<string, T> = {};
 
@@ -103,6 +109,12 @@ export class FileLoader<T = string | JSONObject> {
 
                         return this.parts[ref] as JSONObject;
                     });
+                }
+
+                if (isObject(content) && !resolveRefs) {
+                    const schemas = await getRefSchemas(content, path);
+
+                    this._externalSchemas = schemas;
                 }
             }
 

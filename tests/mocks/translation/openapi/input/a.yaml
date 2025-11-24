@@ -1,0 +1,5 @@
+components:
+  schemas:
+    RecurceTop:
+      type: string
+      description: External Schema description test

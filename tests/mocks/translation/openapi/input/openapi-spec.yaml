@@ -22,6 +22,10 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        Schema description test
+      type: string
     RecurceTop:
       type: object
       properties:
@@ -39,4 +43,10 @@ components:
         B:
           type: array
           items:
-            $ref: '#/components/schemas/RecurceTop'
+            $ref: 'a.yaml#/components/schemas/RecurceTop'
+        test:
+          title: Title
+          description: |
+            Description with ref
+          $ref: 'external-schemas.yaml#/components/schemas/ExternalDescriptionRef'
+
