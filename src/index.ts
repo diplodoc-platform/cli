@@ -4,13 +4,14 @@ import dedent from 'ts-dedent';
 
 // eslint-disable-next-line import/order
 import './require';
-import './suppress-noisy-logs';
 
 import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
 import {MAIN_TIMER_ID} from '~/constants';
 import {stats} from '~/core/logger';
 import {console, noop} from '~/core/utils';
+
+import './suppress-noisy-logs';
 
 export * from '~/commands';
 
