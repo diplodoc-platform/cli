@@ -1,4 +1,5 @@
 import type {BuildArgs, BuildConfig, ContentConfig} from './types';
+import type {ExtendedOption} from '~/core/config';
 
 import {ok} from 'node:assert';
 import {bold, underline} from 'chalk';
@@ -171,14 +172,29 @@ const maxInlineSvgSize = option({
     parser: fileSizeConverter({max: '16M'}),
 });
 
-function combineProps<C extends BuildConfig>(config: C, props: Array<string>) {
+export function combineProps<C extends BuildConfig>(
+    config: C,
+    group: string,
+    props: Array<string>,
+    args: Hash<ExtendedOption>,
+) {
     const result = props.reduce<Record<string, unknown>>(
         (acc, prop: string) => {
-            const configValue = defined(prop, config);
-            if (configValue !== null) {
-                acc[prop] = configValue;
+            try {
+                const configValue = defined(prop, config[group as keyof BuildConfig]);
+                if (configValue !== null) {
+                    acc[prop] = configValue;
+                }
+            } catch {}
+
+            const argValue = defined(prop, config);
+            if (argValue !== null && args[prop]?.defaultValue !== argValue) {
+                acc[prop] = argValue;
             }
 
+            if (args[prop] !== undefined && args[prop].parseArg) {
+                acc[prop] = args[prop].parseArg(acc[prop] as string, args[prop].defaultValue);
+            }
             return acc;
         },
         {} as Record<string, unknown>,
@@ -217,11 +233,14 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
     return result;
 }
 
-function fileSizeConverter(opts: Hash) {
+export function fileSizeConverter(opts: Hash) {
     return function (input: string, defaultValue: string): number | undefined {
         const units = ['', 'K', 'M'];
         if (!input) {
             input = defaultValue;
+        }
+        if (typeof input === 'number') {
+            return input;
         }
         function convert(input: string): number {
             const value = parseInt(input, 10);
@@ -269,7 +288,9 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         ...config.interface,
         ...viewerInterface,
     };
-    config.content = combineProps(config, ['maxInlineSvgSize']) as ContentConfig;
+    config.content = combineProps(config, 'content', ['maxInlineSvgSize'], {
+        maxInlineSvgSize,
+    }) as ContentConfig;
 
     return config;
 }

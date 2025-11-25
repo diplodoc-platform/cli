@@ -1,4 +1,4 @@
-import type {ImageOptions, MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
+import type {MarkdownItPluginCb} from '@diplodoc/transform/lib/typings';
 import type {UrlWithStringQuery} from 'node:url';
 import type {Meta} from '~/core/meta';
 import type {LoaderContext} from './loader';
@@ -26,6 +26,12 @@ export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     link: string;
     match: string;
     location: Location;
+};
+
+export type ImageOptions = {
+    width: string | undefined | null;
+    height: string | undefined | null;
+    inline: boolean | undefined | null;
 };
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {

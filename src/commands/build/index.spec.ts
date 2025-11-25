@@ -1,5 +1,8 @@
+import type {BuildConfig} from '.';
+
 import {describe, expect, it} from 'vitest';
 
+import {combineProps, fileSizeConverter} from './config';
 import {
     handler,
     runBuild as run,
@@ -456,6 +459,47 @@ describe('Build command', () => {
             });
         });
 
+        describe('maxInlineSvgSize', () => {
+            test('should handle default', '', {
+                content: {
+                    maxInlineSvgSize: 2 * 1024 ** 2, // 2M in bytes
+                },
+            });
+
+            test('should handle arg with K unit', '--max-inline-svg-size 128K', {
+                content: {
+                    maxInlineSvgSize: 128 * 1024, // 128K in bytes
+                },
+            });
+
+            test('should handle arg with M unit', '--max-inline-svg-size 4M', {
+                content: {
+                    maxInlineSvgSize: 4 * 1024 ** 2, // 4M in bytes
+                },
+            });
+
+            test(
+                'should handle config with K unit',
+                '',
+                {
+                    content: {
+                        maxInlineSvgSize: 512 * 1024, // 512K in bytes
+                    },
+                },
+                {
+                    content: {
+                        maxInlineSvgSize: 512 * 1024, // 512K in bytes
+                    },
+                },
+            );
+
+            test('should limit to max value when exceeding 16M', '--max-inline-svg-size 20M', {
+                content: {
+                    maxInlineSvgSize: 16 * 1024 ** 2, // Limited to 16M in bytes
+                },
+            });
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
@@ -480,6 +524,189 @@ describe('Build command', () => {
         //     input: './input',
         //     output: './output',
         // });
+    });
+
+    describe('utilities', () => {
+        describe('combineProps', () => {
+            it('should combine properties from config and args correctly', () => {
+                const config: Hash = {
+                    output: './output' as AbsolutePath,
+                    content: {
+                        maxInlineSvgSize: 1024,
+                    },
+                };
+
+                const args: Hash = {
+                    maxInlineSvgSize: {
+                        defaultValue: 2048,
+                        parseArg: (value: unknown) => Number(value),
+                    },
+                };
+
+                const result = combineProps(
+                    config as BuildConfig,
+                    'content',
+                    ['maxInlineSvgSize'],
+                    args,
+                );
+
+                expect(result).toEqual({
+                    maxInlineSvgSize: 1024,
+                });
+            });
+
+            it('should use arg value when config value is null', () => {
+                const config: Hash = {
+                    output: './output',
+                    maxInlineSvgSize: 2048, // This is the arg value
+                    content: {},
+                };
+
+                const args: Hash = {
+                    maxInlineSvgSize: {
+                        defaultValue: 1024,
+                        parseArg: (value: unknown) => Number(value),
+                    },
+                };
+
+                const result = combineProps(
+                    config as BuildConfig,
+                    'content',
+                    ['maxInlineSvgSize'],
+                    args,
+                );
+
+                expect(result).toEqual({
+                    maxInlineSvgSize: 2048,
+                });
+            });
+
+            it('should parse arg value when parseArg function is provided', () => {
+                const config: Hash = {
+                    output: './output',
+                    content: {
+                        maxInlineSvgSize: '4096',
+                    },
+                };
+
+                const args: Hash = {
+                    maxInlineSvgSize: {
+                        defaultValue: 2048,
+                        parseArg: (value: string) => parseInt(value, 10),
+                    },
+                };
+
+                const result = combineProps(
+                    config as BuildConfig,
+                    'content',
+                    ['maxInlineSvgSize'],
+                    args,
+                );
+
+                expect(result).toEqual({
+                    maxInlineSvgSize: 4096,
+                });
+            });
+
+            it('should handle empty props array', () => {
+                const config: Hash = {
+                    output: './output',
+                    content: {
+                        maxInlineSvgSize: 1024,
+                    },
+                };
+
+                const args: Hash = {};
+
+                const result = combineProps(config as BuildConfig, 'content', [], args);
+
+                expect(result).toEqual({});
+            });
+
+            it('should handle missing properties gracefully', () => {
+                const config: Hash = {
+                    output: './output',
+                    content: {},
+                };
+
+                const args: Hash = {};
+
+                const result = combineProps(
+                    config as BuildConfig,
+                    'content',
+                    ['maxInlineSvgSize'],
+                    args,
+                );
+
+                expect(result).toEqual({});
+            });
+        });
+
+        describe('fileSizeConverter', () => {
+            it('should convert bytes without unit', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('1024', '2048');
+
+                expect(result).toBe(1024);
+            });
+
+            it('should convert kilobytes with K unit', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('512K', '2M');
+
+                expect(result).toBe(524288); // 512 * 1024
+            });
+
+            it('should convert megabytes with M unit', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('3M', '2M');
+
+                expect(result).toBe(3145728); // 3 * 1024 * 1024
+            });
+
+            it('should handle lowercase units', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('2m', '1M');
+
+                expect(result).toBe(2097152); // 2 * 1024 * 1024
+            });
+
+            it('should handle lowercase kilobytes', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('256k', '1M');
+
+                expect(result).toBe(262144); // 256 * 1024
+            });
+
+            it('should use default value when input is empty', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('', '4M');
+
+                expect(result).toBe(4194304); // 4 * 1024 * 1024
+            });
+
+            it('should return number as is when input is already a number', () => {
+                const converter = fileSizeConverter({});
+                const result = converter(1024 as unknown as string, '2M');
+
+                expect(result).toBe(1024);
+            });
+
+            it('should limit to max value when specified', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter('20M', '2M');
+
+                expect(result).toBe(16777216); // 16 * 1024 * 1024
+            });
+
+            it('should throw error for unknown unit type', () => {
+                const converter = fileSizeConverter({});
+
+                expect(() => converter('5G', '2M')).toThrow(
+                    'Unknown unit type at config: G. Allowed: K, M, k, m or without unit',
+                );
+            });
+        });
     });
 
     // describe('apply', () => {});

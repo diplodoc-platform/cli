@@ -20,9 +20,9 @@ import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
 import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
-import {RedirectsService} from './services/redirects';
-import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
+import {SearchService} from './services/search';
+import {RedirectsService} from './services/redirects';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -189,7 +189,13 @@ export class Run extends BaseRun<BuildConfig> {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
             },
-            rawContent: (path: string): string => assets[path] as string,
+            rawContent: (path: string): string => {
+                if (typeof assets[path] !== 'string') {
+                    throw new Error('Asset not found');
+                }
+
+                return assets[path];
+            },
             calcPath: (root: string, path: string) => normalizePath(join(dirname(root), path)),
             replaceImageSrc: (_state: unknown, _root: string, file: string) => file,
         };
