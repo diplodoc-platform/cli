@@ -133,6 +133,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceSearch,
         options.interfaceFeedback,
         options.pdfDebug,
+        options.maxInlineSvgSize,
     ];
 
     readonly modules = [
@@ -279,6 +280,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     @bounded async processEntry(entry: NormalizedPath) {
         const {outputFormat} = this.config;
 
+        const startTime = Date.now();
         this.run.logger.proc(entry);
 
         this.run.entry.relations.addNode(entry);
@@ -292,7 +294,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         await getHooks(this).Entry.for(outputFormat).promise(this.run, entry, info);
 
-        this.run.logger.info('Processing finished:', entry);
+        const time = ((Date.now() - startTime) / 1000).toPrecision(3);
+        this.run.logger.info(`${time}: Processing finished:`, entry);
     }
 
     @threads.threaded('build.process')

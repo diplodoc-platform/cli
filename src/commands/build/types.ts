@@ -36,6 +36,10 @@ type ExtendedLang = {
 
 export type Langs = (string | ExtendedLang)[];
 
+export type ContentConfig = {
+    maxInlineSvgSize: number;
+};
+
 type BaseConfig = {
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
@@ -60,6 +64,7 @@ type BaseConfig = {
     pdf: Record<string, boolean>;
     neuroExpert?: NeuroExpert;
     pdfDebug: boolean;
+    content: ContentConfig;
 };
 
 export type VcsArgs = {
@@ -123,7 +128,8 @@ export type BuildConfig = Config<
         TocFilteringConfig &
         PreprocessConfig &
         WatchConfig &
-        NeuroExpertConfig
+        NeuroExpertConfig &
+        ContentConfig
 >;
 
 export type EntryInfo<Extras extends LeadingData | MarkdownData = LeadingData | MarkdownData> =
