@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.0](https://github.com/diplodoc-platform/cli/compare/v5.15.8...v5.16.0) (2025-11-25)
+
+
+### Features
+
+* inline svg config ([42592c4](https://github.com/diplodoc-platform/cli/commit/42592c46d636d15cf5c7f3474fb13c8f5883987a))
+
 ## [5.15.8](https://github.com/diplodoc-platform/cli/compare/v5.15.7...v5.15.8) (2025-11-24)
 
 
