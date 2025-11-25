@@ -3,7 +3,7 @@ import type {AssetInfo, IncludeInfo} from '~/core/markdown';
 import type {Alternate} from '~/core/meta';
 import type {Lang} from '@diplodoc/transform/lib/typings';
 
-import {join, resolve} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
@@ -20,9 +20,9 @@ import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
 import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
-import {EntryService} from './services/entry';
-import {SearchService} from './services/search';
 import {RedirectsService} from './services/redirects';
+import {SearchService} from './services/search';
+import {EntryService} from './services/entry';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -113,18 +113,19 @@ export class Run extends BaseRun<BuildConfig> {
         const {deps, assets} = options;
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
+            if (path?.endsWith('.svg')) {
+                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
+            } else {
+                return true;
+            }
+        });
 
         const {parse, compile, env} = transformer({
-            ...this.transformConfig(file),
+            ...this.transformConfig(file, assetsRemap),
             files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
             titles: await remap(titles, this.titles),
-            assets: await remap(assets.map(get('path')), async (path) => {
-                if (path?.endsWith('.svg')) {
-                    return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
-                } else {
-                    return true;
-                }
-            }),
+            assets: assetsRemap,
         });
 
         const tokens = parse(markdown);
@@ -137,12 +138,19 @@ export class Run extends BaseRun<BuildConfig> {
         const {deps, assets} = options;
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
+            if (path?.endsWith('.svg')) {
+                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
+            } else {
+                return true;
+            }
+        });
 
         const pluginOptions = {
-            ...this.transformConfig(file),
+            ...this.transformConfig(file, assetsRemap),
             files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
             titles: await remap(titles, this.titles),
-            assets: await remap(assets.map(get('path'))),
+            assets: assetsRemap,
         };
 
         return yfmlint(markdown, file, {
@@ -164,7 +172,7 @@ export class Run extends BaseRun<BuildConfig> {
         return alternates[base] || [];
     }
 
-    private transformConfig(path: NormalizedPath) {
+    private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
         return {
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
@@ -177,6 +185,13 @@ export class Run extends BaseRun<BuildConfig> {
             log: this.logger,
             entries: this.getEntries(),
             existsInProject: this.existsInProject,
+            svgInline: {
+                enabled: this.config.content.maxInlineSvgSize !== 0,
+                maxFileSize: this.config.content.maxInlineSvgSize,
+            },
+            rawContent: (path: string): string => assets[path] as string,
+            calcPath: (root: string, path: string) => normalizePath(join(dirname(root), path)),
+            replaceImageSrc: (_state: unknown, _root: string, file: string) => file,
         };
     }
 
