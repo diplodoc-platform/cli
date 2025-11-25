@@ -172,6 +172,20 @@ const maxInlineSvgSize = option({
     parser: fileSizeConverter({max: '16M'}),
 });
 
+const maxHtmlSize = option({
+    flags: '--max-html-size <value>',
+    desc: `
+        Restriction on the maximum file size for rendered html file. 
+        Default: 42M
+        Max size: 96M
+        
+        Example:
+            {{PROGRAM}} build -i . -o ../build --max-html-size '128K'
+    `,
+    default: '42M',
+    parser: fileSizeConverter({max: '96M'}),
+});
+
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -288,8 +302,9 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         ...config.interface,
         ...viewerInterface,
     };
-    config.content = combineProps(config, 'content', ['maxInlineSvgSize'], {
+    config.content = combineProps(config, 'content', ['maxInlineSvgSize', 'maxHtmlSize'], {
         maxInlineSvgSize,
+        maxHtmlSize,
     }) as ContentConfig;
 
     return config;
@@ -321,4 +336,5 @@ export const options = {
     interfaceFeedback,
     pdfDebug,
     maxInlineSvgSize,
+    maxHtmlSize,
 };

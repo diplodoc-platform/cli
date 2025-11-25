@@ -134,6 +134,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceFeedback,
         options.pdfDebug,
         options.maxInlineSvgSize,
+        options.maxHtmlSize,
     ];
 
     readonly modules = [

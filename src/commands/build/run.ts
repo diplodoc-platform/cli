@@ -20,9 +20,9 @@ import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
 import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
-import {EntryService} from './services/entry';
-import {SearchService} from './services/search';
 import {RedirectsService} from './services/redirects';
+import {SearchService} from './services/search';
+import {EntryService} from './services/entry';
 
 type TransformOptions = {
     deps: IncludeInfo[];
