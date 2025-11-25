@@ -1,7 +1,6 @@
-import type {AssetInfo} from '~/core/markdown/types';
+import type {AssetInfo, ImageOptions} from '~/core/markdown/types';
 import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
-import type {ImageOptions} from '@diplodoc/transform/lib/typings';
 
 import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 import path from 'node:path';
@@ -17,7 +16,7 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
     const defs = assets.filter(isDef);
     const images = assets.filter(isImage);
 
-    return async function (scheduler, _entry): Promise<void> {
+    return async function (scheduler, entry): Promise<void> {
         type StepContext = {image: AssetInfo};
 
         const actor = async function (content: string, {image}: StepContext): Promise<string> {
@@ -43,6 +42,12 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
             }
 
             if (!svgContent) {
+                return content;
+            }
+            if (svgContent.length > run.config.content.maxInlineSvgSize) {
+                run.logger.info(
+                    `Svg size: ${svgContent.length}; Config size: ${run.config.content.maxInlineSvgSize}; Image: ${imgPath}; Src: ${entry}`,
+                );
                 return content;
             }
 
