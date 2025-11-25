@@ -17,8 +17,8 @@ import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {ASSETS_FOLDER} from '~/constants';
 
-import {getHooks as getEntryHooks} from '../../services/entry';
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
+import {getHooks as getEntryHooks} from '../../services/entry';
 
 import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
@@ -86,6 +86,20 @@ export class OutputHtml {
                     vfile.path = setExt(vfile.path, '.html');
                     vfile.format(() => html);
                     Object.assign(vfile.info, data);
+                });
+
+                getEntryHooks(run.entry).Dump.tap({name: 'Html', stage: Infinity}, (entry) => {
+                    const maxContentLength = run.config.content.maxHtmlSize;
+                    const contentLength = entry.data.content.data.toString().length;
+
+                    if (contentLength < maxContentLength) {
+                        return;
+                    }
+
+                    run.logger.error(
+                        'YFM012',
+                        `${entry.data.path}: YFM012 / Filesize limit exceeded: ${contentLength} (limit is ${maxContentLength})`,
+                    );
                 });
 
                 // Transform Page Constructor yfm blocks
