@@ -22,6 +22,8 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: Child description
     RecurceTop:
       type: object
       properties:
@@ -40,3 +42,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        C:
+          title: Parent title
+          description: Parent description
+          $ref: '#/components/schemas/DescriptionRef'
+        D:
+          title: External Parent title
+          description: External Parent description
+          $ref: 'common.yaml#/components/schemas/ExternalChildRef'
