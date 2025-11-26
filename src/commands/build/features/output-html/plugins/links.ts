@@ -46,14 +46,13 @@ export default ((md, opts) => {
                 const fileMissingInToc = !entries.includes(file);
 
                 if (fileMissingInProject || fileMissingInToc) {
-                    link.attrSet('YFM003', file);
-
+                    
                     if (fileMissingInProject && fileMissingInToc) {
-                        link.attrSet('YFM003_REASON', 'missing-in-toc-and-file-not-found');
+                        link.attrSet('YFM003', 'missing-in-toc-and-file-not-found');
                     } else if (fileMissingInProject) {
-                        link.attrSet('YFM003_REASON', 'file-not-found');
+                        link.attrSet('YFM003', 'file-not-found');
                     } else {
-                        link.attrSet('YFM003_REASON', 'missing-in-toc');
+                        link.attrSet('YFM003', 'missing-in-toc');
                     }
                 }
             }
