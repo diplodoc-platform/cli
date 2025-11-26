@@ -42,8 +42,19 @@ export default ((md, opts) => {
             );
 
             if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
-                if (!existsInProject(file) || !entries.includes(file)) {
+                const fileMissingInProject = !existsInProject(file);
+                const fileMissingInToc = !entries.includes(file);
+
+                if (fileMissingInProject || fileMissingInToc) {
                     link.attrSet('YFM003', file);
+
+                    if (fileMissingInProject && fileMissingInToc) {
+                        link.attrSet('YFM003_REASON', 'missing-in-toc-and-file-not-found');
+                    } else if (fileMissingInProject) {
+                        link.attrSet('YFM003_REASON', 'file-not-found');
+                    } else {
+                        link.attrSet('YFM003_REASON', 'missing-in-toc');
+                    }
                 }
             }
 
