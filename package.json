@@ -88,7 +88,7 @@
     "glob": "^10.4.5",
     "highlight.js": "^11.10.0",
     "js-yaml": "4.1.0",
-    "katex": "0.16.9",
+    "katex": "0.16.25",
     "lodash": "4.17.21",
     "markdown-it": "^13.0.2",
     "markdown-it-deflist": "^2.1.0",
