@@ -12,16 +12,11 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      version: ${{ steps.package.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: 'https://registry.npmjs.org'
-      - name: Install latest npm (>= 11.5.1)
-        run: |
-          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
-        shell: bash
       - uses: codex-team/action-nodejs-package-info@v1
         id: package
       - uses: googleapis/release-please-action@v4
@@ -29,13 +24,27 @@ jobs:
         with:
           token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
           release-type: node
-      - run: npm ci && npm publish
-        if: ${{ steps.release.outputs.release_created }}
-        shell: bash
-      - working-directory: tests
-        run: |
-          echo Publishing companion package with version ${{steps.package.outputs.version}}
-          npm version ${{steps.package.outputs.version}}
-          npm publish
-        if: ${{ steps.release.outputs.release_created }}
-        shell: bash
+
+  publish-main:
+    needs: release
+    if: ${{ needs.release.outputs.release_created }}
+    uses: ./.github/workflows/publish.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      version: ${{ needs.release.outputs.version }}
+      tag: 'latest'
+      working-directory: '.'
+
+  publish-tests:
+    needs: release
+    if: ${{ needs.release.outputs.release_created }}
+    uses: ./.github/workflows/publish.yaml
+    permissions:
+      id-token: write
+      contents: read
+    with:
+      version: ${{ needs.release.outputs.version }}
+      tag: 'latest'
+      working-directory: 'tests'
