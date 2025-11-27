@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.2](https://github.com/diplodoc-platform/cli/compare/v5.16.1...v5.16.2) (2025-11-27)
+
+
+### Bug Fixes
+
+* check html result max size ([09c99ff](https://github.com/diplodoc-platform/cli/commit/09c99ffec7bf925e922d2cd02da97c6981e9beac))
+
 ## [5.16.1](https://github.com/diplodoc-platform/cli/compare/v5.16.0...v5.16.1) (2025-11-27)
 
 
