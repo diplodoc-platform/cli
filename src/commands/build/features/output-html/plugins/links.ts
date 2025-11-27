@@ -42,8 +42,17 @@ export default ((md, opts) => {
             );
 
             if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
-                if (!existsInProject(file) || !entries.includes(file)) {
-                    link.attrSet('YFM003', file);
+                const fileMissingInProject = !existsInProject(file);
+                const fileMissingInToc = !entries.includes(file);
+
+                if (fileMissingInProject || fileMissingInToc) {
+                    if (fileMissingInProject && fileMissingInToc) {
+                        link.attrSet('YFM003', 'missing-in-toc-and-file-not-found');
+                    } else if (fileMissingInProject) {
+                        link.attrSet('YFM003', 'file-not-found');
+                    } else {
+                        link.attrSet('YFM003', 'missing-in-toc');
+                    }
                 }
             }
 
