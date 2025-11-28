@@ -7,41 +7,27 @@ permissions:
   contents: read
 
 jobs:
-  prepare:
+  prerelease:
     runs-on: ubuntu-latest
     if: github.ref_protected != true
-    outputs:
-      version: ${{ steps.version.outputs.value }}
-      tag: ${{ steps.tag.outputs.value }}
     steps:
       - uses: actions/checkout@v4
-      - name: Calculate version
-        id: version
-        run: echo "value=0.0.0-rc-$(git branch --show-current)-${{github.run_id}}" >> $GITHUB_OUTPUT
+      - name: Setup Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+      - name: Install latest npm (>= 11.5.1)
+        run: |
+          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
         shell: bash
-      - name: Calculate tag
-        id: tag
-        run: echo "value=$(git branch --show-current)" >> $GITHUB_OUTPUT
-        shell: bash
-
-  publish-main:
-    needs: prepare
-    uses: ./.github/workflows/publish.yaml
-    permissions:
-      id-token: write
-      contents: read
-    with:
-      version: ${{ needs.prepare.outputs.version }}
-      tag: ${{ needs.prepare.outputs.tag }}
-      working-directory: '.'
-
-  publish-tests:
-    needs: prepare
-    uses: ./.github/workflows/publish.yaml
-    permissions:
-      id-token: write
-      contents: read
-    with:
-      version: ${{ needs.prepare.outputs.version }}
-      tag: ${{ needs.prepare.outputs.tag }}
-      working-directory: 'tests'
+      - run: npm ci
+      - run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+      - run: npm publish --tag $(git branch --show-current)
+      - working-directory: tests
+        run: npm ci
+      - working-directory: tests
+        run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+      - working-directory: tests
+        run: npm publish --tag $(git branch --show-current)
