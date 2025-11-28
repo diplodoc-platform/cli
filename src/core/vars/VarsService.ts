@@ -6,7 +6,7 @@ import {dirname, join} from 'node:path';
 import {isEmpty} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {Graph, all, bounded, normalizePath, normalizeIgnorePatterns, own} from '~/core/utils';
+import {Graph, all, bounded, normalizeIgnorePatterns, normalizePath, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {proxy} from './utils';
