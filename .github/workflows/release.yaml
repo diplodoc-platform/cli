@@ -30,7 +30,7 @@ jobs:
           token: ${{secrets.YC_UI_BOT_GITHUB_TOKEN}}
           release-type: node
       - run: npm ci && npm publish
-        # if: ${{ steps.release.outputs.release_created }}
+        if: ${{ steps.release.outputs.release_created }}
         shell: bash
       - working-directory: tests
         run: |
