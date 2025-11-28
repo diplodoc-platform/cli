@@ -1,4 +1,4 @@
-import {describe, test, expect} from 'vitest';
+import {describe, expect, test} from 'vitest';
 import {resolve} from 'node:path';
 import {readFileSync} from 'node:fs';
 
@@ -31,11 +31,17 @@ describe('VarsService ignore patterns', () => {
         });
 
         // Check that variables in subdirectories are resolved
-        const ignoredContent = readFileSync(resolve(outputPath + '-no-ignore', 'ignored/ignored-test.md'), 'utf8');
+        const ignoredContent = readFileSync(
+            resolve(outputPath + '-no-ignore', 'ignored/ignored-test.md'),
+            'utf8',
+        );
         expect(ignoredContent).toContain('Root var: rootValue');
         expect(ignoredContent).toContain('Ignored var: ignoredValue');
 
-        const dataContent = readFileSync(resolve(outputPath + '-no-ignore', 'data/data-test.md'), 'utf8');
+        const dataContent = readFileSync(
+            resolve(outputPath + '-no-ignore', 'data/data-test.md'),
+            'utf8',
+        );
         expect(dataContent).toContain('Root var: rootValue');
         expect(dataContent).toContain('Data var: dataValue');
     });
@@ -50,11 +56,17 @@ describe('VarsService ignore patterns', () => {
         });
 
         // Check that ignored/ presets are loaded but data/ presets are not
-        const ignoredContent = readFileSync(resolve(outputPath + '-partial', 'ignored/ignored-test.md'), 'utf8');
+        const ignoredContent = readFileSync(
+            resolve(outputPath + '-partial', 'ignored/ignored-test.md'),
+            'utf8',
+        );
         expect(ignoredContent).toContain('Root var: rootValue');
         expect(ignoredContent).toContain('Ignored var: ignoredValue'); // Should be resolved
 
-        const dataContent = readFileSync(resolve(outputPath + '-partial', 'data/data-test.md'), 'utf8');
+        const dataContent = readFileSync(
+            resolve(outputPath + '-partial', 'data/data-test.md'),
+            'utf8',
+        );
         expect(dataContent).toContain('Root var: rootValue');
         expect(dataContent).toContain('{{dataVar}}'); // Should remain unresolved
     });
@@ -86,7 +98,10 @@ describe('VarsService ignore patterns', () => {
         });
 
         // Check that subdoc files are processed and variables are resolved correctly
-        const subDocContent = readFileSync(resolve(outputPath + '-nested', 'subdoc/index.md'), 'utf8');
+        const subDocContent = readFileSync(
+            resolve(outputPath + '-nested', 'subdoc/index.md'),
+            'utf8',
+        );
         expect(subDocContent).toContain('Sub var: subValue'); // Should be resolved from subdoc presets
         expect(subDocContent).toContain('Common var: fromSub'); // Should use subdoc override
         expect(subDocContent).toContain('{{topLevelVar}}'); // Should remain unresolved (top-level presets ignored)
@@ -105,7 +120,10 @@ describe('VarsService ignore patterns', () => {
         });
 
         // Check that ALL variables remain unresolved (no presets loaded at all)
-        const subDocContent = readFileSync(resolve(outputPath + '-no-vars-config', 'subdoc/index.md'), 'utf8');
+        const subDocContent = readFileSync(
+            resolve(outputPath + '-no-vars-config', 'subdoc/index.md'),
+            'utf8',
+        );
         expect(subDocContent).toContain('{{subVar}}'); // Should remain unresolved
         expect(subDocContent).toContain('{{commonVar}}'); // Should remain unresolved
         expect(subDocContent).toContain('{{topLevelVar}}'); // Should remain unresolved
@@ -133,11 +151,17 @@ describe('VarsService ignore patterns', () => {
         expect(outputContent).toContain('{{dataVar}}'); // Should remain unresolved
 
         // Check subdirectory files - variables should also remain unresolved
-        const ignoredContent = readFileSync(resolve(outputPath + '-no-vars', 'ignored/ignored-test.md'), 'utf8');
+        const ignoredContent = readFileSync(
+            resolve(outputPath + '-no-vars', 'ignored/ignored-test.md'),
+            'utf8',
+        );
         expect(ignoredContent).toContain('{{rootVar}}'); // Should remain unresolved
         expect(ignoredContent).toContain('{{ignoredVar}}'); // Should remain unresolved
 
-        const dataContent = readFileSync(resolve(outputPath + '-no-vars', 'data/data-test.md'), 'utf8');
+        const dataContent = readFileSync(
+            resolve(outputPath + '-no-vars', 'data/data-test.md'),
+            'utf8',
+        );
         expect(dataContent).toContain('{{rootVar}}'); // Should remain unresolved
         expect(dataContent).toContain('{{dataVar}}'); // Should remain unresolved
     });

@@ -235,14 +235,19 @@ describe('vars', () => {
                 // Mock glob to return only non-ignored files
                 when(run.glob)
                     .calledWith('**/presets.yaml', expect.anything())
-                    .thenResolve(['./presets.yaml', './subfolder/presets.yaml'] as NormalizedPath[]);
+                    .thenResolve([
+                        './presets.yaml',
+                        './subfolder/presets.yaml',
+                    ] as NormalizedPath[]);
 
                 // Mock read for non-ignored files only
                 when(run.read)
                     .calledWith(normalizePath(join(run.input, './presets.yaml')) as AbsolutePath)
                     .thenResolve(content['./presets.yaml']);
                 when(run.read)
-                    .calledWith(normalizePath(join(run.input, './subfolder/presets.yaml')) as AbsolutePath)
+                    .calledWith(
+                        normalizePath(join(run.input, './subfolder/presets.yaml')) as AbsolutePath,
+                    )
                     .thenResolve(content['./subfolder/presets.yaml']);
 
                 await service.init();
