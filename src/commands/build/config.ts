@@ -295,7 +295,14 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     }
 
     config.ignoreStage = [].concat(ignoreStage);
-    config.ignore = [].concat(ignore).map((rule: string) => rule.replace(/\/*$/g, '/**'));
+    config.ignore = [].concat(ignore).map((rule: string) => {
+        // Don't modify patterns that already have file extensions or wildcards
+        if (rule.includes('*') || rule.includes('.')) {
+            return rule;
+        }
+        // Add /** only to directory patterns
+        return rule.replace(/\/*$/g, '/**');
+    });
     config.langs = langs;
     config.lang = lang || langs[0];
     config.vcs = toggleable('vcs', args, config);
