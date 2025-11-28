@@ -52,6 +52,7 @@ export class VarsService {
             presets ||
             (await this.run.glob('**/presets.yaml', {
                 cwd: this.run.input,
+                ignore: this.run.config?.ignore?.map((rule: string) => rule.replace(/\/*$/g, '/**')) || [],
             }));
 
         return all(presets.map(this.load));
