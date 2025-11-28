@@ -296,11 +296,14 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
 
     config.ignoreStage = [].concat(ignoreStage);
     config.ignore = [].concat(ignore).map((rule: string) => {
-        // Don't modify patterns that already have file extensions or wildcards
-        if (rule.includes('*') || rule.includes('.')) {
+        // Don't add /** to file patterns with extensions that don't end with *
+        // We want: '**/*.md' to stay '**/*.md' (not become '**/*.md/**')
+        // We want: 'file.txt' to stay 'file.txt' (not become 'file.txt/**')
+        if (rule.includes('.') && !rule.endsWith('*')) {
             return rule;
         }
-        // Add /** only to directory patterns
+        // Add /** to directory patterns and wildcard patterns ending with *
+        // Examples: 'build' → 'build/**', 'en/_api-ref/*' → 'en/_api-ref/*/**'
         return rule.replace(/\/*$/g, '/**');
     });
     config.langs = langs;
