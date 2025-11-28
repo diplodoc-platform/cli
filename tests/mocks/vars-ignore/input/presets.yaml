@@ -1,0 +1,3 @@
+default:
+  rootVar: rootValue
+  commonVar: fromRoot

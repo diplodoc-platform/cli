@@ -1,0 +1,3 @@
+default:
+  dataVar: dataValue
+  commonVar: fromData
