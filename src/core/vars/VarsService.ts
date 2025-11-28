@@ -6,7 +6,7 @@ import {dirname, join} from 'node:path';
 import {isEmpty} from 'lodash';
 import {dump, load} from 'js-yaml';
 
-import {Graph, all, bounded, normalizePath, own} from '~/core/utils';
+import {Graph, all, bounded, normalizePath, normalizeIgnorePatterns, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {proxy} from './utils';
@@ -14,6 +14,7 @@ import {proxy} from './utils';
 export type VarsServiceConfig = {
     varsPreset: string;
     vars: Hash;
+    ignore?: string[];
 };
 
 type Run = BaseRun<VarsServiceConfig>;
@@ -52,9 +53,7 @@ export class VarsService {
             presets ||
             (await this.run.glob('**/presets.yaml', {
                 cwd: this.run.input,
-                ignore:
-                    this.run.config?.ignore?.map((rule: string) => rule.replace(/\/*$/g, '/**')) ||
-                    [],
+                ignore: normalizeIgnorePatterns(this.run.config.ignore || []),
             }));
 
         return all(presets.map(this.load));
