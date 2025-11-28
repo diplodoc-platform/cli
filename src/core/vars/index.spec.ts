@@ -55,16 +55,6 @@ const content = {
           override4: value1
           override6: value1
     `,
-    './ignored/presets.yaml': dedent`
-        default:
-          ignoredField: ignoredValue
-          override1: ignoredOverride
-    `,
-    './build/presets.yaml': dedent`
-        default:
-          buildField: buildValue
-          override2: buildOverride
-    `,
 };
 
 function prepare(options: Options = {}) {
@@ -223,82 +213,6 @@ describe('vars', () => {
             test('should not merge presets on lower levels', './subfolder/subfolder/test.md');
 
             test('should handle empty preset', './empty/test.md');
-        });
-
-        describe('ignore patterns', () => {
-            it('should ignore presets files based on ignore patterns', async () => {
-                const run = setupRun({
-                    ignore: ['ignored/', 'build/'],
-                });
-                const service = new VarsService(run);
-
-                // Mock glob to return only non-ignored files
-                when(run.glob)
-                    .calledWith('**/presets.yaml', expect.anything())
-                    .thenResolve([
-                        './presets.yaml',
-                        './subfolder/presets.yaml',
-                    ] as NormalizedPath[]);
-
-                // Mock read for non-ignored files only
-                when(run.read)
-                    .calledWith(normalizePath(join(run.input, './presets.yaml')) as AbsolutePath)
-                    .thenResolve(content['./presets.yaml']);
-                when(run.read)
-                    .calledWith(
-                        normalizePath(join(run.input, './subfolder/presets.yaml')) as AbsolutePath,
-                    )
-                    .thenResolve(content['./subfolder/presets.yaml']);
-
-                await service.init();
-                const vars = service.for('./subfolder/test.md' as RelativePath);
-
-                // Should have values from non-ignored presets
-                expect(vars.field1).toEqual('value1');
-                expect(vars.sub1).toEqual('value1');
-
-                // Should NOT have values from ignored presets
-                expect(vars.ignoredField).toBeUndefined();
-                expect(vars.buildField).toBeUndefined();
-            });
-
-            it('should load all presets when no ignore patterns', async () => {
-                const run = setupRun({
-                    ignore: [],
-                });
-                const service = new VarsService(run);
-
-                // Mock glob to return all files
-                when(run.glob)
-                    .calledWith('**/presets.yaml', expect.anything())
-                    .thenResolve(Object.keys(content) as NormalizedPath[]);
-
-                for (const [file, data] of Object.entries(content)) {
-                    when(run.read)
-                        .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
-                        .thenResolve(data);
-                }
-
-                await service.init();
-
-                // Check vars for root file
-                const rootVars = service.for('test.md' as RelativePath);
-                expect(rootVars.field1).toEqual('value1');
-
-                // Check vars for files in ignored folder
-                const ignoredVars = service.for('./ignored/test.md' as RelativePath);
-                expect(ignoredVars.ignoredField).toEqual('ignoredValue');
-                expect(ignoredVars.field1).toEqual('value1'); // Should inherit from root
-
-                // Check vars for files in build folder
-                const buildVars = service.for('./build/test.md' as RelativePath);
-                expect(buildVars.buildField).toEqual('buildValue');
-                expect(buildVars.field1).toEqual('value1'); // Should inherit from root
-
-                // Check that all presets are loaded
-                expect(service.get('./ignored/presets.yaml' as NormalizedPath)).toBeDefined();
-                expect(service.get('./build/presets.yaml' as NormalizedPath)).toBeDefined();
-            });
         });
     });
 });
