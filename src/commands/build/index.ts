@@ -12,7 +12,7 @@ import * as threads from '~/commands/threads';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
-import {bounded, console, normalizeIgnorePatterns, normalizePath, own, setExt} from '~/core/utils';
+import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
 import {Command} from '~/core/config';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {getHooks as getTocHooks} from '~/core/toc';
@@ -201,7 +201,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         console.log('Collect project files info');
         const paths = await this.run.glob('**/toc.yaml', {
             cwd: this.run.input,
-            ignore: normalizeIgnorePatterns(this.run.config.ignore),
+            ignore: this.run.config.ignore,
         });
 
         // Regenerate toc entry names from md titles

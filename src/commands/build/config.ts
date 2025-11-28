@@ -161,10 +161,10 @@ const pdfDebug = option({
 const maxInlineSvgSize = option({
     flags: '--max-inline-svg-size <value>',
     desc: `
-        Restriction on the maximum file size for inline SVG. 
+        Restriction on the maximum file size for inline SVG.
         Default: 2M
         Max size: 16M
-        
+
         Example:
             {{PROGRAM}} build -i . -o ../build --max-inline-svg-size '128K'
     `,
@@ -175,10 +175,10 @@ const maxInlineSvgSize = option({
 const maxHtmlSize = option({
     flags: '--max-html-size <value>',
     desc: `
-        Restriction on the maximum file size for rendered html file. 
+        Restriction on the maximum file size for rendered html file.
         Default: 42M
         Max size: 96M
-        
+
         Example:
             {{PROGRAM}} build -i . -o ../build --max-html-size '128K'
     `,
@@ -274,6 +274,7 @@ export function fileSizeConverter(opts: Hash) {
 
 export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const ignoreStage = defined('ignoreStage', args, config) || [];
+    const ignore = defined('ignore', args, config) || [];
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
     const viewerInterface = getInterfaceProps(config, args);
@@ -294,6 +295,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     }
 
     config.ignoreStage = [].concat(ignoreStage);
+    config.ignore = [].concat(ignore).map((rule: string) => rule.replace(/\/*$/g, '/**'));
     config.langs = langs;
     config.lang = lang || langs[0];
     config.vcs = toggleable('vcs', args, config);

@@ -158,7 +158,3 @@ export class Buckets<T> {
         this.scope.delete(key);
     }
 }
-
-export function normalizeIgnorePatterns(patterns: string[]): string[] {
-    return patterns.map((rule: string) => rule.replace(/\/*$/g, '/**'));
-}
