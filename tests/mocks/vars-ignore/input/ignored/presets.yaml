@@ -1,0 +1,3 @@
+default:
+  ignoredVar: ignoredValue
+  commonVar: fromIgnored

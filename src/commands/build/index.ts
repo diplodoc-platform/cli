@@ -199,10 +199,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         await threads.setup();
 
         console.log('Collect project files info');
-        const ignore = this.run.config.ignore.map((rule) => rule.replace(/\/*$/g, '/**'));
         const paths = await this.run.glob('**/toc.yaml', {
             cwd: this.run.input,
-            ignore,
+            ignore: this.run.config.ignore,
         });
 
         // Regenerate toc entry names from md titles

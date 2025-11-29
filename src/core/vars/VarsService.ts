@@ -14,6 +14,7 @@ import {proxy} from './utils';
 export type VarsServiceConfig = {
     varsPreset: string;
     vars: Hash;
+    ignore: string[];
 };
 
 type Run = BaseRun<VarsServiceConfig>;
@@ -52,6 +53,7 @@ export class VarsService {
             presets ||
             (await this.run.glob('**/presets.yaml', {
                 cwd: this.run.input,
+                ignore: this.run.config.ignore,
             }));
 
         return all(presets.map(this.load));
