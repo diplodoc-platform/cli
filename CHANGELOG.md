@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.4](https://github.com/diplodoc-platform/cli/compare/v5.16.3...v5.16.4) (2025-12-01)
+
+
+### Bug Fixes
+
+* fixed lineNumber in yfmlint in yfm003 ([#1546](https://github.com/diplodoc-platform/cli/issues/1546)) ([c452c4c](https://github.com/diplodoc-platform/cli/commit/c452c4ced4f3cb13d36785be774abc0682da23d3))
+
 ## [5.16.3](https://github.com/diplodoc-platform/cli/compare/v5.16.2...v5.16.3) (2025-12-01)
 
 
