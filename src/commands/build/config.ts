@@ -239,12 +239,46 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
                 acc[prop] = configValue;
             }
 
+            // Also check for root-level config property (e.g. feedback at root level)
+            const rootConfigValue = defined(prop, config);
+            if (rootConfigValue !== null) {
+                acc[prop] = rootConfigValue;
+            }
+
             return acc;
         },
         {} as Record<InterfaceProp, boolean>,
     );
 
     return result;
+}
+
+// Function to extract additional feedback-specific settings like URL
+function getFeedbackSettings<C extends BuildConfig>(config: C) {
+    // Support for feedback.url in interface section
+    const interfaceSettings = config['interface'] || {};
+    const feedbackSettings = interfaceSettings['feedback'];
+
+    // Also support root-level feedback.url
+    const rootFeedbackSettings = config['feedback'];
+
+    // If feedback settings is an object with url property
+    let feedbackUrl = null;
+    if (
+        typeof feedbackSettings === 'object' &&
+        feedbackSettings !== null &&
+        'url' in feedbackSettings
+    ) {
+        feedbackUrl = feedbackSettings.url;
+    } else if (
+        typeof rootFeedbackSettings === 'object' &&
+        rootFeedbackSettings !== null &&
+        'url' in rootFeedbackSettings
+    ) {
+        feedbackUrl = rootFeedbackSettings.url;
+    }
+
+    return {feedbackUrl};
 }
 
 export function fileSizeConverter(opts: Hash) {
@@ -278,6 +312,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
     const viewerInterface = getInterfaceProps(config, args);
+    const feedbackSettings = getFeedbackSettings(config);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -318,6 +353,11 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         maxInlineSvgSize,
         maxHtmlSize,
     }) as ContentConfig;
+
+    // Add feedback-specific settings
+    if (feedbackSettings.feedbackUrl) {
+        config.feedbackUrl = feedbackSettings.feedbackUrl;
+    }
 
     return config;
 }

@@ -55,4 +55,5 @@ export type PageState = {
     lang: string;
     langs: Langs;
     analytics: Hash;
+    feedbackUrl?: string;
 } & Hash;
