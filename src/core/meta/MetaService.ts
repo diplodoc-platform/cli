@@ -17,6 +17,20 @@ type MetaItem = {
     content: string;
 };
 
+/**
+ * Service for managing page metadata in the CLI build process.
+ *
+ * Stores, merges, and normalizes metadata for each document by path.
+ * Provides methods for adding resources, custom meta tags, alternate links,
+ * and system variables.
+ *
+ * @example
+ * ```typescript
+ * const metaService = new MetaService(run);
+ * metaService.add('/docs/page.md', {title: 'My Page'});
+ * const meta = await metaService.dump('/docs/page.md');
+ * ```
+ */
 @withHooks
 export class MetaService {
     readonly name = 'Meta';
@@ -27,13 +41,24 @@ export class MetaService {
 
     private meta: Map<NormalizedPath, Meta> = new Map();
 
+    /**
+     * Creates a new MetaService instance.
+     *
+     * @param run - Run instance with configuration
+     */
     constructor(run: Run<Config>) {
         // this.run = run;
         this.config = run.config;
     }
 
     /**
-     * Returns non normalized current readonly metadata for selected path.
+     * Returns current metadata for a path (creates initial metadata if not exists).
+     *
+     * Returns a frozen, read-only copy to prevent accidental modifications.
+     * This is the non-normalized version - use `dump()` for final normalized metadata.
+     *
+     * @param path - Relative path to the document
+     * @returns Frozen copy of metadata for the path
      */
     get(path: RelativePath): DeepFrozen<Meta> {
         const file = normalizePath(path);
@@ -45,13 +70,28 @@ export class MetaService {
         return this.meta.get(file) as DeepFrozen<Meta>;
     }
 
+    /**
+     * Sets metadata for a path (overwrites existing).
+     *
+     * @param path - Relative path to the document
+     * @param meta - Metadata object to set
+     */
     set(path: RelativePath, meta: Meta) {
         const file = normalizePath(path);
         this.meta.set(file, meta);
     }
 
     /**
-     * Returns normalized merged metadata for selected path.
+     * Returns normalized, merged metadata for a path.
+     *
+     * Performs cleanup operations:
+     * - Removes duplicates from arrays (script, style, keywords)
+     * - Removes empty arrays (script, style, keywords, contributors, csp, alternate)
+     * - Removes empty objects (metadata, __system)
+     * - Runs Dump hook for final processing
+     *
+     * @param path - Relative path to the document
+     * @returns Normalized metadata ready for use
      */
     async dump(path: RelativePath) {
         const file = normalizePath(path);
@@ -91,6 +131,20 @@ export class MetaService {
         return getHooks(this).Dump.promise(meta, file);
     }
 
+    /**
+     * Adds/merges metadata for a path.
+     *
+     * Handles special fields:
+     * - `restricted-access`: Prevents duplicate access rules
+     * - `metadata`: Custom meta tags (merged via `addMetadata()`)
+     * - `alternate`: Alternate links (merged via `addAlternates()`)
+     * - `__system`: System variables (merged via `addSystemVars()`)
+     * - Other fields: Direct assignment (last value wins)
+     *
+     * @param path - Relative path to the document
+     * @param record - Hash of metadata fields to add/merge
+     * @returns Updated metadata object
+     */
     add(path: RelativePath, record: Hash) {
         const file = normalizePath(path);
 
@@ -134,6 +188,15 @@ export class MetaService {
         return meta;
     }
 
+    /**
+     * Adds page resources (scripts, styles, CSP) for a path.
+     *
+     * Scripts and styles are merged as unique arrays.
+     * CSP records are normalized (strings converted to arrays).
+     *
+     * @param path - Relative path to the document
+     * @param resources - Raw resources to add (undefined is ignored)
+     */
     addResources(path: RelativePath, resources: RawResources | undefined) {
         const file = normalizePath(path);
 
@@ -167,6 +230,15 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    /**
+     * Adds custom meta tags for a path.
+     *
+     * Accepts hash or array of meta items.
+     * Prevents duplicates by name/content or property/content.
+     *
+     * @param path - Relative path to the document
+     * @param metadata - Hash of meta tags or array of meta items (undefined is ignored)
+     */
     addMetadata(path: RelativePath, metadata: Hash | undefined) {
         const file = normalizePath(path);
 
@@ -196,6 +268,15 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    /**
+     * Adds alternate language links for a path.
+     *
+     * Accepts paths (strings) or Alternate objects.
+     * Prevents duplicates by normalized href using short link comparison.
+     *
+     * @param path - Relative path to the document
+     * @param alternates - Array of alternate paths or Alternate objects (undefined is ignored)
+     */
     addAlternates(path: RelativePath, alternates: (NormalizedPath | Alternate)[] | undefined) {
         const file = normalizePath(path);
         const normalized = (alternates || []).map((item) => {
@@ -223,6 +304,14 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    /**
+     * Adds system variables for a path (only if config.addSystemMeta is enabled).
+     *
+     * Used for internal system metadata. Merged into `__system` field.
+     *
+     * @param path - Relative path to the document
+     * @param vars - Hash of system variables to add (undefined is ignored)
+     */
     addSystemVars(path: RelativePath, vars: Hash | undefined) {
         const file = normalizePath(path);
 
