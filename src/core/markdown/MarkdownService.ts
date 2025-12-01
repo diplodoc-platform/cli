@@ -36,11 +36,11 @@ type MarkdownServiceConfig = {
             code: boolean;
         };
     };
-    preprocess: {
-        mergeSvg?: boolean;
-        mergeIncludes?: boolean;
-        hashIncludes?: boolean;
-        mergeAutotitles?: boolean;
+    preprocess?: {
+        mergeSvg: boolean;
+        mergeIncludes: boolean;
+        hashIncludes: boolean;
+        mergeAutotitles: boolean;
     };
 };
 
