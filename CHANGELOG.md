@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.16.3](https://github.com/diplodoc-platform/cli/compare/v5.16.2...v5.16.3) (2025-12-01)
+
+
+### Bug Fixes
+
+* add ignore pattern normalization for preset discovery ([#1540](https://github.com/diplodoc-platform/cli/issues/1540)) ([96c3356](https://github.com/diplodoc-platform/cli/commit/96c33564aef5ab61ab9651cb4d32439fbc5d7897))
+
 ## [5.16.2](https://github.com/diplodoc-platform/cli/compare/v5.16.1...v5.16.2) (2025-11-27)
 
 
