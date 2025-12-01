@@ -24,9 +24,16 @@ const mergeSvg = option({
     desc: 'Merge svg images during md to md processing.',
 });
 
+const keepNotVar = option({
+    flags: '--keep-not-var',
+    hidden: true,
+    desc: 'Keep not_var for output md.',
+});
+
 export const options = {
     hashIncludes,
     mergeIncludes,
     mergeAutotitles,
     mergeSvg,
+    keepNotVar,
 };

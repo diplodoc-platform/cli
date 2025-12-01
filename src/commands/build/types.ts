@@ -8,7 +8,7 @@ import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
 import type {PdfPageArgs} from './features/pdf-page';
 import type {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
-import type {OutputMdArgs, OutputMdConfig, PreprocessConfig} from './features/output-md';
+import type {OutputMdConfig, PreprocessConfig} from './features/output-md';
 import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
@@ -83,7 +83,7 @@ export type BuildArgs = ProgramArgs &
             SkipHtmlArgs &
             LintArgs &
             BuildManifestArgs &
-            OutputMdArgs &
+            PreprocessConfig &
             ChangelogsArgs &
             SearchArgs &
             LegacyArgs &

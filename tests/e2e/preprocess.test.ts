@@ -12,7 +12,7 @@ const generateFilesYamlTestTemplate = (
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
-            args: args.join(' '),
+            args: args.concat(['--keep-not-var']).join(' '),
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,

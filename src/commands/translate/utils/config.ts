@@ -194,6 +194,7 @@ export function configDefaults() {
         addSystemMeta: false,
         template: {
             enabled: true,
+            keepNotVar: false,
             features: {
                 conditions: 'strict',
                 substitutions: true,

@@ -27,6 +27,7 @@ type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         features: {
             substitutions: boolean;
             conditions: boolean;
@@ -401,7 +402,7 @@ export class MarkdownService {
                 substitutions: this.config.template.features.substitutions,
                 conditions: this.config.template.features.conditions,
                 conditionsInCode: this.config.template.scopes.code,
-                keepNotVar: this.config.outputFormat === 'md',
+                keepNotVar: this.config.template.keepNotVar,
             },
             options: {
                 disableLiquid: !this.config.template.enabled,

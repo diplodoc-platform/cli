@@ -22,6 +22,7 @@ export type TemplatingArgs = {
 export type TemplatingConfig = {
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         scopes: {
             text: boolean;
             code: boolean;
@@ -56,6 +57,7 @@ export class Templating {
             config.template = merge(
                 {
                     enabled: (config as TemplatingRawConfig).template !== false,
+                    keepNotVar: false,
                     scopes: {
                         text: true,
                         code: false,

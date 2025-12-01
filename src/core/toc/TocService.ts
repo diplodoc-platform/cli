@@ -38,6 +38,7 @@ export type TocServiceConfig = {
     ignoreStage: string[];
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         features: {
             conditions: boolean;
             substitutions: boolean;
