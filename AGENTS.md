@@ -232,9 +232,18 @@ Main build logic is located in:
 
 ### Extensions
 
-- `extensions/openapi/` — OpenAPI support
+Extensions integrate with CLI through hooks. There are two integration patterns based on initialization approach:
+
+1. **Independent extensions** — extensions that are not automatically initialized by CLI (can use `peerDependency` regardless of monorepo membership)
+2. **Auto-initialized extensions** — extensions that CLI automatically imports and initializes on startup (require wrapper logic in `src/extensions/` to avoid circular dependencies)
+
+For details, see [ADR-001: Dependent Extensions](./adr/ADR-001-dependent-extensions.md).
+
+Auto-initialized extensions:
+
+- `extensions/openapi/` — OpenAPI support (wrapper for `@diplodoc/openapi-extension`)
 - `extensions/generic-includer/` — generic includer
-- `extensions/local-search/` — local search
+- `extensions/local-search/` — local search (wrapper for `@diplodoc/search-extension`)
 - `extensions/github-vcs/` — GitHub integration
 - `extensions/arcadia-vcs/` — Arcadia integration
 
@@ -277,7 +286,8 @@ The `schemas/` directory stores schemas for fundamental project data structures:
 - `README.md` — main documentation
 - `CONTRIBUTING.md` — contributor guide
 - `CHANGELOG.md` — change history
-- `adr/arch-quality.md` — architectural decisions
+- `adr/arch-quality.md` — architectural quality principles
+- `adr/ADR-001-dependent-extensions.md` — architecture decision record for extension integration patterns
 
 ## Common Tasks
 
