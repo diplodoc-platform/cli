@@ -26,6 +26,7 @@ export type OutputMdArgs = {
     mergeIncludes: boolean;
     mergeAutotitles: boolean;
     mergeSvg: boolean;
+    keepNotVar: boolean;
 };
 
 export type OutputMdConfig = {
@@ -36,6 +37,9 @@ export type OutputMdConfig = {
 };
 
 export type PreprocessConfig = {
+    template: {
+        keepNotVar: boolean;
+    };
     preprocess: Partial<OutputMdConfig>;
 };
 
@@ -46,6 +50,7 @@ export class OutputMd {
             command.addOption(options.mergeIncludes);
             command.addOption(options.mergeAutotitles);
             command.addOption(options.mergeSvg);
+            command.addOption(options.keepNotVar);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
@@ -61,7 +66,14 @@ export class OutputMd {
             const mergeSvg = defined('mergeSvg', args, config.preprocess || {}, {
                 mergeSvg: true,
             });
+            const keepNotVar = defined('keepNotVar', args, config || {}, {
+                keepNotVar: false,
+            });
             return Object.assign(config, {
+                template: {
+                    ...config.template,
+                    keepNotVar,
+                },
                 preprocess: {
                     hashIncludes,
                     mergeIncludes,

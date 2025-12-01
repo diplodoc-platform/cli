@@ -36,6 +36,7 @@ export type LeadingServiceConfig = {
     langs: Langs;
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         features: {
             conditions: boolean;
             substitutions: boolean;
