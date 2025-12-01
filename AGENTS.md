@@ -2,6 +2,10 @@
 
 This file contains instructions for AI agents working with the `@diplodoc/cli` project.
 
+## Module Documentation
+
+If a module contains a `MODULE.md` file, it is considered part of the module's context and should be consulted when working with that module. These files provide module-specific documentation, architecture decisions, and implementation details that complement the general project documentation.
+
 ## Project Description
 
 `@diplodoc/cli` is a CLI tool for building documentation from Markdown files with Yandex Flavored Markdown (YFM) support. The project allows you to build full-fledged documentation with navigation, internal transitions, and full YFM support.
@@ -288,6 +292,13 @@ The `schemas/` directory stores schemas for fundamental project data structures:
 - `CHANGELOG.md` — change history
 - `adr/arch-quality.md` — architectural quality principles
 - `adr/ADR-001-dependent-extensions.md` — architecture decision record for extension integration patterns
+
+### Module Documentation
+
+- **`MODULE.md`** — if present in a module directory, this file contains module-specific documentation and is part of the module's context for AI agents
+  - Provides module architecture, implementation details, and usage patterns
+  - Should be consulted when working with that specific module
+  - Example locations: `src/core/MODULE.md`, `src/commands/build/MODULE.md`, etc.
 
 ## Common Tasks
 
