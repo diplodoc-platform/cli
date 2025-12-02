@@ -27,6 +27,8 @@ export type LoaderContext = LiquidContext & {
     from: NormalizedPath;
     /** Path of last include level with 'merge' mode */
     base?: NormalizedPath;
+    /** Original source path before merge rebasing */
+    sourcePath?: NormalizedPath;
     mode: IncludeMode | undefined;
     vars: Hash;
     include: (path: RelativePath, include: IncludeInfo) => Promise<Toc | undefined>;
@@ -55,7 +57,9 @@ type LinkIncludeInfo = IncludeInfo & {
     base?: undefined;
 };
 
-export function isLinkMode(include: IncludeInfo | LoaderContext): include is LinkIncludeInfo {
+export function isLinkMode(
+    include: IncludeInfo | LoaderContext | {mode?: IncludeMode},
+): include is LinkIncludeInfo {
     return IncludeMode.Link === include.mode;
 }
 
@@ -353,7 +357,9 @@ async function rebaseIncludes(this: LoaderContext, toc: RawToc): Promise<RawToc>
             return item;
         }
 
-        if (isLinkMode(this)) {
+        if (isLinkMode(item.include) && this.sourcePath) {
+            item.include.path = join(dirname(this.sourcePath), item.include.path);
+        } else if (isLinkMode(this)) {
             item.include.path = join(dirname(this.path), item.include.path);
         } else {
             item.include.path = join(dirname(this.base || this.path), item.include.path);

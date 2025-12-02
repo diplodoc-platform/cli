@@ -503,6 +503,37 @@ describe('toc-loader', () => {
                 ] as [RelativePath, RelativePath][],
             ),
         );
+
+        it(
+            'should resolve nested link includes relative to original source in merge mode',
+            test(
+                dedent`
+                    items:
+                      - name: Outer Item
+                        include:
+                            path: docs/nested/toc.yaml
+                `,
+                {},
+                {},
+                {
+                    'docs/nested/toc.yaml': dedent`
+                        items:
+                          - name: Inner Item 1
+                            href: item-1.md
+                          - name: Inner Item 2
+                            include:
+                              path: sub/toc.yaml
+                              mode: link
+                    `,
+                    'docs/nested/sub/toc.yaml': dedent`
+                        items:
+                          - name: Sub Item 1
+                            href: sub-item-1.md
+                    `,
+                },
+                [['docs/nested', '']] as [RelativePath, RelativePath][],
+            ),
+        );
     });
 
     describe('includers', () => {

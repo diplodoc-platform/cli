@@ -311,6 +311,7 @@ export class TocService {
             const to = normalizePath(dirname(include.base));
 
             context.vars = this.vars.for(include.base);
+            context.sourcePath = file;
             context.path = context.path.replace(from, to) as NormalizedPath;
             context.from = include.from;
 

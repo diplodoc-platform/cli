@@ -102,6 +102,20 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > includes > should resolve nested link includes relative to original source in merge mode 1`] = `
+"items:
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
+        href: item-1.md
+      - name: Inner Item 2
+        items:
+          - name: Sub Item 1
+            href: docs/nested/sub/sub-item-1.md
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > object validation > should not throw error when nested toc item has [object Object] values but log it 1`] = `
 [
   {
