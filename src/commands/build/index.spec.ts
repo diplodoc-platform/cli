@@ -699,6 +699,13 @@ describe('Build command', () => {
                 expect(result).toBe(16777216); // 16 * 1024 * 1024
             });
 
+            it('should return 0 value', () => {
+                const converter = fileSizeConverter({max: '16M'});
+                const result = converter(0 as unknown as string, '4M');
+
+                expect(result).toBe(0); // 0
+            });
+
             it('should throw error for unknown unit type', () => {
                 const converter = fileSizeConverter({});
 
