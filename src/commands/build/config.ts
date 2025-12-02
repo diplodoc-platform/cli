@@ -250,7 +250,7 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
 export function fileSizeConverter(opts: Hash) {
     return function (input: string, defaultValue: string): number | undefined {
         const units = ['', 'K', 'M'];
-        if (!input) {
+        if (!input && typeof input !== 'number') {
             input = defaultValue;
         }
         if (typeof input === 'number') {
