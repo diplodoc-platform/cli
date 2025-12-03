@@ -6,7 +6,7 @@ import {getCSP} from 'csp-header';
 
 import {bounded, get, getDepth, getDepthPath, normalizePath} from '~/core/utils';
 
-import {getFaviconType} from './utils';
+import {compareAlternates, getFaviconType} from './utils';
 
 enum ScriptPosition {
     Leading = 'leading',
@@ -328,10 +328,7 @@ export class Template {
                     <base href="${base}" />
                     <title>${title}</title>
                     ${canonical ? `<link rel="canonical" href="${canonical}">` : ''}
-                    ${Object.values(alternates)
-                        .sort((a, b) => a.href.localeCompare(b.href))
-                        .map(alternate)
-                        .join('\n')}
+                    ${Object.values(alternates).sort(compareAlternates).map(alternate).join('\n')}
                     ${this.meta.map(meta).join('\n')}
                     ${csp(this.csp)}
                     <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>

@@ -1,3 +1,5 @@
+import type {Alternate} from '~/core/meta';
+
 /**
  * Detects MIME type for favicon based on file extension.
  *
@@ -36,4 +38,16 @@ export function getFaviconType(faviconSrc: string): string | undefined {
         default:
             return undefined;
     }
+}
+
+export function compareAlternates(a: Alternate, b: Alternate): number {
+    if (a.href < b.href) {
+        return -1;
+    }
+
+    if (a.href > b.href) {
+        return 1;
+    }
+
+    return 0;
 }
