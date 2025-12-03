@@ -362,4 +362,24 @@ describe('Translate command', () => {
             }),
         );
     });
+
+    it('should call translate extract with option --no-ref-resolve', async () => {
+        const instance = await runExtract('-o output --source ru --target en --no-ref-resolve');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                refResolve: false,
+            }),
+        );
+    });
+
+    it('should call translate extract without option --no-ref-resolve', async () => {
+        const instance = await runExtract('-o output --source ru --target en');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                refResolve: true,
+            }),
+        );
+    });
 });

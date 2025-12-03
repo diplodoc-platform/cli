@@ -110,7 +110,7 @@ export class Run extends BaseRun<CommonRunConfig> {
 
         const path = resolve(this.config.input, file);
 
-        const loader = new FileLoader(path);
+        const loader = new FileLoader(path, this.config.refResolve);
 
         return loader.load();
     }

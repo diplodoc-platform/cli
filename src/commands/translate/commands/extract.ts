@@ -46,6 +46,7 @@ export type ExtractArgs = BaseArgs & {
     include?: string[];
     exclude?: string[];
     filter?: boolean;
+    refResolve?: boolean;
 };
 
 export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
@@ -58,6 +59,7 @@ export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
     skipped: [string, string][];
     schema?: string;
     filter?: boolean;
+    refResolve?: boolean;
 } & ConfigDefaults;
 
 @withHooks
@@ -79,6 +81,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         options.config(YFM_CONFIG_FILENAME),
         options.schema,
         options.filter,
+        options.noRefResolve,
     ];
 
     readonly modules = [new ExtractOpenapiIncluderFakeExtension(), new FilterExtract()];
@@ -91,12 +94,13 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {
-            const {input, output, quiet, strict, filter} = pick(args, [
+            const {input, output, quiet, strict, filter, refResolve} = pick(args, [
                 'input',
                 'output',
                 'quiet',
                 'strict',
                 'filter',
+                'refResolve',
             ]) as ExtractArgs;
             const source = resolveSource(config, args);
             const target = resolveTargets(config, args);
@@ -115,6 +119,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 include,
                 exclude,
                 filter,
+                refResolve,
             });
         });
     }

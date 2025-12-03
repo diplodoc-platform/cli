@@ -69,6 +69,17 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
+    generateFilesYamlTestTemplate(
+        'extract openapi spec files with --no-ref-resolve option',
+        'mocks/translation/openapi',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: '--no-ref-resolve',
+        },
+    );
+
     generateMapTestTemplate(
         'extract openapi spec files with custom openapi schema provided',
         'mocks/translation/openapi',

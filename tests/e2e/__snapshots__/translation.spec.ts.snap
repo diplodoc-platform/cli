@@ -850,6 +850,8 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    ResolvingCaseChild:
+      description: '%%%9%%%'
     RecurceTop:
       type: object
       properties:
@@ -867,6 +869,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: Parent description
+          $ref: '#/components/schemas/ResolvingCaseChild'
 "
 `;
 
@@ -907,6 +915,9 @@ exports[`Translate command > extract openapi spec files 2`] = `
       <trans-unit id="8">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
       </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Child description</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>"
@@ -942,13 +953,144 @@ exports[`Translate command > extract openapi spec files 4`] = `
 </xliff>"
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided > filelist 1`] = `
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option > filelist 1`] = `
 "[
   "openapi-spec.yaml.skl",
   "openapi-spec.yaml.xliff",
   "toc.yaml.skl",
   "toc.yaml.xliff"
 ]"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 1`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    ResolvingCaseChild:
+      description: '%%%5%%%'
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
+            - %%%9%%%
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: '%%%10%%%'
+          $ref: '#/components/schemas/ResolvingCaseChild'
+"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Child description</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Статус загрузки:</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Parent description</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 3`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
 `;
 
 exports[`Translate command > extract openapi spec files with custom openapi schema provided 1`] = `
@@ -976,6 +1118,8 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    ResolvingCaseChild:
+      description: '%%%10%%%'
     RecurceTop:
       type: object
       properties:
@@ -993,6 +1137,12 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: Parent description
+          $ref: '#/components/schemas/ResolvingCaseChild'
 "
 `;
 
@@ -1035,6 +1185,9 @@ exports[`Translate command > extract openapi spec files with custom openapi sche
       </trans-unit>
       <trans-unit id="9">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Child description</source>
       </trans-unit>
     </body>
   </file>
