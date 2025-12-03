@@ -22,6 +22,8 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    ResolvingCaseChild:
+      description: Child description
     RecurceTop:
       type: object
       properties:
@@ -40,3 +42,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+          withrefprop:
+            description: Parent description
+            $ref: '#/components/schemas/ResolvingCaseChild'

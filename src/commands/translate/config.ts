@@ -136,6 +136,18 @@ const filter = option({
     default: false,
 });
 
+const noRefResolve = option({
+    flags: '--no-ref-resolve',
+    desc: `
+        Disables resolving ref in openapi whilest translate extract command.
+
+        Example:
+            {{PROGRAM}} --no-ref-resolve
+
+    `,
+    default: true,
+});
+
 export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
@@ -151,4 +163,5 @@ export const options = {
     useSource,
     schema,
     filter,
+    noRefResolve,
 };
