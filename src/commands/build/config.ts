@@ -223,7 +223,7 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
 
     const configInterface = config['interface'] || {};
 
-    const result = interfaceProps.reduce<Record<InterfaceProp, boolean>>(
+    const result = interfaceProps.reduce<Record<InterfaceProp, boolean | string>>(
         (acc, prop) => {
             acc[prop] = true;
 
@@ -241,7 +241,7 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
 
             return acc;
         },
-        {} as Record<InterfaceProp, boolean>,
+        {} as Record<InterfaceProp, boolean | string>,
     );
 
     return result;

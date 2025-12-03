@@ -61,7 +61,7 @@ type BaseConfig = {
     // TODO: explicitly handle
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
-    interface?: Hash;
+    interface?: Record<string, boolean | string>;
     pdf: Record<string, boolean>;
     neuroExpert?: NeuroExpert;
     pdfDebug: boolean;
