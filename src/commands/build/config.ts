@@ -147,6 +147,16 @@ const interfaceFeedback = option({
     parser: () => false,
 });
 
+const feedbackUrl = option({
+    flags: '--feedback-url <url>',
+    desc: `
+        URL endpoint for feedback submission.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --feedback-url https://api.example.com/feedback
+    `,
+});
+
 const pdfDebug = option({
     flags: '--pdf-debug',
     desc: `
@@ -223,7 +233,7 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
 
     const configInterface = config['interface'] || {};
 
-    const result = interfaceProps.reduce<Record<InterfaceProp, boolean | string>>(
+    const result = interfaceProps.reduce<Record<InterfaceProp, boolean>>(
         (acc, prop) => {
             acc[prop] = true;
 
@@ -241,7 +251,7 @@ function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
 
             return acc;
         },
-        {} as Record<InterfaceProp, boolean | string>,
+        {} as Record<InterfaceProp, boolean>,
     );
 
     return result;
@@ -278,6 +288,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     const langs = defined('langs', args, config) || [];
     const lang = defined('lang', config);
     const viewerInterface = getInterfaceProps(config, args);
+    const feedbackUrl = defined('feedbackUrl', args, config);
 
     if (valuable(lang)) {
         if (!langs.length) {
@@ -319,6 +330,11 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         maxHtmlSize,
     }) as ContentConfig;
 
+    if (feedbackUrl) {
+        config.feedback = config.feedback || {};
+        config.feedback.url = feedbackUrl;
+    }
+
     return config;
 }
 
@@ -346,6 +362,7 @@ export const options = {
     interfaceToc,
     interfaceSearch,
     interfaceFeedback,
+    feedbackUrl,
     pdfDebug,
     maxInlineSvgSize,
     maxHtmlSize,
