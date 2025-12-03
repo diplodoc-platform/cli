@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
-  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
     <header>
       <skeleton>
         <external-file href="file.skl"></external-file>
@@ -16,20 +16,20 @@
         <target>Перевод 2</target>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">test-controller</source>
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
         <target>Перевод 3</target>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
         <target>Перевод 4</target>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+        <source xml:space="preserve">200!!!!</source>
         <target>Перевод 5</target>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">200!!!!</source>
-        <target>Перевод 6</target>
+        <source xml:space="preserve">Schema description test</source>
+        <target>Schema description test Перевод 6</target>
       </trans-unit>
       <trans-unit id="6">
         <source xml:space="preserve">Статус загрузки:</source>
@@ -46,6 +46,10 @@
       <trans-unit id="9">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="`" id="x-6"/> — загрузка успешно обработана.</source>
         <target>Перевод 10</target>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Description with ref</source>
+        <target>Description with ref Перевод 11</target>
       </trans-unit>
     </body>
   </file>

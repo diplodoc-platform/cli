@@ -641,27 +641,23 @@ paths:
   /test:
     get:
       tags:
-        - Перевод 3
-      summary: Перевод 4
-      description: Перевод 5
+        - test-controller
+      summary: Перевод 3
+      description: Перевод 4
       operationId: getWithPayloadResponse
       responses:
         '200':
-          description: Перевод 6
+          description: Перевод 5
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  A:
-                    type: string
-                    description: |
-                      Перевод 7
-                      - Перевод 8
-                      - Перевод 9
-                      - Перевод 10
+                $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        Schema description test Перевод 6
+      type: string
     RecurceTop:
       type: object
       properties:
@@ -678,21 +674,17 @@ components:
         B:
           type: array
           items:
-            type: object
-            properties:
-              A:
-                type: string
-                description: |
-                  Перевод 7
-                  - Перевод 8
-                  - Перевод 9
-                  - Перевод 10
+            $ref: '#/components/schemas/RecurceTop'
+        test:
+          description: |
+            Description with ref Перевод 11
+          $ref: '#/components/schemas/DescriptionRef'
 "
 `;
 
 exports[`Translate command > compose openapi spec files 2`] = `
 "items:
-  - name: Перевод 1
+  - name: Compose openapi 1
     include:
       path: openapi
       includers:
@@ -818,6 +810,10 @@ exports[`Translate command > do not resolve liquid conditions if vars not specif
 
 exports[`Translate command > extract openapi spec files > filelist 1`] = `
 "[
+  "common.yaml.skl",
+  "common.yaml.xliff",
+  "common2.yaml.skl",
+  "common2.yaml.xliff",
   "openapi-spec.yaml.skl",
   "openapi-spec.yaml.xliff",
   "toc.yaml.skl",
@@ -826,6 +822,67 @@ exports[`Translate command > extract openapi spec files > filelist 1`] = `
 `;
 
 exports[`Translate command > extract openapi spec files 1`] = `
+"components:
+  schemas:
+    ExternalCommonDescriptionRef:
+      description: |
+        %%%0%%%
+      $ref: '#/components/schemas/ExternalCommonDescriptionRef'
+    ExternalInnerCommonRef:
+      description: '%%%1%%%'
+      $ref: common2.yaml#/components/schemas/ExternalCommonDescriptionRefCommon2
+"
+`;
+
+exports[`Translate command > extract openapi spec files 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">External Common Schema description test</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Common inner ref</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 3`] = `
+"components:
+  schemas:
+    ExternalCommonDescriptionRefCommon2:
+      description: |
+        %%%0%%%
+"
+`;
+
+exports[`Translate command > extract openapi spec files 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">External Common Schema description test Common2</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 5`] = `
 "openapi: 3.0.1
 info:
   title: '%%%0%%%'
@@ -850,16 +907,20 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        %%%5%%%
+      type: string
     RecurceTop:
       type: object
       properties:
         A:
           type: string
           description: |
-            %%%5%%%
-            - %%%6%%%
+            %%%6%%%
             - %%%7%%%
             - %%%8%%%
+            - %%%9%%%
     RecurceMiddle:
       type: object
       properties:
@@ -867,10 +928,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          title: '%%%10%%%'
+          description: |
+            %%%11%%%
+          $ref: '#/components/schemas/DescriptionRef'
+        external:
+          description: '%%%12%%%'
+          $ref: common.yaml#/components/schemas/ExternalCommonDescriptionRef
 "
 `;
 
-exports[`Translate command > extract openapi spec files 2`] = `
+exports[`Translate command > extract openapi spec files 6`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -896,23 +965,35 @@ exports[`Translate command > extract openapi spec files 2`] = `
         <source xml:space="preserve">200!!!!</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">Статус загрузки:</source>
+        <source xml:space="preserve">Schema description test</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+        <source xml:space="preserve">Статус загрузки:</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
       </trans-unit>
       <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="9">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Title</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Description with ref</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">Parent with external</source>
       </trans-unit>
     </body>
   </file>
 </xliff>"
 `;
 
-exports[`Translate command > extract openapi spec files 3`] = `
+exports[`Translate command > extract openapi spec files 7`] = `
 "items:
   - name: '%%%0%%%'
     include:
@@ -924,7 +1005,7 @@ exports[`Translate command > extract openapi spec files 3`] = `
 "
 `;
 
-exports[`Translate command > extract openapi spec files 4`] = `
+exports[`Translate command > extract openapi spec files 8`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -942,16 +1023,68 @@ exports[`Translate command > extract openapi spec files 4`] = `
 </xliff>"
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided > filelist 1`] = `
-"[
-  "openapi-spec.yaml.skl",
-  "openapi-spec.yaml.xliff",
-  "toc.yaml.skl",
-  "toc.yaml.xliff"
-]"
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 1`] = `
+"components:
+  schemas:
+    ExternalCommonDescriptionRef:
+      description: |
+        %%%0%%%
+      $ref: '#/components/schemas/ExternalCommonDescriptionRef'
+    ExternalInnerCommonRef:
+      description: '%%%1%%%'
+      $ref: common2.yaml#/components/schemas/ExternalCommonDescriptionRefCommon2
+"
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided 1`] = `
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">External Common Schema description test</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Common inner ref</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 3`] = `
+"components:
+  schemas:
+    ExternalCommonDescriptionRefCommon2:
+      description: |
+        %%%0%%%
+"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">External Common Schema description test Common2</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 5`] = `
 "openapi: 3.0.1
 info:
   title: '%%%0%%%'
@@ -976,16 +1109,20 @@ paths:
                 $ref: '#/components/schemas/RecurceTop'
 components:
   schemas:
+    DescriptionRef:
+      description: |
+        %%%6%%%
+      type: string
     RecurceTop:
       type: object
       properties:
         A:
           type: string
           description: |
-            %%%6%%%
-            - %%%7%%%
+            %%%7%%%
             - %%%8%%%
             - %%%9%%%
+            - %%%10%%%
     RecurceMiddle:
       type: object
       properties:
@@ -993,10 +1130,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+        test:
+          title: '%%%11%%%'
+          description: |
+            %%%12%%%
+          $ref: '#/components/schemas/DescriptionRef'
+        external:
+          description: '%%%13%%%'
+          $ref: common.yaml#/components/schemas/ExternalCommonDescriptionRef
 "
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided 2`] = `
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 6`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
@@ -1025,23 +1170,35 @@ exports[`Translate command > extract openapi spec files with custom openapi sche
         <source xml:space="preserve">200!!!!</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">Статус загрузки:</source>
+        <source xml:space="preserve">Schema description test</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+        <source xml:space="preserve">Статус загрузки:</source>
       </trans-unit>
       <trans-unit id="8">
-        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
       </trans-unit>
       <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="10">
         <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Title</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">Description with ref</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve">Parent with external</source>
       </trans-unit>
     </body>
   </file>
 </xliff>"
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided 3`] = `
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 7`] = `
 "items:
   - name: '%%%0%%%'
     include:
@@ -1053,7 +1210,7 @@ exports[`Translate command > extract openapi spec files with custom openapi sche
 "
 `;
 
-exports[`Translate command > extract openapi spec files with custom openapi schema provided 4`] = `
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 8`] = `
 "<?xml version="1.0" encoding="UTF-8"?>
 <xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
   <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">

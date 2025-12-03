@@ -14,6 +14,10 @@ import {TocService} from '~/core/toc';
 import {MarkdownService} from '~/core/markdown';
 
 import {FileLoader, resolveFiles} from './utils';
+import { collectExternalRefs, JSONObject } from '@diplodoc/translation';
+import { parseFile } from './utils/fs';
+import { isObject } from 'lodash';
+import { readFile } from 'node:fs/promises';
 
 type CommonRunConfig = Omit<TranslateConfig, 'provider'> & ExtractConfig & ConfigDefaults;
 
@@ -58,7 +62,34 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
-    async getFiles() {
+    async loadJSONData(files: string[]) {
+        const result = {};
+
+        const loader = async (file: string) => {
+            const path =  resolve(this.config.input, file)
+            const text = await readFile(path, 'utf8');
+            const content = parseFile(text, path);
+
+            return content as JSONObject;
+        }
+
+        for (const file of files) {
+            if (file.includes('.yaml')) {
+                const content = await loader(file);
+                
+                if (isObject(content) && 'openapi' in content) {           
+                    const externalRefs = await collectExternalRefs(content, loader, file);
+
+                    // @ts-ignore
+                    result[content['openapi']] = [...externalRefs];
+                }
+            }
+        }
+
+        return result;
+    }
+
+    async getFiles(): Promise<[string[], [string, string][], Record<string, string[]>]> {
         const allFiles = new Set<NormalizedPath>();
 
         for (const entry of this.toc.entries) {
@@ -82,7 +113,7 @@ export class Run extends BaseRun<CommonRunConfig> {
 
         const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
 
-        return resolveFiles(
+        const [files, skipped] = resolveFiles(
             this.config.input,
             this.config.files,
             this.config.include,
@@ -91,6 +122,12 @@ export class Run extends BaseRun<CommonRunConfig> {
             ['.md', '.yaml'],
             this.config.filter ? allFilesArray : null,
         );
+
+        const refSchemas = await this.loadJSONData(files);
+
+        return [
+            files, skipped, refSchemas
+        ];
     }
 
     async getFileContent(file: NormalizedPath) {
@@ -110,7 +147,7 @@ export class Run extends BaseRun<CommonRunConfig> {
 
         const path = resolve(this.config.input, file);
 
-        const loader = new FileLoader(path);
+        const loader = new FileLoader(path, false);
 
         return loader.load();
     }

@@ -1,0 +1,9 @@
+components:
+  schemas:
+    ExternalCommonDescriptionRef:
+      description: |
+        External Common Schema description test
+      $ref: '#/components/schemas/ExternalCommonDescriptionRef'
+    ExternalInnerCommonRef:
+      description: Common inner ref
+      $ref: 'common2.yaml#/components/schemas/ExternalCommonDescriptionRefCommon2'
