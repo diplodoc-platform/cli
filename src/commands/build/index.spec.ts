@@ -370,6 +370,7 @@ describe('Build command', () => {
                     hashIncludes: true,
                     mergeIncludes: false,
                     mergeAutotitles: true,
+                    transparentMode: false,
                 },
             });
 
@@ -391,6 +392,12 @@ describe('Build command', () => {
                 },
             });
 
+            test('should handle arg transparentMode', '--transparent-mode', {
+                preprocess: {
+                    transparentMode: true,
+                },
+            });
+
             test(
                 'should handle mergeAutotitles=false',
                 '',
@@ -402,6 +409,21 @@ describe('Build command', () => {
                 {
                     preprocess: {
                         mergeAutotitles: false,
+                    },
+                },
+            );
+
+            test(
+                'should handle transparentMode=true',
+                '',
+                {
+                    preprocess: {
+                        transparentMode: false,
+                    },
+                },
+                {
+                    preprocess: {
+                        transparentMode: false,
                     },
                 },
             );

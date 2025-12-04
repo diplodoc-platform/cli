@@ -41,6 +41,7 @@ type MarkdownServiceConfig = {
         mergeIncludes: boolean;
         hashIncludes: boolean;
         mergeAutotitles: boolean;
+        transparentMode: boolean;
     };
 };
 
@@ -137,9 +138,13 @@ export class MarkdownService {
 
             await getHooks(this).Loaded.promise(raw, meta, file);
 
-            this.run.meta.addMetadata(file, vars.__metadata);
-            this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta);
+            if (this.config.preprocess?.transparentMode) {
+                this.run.meta.set(file, meta);
+            } else {
+                this.run.meta.addMetadata(file, vars.__metadata);
+                this.run.meta.addSystemVars(file, vars.__system);
+                this.run.meta.add(file, meta);
+            }
 
             this.cache[key] = content;
             defer.resolve(content);

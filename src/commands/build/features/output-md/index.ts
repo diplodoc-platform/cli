@@ -7,19 +7,19 @@ import {join} from 'node:path';
 import {dump} from 'js-yaml';
 import {flow} from 'lodash';
 
+import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {configPath, defined} from '~/core/config';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
-import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {configPath, defined} from '~/core/config';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
+import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 import {mergeSvg} from './plugins/merge-svg';
 import {mergeAutotitles} from './plugins/merge-autotitles';
 import {rehashIncludes} from './plugins/resolve-deps';
 import {options} from './config';
-import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 
 export type OutputMdArgs = {
     hashIncludes: boolean;
@@ -34,6 +34,7 @@ export type OutputMdConfig = {
     mergeIncludes: boolean;
     mergeAutotitles: boolean;
     mergeSvg: boolean;
+    transparentMode: boolean;
 };
 
 export type PreprocessConfig = {
@@ -51,6 +52,7 @@ export class OutputMd {
             command.addOption(options.mergeAutotitles);
             command.addOption(options.mergeSvg);
             command.addOption(options.keepNotVar);
+            command.addOption(options.transparentMode);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
@@ -69,6 +71,9 @@ export class OutputMd {
             const keepNotVar = defined('keepNotVar', args, config || {}, {
                 keepNotVar: false,
             });
+            const transparentMode = defined('transparentMode', args, config.preprocess || {}, {
+                transparentMode: false,
+            });
             return Object.assign(config, {
                 template: {
                     ...config.template,
@@ -79,6 +84,7 @@ export class OutputMd {
                     mergeIncludes,
                     mergeAutotitles,
                     mergeSvg,
+                    transparentMode,
                 },
             });
         });
@@ -86,6 +92,8 @@ export class OutputMd {
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
+                const config = run.config.preprocess;
+
                 getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
                     return collects.concat(getCustomCollectPlugins());
                 });
@@ -172,7 +180,8 @@ export class OutputMd {
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
                     const meta = await run.meta.dump(vfile.path);
-                    const dumped = dump(meta).trim();
+                    const lineWidth = config.transparentMode ? Infinity : undefined;
+                    const dumped = dump(meta, {lineWidth}).trim();
 
                     if (dumped === '{}') {
                         return;
