@@ -4,10 +4,10 @@ import type {VcsServiceConfig} from '~/core/vcs';
 
 import {uniq} from 'lodash';
 
+import {defined, toggleable} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {defined, toggleable} from '~/core/config';
 import {get} from '~/core/utils';
 
 import {options} from './config';
@@ -52,27 +52,31 @@ export class Contributors {
         });
 
         getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
-            getLeadingHooks(run.leading).Dump.tapPromise(
-                {name: 'Contributors', stage: -1},
-                async (vfile) => {
-                    const rawDeps = await run.leading.deps(vfile.path);
-                    const deps = uniq(rawDeps.map(({path}) => path));
+            const config = run.config.preprocess;
 
-                    run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
-                },
-            );
+            if (!config.transparentMode) {
+                getLeadingHooks(run.leading).Dump.tapPromise(
+                    {name: 'Contributors', stage: -1},
+                    async (vfile) => {
+                        const rawDeps = await run.leading.deps(vfile.path);
+                        const deps = uniq(rawDeps.map(({path}) => path));
 
-            getMarkdownHooks(run.markdown).Dump.tapPromise(
-                {name: 'Contributors', stage: -1},
-                async (vfile) => {
-                    const rawDeps = await run.markdown.deps(vfile.path);
-                    const deps = uniq(rawDeps.map(get('path')));
-                    const meta = await run.vcs.metadata(vfile.path, deps);
+                        run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
+                    },
+                );
 
-                    run.meta.add(vfile.path, meta);
-                    run.meta.addResources(vfile.path, meta);
-                },
-            );
+                getMarkdownHooks(run.markdown).Dump.tapPromise(
+                    {name: 'Contributors', stage: -1},
+                    async (vfile) => {
+                        const rawDeps = await run.markdown.deps(vfile.path);
+                        const deps = uniq(rawDeps.map(get('path')));
+                        const meta = await run.vcs.metadata(vfile.path, deps);
+
+                        run.meta.add(vfile.path, meta);
+                        run.meta.addResources(vfile.path, meta);
+                    },
+                );
+            }
         });
     }
 }
