@@ -28,6 +28,7 @@ type MarkdownServiceConfig = {
     template: {
         enabled: boolean;
         keepNotVar: boolean;
+        useLegacyConditions: boolean;
         features: {
             substitutions: boolean;
             conditions: boolean;
@@ -41,6 +42,7 @@ type MarkdownServiceConfig = {
         mergeIncludes: boolean;
         hashIncludes: boolean;
         mergeAutotitles: boolean;
+        transparentMode: boolean;
     };
 };
 
@@ -137,9 +139,13 @@ export class MarkdownService {
 
             await getHooks(this).Loaded.promise(raw, meta, file);
 
-            this.run.meta.addMetadata(file, vars.__metadata);
-            this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta);
+            if (this.config.preprocess?.transparentMode) {
+                this.run.meta.set(file, meta);
+            } else {
+                this.run.meta.addMetadata(file, vars.__metadata);
+                this.run.meta.addSystemVars(file, vars.__system);
+                this.run.meta.add(file, meta);
+            }
 
             this.cache[key] = content;
             defer.resolve(content);
@@ -403,6 +409,7 @@ export class MarkdownService {
                 conditions: this.config.template.features.conditions,
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
+                useLegacyConditions: this.config.template.useLegacyConditions,
             },
             options: {
                 disableLiquid: !this.config.template.enabled,
