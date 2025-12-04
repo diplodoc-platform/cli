@@ -1,5 +1,21 @@
 # Changelog
 
+## [5.17.0](https://github.com/diplodoc-platform/cli/compare/v5.16.4...v5.17.0) (2025-12-04)
+
+
+### Features
+
+* add feedback URL support via interface.feedback ([#1553](https://github.com/diplodoc-platform/cli/issues/1553)) ([70ff54f](https://github.com/diplodoc-platform/cli/commit/70ff54fc73dbd80654ad4990f6fc5f3163a13be4))
+* add feedback.url config option ([#1555](https://github.com/diplodoc-platform/cli/issues/1555)) ([80aa99a](https://github.com/diplodoc-platform/cli/commit/80aa99a384ae63364749cec69b05c53ad6febbfe))
+
+
+### Bug Fixes
+
+* add flag keepNotVar ([829b719](https://github.com/diplodoc-platform/cli/commit/829b719904191067e0d323fa00238848899989a6))
+* add no ref resolve option for extract ([835d787](https://github.com/diplodoc-platform/cli/commit/835d787dd83d9b780ff30680814bc7eecfa9d78b))
+* fixed alternates sorting ([#1554](https://github.com/diplodoc-platform/cli/issues/1554)) ([e75e4cc](https://github.com/diplodoc-platform/cli/commit/e75e4cc584d2a635fd3b7a319e3c0642b452816f))
+* max svg size ([4fd3b4f](https://github.com/diplodoc-platform/cli/commit/4fd3b4fddfe6694ee91f8d428769fc6d637afb6d))
+
 ## [5.16.4](https://github.com/diplodoc-platform/cli/compare/v5.16.3...v5.16.4) (2025-12-01)
 
 
