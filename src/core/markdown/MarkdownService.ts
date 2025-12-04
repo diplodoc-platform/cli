@@ -28,6 +28,7 @@ type MarkdownServiceConfig = {
     template: {
         enabled: boolean;
         keepNotVar: boolean;
+        useLegacyConditions: boolean;
         features: {
             substitutions: boolean;
             conditions: boolean;
@@ -408,6 +409,7 @@ export class MarkdownService {
                 conditions: this.config.template.features.conditions,
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
+                useLegacyConditions: this.config.template.useLegacyConditions,
             },
             options: {
                 disableLiquid: !this.config.template.enabled,

@@ -42,7 +42,7 @@ export class LoaderAPI {
     }
 }
 
-export type LoaderContext = LiquidContext & {
+export type LoaderContext = Omit<LiquidContext, 'settings'> & {
     path: NormalizedPath;
     vars: Hash;
     logger: Logger;
@@ -56,6 +56,9 @@ export type LoaderContext = LiquidContext & {
         mergeContentParts: boolean;
     };
     mode: 'build' | 'translate';
+    settings: LiquidContext['settings'] & {
+        useLegacyConditions?: boolean;
+    };
 };
 
 export async function loader(this: LoaderContext, content: string) {
