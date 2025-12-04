@@ -35,6 +35,7 @@ export type OutputMdConfig = {
     mergeAutotitles: boolean;
     mergeSvg: boolean;
     transparentMode: boolean;
+    useLegacyConditions?: boolean;
 };
 
 export type PreprocessConfig = {
@@ -53,6 +54,7 @@ export class OutputMd {
             command.addOption(options.mergeSvg);
             command.addOption(options.keepNotVar);
             command.addOption(options.transparentMode);
+            command.addOption(options.useLegacyConditions);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
@@ -71,6 +73,14 @@ export class OutputMd {
             const keepNotVar = defined('keepNotVar', args, config || {}, {
                 keepNotVar: false,
             });
+            const useLegacyConditions = defined(
+                'useLegacyConditions',
+                args,
+                config.preprocess || {},
+                {
+                    useLegacyConditions: false,
+                },
+            );
             const transparentMode = defined('transparentMode', args, config.preprocess || {}, {
                 transparentMode: false,
             });
@@ -78,6 +88,7 @@ export class OutputMd {
                 template: {
                     ...config.template,
                     keepNotVar,
+                    useLegacyConditions,
                 },
                 preprocess: {
                     hashIncludes,
