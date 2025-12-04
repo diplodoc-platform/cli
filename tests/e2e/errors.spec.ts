@@ -26,8 +26,8 @@ function test(path: string, expect: Function) {
 describe('Errors', () => {
     test('mocks/errors/unreachable-link', ({html}: TestResult) => {
         expectErrors(html, [
-            'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "exists.html"; Reason: File exists but is not declared in toc; Line: [existing file](./exists.md)"]',
-            'ERR index.md: 2: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "missed.html"; Reason: File does not exist and is not declared in toc; Line: [missed file](./missed.md)"]',
+            'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "exists.html"; Reason: File is not declared in toc; Line: [existing file](./exists.md)"]',
+            'ERR index.md: 2: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "missed.html"; Reason: File is not declared in toc; Line: [missed file](./missed.md)"]',
         ]);
     });
 
