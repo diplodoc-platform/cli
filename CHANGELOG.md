@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.17.1](https://github.com/diplodoc-platform/cli/compare/v5.17.0...v5.17.1) (2025-12-04)
+
+
+### Bug Fixes
+
+* attr in links ([#1558](https://github.com/diplodoc-platform/cli/issues/1558)) ([83e619d](https://github.com/diplodoc-platform/cli/commit/83e619d9ee8da55498472ea45b868f3c27cc3966))
+
 ## [5.17.0](https://github.com/diplodoc-platform/cli/compare/v5.16.4...v5.17.0) (2025-12-04)
 
 
