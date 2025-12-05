@@ -15,7 +15,7 @@ blocks:
         title: Настройки
         links:
           - text: Подробнее
-            url: settings.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -26,7 +26,7 @@ blocks:
         title: Создать видеовстречу
         links:
           - text: Подробнее
-            url: create.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -37,7 +37,7 @@ blocks:
         title: Присоединиться к видеовстрече
         links:
           - text: Подробнее
-            url: join.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -48,7 +48,7 @@ blocks:
         title: Что можно делать на встрече
         links:
           - text: Подробнее
-            url: management.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -59,7 +59,7 @@ blocks:
         title: Управление встречей
         links:
           - text: Подробнее
-            url: administration.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -70,7 +70,7 @@ blocks:
         title: Чат видеовстречи
         links:
           - text: Подробнее
-            url: chat.md
+            url: index2.yaml
             arrow: true
             theme: normal
 
@@ -81,7 +81,7 @@ blocks:
         title: Поделиться экраном
         links:
           - text: Подробнее
-            url: sharing-screen.md
+            url: index2.yaml
             arrow: true
             theme: normal
 animated: false

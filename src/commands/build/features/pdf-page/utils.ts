@@ -55,11 +55,41 @@ export function replacePdfLink(root: HTMLElement, entries: string[]) {
     }
 }
 
+export function replacePCNestedLinks(html: string) {
+    const root = parse(html);
+    
+    for (const node of elements(root, 'a:not(a a)')) {
+        const innerLinks = node.querySelectorAll('a');
+
+        if (innerLinks.length === 0) {
+            continue;
+        }
+
+        for (const link of innerLinks) {
+            const innerHtml = link.innerHTML;
+            
+            const attributes = link.attributes;
+            
+            const attrsString = Object.entries(attributes)
+                .map(([key, value]) => `${key}="${value}"`)
+                .join(' ');
+
+            const spanHtml = `<span ${attrsString}>${innerHtml}</span>`;
+
+            link.replaceWith(spanHtml);
+        }
+    }
+
+    return root.toString();
+}
+
 export function rebaseImgSrc(root: HTMLElement, base: string) {
     for (const node of elements(root, 'img')) {
         const href = node.getAttribute('src') || '';
 
-        node.setAttribute('src', `${base}/${href}`);
+        if (!href.startsWith('http')) {
+            node.setAttribute('src', `${base}/${href}`);
+        }
     }
 }
 
@@ -126,7 +156,6 @@ export function joinPdfPageResults(
     tocDir: NormalizedPath,
     pdfLinks: NormalizedPath[],
 ): string {
-    const delimeter = `<hr class="yfm-page__delimeter">`;
 
     return pdfPageResults
         .filter(({content}) => content)
@@ -142,9 +171,9 @@ export function joinPdfPageResults(
             replacePdfLink(root, pdfLinks);
             rebaseImgSrc(root, '..');
 
-            return root.toString();
+            return `<div class="pdf-page-wrapper" data-page-break="true">${root.toString()}</div>`;
         })
-        .join(delimeter);
+        .join('<div class="pdf-page-break"></div>');
 }
 
 function checkItems(

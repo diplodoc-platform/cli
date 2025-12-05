@@ -8,11 +8,15 @@ import {dirname, join} from 'node:path';
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getLeadingHook} from '~/core/leading';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
 
-import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults} from './utils';
+import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults, replacePCNestedLinks} from './utils';
 import {options} from './config';
+import {createServerPageConstructorContent} from '@diplodoc/page-constructor-extension/renderer';
+import { PageContent } from '@diplodoc/page-constructor-extension';
+import { BUNDLE_FOLDER } from '~/constants';
 
 export type PdfPageArgs = {
     pdf: boolean;
@@ -80,6 +84,18 @@ export class PdfPage {
                 if (!run.config.pdf.enabled) {
                     return;
                 }
+
+                getLeadingHook(run.leading).Resolved.tapPromise('pdf', async (content, _meta, file) => {
+                    const html = createServerPageConstructorContent(
+                        content as PageContent
+                    );
+
+                    results[file] = {
+                        path: file,
+                        content: replacePCNestedLinks(html),
+                        title: ''
+                    }
+                });
 
                 getTocHooks(run.toc).Loaded.tapPromise({name: 'pdf'}, async (toc) => {
                     const isHiddenPolicy = run.config.pdf.hiddenPolicy;
@@ -188,6 +204,9 @@ export class PdfPage {
                                 content: pdfStartPagesContent,
                                 pageCount: pdfStartPages.length,
                             },
+                            cssLink: run.manifest.app.css
+                                .filter((file: string) => !file.includes('.rtl.css'))
+                                .map((file: string) => join(BUNDLE_FOLDER, file)),
                             html: pdfPageBody,
                             headings: [],
                             meta: await run.meta.dump(toc.path),

@@ -1,0 +1,13 @@
+title: Pdf title pages123123
+
+items:
+  - name: PC page
+    href: index.yaml
+  - name: PC page 2
+    href: index2.yaml
+  - name: Title 1
+    href: page1.md
+  - name: Title 2
+    href: page2.md
+  - name: With PC block
+    href: with-pc-page.md
