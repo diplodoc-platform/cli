@@ -1,0 +1,3 @@
+resources:
+    style:
+        - __assets/start-page.css

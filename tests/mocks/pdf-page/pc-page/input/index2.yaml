@@ -1,0 +1,135 @@
+blocks:
+  - type: header-block
+    title: "Руководство администратора"
+    description: |
+      Эта Справка поможет настроить сервисы Яндекс 360 в своей организации.
+      Если вы пока не подключились к Яндекс 360, перейдите в [Справку по тарифам, покупке и оплате](https://yandex.ru/support/yandex-360/business/purchase/ru/).
+  - type: card-layout-block
+    children:
+      - title:
+          text: Переезд в Яндекс 360
+          textSize: s
+        text: "Как легко и быстро перенести данные с других платформ"
+        url: index.yaml
+        links:
+          - text: Перейти
+            url: index.yaml
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-migration.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Ваша организация в Яндекс 360
+          textSize: s
+        text: "Как устроено управление сервисами и основными настройками"
+        url: index.yaml
+        links:
+          - text: Перейти
+            url: index.yaml
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-org-admin.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Подключение домена
+          textSize: s
+        text: "Как добавить основной домен и алиасы. Управление доменами"
+        url: page1.md
+        links:
+          - text: Перейти
+            url: page1.md
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-domains.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Сотрудники, подразделения и группы
+          textSize: s
+        text: "Как добавлять, редактировать и удалять профили сотрудников"
+        url: index.yaml
+        links:
+          - text: Перейти
+            url: index.yaml
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-accounts.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Офисы и переговорки
+          textSize: s
+        text: "Как в Яндекс 360 представлено офлайн-пространство для работы"
+        url: page1.md
+        links:
+          - text: Перейти
+            url: page1.md
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-meeting-rooms.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Корпоративная почта
+          textSize: s
+        text: "Почтовые ящики, адреса, алиасы и рассылки. Конфигурирование корпоративной почты"
+        url: page2.md
+        links:
+          - text: Перейти
+            url: page2.md
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-mail.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Безопасность
+          textSize: s
+        text: "Сертификация сервисов, защитные технологии, чек-листы"
+        url: index.yaml
+        links:
+          - text: Перейти
+            url: index.yaml
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-security.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Боты
+          textSize: s
+        text: "Инструкции по подключению ботов к API Яндекс Мессенджера"
+        url: page1.md
+        links:
+          - text: Перейти
+            url: page1.md
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-bot-platform.png
+        margins: s
+        border: none
+        type: image-card
+      - title:
+          text: Сетевые настройки
+          textSize: s
+        text: "Инструкции по настройке корпоративной сети для работы Телемоста и Мессенджера"
+        url: page1.md
+        links:
+          - text: Перейти
+            url: page1.md
+            theme: normal
+            arrow: true
+        image: https://yastatic.net/s3/doc-binary/src/support/business/ru/files/image-card-telemost.png
+        margins: s
+        border: none
+        type: image-card
+animated: false

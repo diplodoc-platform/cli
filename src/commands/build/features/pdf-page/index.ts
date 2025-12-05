@@ -2,16 +2,26 @@ import type {Build} from '~/commands/build';
 import type {EntryTocItem} from '~/core/toc';
 import type {PdfPageResult} from './utils';
 import type {Command} from '~/core/config';
+import type {PageContent} from '@diplodoc/page-constructor-extension';
 
 import {dirname, join} from 'node:path';
+import {createServerPageConstructorContent} from '@diplodoc/page-constructor-extension/renderer';
 
 import {getHooks as getBuildHooks, getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getTocHooks} from '~/core/toc';
+import {getHooks as getLeadingHook} from '~/core/leading';
 import {normalizePath} from '~/core/utils';
 import {Template} from '~/core/template';
+import {BUNDLE_FOLDER} from '~/constants';
 
-import {PDF_PAGE_FILENAME, getPdfUrl, isEntryHidden, joinPdfPageResults} from './utils';
+import {
+    PDF_PAGE_FILENAME,
+    getPdfUrl,
+    isEntryHidden,
+    joinPdfPageResults,
+    replacePCNestedLinks,
+} from './utils';
 import {options} from './config';
 
 export type PdfPageArgs = {
@@ -80,6 +90,19 @@ export class PdfPage {
                 if (!run.config.pdf.enabled) {
                     return;
                 }
+
+                getLeadingHook(run.leading).Resolved.tapPromise(
+                    'pdf',
+                    async (content, _meta, file) => {
+                        const html = createServerPageConstructorContent(content as PageContent);
+
+                        results[file] = {
+                            path: file,
+                            content: replacePCNestedLinks(html),
+                            title: '',
+                        };
+                    },
+                );
 
                 getTocHooks(run.toc).Loaded.tapPromise({name: 'pdf'}, async (toc) => {
                     const isHiddenPolicy = run.config.pdf.hiddenPolicy;
@@ -188,6 +211,9 @@ export class PdfPage {
                                 content: pdfStartPagesContent,
                                 pageCount: pdfStartPages.length,
                             },
+                            cssLink: run.manifest.app.css.map((file: string) =>
+                                join(BUNDLE_FOLDER, file),
+                            ),
                             html: pdfPageBody,
                             headings: [],
                             meta: await run.meta.dump(toc.path),
