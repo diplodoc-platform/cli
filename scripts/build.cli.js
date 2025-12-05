@@ -19,6 +19,9 @@ const baseConfig = {
     define: {
         'global.VERSION': JSON.stringify(version),
     },
+    alias: {
+        '~@diplodoc/transform/dist/css/yfm.css': '@diplodoc/transform/dist/css/yfm.css',
+    },
 };
 
 const externals = new Set();

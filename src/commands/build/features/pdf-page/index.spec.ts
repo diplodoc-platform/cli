@@ -390,7 +390,7 @@ describe('PDF Page Utils', () => {
             );
 
             expect(result).toMatch(
-                /Page 1.*Content 1.*<hr class="yfm-page__delimeter">.*Page 3.*Content 3/s,
+                /Page 1.*Content 1.*<div class="pdf-page-wrapper" data-page-break="true">.*Page 3.*Content 3/s,
             );
         });
 
@@ -406,7 +406,7 @@ describe('PDF Page Utils', () => {
             );
 
             expect(result).toMatch(
-                /Page 1.*Content 1.*<hr class="yfm-page__delimeter">.*Page 3.*Content 3/s,
+                /Page 1.*Content 1.*<div class="pdf-page-wrapper" data-page-break="true">.*Page 3.*Content 3/s,
             );
             expect(result).not.toContain('Page 2');
         });
