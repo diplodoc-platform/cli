@@ -97,6 +97,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
 ---
+<!-- markdownlint-disable-file -->
+
 # OpenAPI definition
 
 ##version: v0##
@@ -109,7 +111,6 @@ vcsPath: openapi/index.md
 ## Specification
 
 {% cut "Open API" %}
-
 
 \`\`\`text translate=no
 {
@@ -184,10 +185,7 @@ vcsPath: openapi/index.md
 }
 \`\`\`
 
-
-{% endcut %}
-
-<!-- markdownlint-disable-file -->"
+{% endcut %}"
 `;
 
 exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
@@ -201,6 +199,8 @@ vcsPath: openapi/test-controller/getWithPayloadResponse.md
 
 # Simple get operation. тест новой верстки 3
 
+<!-- markdownlint-disable-file -->
+
 Defines a simple get skip this operation with no inputs and a complex
 
 ## Request
@@ -211,12 +211,10 @@ Defines a simple get skip this operation with no inputs and a complex
 
 <div class="openapi__request">
 
-GET {.openapi__method} 
+GET {.openapi__method}
 \`\`\`text translate=no
 http://localhost:8080/test
 \`\`\`
-
-
 
 </div>
 
@@ -240,37 +238,32 @@ Generated server url
 
 {% cut "application/json" %}
 
-
 \`\`\`json translate=no
 {
-    "A": "string"
+  "A": "example"
 }
 \`\`\`
 
-
 {% endcut %}
 
-
-#|||
- **Name** 
-|
- **Description** 
+#|
+|| **Name** | **Description** ||
 ||
 
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
 ||
- A {.openapi-table-parameter-name} 
-|
- **Type:** string 
-|||#{.openapi-table}
+|#{.json-schema-properties}
 
 </div>
 
 </div>
-<!-- markdownlint-disable-file -->
 
 </div>
-
-
 
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
@@ -284,11 +277,12 @@ vcsPath: openapi/test-controller/index.md
 ---
 # test-controller
 
+<!-- markdownlint-disable-file -->
+
 ## Endpoints
 
 - [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
-
-<!-- markdownlint-disable-file -->"
+"
 `;
 
 exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
@@ -408,6 +402,8 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 vcsPath: openapi/index.md
 ---
+<!-- markdownlint-disable-file -->
+
 # OpenAPI definition
 
 ##version: v0##
@@ -420,7 +416,6 @@ vcsPath: openapi/index.md
 ## Specification
 
 {% cut "Open API" %}
-
 
 \`\`\`text translate=no
 {
@@ -495,10 +490,7 @@ vcsPath: openapi/index.md
 }
 \`\`\`
 
-
-{% endcut %}
-
-<!-- markdownlint-disable-file -->"
+{% endcut %}"
 `;
 
 exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
@@ -512,6 +504,8 @@ vcsPath: openapi/test-controller/getWithPayloadResponse.md
 
 # Simple get operation. тест новой верстки 3
 
+<!-- markdownlint-disable-file -->
+
 Defines a simple get skip this operation with no inputs and a complex
 
 ## Request
@@ -522,12 +516,10 @@ Defines a simple get skip this operation with no inputs and a complex
 
 <div class="openapi__request">
 
-GET {.openapi__method} 
+GET {.openapi__method}
 \`\`\`text translate=no
 http://localhost:8080/test
 \`\`\`
-
-
 
 </div>
 
@@ -551,37 +543,32 @@ Generated server url
 
 {% cut "application/json" %}
 
-
 \`\`\`json translate=no
 {
-    "A": "string"
+  "A": "example"
 }
 \`\`\`
 
-
 {% endcut %}
 
-
-#|||
- **Name** 
-|
- **Description** 
+#|
+|| **Name** | **Description** ||
 ||
 
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
 ||
- A {.openapi-table-parameter-name} 
-|
- **Type:** string 
-|||#{.openapi-table}
+|#{.json-schema-properties}
 
 </div>
 
 </div>
-<!-- markdownlint-disable-file -->
 
 </div>
-
-
 
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
@@ -595,11 +582,12 @@ vcsPath: openapi/test-controller/index.md
 ---
 # test-controller
 
+<!-- markdownlint-disable-file -->
+
 ## Endpoints
 
 - [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
-
-<!-- markdownlint-disable-file -->"
+"
 `;
 
 exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
