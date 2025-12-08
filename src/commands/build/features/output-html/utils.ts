@@ -30,7 +30,6 @@ import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
 import linksAutotitles from './plugins/links-autotitles';
 import linksExternal from './plugins/links-external';
-// import images from './plugins/images';
 
 export function getBaseMdItPlugins() {
     return [
