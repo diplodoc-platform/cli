@@ -414,7 +414,7 @@ describe('Build command', () => {
             );
 
             test(
-                'should handle transparentMode=true',
+                'should handle transparentMode=false',
                 '',
                 {
                     preprocess: {
