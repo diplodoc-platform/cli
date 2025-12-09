@@ -159,3 +159,5 @@ some code ![svg image 24](_assets/1.svg =120x)
   ![code svg image 25](_assets/1.svg)
   ```
 {% endlist %}
+
+1. ![](_assets/2.svg)[link text](1.md). Text.
