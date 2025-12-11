@@ -64,7 +64,7 @@ function unfoldIncludes(state: StateCore, options: Options) {
 
             includeToken.attrSet('path', path);
             includeToken.attrSet('keyword', keyword);
-
+            includeToken.map = _openToken.map;
             tokens.splice(index, 3, includeToken);
         } catch (e) {
             // @ts-ignore for some reason typescript fails here
