@@ -30,10 +30,24 @@ const keepNotVar = option({
     desc: 'Keep not_var for output md.',
 });
 
+const transparentMode = option({
+    flags: '--transparent-mode',
+    hidden: true,
+    desc: 'Transparent mode',
+});
+
+const useLegacyConditions = option({
+    flags: '--use-legacy-conditions',
+    hidden: true,
+    desc: 'Use legacy conditions',
+});
+
 export const options = {
     hashIncludes,
     mergeIncludes,
     mergeAutotitles,
     mergeSvg,
     keepNotVar,
+    transparentMode,
+    useLegacyConditions,
 };
