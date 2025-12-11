@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.17.2](https://github.com/diplodoc-platform/cli/compare/v5.17.1...v5.17.2) (2025-12-11)
+
+
+### Bug Fixes
+
+* add pc page for pdf ([035888a](https://github.com/diplodoc-platform/cli/commit/035888a61785b96b99cbcda4ca47c214c435066f))
+* remove xml header from svg ([0c5c7be](https://github.com/diplodoc-platform/cli/commit/0c5c7be370510cb18728239c49d9350d39f4fc6c))
+
 ## [5.17.1](https://github.com/diplodoc-platform/cli/compare/v5.17.0...v5.17.1) (2025-12-04)
 
 
