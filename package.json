@@ -148,5 +148,8 @@
   "engines": {
     "node": ">=22.*",
     "npm": ">=11.5.1"
+  },
+  "overrides": {
+    "@tanstack/react-virtual": "3.13.12"
   }
 }
