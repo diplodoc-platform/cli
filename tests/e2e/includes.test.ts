@@ -35,4 +35,24 @@ describe('Includes', () => {
         ]);
         expect(htmlReport.code).toBeGreaterThan(0);
     });
+
+    test('Check filename and line in logs for skipped include', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-skip/test1');
+
+        const mdReport = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'html']);
+        expect(mdReport.code).toBeGreaterThan(0);
+        const mdLogs = mdReport.errors.join('\n');
+
+        expect(mdLogs).toContain('ERR Include skipped in (index.md:3). Include source for includes/missing.md not found');
+    });
+
+     test('Check filename and line in logs for skipped nested include', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-skip/test2');
+
+        const mdReport = await TestAdapter.build.run(inputPath, outputPath, ['-f', 'html']);
+        expect(mdReport.code).toBeGreaterThan(0);
+        const mdLogs = mdReport.errors.join('\n');
+
+        expect(mdLogs).toContain('ERR Include skipped in (includes/valid.md:3). Include source for includes/missing.md not found');
+    });
 });
