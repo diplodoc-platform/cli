@@ -55,6 +55,7 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
     // @ts-ignore
     filterTokens(tokens, 'include', (token, {index}) => {
         try {
+            const includeLine = token.map ? token.map[0] + 1 : undefined;
             const includePath = token.attrGet('path') as string;
             const keyword = token.attrGet('keyword');
             const [pathname, hash] = includePath.split('#');
@@ -62,7 +63,10 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
             const includeContent = files[includeFullPath];
 
             if (typeof includeContent !== 'string') {
-                log.error(`Include skipped. Include source for ${bold(includeFullPath)} not found`);
+                const includeLocation = includeLine ? `${path}:${includeLine}` : path;
+                log.error(
+                    `Include skipped in (${bold(includeLocation)}). Include source for ${bold(includeFullPath)} not found`,
+                );
                 return;
             }
 
