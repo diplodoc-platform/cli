@@ -74,7 +74,7 @@ export class OutputMd {
             const keepNotVar = defined('keepNotVar', args, config || {}, {
                 keepNotVar: false,
             });
-            const legacyConditions = defined('legacyConditions', args, config.preprocess || {}, {
+            const legacyConditions = defined('legacyConditions', args, config || {}, {
                 legacyConditions: false,
             });
             const disableMetaMaxLineWidth = defined('disableMetaMaxLineWidth', args, config || {}, {
