@@ -1,7 +1,7 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {flow, isUndefined, omit, omitBy, uniq} from 'lodash';
+import {flow, omit, uniq} from 'lodash';
 
 import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
@@ -152,7 +152,7 @@ export class MetaService {
         const file = normalizePath(path);
 
         if (this.config.rawAddMeta) {
-            if (Object.keys(omitBy(record, isUndefined)).length) {
+            if (Object.entries(record).some(([_, v]) => v !== undefined)) {
                 this.meta.set(file, record);
             }
             return;
