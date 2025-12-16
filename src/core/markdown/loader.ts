@@ -42,7 +42,7 @@ export class LoaderAPI {
     }
 }
 
-export type LoaderContext = Omit<LiquidContext, 'settings'> & {
+export type LoaderContext = LiquidContext & {
     path: NormalizedPath;
     vars: Hash;
     logger: Logger;
