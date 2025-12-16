@@ -76,6 +76,7 @@ const command = 'Build';
             addResourcesMeta: true,
             addMetadataMeta: true,
             lint: {enabled: true, config: {}},
+            vcsPath: {enabled: true},
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {

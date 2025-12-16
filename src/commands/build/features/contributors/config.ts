@@ -3,7 +3,7 @@ import {option} from '~/core/config';
 const vcsPath = option({
     flags: '--vcs-path',
     desc: 'Should attach vcsPath into files and display it in document header',
-    default: true,
+    defaultInfo: true,
 });
 
 const mtimes = option({

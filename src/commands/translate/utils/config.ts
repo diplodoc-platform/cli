@@ -216,6 +216,7 @@ export function configDefaults() {
         sanitizeHtml: false,
         lang: 'en',
         langs: ['en'],
+        vcsPath: {enabled: true},
     };
 }
 

@@ -366,6 +366,17 @@ describe('Build command', () => {
             test('should handle arg', '--no-vcs-path', {
                 vcsPath: {enabled: false},
             });
+
+            test(
+                'should handle vcsPath config',
+                '',
+                {
+                    vcsPath: {enabled: false},
+                },
+                {
+                    vcsPath: {enabled: false},
+                },
+            );
         });
 
         describe('vcsToken', () => {
