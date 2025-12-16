@@ -1,5 +1,11 @@
 import {option} from '~/core/config';
 
+const vcsPath = option({
+    flags: '--vcs-path',
+    desc: 'Should attach vcsPath into files and display it in document header',
+    default: true,
+});
+
 const mtimes = option({
     flags: '--mtimes',
     desc: 'Should attach change time mark into files and display it in document header',
@@ -26,6 +32,7 @@ const ignoreAuthor = option({
 });
 
 export const options = {
+    vcsPath,
     mtimes,
     authors,
     contributors,

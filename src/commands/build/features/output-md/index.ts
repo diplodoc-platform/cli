@@ -35,7 +35,7 @@ export type OutputMdConfig = {
     mergeIncludes: boolean;
     mergeAutotitles: boolean;
     mergeSvg: boolean;
-    transparentMode: boolean;
+    disableMetaMaxLineWidth: boolean;
 };
 
 export type PreprocessConfig = {
@@ -54,7 +54,7 @@ export class OutputMd {
             command.addOption(options.mergeAutotitles);
             command.addOption(options.mergeSvg);
             command.addOption(options.keepNotVar);
-            command.addOption(options.transparentMode);
+            command.addOption(options.disableMetaMaxLineWidth);
             command.addOption(options.legacyConditions);
         });
 
@@ -77,8 +77,8 @@ export class OutputMd {
             const legacyConditions = defined('legacyConditions', args, config.preprocess || {}, {
                 legacyConditions: false,
             });
-            const transparentMode = defined('transparentMode', args, config.preprocess || {}, {
-                transparentMode: false,
+            const disableMetaMaxLineWidth = defined('disableMetaMaxLineWidth', args, config || {}, {
+                disableMetaMaxLineWidth: false,
             });
             return Object.assign(config, {
                 template: {
@@ -91,7 +91,7 @@ export class OutputMd {
                     mergeIncludes,
                     mergeAutotitles,
                     mergeSvg,
-                    transparentMode,
+                    disableMetaMaxLineWidth,
                 },
             });
         });
@@ -187,7 +187,7 @@ export class OutputMd {
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
                     const meta = await run.meta.dump(vfile.path);
-                    const lineWidth = config.transparentMode ? Infinity : undefined;
+                    const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
                     const dumped = dump(meta, {lineWidth}).trim();
 
                     if (dumped === '{}') {

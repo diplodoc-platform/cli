@@ -1,14 +1,17 @@
 import type {Run} from '~/core/run';
 import type {Alternate, Meta, RawResources} from './types';
 
-import {flow, omit, uniq} from 'lodash';
+import {flow, isUndefined, omit, omitBy, uniq} from 'lodash';
 
 import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 
 type Config = {
+    rawAddMeta: boolean;
     addSystemMeta: boolean;
+    addResourcesMeta: boolean;
+    addMetadataMeta: boolean;
 };
 
 type MetaItem = {
@@ -148,6 +151,13 @@ export class MetaService {
     add(path: RelativePath, record: Hash) {
         const file = normalizePath(path);
 
+        if (this.config.rawAddMeta) {
+            if (Object.keys(omitBy(record, isUndefined)).length) {
+                this.meta.set(file, record);
+            }
+            return;
+        }
+
         const meta = this.meta.get(file) || this.initialMeta();
 
         // check repeat right
@@ -200,7 +210,7 @@ export class MetaService {
     addResources(path: RelativePath, resources: RawResources | undefined) {
         const file = normalizePath(path);
 
-        if (!resources) {
+        if (!resources || !this.config.addResourcesMeta) {
             return;
         }
 
@@ -242,7 +252,7 @@ export class MetaService {
     addMetadata(path: RelativePath, metadata: Hash | undefined) {
         const file = normalizePath(path);
 
-        if (!metadata) {
+        if (!metadata || !this.config.addMetadataMeta) {
             return;
         }
 

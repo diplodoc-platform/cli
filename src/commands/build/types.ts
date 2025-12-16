@@ -52,7 +52,10 @@ type BaseConfig = {
     sanitizeHtml: boolean;
     ignoreStage: string[];
     ignore: string[];
+    rawAddMeta: boolean;
     addSystemMeta: boolean;
+    addResourcesMeta: boolean;
+    addMetadataMeta: boolean;
     // TODO(minor): we can generate this file all time
     addMapFile: boolean;
     mergeIncludes: boolean;

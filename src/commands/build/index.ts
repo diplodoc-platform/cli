@@ -71,7 +71,10 @@ const command = 'Build';
             removeEmptyTocItems: false,
             staticContent: false,
             ignoreStage: [Stage.SKIP],
+            rawAddMeta: false,
             addSystemMeta: false,
+            addResourcesMeta: true,
+            addMetadataMeta: true,
             lint: {enabled: true, config: {}},
         }) as Partial<BuildConfig>,
 )

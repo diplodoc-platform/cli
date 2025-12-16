@@ -191,7 +191,10 @@ export function configDefaults() {
         ignore: [],
         ignoreStage: [],
         vars: {},
+        rawAddMeta: false,
         addSystemMeta: false,
+        addResourcesMeta: true,
+        addMetadataMeta: true,
         template: {
             enabled: true,
             keepNotVar: false,

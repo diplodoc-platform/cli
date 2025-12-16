@@ -30,16 +30,16 @@ const keepNotVar = option({
     desc: 'Keep not_var for output md.',
 });
 
-const transparentMode = option({
-    flags: '--transparent-mode',
-    hidden: true,
-    desc: 'Transparent mode',
-});
-
 const legacyConditions = option({
     flags: '--legacy-conditions',
     hidden: true,
     desc: 'Use legacy conditions',
+});
+
+const disableMetaMaxLineWidth = option({
+    flags: '--disable-meta-max-line-width',
+    hidden: true,
+    desc: 'Disable max meta line width',
 });
 
 export const options = {
@@ -48,6 +48,6 @@ export const options = {
     mergeAutotitles,
     mergeSvg,
     keepNotVar,
-    transparentMode,
     legacyConditions,
+    disableMetaMaxLineWidth,
 };

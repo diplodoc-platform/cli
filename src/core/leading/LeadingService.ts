@@ -42,9 +42,6 @@ export type LeadingServiceConfig = {
             substitutions: boolean;
         };
     };
-    preprocess?: {
-        transparentMode: boolean;
-    };
 };
 
 @withHooks
@@ -102,16 +99,12 @@ export class LeadingService {
 
             await getHooks(this).Loaded.promise(leading, meta, file);
 
-            if (this.config.preprocess?.transparentMode) {
-                this.run.meta.set(file, meta);
-            } else {
-                this.run.meta.addMetadata(path, vars.__metadata);
-                //  TODO: Move to SystemVars feature
-                this.run.meta.addSystemVars(path, vars.__system);
-                this.run.meta.add(file, meta);
-                // leading.meta is filled by plugins, so we can safely add it to resources
-                this.run.meta.addResources(file, leading.meta);
-            }
+            this.run.meta.addMetadata(path, vars.__metadata);
+            //  TODO: Move to SystemVars feature
+            this.run.meta.addSystemVars(path, vars.__system);
+            this.run.meta.add(file, meta);
+            // leading.meta is filled by plugins, so we can safely add it to resources
+            this.run.meta.addResources(file, leading.meta);
 
             this.cache[file] = leading;
             defer.resolve(leading);

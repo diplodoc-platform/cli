@@ -11,6 +11,7 @@ import {getHooks, withHooks} from './hooks';
 import {DefaultVcsConnector} from './connector';
 
 export type VcsServiceConfig = {
+    vcsPath: {enabled: boolean};
     mtimes: {enabled: boolean};
     authors: {enabled: boolean; ignore: string[]};
     contributors: {enabled: boolean; ignore: string[]};
@@ -62,14 +63,14 @@ export class VcsService implements VcsConnector {
 
         const result: VcsMetadata = {};
 
-        result.vcsPath = await this.realpath(file);
-
-        const [author, contributors, updatedAt] = await Promise.all([
+        const [vcsPath, author, contributors, updatedAt] = await Promise.all([
+            this.config.vcsPath.enabled ? this.realpath(file) : undefined,
             this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
             this.config.contributors.enabled ? this.getContributors(file, deps) : [],
             this.config.mtimes.enabled ? this.getMTime(file, deps) : undefined,
         ]);
 
+        result.vcsPath = vcsPath || undefined;
         result.author = author || undefined;
         result.contributors = contributors.length ? contributors : undefined;
         result.updatedAt = updatedAt || undefined;
