@@ -36,8 +36,8 @@ const transparentMode = option({
     desc: 'Transparent mode',
 });
 
-const useLegacyConditions = option({
-    flags: '--use-legacy-conditions',
+const legacyConditions = option({
+    flags: '--legacy-conditions',
     hidden: true,
     desc: 'Use legacy conditions',
 });
@@ -49,5 +49,5 @@ export const options = {
     mergeSvg,
     keepNotVar,
     transparentMode,
-    useLegacyConditions,
+    legacyConditions,
 };

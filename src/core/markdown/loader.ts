@@ -56,9 +56,6 @@ export type LoaderContext = Omit<LiquidContext, 'settings'> & {
         mergeContentParts: boolean;
     };
     mode: 'build' | 'translate';
-    settings: LiquidContext['settings'] & {
-        useLegacyConditions?: boolean;
-    };
 };
 
 export async function loader(this: LoaderContext, content: string) {
