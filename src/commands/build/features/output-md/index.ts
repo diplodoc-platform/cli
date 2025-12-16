@@ -27,6 +27,7 @@ export type OutputMdArgs = {
     mergeAutotitles: boolean;
     mergeSvg: boolean;
     keepNotVar: boolean;
+    legacyConditions: boolean;
 };
 
 export type OutputMdConfig = {
@@ -35,12 +36,12 @@ export type OutputMdConfig = {
     mergeAutotitles: boolean;
     mergeSvg: boolean;
     transparentMode: boolean;
-    legacyConditions?: boolean;
 };
 
 export type PreprocessConfig = {
     template: {
         keepNotVar: boolean;
+        legacyConditions: boolean;
     };
     preprocess: Partial<OutputMdConfig>;
 };

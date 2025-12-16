@@ -23,6 +23,7 @@ export type TemplatingConfig = {
     template: {
         enabled: boolean;
         keepNotVar: boolean;
+        legacyConditions: boolean;
         scopes: {
             text: boolean;
             code: boolean;
@@ -58,6 +59,7 @@ export class Templating {
                 {
                     enabled: (config as TemplatingRawConfig).template !== false,
                     keepNotVar: false,
+                    legacyConditions: false,
                     scopes: {
                         text: true,
                         code: false,

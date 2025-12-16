@@ -195,6 +195,7 @@ export function configDefaults() {
         template: {
             enabled: true,
             keepNotVar: false,
+            legacyConditions: false,
             features: {
                 conditions: 'strict',
                 substitutions: true,
