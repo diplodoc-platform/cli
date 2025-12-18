@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.17.3](https://github.com/diplodoc-platform/cli/compare/v5.17.2...v5.17.3) (2025-12-15)
+
+
+### Bug Fixes
+
+* react warning and add line for include ([#1561](https://github.com/diplodoc-platform/cli/issues/1561)) ([a8016f7](https://github.com/diplodoc-platform/cli/commit/a8016f795ea750ecbec1646600b0cd345be77143))
+
 ## [5.17.2](https://github.com/diplodoc-platform/cli/compare/v5.17.1...v5.17.2) (2025-12-11)
 
 
