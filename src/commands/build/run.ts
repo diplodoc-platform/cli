@@ -174,7 +174,7 @@ export class Run extends BaseRun<BuildConfig> {
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
         const configAllowHtml = this.config.allowHtml;
-        const allowHtml = (!configAllowHtml || configAllowHtml === 'false') ? false : true;
+        const allowHtml = configAllowHtml !== false && configAllowHtml !== 'false';
 
         return {
             allowHTML: allowHtml,

@@ -500,11 +500,24 @@ describe('Build command', () => {
             });
         });
 
+        describe('allowHtml', () => {
+            test('should handle default', '', {
+                allowHtml: true,
+            });
+
+            test('should handle false arg', '--allow-html false', {
+                allowHtml: 'false',
+            });
+
+            test('should handle true arg', '--allow-html true', {
+                allowHtml: 'true',
+            });
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);
-        testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
 
         testNestedBooleanFlag('interfaceToc', '--interface-toc', true, ['interface', 'toc']);
