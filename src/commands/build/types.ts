@@ -48,7 +48,7 @@ type BaseConfig = {
     outputFormat: `${OutputFormat}`;
     varsPreset: string;
     vars: Hash;
-    allowHtml: boolean;
+    allowHtml: boolean | 'true' | 'false';
     sanitizeHtml: boolean;
     ignoreStage: string[];
     ignore: string[];

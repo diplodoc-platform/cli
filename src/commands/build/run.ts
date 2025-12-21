@@ -173,8 +173,11 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
+        const configAllowHtml = this.config.allowHtml;
+        const allowHtml = (!configAllowHtml || configAllowHtml === 'false') ? false : true;
+
         return {
-            allowHTML: this.config.allowHtml,
+            allowHTML: allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),
             plugins: this.markdown.plugins,

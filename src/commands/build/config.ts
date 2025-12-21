@@ -56,7 +56,8 @@ const varsPreset = option({
 });
 
 const allowHtml = option({
-    flags: '--allow-html',
+    flags: '--allow-html <value>',
+    choices: ['true', 'false'],
     desc: 'Allow to use HTML in Markdown files.',
     defaultInfo: true,
 });
