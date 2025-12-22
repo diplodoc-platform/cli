@@ -87,9 +87,9 @@ export class Run extends BaseRun<BuildConfig> {
     constructor(config: BuildConfig) {
         super(config);
 
-        this.originalInput = config.input;
-        this.input = resolve(config.output, TMP_INPUT_FOLDER);
-        this.output = config.output;
+        this.originalInput = this.realpathSync(config.input);
+        this.output = this.realpathSync(config.output);
+        this.input = resolve(this.output, TMP_INPUT_FOLDER);
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.

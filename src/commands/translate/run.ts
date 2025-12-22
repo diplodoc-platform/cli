@@ -27,10 +27,10 @@ export class Run extends BaseRun<CommonRunConfig> {
     constructor(config: Config<CommonRunConfig>) {
         super(config);
 
-        this.scopes.set('input', config.input);
-        this.scopes.set('output', config.output);
+        this.scopes.set('input', this.realpathSync(config.input));
+        this.scopes.set('output', this.realpathSync(config.output));
         const sourcePath = join(config.input, config.source.language) as AbsolutePath;
-        this.scopes.set('source', sourcePath);
+        this.scopes.set('source', this.realpathSync(sourcePath));
 
         this.vars = new VarsService(this, {usePresets: false});
         this.meta = new MetaService(this);

@@ -9,11 +9,12 @@ import {
     unlink,
     writeFile,
 } from 'node:fs/promises';
-import {statSync} from 'node:fs';
+import {realpathSync, statSync} from 'node:fs';
 
 export type FileSystem = {
     stat: typeof stat;
     statSync: typeof statSync;
+    realpathSync: typeof realpathSync;
     realpath: typeof realpath;
     link: typeof link;
     unlink: typeof unlink;
@@ -27,6 +28,7 @@ export type FileSystem = {
 export const fs = {
     stat,
     statSync,
+    realpathSync,
     realpath,
     rm,
     link,
