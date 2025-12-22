@@ -202,6 +202,14 @@ export class Run<TConfig = BaseConfig> {
         }
     }
 
+    @bounded realpathSync(path: AbsolutePath) {
+        try {
+            return this.fs.realpathSync(path) as AbsolutePath;
+        } catch {
+            return path;
+        }
+    }
+
     private async assertProjectScope(path: AbsolutePath) {
         const scopes = [...this.scopes.values()].map(normalizePath) as AbsolutePath[];
         const realpath = normalizePath(await this.realpath(path)) as AbsolutePath;
