@@ -3,11 +3,10 @@ import type {Build, Run} from '~/commands/build';
 import type {Redirects} from '../../services/redirects';
 
 import {join, parse} from 'node:path';
-import {load} from 'js-yaml';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
-import {valuable} from '~/core/config';
+import {resolveConfig, valuable} from '~/core/config';
 
 import {options} from './config';
 
@@ -99,7 +98,7 @@ export class BuildManifest {
         try {
             const yfmConfigPath = run.configPath;
 
-            return load(await run.read(yfmConfigPath)) ?? {};
+            return (await resolveConfig(yfmConfigPath)) ?? {};
         } catch (error) {
             run.logger.warn(`BuildManifest: Failed to read YFM config: ${error}`);
 
