@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.18.0](https://github.com/diplodoc-platform/cli/compare/v5.17.3...v5.18.0) (2025-12-22)
+
+
+### Features
+
+* Update openapi schemas rendering ([7dbebf3](https://github.com/diplodoc-platform/cli/commit/7dbebf3d92b4d97783589b5107b505329feb12b3))
+
 ## [5.17.3](https://github.com/diplodoc-platform/cli/compare/v5.17.2...v5.17.3) (2025-12-15)
 
 
