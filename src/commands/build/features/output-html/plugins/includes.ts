@@ -11,8 +11,10 @@ function stripTitleTokens(tokens: Token[]) {
     const [open, _, close] = tokens;
 
     if (open?.type === 'heading_open' && close?.type === 'heading_close') {
-        tokens.splice(0, 3);
+        return tokens.slice(3);
     }
+
+    return tokens;
 }
 
 type Options = MarkdownItPluginOpts & {
@@ -22,6 +24,8 @@ type Options = MarkdownItPluginOpts & {
 
 export default ((md, options) => {
     const {path: optPath, log} = options;
+
+    const cache: Hash<Token[]> = {};
 
     const plugin = (state: StateCore) => {
         const {env} = state;
@@ -37,7 +41,7 @@ export default ((md, options) => {
         }
 
         env.includes.push(path);
-        unfoldIncludes(path, state, options);
+        unfoldIncludes(path, state, options, cache);
         env.includes.pop();
     };
 
@@ -48,7 +52,12 @@ export default ((md, options) => {
     }
 }) as MarkdownItPluginCb<Options>;
 
-function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options) {
+function unfoldIncludes(
+    path: NormalizedPath,
+    state: StateCore,
+    options: Options,
+    cache: Hash<Token[]>,
+) {
     const {log, files} = options;
     const {tokens, md, env} = state;
 
@@ -70,12 +79,14 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
                 return;
             }
 
-            const fileTokens = md.parse(includeContent, {
-                ...env,
-                path: includeFullPath,
-            });
+            const fileTokens =
+                cache[includeFullPath] ||
+                md.parse(includeContent, {
+                    ...env,
+                    path: includeFullPath,
+                });
 
-            let includedTokens;
+            let includedTokens: Token[];
             if (hash) {
                 // TODO: add warning about missed block
                 includedTokens = cutTokens(fileTokens, hash);
@@ -84,7 +95,15 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
             }
 
             if (keyword === 'notitle') {
-                stripTitleTokens(includedTokens);
+                includedTokens = stripTitleTokens(includedTokens);
+            }
+
+            // If this is first usage - pick original tokens
+            // otherwise copy tokens, do not use original, because there can be other meta.
+            if (cache[includeFullPath]) {
+                includedTokens = includedTokens.map((token) => copyToken(state, token));
+            } else {
+                cache[includeFullPath] = fileTokens;
             }
 
             tokens.splice(index, 1, ...includedTokens);
@@ -97,6 +116,18 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
             log.error(`Include skipped. Skip reason: ${e} in ${errPath}`);
         }
     });
+}
+
+function copyToken(state: StateCore, token: Token) {
+    const result = new state.Token(token.type, token.tag, token.nesting);
+
+    Object.assign(result, token);
+
+    result.attrs = token.attrs?.map(([key, value]) => [key, value]) || null;
+    result.map = (token.map?.slice() as [number, number]) || null;
+    result.children = token.children?.map((token) => copyToken(state, token)) || null;
+
+    return result;
 }
 
 function cutTokens(tokens: Token[], id: string) {
