@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.18.2](https://github.com/diplodoc-platform/cli/compare/v5.18.1...v5.18.2) (2025-12-23)
+
+
+### Bug Fixes
+
+* read yfm config for build-manifest ([174c120](https://github.com/diplodoc-platform/cli/commit/174c120c2d0a0952ce630f4d1cd9d8e6439b80fa))
+* symlink in scopes ([83e9c30](https://github.com/diplodoc-platform/cli/commit/83e9c30bad38f54c666e29f3ab1747b29d2f1098))
+
 ## [5.18.1](https://github.com/diplodoc-platform/cli/compare/v5.18.0...v5.18.1) (2025-12-23)
 
 
