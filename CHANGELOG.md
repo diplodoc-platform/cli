@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.18.1](https://github.com/diplodoc-platform/cli/compare/v5.18.0...v5.18.1) (2025-12-23)
+
+
+### Bug Fixes
+
+* **perf:** Fix performance for files with lot of includes ([8ddae95](https://github.com/diplodoc-platform/cli/commit/8ddae9527e2d31c2547defbaf513b1dc72979a7c))
+
 ## [5.18.0](https://github.com/diplodoc-platform/cli/compare/v5.17.3...v5.18.0) (2025-12-22)
 
 
