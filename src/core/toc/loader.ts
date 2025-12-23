@@ -126,11 +126,12 @@ function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
 
         if (item && typeof item === 'object' && !Array.isArray(item)) {
             for (const field of CHECK_FIELDS) {
-                if (
-                    item[field as keyof RawTocItem] !== undefined &&
-                    item[field as keyof RawTocItem]?.toString() === '[object Object]'
-                ) {
-                    errors.push(`${currentPath}.${field}`);
+                const value = item[field as keyof RawTocItem];
+
+                if (value !== undefined && value?.toString() === '[object Object]') {
+                    errors.push(`object:${currentPath}.${field}`);
+                } else if (value === '') {
+                    errors.push(`empty:${currentPath}.${field}`);
                 }
             }
 
@@ -144,13 +145,23 @@ function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
 }
 
 async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const path = this.from ? this.from + ' -> ' + this.path : this.path;
+
     if (toc.items && Array.isArray(toc.items)) {
-        const errors = checkTocItems(toc.items);
-        const path = this.from ? this.from + ' -> ' + this.path : this.path;
-        for (const error of errors) {
-            this.logger.error(
-                `Invalid toc structure in ${path.toString()} at ${error}: found [object Object] value`,
-            );
+        const itemErrors = checkTocItems(toc.items);
+
+        for (const error of itemErrors) {
+            const [code, errorPath] = error.split(':', 2);
+
+            if (code === 'object') {
+                this.logger.error(
+                    `Invalid toc structure in ${path.toString()} at ${errorPath}: found [object Object] value`,
+                );
+            } else if (code === 'empty') {
+                this.logger.error(
+                    `Invalid toc structure in ${path.toString()} at ${errorPath}: empty value is not allowed`,
+                );
+            }
         }
     }
 
