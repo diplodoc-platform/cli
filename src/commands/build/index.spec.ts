@@ -37,6 +37,30 @@ describe('Build command', () => {
             });
         });
 
+        describe('metadata', () => {
+            test('should handle default', '', {
+                rawAddMeta: false,
+                addSystemMeta: false,
+                addResourcesMeta: true,
+                addMetadataMeta: true,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    rawAddMeta: true,
+                    addResourcesMeta: false,
+                    addMetadataMeta: false,
+                },
+                {
+                    rawAddMeta: true,
+                    addResourcesMeta: false,
+                    addMetadataMeta: false,
+                },
+            );
+        });
+
         describe('langs', () => {
             test('should handle default', '', {
                 langs: ['ru'],
@@ -298,6 +322,7 @@ describe('Build command', () => {
         describe('vcs', () => {
             test('should handle default', '', {
                 vcs: {enabled: false},
+                vcsPath: {enabled: true},
             });
 
             test('should handle arg', '--vcs', {
@@ -337,6 +362,21 @@ describe('Build command', () => {
                     vcs: {enabled: false},
                 },
             );
+
+            test('should handle arg', '--no-vcs-path', {
+                vcsPath: {enabled: false},
+            });
+
+            test(
+                'should handle vcsPath config',
+                '',
+                {
+                    vcsPath: {enabled: false},
+                },
+                {
+                    vcsPath: {enabled: false},
+                },
+            );
         });
 
         describe('vcsToken', () => {
@@ -370,6 +410,7 @@ describe('Build command', () => {
                     hashIncludes: true,
                     mergeIncludes: false,
                     mergeAutotitles: true,
+                    disableMetaMaxLineWidth: false,
                 },
             });
 
@@ -391,6 +432,12 @@ describe('Build command', () => {
                 },
             });
 
+            test('should handle arg disableMetaMaxLineWidth', '--disable-meta-max-line-width', {
+                preprocess: {
+                    disableMetaMaxLineWidth: true,
+                },
+            });
+
             test(
                 'should handle mergeAutotitles=false',
                 '',
@@ -402,6 +449,21 @@ describe('Build command', () => {
                 {
                     preprocess: {
                         mergeAutotitles: false,
+                    },
+                },
+            );
+
+            test(
+                'should handle disableMetaMaxLineWidth=false',
+                '',
+                {
+                    preprocess: {
+                        disableMetaMaxLineWidth: false,
+                    },
+                },
+                {
+                    preprocess: {
+                        disableMetaMaxLineWidth: false,
                     },
                 },
             );

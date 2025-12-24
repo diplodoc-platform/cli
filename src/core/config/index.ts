@@ -111,11 +111,13 @@ export const toggleable = <C extends Hash<unknown>>(
 ) => {
     const result = isObject(config[field]) ? {...(config[field] as Hash)} : {enabled: false};
     // eslint-disable-next-line no-nested-ternary
-    result.enabled = defined(field, args)
-        ? Boolean(args[field])
-        : isObject(config[field])
-          ? defined('enabled', config[field] as Hash, {enabled: true})
-          : defined(field, config, {[field]: false});
+    result.enabled =
+        // eslint-disable-next-line no-nested-ternary
+        field in args
+            ? Boolean(args[field])
+            : isObject(config[field])
+              ? defined('enabled', config[field] as Hash, {enabled: true})
+              : defined(field, config, {[field]: false});
 
     return result as C & {enabled: boolean};
 };

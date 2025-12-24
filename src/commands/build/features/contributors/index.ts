@@ -4,15 +4,16 @@ import type {VcsServiceConfig} from '~/core/vcs';
 
 import {uniq} from 'lodash';
 
+import {defined, toggleable} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {defined, toggleable} from '~/core/config';
 import {get} from '~/core/utils';
 
 import {options} from './config';
 
 export type ContributorsArgs = {
+    vcsPath?: {enabled: boolean};
     mtimes?: {enabled: boolean};
     authors?: {enabled: boolean; ignore: string[]};
     contributors?: {enabled: boolean; ignore: string[]};
@@ -24,6 +25,7 @@ export type ContributorsConfig = VcsServiceConfig;
 export class Contributors {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Contributors', (command: Command) => {
+            command.addOption(options.vcsPath);
             command.addOption(options.mtimes);
             command.addOption(options.authors);
             command.addOption(options.contributors);
@@ -31,6 +33,7 @@ export class Contributors {
         });
 
         getBaseHooks(program).Config.tap('Contributors', (config, args) => {
+            config.vcsPath = toggleable('vcsPath', args, config);
             config.mtimes = toggleable('mtimes', args, config);
             config.authors = toggleable('authors', args, config);
             config.contributors = toggleable('contributors', args, config);

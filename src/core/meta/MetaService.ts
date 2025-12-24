@@ -8,7 +8,10 @@ import {copyJson, get, normalizePath, shortLink, zip} from '~/core/utils';
 import {getHooks, withHooks} from './hooks';
 
 type Config = {
+    rawAddMeta: boolean;
     addSystemMeta: boolean;
+    addResourcesMeta: boolean;
+    addMetadataMeta: boolean;
 };
 
 type MetaItem = {
@@ -148,6 +151,13 @@ export class MetaService {
     add(path: RelativePath, record: Hash) {
         const file = normalizePath(path);
 
+        if (this.config.rawAddMeta) {
+            if (Object.entries(record).some(([_, v]) => v !== undefined)) {
+                this.meta.set(file, record);
+            }
+            return;
+        }
+
         const meta = this.meta.get(file) || this.initialMeta();
 
         // check repeat right
@@ -200,7 +210,7 @@ export class MetaService {
     addResources(path: RelativePath, resources: RawResources | undefined) {
         const file = normalizePath(path);
 
-        if (!resources) {
+        if (!resources || !this.config.addResourcesMeta) {
             return;
         }
 
@@ -242,7 +252,7 @@ export class MetaService {
     addMetadata(path: RelativePath, metadata: Hash | undefined) {
         const file = normalizePath(path);
 
-        if (!metadata) {
+        if (!metadata || !this.config.addMetadataMeta) {
             return;
         }
 

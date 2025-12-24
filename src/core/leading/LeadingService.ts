@@ -22,8 +22,8 @@ import {
     walkLinks,
 } from '~/core/utils';
 
-import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, loader} from './loader';
+import {getHooks, withHooks} from './hooks';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;
@@ -100,7 +100,7 @@ export class LeadingService {
             await getHooks(this).Loaded.promise(leading, meta, file);
 
             this.run.meta.addMetadata(path, vars.__metadata);
-            // TODO: Move to SystemVars feature
+            //  TODO: Move to SystemVars feature
             this.run.meta.addSystemVars(path, vars.__system);
             this.run.meta.add(file, meta);
             // leading.meta is filled by plugins, so we can safely add it to resources

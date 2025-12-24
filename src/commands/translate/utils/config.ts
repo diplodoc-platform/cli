@@ -191,10 +191,14 @@ export function configDefaults() {
         ignore: [],
         ignoreStage: [],
         vars: {},
+        rawAddMeta: false,
         addSystemMeta: false,
+        addResourcesMeta: true,
+        addMetadataMeta: true,
         template: {
             enabled: true,
             keepNotVar: false,
+            legacyConditions: false,
             features: {
                 conditions: 'strict',
                 substitutions: true,
@@ -212,6 +216,7 @@ export function configDefaults() {
         sanitizeHtml: false,
         lang: 'en',
         langs: ['en'],
+        vcsPath: {enabled: true},
     };
 }
 
