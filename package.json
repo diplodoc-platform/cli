@@ -141,7 +141,7 @@
     "uuid": "11.0.4",
     "vite": "^6.3.5",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^3.2.1",
+    "vitest": "^4.0.16",
     "vitest-when": "^0.6.1",
     "walk-sync": "3.0.0"
   },
