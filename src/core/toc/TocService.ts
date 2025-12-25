@@ -125,6 +125,10 @@ export class TocService {
         return this.tocs.filter((toc) => paths.includes(toc.path));
     }
 
+    async pushAdditionalEntries(path: NormalizedPath, toc: Toc) {
+        await this.addEntries(path, toc);
+    }
+
     async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
         toc = toc || this.for(file);
 

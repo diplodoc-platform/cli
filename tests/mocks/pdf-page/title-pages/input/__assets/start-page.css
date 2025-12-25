@@ -5,7 +5,9 @@
     align-items: center;
     background-color: grey;
     padding: 20px;
-    height: calc(100vh - 200px);
+    height: 100vh;
+    background-image: url(../__images/mountain.jpg);
+    background-size: cover;
 }
 
 img {
