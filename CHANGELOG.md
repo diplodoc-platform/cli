@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.19.3](https://github.com/diplodoc-platform/cli/compare/v5.19.2...v5.19.3) (2025-12-25)
+
+
+### Bug Fixes
+
+* **deps:** Update openapi-extension ([fb6c174](https://github.com/diplodoc-platform/cli/commit/fb6c174b863d3de7277572faf57cc9317457bd97))
+
 ## [5.19.2](https://github.com/diplodoc-platform/cli/compare/v5.19.1...v5.19.2) (2025-12-25)
 
 
