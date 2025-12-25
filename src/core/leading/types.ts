@@ -63,6 +63,7 @@ export type Plugin = (
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
+    size: number;
 };
 
 type GraphEntryInfo = {type: 'entry'};

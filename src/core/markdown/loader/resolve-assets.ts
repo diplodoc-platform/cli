@@ -1,12 +1,36 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
-import {rebasePath} from '~/core/utils';
+import {fs, rebasePath} from '~/core/utils';
 
 import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
 
+function getSize(
+    path: RelativePath,
+    loaderContext: LoaderContext,
+    assetSizes: Map<RelativePath, number>,
+) {
+    if (path === null) {
+        return 0;
+    }
+    if (assetSizes.has(path)) {
+        return assetSizes.get(path) as number;
+    }
+
+    try {
+        const fullPath = loaderContext.fullPath(path);
+        const size = fs.statSync(fullPath).size;
+        assetSizes.set(path, size);
+        return size;
+    } catch (error) {
+        assetSizes.set(path, 0);
+        return 0;
+    }
+}
+
 export function resolveAssets(this: LoaderContext, content: string) {
     const assets: AssetInfo[] = [];
+    const assetSizes = new Map<RelativePath, number>();
 
     const exclude = [
         ...this.api.deps.get().map(({location}) => location),
@@ -24,9 +48,14 @@ export function resolveAssets(this: LoaderContext, content: string) {
                 info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
             }
 
-            assets.push(info);
+            let size = 0;
+            if (['def', 'image'].includes(info.type) && info.subtype === 'image') {
+                size = getSize(info.path, this, assetSizes);
+            }
+
+            assets.push({...info, size});
         } catch (error) {
-            this.logger.error(`Error processing asset from ${this.path} to ${info.path}: ${error}`);
+            this.logger.warn(`Error processing asset from ${this.path} to ${info.path}: ${error}`);
         }
     }
 
