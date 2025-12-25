@@ -48,6 +48,8 @@ export type LoaderContext = LiquidContext & {
     logger: Logger;
     emitFile(path: NormalizedPath, content: string): Promise<void>;
     readFile(path: NormalizedPath): Promise<string>;
+    fullPath(path: RelativePath): AbsolutePath;
+    input: AbsolutePath;
     collects: Collect[];
     api: LoaderAPI;
     sourcemap: SourceMap;

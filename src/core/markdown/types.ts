@@ -43,6 +43,7 @@ export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     autotitle: boolean;
     location: Location;
     options?: ImageOptions;
+    size?: number;
 };
 
 export type HeadingInfo = {

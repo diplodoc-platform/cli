@@ -562,6 +562,62 @@ describe('Build command', () => {
             });
         });
 
+        describe('maxAssetSize', () => {
+            test('should handle default', '', {
+                content: {
+                    maxAssetSize: 64 * 1024 ** 2, // 64M in bytes
+                },
+            });
+
+            test('should handle arg with K unit', '--max-asset-size 128K', {
+                content: {
+                    maxAssetSize: 128 * 1024, // 128K in bytes
+                },
+            });
+
+            test('should handle arg with M unit', '--max-asset-size 4M', {
+                content: {
+                    maxAssetSize: 4 * 1024 ** 2, // 4M in bytes
+                },
+            });
+
+            test('should handle arg with zero value to disable', '--max-asset-size 0', {
+                content: {
+                    maxAssetSize: 64 * 1024 ** 2, // Should use default when 0 is specified
+                },
+            });
+
+            test(
+                'should handle config with K unit',
+                '',
+                {
+                    content: {
+                        maxAssetSize: 512 * 1024, // 512K in bytes
+                    },
+                },
+                {
+                    content: {
+                        maxAssetSize: 512 * 1024, // 512K in bytes
+                    },
+                },
+            );
+
+            test(
+                'should handle config with M unit',
+                '',
+                {
+                    content: {
+                        maxAssetSize: 32 * 1024 ** 2, // 32M in bytes
+                    },
+                },
+                {
+                    content: {
+                        maxAssetSize: 32 * 1024 ** 2, // 32M in bytes
+                    },
+                },
+            );
+        });
+
         testBooleanFlag('addMapFile', '--add-map-file', false);
         testBooleanFlag('allowCustomResources', '--allow-custom-resources', false);
         testBooleanFlag('staticContent', '--static-content', false);
@@ -764,6 +820,27 @@ describe('Build command', () => {
             it('should return 0 value', () => {
                 const converter = fileSizeConverter({max: '16M'});
                 const result = converter(0 as unknown as string, '4M');
+
+                expect(result).toBe(0); // 0
+            });
+
+            it('should use default value when disableIfZero is true and input is "0"', () => {
+                const converter = fileSizeConverter({disableIfZero: true});
+                const result = converter('0', '4M');
+
+                expect(result).toBe(4194304); // 4 * 1024 * 1024 (default value)
+            });
+
+            it('should return 0 when disableIfZero is false and input is "0"', () => {
+                const converter = fileSizeConverter({disableIfZero: false});
+                const result = converter('0', '4M');
+
+                expect(result).toBe(0); // 0
+            });
+
+            it('should return 0 when disableIfZero is not specified and input is "0"', () => {
+                const converter = fileSizeConverter({});
+                const result = converter('0', '4M');
 
                 expect(result).toBe(0); // 0
             });

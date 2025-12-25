@@ -9,3 +9,4 @@ export * from './markdown';
 export * from './file';
 export * from './graph';
 export * from './json';
+export * from './fs';

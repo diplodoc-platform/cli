@@ -1,6 +1,7 @@
 import type {Mock} from 'vitest';
 import type {Collect} from './types';
 import type {LoaderContext} from './loader';
+import type * as CoreUtils from '~/core/utils';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -11,6 +12,16 @@ import {Logger} from '~/core/logger';
 import {loader} from './loader';
 
 vi.mock('~/core/logger');
+vi.mock('~/core/utils', async (importOriginal) => {
+    const actual = (await importOriginal()) as typeof CoreUtils;
+    return {
+        ...actual,
+        fs: {
+            ...actual.fs,
+            statSync: vi.fn(() => ({size: 1024})),
+        },
+    };
+});
 
 function bucket() {
     let _value: unknown;
@@ -38,6 +49,7 @@ function loaderContext(
         logger: new Logger(),
         emitFile: vi.fn(),
         readFile: vi.fn(),
+        fullPath: (path: RelativePath) => path,
         api: {
             blockCodes: bucket(),
             deps: bucket(),
