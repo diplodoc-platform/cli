@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.19.4](https://github.com/diplodoc-platform/cli/compare/v5.19.3...v5.19.4) (2025-12-25)
+
+
+### Bug Fixes
+
+* **deps:** Update openapi-extension ([7b9a0b4](https://github.com/diplodoc-platform/cli/commit/7b9a0b4e2f458823d0af73774bb8f15c9a26c336))
+* pdf related fixes ([a556a1b](https://github.com/diplodoc-platform/cli/commit/a556a1b6ee7463b2b14053ae307f0a37ccde8d6c))
+
 ## [5.19.3](https://github.com/diplodoc-platform/cli/compare/v5.19.2...v5.19.3) (2025-12-25)
 
 
