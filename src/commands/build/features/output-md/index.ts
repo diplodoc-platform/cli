@@ -223,7 +223,7 @@ export class OutputMd {
             const assets = await service.assets(vfile.path);
 
             await all(
-                assets.map(async ({path}) => {
+                assets.map(async ({path, size}) => {
                     if (!isMediaLink(path)) {
                         return;
                     }
@@ -232,6 +232,13 @@ export class OutputMd {
                         return;
                     }
                     cache.add(path);
+
+                    if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
+                        run.logger.error(
+                            'YFM013',
+                            `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
+                        );
+                    }
 
                     try {
                         run.logger.copy(join(run.input, path), join(run.output, path));

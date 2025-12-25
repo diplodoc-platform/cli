@@ -39,6 +39,7 @@ export type Langs = (string | ExtendedLang)[];
 export type ContentConfig = {
     maxInlineSvgSize: number;
     maxHtmlSize: number;
+    maxAssetSize: number;
 };
 
 type BaseConfig = {

@@ -196,6 +196,19 @@ const maxHtmlSize = option({
     parser: fileSizeConverter({max: '96M'}),
 });
 
+const maxAssetSize = option({
+    flags: '--max-asset-size <value>',
+    desc: `
+        Restriction on the maximum asset size. For disabled use '0' --max-asset-size '0'
+        Default: 64M
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --max-asset-size '128K'
+    `,
+    default: '64M',
+    parser: fileSizeConverter({disableIfZero: true}),
+});
+
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -263,6 +276,9 @@ export function fileSizeConverter(opts: Hash) {
         if (!input && typeof input !== 'number') {
             input = defaultValue;
         }
+        if (opts.disableIfZero && input === '0') {
+            input = defaultValue;
+        }
         if (typeof input === 'number') {
             return input;
         }
@@ -278,6 +294,9 @@ export function fileSizeConverter(opts: Hash) {
             return value * 1024 ** unitIndex;
         }
 
+        if (opts.max === undefined) {
+            return convert(input);
+        }
         return Math.min(convert(input), convert(opts.max || '0'));
     };
 }
@@ -325,10 +344,16 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
         ...config.interface,
         ...viewerInterface,
     };
-    config.content = combineProps(config, 'content', ['maxInlineSvgSize', 'maxHtmlSize'], {
-        maxInlineSvgSize,
-        maxHtmlSize,
-    }) as ContentConfig;
+    config.content = combineProps(
+        config,
+        'content',
+        ['maxInlineSvgSize', 'maxHtmlSize', 'maxAssetSize'],
+        {
+            maxInlineSvgSize,
+            maxHtmlSize,
+            maxAssetSize,
+        },
+    ) as ContentConfig;
 
     if (feedbackUrl) {
         config.feedback = config.feedback || {};
@@ -366,4 +391,5 @@ export const options = {
     pdfDebug,
     maxInlineSvgSize,
     maxHtmlSize,
+    maxAssetSize,
 };
