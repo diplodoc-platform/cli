@@ -1,9 +1,40 @@
 import type {LoaderContext} from '../loader';
 import type {AssetInfo} from '../types';
 
-import {fs, rebasePath} from '~/core/utils';
+import {join} from 'node:path';
+
+import {fs, normalizePath, rebasePath} from '~/core/utils';
 
 import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
+
+function fixUnreachableLink(path: RelativePath, loaderContext: LoaderContext) {
+    let newPath = path;
+    const pathnameParts = normalizePath(path).split('/');
+    const relativePartsCount = pathnameParts.filter((part: string) => part === '..').length;
+    let includedFilePath;
+
+    for (let i = 0; i <= relativePartsCount; i++) {
+        try {
+            includedFilePath = normalizePath(
+                join(loaderContext.input, pathnameParts.slice(i).join('/')),
+            );
+            fs.realpathSync(includedFilePath);
+            if (i > 0) {
+                newPath = normalizePath(pathnameParts.slice(i).join('/'));
+                loaderContext.logger.error(`Path was fixed from ${path} 
+                        to ${newPath}`);
+            }
+            return newPath;
+        } catch {
+            if (i === relativePartsCount - 1) {
+                return newPath;
+            } else {
+                continue;
+            }
+        }
+    }
+    return newPath;
+}
 
 function getSize(
     path: RelativePath,
@@ -18,11 +49,12 @@ function getSize(
     }
 
     try {
-        const fullPath = loaderContext.fullPath(path);
+        const fixedPath = fixUnreachableLink(path, loaderContext);
+        const fullPath = loaderContext.fullPath(fixedPath);
         const size = fs.statSync(fullPath).size;
         assetSizes.set(path, size);
         return size;
-    } catch (error) {
+    } catch {
         assetSizes.set(path, 0);
         return 0;
     }

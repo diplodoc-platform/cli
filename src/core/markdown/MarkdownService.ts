@@ -397,6 +397,7 @@ export class MarkdownService {
                 await this.run.write(join(this.run.input, rootPath), content, true);
             },
             fullPath: (path: RelativePath) => join(this.run.input, path),
+            input: this.run.input,
             api: new LoaderAPI(api),
             collects: this.collects,
             sourcemap: new SourceMap(raw),
