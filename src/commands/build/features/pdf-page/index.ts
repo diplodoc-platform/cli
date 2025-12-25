@@ -1,5 +1,5 @@
 import type {Build} from '~/commands/build';
-import type {EntryTocItem} from '~/core/toc';
+import type {EntryTocItem, Toc} from '~/core/toc';
 import type {PdfPageResult} from './utils';
 import type {Command} from '~/core/config';
 import type {PageContent} from '@diplodoc/page-constructor-extension';
@@ -17,6 +17,7 @@ import {BUNDLE_FOLDER} from '~/constants';
 
 import {
     PDF_PAGE_FILENAME,
+    findCssDependencies,
     getPdfUrl,
     isEntryHidden,
     joinPdfPageResults,
@@ -82,6 +83,28 @@ export class PdfPage {
                     content: info.html,
                     title: info.title || '',
                 };
+            });
+
+        getBuildHooks(program)
+            .BeforeRun.for('md')
+            .tapPromise('PdfTitlePage', async (run) => {
+                if (!run.config.pdf.enabled) {
+                    return;
+                }
+
+                getTocHooks(run.toc).Loaded.tapPromise({name: 'pdfTitle'}, async (loadedToc) => {
+                    const pdfStartPages = loadedToc?.pdf?.startPages;
+
+                    if (pdfStartPages) {
+                        const tocLikeEntries = pdfStartPages.map((page) => ({href: page}));
+
+                        // We want to treat pdf start pages as regular entries for arc CI
+                        run.toc.pushAdditionalEntries(loadedToc.path, {
+                            items: tocLikeEntries,
+                            path: loadedToc.path,
+                        } as Toc);
+                    }
+                });
             });
 
         getBuildHooks(program)
@@ -232,6 +255,42 @@ export class PdfPage {
                         await run.write(join(run.output, pdfHtmlPath), page, true);
                     } catch (error) {
                         run.logger.error(error);
+                    }
+                }
+            });
+
+        getBuildHooks(program)
+            .AfterRun.for('md')
+            .tapPromise('PdfPageCssDependencies', async (run) => {
+                if (!run.config.pdf.enabled) {
+                    return;
+                }
+
+                const {resources} = run.config;
+                const cssFiles = resources.style || [];
+
+                for (const file of cssFiles) {
+                    try {
+                        const cssContent = await run.read(join(run.input, file));
+                        const cssDependencies = findCssDependencies(
+                            cssContent,
+                            file as RelativePath,
+                        );
+
+                        for (const cssDep of cssDependencies) {
+                            const depPath = cssDep.path;
+                            try {
+                                await run.copy(join(run.input, depPath), join(run.output, depPath));
+                            } catch (depError) {
+                                run.logger.warn(
+                                    `Unable to copy CSS dependency ${depPath}: ${depError}`,
+                                );
+                            }
+                        }
+                    } catch (cssError) {
+                        run.logger.warn(
+                            `Failed to process CSS dependencies for ${file}: ${cssError}`,
+                        );
                     }
                 }
             });

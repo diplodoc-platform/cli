@@ -9,6 +9,7 @@ import {
     addMainTitle,
     addPagePrefixToAnchors,
     decreaseHeadingLevels,
+    findCssDependencies,
     getAnchorId,
     getPdfUrl,
     isEntryHidden,
@@ -499,6 +500,31 @@ describe('PDF Page Utils', () => {
 
             const content = root.textContent.trim().replace(/\s+/g, ' ');
             expect(content).toBe('Visible content More visible content');
+        });
+    });
+
+    describe('findCssDependencies', () => {
+        it('should find only local CSS url() dependencies and ignore external/data/variable URLs', () => {
+            const cssContent = `
+                .background { background-image: url('./images/bg.jpg'); }
+                .icon { background: url("../icons/icon.png"); }
+                .font { src: url(fonts/font.woff2); }
+                .duplicate { background: url('./images/bg.jpg'); }
+                .external { background: url('https://example.com/image.jpg'); }
+                .protocol { background: url('http://site.com/pic.png'); }
+                .data-uri { background: url('data:image/svg+xml;base64,PHN2Zz4='); }
+                .variable { background: url(var(--image-url)); }
+                .no-deps { color: red; font-size: 16px; }
+            `;
+            const cssPath = normalizedPath('styles/main.css');
+
+            const result = findCssDependencies(cssContent, cssPath);
+
+            expect(result.map((r) => r.path.replace(/\\/g, '/'))).toEqual([
+                'styles/images/bg.jpg',
+                'icons/icon.png',
+                'styles/fonts/font.woff2',
+            ]);
         });
     });
 });

@@ -1,5 +1,4 @@
-import type {AssetInfo, Location} from './types';
-import type {ImageOptions} from '@diplodoc/transform/lib/typings';
+import type {AssetInfo, ImageOptions, Location} from './types';
 import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-extension';
 
 import {load as yamlLoad} from 'js-yaml';

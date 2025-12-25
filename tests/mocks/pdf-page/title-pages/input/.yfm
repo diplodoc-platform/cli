@@ -1,3 +1,6 @@
+pdf:
+    enabled: true
+
 resources:
     style:
         - __assets/start-page.css

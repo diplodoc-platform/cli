@@ -1,4 +1,5 @@
 import type {Toc, TocItem} from '~/core/toc';
+import type {AssetInfo} from '~/core/markdown/types';
 import type HTMLElement from 'node-html-parser/dist/nodes/html';
 
 import {dirname, join} from 'node:path';
@@ -238,6 +239,66 @@ export function removePdfHiddenElements(root: HTMLElement) {
     for (const node of nodes) {
         node.remove();
     }
+}
+
+/**
+ * Finds dependencies in CSS file by url() directives.
+ *
+ * @param cssContent - CSS file content
+ * @param cssFilePath - CSS file path for proper relative path resolution
+ * @returns Array of AssetInfo objects for found dependencies
+ */
+export function findCssDependencies(cssContent: string, cssFilePath: RelativePath): AssetInfo[] {
+    const dependencies: AssetInfo[] = [];
+    const seenPaths = new Set<string>();
+    const urlRegex = /url\s*\(\s*(['"]?)([^'")]+)\1\s*\)/gi;
+    let urlMatch;
+
+    while ((urlMatch = urlRegex.exec(cssContent)) !== null) {
+        const url = urlMatch[2].trim();
+
+        if (
+            !url.startsWith('http') &&
+            !url.startsWith('//') &&
+            !url.startsWith('data:') &&
+            !url.includes('var(') &&
+            !url.includes('${') &&
+            !url.startsWith('*') &&
+            !url.includes('%')
+        ) {
+            const decodedUrl = decodeURIComponent(url) as RelativePath;
+            const resolvedPath = rebasePath(cssFilePath, decodedUrl);
+
+            if (seenPaths.has(resolvedPath)) {
+                continue;
+            }
+            seenPaths.add(resolvedPath);
+
+            const assetInfo: AssetInfo = {
+                path: resolvedPath as NormalizedPath,
+                type: 'image',
+                subtype: 'image',
+                title: '',
+                autotitle: false,
+                hash: null,
+                search: null,
+                location: [urlMatch.index, urlRegex.lastIndex],
+                options: {
+                    width: undefined,
+                    height: undefined,
+                    inline: false,
+                },
+            };
+
+            dependencies.push(assetInfo);
+        }
+    }
+
+    return dependencies;
+}
+
+function rebasePath(root: RelativePath, path: RelativePath): string {
+    return normalizePath(join(dirname(root), path));
 }
 
 export function prepareAnchorAttrs(node: HTMLElement, pathname: string, page: string) {

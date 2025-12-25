@@ -23,6 +23,37 @@ const generateMapTestTemplate = (
     });
 };
 
+const generateMd2mdTestTemplate = async (testTitle: string, testRootPath: string) => {
+    test(testTitle, async () => {
+        const {inputPath, outputPath} = getTestPaths(testRootPath);
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--allow-custom-resources', // this is common arg in arc ci for md2md
+        });
+
+        await compareDirectories(outputPath, true);
+
+        const midOutputFolder = 'final-output';
+        const finalOutputPath = outputPath
+            .split('/')
+            .slice(0, -1)
+            .concat(midOutputFolder)
+            .join('/');
+
+        await TestAdapter.testBuildPass(outputPath, finalOutputPath, {
+            md2md: false,
+            md2html: true,
+        });
+
+        await compareDirectories(finalOutputPath, true);
+
+        await cleanupDirectory(outputPath);
+        await cleanupDirectory(finalOutputPath);
+    });
+};
+
 describe('Pdf page mode', () => {
     generateMapTestTemplate(
         'creates a pdf folder when the --pdf flag is specified',
@@ -50,5 +81,12 @@ describe('Pdf page with titles', () => {
         '--pdf-debug',
         '',
         true,
+    );
+});
+
+describe('Pdf generation with md2md phase, only files structure', () => {
+    generateMd2mdTestTemplate(
+        'Generates md2md content, then uses it for md2html render with pdf when .yfm options is specified',
+        'mocks/pdf-page/title-pages',
     );
 });
