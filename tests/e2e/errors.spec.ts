@@ -9,15 +9,21 @@ type TestResult = {
     html: Report;
 };
 
-function test(path: string, expect: Function) {
+function test(path: string, expect: Function, additionalArgs: string[] = []) {
     it(path, async () => {
         const {inputPath, outputPath} = getTestPaths(path);
 
-        const md = await TestAdapter.build.run(inputPath, outputPath, ['-j2', '-f', 'md']);
+        const md = await TestAdapter.build.run(inputPath, outputPath, [
+            '-j2',
+            '-f',
+            'md',
+            ...additionalArgs,
+        ]);
         const html = await TestAdapter.build.run(inputPath, outputPath + '-html', [
             '-j2',
             '-f',
             'html',
+            ...additionalArgs,
         ]);
         return expect({md, html});
     });
@@ -41,6 +47,16 @@ describe('Errors', () => {
             'ERR Invalid toc structure in toc.yaml -> toc.yaml at items[6].navigation: found [object Object] value',
         ]);
     });
+
+    test(
+        'mocks/errors/max-asset-size',
+        ({md}: TestResult) => {
+            expectErrors(md, [
+                'ERR YFM013 _images/large-image.png: YFM013 / File asset limit exceeded: 3057 (limit is 2048)',
+            ]);
+        },
+        ['--max-asset-size', '2K'],
+    );
 
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
