@@ -10,7 +10,15 @@ import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
 import {Template} from '~/core/template';
-import {fallbackLang, isExternalHref, normalizePath, own, setExt, zip} from '~/core/utils';
+import {
+    fallbackLang,
+    isExternalHref,
+    isMediaLink,
+    normalizePath,
+    own,
+    setExt,
+    zip,
+} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
@@ -183,6 +191,34 @@ export class OutputHtml {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('Html', async (run) => {
+                // Check asset sizes before copying
+                const copiedAssets = new Set<string>();
+
+                // Get all entries and check their assets
+                const entries = run.toc.entries;
+
+                for (const entry of entries) {
+                    const markdownAssets = await run.markdown.assets(entry);
+
+                    for (const {path, size} of markdownAssets) {
+                        if (!isMediaLink(path)) {
+                            continue;
+                        }
+
+                        if (copiedAssets.has(path)) {
+                            continue;
+                        }
+                        copiedAssets.add(path);
+
+                        if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
+                            run.logger.error(
+                                'YFM013',
+                                `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
+                            );
+                        }
+                    }
+                }
+
                 // TODO: we copy all files. Required to copy only used files.
                 // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
