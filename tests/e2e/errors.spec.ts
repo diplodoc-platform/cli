@@ -50,8 +50,11 @@ describe('Errors', () => {
 
     test(
         'mocks/errors/max-asset-size',
-        ({md}: TestResult) => {
+        ({md, html}: TestResult) => {
             expectErrors(md, [
+                'ERR YFM013 _images/large-image.png: YFM013 / File asset limit exceeded: 3057 (limit is 2048)',
+            ]);
+            expectErrors(html, [
                 'ERR YFM013 _images/large-image.png: YFM013 / File asset limit exceeded: 3057 (limit is 2048)',
             ]);
         },
