@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.19.5](https://github.com/diplodoc-platform/cli/compare/v5.19.4...v5.19.5) (2025-12-29)
+
+
+### Bug Fixes
+
+* add flag for max asset size ([417474d](https://github.com/diplodoc-platform/cli/commit/417474d6629679918fd82739834c0e82958b237a))
+* add try for find correct link from incorrect relative ([f93623a](https://github.com/diplodoc-platform/cli/commit/f93623abf3a4f7c6d0e2e2436f0a7c53f7e325bd))
+
 ## [5.19.4](https://github.com/diplodoc-platform/cli/compare/v5.19.3...v5.19.4) (2025-12-25)
 
 
