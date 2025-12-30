@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.19.6](https://github.com/diplodoc-platform/cli/compare/v5.19.5...v5.19.6) (2025-12-30)
+
+
+### Bug Fixes
+
+* add check max asset size to md2html ([3287a99](https://github.com/diplodoc-platform/cli/commit/3287a992ddbf117086f890a29d2cc943ad20a1e7))
+
 ## [5.19.5](https://github.com/diplodoc-platform/cli/compare/v5.19.4...v5.19.5) (2025-12-29)
 
 
