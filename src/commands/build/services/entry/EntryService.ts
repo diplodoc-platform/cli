@@ -12,7 +12,7 @@ import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
-import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
+import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, THEME_ASSETS_PATH, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
@@ -177,6 +177,12 @@ export class EntryService {
             .filter((file: string) => template.isRTL === file.includes('.rtl.css'))
             .map(rebase)
             .map(template.addStyle);
+
+        const outputThemePath = join(this.run.output, THEME_ASSETS_PATH);
+
+        if (this.run.exists(outputThemePath)) {
+            template.addStyle(THEME_ASSETS_PATH);
+        }
 
         style.map(template.addStyle);
 
