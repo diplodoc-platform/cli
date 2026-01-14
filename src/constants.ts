@@ -1,4 +1,4 @@
-import {resolve} from 'node:path';
+import {join, resolve} from 'node:path';
 
 export const VERSION = global.VERSION ? global.VERSION : '0.0.0';
 export const MAIN_TIMER_ID = 'Build time';
@@ -6,6 +6,8 @@ export const ASSETS_FOLDER = resolve(__dirname, '../assets');
 export const BUNDLE_FOLDER = '_bundle';
 export const YFM_CONFIG_FILENAME = '.yfm';
 export const LINT_CONFIG_FILENAME = '.yfmlint';
+export const THEME_OUTPUT_FILENAME = 'theme.css';
+export const THEME_ASSETS_PATH = join('_assets', 'style', THEME_OUTPUT_FILENAME);
 export const DEFAULT_CSP_SETTINGS: Hash<string[]> = {
     'default-src': ["'self'"],
     'script-src': ["'self'", "'unsafe-inline'"],

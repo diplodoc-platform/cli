@@ -14,7 +14,9 @@ process.stderr.write = (warning, ...args) => {
     if (
         warning
             .toString()
-            .includes('React does not recognize the `fetchPriority` prop on a DOM element.')
+            .includes('React does not recognize the `fetchPriority` prop on a DOM element.') ||
+        warning.toString().includes("Can't parse text variable") ||
+        warning.toString().includes('Unsupported css variable')
     ) {
         return true;
     }
