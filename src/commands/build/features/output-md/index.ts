@@ -178,10 +178,9 @@ export class OutputMd {
 
                                 // Add metadata frontmatter to include files.
                                 // Without this, include files are written without YAML frontmatter,
-                                // which causes race condition when the same file is both an entry
-                                // and an include (e.g., ca-review.md included by pr-ca-review.md).
-                                // The last writer wins, and if include writes after entry,
-                                // __system metadata is lost.
+                                // which causes a race condition when the same file is both a TOC entry
+                                // and an include in another file. The last writer wins, and if the
+                                // include is written after the entry, metadata (like __system) is lost.
                                 const vars = run.vars.for(graph.path);
                                 run.meta.addSystemVars(graph.path, vars.__system);
                                 run.meta.addMetadata(graph.path, vars.__metadata);
