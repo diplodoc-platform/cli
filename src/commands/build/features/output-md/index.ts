@@ -4,7 +4,6 @@ import type {EntryGraph} from '~/core/markdown';
 import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
-import {dump} from 'js-yaml';
 import {flow} from 'lodash';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
@@ -15,7 +14,7 @@ import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {Scheduler, getCustomCollectPlugins, rehashContent, signlink} from './utils';
+import {Scheduler, addMetaFrontmatter, getCustomCollectPlugins, rehashContent, signlink} from './utils';
 import {mergeSvg} from './plugins/merge-svg';
 import {mergeAutotitles} from './plugins/merge-autotitles';
 import {rehashIncludes} from './plugins/resolve-deps';
@@ -171,7 +170,27 @@ export class OutputMd {
                                     join(run.output, link),
                                 );
 
-                                await run.write(join(run.output, link), hashed.content, true);
+                                // Add metadata frontmatter to include files.
+                                // Without this, include files are written without YAML frontmatter,
+                                // which causes race condition when the same file is both an entry
+                                // and an include (e.g., ca-review.md included by pr-ca-review.md).
+                                // The last writer wins, and if include writes after entry,
+                                // __system metadata is lost.
+                                const vars = run.vars.for(graph.path);
+                                run.meta.addSystemVars(graph.path, vars.__system);
+                                run.meta.addMetadata(graph.path, vars.__metadata);
+
+                                const includeMeta = await run.meta.dump(graph.path);
+                                const lineWidth = config.disableMetaMaxLineWidth
+                                    ? Infinity
+                                    : undefined;
+                                const contentWithMeta = addMetaFrontmatter(
+                                    hashed.content,
+                                    includeMeta,
+                                    lineWidth,
+                                );
+
+                                await run.write(join(run.output, link), contentWithMeta, true);
                             } catch (error) {
                                 run.logger.warn(`Unable to copy dependency ${graph.path}.`, error);
                             }
@@ -188,13 +207,7 @@ export class OutputMd {
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
                     const meta = await run.meta.dump(vfile.path);
                     const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
-                    const dumped = dump(meta, {lineWidth}).trim();
-
-                    if (dumped === '{}') {
-                        return;
-                    }
-
-                    vfile.data = `---\n${dumped}\n---\n${vfile.data}`;
+                    vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);
                 });
 
                 getLeadingHooks(run.leading).Dump.tapPromise(

@@ -10,6 +10,8 @@ exports[`Regression > internal > filelist 1`] = `
   "_assets/5_1.png",
   "_assets/empty.pdf",
   "autotitle.md",
+  "entry-as-include-hash.md",
+  "entry-as-include.md",
   "generic/1.md",
   "generic/2.md",
   "generic/3.md",
@@ -17,6 +19,7 @@ exports[`Regression > internal > filelist 1`] = `
   "generic/Sub notes/2.md",
   "images.md",
   "included-item.md",
+  "includer-of-entry.md",
   "includes.md",
   "includes/deep-hash.md",
   "includes/fragments-hash.md",
@@ -49,6 +52,7 @@ exports[`Regression > internal > filelist 2`] = `
   "_assets/empty.pdf",
   "autotitle.html",
   "c.md",
+  "entry-as-include.html",
   "generic/1.html",
   "generic/2.html",
   "generic/3.html",
@@ -56,6 +60,7 @@ exports[`Regression > internal > filelist 2`] = `
   "generic/Sub notes/2.html",
   "images.html",
   "included-item.html",
+  "includer-of-entry.html",
   "includes.html",
   "index.html",
   "latex.html",
@@ -82,6 +87,8 @@ exports[`Regression > internal 2`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: 1.md
 ---
 # Title
@@ -121,6 +128,8 @@ exports[`Regression > internal 3`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: autotitle.md
 ---
 # Autotitles
@@ -157,11 +166,13 @@ exports[`Regression > internal 4`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: generic/1.md
+__system:
+  testVar: test-value
+vcsPath: entry-as-include.md
 ---
-# Note 1
+# Entry that is also used as include
 
-Note content 1
+This file is both an entry (in toc) and included by another file.
 "
 `;
 
@@ -170,11 +181,13 @@ exports[`Regression > internal 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: generic/2.md
+__system:
+  testVar: test-value
+vcsPath: entry-as-include.md
 ---
-# Note 1
+# Entry that is also used as include
 
-Note content 1
+This file is both an entry (in toc) and included by another file.
 "
 `;
 
@@ -183,8 +196,12 @@ exports[`Regression > internal 6`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: generic/3.md
+__system:
+  testVar: test-value
+vcsPath: generic/1.md
 ---
+# Note 1
+
 Note content 1
 "
 `;
@@ -194,9 +211,11 @@ exports[`Regression > internal 7`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: generic/Sub notes/1.md
+__system:
+  testVar: test-value
+vcsPath: generic/2.md
 ---
-# Sub note 1
+# Note 1
 
 Note content 1
 "
@@ -207,11 +226,11 @@ exports[`Regression > internal 8`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: generic/Sub notes/2.md
+__system:
+  testVar: test-value
+vcsPath: generic/3.md
 ---
-# Sub note 2
-
-Note content 2
+Note content 1
 "
 `;
 
@@ -220,6 +239,38 @@ exports[`Regression > internal 9`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
+vcsPath: generic/Sub notes/1.md
+---
+# Sub note 1
+
+Note content 1
+"
+`;
+
+exports[`Regression > internal 10`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
+vcsPath: generic/Sub notes/2.md
+---
+# Sub note 2
+
+Note content 2
+"
+`;
+
+exports[`Regression > internal 11`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: images.md
 ---
 # Images
@@ -237,11 +288,13 @@ vcsPath: images.md
 [![img 3](_assets/3.png)](latex.md)"
 `;
 
-exports[`Regression > internal 10`] = `
+exports[`Regression > internal 12`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: included-item.md
 ---
 # Included item
@@ -260,11 +313,30 @@ Included item text
 "
 `;
 
-exports[`Regression > internal 11`] = `
+exports[`Regression > internal 13`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
+vcsPath: includer-of-entry.md
+---
+# Includer of entry
+
+This file includes another file that is also an entry.
+
+{% include [entry-as-include](entry-as-include-hash.md) %}
+"
+`;
+
+exports[`Regression > internal 14`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: includes.md
 ---
 Text
@@ -287,14 +359,22 @@ Link after include
 "
 `;
 
-exports[`Regression > internal 12`] = `
-"{% include [user](./user-hash.md) %}
+exports[`Regression > internal 15`] = `
+"---
+__system:
+  testVar: test-value
+---
+{% include [user](./user-hash.md) %}
 
 [![img 3](../_assets/3.png)](../latex.md)"
 `;
 
-exports[`Regression > internal 13`] = `
-"### F1 {#f1}
+exports[`Regression > internal 16`] = `
+"---
+__system:
+  testVar: test-value
+---
+### F1 {#f1}
 Content F1
 
 ## F2 {#f2}
@@ -314,22 +394,34 @@ Some paragraph with anchor {#p2}
 "
 `;
 
-exports[`Regression > internal 14`] = `
-"Test
-"
-`;
-
-exports[`Regression > internal 15`] = `
-"Tool: Hammer and Laser
-"
-`;
-
-exports[`Regression > internal 16`] = `
-"Bob
-"
-`;
-
 exports[`Regression > internal 17`] = `
+"---
+__system:
+  testVar: test-value
+---
+Test
+"
+`;
+
+exports[`Regression > internal 18`] = `
+"---
+__system:
+  testVar: test-value
+---
+Tool: Hammer and Laser
+"
+`;
+
+exports[`Regression > internal 19`] = `
+"---
+__system:
+  testVar: test-value
+---
+Bob
+"
+`;
+
+exports[`Regression > internal 20`] = `
 "description:
   - Some text
 links:
@@ -341,15 +433,19 @@ meta:
   metadata:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
+  __system:
+    testVar: test-value
   vcsPath: index.yaml
 "
 `;
 
-exports[`Regression > internal 18`] = `
+exports[`Regression > internal 21`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: latex.md
 ---
 # Latex usage
@@ -358,11 +454,13 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Regression > internal 19`] = `
+exports[`Regression > internal 22`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: merge/merge.md
 ---
 # Should use merged item
@@ -373,13 +471,14 @@ vcsPath: merge/merge.md
 "
 `;
 
-exports[`Regression > internal 20`] = `
+exports[`Regression > internal 23`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: merge-source/merged.md
-vcsPath: merge-source/merged.md
+__system:
+  testVar: test-value
+vcsPath: merge/merged.md
 ---
 # Merged item
 
@@ -387,7 +486,7 @@ Should be linked in toc.yaml
 "
 `;
 
-exports[`Regression > internal 21`] = `
+exports[`Regression > internal 24`] = `
 "items:
   - name: Use merged
     href: merge.md
@@ -399,11 +498,13 @@ path: merge/toc.yaml
 "
 `;
 
-exports[`Regression > internal 22`] = `
+exports[`Regression > internal 25`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: mermaid.md
 ---
 # Mermaid usage
@@ -422,11 +523,13 @@ Some mermaid info
 "
 `;
 
-exports[`Regression > internal 23`] = `
+exports[`Regression > internal 26`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: openapi/index.md
 ---
 <!-- markdownlint-disable-file -->
@@ -520,11 +623,13 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 24`] = `
+exports[`Regression > internal 27`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: openapi/test-controller/getWithPayloadResponse.md
 ---
 <div class="openapi">
@@ -600,11 +705,13 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 25`] = `
+exports[`Regression > internal 28`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: openapi/test-controller/index.md
 ---
 # test-controller
@@ -617,7 +724,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 26`] = `
+exports[`Regression > internal 29`] = `
 "files:
   - from: c.md
     to: d.md
@@ -627,11 +734,13 @@ common:
 "
 `;
 
-exports[`Regression > internal 27`] = `
+exports[`Regression > internal 30`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
 vcsPath: sub/folder/item-1.md
 ---
 # Item 1
@@ -642,7 +751,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 28`] = `
+exports[`Regression > internal 31`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -671,6 +780,10 @@ exports[`Regression > internal 28`] = `
     href: autotitle.md
   - name: includes
     href: includes.md
+  - name: Entry as include
+    href: entry-as-include.md
+  - name: Includer of entry
+    href: includer-of-entry.md
   - name: generic
     items:
       - name: Note 1
@@ -699,13 +812,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 32`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 33`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -733,7 +846,7 @@ exports[`Regression > internal 30`] = `
 </html>"
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 34`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -761,7 +874,7 @@ exports[`Regression > internal 31`] = `
 </html>"
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 35`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -789,7 +902,35 @@ exports[`Regression > internal 32`] = `
 </html>"
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 36`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Entry that is also used as include</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;This file is both an entry (in toc) and included by another file.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"entry-as-include.md"},"headings":[],"title":"Entry that is also used as include"},"router":{"pathname":"entry-as-include","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -817,7 +958,7 @@ exports[`Regression > internal 33`] = `
 </html>"
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -845,7 +986,7 @@ exports[`Regression > internal 34`] = `
 </html>"
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -873,7 +1014,7 @@ exports[`Regression > internal 35`] = `
 </html>"
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -901,7 +1042,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -929,7 +1070,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -957,7 +1098,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -985,7 +1126,35 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 44`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Includer of entry</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;This file includes another file that is also an entry.&lt;/p&gt;/n&lt;h1&gt;Entry that is also used as include&lt;/h1&gt;/n&lt;p&gt;This file is both an entry (in toc) and included by another file.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"includer-of-entry.md"},"headings":[],"title":"Includer of entry"},"router":{"pathname":"includer-of-entry","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1013,7 +1182,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1041,7 +1210,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1069,7 +1238,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 48`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1097,7 +1266,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 49`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1111,7 +1280,7 @@ exports[`Regression > internal 44`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md","vcsPath":"merge-source/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"merge/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1125,9 +1294,9 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 50`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 51`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1155,7 +1324,7 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `
+exports[`Regression > internal 52`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1185,7 +1354,7 @@ exports[`Regression > internal 47`] = `
 </html>"
 `;
 
-exports[`Regression > internal 48`] = `
+exports[`Regression > internal 53`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1215,7 +1384,7 @@ exports[`Regression > internal 48`] = `
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 54`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1243,7 +1412,7 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `
+exports[`Regression > internal 55`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1271,4 +1440,4 @@ exports[`Regression > internal 50`] = `
 </html>"
 `;
 
-exports[`Regression > internal 51`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 56`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

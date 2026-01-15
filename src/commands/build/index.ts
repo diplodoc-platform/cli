@@ -1,4 +1,3 @@
-import type {Meta} from '~/core/meta';
 import type {EntryTocItem, Toc, GraphData as TocGraphData} from '~/core/toc';
 import type {SyncData as VcsSyncData} from '~/core/vcs';
 import type {Graph} from '~/core/utils';
@@ -290,9 +289,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
         this.run.entry.relations.addNode(entry);
 
-        const meta = this.run.meta.get(entry);
-
-        const info = await this.process(entry, meta);
+        const info = await this.process(entry);
 
         this.run.vars.relations.consume(info.varsGraph);
         this.run.entry.relations.consume(info.entryGraph);
@@ -304,8 +301,11 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     @threads.threaded('build.process')
-    async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
-        this.run.meta.set(file, meta);
+    async process(file: NormalizedPath): Promise<EntryInfo> {
+        // Note: Don't use meta.set() here as it would cause race conditions
+        // when the same file is loaded by multiple concurrent tasks.
+        // The EntryService.load() and MarkdownService.load() properly add
+        // all necessary metadata during processing.
 
         const result = await this.run.entry.dump(file);
 

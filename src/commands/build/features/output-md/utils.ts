@@ -2,11 +2,32 @@ import type {Collect, IncludeInfo, Location} from '~/core/markdown';
 
 import {extname} from 'node:path';
 import {createHash} from 'node:crypto';
+import {dump as yamlDump} from 'js-yaml';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as pageConstructor from '@diplodoc/page-constructor-extension';
 
 import {setExt} from '~/core/utils';
+
+/**
+ * Adds YAML frontmatter to markdown content.
+ *
+ * @param content - Markdown content
+ * @param meta - Metadata object to serialize as YAML frontmatter
+ * @param lineWidth - Maximum line width for YAML dump (undefined = default)
+ * @returns Content with YAML frontmatter prepended, or original content if meta is empty
+ */
+export function addMetaFrontmatter(
+    content: string,
+    meta: Hash,
+    lineWidth: number | undefined,
+): string {
+    const dumped = yamlDump(meta, {lineWidth}).trim();
+    if (dumped === '{}') {
+        return content;
+    }
+    return `---\n${dumped}\n---\n${content}`;
+}
 
 type Plugin = {
     collect?: Collect;
