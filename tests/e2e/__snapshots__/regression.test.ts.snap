@@ -476,9 +476,10 @@ exports[`Regression > internal 23`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: merge-source/merged.md
 __system:
   testVar: test-value
-vcsPath: merge/merged.md
+vcsPath: merge-source/merged.md
 ---
 # Merged item
 
@@ -1280,7 +1281,7 @@ exports[`Regression > internal 49`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"merge/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Should be linked in toc.yaml&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"sourcePath":"merge-source/merged.md","vcsPath":"merge-source/merged.md"},"headings":[],"title":"Merged item"},"router":{"pathname":"merge/merged","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');

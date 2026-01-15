@@ -14,7 +14,13 @@ import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {Scheduler, addMetaFrontmatter, getCustomCollectPlugins, rehashContent, signlink} from './utils';
+import {
+    Scheduler,
+    addMetaFrontmatter,
+    getCustomCollectPlugins,
+    rehashContent,
+    signlink,
+} from './utils';
 import {mergeSvg} from './plugins/merge-svg';
 import {mergeAutotitles} from './plugins/merge-autotitles';
 import {rehashIncludes} from './plugins/resolve-deps';

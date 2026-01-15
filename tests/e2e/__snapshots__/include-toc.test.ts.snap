@@ -16,7 +16,12 @@ exports[`Include toc > Nested toc inclusions with mixed including modes > fileli
 ]"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `"This is the core include."`;
+exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `
+"---
+sourcePath: product1/core/_includes/inc.md
+---
+This is the core include."
+`;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
 "---
@@ -63,7 +68,10 @@ path: product1/toc.yaml
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
-"This is the core include.
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
@@ -82,7 +90,10 @@ This is the overlay content of Article 1 for product 2.
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
-"This is the core include.
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
@@ -101,7 +112,10 @@ This is the overlay number #2  of Article 1 content for product 2.
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 8`] = `
-"This is the core include.
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
