@@ -4,6 +4,9 @@ default:
   product: root
   user: Bob
   img_3: 3.png
+  # Test for race condition fix - __system should appear in output metadata
+  __system:
+    testVar: test-value
 
 internal:
   default-var: default-var-internal-value

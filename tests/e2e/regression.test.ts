@@ -10,7 +10,7 @@ function test(_description: string) {
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
-            args: '-j2 --keep-not-var',
+            args: '-j2 --keep-not-var --add-system-meta',
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,

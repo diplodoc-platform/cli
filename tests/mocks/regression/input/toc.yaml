@@ -22,6 +22,11 @@ items:
     href: ./autotitle
   - name: includes
     href: ./includes
+  # Test for race condition: entry-as-include.md is both an entry and included by includer-of-entry.md
+  - name: Entry as include
+    href: ./entry-as-include.md
+  - name: Includer of entry
+    href: ./includer-of-entry.md
   - name: generic
     include:
       path: generic
