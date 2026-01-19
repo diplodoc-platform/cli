@@ -1,11 +1,11 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 
-import {join} from 'node:path';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
 import {THEME_ASSETS_PATH} from '~/constants';
+import {join} from 'node:path';
 
 import {options} from './config';
 import {generateThemeCss} from './utils';
