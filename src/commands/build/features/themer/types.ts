@@ -1,16 +1,16 @@
-import type {UtilityColors} from '@gravity-ui/uikit-themer/dist/types';
+import type {GravityTheme} from '@gravity-ui/uikit-themer';
 
 export type ThemerArgs = {
     theme?: string;
 };
 
 export type ThemerConfig = {
-    theme?: string;
+    theme?: string | null;
 };
 
 export type ColorVariant = ['light', 'dark'];
 
-export type UtilityColorKey = keyof UtilityColors;
+export type UtilityColorKey = keyof GravityTheme['utilityColors'];
 
 export type YfmCssVars = {
     light: string[];

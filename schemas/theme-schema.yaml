@@ -1,0 +1,56 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/theme/draft-01/schema#'
+title: Theme configuration file schema
+type: object
+properties:
+  base-brand:
+    type: string
+  base-selection:
+    type: string
+  text-link:
+    type: string
+  text-link-hover:
+    type: string
+  base-background:
+    type: string
+  base-misc-light:
+    type: string
+  base-generic:
+    type: string
+  note-info-background:
+    type: string
+  note-tip-background:
+    type: string
+  note-warning-background:
+    type: string
+  light:
+    $ref: '#/definitions/ColorProperties'
+  dark:
+    $ref: '#/definitions/ColorProperties'
+additionalProperties: false
+
+definitions:
+  ColorProperties:
+    type: object
+    properties:
+      base-brand:
+        type: string
+      base-selection:
+        type: string
+      text-link:
+        type: string
+      text-link-hover:
+        type: string
+      base-background:
+        type: string
+      base-misc-light:
+        type: string
+      base-generic:
+        type: string
+      note-info-background:
+        type: string
+      note-tip-background:
+        type: string
+      note-warning-background:
+        type: string
+    additionalProperties: false

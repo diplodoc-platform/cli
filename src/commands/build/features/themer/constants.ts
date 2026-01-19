@@ -1,5 +1,9 @@
 import type {ColorVariant, UtilityColorKey} from './types';
 
+import {dirname} from 'node:path';
+
+export const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
+
 export const THEME_CONFIG_FILENAME = 'theme.yaml';
 
 export const BASE_BRAND = 'base-brand';

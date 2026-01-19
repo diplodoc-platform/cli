@@ -8,5 +8,3 @@ const theme = option({
 export const options = {
     theme,
 };
-
-
