@@ -2,7 +2,6 @@ import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 
 import {join} from 'node:path';
-
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
@@ -11,9 +10,8 @@ import {THEME_ASSETS_PATH} from '~/constants';
 
 import {options} from './config';
 import {generateThemeCss} from './utils';
-import type {ThemerArgs, ThemerConfig} from './types';
 
-export type {ThemerArgs, ThemerConfig};
+export type {ThemerArgs, ThemerConfig} from './types';
 
 export class Themer {
     apply(program: Build) {
@@ -22,8 +20,8 @@ export class Themer {
         });
 
         getBaseHooks(program).Config.tap('Themer', (config, args) => {
-            const theme = defined('theme', args, config);
-            config.theme = theme ? String(theme) : undefined;
+            const theme = defined('theme', args);
+            config.theme = theme ? String(theme) : null;
 
             return config;
         });
@@ -40,10 +38,8 @@ export class Themer {
             }
         };
 
-        (['html', 'md']).forEach((format) => {
-            getBuildHooks(program)
-                .BeforeRun.for(format)
-                .tapPromise('Themer', writeThemeCssToAssets);
-        });
+        getBuildHooks(program).BeforeRun.for('html').tapPromise('Themer', writeThemeCssToAssets);
+
+        getBuildHooks(program).BeforeRun.for('md').tapPromise('Themer', writeThemeCssToAssets);
     }
 }
