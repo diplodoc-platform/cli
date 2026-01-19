@@ -5,7 +5,6 @@ import {join} from 'node:path';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined} from '~/core/config';
-
 import {THEME_ASSETS_PATH} from '~/constants';
 
 import {options} from './config';

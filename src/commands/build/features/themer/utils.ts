@@ -4,7 +4,7 @@ import type {ThemeConfig, UtilityColorKey, YfmCssVars} from './types';
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import Ajv from 'ajv';
-import {generateCSS, type GravityTheme, parseCSS, updateBaseColor} from '@gravity-ui/uikit-themer';
+import {type GravityTheme, generateCSS, parseCSS, updateBaseColor} from '@gravity-ui/uikit-themer';
 import {load as loadYaml} from 'js-yaml';
 import chroma from 'chroma-js';
 
