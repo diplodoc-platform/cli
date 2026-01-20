@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Skip html extension > Neuro-expert > filelist 1`] = `
+exports[`Neuro-expert > Neuro-expert > filelist 1`] = `
 "[
   ".yfm",
   "en/folder/index.html",
@@ -19,7 +19,7 @@ exports[`Skip html extension > Neuro-expert > filelist 1`] = `
 ]"
 `;
 
-exports[`Skip html extension > Neuro-expert 1`] = `
+exports[`Neuro-expert > Neuro-expert 1`] = `
 "allowHTML: true
 langs: ['en','ru']
 
@@ -33,7 +33,7 @@ neuroExpert:
 "
 `;
 
-exports[`Skip html extension > Neuro-expert 2`] = `
+exports[`Neuro-expert > Neuro-expert 2`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -86,7 +86,7 @@ exports[`Skip html extension > Neuro-expert 2`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 3`] = `
+exports[`Neuro-expert > Neuro-expert 3`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -139,7 +139,7 @@ exports[`Skip html extension > Neuro-expert 3`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 4`] = `
+exports[`Neuro-expert > Neuro-expert 4`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -171,7 +171,7 @@ exports[`Skip html extension > Neuro-expert 4`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 5`] = `
+exports[`Neuro-expert > Neuro-expert 5`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -225,7 +225,7 @@ exports[`Skip html extension > Neuro-expert 5`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 6`] = `
+exports[`Neuro-expert > Neuro-expert 6`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -278,9 +278,9 @@ exports[`Skip html extension > Neuro-expert 6`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 7`] = `"window.__DATA__.data.toc = {"title":"Neuroexpert","href":"en/index.html","items":[{"name":"Title 1","href":"en/page1.html","id":"UUID"},{"name":"Title 2","href":"en/page2.html","id":"UUID"},{"name":"Title 3","href":"en/folder/index.html","id":"UUID"},{"name":"Title 4","href":"en/index-test-html/index.html","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+exports[`Neuro-expert > Neuro-expert 7`] = `"window.__DATA__.data.toc = {"title":"Neuroexpert","href":"en/index.html","items":[{"name":"Title 1","href":"en/page1.html","id":"UUID"},{"name":"Title 2","href":"en/page2.html","id":"UUID"},{"name":"Title 3","href":"en/folder/index.html","id":"UUID"},{"name":"Title 4","href":"en/index-test-html/index.html","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
 
-exports[`Skip html extension > Neuro-expert 8`] = `
+exports[`Neuro-expert > Neuro-expert 8`] = `
 "<!DOCTYPE html>
 <html lang="en" dir="ltr">
     <head>
@@ -300,7 +300,7 @@ exports[`Skip html extension > Neuro-expert 8`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 9`] = `
+exports[`Neuro-expert > Neuro-expert 9`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -353,7 +353,7 @@ exports[`Skip html extension > Neuro-expert 9`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 10`] = `
+exports[`Neuro-expert > Neuro-expert 10`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -406,7 +406,7 @@ exports[`Skip html extension > Neuro-expert 10`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 11`] = `
+exports[`Neuro-expert > Neuro-expert 11`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -459,7 +459,7 @@ exports[`Skip html extension > Neuro-expert 11`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 12`] = `
+exports[`Neuro-expert > Neuro-expert 12`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -512,7 +512,7 @@ exports[`Skip html extension > Neuro-expert 12`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 13`] = `
+exports[`Neuro-expert > Neuro-expert 13`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -565,4 +565,4 @@ exports[`Skip html extension > Neuro-expert 13`] = `
 </html>"
 `;
 
-exports[`Skip html extension > Neuro-expert 14`] = `"window.__DATA__.data.toc = {"title":"Нейроэксперт","href":"ru/index.html","items":[{"name":"Заголовок 1","href":"ru/page1.html","id":"UUID"},{"name":"Заголовок 2","href":"ru/page2.html","id":"UUID"},{"name":"Заголовок 3","href":"ru/folder/index.html","id":"UUID"},{"name":"Заголовок 4","href":"ru/index-test-html/index.html","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
+exports[`Neuro-expert > Neuro-expert 14`] = `"window.__DATA__.data.toc = {"title":"Нейроэксперт","href":"ru/index.html","items":[{"name":"Заголовок 1","href":"ru/page1.html","id":"UUID"},{"name":"Заголовок 2","href":"ru/page2.html","id":"UUID"},{"name":"Заголовок 3","href":"ru/folder/index.html","id":"UUID"},{"name":"Заголовок 4","href":"ru/index-test-html/index.html","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;

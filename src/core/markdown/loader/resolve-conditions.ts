@@ -86,6 +86,22 @@ type Replacement = {
     replacement: string;
 };
 
+function hasWhenConditions(obj: unknown): boolean {
+    if (Array.isArray(obj)) {
+        return obj.some((item) => hasWhenConditions(item));
+    }
+
+    if (obj && typeof obj === 'object' && obj !== null) {
+        if ('when' in obj) {
+            return true;
+        }
+
+        return Object.values(obj).some((value) => hasWhenConditions(value));
+    }
+
+    return false;
+}
+
 function processPageConstructorBlocks(
     content: string,
     vars: Record<string, unknown>,
@@ -117,6 +133,11 @@ function processPageConstructorBlocks(
             continue;
         }
 
+        // Пропускаем блоки без условий when
+        if (!hasWhenConditions(data)) {
+            continue;
+        }
+
         const filtered = filterBlocks(data, vars, skipMissingVars);
         const hasBlocks = Array.isArray(filtered.blocks) && filtered.blocks.length > 0;
 
@@ -124,12 +145,23 @@ function processPageConstructorBlocks(
         const blockEnd = contentStart + closeMatch.index + closeMatch[0].length;
 
         if (hasBlocks) {
-            const yaml = yamlDump(filtered, {lineWidth: -1, noRefs: true});
+            const yaml = yamlDump(filtered, {
+                lineWidth: -1,
+                noRefs: true,
+                quotingType: "'",
+                forceQuotes: false,
+            });
+
+            const indentedYaml = yaml
+                .split('\n')
+                .filter((line) => line.trim())
+                .map((line) => `${indent}${line}`)
+                .join('\n');
 
             blocks.push({
                 start: blockStart,
                 end: blockEnd,
-                replacement: `${indent}::: page-constructor\n${yaml}${indent}:::\n`,
+                replacement: `${indent}::: page-constructor\n${indentedYaml}\n${indent}:::\n`,
             });
         } else {
             blocks.push({
