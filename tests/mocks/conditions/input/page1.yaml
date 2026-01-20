@@ -1,0 +1,9 @@
+blocks:
+  - type: header-block
+    title: '[Test](https://example.com)'
+    description: 'Description'
+  - type: header-block
+    title: When 1
+    description: 'Тестовый заголовок для проверки when 1'
+    when: var1 != 'aboba'
+    

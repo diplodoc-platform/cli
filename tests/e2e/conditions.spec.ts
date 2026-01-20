@@ -2,9 +2,9 @@ import {describe, it} from 'vitest';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
-describe('Neuro-expert', () => {
-    it('Neuro-expert', async () => {
-        const {inputPath, outputPath} = getTestPaths('mocks/neuro-expert');
+describe('Conditions', () => {
+    it('Conditions', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/conditions');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: false,

@@ -1,0 +1,13 @@
+title: Conditions
+href: index.md
+
+items:
+  - name: Page 1
+    href: page1.yaml
+  - name: Page 2
+    href: page2.md
+    when: var2 == true
+  - name: Page 3
+    href: page3.md
+    when: false
+    

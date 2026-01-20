@@ -67,9 +67,11 @@ export function getPcIconTitle(iconPath: string): string {
     return file.replace(/\.[^.]+$/, '');
 }
 
+export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/gm;
+
 export function findPcImages(content: string): AssetInfo[] {
     const pcImages: AssetInfo[] = [];
-    const openRegex = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/gm;
+    const openRegex = PC_REGEX;
 
     let match: RegExpExecArray | null;
 

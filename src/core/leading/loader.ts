@@ -8,6 +8,8 @@ import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
 
 import {bucket, parseLocalUrl, rebasePath, walkLinks} from '~/core/utils';
 
+import {resolveConditions} from './resolve-conditions';
+
 export class LoaderAPI {
     deps: Bucket<{path: NormalizedPath}[]>;
     assets: Bucket<AssetInfo[]>;
@@ -31,10 +33,12 @@ export type LoaderContext = LiquidContext & {
     api: LoaderAPI;
     options: {
         disableLiquid: boolean;
+        skipMissingVars?: boolean;
     };
 };
 
 export async function loader(this: LoaderContext, yaml: RawLeadingPage) {
+    yaml = resolveConditions.call(this, yaml);
     yaml = resolveFields.call(this, yaml);
     yaml = mangleFrontMatter.call(this, yaml);
     yaml = templateFields.call(this, yaml);
