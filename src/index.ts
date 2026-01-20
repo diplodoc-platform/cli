@@ -69,3 +69,4 @@ if (isMainThread && require.main === module) {
         process.exit(report.code);
     })();
 }
+
