@@ -3,6 +3,7 @@ import {red} from 'chalk';
 import dedent from 'ts-dedent';
 
 // eslint-disable-next-line import/order
+// test run
 import './require';
 
 import * as threads from '~/commands/threads';
