@@ -305,7 +305,12 @@ This is page 1 at level 1.
 `;
 
 exports[`Includes > Various include scenarios 13`] = `
-"# Toc Include
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+---
+# Toc Include
 
 This file is included in the toc.
 
