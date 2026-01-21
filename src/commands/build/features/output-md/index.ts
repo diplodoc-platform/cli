@@ -178,9 +178,11 @@ export class OutputMd {
 
                                 // Add metadata frontmatter to include files.
                                 // Without this, include files are written without YAML frontmatter,
-                                // which causes a race condition when the same file is both a TOC entry
-                                // and an include in another file. The last writer wins, and if the
-                                // include is written after the entry, metadata (like __system) is lost.
+                                // which causes non-deterministic output when the same file is both
+                                // a TOC entry and an include in another file. The last writer wins,
+                                // and if the include is written after the entry, metadata is lost.
+                                // By ensuring both paths produce identical output, write order
+                                // becomes irrelevant (see ADR-002: Multithreading Build).
                                 const vars = run.vars.for(graph.path);
                                 run.meta.addSystemVars(graph.path, vars.__system);
                                 run.meta.addMetadata(graph.path, vars.__metadata);
