@@ -1,10 +1,10 @@
-import {describe, it, expect} from 'vitest';
-
+import {existsSync} from 'node:fs';
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 
+import {describe, expect, it} from 'vitest';
+
 import {TestAdapter, getTestPaths} from '../fixtures';
-import {existsSync} from 'node:fs';
 
 describe('Build themer feature', () => {
     it.each([
