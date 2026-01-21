@@ -1,6 +1,7 @@
-import type {LoaderContext} from '../loader';
 import type {PageContent} from '@diplodoc/page-constructor-extension';
+import type {LoaderContext} from '../loader';
 
+import {NoValue, evaluate} from '@diplodoc/liquid';
 import {dump as yamlDump, load as yamlLoad} from 'js-yaml';
 
 import {PC_REGEX} from '../utils';
@@ -22,29 +23,13 @@ function evaluateWhen(
     }
 
     if (typeof whenValue === 'string') {
-        const trimmed = whenValue.trim();
+        const evalResult = evaluate(whenValue, vars, skipMissingVars);
 
-        if (trimmed in vars) {
-            return Boolean(vars[trimmed]);
+        if (evalResult === NoValue && skipMissingVars) {
+            return true;
         }
 
-        const eqIndex = trimmed.indexOf('==');
-
-        if (eqIndex > 0) {
-            const varName = trimmed.slice(0, eqIndex).trim();
-            const expectedValue = trimmed
-                .slice(eqIndex + 2)
-                .trim()
-                .replace(/^['"]|['"]$/g, '');
-
-            if (varName in vars) {
-                return String(vars[varName]) === expectedValue;
-            }
-
-            return skipMissingVars;
-        }
-
-        return skipMissingVars;
+        return Boolean(evalResult);
     }
 
     return true;
@@ -64,7 +49,15 @@ function filterBlocks<T>(obj: T, vars: Record<string, unknown>, skipMissingVars:
 
                 return true;
             })
-            .map((item) => filterBlocks(item, vars, skipMissingVars)) as T;
+            .map((item) => {
+                if (isBlockWithWhen(item)) {
+                    const {when: _, ...rest} = item;
+
+                    return filterBlocks(rest, vars, skipMissingVars);
+                }
+
+                return filterBlocks(item, vars, skipMissingVars);
+            }) as T;
     }
 
     if (obj && typeof obj === 'object' && obj !== null) {
@@ -133,7 +126,6 @@ function processPageConstructorBlocks(
             continue;
         }
 
-        // Пропускаем блоки без условий when
         if (!hasWhenConditions(data)) {
             continue;
         }

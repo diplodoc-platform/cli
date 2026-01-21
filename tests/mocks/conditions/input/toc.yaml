@@ -10,4 +10,7 @@ items:
   - name: Page 3
     href: page3.md
     when: false
+  - name: Page 4
+    href: page4.md
+    when: var3 > 1
     
