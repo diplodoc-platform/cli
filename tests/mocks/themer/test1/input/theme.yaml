@@ -1,0 +1,6 @@
+base-brand: red
+text-link: green
+note-info-background: red
+
+dark:
+  text-link: blue
