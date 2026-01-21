@@ -1,6 +1,3 @@
-import type {LoaderContext} from './loader';
-import type {RawLeadingPage} from './types';
-
 import {NoValue, evaluate} from '@diplodoc/liquid';
 
 type WhenValue = string | boolean;
@@ -36,7 +33,11 @@ function isBlockWithWhen(item: unknown): item is BlockWithWhen {
     return typeof item === 'object' && item !== null && 'when' in item;
 }
 
-function filterBlocks<T>(obj: T, vars: Record<string, unknown>, skipMissingVars: boolean): T {
+export function filterBlocksByConditions<T>(
+    obj: T,
+    vars: Record<string, unknown>,
+    skipMissingVars: boolean,
+): T {
     if (Array.isArray(obj)) {
         return obj
             .filter((item) => {
@@ -54,9 +55,10 @@ function filterBlocks<T>(obj: T, vars: Record<string, unknown>, skipMissingVars:
                 if (isBlockWithWhen(item)) {
                     const {when: _, ...rest} = item;
 
-                    return filterBlocks(rest, vars, skipMissingVars);
+                    return filterBlocksByConditions(rest, vars, skipMissingVars);
                 }
-                return filterBlocks(item, vars, skipMissingVars);
+
+                return filterBlocksByConditions(item, vars, skipMissingVars);
             }) as T;
     }
 
@@ -64,7 +66,7 @@ function filterBlocks<T>(obj: T, vars: Record<string, unknown>, skipMissingVars:
         const result: Record<string, unknown> = {};
 
         for (const [key, value] of Object.entries(obj)) {
-            result[key] = filterBlocks(value, vars, skipMissingVars);
+            result[key] = filterBlocksByConditions(value, vars, skipMissingVars);
         }
 
         return result as T;
@@ -73,11 +75,18 @@ function filterBlocks<T>(obj: T, vars: Record<string, unknown>, skipMissingVars:
     return obj;
 }
 
-export function resolveConditions(this: LoaderContext, yaml: RawLeadingPage): RawLeadingPage {
-    const {skipMissingVars = false} = this.options;
-    const vars = this.vars || {};
+export function hasWhenConditions(obj: unknown): boolean {
+    if (Array.isArray(obj)) {
+        return obj.some((item) => hasWhenConditions(item));
+    }
 
-    yaml = filterBlocks(yaml, vars, skipMissingVars);
+    if (obj && typeof obj === 'object' && obj !== null) {
+        if ('when' in obj) {
+            return true;
+        }
 
-    return yaml;
+        return Object.values(obj).some((value) => hasWhenConditions(value));
+    }
+
+    return false;
 }

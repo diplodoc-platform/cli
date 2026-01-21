@@ -6,9 +6,7 @@ import type {Bucket} from '~/core/utils';
 import {get, set} from 'lodash';
 import {evaluate, liquidJson, liquidSnippet} from '@diplodoc/liquid';
 
-import {bucket, parseLocalUrl, rebasePath, walkLinks} from '~/core/utils';
-
-import {resolveConditions} from './resolve-conditions';
+import {bucket, filterBlocksByConditions, parseLocalUrl, rebasePath, walkLinks} from '~/core/utils';
 
 export class LoaderAPI {
     deps: Bucket<{path: NormalizedPath}[]>;
@@ -52,6 +50,15 @@ export async function loader(this: LoaderContext, yaml: RawLeadingPage) {
     this.api.deps.set([]);
 
     return yaml as LeadingPage;
+}
+
+function resolveConditions(this: LoaderContext, yaml: RawLeadingPage): RawLeadingPage {
+    const {skipMissingVars = false} = this.options;
+    const vars = this.vars || {};
+
+    yaml = filterBlocksByConditions(yaml, vars, skipMissingVars);
+
+    return yaml;
 }
 
 function resolveFields(this: LoaderContext, yaml: RawLeadingPage) {
