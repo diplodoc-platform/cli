@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.19.7](https://github.com/diplodoc-platform/cli/compare/v5.19.6...v5.19.7) (2026-01-21)
+
+
+### Bug Fixes
+
+* prevent metadata loss in multi-threaded md2md builds ([#1596](https://github.com/diplodoc-platform/cli/issues/1596)) ([13d9480](https://github.com/diplodoc-platform/cli/commit/13d94808cfa554c055b6b1cd5d5545db9e7066fb))
+
 ## [5.19.6](https://github.com/diplodoc-platform/cli/compare/v5.19.5...v5.19.6) (2025-12-30)
 
 
