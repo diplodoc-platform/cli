@@ -1,51 +1,57 @@
-name: Check package-lock status
+name: Update package-lock.json
 
 on:
   pull_request:
     branches: ['**']
 
+permissions:
+  contents: write
+
 jobs:
-  test:
-    name: Check package-lock status
+  update-package-lock:
+    name: Update package-lock.json
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
-          # Важно, чтобы токен был вручную добавлен в репозиторий
-          # Иначе после коммита не перезапускается workflow
           token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
-      - name: Setup Node 22
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
+
       - name: Install latest npm (>= 11.5.1)
         run: |
           [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
         shell: bash
-      - name: Install packages for project
-        run: npm i --package-lock-only
-      - name: Create and publish commit
+
+      - name: Regenerate package-lock.json
+        run: npm install --no-workspaces --package-lock-only --ignore-scripts
+
+      - name: Commit and push changes
         env:
           GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
           BRANCH_NAME: ${{ github.head_ref }}
         run: |
           set -e
 
-          # Проверяем наличие изменений в package-lock.json
-          [[ -z $(git diff --stat | grep package-lock.json) ]] && echo "::info::Nothing to update" && exit 0
+          # Check if there are any changes
+          if [[ -z $(git diff --stat | grep package-lock.json) ]]; then
+            echo "::info::Nothing to update"
+            exit 0
+          fi
 
-          # Настраиваем git
+          # Configure git
           git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
           git config --global user.name "yc-ui-bot"
 
-          # Добавляем изменения и создаем коммит
+          # Commit and push
           git add package-lock.json
-          git commit -m "chore: Update package-lock" --no-verify
-
-          # Пушим изменения в ветку PR
+          git commit -m "chore: Update package-lock.json" --no-verify
           git push origin HEAD:${BRANCH_NAME}

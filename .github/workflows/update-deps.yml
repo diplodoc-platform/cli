@@ -1,0 +1,79 @@
+name: Update Dependencies
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: 'Package name to update'
+        required: true
+        type: string
+      version:
+        description: 'Package version (use "latest" for latest version)'
+        required: true
+        type: string
+        default: 'latest'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-package:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Install latest npm (>= 11.5.1)
+        run: |
+          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
+        shell: bash
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update package
+        run: npm install --no-workspaces ${{ inputs.package }}@${{ inputs.version }}
+
+      - name: Regenerate package-lock.json for standalone mode
+        run: npm install --no-workspaces --package-lock-only
+
+      - name: Create and publish PR
+        env:
+          GH_TOKEN: ${{ secrets.YC_UI_BOT_GITHUB_TOKEN }}
+        run: |
+          set -e
+
+          # Check if there are any changes
+          if [[ -z $(git diff --stat | grep -E "package.json|package-lock.json") ]]; then
+            echo "::info::Nothing to update"
+            exit 0
+          fi
+
+          # Get actual installed version
+          VERSION=$(npm explore --no-workspaces ${{ inputs.package }} "node -pe 'require(\"./package.json\").version'" --shell sh)
+
+          # Configure git
+          git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
+          git config --global user.name "yc-ui-bot"
+
+          # Create branch and commit
+          BRANCH_NAME="ci/update-deps/${{ inputs.package }}-$VERSION"
+          git push -f origin :$BRANCH_NAME || true
+          git checkout -b $BRANCH_NAME
+          git add package.json package-lock.json
+          git commit -m "deps: Update ${{ inputs.package }} to $VERSION"
+          git push -u origin $BRANCH_NAME
+
+          # Create PR
+          gh pr create --title "deps: Update ${{ inputs.package }} to $VERSION" --body "Automated dependency update" --base master
