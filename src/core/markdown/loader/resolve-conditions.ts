@@ -21,37 +21,50 @@ function processPageConstructorBlocks(
     const blocks: Replacement[] = [];
     const openRegex = new RegExp(PC_REGEX.source, PC_REGEX.flags);
 
-    let match: RegExpExecArray | null;
+    let searchStart = 0;
 
-    while ((match = openRegex.exec(content))) {
+    while (searchStart < content.length) {
+        const remaining = content.slice(searchStart);
+        const match = openRegex.exec(remaining);
+
+        if (!match) {
+            break;
+        }
+
         const indent = match[1] || '';
-        const contentStart = match.index + match[0].length;
+        const matchIndex = searchStart + match.index;
+        const contentStart = matchIndex + match[0].length;
         const closePattern = new RegExp(`^${indent}:::[ \\t]*$`, 'm');
-        const remaining = content.slice(contentStart);
-        const closeMatch = closePattern.exec(remaining);
+        const afterMatch = content.slice(contentStart);
+        const closeMatch = closePattern.exec(afterMatch);
 
         if (!closeMatch) {
+            searchStart = contentStart;
             continue;
         }
 
-        const yamlContent = remaining.slice(0, closeMatch.index);
+        const yamlContent = afterMatch.slice(0, closeMatch.index);
 
         let data: PageContent;
 
         try {
             data = yamlLoad(yamlContent) as PageContent;
         } catch {
+            // eslint-disable-next-line no-console
+            console.error('An error occurred while trying to load yaml');
+            searchStart = contentStart;
             continue;
         }
 
         if (!hasWhenConditions(data)) {
+            searchStart = contentStart + closeMatch.index + closeMatch[0].length;
             continue;
         }
 
         const filtered = filterBlocksByConditions(data, vars, skipMissingVars);
         const hasBlocks = Array.isArray(filtered.blocks) && filtered.blocks.length > 0;
 
-        const blockStart = match.index;
+        const blockStart = matchIndex;
         const blockEnd = contentStart + closeMatch.index + closeMatch[0].length;
 
         if (hasBlocks) {
@@ -80,6 +93,8 @@ function processPageConstructorBlocks(
                 replacement: '',
             });
         }
+
+        searchStart = blockEnd;
     }
 
     for (let i = blocks.length - 1; i >= 0; i--) {

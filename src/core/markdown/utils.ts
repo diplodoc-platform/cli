@@ -67,33 +67,41 @@ export function getPcIconTitle(iconPath: string): string {
     return file.replace(/\.[^.]+$/, '');
 }
 
-export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/gm;
+export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/m;
 
 export function findPcImages(content: string): AssetInfo[] {
     const pcImages: AssetInfo[] = [];
-    const openRegex = PC_REGEX;
+    const openRegex = new RegExp(PC_REGEX.source, PC_REGEX.flags);
 
-    let match: RegExpExecArray | null;
+    let searchStart = 0;
 
-    while ((match = openRegex.exec(content))) {
+    while (searchStart < content.length) {
+        const remaining = content.slice(searchStart);
+        const match = openRegex.exec(remaining);
+
+        if (!match) {
+            break;
+        }
+
         const indent = match[1] || '';
-        const startIdx = openRegex.lastIndex;
-        const closeRegex = new RegExp(`^${indent}:::[ \\t]*$`, 'mg');
-
-        closeRegex.lastIndex = startIdx;
-
-        const closeMatch = closeRegex.exec(content);
+        const matchIndex = searchStart + match.index;
+        const startIdx = matchIndex + match[0].length;
+        const closeRegex = new RegExp(`^${indent}:::[ \\t]*$`, 'm');
+        const afterMatch = content.slice(startIdx);
+        const closeMatch = closeRegex.exec(afterMatch);
 
         if (!closeMatch) {
+            searchStart = startIdx;
             continue;
         }
 
-        const rawBlock = content.slice(startIdx, closeMatch.index);
+        const rawBlock = afterMatch.slice(0, closeMatch.index);
         let data: PageContent;
 
         try {
             data = yamlLoad(rawBlock) as PageContent;
         } catch {
+            searchStart = startIdx;
             continue;
         }
 
@@ -106,6 +114,8 @@ export function findPcImages(content: string): AssetInfo[] {
                 continue;
             }
 
+            const blockEnd = startIdx + closeMatch.index + closeMatch[0].length;
+
             pcImages.push({
                 ...parsed,
                 type: 'image',
@@ -114,13 +124,13 @@ export function findPcImages(content: string): AssetInfo[] {
                 autotitle: false,
                 hash: null,
                 search: null,
-                location: [match.index, closeRegex.lastIndex],
+                location: [matchIndex, blockEnd],
                 // no inline svg inside page-constructor because we hasn't a location for asset
                 options: {width: undefined, height: undefined, inline: false},
             });
         }
 
-        openRegex.lastIndex = closeRegex.lastIndex;
+        searchStart = startIdx + closeMatch.index + closeMatch[0].length;
     }
 
     return pcImages;

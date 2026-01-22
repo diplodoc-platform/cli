@@ -7,10 +7,10 @@ type BlockWithWhen = {
     [key: string]: unknown;
 };
 
-function evaluateWhen(
+export function evaluateWhen(
     whenValue: WhenValue,
     vars: Record<string, unknown>,
-    skipMissingVars: boolean,
+    skipMissingVars?: boolean,
 ): boolean {
     if (typeof whenValue === 'boolean') {
         return whenValue;
@@ -43,7 +43,7 @@ export function filterBlocksByConditions<T>(
             .filter((item) => {
                 if (isBlockWithWhen(item)) {
                     if (item.when === null || item.when === undefined) {
-                        return false;
+                        return true;
                     }
 
                     return evaluateWhen(item.when, vars, skipMissingVars);

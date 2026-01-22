@@ -13,9 +13,9 @@ import type {
 import {ok} from 'node:assert';
 import {dirname, join, relative} from 'node:path';
 import {omit} from 'lodash';
-import {NoValue, evaluate, liquidSnippet} from '@diplodoc/liquid';
+import {liquidSnippet} from '@diplodoc/liquid';
 
-import {normalizePath, own} from '~/core/utils';
+import {evaluateWhen, normalizePath, own} from '~/core/utils';
 
 import {getHooks} from './hooks';
 import {getFirstValuable, isRelative} from './utils';
@@ -207,14 +207,9 @@ async function resolveItems(this: LoaderContext, toc: RawToc): Promise<RawToc> {
 
         if (conditions) {
             if (typeof item.when === 'string') {
-                const evalResult = evaluate(item.when, this.vars, skipMissingVars);
-
-                if (evalResult === NoValue && skipMissingVars) {
-                    when = true;
-                } else {
-                    when = Boolean(evalResult);
-                }
+                when = evaluateWhen(item.when, this.vars, skipMissingVars);
             } else {
+                // when: null/undefined/false are handled here
                 when = item.when !== false;
             }
 

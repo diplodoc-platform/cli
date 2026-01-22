@@ -1,8 +1,25 @@
 import {describe, expect, it} from 'vitest';
 
-import {filterBlocksByConditions, hasWhenConditions} from './conditions';
+import {evaluateWhen, filterBlocksByConditions, hasWhenConditions} from './conditions';
 
 describe('conditions', () => {
+    describe('evaluateWhen', () => {
+        it('should handle boolean values', () => {
+            expect(evaluateWhen(true, {}, false)).toBe(true);
+            expect(evaluateWhen(false, {}, false)).toBe(false);
+        });
+
+        it('should handle string expressions', () => {
+            expect(evaluateWhen('version > 1', {version: 2}, false)).toBe(true);
+            expect(evaluateWhen('version > 1', {version: 0}, false)).toBe(false);
+        });
+
+        it('should handle missing variables with skipMissingVars', () => {
+            expect(evaluateWhen('missingVar', {}, true)).toBe(true);
+            expect(evaluateWhen('missingVar', {}, false)).toBe(false);
+        });
+    });
+
     describe('filterBlocksByConditions', () => {
         it('should filter array items by boolean when condition', () => {
             const data = [
@@ -125,7 +142,7 @@ describe('conditions', () => {
             expect(result).toHaveLength(0);
         });
 
-        it('should filter items with null when', () => {
+        it('should include items with null when', () => {
             const data = [
                 {type: 'block1', when: null},
                 {type: 'block2', when: true},
@@ -133,11 +150,12 @@ describe('conditions', () => {
 
             const result = filterBlocksByConditions(data, {}, false);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].type).toBe('block2');
+            expect(result).toHaveLength(2);
+            expect(result[0].type).toBe('block1');
+            expect(result[1].type).toBe('block2');
         });
 
-        it('should filter items with undefined when', () => {
+        it('should include items with undefined when', () => {
             const data = [
                 {type: 'block1', when: undefined},
                 {type: 'block2', when: true},
@@ -145,8 +163,9 @@ describe('conditions', () => {
 
             const result = filterBlocksByConditions(data, {}, false);
 
-            expect(result).toHaveLength(1);
-            expect(result[0].type).toBe('block2');
+            expect(result).toHaveLength(2);
+            expect(result[0].type).toBe('block1');
+            expect(result[1].type).toBe('block2');
         });
 
         it('should keep items without when field', () => {
@@ -166,28 +185,85 @@ describe('conditions', () => {
             expect(filterBlocksByConditions(null, {}, false)).toBe(null);
         });
 
-        it('should handle deep nested structures', () => {
+        it('should handle deep nested structures (3+ levels)', () => {
             const data = {
                 level1: {
-                    level2: [
-                        {
-                            type: 'container',
-                            when: true,
-                            level3: {
-                                items: [
-                                    {type: 'text', when: false},
-                                    {type: 'text', when: true, content: 'deep'},
-                                ],
-                            },
+                    level2: {
+                        level3: {
+                            level4: [
+                                {type: 'text', when: false, content: 'hidden'},
+                                {type: 'text', when: true, content: 'visible'},
+                            ],
                         },
-                    ],
+                    },
                 },
             };
 
             const result = filterBlocksByConditions(data, {}, false);
 
-            expect(result.level1.level2[0].level3.items).toHaveLength(1);
-            expect(result.level1.level2[0].level3.items[0].content).toBe('deep');
+            expect(result.level1.level2.level3.level4).toHaveLength(1);
+            expect(result.level1.level2.level3.level4[0].content).toBe('visible');
+        });
+
+        it('should handle very deep nesting (5+ levels)', () => {
+            const data = {
+                l1: {
+                    l2: {
+                        l3: {
+                            l4: {
+                                l5: {
+                                    items: [
+                                        {value: 1, when: 'show'},
+                                        {value: 2, when: false},
+                                    ],
+                                },
+                            },
+                        },
+                    },
+                },
+            };
+            const vars = {show: true};
+
+            const result = filterBlocksByConditions(data, vars, false);
+
+            expect(result.l1.l2.l3.l4.l5.items).toHaveLength(1);
+            expect(result.l1.l2.l3.l4.l5.items[0].value).toBe(1);
+        });
+
+        it('should handle when with empty string', () => {
+            const data = [
+                {type: 'block1', when: ''},
+                {type: 'block2', when: true},
+            ];
+
+            const result = filterBlocksByConditions(data, {}, false);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].type).toBe('block2');
+        });
+
+        it('should handle when with empty string and skipMissingVars', () => {
+            const data = [
+                {type: 'block1', when: ''},
+                {type: 'block2', when: true},
+            ];
+
+            const result = filterBlocksByConditions(data, {}, true);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].type).toBe('block2');
+        });
+
+        it('should handle when with whitespace string and skipMissingVars', () => {
+            const data = [
+                {type: 'block1', when: '   '},
+                {type: 'block2', when: true},
+            ];
+
+            const result = filterBlocksByConditions(data, {}, true);
+
+            expect(result).toHaveLength(1);
+            expect(result[0].type).toBe('block2');
         });
 
         it('should handle equality with quotes', () => {
@@ -225,6 +301,35 @@ describe('conditions', () => {
             expect(result.blocks).toHaveLength(1);
             expect(result.blocks[0].type).toBe('header');
             expect(result.blocks[0].props).toEqual({title: 'Title', subtitle: 'Subtitle'});
+        });
+
+        it('should handle mixed nested levels with when conditions', () => {
+            const data = {
+                root: [
+                    {
+                        level1: {
+                            level2: [
+                                {
+                                    level3: {
+                                        items: [
+                                            {id: 1, when: true},
+                                            {id: 2, when: false},
+                                            {id: 3, when: 'showItem'},
+                                        ],
+                                    },
+                                },
+                            ],
+                        },
+                    },
+                ],
+            };
+            const vars = {showItem: true};
+
+            const result = filterBlocksByConditions(data, vars, false);
+
+            expect(result.root[0].level1.level2[0].level3.items).toHaveLength(2);
+            expect(result.root[0].level1.level2[0].level3.items[0].id).toBe(1);
+            expect(result.root[0].level1.level2[0].level3.items[1].id).toBe(3);
         });
     });
 
