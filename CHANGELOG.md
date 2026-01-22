@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.19.8](https://github.com/diplodoc-platform/cli/compare/v5.19.7...v5.19.8) (2026-01-22)
+
+
+### Bug Fixes
+
+* **cli:** resolve typecheck errors ([29672e9](https://github.com/diplodoc-platform/cli/commit/29672e93444ccd30b3c4799a3f60cee3319e5ae0))
+* **deps:** Update openapi extension ([eb4eee2](https://github.com/diplodoc-platform/cli/commit/eb4eee27aa49b3127b35cbb58a017282a8bd8937))
+
 ## [5.19.7](https://github.com/diplodoc-platform/cli/compare/v5.19.6...v5.19.7) (2026-01-21)
 
 
