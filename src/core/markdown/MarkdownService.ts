@@ -31,17 +31,17 @@ type MarkdownServiceConfig = {
         legacyConditions: boolean;
         features: {
             substitutions: boolean;
-            conditions: boolean;
+            conditions: boolean | string;
         };
         scopes: {
             code: boolean;
         };
     };
     preprocess?: {
-        mergeSvg: boolean;
-        mergeIncludes: boolean;
-        hashIncludes: boolean;
-        mergeAutotitles: boolean;
+        mergeSvg?: boolean;
+        mergeIncludes?: boolean;
+        hashIncludes?: boolean;
+        mergeAutotitles?: boolean;
     };
 };
 
@@ -403,7 +403,10 @@ export class MarkdownService {
             sourcemap: new SourceMap(raw),
             settings: {
                 substitutions: this.config.template.features.substitutions,
-                conditions: this.config.template.features.conditions,
+                conditions:
+                    typeof this.config.template.features.conditions === 'string'
+                        ? (this.config.template.features.conditions as 'strict')
+                        : Boolean(this.config.template.features.conditions),
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
                 legacyConditions: this.config.template.legacyConditions,

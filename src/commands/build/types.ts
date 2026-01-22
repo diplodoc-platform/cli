@@ -1,4 +1,5 @@
-import type {DocAnalytics, NeuroExpert} from '@diplodoc/client';
+import type {DocAnalytics} from '@diplodoc/client';
+import type {NeuroExpertBase, NeuroExpertConfig} from './features/neuro-expert';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
@@ -19,7 +20,6 @@ import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
-import type {NeuroExpertConfig} from './features/neuro-expert';
 
 export type {SearchProvider, SearchServiceConfig} from './services/search';
 export type {EntryData, PageData} from './services/entry';
@@ -70,7 +70,7 @@ type BaseConfig = {
         url?: string;
     };
     pdf: Record<string, boolean>;
-    neuroExpert?: NeuroExpert;
+    neuroExpert?: NeuroExpertBase;
     pdfDebug: boolean;
     content: ContentConfig;
 };

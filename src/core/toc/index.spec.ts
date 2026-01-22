@@ -1,4 +1,5 @@
 import type {RunSpy} from '~/commands/build/__tests__';
+import type {BuildConfig} from '~/commands/build/types';
 import type {RawToc} from './types';
 import type {TocServiceConfig} from './TocService';
 import type {Preset} from '~/core/vars';
@@ -31,7 +32,7 @@ function setupService(options: Options = {}) {
                 substitutions: true,
                 ...((options.template || {}).features || {}),
             },
-        },
+        } as BuildConfig['template'],
     });
     const toc = new TocService(run, {});
 

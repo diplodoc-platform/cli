@@ -126,6 +126,9 @@ export class EntryService {
         const html = staticContent
             ? render({
                   ...state,
+                  // PageState.search is { enabled: boolean } & Hash, but render expects full SearchConfig
+                  // with properties: depth, api, link, lang. Type assertion needed for compatibility.
+                  search: state.search as Parameters<typeof render>[0]['search'],
                   // TODO: https://github.com/diplodoc-platform/cli/issues/1433
                   // @ts-ignore
                   data: {
@@ -134,7 +137,7 @@ export class EntryService {
                       // @ts-ignore
                       toc: copyJson(toc),
                   },
-              })
+              } as Parameters<typeof render>[0])
             : '';
 
         template.setTitle(title);

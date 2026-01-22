@@ -101,7 +101,10 @@ export class SearchService implements SearchProvider<RelativePath> {
         const template = new Template('_search' as NormalizedPath, lang);
         const config = this.run.config;
         const baseInterface = config.interface;
-        const faviconSrc = baseInterface?.['favicon-src'] || '';
+        const faviconSrc =
+            (typeof baseInterface?.['favicon-src'] === 'string'
+                ? baseInterface['favicon-src']
+                : '') || '';
 
         const state = {
             lang,
