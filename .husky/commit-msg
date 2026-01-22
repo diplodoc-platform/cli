@@ -1,0 +1,49 @@
+COMMIT_MSG_FILE="$1"
+COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+
+# Check if commit message contains Cyrillic characters
+# All commit messages must be in English per .agents/style-and-testing.md
+if echo "$COMMIT_MSG" | grep -q '[А-Яа-яЁё]'; then
+    echo "❌ Error: Commit message contains Cyrillic characters."
+    echo ""
+    echo "All commit messages must be in English per .agents/style-and-testing.md"
+    echo "Please rewrite your commit message in English."
+    echo ""
+    echo "Current commit message:"
+    echo "$COMMIT_MSG"
+    exit 1
+fi
+
+# Extract the first line (subject) of commit message
+SUBJECT=$(echo "$COMMIT_MSG" | head -n1)
+
+# Allow fixup! and squash! prefixes (for git commit --fixup and --squash)
+if echo "$SUBJECT" | grep -qE '^(fixup!|squash!)'; then
+    exit 0
+fi
+
+# Check Conventional Commits format: <type>(<scope>): <subject>
+# Types: feat, fix, perf, refactor, docs, chore, revert
+# Scope is optional
+if ! echo "$SUBJECT" | grep -qE '^(feat|fix|perf|refactor|docs|chore|revert)(\([^)]+\))?: .+'; then
+    echo "❌ Error: Commit message does not follow Conventional Commits format."
+    echo ""
+    echo "Expected format: <type>(<scope>): <subject>"
+    echo ""
+    echo "Types: feat, fix, perf, refactor, docs, chore, revert"
+    echo "Scope is optional"
+    echo ""
+    echo "Examples:"
+    echo "  feat(cli): add new command"
+    echo "  fix(transform): handle edge case"
+    echo "  docs(readme): update installation"
+    echo ""
+    echo "For fixing previous commits, use:"
+    echo "  fixup! <original commit message>"
+    echo ""
+    echo "Current commit message:"
+    echo "$SUBJECT"
+    exit 1
+fi
+
+exit 0

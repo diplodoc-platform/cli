@@ -5,10 +5,37 @@
 
 version: 2
 updates:
-  - package-ecosystem: "npm"
-    directory: "/"
+  # npm dependencies
+  - package-ecosystem: 'npm'
+    directory: '/'
     schedule:
-      interval: "daily"
-    reviewers:
-      - "diplodoc-platform/devops"
-    open-pull-requests-limit: 5
+      interval: 'weekly'
+      day: 'monday'
+      time: '09:00'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
+      - 'dependabot'
+    commit-message:
+      prefix: 'chore'
+      include: 'scope'
+    # Group updates for minor and patch versions
+    groups:
+      production-dependencies:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+      development-dependencies:
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Ignore major version updates (require manual review)
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - 'version-update:semver-major'
+  # Note: Dependabot security updates are enabled automatically by GitHub
+  # when dependabot.yml exists. Security updates create PRs for vulnerabilities
+  # independently of the regular update schedule above.

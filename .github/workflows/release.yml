@@ -1,0 +1,70 @@
+name: Release Package to npm
+
+# This workflow is configured in package.json publishConfig
+# It publishes the package to npm when a release is created
+
+on:
+  release:
+    types: [created, published]
+  workflow_dispatch: # Allow manual triggering
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install latest npm (>= 11.5.1)
+        run: |
+          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
+        shell: bash
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run type check
+        run: npm run typecheck
+
+      - name: Build package
+        run: npm run build
+
+      - name: Check version matches release tag
+        if: github.event_name == 'release'
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          RELEASE_TAG=${GITHUB_REF#refs/tags/}
+          RELEASE_VERSION=${RELEASE_TAG#v}
+          if [ "$PACKAGE_VERSION" != "$RELEASE_VERSION" ]; then
+            echo "Error: package.json version ($PACKAGE_VERSION) does not match release tag ($RELEASE_TAG -> $RELEASE_VERSION)"
+            exit 1
+          fi
+          echo "Version check passed: $PACKAGE_VERSION (from tag $RELEASE_TAG)"
+
+      - name: Skip if draft release
+        if: github.event.release.draft == true
+        run: |
+          echo "Skipping publish for draft release"
+          exit 0
+
+      - name: Publish to npm
+        if: github.event.release.draft == false || github.event_name == 'workflow_dispatch'
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

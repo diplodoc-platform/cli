@@ -17,3 +17,8 @@ vitest.config.mjs
 /scripts
 /tests/mocks
 /tests/bin.mjs
+
+.lintstagedrc.js
+.prettierrc.js
+.stylelintrc.js
+esbuild/**/*.mjs

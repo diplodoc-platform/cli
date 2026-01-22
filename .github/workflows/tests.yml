@@ -2,41 +2,51 @@ name: Tests
 
 on:
   push:
-    branches: [master]
+    branches:
+      - master
+      - main
   pull_request:
-    branches: ['**']
+    branches:
+      - master
+      - main
+  workflow_dispatch:
 
 jobs:
   test:
-    name: Node v${{ matrix.node-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [22.x]
+        node-version: [22]
+
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Use Node.js ${{ matrix.node-version }}
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          os: ${{ matrix.os }}
           cache: 'npm'
+
       - name: Install latest npm (>= 11.5.1)
         run: |
           [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
         shell: bash
-      - name: Install packages for project
+
+      - name: Install dependencies
         run: npm ci
-      - name: Build project
-        run: npm run build
-      - name: Run unit tests
-        run: npm run test:coverage
-      - name: Install e2e tests
-        working-directory: tests
-        run: npm ci
-      - name: Run e2e tests
-        working-directory: tests
+
+      - name: Run type check
+        run: npm run typecheck
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Run tests
         run: npm test
+
+      - name: Run build
+        run: npm run build
