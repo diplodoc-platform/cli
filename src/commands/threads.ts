@@ -259,6 +259,6 @@ function isObject(data: unknown): data is Object {
 function isError(data: unknown): data is Error {
     return Boolean(
         data instanceof Error ||
-        (data && typeof data === 'object' && '__type' in data && data.__type === '$$Error'),
+            (data && typeof data === 'object' && '__type' in data && data.__type === '$$Error'),
     );
 }
