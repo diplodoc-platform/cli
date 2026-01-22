@@ -11,7 +11,7 @@ export const BASE_BRAND = 'base-brand';
 export const APP_CSS_PREFIX = 'app-';
 export const RTL_CSS_SUFFIX = '.rtl.css';
 
-export const THEME_VARIANTS: ColorVariant = ['light', 'dark'];
+export const THEME_VARIANTS: ColorVariant[] = ['light', 'dark'];
 
 export const UTILITY_COLORS: UtilityColorKey[] = [
     BASE_BRAND,

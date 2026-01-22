@@ -1,6 +1,14 @@
 base-brand: red
 text-link: green
 note-info-background: red
+base-brandd: red
+base-selection: rgb(255 0 255)
 
 dark:
   text-link: blue
+  unknown-color: blue
+  base-background: hsl(60 100% 50%)
+
+light:
+  base-background: rgba(255, 165, 0, 1)
+  base-selection: hsla(0 0% 50% / 1)
