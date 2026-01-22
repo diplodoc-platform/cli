@@ -13,4 +13,6 @@ items:
   - name: Page 4
     href: page4.md
     when: var3 > 1
+  - name: Page 5
+    href: page5.yaml
     
