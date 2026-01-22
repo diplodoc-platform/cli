@@ -8,7 +8,7 @@ export type ThemerConfig = {
     theme?: string | null;
 };
 
-export type ColorVariant = ['light', 'dark'];
+export type ColorVariant = 'light' | 'dark';
 
 export type UtilityColorKey = keyof GravityTheme['utilityColors'];
 
@@ -17,13 +17,11 @@ export type YfmCssVars = {
     dark: string[];
 };
 
-export type ThemeConfig = {
-    [key: string]: string | undefined;
-} & {
-    light?: {
-        [key: string]: string;
-    };
-    dark?: {
-        [key: string]: string;
-    };
+export type ThemeColors = {
+    [key: string]: string;
+};
+
+export type ThemeConfig = ThemeColors & {
+    light?: ThemeColors;
+    dark?: ThemeColors;
 };

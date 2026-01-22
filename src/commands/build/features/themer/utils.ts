@@ -1,5 +1,5 @@
 import type {Run} from '~/commands/build';
-import type {ThemeConfig, UtilityColorKey, YfmCssVars} from './types';
+import type {ColorVariant, ThemeConfig, UtilityColorKey, YfmCssVars} from './types';
 
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
@@ -21,12 +21,12 @@ import {
 } from './constants';
 
 function checkColor(run: Run, value: string | undefined): string | null {
-    if (!value) {
+    if (value === undefined) {
         return null;
     }
 
-    if (typeof value !== 'string' || !chroma.valid(value)) {
-        run.logger.error(`Invalid color: ${value}`);
+    if (typeof value !== 'string' || !chroma.valid(value) || value === '') {
+        run.logger.error(`Invalid color: "${value}"`);
         return null;
     }
 
@@ -36,7 +36,7 @@ function checkColor(run: Run, value: string | undefined): string | null {
 function handleThemeVariants(
     run: Run,
     color: {light?: string; dark?: string},
-    callback: (themeVariant: 'light' | 'dark', value: string) => void,
+    callback: (themeVariant: ColorVariant, value: string) => void,
 ) {
     THEME_VARIANTS.forEach((themeVariant) => {
         const value = checkColor(run, color[themeVariant]);
@@ -98,8 +98,8 @@ function processColors(
 
     ALL_COLORS.forEach((key) => {
         const color = {
-            light: config.light?.[key] || config[key],
-            dark: config.dark?.[key] || config[key],
+            light: config.light?.[key] ?? config[key],
+            dark: config.dark?.[key] ?? config[key],
         };
 
         if (key === BASE_BRAND) {

@@ -25,13 +25,17 @@ describe('Build themer feature', () => {
         expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(255 25 25);');
         expect(css).toContain('--g-color-text-link: green;');
         expect(css).toContain('--g-color-text-link: blue;');
+        expect(css).toContain('--g-color-base-selection: rgb(255 0 255);');
+        expect(css).toContain('--g-color-base-background: hsl(60 100% 50%);');
+        expect(css).toContain('--g-color-base-background: rgba(255, 165, 0, 1);');
+        expect(css).toContain('--g-color-base-selection: hsla(0 0% 50% / 1);');
         expect(css).toContain('--yfm-color-note-info-background: red;');
     });
 
     it.each([
         ['md2md', true, false],
         ['md2html', false, true],
-    ])('generates theme.css with theme.yaml and flag falue (%s)', async (_, md2md, md2html) => {
+    ])('generates theme.css with theme.yaml and flag value (%s)', async (_, md2md, md2html) => {
         const {inputPath, outputPath} = getTestPaths('mocks/themer/test1');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
@@ -48,13 +52,17 @@ describe('Build themer feature', () => {
         expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(234 177 188);');
         expect(css).toContain('--g-color-text-link: green;');
         expect(css).toContain('--g-color-text-link: blue;');
+        expect(css).toContain('--g-color-base-selection: rgb(255 0 255);');
+        expect(css).toContain('--g-color-base-background: hsl(60 100% 50%);');
+        expect(css).toContain('--g-color-base-background: rgba(255, 165, 0, 1);');
+        expect(css).toContain('--g-color-base-selection: hsla(0 0% 50% / 1);');
         expect(css).toContain('--yfm-color-note-info-background: red;');
     });
 
     it.each([
         ['md2md', true, false],
         ['md2html', false, true],
-    ])('generates theme.css from flag falue only (%s)', async (_, md2md, md2html) => {
+    ])('generates theme.css from flag value only (%s)', async (_, md2md, md2html) => {
         const {inputPath, outputPath} = getTestPaths('mocks/themer/test3');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
@@ -121,7 +129,46 @@ describe('Build themer feature', () => {
         ]);
 
         expect(report.code).toBe(1);
-        expect(report.errors.includes('ERR Invalid color: pinkk')).toBe(true);
-        expect(report.errors.includes('ERR Invalid color: redd')).toBe(true);
+        expect(report.errors.includes('ERR Invalid color: "pinkk"')).toBe(true);
+        expect(report.errors.includes('ERR Invalid color: "redd"')).toBe(true);
+        expect(report.errors.includes('ERR /dark/text-link must be string')).toBe(true);
+        expect(report.errors.includes('ERR Invalid color: "5"')).toBe(true);
+        expect(report.errors.includes('ERR Invalid color: ""')).toBe(true);
+        expect(report.errors.includes('ERR Invalid color: " "')).toBe(true);
+    });
+
+    it.each([
+        ['md2md', 'md'],
+        ['md2html', 'html'],
+    ])('warns about unknown color keys in theme.yaml (%s)', async (_, format) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test1');
+
+        const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', format]);
+
+        expect(report.code).toBe(0);
+        expect(
+            report.warns.includes(
+                'WARN File theme.yaml must NOT have additional properties "base-brandd"',
+            ),
+        ).toBe(true);
+        expect(
+            report.warns.includes('WARN /dark must NOT have additional properties "unknown-color"'),
+        ).toBe(true);
+    });
+
+    it.each([
+        ['md2md', 'md'],
+        ['md2html', 'html'],
+    ])('includes errors for invalid syntax in theme.yaml (%s)', async (_, format) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test4');
+
+        const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', format]);
+
+        expect(report.code).toBe(1);
+        expect(
+            report.errors.includes(
+                'ERR Failed to generate theme: YAMLException: bad indentation of a mapping entry (3:5)',
+            ),
+        ).toBe(true);
     });
 });
