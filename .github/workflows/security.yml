@@ -32,11 +32,12 @@ jobs:
         run: npm ci
 
       - name: Run npm audit
+        id: audit
         run: npm audit --audit-level=moderate
         continue-on-error: true
 
       - name: Upload audit results
-        if: failure()
+        if: steps.audit.outcome == 'failure'
         uses: actions/upload-artifact@v4
         with:
           name: npm-audit-report
