@@ -190,11 +190,12 @@ export class Run extends BaseRun<BuildConfig> {
                 maxFileSize: this.config.content.maxInlineSvgSize,
             },
             rawContent: (path: string): string => {
-                if (typeof assets[path] !== 'string') {
+                const asset = assets[path];
+                if (typeof asset !== 'string') {
                     throw new Error('Asset not found');
                 }
 
-                return assets[path];
+                return asset;
             },
             calcPath: (root: string, path: string) => normalizePath(join(dirname(root), path)),
             replaceImageSrc: (_state: unknown, _root: string, file: string) => file,

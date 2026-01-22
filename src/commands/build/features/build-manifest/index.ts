@@ -155,6 +155,9 @@ export class BuildManifest {
             if (lastHead[name]?.file) {
                 const pathToReport = path.replace(/\..+$/, '');
                 const existingExt = lastHead[name]?.file?.ext;
+                if (existingExt === undefined) {
+                    return;
+                }
                 const shouldReplace = this.shouldReplaceFile(existingExt, ext);
 
                 if (!shouldReplace) {

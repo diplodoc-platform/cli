@@ -50,6 +50,7 @@ function loaderContext(
         emitFile: vi.fn(),
         readFile: vi.fn(),
         fullPath: (path: RelativePath) => path,
+        input: '/' as AbsolutePath,
         api: {
             blockCodes: bucket(),
             deps: bucket(),

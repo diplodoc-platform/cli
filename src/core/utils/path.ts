@@ -13,14 +13,15 @@ export function isRelativePath(path: string): path is RelativePath {
     return !isExternalHref(path) && !isAbsolute(path);
 }
 
-export function langFromPath(path: string, config: {lang?: string; langs: Langs}) {
+export function langFromPath(path: string, config: {lang?: string; langs: Langs}): string {
     const {lang, langs} = config;
     const pathBaseLang = normalizePath(path).split('/')[0];
     const pathLang =
         langs.some((l) => (typeof l === 'string' ? l === pathBaseLang : l.lang === pathBaseLang)) &&
         pathBaseLang;
 
-    return pathLang || lang || langs[0];
+    const result = pathLang || lang || langs[0];
+    return typeof result === 'string' ? result : result.lang;
 }
 
 export function rebasePath(root: RelativePath, path: RelativePath) {

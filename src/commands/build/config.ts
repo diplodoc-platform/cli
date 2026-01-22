@@ -218,9 +218,12 @@ export function combineProps<C extends BuildConfig>(
     const result = props.reduce<Record<string, unknown>>(
         (acc, prop: string) => {
             try {
-                const configValue = defined(prop, config[group as keyof BuildConfig]);
-                if (configValue !== null) {
-                    acc[prop] = configValue;
+                const groupConfig = config[group as keyof BuildConfig];
+                if (groupConfig && typeof groupConfig === 'object') {
+                    const configValue = defined(prop, groupConfig);
+                    if (configValue !== null) {
+                        acc[prop] = configValue;
+                    }
                 }
             } catch {}
 
@@ -229,8 +232,11 @@ export function combineProps<C extends BuildConfig>(
                 acc[prop] = argValue;
             }
 
-            if (args[prop] !== undefined && args[prop].parseArg) {
-                acc[prop] = args[prop].parseArg(acc[prop] as string, args[prop].defaultValue);
+            if (args[prop] !== undefined && args[prop].parseArg !== undefined) {
+                const parseArg = args[prop].parseArg;
+                if (parseArg) {
+                    acc[prop] = parseArg(acc[prop] as string, args[prop].defaultValue);
+                }
             }
             return acc;
         },

@@ -40,7 +40,7 @@ export type TocServiceConfig = {
         enabled: boolean;
         keepNotVar: boolean;
         features: {
-            conditions: boolean;
+            conditions: boolean | string;
             substitutions: boolean;
         };
         scopes: {
@@ -473,7 +473,10 @@ export class TocService {
             logger: this.logger,
             include: this.include,
             settings: {
-                conditions: this.config.template.features.conditions,
+                conditions:
+                    typeof this.config.template.features.conditions === 'string'
+                        ? (this.config.template.features.conditions as 'strict')
+                        : Boolean(this.config.template.features.conditions),
                 substitutions: this.config.template.features.substitutions,
             },
             options: {
