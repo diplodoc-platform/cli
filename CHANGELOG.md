@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.19.9](https://github.com/diplodoc-platform/cli/compare/v5.19.8...v5.19.9) (2026-01-23)
+
+
+### Bug Fixes
+
+* Update tests package-lock ([d9f6731](https://github.com/diplodoc-platform/cli/commit/d9f6731ecfb7f532c7a226d293fde027984af939))
+
 ## [5.19.8](https://github.com/diplodoc-platform/cli/compare/v5.19.7...v5.19.8) (2026-01-22)
 
 
