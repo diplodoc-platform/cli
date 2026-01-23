@@ -1,4 +1,4 @@
-import assets from '../../../build/manifest.json';
+import assets from '@diplodoc/cli/manifest';
 
 export function platformless(text: string): string {
     let index = 1;
