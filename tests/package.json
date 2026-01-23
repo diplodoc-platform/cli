@@ -32,7 +32,7 @@
   },
   "dependencies": {
     "@diplodoc/liquid": "^1.4.0",
-    "@types/node": "18.x",
+    "@types/node": "^22.19.0",
     "@vitest/coverage-istanbul": "^3.1.1",
     "@vitest/coverage-v8": "^3.1.1",
     "execa": "^9.5.3",
