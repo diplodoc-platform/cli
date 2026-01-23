@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.19.10](https://github.com/diplodoc-platform/cli/compare/v5.19.9...v5.19.10) (2026-01-23)
+
+
+### Bug Fixes
+
+* Fix release tests ([6a4b298](https://github.com/diplodoc-platform/cli/commit/6a4b298126ba83499fb906783e2213cf7198db24))
+
 ## [5.19.9](https://github.com/diplodoc-platform/cli/compare/v5.19.8...v5.19.9) (2026-01-23)
 
 
