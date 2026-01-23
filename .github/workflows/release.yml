@@ -28,6 +28,9 @@ jobs:
           node-version: 22
           registry-url: 'https://registry.npmjs.org'
 
+      - uses: codex-team/action-nodejs-package-info@v1
+        id: package
+
       - name: Install latest npm (>= 11.5.1)
         run: |
           [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
@@ -72,6 +75,9 @@ jobs:
       - name: Publish tests to npm
         working-directory: tests
         if: github.event.release.draft == false || github.event_name == 'workflow_dispatch'
-        run: npm publish --provenance --access public
+        run: |
+          npm version ${{steps.package.outputs.version}}
+          npm ci
+          npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
