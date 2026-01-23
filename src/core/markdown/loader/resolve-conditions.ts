@@ -1,5 +1,6 @@
 import type {PageContent} from '@diplodoc/page-constructor-extension';
 import type {LoaderContext} from '../loader';
+import type {Logger} from '~/core/logger';
 
 import {dump as yamlDump, load as yamlLoad} from 'js-yaml';
 
@@ -13,11 +14,15 @@ type Replacement = {
     replacement: string;
 };
 
-function processPageConstructorBlocks(
-    content: string,
-    vars: Record<string, unknown>,
-    skipMissingVars: boolean,
-): string {
+type ProcessOptions = {
+    vars: Record<string, unknown>;
+    skipMissingVars: boolean;
+    logger: Logger;
+    path: NormalizedPath;
+};
+
+function processPageConstructorBlocks(content: string, options: ProcessOptions): string {
+    const {vars, skipMissingVars, logger, path} = options;
     const blocks: Replacement[] = [];
     const openRegex = new RegExp(PC_REGEX.source, PC_REGEX.flags);
 
@@ -49,9 +54,8 @@ function processPageConstructorBlocks(
 
         try {
             data = yamlLoad(yamlContent) as PageContent;
-        } catch {
-            // eslint-disable-next-line no-console
-            console.error('An error occurred while trying to load yaml');
+        } catch (error) {
+            logger.warn(`Failed to parse page-constructor YAML in ${path}: ${error}`);
             searchStart = contentStart;
             continue;
         }
@@ -109,7 +113,12 @@ export function resolveConditions(this: LoaderContext, content: string): string 
     const {skipMissingVars = false} = this.options;
     const vars = this.vars || {};
 
-    content = processPageConstructorBlocks(content, vars, skipMissingVars);
+    content = processPageConstructorBlocks(content, {
+        vars,
+        skipMissingVars,
+        logger: this.logger,
+        path: this.path,
+    });
 
     return content;
 }
