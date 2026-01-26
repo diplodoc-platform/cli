@@ -5,13 +5,14 @@ import {basename, dirname, extname, join} from 'node:path';
 import pmap from 'p-map';
 import changelog from '@diplodoc/transform/lib/plugins/changelog';
 
+import {defined} from '~/core/config';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {defined} from '~/core/config';
+import {isExternalHref} from '~/core/utils';
 
-import {collect} from './collect';
 import {options} from './config';
+import {collect} from './collect';
 
 export type ChangelogsArgs = {
     changelogs: boolean | string;
@@ -82,13 +83,20 @@ export class Changelogs {
 
                         changelogs[changelogs.length - 1].source = join(dirname(path), filename);
 
-                        await pmap(changelogs, (changes, index) => {
+                        await pmap(changelogs, async (changes, index) => {
                             const changesName = changelogName(filename, changelogs.length - index);
                             const changesPath = join(
                                 outputDir,
                                 'changelogs',
                                 `__changes-${changesName}.json`,
                             );
+
+                            const image = changes.image;
+                            if (image && !isExternalHref(image.src)) {
+                                const from = join(dirname(join(run.input, path)), image.src);
+                                const to = join(dirname(join(run.output, path)), image.src);
+                                await run.copy(from, to);
+                            }
 
                             return run.write(changesPath, JSON.stringify(changes), true);
                         });
