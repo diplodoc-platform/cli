@@ -212,8 +212,8 @@ export class LeadingService {
                 skipMissingVars: false,
             },
             settings: {
-                substitutions: this.config.template.features.conditions,
-                conditions: this.config.template.features.substitutions,
+                substitutions: this.config.template.features.substitutions,
+                conditions: this.config.template.features.conditions,
             },
         };
     }
