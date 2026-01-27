@@ -23,8 +23,8 @@ describe('Build themer feature', () => {
         expect(css).toContain('--g-color-base-brand: var(--g-color-private-base-brand-550-solid);');
         expect(css).toContain('--g-color-private-base-brand-550-solid: rgb(255 0 0);');
         expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(255 25 25);');
-        expect(css).toContain('--g-color-text-link: green;');
-        expect(css).toContain('--g-color-text-link: blue;');
+        expect(css).toContain('--yfm-color-link: green;');
+        expect(css).toContain('--yfm-color-link: blue;');
         expect(css).toContain('--g-color-base-selection: rgb(255 0 255);');
         expect(css).toContain('--g-color-base-background: hsl(60 100% 50%);');
         expect(css).toContain('--g-color-base-background: rgba(255, 165, 0, 1);');
@@ -50,8 +50,8 @@ describe('Build themer feature', () => {
         expect(css).toContain('--g-color-base-brand: var(--g-color-private-base-brand-550-solid);');
         expect(css).toContain('--g-color-private-base-brand-550-solid: rgb(255 192 203);');
         expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(234 177 188);');
-        expect(css).toContain('--g-color-text-link: green;');
-        expect(css).toContain('--g-color-text-link: blue;');
+        expect(css).toContain('--yfm-color-link: green;');
+        expect(css).toContain('--yfm-color-link: blue;');
         expect(css).toContain('--g-color-base-selection: rgb(255 0 255);');
         expect(css).toContain('--g-color-base-background: hsl(60 100% 50%);');
         expect(css).toContain('--g-color-base-background: rgba(255, 165, 0, 1);');
@@ -131,7 +131,7 @@ describe('Build themer feature', () => {
         expect(report.code).toBe(1);
         expect(report.errors.includes('ERR Invalid color: "pinkk"')).toBe(true);
         expect(report.errors.includes('ERR Invalid color: "redd"')).toBe(true);
-        expect(report.errors.includes('ERR /dark/text-link must be string')).toBe(true);
+        expect(report.errors.includes('ERR /dark/link must be string')).toBe(true);
         expect(report.errors.includes('ERR Invalid color: "5"')).toBe(true);
         expect(report.errors.includes('ERR Invalid color: ""')).toBe(true);
         expect(report.errors.includes('ERR Invalid color: " "')).toBe(true);
