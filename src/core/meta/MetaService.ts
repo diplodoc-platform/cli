@@ -146,15 +146,14 @@ export class MetaService {
      *
      * @param path - Relative path to the document
      * @param record - Hash of metadata fields to add/merge
+     * @param isRaw - Is metadata from load
      * @returns Updated metadata object
      */
-    add(path: RelativePath, record: Hash) {
+    add(path: RelativePath, record: Hash, isRaw = false) {
         const file = normalizePath(path);
 
-        if (this.config.rawAddMeta) {
-            if (Object.entries(record).some(([_, v]) => v !== undefined)) {
-                this.meta.set(file, record);
-            }
+        if (this.config.rawAddMeta && isRaw) {
+            this.meta.set(file, record);
             return;
         }
 

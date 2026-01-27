@@ -102,7 +102,7 @@ export class LeadingService {
             this.run.meta.addMetadata(path, vars.__metadata);
             //  TODO: Move to SystemVars feature
             this.run.meta.addSystemVars(path, vars.__system);
-            this.run.meta.add(file, meta);
+            this.run.meta.add(file, meta, true);
             // leading.meta is filled by plugins, so we can safely add it to resources
             this.run.meta.addResources(file, leading.meta);
 
