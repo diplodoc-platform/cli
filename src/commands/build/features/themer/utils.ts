@@ -1,5 +1,5 @@
 import type {Run} from '~/commands/build';
-import type {ColorVariant, ThemeConfig, UtilityColorKey, YfmCssVars} from './types';
+import type {ColorVariant, ThemeConfig, UtilityColorKey, CssVars} from './types';
 
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
@@ -12,6 +12,7 @@ import {
     ALL_COLORS,
     APP_CSS_PREFIX,
     BASE_BRAND,
+    DC_COLORS,
     ROOT,
     RTL_CSS_SUFFIX,
     THEME_CONFIG_FILENAME,
@@ -72,19 +73,19 @@ async function loadBaseCss(run: Run) {
     return parseCSS(baseCss);
 }
 
-function generateYfmCss(yfmCssVars: YfmCssVars): string {
+function generateAdditionalCss(cssVars: CssVars, prefix = ''): string {
     return THEME_VARIANTS.map((themeVariant) => {
-        const cssLines = yfmCssVars[themeVariant].join('\n');
+        const cssLines = cssVars[themeVariant].join('\n');
         return cssLines
-            ? `.g-root_theme_${themeVariant} .dc-doc-page .yfm {\n${cssLines}\n}\n`
+            ? `.g-root_theme_${themeVariant} .dc-doc-page ${prefix}{\n${cssLines}\n}\n`
             : '';
     })
         .filter(Boolean)
         .join('\n');
 }
 
-function joinCss(themeCss: string, yfmCss: string): string {
-    return yfmCss ? `${themeCss}\n\n${yfmCss}\n` : themeCss;
+function joinCss(...cssParts: string[]): string {
+    return cssParts.filter(Boolean).join('\n\n');
 }
 
 function processColors(
@@ -92,9 +93,10 @@ function processColors(
     theme: GravityTheme,
     config: ThemeConfig,
     themeFlagValue: string | null | undefined,
-): {theme: GravityTheme; yfmCssVars: YfmCssVars} {
+): {theme: GravityTheme; yfmCssVars: CssVars; dcCssVars: CssVars} {
     let result = theme;
-    const yfmCssVars: YfmCssVars = {light: [], dark: []};
+    const yfmCssVars: CssVars = {light: [], dark: []};
+    const dcCssVars: CssVars = {light: [], dark: []};
 
     ALL_COLORS.forEach((key) => {
         const color = {
@@ -126,10 +128,14 @@ function processColors(
             handleThemeVariants(run, color, (themeVariant, value) => {
                 yfmCssVars[themeVariant].push(`    --yfm-color-${key}: ${value};`);
             });
+        } else if (DC_COLORS.includes(key)) {
+            handleThemeVariants(run, color, (themeVariant, value) => {
+                dcCssVars[themeVariant].push(`    --dc-color-${key}: ${value};`);
+            });
         }
     });
 
-    return {theme: result, yfmCssVars};
+    return {theme: result, yfmCssVars, dcCssVars};
 }
 
 async function validateConfig(run: Run, config: ThemeConfig): Promise<void> {
@@ -174,10 +180,11 @@ export async function generateThemeCss(run: Run) {
         return null;
     }
 
-    const {theme, yfmCssVars} = processColors(run, baseTheme, config, themeFlagValue);
+    const {theme, yfmCssVars, dcCssVars} = processColors(run, baseTheme, config, themeFlagValue);
 
     const themeCss = generateCSS({theme}) as string;
-    const yfmCss = generateYfmCss(yfmCssVars);
+    const yfmCss = generateAdditionalCss(yfmCssVars, '.yfm ');
+    const dcCss = generateAdditionalCss(dcCssVars);
 
-    return joinCss(themeCss, yfmCss);
+    return joinCss(themeCss, yfmCss, dcCss);
 }

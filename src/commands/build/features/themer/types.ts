@@ -12,7 +12,7 @@ export type ColorVariant = 'light' | 'dark';
 
 export type UtilityColorKey = keyof GravityTheme['utilityColors'];
 
-export type YfmCssVars = {
+export type CssVars = {
     light: string[];
     dark: string[];
 };
