@@ -140,6 +140,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxInlineSvgSize,
         options.maxHtmlSize,
         options.maxAssetSize,
+        options.strict,
     ];
 
     readonly modules = [

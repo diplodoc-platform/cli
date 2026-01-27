@@ -292,6 +292,10 @@ describe('Build command', () => {
                 strict: false,
             });
 
+            test('should handle arg', '--strict', {
+                strict: true,
+            });
+
             // test('should handle arg', arg, {
             //     [name]: true,
             // });
@@ -316,6 +320,20 @@ describe('Build command', () => {
                 {
                     strict: false,
                 },
+            );
+
+            test(
+                'should prioritize CLI arg over config',
+                '--strict',
+                {strict: false},
+                {strict: true},
+            );
+
+            test(
+                'should prioritize CLI no-strict over config',
+                '--no-strict',
+                {strict: true},
+                {strict: false},
             );
         });
 
