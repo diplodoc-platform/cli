@@ -7,21 +7,63 @@ properties:
     type: string
   base-selection:
     type: string
-  text-link:
-    type: string
-  text-link-hover:
-    type: string
   base-background:
     type: string
-  base-misc-light:
+  text-primary:
     type: string
-  base-generic:
+  text-secondary:
+    type: string
+  base-simple-hover:
+    type: string
+  line-generic:
     type: string
   note-info-background:
     type: string
   note-tip-background:
     type: string
   note-warning-background:
+    type: string
+  note-important-background:
+    type: string
+  quote:
+    type: string
+  tab-active:
+    type: string
+  tab-text:
+    type: string
+  tab-text-hover:
+    type: string
+  link:
+    type: string
+  link-hover:
+    type: string
+  term-dfn-background:
+    type: string
+  code:
+    type: string
+  hljs-background:
+    type: string
+  inline-code:
+    type: string
+  inline-code-background:
+    type: string
+  table:
+    type: string
+  table-row-background:
+    type: string
+  table-background:
+    type: string
+  table-border:
+    type: string
+  mini-toc-border:
+    type: string
+  mini-toc:
+    type: string
+  mini-toc-hover:
+    type: string
+  mini-toc-active:
+    type: string
+  mini-toc-active-border:
     type: string
   light:
     $ref: '#/definitions/ColorProperties'
@@ -37,20 +79,62 @@ definitions:
         type: string
       base-selection:
         type: string
-      text-link:
-        type: string
-      text-link-hover:
-        type: string
       base-background:
         type: string
-      base-misc-light:
+      text-primary:
         type: string
-      base-generic:
+      text-secondary:
+        type: string
+      base-simple-hover:
+        type: string
+      line-generic:
         type: string
       note-info-background:
         type: string
       note-tip-background:
         type: string
       note-warning-background:
+        type: string
+      note-important-background:
+        type: string
+      quote:
+        type: string
+      tab-active:
+        type: string
+      tab-text:
+        type: string
+      tab-text-hover:
+        type: string
+      link:
+        type: string
+      link-hover:
+        type: string
+      term-dfn-background:
+        type: string
+      code:
+        type: string
+      hljs-background:
+        type: string
+      inline-code:
+        type: string
+      inline-code-background:
+        type: string
+      table:
+        type: string
+      table-row-background:
+        type: string
+      table-background:
+        type: string
+      table-border:
+        type: string
+      mini-toc-border:
+        type: string
+      mini-toc:
+        type: string
+      mini-toc-hover:
+        type: string
+      mini-toc-active:
+        type: string
+      mini-toc-active-border:
         type: string
     additionalProperties: false

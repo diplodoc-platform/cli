@@ -16,17 +16,41 @@ export const THEME_VARIANTS: ColorVariant[] = ['light', 'dark'];
 export const UTILITY_COLORS: UtilityColorKey[] = [
     BASE_BRAND,
     'base-selection',
-    'text-link',
-    'text-link-hover',
     'base-background',
-    'base-misc-light',
-    'base-generic',
+    'text-primary',
+    'text-secondary',
+    'base-simple-hover',
+    'line-generic',
 ];
 
 export const YFM_COLORS = [
     'note-info-background',
     'note-tip-background',
     'note-warning-background',
+    'note-important-background',
+    'quote',
+    'tab-active',
+    'tab-text',
+    'tab-text-hover',
+    'link',
+    'link-hover',
+    'term-dfn-background',
+    'code',
+    'hljs-background',
+    'inline-code',
+    'inline-code-background',
+    'table',
+    'table-row-background',
+    'table-background',
+    'table-border',
 ];
 
-export const ALL_COLORS = [...UTILITY_COLORS, ...YFM_COLORS];
+export const DC_COLORS = [
+    'mini-toc-border',
+    'mini-toc',
+    'mini-toc-hover',
+    'mini-toc-active',
+    'mini-toc-active-border',
+];
+
+export const ALL_COLORS = [...UTILITY_COLORS, ...YFM_COLORS, ...DC_COLORS];

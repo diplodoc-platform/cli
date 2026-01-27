@@ -76,7 +76,7 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^5.2.0",
+    "@diplodoc/client": "^5.2.1",
     "@diplodoc/liquid": "^1.4.0",
     "@diplodoc/transform": "^4.65.3",
     "@diplodoc/translation": "^1.7.19",
