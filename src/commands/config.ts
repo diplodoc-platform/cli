@@ -32,7 +32,6 @@ const strict = option({
         Run in strict mode.
         Process will exit with non zero code if there was some errors or warnings.
     `,
-    default: false,
 });
 
 const jobs = option({

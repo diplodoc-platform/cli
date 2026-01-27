@@ -377,6 +377,7 @@ export const options = {
     input: globalOptions.input,
     output: globalOptions.output,
     config: globalOptions.config,
+    strict: globalOptions.strict,
     langs,
     outputFormat,
     varsPreset,
