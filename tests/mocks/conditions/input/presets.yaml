@@ -1,0 +1,4 @@
+default:
+  var1: 'aboba'
+  var2: true
+  var3: 1

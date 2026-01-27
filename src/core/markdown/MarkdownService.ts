@@ -52,6 +52,7 @@ type Run = BaseRun<MarkdownServiceConfig> & {
 
 type Options = {
     mode: 'build' | 'translate';
+    skipMissingVars: boolean;
 };
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
@@ -102,7 +103,7 @@ export class MarkdownService {
 
     private options;
 
-    constructor(run: Run, options: Options = {mode: 'build'}) {
+    constructor(run: Run, options: Options = {mode: 'build', skipMissingVars: false}) {
         this.run = run;
         this.options = options;
     }
@@ -414,6 +415,7 @@ export class MarkdownService {
             options: {
                 disableLiquid: !this.config.template.enabled,
                 mergeContentParts: this.config.preprocess?.mergeSvg ?? false,
+                skipMissingVars: this.options.skipMissingVars,
             },
             mode: this.options.mode,
         };

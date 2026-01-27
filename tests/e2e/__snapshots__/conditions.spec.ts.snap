@@ -1,0 +1,131 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Conditions > Conditions > filelist 1`] = `
+"[
+  ".yfm",
+  "index.html",
+  "page1.html",
+  "page2.html",
+  "page5.html",
+  "toc.js"
+]"
+`;
+
+exports[`Conditions > Conditions 1`] = `
+"allowHTML: true
+"
+`;
+
+exports[`Conditions > Conditions 2`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Index page | Conditions</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Index page"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Conditions > Conditions 3`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Conditions</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"blocks":[{"type":"header-block","title":"&lt;p&gt;&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;Test&lt;/a&gt;&lt;/p&gt;/n","description":"&lt;p&gt;Description link&lt;/p&gt;/n"}],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.yaml"},"title":""},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Conditions > Conditions 4`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Conditions</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-page-constructor\\" data-content-encoded=\\"%7B%22blocks%22%3A%5B%7B%22type%22%3A%22header-block%22%2C%22title%22%3A%22%3Cp%3EWhen%202%3C%2Fp%3E%5Cn%22%2C%22description%22%3A%22%3Cp%3E%D0%A2%D0%B5%D1%81%D1%82%D0%BE%D0%B2%D1%8B%D0%B9%20%D0%B7%D0%B0%D0%B3%D0%BE%D0%BB%D0%BE%D0%B2%D0%BE%D0%BA%20%D0%B4%D0%BB%D1%8F%20%D0%BF%D1%80%D0%BE%D0%B2%D0%B5%D1%80%D0%BA%D0%B8%20when%202%3C%2Fp%3E%5Cn%22%7D%5D%7D\\" data-hydrated=\\"false\\"&gt;&lt;div class=\\"g-root g-root_theme_light pc-page-constructor\\"&gt;&lt;div class=\\"pc-page-constructor__wrapper\\"&gt;&lt;div class=\\"pc-layout\\"&gt;&lt;main class=\\"pc-layout__content\\"&gt;&lt;header class=\\"pc-header-block pc-header-block_media-view_full pc-header-block_controls-view_light\\"&gt;&lt;div class=\\"pc-Grid pc-header-block\\"&gt;&lt;div class=\\"container-fluid pc-header-block__container-fluid\\"&gt;&lt;div class=\\"row\\"&gt;&lt;div class=\\"col col-reset pc-header-block__content-wrapper\\"&gt;&lt;div class=\\"row\\"&gt;&lt;div class=\\"col pc-header-block__content pc-header-block__content_offset_default pc-header-block__content_theme_light pc-header-block__content_vertical-offset_m\\"&gt;&lt;div class=\\"col  col-lg-8 col-md-8 col-sm-12 col-12 pc-header-block__content-inner\\"&gt;&lt;h1 class=\\"pc-header-block__title-container\\"&gt;&lt;div class=\\"yfm yfm_constructor yfm_constructor_theme_light pc-header-block__title\\"&gt;&lt;p&gt;When 2&lt;/p&gt;/n&lt;/div&gt;&lt;/h1&gt;&lt;div class=\\"pc-header-block__description pc-header-block__description_theme_light\\"&gt;&lt;span class=\\"yfm yfm_constructor yfm_constructor_theme_light\\"&gt;&lt;p&gt;Тестовый заголовок для проверки when 2&lt;/p&gt;/n&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/header&gt;&lt;div class=\\"pc-Grid\\"&gt;&lt;div class=\\"container-fluid \\"&gt;&lt;div class=\\"row pc-constructor-row\\"&gt;&lt;div class=\\"col\\"&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/main&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;&lt;h1&gt;Page 2&lt;/h1&gt;/n&lt;p&gt;&lt;/p&gt;/n&lt;p&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_bundle/page-constructor-extension.css"],"script":["_bundle/page-constructor-extension.js"],"vcsPath":"page2.md"},"headings":[],"title":""},"router":{"pathname":"page2","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Conditions > Conditions 5`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Conditions</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"blocks":[],"links":[]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page5.yaml"},"title":""},"router":{"pathname":"page5","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Conditions > Conditions 6`] = `"window.__DATA__.data.toc = {"title":"Conditions","href":"index.html","items":[{"name":"Page 1","href":"page1.html","id":"UUID"},{"name":"Page 2","href":"page2.html","id":"UUID"},{"name":"Page 5","href":"page5.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

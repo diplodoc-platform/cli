@@ -1,0 +1,14 @@
+blocks:
+  - type: header-block
+    title: '[Test](https://example.com)'
+    description: 'Description link'
+    when: var3 >= 1
+  - type: header-block
+    title: When 1
+    description: 'Тестовый заголовок для проверки when 1'
+    when: var1 != 'aboba'
+  - type: header-block
+    title: Test title
+    description: 'Test description'
+    when: var3 < 1
+    

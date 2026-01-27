@@ -209,6 +209,7 @@ export class LeadingService {
             api: new LoaderAPI(api),
             options: {
                 disableLiquid: !this.run.config.template.enabled,
+                skipMissingVars: false,
             },
             settings: {
                 substitutions: this.config.template.features.conditions,
