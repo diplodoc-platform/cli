@@ -141,7 +141,7 @@ export class MarkdownService {
 
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta);
+            this.run.meta.add(file, meta, true);
 
             this.cache[key] = content;
             defer.resolve(content);
