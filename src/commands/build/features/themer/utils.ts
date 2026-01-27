@@ -1,5 +1,5 @@
 import type {Run} from '~/commands/build';
-import type {ColorVariant, ThemeConfig, UtilityColorKey, CssVars} from './types';
+import type {ColorVariant, CssVars, ThemeConfig, UtilityColorKey} from './types';
 
 import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
