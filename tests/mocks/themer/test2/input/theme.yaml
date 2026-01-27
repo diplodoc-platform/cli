@@ -1,8 +1,8 @@
-text-link: redd
+link: redd
 
 light:
   base-background: ""
 
 dark:
   base-background: " "
-  text-link: 5
+  link: 5

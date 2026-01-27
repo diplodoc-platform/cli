@@ -1,11 +1,11 @@
 base-brand: red
-text-link: green
+link: green
 note-info-background: red
 base-brandd: red
 base-selection: rgb(255 0 255)
 
 dark:
-  text-link: blue
+  link: blue
   unknown-color: blue
   base-background: hsl(60 100% 50%)
 
