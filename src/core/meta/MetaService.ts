@@ -31,6 +31,8 @@ type MetaItem = {
  * ```typescript
  * const metaService = new MetaService(run);
  * metaService.add('/docs/page.md', {title: 'My Page'});
+ * // Or with raw metadata:
+ * metaService.add('/docs/page.md', {title: 'Raw Page'}, true);
  * const meta = await metaService.dump('/docs/page.md');
  * ```
  */
@@ -152,8 +154,10 @@ export class MetaService {
     add(path: RelativePath, record: Hash, isRaw = false) {
         const file = normalizePath(path);
 
-        if (this.config.rawAddMeta && isRaw) {
-            this.meta.set(file, record);
+        if (this.config.rawAddMeta) {
+            if (isRaw) {
+                this.meta.set(file, record);
+            }
             return;
         }
 
