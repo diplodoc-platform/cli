@@ -1,9 +1,9 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {TocService} from '~/core/toc';
 import type {MetaService} from '~/core/meta';
-import type {VcsConnector, Contributor, VcsMetadata} from './types';
+import type {Contributor, VcsConnector, VcsMetadata} from './types';
 
-import {describe, beforeEach, expect, it, vi} from 'vitest';
+import {beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {VcsService} from './VcsService';
 import {DefaultVcsConnector} from './connector';
@@ -106,9 +106,13 @@ describe('VcsService', () => {
                 });
 
                 // Mock connector methods
-                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(mockContributor);
+                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(
+                    mockContributor,
+                );
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -128,7 +132,9 @@ describe('VcsService', () => {
                 // Mock connector methods
                 vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(null);
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -150,9 +156,13 @@ describe('VcsService', () => {
                 });
 
                 // Mock connector methods
-                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(mockContributor);
+                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(
+                    mockContributor,
+                );
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -170,9 +180,13 @@ describe('VcsService', () => {
                 mockMetaService.get = vi.fn().mockReturnValue({});
 
                 // Mock connector methods
-                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(mockContributor);
+                vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(
+                    mockContributor,
+                );
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -192,7 +206,9 @@ describe('VcsService', () => {
                 // Mock connector methods to return null for author
                 vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(null);
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -214,7 +230,9 @@ describe('VcsService', () => {
                 // Mock connector methods to return null for author
                 vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(null);
                 vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue([]);
-                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+                vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                    1234567890,
+                );
 
                 const result = await vcsService.metadata(asRelativePath('test.md'));
 
@@ -239,12 +257,16 @@ describe('VcsService', () => {
 
             // Mock connector methods
             vi.spyOn(vcsService['connector'], 'getAuthorByPath').mockResolvedValue(mockContributor);
-            vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue(mockContributors);
-            vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(1234567890);
+            vi.spyOn(vcsService['connector'], 'getContributorsByPath').mockResolvedValue(
+                mockContributors,
+            );
+            vi.spyOn(vcsService['connector'], 'getModifiedTimeByPath').mockResolvedValue(
+                1234567890,
+            );
 
             const result = await vcsService.metadata(asRelativePath('test.md'), [
                 asNormalizedPath('dep1.md'),
-                asNormalizedPath('dep2.md')
+                asNormalizedPath('dep2.md'),
             ]);
 
             expect(result.author).toEqual(mockContributor);
