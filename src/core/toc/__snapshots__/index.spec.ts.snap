@@ -102,6 +102,72 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > navigation header items filtering > should filter both leftItems and rightItems 1`] = `
+"title: Test
+navigation:
+  logo:
+    url: ./
+  header:
+    leftItems:
+      - text: Visible
+        type: link
+        url: ./visible.md
+    rightItems:
+      - type: controls
+      - text: Visible
+        type: link
+        url: ./visible2.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should filter navigation header leftItems by when condition 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Always visible
+        type: link
+        url: ./index.md
+      - text: Visible when true
+        type: link
+        url: ./page1.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should filter navigation header rightItems by when condition 1`] = `
+"title: Test
+navigation:
+  header:
+    rightItems:
+      - type: controls
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should handle navigation without header 1`] = `
+"title: Test
+navigation:
+  logo:
+    url: ./
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should not filter navigation when conditions feature is disabled 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Should remain
+        type: link
+        url: ./page.md
+        when: false
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > object validation > should not throw error when nested toc item has [object Object] values but log it 1`] = `
 [
   {

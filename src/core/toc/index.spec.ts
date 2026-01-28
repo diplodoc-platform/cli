@@ -675,6 +675,113 @@ describe('toc-loader', () => {
         });
     });
 
+    describe('navigation header items filtering', () => {
+        it(
+            'should filter navigation header leftItems by when condition',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Always visible
+                            type: link
+                            url: ./index.md
+                          - text: Visible when true
+                            type: link
+                            url: ./page1.md
+                            when: stage == 'test'
+                          - text: Hidden when false
+                            type: link
+                            url: ./page2.md
+                            when: stage == 'dev'
+                `,
+                {},
+                {stage: 'test'},
+            ),
+        );
+
+        it(
+            'should filter navigation header rightItems by when condition',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        rightItems:
+                          - type: controls
+                          - text: Hidden control
+                            type: link
+                            url: ./hidden.md
+                            when: false
+                `,
+                {},
+                {},
+            ),
+        );
+
+        it(
+            'should filter both leftItems and rightItems',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      logo:
+                        url: ./
+                      header:
+                        leftItems:
+                          - text: Visible
+                            type: link
+                            url: ./visible.md
+                          - text: Hidden
+                            type: link
+                            url: ./hidden.md
+                            when: var1 > 10
+                        rightItems:
+                          - type: controls
+                          - text: Visible
+                            type: link
+                            url: ./visible2.md
+                            when: var1 == 5
+                `,
+                {},
+                {var1: 5},
+            ),
+        );
+
+        it(
+            'should not filter navigation when conditions feature is disabled',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Should remain
+                            type: link
+                            url: ./page.md
+                            when: false
+                `,
+                {template: {features: {conditions: false}}},
+                {},
+            ),
+        );
+
+        it(
+            'should handle navigation without header',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      logo:
+                        url: ./
+                `,
+                {},
+                {},
+            ),
+        );
+    });
+
     describe('object validation', () => {
         it('should not throw error when toc item name is [object Object] but log it', async () => {
             const content = dedent`
