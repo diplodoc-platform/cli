@@ -1,4 +1,4 @@
-import type {Report} from '../fixtures/runners/types';
+import type {Report} from '../fixtures';
 
 import {describe, expect, it} from 'vitest';
 

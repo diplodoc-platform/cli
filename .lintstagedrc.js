@@ -37,11 +37,12 @@ module.exports = {
         if (filtered.length === 0) {
             return [];
         }
+
+        const files = filtered.join(' ');
+
         return [
-            ...filtered.map((f) => `prettier --write ${f}`),
-            ...filtered.map(
-                (f) => `env ESLINT_USE_FLAT_CONFIG=false npx eslint --max-warnings=0 --fix ${f}`,
-            ),
+            `prettier --write ${files}`,
+            `env ESLINT_USE_FLAT_CONFIG=false npx eslint --max-warnings=0 --fix`
         ];
     },
     // Handle .lintstagedrc.js separately (only prettier, no eslint)
