@@ -1,14 +1,17 @@
 import type {BuildConfig} from '../..';
-import {Build} from '../..';
 import type {FullTap} from 'tapable';
+import type {ChangelogItem} from './index';
 
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {setupRun} from '../../__tests__';
-import {getHooks} from '../../hooks';
+
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 
-import {ChangelogItem, Changelogs} from './index';
+import {setupRun} from '../../__tests__';
+import {getHooks} from '../../hooks';
+import {Build} from '../..';
+
+import {Changelogs} from './index';
 
 describe('Changelogs feature', () => {
     describe('image copying', () => {
@@ -26,7 +29,9 @@ describe('Changelogs feature', () => {
 
             // Mock the copy and write methods to resolve successfully
             when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
-            when(run.write).calledWith(expect.anything(), expect.anything(), expect.anything()).thenResolve();
+            when(run.write)
+                .calledWith(expect.anything(), expect.anything(), expect.anything())
+                .thenResolve();
 
             // Mock the markdown hooks to simulate changelog processing
             const markdownHooks = getMarkdownHooks(run.markdown);
@@ -56,35 +61,37 @@ describe('Changelogs feature', () => {
             });
 
             // Mock the Resolved hook to simulate changelog processing
-            const resolvedFn = vi.fn().mockImplementation(async (_content: string, path: string) => {
-                const changelogs = changelogsMap[path];
-                if (!changelogs || !changelogs.length) {
-                    return;
-                }
-
-                const outputDir = '/dev/null/output/test';
-
-                changelogs[changelogs.length - 1].source = 'test/test';
-
-                for (const [index, changes] of changelogs.entries()) {
-                    const image = changes.image;
-                    if (image && !image.src.startsWith('http')) {
-                        const from = '/dev/null/input/test/image.png';
-                        const to = '/dev/null/output/test/image.png';
-                        try {
-                            await run.copy(from, to);
-                        } catch (error) {
-                            run.logger.error(`Failed to copy changelog image: ${error}`);
-                        }
+            const resolvedFn = vi
+                .fn()
+                .mockImplementation(async (_content: string, path: string) => {
+                    const changelogs = changelogsMap[path];
+                    if (!changelogs || !changelogs.length) {
+                        return;
                     }
 
-                    await run.write(
-                        `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
-                        JSON.stringify(changes),
-                        true,
-                    );
-                }
-            });
+                    const outputDir = '/dev/null/output/test';
+
+                    changelogs[changelogs.length - 1].source = 'test/test';
+
+                    for (const [index, changes] of changelogs.entries()) {
+                        const image = changes.image;
+                        if (image && !image.src.startsWith('http')) {
+                            const from = '/dev/null/input/test/image.png';
+                            const to = '/dev/null/output/test/image.png';
+                            try {
+                                await run.copy(from, to);
+                            } catch (error) {
+                                run.logger.error(`Failed to copy changelog image: ${error}`);
+                            }
+                        }
+
+                        await run.write(
+                            `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
+                            JSON.stringify(changes),
+                            true,
+                        );
+                    }
+                });
 
             markdownHooks.Resolved.tap('Changelogs', resolvedFn);
 
@@ -119,7 +126,9 @@ describe('Changelogs feature', () => {
             const loggerErrorSpy = vi.spyOn(run.logger, 'error');
 
             // Mock the write method to resolve successfully
-            when(run.write).calledWith(expect.anything(), expect.anything(), expect.anything()).thenResolve();
+            when(run.write)
+                .calledWith(expect.anything(), expect.anything(), expect.anything())
+                .thenResolve();
 
             // Mock the markdown hooks to simulate changelog processing
             const markdownHooks = getMarkdownHooks(run.markdown);
@@ -139,35 +148,37 @@ describe('Changelogs feature', () => {
             };
 
             // Mock the Resolved hook to simulate changelog processing
-            const resolvedFn = vi.fn().mockImplementation(async (_content: string, path: string) => {
-                const changelogs = changelogsMap[path];
-                if (!changelogs || !changelogs.length) {
-                    return;
-                }
-
-                const outputDir = '/dev/null/output/test';
-
-                changelogs[changelogs.length - 1].source = 'test/test';
-
-                for (const [index, changes] of changelogs.entries()) {
-                    const image = changes.image;
-                    if (image && !image.src.startsWith('http')) {
-                        const from = '/dev/null/input/test/image.png';
-                        const to = '/dev/null/output/test/image.png';
-                        try {
-                            await run.copy(from, to);
-                        } catch (error) {
-                            run.logger.error(`Failed to copy changelog image: ${error}`);
-                        }
+            const resolvedFn = vi
+                .fn()
+                .mockImplementation(async (_content: string, path: string) => {
+                    const changelogs = changelogsMap[path];
+                    if (!changelogs || !changelogs.length) {
+                        return;
                     }
 
-                    await run.write(
-                        `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
-                        JSON.stringify(changes),
-                        true,
-                    );
-                }
-            });
+                    const outputDir = '/dev/null/output/test';
+
+                    changelogs[changelogs.length - 1].source = 'test/test';
+
+                    for (const [index, changes] of changelogs.entries()) {
+                        const image = changes.image;
+                        if (image && !image.src.startsWith('http')) {
+                            const from = '/dev/null/input/test/image.png';
+                            const to = '/dev/null/output/test/image.png';
+                            try {
+                                await run.copy(from, to);
+                            } catch (error) {
+                                run.logger.error(`Failed to copy changelog image: ${error}`);
+                            }
+                        }
+
+                        await run.write(
+                            `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
+                            JSON.stringify(changes),
+                            true,
+                        );
+                    }
+                });
 
             markdownHooks.Resolved.tap('Changelogs', resolvedFn);
 
@@ -197,7 +208,9 @@ describe('Changelogs feature', () => {
 
             const copyError = new Error('Copy failed');
             when(run.copy).calledWith(expect.anything(), expect.anything()).thenReject(copyError);
-            when(run.write).calledWith(expect.anything(), expect.anything(), expect.anything()).thenResolve();
+            when(run.write)
+                .calledWith(expect.anything(), expect.anything(), expect.anything())
+                .thenResolve();
 
             const loggerErrorSpy = vi.spyOn(run.logger, 'error');
 
@@ -219,35 +232,37 @@ describe('Changelogs feature', () => {
             };
 
             // Mock the Resolved hook to simulate changelog processing
-            const resolvedFn = vi.fn().mockImplementation(async (_content: string, path: string) => {
-                const changelogs = changelogsMap[path];
-                if (!changelogs || !changelogs.length) {
-                    return;
-                }
-
-                const outputDir = '/dev/null/output/test';
-
-                changelogs[changelogs.length - 1].source = 'test/test';
-
-                for (const [index, changes] of changelogs.entries()) {
-                    const image = changes.image;
-                    if (image && !image.src.startsWith('http')) {
-                        const from = '/dev/null/input/test/image.png';
-                        const to = '/dev/null/output/test/image.png';
-                        try {
-                            await run.copy(from, to);
-                        } catch (error) {
-                            run.logger.error(`Failed to copy changelog image: ${error}`);
-                        }
+            const resolvedFn = vi
+                .fn()
+                .mockImplementation(async (_content: string, path: string) => {
+                    const changelogs = changelogsMap[path];
+                    if (!changelogs || !changelogs.length) {
+                        return;
                     }
 
-                    await run.write(
-                        `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
-                        JSON.stringify(changes),
-                        true,
-                    );
-                }
-            });
+                    const outputDir = '/dev/null/output/test';
+
+                    changelogs[changelogs.length - 1].source = 'test/test';
+
+                    for (const [index, changes] of changelogs.entries()) {
+                        const image = changes.image;
+                        if (image && !image.src.startsWith('http')) {
+                            const from = '/dev/null/input/test/image.png';
+                            const to = '/dev/null/output/test/image.png';
+                            try {
+                                await run.copy(from, to);
+                            } catch (error) {
+                                run.logger.error(`Failed to copy changelog image: ${error}`);
+                            }
+                        }
+
+                        await run.write(
+                            `${outputDir}/changelogs/__changes-name-test-${String(changelogs.length - index).padStart(3, '0')}.json`,
+                            JSON.stringify(changes),
+                            true,
+                        );
+                    }
+                });
 
             markdownHooks.Resolved.tap('Changelogs', resolvedFn);
 
@@ -266,7 +281,7 @@ describe('Changelogs feature', () => {
                 'Failed to copy changelog image: Error: Copy failed',
             );
         });
-        });
+    });
 
     describe('changelog processing', () => {
         it('should skip processing when changelogs are disabled', async () => {
