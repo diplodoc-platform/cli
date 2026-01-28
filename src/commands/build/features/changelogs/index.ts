@@ -95,7 +95,11 @@ export class Changelogs {
                             if (image && !isExternalHref(image.src)) {
                                 const from = join(dirname(join(run.input, path)), image.src);
                                 const to = join(dirname(join(run.output, path)), image.src);
-                                await run.copy(from, to);
+                                try {
+                                    await run.copy(from, to);
+                                } catch (error) {
+                                    run.logger.error(`Failed to copy changelog image: ${error}`);
+                                }
                             }
 
                             return run.write(changesPath, JSON.stringify(changes), true);
