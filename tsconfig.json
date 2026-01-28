@@ -14,10 +14,6 @@
       "@diplodoc/cli": ["./src"]
     }
   },
-  "include": [
-    "src/path.d.ts",
-    "src/globals.d.ts",
-    "src"
-  ],
+  "include": ["src/path.d.ts", "src/globals.d.ts", "src", "tests/e2e", "tests/fixtures"],
   "types": ["node"]
 }

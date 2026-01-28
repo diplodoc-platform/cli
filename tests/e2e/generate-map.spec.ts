@@ -21,7 +21,7 @@ const generateMapTestTemplate = (
 
         const content = getFileContent(join(outputPath, 'files.json'));
         const manifestContent = await readFile(
-            join(outputPath, 'yfm-build-manifest.json'),
+            join(outputPath, 'yfm-build-manifest.json' as RelativePath),
             'utf-8',
         );
 

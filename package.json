@@ -45,18 +45,19 @@
     "lib",
     "build",
     "assets",
-    "schemas"
+    "schemas",
+    "tests"
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
     "build:types": "tspc -p tsconfig.lib.json || true; tspc -p tsconfig.build.json || true",
     "build:clean": "rm -rf build lib",
-    "e2e": "npm run build && cd tests && npm test",
+    "e2e": "npm run build && vitest run -c vitest.integration.config.ts",
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
     "start": "node build/index.js",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest",
+    "test": "vitest run -c vitest.units.config.ts",
+    "test:coverage": "vitest run -c vitest.units.config.ts --coverage",
+    "test:watch": "vitest -c vitest.units.config.ts",
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js",
     "lint": "lint update && lint",
@@ -145,6 +146,30 @@
     "vitest": "^3.2.1",
     "vitest-when": "^0.6.1",
     "walk-sync": "3.0.0"
+  },
+  "peerDependencies": {
+    "glob": "^10.4.5",
+    "vitest": "^3.2.1",
+    "vitest-when": "^0.6.1",
+    "execa": "^9.5.2",
+    "strip-ansi": "^7.1.2"
+  },
+  "peerDependenciesMeta": {
+    "glob": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    },
+    "vitest-when": {
+      "optional": true
+    },
+    "execa": {
+      "optional": true
+    },
+    "strip-ansi": {
+      "optional": true
+    }
   },
   "engines": {
     "node": ">=22.*",
