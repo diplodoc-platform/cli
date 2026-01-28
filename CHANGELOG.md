@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.20.0](https://github.com/diplodoc-platform/cli/compare/v5.19.10...v5.20.0) (2026-01-28)
+
+
+### Features
+
+* when-conditions are supported in page-constructor ([#1599](https://github.com/diplodoc-platform/cli/issues/1599)) ([ae4f14d](https://github.com/diplodoc-platform/cli/commit/ae4f14dd384b8b025a74c75e4129c86f87677c03))
+* when-conditions are supported in toc header ([#1617](https://github.com/diplodoc-platform/cli/issues/1617)) ([b4dbc77](https://github.com/diplodoc-platform/cli/commit/b4dbc77938d3f2da33514ae6d5f62bb14fc08757))
+
+
+### Bug Fixes
+
+* fix strict mode option ([2eb4e31](https://github.com/diplodoc-platform/cli/commit/2eb4e31310560ff0005621b1226d09f59eb2e122))
+
 ## [5.19.10](https://github.com/diplodoc-platform/cli/compare/v5.19.9...v5.19.10) (2026-01-23)
 
 
