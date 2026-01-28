@@ -3,6 +3,8 @@ import type {TocService} from './TocService';
 import type {
     EntryTocItem,
     IncludeInfo,
+    Navigation,
+    NavigationHeaderItem,
     RawToc,
     RawTocItem,
     Toc,
@@ -69,6 +71,9 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
     // Apply when filter in some toc fields
     toc = await resolveFields.call(this, toc);
 
+    // Apply when filter in navigation header items
+    toc = await resolveNavigation.call(this, toc);
+
     // validate toc to [object Object] in fields
     toc = await validateToc.call(this, toc);
 
@@ -107,6 +112,56 @@ async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> 
         if (value) {
             toc[field] = getFirstValuable<YfmString>(value, this.vars);
         }
+    }
+
+    return toc;
+}
+
+/**
+ * Filters navigation header items (leftItems and rightItems) by `when` condition.
+ */
+async function resolveNavigation(this: LoaderContext, toc: RawToc): Promise<RawToc> {
+    const {skipMissingVars} = this.options;
+    const {conditions} = this.settings;
+
+    if (!conditions || !toc.navigation || typeof toc.navigation !== 'object') {
+        return toc;
+    }
+
+    const navigation = toc.navigation as Navigation;
+
+    if (!navigation.header) {
+        return toc;
+    }
+
+    const filterItems = (items: NavigationHeaderItem[] | undefined): NavigationHeaderItem[] => {
+        if (!items || !Array.isArray(items)) {
+            return [];
+        }
+
+        return items.filter((item) => {
+            if (typeof item.when === 'string') {
+                const result = evaluateWhen(item.when, this.vars, skipMissingVars);
+                delete item.when;
+                return result;
+            }
+
+            if (item.when === false) {
+                delete item.when;
+                return false;
+            }
+
+            delete item.when;
+            return true;
+        });
+    };
+
+    if (navigation.header.leftItems) {
+        navigation.header.leftItems = filterItems(navigation.header.leftItems);
+    }
+
+    if (navigation.header.rightItems) {
+        navigation.header.rightItems = filterItems(navigation.header.rightItems);
     }
 
     return toc;

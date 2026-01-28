@@ -128,4 +128,4 @@ exports[`Conditions > Conditions 5`] = `
 </html>"
 `;
 
-exports[`Conditions > Conditions 6`] = `"window.__DATA__.data.toc = {"title":"Conditions","href":"index.html","items":[{"name":"Page 1","href":"page1.html","id":"UUID"},{"name":"Page 2","href":"page2.html","id":"UUID"},{"name":"Page 5","href":"page5.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Conditions > Conditions 6`] = `"window.__DATA__.data.toc = {"title":"Conditions","href":"index.html","navigation":{"logo":{"url":"./"},"header":{"leftItems":[{"text":"Always visible","type":"link","url":"./index.md"},{"text":"Visible when var2 is true","type":"link","url":"./page2.md"}],"rightItems":[{"type":"controls"}]}},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"},{"name":"Page 2","href":"page2.html","id":"UUID"},{"name":"Page 5","href":"page5.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

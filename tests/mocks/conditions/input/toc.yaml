@@ -1,5 +1,31 @@
 title: Conditions
 href: index.md
+navigation:
+  logo:
+    url: "./"
+  header:
+    leftItems:
+      - text: "Always visible"
+        type: "link"
+        url: "./index.md"
+      - text: "Visible when var2 is true"
+        type: "link"
+        url: "./page2.md"
+        when: var2 == true
+      - text: "Hidden when false"
+        type: "link"
+        url: "./page3.md"
+        when: false
+      - text: "Hidden when var3 > 1"
+        type: "link"
+        url: "./page4.md"
+        when: var3 > 1
+    rightItems:
+      - type: controls
+      - text: "Hidden control"
+        type: "link"
+        url: "./hidden.md"
+        when: var1 == 'not_aboba'
 
 items:
   - name: Page 1

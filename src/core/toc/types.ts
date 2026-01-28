@@ -30,12 +30,18 @@ export type RawToc = {
     items?: RawTocItem[];
 };
 
-// TODO: add precise types
+export type NavigationHeaderItem = Filter & {
+    text?: string;
+    type?: string;
+    url?: string;
+    [key: string]: unknown;
+};
+
 export type Navigation = {
-    logo: object;
-    header: {
-        leftItems?: object;
-        rightItems?: object;
+    logo?: object;
+    header?: {
+        leftItems?: NavigationHeaderItem[];
+        rightItems?: NavigationHeaderItem[];
     };
 };
 

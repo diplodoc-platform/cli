@@ -210,10 +210,10 @@ definitions:
     allOf:
       - $ref: '#/definitions/NavigationBaseItem'
       - oneOf:
-        - $ref: '#/definitions/NavigationLinkItem'
-        - $ref: '#/definitions/NavigationButtonItem'
-        - $ref: '#/definitions/NavigationDropdownItem'
-        - $ref: '#/definitions/NavigationControlsItem'
+          - $ref: '#/definitions/NavigationLinkItem'
+          - $ref: '#/definitions/NavigationButtonItem'
+          - $ref: '#/definitions/NavigationDropdownItem'
+          - $ref: '#/definitions/NavigationControlsItem'
 
   NavigationBaseItem:
     type: object
@@ -229,6 +229,10 @@ definitions:
         format: url
       iconSize:
         type: number
+      when:
+        type:
+          - string
+          - boolean
 
   NavigationLinkItem:
     type: object
