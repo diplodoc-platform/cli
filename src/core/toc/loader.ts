@@ -143,15 +143,18 @@ async function resolveNavigation(this: LoaderContext, toc: RawToc): Promise<RawT
             if (typeof item.when === 'string') {
                 const result = evaluateWhen(item.when, this.vars, skipMissingVars);
                 delete item.when;
+
                 return result;
             }
 
             if (item.when === false) {
                 delete item.when;
+
                 return false;
             }
 
             delete item.when;
+
             return true;
         });
     };
