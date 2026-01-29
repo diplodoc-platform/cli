@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 1`] = `
+"ignoreStage:
+  - internal"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: active/page.md
+---
+# Active Page
+
+This is an active page that should be included in the build.
+
+Active variable: {{active_var}}"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 3`] = `
+"default:
+  active_var: active_value
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 4`] = `
+"title: Active Section
+items:
+  - name: Active Page
+    href: page.md
+path: active/toc.yaml
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 5`] = `
+"default:
+  empty_var: empty_value
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Main Page
+
+This is the main page content.
+
+Root variable: {{root_var}}"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 7`] = `
+"default:
+  root_var: root_value
+"
+`;
+
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 8`] = `
+"title: Test Documentation
+href: index.md
+items:
+  - name: Active Section
+    href: active/page.md
+path: toc.yaml
+"
+`;
