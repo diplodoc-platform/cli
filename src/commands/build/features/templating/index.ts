@@ -163,16 +163,18 @@ export class Templating {
             // For each presets.yaml file, check if its directory contains only this file
             for (const presetsPath of presetsFiles) {
                 const dir = dirname(presetsPath);
-                const entries = await run.fs.readdir(dir, { withFileTypes: true });
+                const entries = await run.fs.readdir(dir, {withFileTypes: true});
 
                 // Filter out hidden files and directories
-                const visibleEntries = entries.filter((entry: any) =>
-                    !entry.name.startsWith('.') && entry.name !== 'presets.yaml'
+                const visibleEntries = entries.filter(
+                    (entry: any) => !entry.name.startsWith('.') && entry.name !== 'presets.yaml',
                 );
 
                 // If directory contains only presets.yaml (no other visible files/directories)
                 if (visibleEntries.length === 0) {
-                    run.logger.info(`[DEBUG] Removing empty directory: ${dir} (contains only presets.yaml)`);
+                    run.logger.info(
+                        `[DEBUG] Removing empty directory: ${dir} (contains only presets.yaml)`,
+                    );
 
                     // Remove the presets.yaml file first
                     await run.fs.unlink(presetsPath);

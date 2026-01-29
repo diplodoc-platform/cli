@@ -1,8 +1,8 @@
 import {describe, expect, test} from 'vitest';
-import {readFileSync, existsSync} from 'node:fs';
+import {existsSync, readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 
-import {TestAdapter, getTestPaths, compareDirectories} from '../fixtures';
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
 describe('Cleanup empty directories with stage filtering', () => {
     test('should cleanup directories that contain only presets.yaml when TOC is ignored by stage', async () => {
@@ -42,11 +42,15 @@ describe('Cleanup empty directories with stage filtering', () => {
 
         // Check that empty-section directory exists (cleanup should not be triggered)
         expect(existsSync(resolve(outputPath + '-with-template', 'empty-section'))).toBe(false);
-        expect(existsSync(resolve(outputPath + '-with-template', 'empty-section/presets.yaml'))).toBe(false);
+        expect(
+            existsSync(resolve(outputPath + '-with-template', 'empty-section/presets.yaml')),
+        ).toBe(false);
 
         // Check that active section files are present
         expect(existsSync(resolve(outputPath + '-with-template', 'active/page.md'))).toBe(true);
-        expect(existsSync(resolve(outputPath + '-with-template', 'active/presets.yaml'))).toBe(false);
+        expect(existsSync(resolve(outputPath + '-with-template', 'active/presets.yaml'))).toBe(
+            false,
+        );
 
         // Check that root files are present
         expect(existsSync(resolve(outputPath + '-with-template', 'index.md'))).toBe(true);
