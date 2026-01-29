@@ -86,7 +86,35 @@ export class TocService {
     }
 
     get entries() {
-        return (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
+        const allEntries = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
+        
+        // Find all TOC files and determine the minimum nesting level
+        const allTocPaths = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc);
+        if (allTocPaths.length === 0) {
+            return allEntries;
+        }
+
+        // Calculate nesting levels for all TOC files
+        const nestingLevels = allTocPaths.map(tocPath => tocPath.split('/').length);
+        const minNestingLevel = Math.min(...nestingLevels);
+
+        // Filter entries to include only those from TOC files that are either:
+        // 1. At the minimum nesting level (root TOC files)
+        // 2. Or TOC files that are referenced by includes from other TOC files
+        const filteredEntries = allEntries.filter(entry => {
+            // Find all TOC files that reference this entry
+            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(this.isToc);
+
+            // Check if any of the referencing TOC files is a root TOC or is referenced itself
+            return tocPaths.some(tocPath => {
+                const nestingLevel = tocPath.split('/').length;
+                const isRootToc = nestingLevel === minNestingLevel;
+                const isReferenced = this.relations.dependenciesOf(tocPath).length > 0;
+                return isRootToc || isReferenced;
+            });
+        });
+
+        return filteredEntries;
     }
 
     private run: Run;
@@ -316,7 +344,8 @@ export class TocService {
         this.relations.addNode(file);
         this.relations.setNodeData(file, {type: 'source', data: undefined});
         this.relations.addNode(include.from);
-        this.relations.addDependency(include.from, file);
+        // Don't add dependency for include - this prevents included TOC files from being considered "referenced"
+        // this.relations.addDependency(include.from, file);
 
         this.logger.proc(file);
 
