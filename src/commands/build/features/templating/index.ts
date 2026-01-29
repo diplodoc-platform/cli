@@ -120,7 +120,7 @@ export class Templating {
                             const yaml = dump(result, {
                                 lineWidth: 120,
                             });
-                            if (yaml !== '{}') {
+                            if (yaml.trim() !== '{}') {
                                 await run.write(join(run.output, path), yaml, true);
                             }
 
