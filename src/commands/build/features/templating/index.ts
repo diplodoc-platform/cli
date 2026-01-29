@@ -6,10 +6,10 @@ import {join} from 'node:path';
 import {dump} from 'js-yaml';
 import {merge} from 'lodash';
 
-import {getHooks as getBaseHooks} from '~/core/program';
-import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getVarsHooks} from '~/core/vars';
 import {defined, valuable} from '~/core/config';
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getBaseHooks} from '~/core/program';
 
 import {options} from './config';
 
@@ -117,13 +117,12 @@ export class Templating {
                                 {},
                             );
 
-                            await run.write(
-                                join(run.output, path),
-                                dump(result, {
-                                    lineWidth: 120,
-                                }),
-                                true,
-                            );
+                            const yaml = dump(result, {
+                                lineWidth: 120,
+                            });
+                            if (yaml.trim() !== '{}') {
+                                await run.write(join(run.output, path), yaml, true);
+                            }
 
                             return presets;
                         },
