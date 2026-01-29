@@ -2,9 +2,11 @@ import {
     copyFile,
     link,
     mkdir,
+    readdir,
     readFile,
     realpath,
     rm,
+    rmdir,
     stat,
     unlink,
     writeFile,
@@ -21,6 +23,8 @@ export type FileSystem = {
     copyFile: typeof copyFile;
     mkdir: typeof mkdir;
     rm: typeof rm;
+    rmdir: typeof rmdir;
+    readdir: typeof readdir;
     readFile: typeof readFile;
     writeFile: typeof writeFile;
 };
@@ -31,10 +35,12 @@ export const fs = {
     realpathSync,
     realpath,
     rm,
+    rmdir,
     link,
     unlink,
     copyFile,
     mkdir,
+    readdir,
     readFile,
     writeFile,
 };
