@@ -1,5 +1,5 @@
 import {describe, expect, test} from 'vitest';
-import {existsSync, readFileSync} from 'node:fs';
+import {existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
