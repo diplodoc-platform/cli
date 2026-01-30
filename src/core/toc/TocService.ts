@@ -50,6 +50,7 @@ export type TocServiceConfig = {
     };
     removeHiddenTocItems: boolean;
     removeEmptyTocItems: boolean;
+    watch: boolean;
 };
 
 type WalkStepResult<I> = I | I[] | null | undefined;
@@ -347,7 +348,10 @@ export class TocService {
         this.relations.setNodeData(file, {type: 'source', data: undefined});
         this.relations.addNode(include.from);
         // Don't add dependency for include - this prevents included TOC files from being considered "referenced"
-        // this.relations.addDependency(include.from, file);
+        // Use only in watch mode
+        if (this.config.watch) {
+            this.relations.addDependency(include.from, file);
+        }
 
         this.logger.proc(file);
 
