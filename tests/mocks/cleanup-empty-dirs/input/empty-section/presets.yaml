@@ -1,0 +1,2 @@
+default:
+  empty_var: empty_value
