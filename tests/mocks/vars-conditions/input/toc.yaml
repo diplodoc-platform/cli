@@ -20,12 +20,19 @@ navigation:
         type: "link"
         url: "./page4.md"
         when: var3 > 1
+      - text: "{{nav_text}}"
+        type: "link"
+        url: "./{{nav_page}}.md"
+        urlTitle: "{{nav_title}}"
     rightItems:
       - type: controls
       - text: "Hidden control"
         type: "link"
         url: "./hidden.md"
         when: var1 == 'not_aboba'
+      - text: "Link to {{var1}}"
+        type: "link"
+        url: "./page1.yaml"
 
 items:
   - name: Page 1

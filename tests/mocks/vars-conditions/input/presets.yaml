@@ -1,0 +1,9 @@
+default:
+  var1: 'aboba'
+  var2: true
+  var3: 1
+  nav_text: 'Документация'
+  nav_page: 'docs'
+  nav_title: 'Перейти на главную'
+  page_title: 'Тестовая страница'
+  md_content: 'Контент из переменной'

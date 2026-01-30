@@ -1,7 +1,7 @@
 blocks:
   - type: header-block
-    title: '[Test](https://example.com)'
-    description: 'Description link'
+    title: '{{page_title}}'
+    description: 'Description: {{var1}}'
     when: var3 >= 1
   - type: header-block
     title: When 1
@@ -11,4 +11,3 @@ blocks:
     title: Test title
     description: 'Test description'
     when: var3 < 1
-    
