@@ -32,8 +32,8 @@ function test(path: string, expect: Function, additionalArgs: string[] = []) {
 describe('Errors', () => {
     test('mocks/errors/unreachable-link', ({html}: TestResult) => {
         expectErrors(html, [
-            'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "exists.html"; Reason: File is not declared in toc; Line: [existing file](./exists.md)"]',
-            'ERR index.md: 2: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "missed.html"; Reason: File is not declared in toc; Line: [missed file](./missed.md)"]',
+            'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "exists.html"; Reason: File is not declared in toc; Line: 1"]',
+            'ERR index.md: 2: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "missed.html"; Reason: File is not declared in toc; Line: 2"]',
         ]);
     });
 
@@ -86,7 +86,7 @@ describe('Errors', () => {
 describe('Warnings', () => {
     test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "[Unreachable autotitle anchor: "link.html#unknown_yfm010"][{#T}](./link.md#unknown_yfm010)"]',
+            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "[Unreachable autotitle anchor: "link.html#unknown_yfm010"] [{#T}](./link.md#unknown_yfm010)"]',
         ]);
     });
 });
