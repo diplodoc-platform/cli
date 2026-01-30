@@ -93,7 +93,7 @@ export class Lint {
                 const levels = config.lint.config['log-levels'] as Hash<LogLevels>;
                 delete config.lint.config['log-levels'];
 
-                config.lint.config = normalizeConfig(levels, config.lint.config);
+                config.lint.config = normalizeConfig(config.lint.config, levels);
             }
 
             config.lint.config['MD033'] = config.allowHtml

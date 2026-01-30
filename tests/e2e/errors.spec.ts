@@ -30,6 +30,12 @@ function test(path: string, expect: Function, additionalArgs: string[] = []) {
 }
 
 describe('Errors', () => {
+    test('mocks/errors/code-block-length', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR index.md: 9: YFM001 / inline-code-length Inline code length [Expected: 10; Actual: 22] [Context: "arc mount --allow-root"]',
+        ]);
+    });
+
     test('mocks/errors/unreachable-link', ({html}: TestResult) => {
         expectErrors(html, [
             'ERR index.md: 1: YFM003 / unreachable-link Link is unreachable [Context: "Unreachable link: "exists.html"; Reason: File is not declared in toc; Line: [existing file](./exists.md)"]',
