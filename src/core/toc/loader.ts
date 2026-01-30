@@ -234,7 +234,11 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
         box[field] = liquidSnippet.call(this, value, this.vars);
     };
 
-    const interpolateObject = (obj: Hash) => {
+    /**
+     * Recursively interpolates all string fields in an object,
+     * traversing nested objects and arrays.
+     */
+    const interpolateDeep = (obj: Hash) => {
         for (const key of Object.keys(obj)) {
             const value = obj[key];
 
@@ -243,33 +247,22 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
             } else if (Array.isArray(value)) {
                 for (const item of value) {
                     if (item && typeof item === 'object') {
-                        interpolateObject(item as Hash);
+                        interpolateDeep(item as Hash);
                     }
                 }
+            } else if (value && typeof value === 'object') {
+                interpolateDeep(value as Hash);
             }
         }
     };
 
-    for (const field of ['href', 'title', 'label'] as const) {
-        interpolate(toc, field);
-    }
+    for (const field of ['href', 'title', 'label', 'navigation'] as const) {
+        const value = toc[field];
 
-    // Interpolate all string fields in navigation header items recursively
-    if (toc.navigation && typeof toc.navigation === 'object') {
-        const navigation = toc.navigation as Navigation;
-
-        if (navigation.header) {
-            if (navigation.header.leftItems) {
-                for (const item of navigation.header.leftItems) {
-                    interpolateObject(item);
-                }
-            }
-
-            if (navigation.header.rightItems) {
-                for (const item of navigation.header.rightItems) {
-                    interpolateObject(item);
-                }
-            }
+        if (typeof value === 'string') {
+            interpolate(toc, field);
+        } else if (value && typeof value === 'object') {
+            interpolateDeep(value as Hash);
         }
     }
 
