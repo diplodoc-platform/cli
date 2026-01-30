@@ -20,3 +20,5 @@ blocks:
 :::
 
 {% endcut %}
+
+{{ nav_text }}

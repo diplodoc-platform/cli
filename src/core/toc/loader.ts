@@ -220,6 +220,11 @@ async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  */
 async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const {conditions, substitutions} = this.settings;
+
+    if (!conditions && !substitutions) {
+        return toc;
+    }
+
     const interpolate = (box: Hash, field: string) => {
         const value = box[field];
         if (typeof value !== 'string') {
@@ -229,12 +234,41 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
         box[field] = liquidSnippet.call(this, value, this.vars);
     };
 
-    if (!conditions && !substitutions) {
-        return toc;
+    const interpolateObject = (obj: Hash) => {
+        for (const key of Object.keys(obj)) {
+            const value = obj[key];
+
+            if (typeof value === 'string') {
+                interpolate(obj, key);
+            } else if (Array.isArray(value)) {
+                for (const item of value) {
+                    if (item && typeof item === 'object') {
+                        interpolateObject(item as Hash);
+                    }
+                }
+            }
+        }
+    };
+
+    for (const field of ['href', 'title', 'label'] as const) {
+        interpolate(toc, field);
     }
 
-    for (const field of ['href', 'title', 'label', 'navigation'] as const) {
-        interpolate(toc, field);
+    // Interpolate all string fields in navigation header items recursively
+    if (toc.navigation && typeof toc.navigation === 'object') {
+        const navigation = toc.navigation as Navigation;
+        if (navigation.header) {
+            if (navigation.header.leftItems) {
+                for (const item of navigation.header.leftItems) {
+                    interpolateObject(item);
+                }
+            }
+            if (navigation.header.rightItems) {
+                for (const item of navigation.header.rightItems) {
+                    interpolateObject(item);
+                }
+            }
+        }
     }
 
     toc.items = await this.toc.walkItems(toc.items, (item: RawTocItem) => {
