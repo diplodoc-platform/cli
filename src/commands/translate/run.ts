@@ -7,10 +7,10 @@ import type {Toc} from '~/core/toc';
 import {extname, join, resolve} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 
+import {TocService} from '~/core/toc';
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
-import {TocService} from '~/core/toc';
 import {MarkdownService} from '~/core/markdown';
 
 import {FileLoader, resolveFiles} from './utils';
