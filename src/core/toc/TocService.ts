@@ -87,7 +87,7 @@ export class TocService {
 
     get entries() {
         const allEntries = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
-        
+
         // Find all TOC files and determine the minimum nesting level
         const allTocPaths = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc);
         if (allTocPaths.length === 0) {
@@ -95,18 +95,20 @@ export class TocService {
         }
 
         // Calculate nesting levels for all TOC files
-        const nestingLevels = allTocPaths.map(tocPath => tocPath.split('/').length);
+        const nestingLevels = allTocPaths.map((tocPath) => tocPath.split('/').length);
         const minNestingLevel = Math.min(...nestingLevels);
 
         // Filter entries to include only those from TOC files that are either:
         // 1. At the minimum nesting level (root TOC files)
         // 2. Or TOC files that are referenced by includes from other TOC files
-        const filteredEntries = allEntries.filter(entry => {
+        const filteredEntries = allEntries.filter((entry) => {
             // Find all TOC files that reference this entry
-            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(this.isToc);
+            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(
+                this.isToc,
+            );
 
             // Check if any of the referencing TOC files is a root TOC or is referenced itself
-            return tocPaths.some(tocPath => {
+            return tocPaths.some((tocPath) => {
                 const nestingLevel = tocPath.split('/').length;
                 const isRootToc = nestingLevel === minNestingLevel;
                 const isReferenced = this.relations.dependenciesOf(tocPath).length > 0;

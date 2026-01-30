@@ -964,11 +964,10 @@ describe('toc-loader', () => {
 describe('entries filtering logic', () => {
     it('should include entries from root TOC files', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock root TOC file
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 title: Root TOC
                 items:
                   - name: Root Item 1
@@ -991,11 +990,10 @@ describe('entries filtering logic', () => {
 
     it('should include entries from referenced TOC files', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock root TOC that includes another TOC
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 title: Root TOC
                 items:
                   - name: Root Item
@@ -1006,9 +1004,8 @@ describe('entries filtering logic', () => {
             `);
 
         // Mock included TOC file
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './sub/toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './sub/toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 title: Sub TOC
                 items:
                   - name: Sub Item 1
@@ -1037,11 +1034,10 @@ describe('entries filtering logic', () => {
 
     it('should exclude entries from unreferenced nested TOC files', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock multiple TOC files at different nesting levels
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 title: Root TOC
                 items:
                   - name: Root Item
@@ -1067,18 +1063,15 @@ describe('entries filtering logic', () => {
             .thenReturn({});
 
         // Initialize both TOC files
-        await toc.init([
-            'toc.yaml',
-            'sub/unreferenced/toc.yaml',
-        ] as NormalizedPath[]);
+        await toc.init(['toc.yaml', 'sub/unreferenced/toc.yaml'] as NormalizedPath[]);
 
         const entries = toc.entries;
-        
+
         // The unreferenced TOC file should not be considered a "root" TOC since it's nested
         // and not referenced by any other TOC. However, if both TOC files are initialized,
         // they might both be considered as separate root TOCs.
         // Let's check the actual behavior and adjust the test accordingly.
-        
+
         // Both TOC files are at the same nesting level relative to the root,
         // so they're both considered "root" TOCs and their entries are included
         expect(entries).toHaveLength(2);
@@ -1088,11 +1081,10 @@ describe('entries filtering logic', () => {
 
     it('should handle deeply nested referenced TOC files', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock root TOC that includes a TOC which includes another TOC
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 title: Root TOC
                 items:
                   - include:
@@ -1144,11 +1136,11 @@ describe('entries filtering logic', () => {
 
     it('should handle case with no TOC files', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock a regular file (not a TOC)
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './regular-file.md')) as AbsolutePath,
-        ).thenResolve('');
+        when(run.read)
+            .calledWith(normalizePath(join(run.input, './regular-file.md')) as AbsolutePath)
+            .thenResolve('');
 
         when(run.vars.for)
             .calledWith('regular-file.md' as NormalizedPath)
@@ -1166,11 +1158,10 @@ describe('entries filtering logic', () => {
 describe('include dependency handling', () => {
     it('should not create dependency for include operations', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock TOC with include
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 items:
                   - include:
                       path: included/toc.yaml
@@ -1200,7 +1191,7 @@ describe('include dependency handling', () => {
         // (no dependency from include.from to the included file)
         const includedTocPath = 'included/toc.yaml' as NormalizedPath;
         const dependencies = toc.relations.dependenciesOf(includedTocPath);
-        
+
         // The included TOC should not have any dependencies pointing to it
         // (since we commented out the dependency creation in the patch)
         expect(dependencies).toHaveLength(0);
@@ -1208,11 +1199,10 @@ describe('include dependency handling', () => {
 
     it('should still create dependencies for regular entries', async () => {
         const {run, toc} = setupService({});
-        
+
         // Mock TOC with regular entries
-        when(run.read).calledWith(
-            normalizePath(join(run.input, './toc.yaml')) as AbsolutePath,
-        ).thenResolve(dedent`
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
                 items:
                   - name: Regular Item
                     href: regular-page.md
@@ -1227,7 +1217,7 @@ describe('include dependency handling', () => {
         // Verify that regular entries still have dependencies from their TOC
         const entryPath = 'regular-page.md' as NormalizedPath;
         const dependants = toc.relations.dependantsOf(entryPath);
-        
+
         // The entry should be referenced by the TOC file
         expect(dependants).toHaveLength(1);
         expect(dependants[0]).toBe('toc.yaml' as NormalizedPath);
