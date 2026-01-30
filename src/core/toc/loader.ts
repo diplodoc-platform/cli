@@ -257,12 +257,14 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
     // Interpolate all string fields in navigation header items recursively
     if (toc.navigation && typeof toc.navigation === 'object') {
         const navigation = toc.navigation as Navigation;
+
         if (navigation.header) {
             if (navigation.header.leftItems) {
                 for (const item of navigation.header.leftItems) {
                     interpolateObject(item);
                 }
             }
+
             if (navigation.header.rightItems) {
                 for (const item of navigation.header.rightItems) {
                     interpolateObject(item);
