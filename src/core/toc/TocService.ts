@@ -12,6 +12,7 @@ import type {
     WithItems,
 } from './types';
 import type {LoaderContext} from './loader';
+import type {WatchConfig} from '~/commands/build/features/watch';
 
 import {basename, dirname, join, relative} from 'node:path';
 import {dump, load} from 'js-yaml';
@@ -30,8 +31,8 @@ import {
 } from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {isMergeMode, loader} from './loader';
 import {isEntryItem} from './utils';
+import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
     ignore: string[];
@@ -50,8 +51,7 @@ export type TocServiceConfig = {
     };
     removeHiddenTocItems: boolean;
     removeEmptyTocItems: boolean;
-    watch: boolean;
-};
+} & Partial<WatchConfig>;
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
