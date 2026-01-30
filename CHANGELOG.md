@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.20.1](https://github.com/diplodoc-platform/cli/compare/v5.20.0...v5.20.1) (2026-01-30)
+
+
+### Bug Fixes
+
+* add author inherit when default connector ([#1619](https://github.com/diplodoc-platform/cli/issues/1619)) ([6b63c5b](https://github.com/diplodoc-platform/cli/commit/6b63c5bb39ed7acf4390eff8310a33a540774c78))
+* add into output only root or ref tocs ([#1625](https://github.com/diplodoc-platform/cli/issues/1625)) ([35f0542](https://github.com/diplodoc-platform/cli/commit/35f05427815aba16a84164ee8e045a0a6aaf2cf8))
+* copy changelog image ([#1610](https://github.com/diplodoc-platform/cli/issues/1610)) ([5de989a](https://github.com/diplodoc-platform/cli/commit/5de989a1a79a9d3b569d443fff8c86be421e9052))
+* remove folders with only presets.yaml file ([#1626](https://github.com/diplodoc-platform/cli/issues/1626)) ([b6746e8](https://github.com/diplodoc-platform/cli/commit/b6746e83943b0b93023494f51d5b94a193aa558d))
+* use isRaw flag ([#1613](https://github.com/diplodoc-platform/cli/issues/1613)) ([9eb844d](https://github.com/diplodoc-platform/cli/commit/9eb844d64a9dc8dfddc8f661de12c648d6aef0cb))
+
 ## [5.20.0](https://github.com/diplodoc-platform/cli/compare/v5.19.10...v5.20.0) (2026-01-28)
 
 
