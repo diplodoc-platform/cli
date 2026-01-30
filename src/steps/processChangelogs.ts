@@ -112,7 +112,7 @@ export async function processChangelogs(run: Run) {
             }
 
             const {filepath} = items[idx];
-            const imgPath = join(dirname(filepath), image.src);
+            const imgPath = join(dirname(filepath), '..', image.src);
             const newImagePath = join(basePath, '_changelogs', image.src);
 
             images.set(imgPath, join(run.output, newImagePath));
