@@ -58,8 +58,7 @@ const build = async (entry, outfile, format) => {
         outfile: file,
     };
 
-   // We need these packages into the binary
-   // because they are required at runtime
+    // We need these packages into the binary because they are required at runtime
     const bundledDeps = ['@gravity-ui/uikit-themer', 'chroma-js'];
 
     config.external = [
