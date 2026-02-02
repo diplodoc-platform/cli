@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.21.0](https://github.com/diplodoc-platform/cli/compare/v5.20.1...v5.21.0) (2026-02-02)
+
+
+### Features
+
+* vars are supported in toc header ([#1629](https://github.com/diplodoc-platform/cli/issues/1629)) ([642654e](https://github.com/diplodoc-platform/cli/commit/642654e86aba7956521d4cce02fecc0bf31cb424))
+
 ## [5.20.1](https://github.com/diplodoc-platform/cli/compare/v5.20.0...v5.20.1) (2026-01-30)
 
 
