@@ -925,6 +925,22 @@ describe('toc-loader', () => {
                 {item_type: 'link'},
             ),
         );
+
+        it(
+            'should interpolate strings in arrays',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      customTags:
+                        - "{{tag1}}"
+                        - "{{tag2}}"
+                        - static
+                `,
+                {},
+                {tag1: 'first', tag2: 'second'},
+            ),
+        );
     });
 
     describe('object validation', () => {

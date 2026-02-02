@@ -245,8 +245,12 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
             if (typeof value === 'string') {
                 interpolate(obj, key);
             } else if (Array.isArray(value)) {
-                for (const item of value) {
-                    if (item && typeof item === 'object') {
+                for (let i = 0; i < value.length; i++) {
+                    const item = value[i];
+
+                    if (typeof item === 'string') {
+                        value[i] = liquidSnippet.call(this, item, this.vars);
+                    } else if (item && typeof item === 'object') {
                         interpolateDeep(item as Hash);
                     }
                 }

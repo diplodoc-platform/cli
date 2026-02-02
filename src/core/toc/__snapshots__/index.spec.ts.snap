@@ -186,6 +186,17 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > navigation header items filtering > should interpolate strings in arrays 1`] = `
+"title: Test
+navigation:
+  customTags:
+    - first
+    - second
+    - static
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > navigation header items filtering > should interpolate text in leftItems 1`] = `
 "title: Test
 navigation:
