@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.22.1](https://github.com/diplodoc-platform/cli/compare/v5.22.0...v5.22.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* skip create empty preset files ([#1624](https://github.com/diplodoc-platform/cli/issues/1624)) ([317f767](https://github.com/diplodoc-platform/cli/commit/317f767c53785b3226a6d62270380a06fde08a3d))
+
 ## [5.22.0](https://github.com/diplodoc-platform/cli/compare/v5.21.0...v5.22.0) (2026-02-02)
 
 
