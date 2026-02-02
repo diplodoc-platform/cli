@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.22.0](https://github.com/diplodoc-platform/cli/compare/v5.21.0...v5.22.0) (2026-02-02)
+
+
+### Features
+
+* add themer ([#1594](https://github.com/diplodoc-platform/cli/issues/1594)) ([ee0a59f](https://github.com/diplodoc-platform/cli/commit/ee0a59f2146ea7e912e46dfd4b50ce7033d4ee2a))
+
 ## [5.21.0](https://github.com/diplodoc-platform/cli/compare/v5.20.1...v5.21.0) (2026-02-02)
 
 
