@@ -36,7 +36,7 @@ export const YFM_COLORS = [
     'link-hover',
     'term-dfn-background',
     'code',
-    'hljs-background',
+    'code-background',
     'inline-code',
     'inline-code-background',
     'table',

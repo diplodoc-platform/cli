@@ -41,7 +41,7 @@ properties:
     type: string
   code:
     type: string
-  hljs-background:
+  code-background:
     type: string
   inline-code:
     type: string
@@ -113,7 +113,7 @@ definitions:
         type: string
       code:
         type: string
-      hljs-background:
+      code-background:
         type: string
       inline-code:
         type: string
