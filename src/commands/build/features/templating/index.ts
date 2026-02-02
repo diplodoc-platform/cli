@@ -1,7 +1,6 @@
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {Preset} from '~/core/vars';
-import {getHooks as getVarsHooks} from '~/core/vars';
 import type {Run} from '~/commands/build/run';
 
 import {dirname, join} from 'node:path';
