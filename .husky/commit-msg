@@ -25,7 +25,7 @@ fi
 # Check Conventional Commits format: <type>(<scope>): <subject>
 # Types: feat, fix, perf, refactor, docs, chore, revert
 # Scope is optional
-if ! echo "$SUBJECT" | grep -qE '^(feat|fix|perf|refactor|docs|chore|revert)(\([^)]+\))?: .+'; then
+if ! echo "$SUBJECT" | grep -qE '^(feat|fix|perf|refactor|docs|chore|revert|deps)(\([^)]+\))?: .+'; then
     echo "❌ Error: Commit message does not follow Conventional Commits format."
     echo ""
     echo "Expected format: <type>(<scope>): <subject>"
