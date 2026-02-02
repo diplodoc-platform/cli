@@ -43,6 +43,7 @@ import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
 import {NeuroExpert} from './features/neuro-expert';
+import {Themer} from './features/themer';
 
 export type * from './types';
 
@@ -108,6 +109,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly legacy = new Legacy();
 
+    readonly themer = new Themer();
+
     readonly tocFiltering = new TocFiltering();
 
     readonly command = new Command('build').description('Build documentation in target directory');
@@ -156,6 +159,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.watch,
         this.md,
         this.html,
+        this.themer,
         this.legacy,
         this.tocFiltering,
         this.skipHtml,

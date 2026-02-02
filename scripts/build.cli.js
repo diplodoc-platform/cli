@@ -58,8 +58,11 @@ const build = async (entry, outfile, format) => {
         outfile: file,
     };
 
+    // We need these packages into the binary because they are required at runtime
+    const bundledDeps = ['@gravity-ui/uikit-themer', 'chroma-js'];
+
     config.external = [
-        ...Object.keys(dependencies),
+        ...Object.keys(dependencies).filter((dep) => !bundledDeps.includes(dep)),
         '@diplodoc/cli',
         '@diplodoc/cli/lib',
         '@diplodoc/cli/package',

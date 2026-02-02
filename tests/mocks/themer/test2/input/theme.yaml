@@ -1,0 +1,8 @@
+link: redd
+
+light:
+  base-background: ""
+
+dark:
+  base-background: " "
+  link: 5
