@@ -155,6 +155,110 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > navigation header items filtering > should interpolate both text and url in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Go to Home
+        type: link
+        url: ./index.md
+    rightItems:
+      - text: User Admin
+        type: link
+        url: ./profile.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate nested items in dropdown 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Menu
+        type: dropdown
+        items:
+          - text: Option 1
+            type: link
+            url: ./option1.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate strings in arrays 1`] = `
+"title: Test
+navigation:
+  customTags:
+    - first
+    - second
+    - static
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate text in leftItems 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Hello World
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate text in rightItems 1`] = `
+"title: Test
+navigation:
+  header:
+    rightItems:
+      - text: Welcome Admin
+        type: link
+        url: ./profile.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate type field in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Dynamic
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate url in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Page
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate urlTitle and icon in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Button
+        type: button
+        url: ./index.md
+        urlTitle: Go to Home Page
+        icon: https://example.com/home.svg
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > navigation header items filtering > should not filter navigation when conditions feature is disabled 1`] = `
 "title: Test
 navigation:
@@ -164,6 +268,18 @@ navigation:
         type: link
         url: ./page.md
         when: false
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should not interpolate navigation items when substitutions is disabled 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Hello {{name}}
+        type: link
+        url: ./index.md
 path: toc.yaml
 "
 `;

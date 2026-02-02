@@ -780,6 +780,167 @@ describe('toc-loader', () => {
                 {},
             ),
         );
+
+        it(
+            'should interpolate text in leftItems',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Hello {{name}}
+                            type: link
+                            url: ./index.md
+                `,
+                {},
+                {name: 'World'},
+            ),
+        );
+
+        it(
+            'should interpolate text in rightItems',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        rightItems:
+                          - text: Welcome {{user}}
+                            type: link
+                            url: ./profile.md
+                `,
+                {},
+                {user: 'Admin'},
+            ),
+        );
+
+        it(
+            'should interpolate url in navigation items',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Page
+                            type: link
+                            url: ./{{page}}.md
+                `,
+                {},
+                {page: 'index'},
+            ),
+        );
+
+        it(
+            'should not interpolate navigation items when substitutions is disabled',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Hello {{name}}
+                            type: link
+                            url: ./index.md
+                `,
+                {template: {features: {substitutions: false}}},
+                {name: 'World'},
+            ),
+        );
+
+        it(
+            'should interpolate both text and url in navigation items',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Go to {{page_name}}
+                            type: link
+                            url: ./{{page_path}}.md
+                        rightItems:
+                          - text: User {{user}}
+                            type: link
+                            url: ./{{user_path}}.md
+                `,
+                {},
+                {page_name: 'Home', page_path: 'index', user: 'Admin', user_path: 'profile'},
+            ),
+        );
+
+        it(
+            'should interpolate urlTitle and icon in navigation items',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Button
+                            type: button
+                            url: ./index.md
+                            urlTitle: Go to {{page_title}}
+                            icon: https://example.com/{{icon_name}}.svg
+                `,
+                {},
+                {page_title: 'Home Page', icon_name: 'home'},
+            ),
+        );
+
+        it(
+            'should interpolate nested items in dropdown',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Menu
+                            type: dropdown
+                            items:
+                              - text: Option {{option_num}}
+                                type: link
+                                url: ./{{option_path}}.md
+                `,
+                {},
+                {option_num: '1', option_path: 'option1'},
+            ),
+        );
+
+        it(
+            'should interpolate type field in navigation items',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      header:
+                        leftItems:
+                          - text: Dynamic
+                            type: "{{item_type}}"
+                            url: ./index.md
+                `,
+                {},
+                {item_type: 'link'},
+            ),
+        );
+
+        it(
+            'should interpolate strings in arrays',
+            test(
+                dedent`
+                    title: Test
+                    navigation:
+                      customTags:
+                        - "{{tag1}}"
+                        - "{{tag2}}"
+                        - static
+                `,
+                {},
+                {tag1: 'first', tag2: 'second'},
+            ),
+        );
     });
 
     describe('object validation', () => {

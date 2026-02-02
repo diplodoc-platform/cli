@@ -220,6 +220,11 @@ async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
  */
 async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     const {conditions, substitutions} = this.settings;
+
+    if (!conditions && !substitutions) {
+        return toc;
+    }
+
     const interpolate = (box: Hash, field: string) => {
         const value = box[field];
         if (typeof value !== 'string') {
@@ -229,12 +234,40 @@ async function templateFields(this: LoaderContext, toc: RawToc): Promise<RawToc>
         box[field] = liquidSnippet.call(this, value, this.vars);
     };
 
-    if (!conditions && !substitutions) {
-        return toc;
-    }
+    /**
+     * Recursively interpolates all string fields in an object,
+     * traversing nested objects and arrays.
+     */
+    const interpolateDeep = (obj: Hash) => {
+        for (const key of Object.keys(obj)) {
+            const value = obj[key];
+
+            if (typeof value === 'string') {
+                interpolate(obj, key);
+            } else if (Array.isArray(value)) {
+                for (let i = 0; i < value.length; i++) {
+                    const item = value[i];
+
+                    if (typeof item === 'string') {
+                        value[i] = liquidSnippet.call(this, item, this.vars);
+                    } else if (item && typeof item === 'object') {
+                        interpolateDeep(item as Hash);
+                    }
+                }
+            } else if (value && typeof value === 'object') {
+                interpolateDeep(value as Hash);
+            }
+        }
+    };
 
     for (const field of ['href', 'title', 'label', 'navigation'] as const) {
-        interpolate(toc, field);
+        const value = toc[field];
+
+        if (typeof value === 'string') {
+            interpolate(toc, field);
+        } else if (value && typeof value === 'object') {
+            interpolateDeep(value as Hash);
+        }
     }
 
     toc.items = await this.toc.walkItems(toc.items, (item: RawTocItem) => {
