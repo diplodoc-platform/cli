@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.22.3](https://github.com/diplodoc-platform/cli/compare/v5.22.2...v5.22.3) (2026-02-03)
+
+
+### Bug Fixes
+
+* fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
+
 ## [5.22.2](https://github.com/diplodoc-platform/cli/compare/v5.22.1...v5.22.2) (2026-02-03)
 
 
