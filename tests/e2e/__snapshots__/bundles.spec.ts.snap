@@ -11,7 +11,6 @@ exports[`Check bundles > bundles list is correct > filelist 1`] = `
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
   "_bundle/search-async-0",
-  "_bundle/search-async-1",
   "_bundle/search-css-0",
   "_bundle/search-css-1",
   "_bundle/search-css-2",
