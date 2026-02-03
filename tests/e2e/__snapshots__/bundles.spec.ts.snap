@@ -4,14 +4,13 @@ exports[`Check bundles > bundles list is correct > filelist 1`] = `
 "[
   ".yfm",
   "_bundle/app-css-1",
-  "_bundle/app-js-2",
+  "_bundle/app-js-0",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
   "_bundle/search-async-0",
-  "_bundle/search-async-1",
   "_bundle/search-css-0",
   "_bundle/search-css-1",
   "_bundle/search-css-2",
@@ -83,9 +82,9 @@ exports[`Check bundles > bundles list is correct 2`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -123,9 +122,9 @@ exports[`Check bundles > bundles list is correct 3`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
@@ -163,9 +162,9 @@ exports[`Check bundles > bundles list is correct 4`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-1"></script>
+        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
+        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
         <script type="application/javascript" defer src="_bundle/search-js-2"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-2"></script>
         
     </body>
 </html>"
