@@ -1,12 +1,22 @@
 name: Release Package to npm
 
-# This workflow is configured in package.json publishConfig
-# It publishes the package to npm when a release is created
+# This workflow handles both stable and prerelease publishing to npm
+# - Stable: triggered by release event or manual dispatch with 'stable' type
+# - Prerelease: triggered by manual dispatch with 'prerelease' type (only from non-protected branches)
 
 on:
   release:
     types: [published]
-  workflow_dispatch: # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'prerelease'
+        type: choice
+        options:
+          - prerelease
+          - stable
 
 permissions:
   contents: read
@@ -16,6 +26,11 @@ jobs:
   publish:
     name: Publish to npm
     runs-on: ubuntu-latest
+    # For prerelease - only from non-protected branches
+    if: |
+      github.event_name == 'release' ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_type == 'stable') ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease' && github.ref_protected != true)
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -48,6 +63,7 @@ jobs:
       - name: Build package
         run: npm run build
 
+      # === STABLE RELEASE STEPS ===
       - name: Check version matches release tag
         if: github.event_name == 'release'
         run: |
@@ -66,18 +82,43 @@ jobs:
           echo "Skipping publish for draft release"
           exit 0
 
-      - name: Publish to npm
-        if: github.event.release.draft == false || github.event_name == 'workflow_dispatch'
+      - name: Publish stable to npm
+        if: (github.event_name == 'release' && github.event.release.draft == false) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'stable')
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Publish tests to npm
+      - name: Publish stable tests to npm
         working-directory: tests
-        if: github.event.release.draft == false || github.event_name == 'workflow_dispatch'
+        if: (github.event_name == 'release' && github.event.release.draft == false) || (github.event_name == 'workflow_dispatch' && inputs.release_type == 'stable')
         run: |
           npm version ${{steps.package.outputs.version}}
           npm ci
           npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # === PRERELEASE STEPS ===
+      - name: Set prerelease version
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease'
+        run: npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+
+      - name: Publish prerelease to npm
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease'
+        run: npm publish --tag $(git branch --show-current) --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Set prerelease version for tests
+        working-directory: tests
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease'
+        run: |
+          npm ci
+          npm version --no-git-tag-version 0.0.0-rc-$(git branch --show-current)-${{github.run_id}}
+
+      - name: Publish prerelease tests to npm
+        working-directory: tests
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease'
+        run: npm publish --tag $(git branch --show-current) --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
