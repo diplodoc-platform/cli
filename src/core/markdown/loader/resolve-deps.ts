@@ -27,6 +27,22 @@ export function resolveDependencies(this: LoaderContext, content: string) {
         const include = parseLocalUrl<IncludeInfo>(link);
 
         if (include) {
+            if (include.path === null) {
+                this.logger.warn(
+                    [
+                        `Invalid include in ${this.path}:`,
+                        `  Empty or null path in: ${match[0]}`,
+                        ``,
+                        `  Expected syntax:`,
+                        `    {% include [text](path/to/file.md) %}`,
+                        ``,
+                        `  Include will be skipped.`,
+                    ].join('\n'),
+                );
+
+                continue;
+            }
+
             include.path = rebasePath(this.path, include.path as RelativePath);
             include.link = link;
             include.match = content.slice(match.index, INCLUDE_CONTENTS.lastIndex);

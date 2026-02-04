@@ -67,6 +67,22 @@ function unfoldIncludes(
             const includeLine = token.map ? token.map[0] + 1 : undefined;
             const includePath = token.attrGet('path') as string;
             const keyword = token.attrGet('keyword');
+
+            if (includePath.startsWith('#')) {
+                log.warn(
+                    [
+                        `Invalid include in ${includeLine ? `${path}:${includeLine}` : path}:`,
+                        `  Anchor "${includePath}" cannot be used as file path`,
+                        ``,
+                        `  Include will be skipped.`,
+                    ].join('\n'),
+                );
+
+                tokens.splice(index, 1);
+
+                return;
+            }
+
             const [pathname, hash] = includePath.split('#');
             const includeFullPath = normalizePath(join(dirname(path), pathname));
             const includeContent = files[includeFullPath];
@@ -88,8 +104,21 @@ function unfoldIncludes(
 
             let includedTokens: Token[];
             if (hash) {
-                // TODO: add warning about missed block
                 includedTokens = cutTokens(fileTokens, hash);
+
+                if (includedTokens.length === 0) {
+                    log.warn(
+                        [
+                            `Anchor not found in ${includeLine ? `${path}:${includeLine}` : path}:`,
+                            `  Include: ${includePath}`,
+                            `  Anchor "#${hash}" not found in ${includeFullPath}`,
+                            ``,
+                            `  The entire file will be included instead.`,
+                            `  To fix: check if the heading with {#${hash}} exists in the target file.`,
+                        ].join('\n'),
+                    );
+                    includedTokens = fileTokens;
+                }
             } else {
                 includedTokens = fileTokens;
             }
