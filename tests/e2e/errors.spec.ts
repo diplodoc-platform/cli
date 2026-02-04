@@ -61,6 +61,15 @@ describe('Errors', () => {
         ['--max-asset-size', '2K'],
     );
 
+    test('mocks/errors/invalid-frontmatter', ({md, html}: TestResult) => {
+        expectErrors(md, [
+            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2]',
+        ]);
+        expectErrors(html, [
+            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2]',
+        ]);
+    });
+
     it('translate extract with filtered links', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/errors/extract-filtered-link');
 
