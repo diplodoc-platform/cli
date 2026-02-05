@@ -1,5 +1,6 @@
 **english** | [русский](https://github.com/diplodoc-platform/cli/blob/master/README.ru.md)
-- - -
+
+---
 
 [![NPM version](https://img.shields.io/npm/v/@diplodoc/cli.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/cli)
 
