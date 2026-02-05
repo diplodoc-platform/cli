@@ -270,7 +270,7 @@ export class MarkdownService {
         const deps = this.pathToDeps.get(key) || [];
         const internals: IncludeInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
-                return this._deps(normalizePath(path || ''), from || file);
+                return this._deps(path, from || file);
             }),
         );
 
@@ -286,7 +286,7 @@ export class MarkdownService {
             (this.pathToDeps.get(key) || []).map(async (dep) => {
                 return {
                     ...dep,
-                    ...(await this._graph(normalizePath(dep.path || ''), from || path)),
+                    ...(await this._graph(dep.path, from || path)),
                 };
             }),
         );
@@ -306,11 +306,9 @@ export class MarkdownService {
         await this.load(path, from);
         await all(
             (this.pathToDeps.get(key) || []).map(async (dep) => {
-                const normalizedPath = normalizePath(dep.path || '');
-
-                graph.consume(await this._relations(normalizedPath, from || path));
-                graph.setNodeData(normalizedPath, {type: 'source'});
-                graph.addDependency(path, normalizedPath);
+                graph.consume(await this._relations(dep.path, from || path));
+                graph.setNodeData(dep.path, {type: 'source'});
+                graph.addDependency(path, dep.path);
             }),
         );
 
@@ -348,7 +346,7 @@ export class MarkdownService {
         const assets = this.pathToAssets.get(key) || [];
         const internals: AssetInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
-                return this._assets(normalizePath(path || ''), from || file);
+                return this._assets(path, from || file);
             }),
         );
 
@@ -363,7 +361,7 @@ export class MarkdownService {
         const headings = this.pathToHeadings.get(key) || [];
         const internals: HeadingInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path, location}) => {
-                const headings = await this._headings(normalizePath(path || ''), from || file);
+                const headings = await this._headings(path, from || file);
                 return headings.map((heading) => ({...heading, location}));
             }),
         );
