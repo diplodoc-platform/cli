@@ -1,10 +1,11 @@
 import type {IncludeInfo} from '../types';
 import type {LoaderContext} from '../loader';
 
+import {dirname, join} from 'node:path';
+
 import {normalizePath, parseLocalUrl, rebasePath} from '~/core/utils';
 
 import {filterRanges, findLink} from '../utils';
-import {dirname, join} from 'node:path';
 
 export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
