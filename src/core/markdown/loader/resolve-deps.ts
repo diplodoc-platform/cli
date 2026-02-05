@@ -1,9 +1,10 @@
 import type {IncludeInfo} from '../types';
 import type {LoaderContext} from '../loader';
 
-import {parseLocalUrl, rebasePath} from '~/core/utils';
+import {normalizePath, parseLocalUrl, rebasePath} from '~/core/utils';
 
 import {filterRanges, findLink} from '../utils';
+import {dirname, join} from 'node:path';
 
 export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
@@ -26,24 +27,17 @@ export function resolveDependencies(this: LoaderContext, content: string) {
         // TODO: warn about non local urls
         const include = parseLocalUrl<IncludeInfo>(link);
 
-        if (include) {
-            if (include.path === null) {
-                this.logger.warn(
-                    [
-                        `Invalid include in ${this.path}:`,
-                        `  Empty or null path in: ${match[0]}`,
-                        ``,
-                        `  Expected syntax:`,
-                        `    {% include [text](path/to/file.md) %}`,
-                        ``,
-                        `  Include will be skipped.`,
-                    ].join('\n'),
-                );
+        if (include && include.path) {
+            const currentPath = this.path;
+            const normalizedIncludePath = normalizePath(join(dirname(currentPath), include.path));
+
+            if (normalizedIncludePath === currentPath) {
+                this.logger.error('YFM016', `${currentPath}: The file is included in itself`);
 
                 continue;
             }
 
-            include.path = rebasePath(this.path, include.path as RelativePath);
+            include.path = rebasePath(currentPath, include.path as RelativePath);
             include.link = link;
             include.match = content.slice(match.index, INCLUDE_CONTENTS.lastIndex);
             include.location = [match.index, INCLUDE_CONTENTS.lastIndex];

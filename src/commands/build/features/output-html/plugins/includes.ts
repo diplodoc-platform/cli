@@ -71,10 +71,12 @@ function unfoldIncludes(
             if (includePath.startsWith('#')) {
                 log.warn(
                     [
-                        `Invalid include in ${includeLine ? `${path}:${includeLine}` : path}:`,
-                        `  Anchor "${includePath}" cannot be used as file path`,
+                        `YFM014 ${path}: Anchor "${includePath}" cannot be used as file path`,
                         ``,
-                        `  Include will be skipped.`,
+                        `Expected syntax:`,
+                        `  {% include [text](path/to/file.md) %}`,
+                        ``,
+                        `Include will be skipped.`,
                     ].join('\n'),
                 );
 
@@ -92,6 +94,7 @@ function unfoldIncludes(
                 log.error(
                     `Include skipped in (${bold(includeLocation)}). Include source for ${bold(includeFullPath)} not found`,
                 );
+
                 return;
             }
 
@@ -109,15 +112,11 @@ function unfoldIncludes(
                 if (includedTokens.length === 0) {
                     log.warn(
                         [
-                            `Anchor not found in ${includeLine ? `${path}:${includeLine}` : path}:`,
-                            `  Include: ${includePath}`,
-                            `  Anchor "#${hash}" not found in ${includeFullPath}`,
+                            `YFM015 ${path}: Anchor "#${hash}" not found in ${includeFullPath}`,
                             ``,
-                            `  The entire file will be included instead.`,
-                            `  To fix: check if the heading with {#${hash}} exists in the target file.`,
+                            `Include will be skipped.`,
                         ].join('\n'),
                     );
-                    includedTokens = fileTokens;
                 }
             } else {
                 includedTokens = fileTokens;

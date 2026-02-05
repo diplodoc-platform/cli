@@ -22,7 +22,7 @@ export type Plugin = MarkdownItPluginCb<any>;
 export type Location = [number, number];
 
 export type IncludeInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
-    path: NormalizedPath;
+    path: NormalizedPath | null;
     link: string;
     match: string;
     location: Location;
