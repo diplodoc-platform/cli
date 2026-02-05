@@ -67,6 +67,24 @@ function unfoldIncludes(
             const includeLine = token.map ? token.map[0] + 1 : undefined;
             const includePath = token.attrGet('path') as string;
             const keyword = token.attrGet('keyword');
+
+            if (includePath.startsWith('#')) {
+                log.warn(
+                    [
+                        `YFM014 ${path}: Anchor "${includePath}" cannot be used as file path`,
+                        ``,
+                        `Expected syntax:`,
+                        `  {% include [text](path/to/file.md) %}`,
+                        ``,
+                        `Include will be skipped.`,
+                    ].join('\n'),
+                );
+
+                tokens.splice(index, 1);
+
+                return;
+            }
+
             const [pathname, hash] = includePath.split('#');
             const includeFullPath = normalizePath(join(dirname(path), pathname));
             const includeContent = files[includeFullPath];
@@ -76,6 +94,7 @@ function unfoldIncludes(
                 log.error(
                     `Include skipped in (${bold(includeLocation)}). Include source for ${bold(includeFullPath)} not found`,
                 );
+
                 return;
             }
 
@@ -88,8 +107,17 @@ function unfoldIncludes(
 
             let includedTokens: Token[];
             if (hash) {
-                // TODO: add warning about missed block
                 includedTokens = cutTokens(fileTokens, hash);
+
+                if (includedTokens.length === 0) {
+                    log.warn(
+                        [
+                            `YFM015 ${path}: Anchor "#${hash}" not found in ${includeFullPath}`,
+                            ``,
+                            `Include will be skipped.`,
+                        ].join('\n'),
+                    );
+                }
             } else {
                 includedTokens = fileTokens;
             }
