@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.22.4](https://github.com/diplodoc-platform/cli/compare/v5.22.3...v5.22.4) (2026-02-05)
+
+
+### Bug Fixes
+
+* added a more detailed error when trying to include an anchor ([#1653](https://github.com/diplodoc-platform/cli/issues/1653)) ([ba38ef9](https://github.com/diplodoc-platform/cli/commit/ba38ef92b5c9135037fe623b0b8b49e483de9d1b))
+
 ## [5.22.3](https://github.com/diplodoc-platform/cli/compare/v5.22.2...v5.22.3) (2026-02-03)
 
 
