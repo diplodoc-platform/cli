@@ -702,10 +702,6 @@ exports[`Translate command > do not filter files on extract > filelist 1`] = `
   "es/index.md.xliff",
   "es/nested/a1.md.skl",
   "es/nested/a1.md.xliff",
-  "es/nested/folder1/a1.md.skl",
-  "es/nested/folder1/a1.md.xliff",
-  "es/nested/folder1/toc-i.yaml.skl",
-  "es/nested/folder1/toc-i.yaml.xliff",
   "es/nested/index-yfm.md.skl",
   "es/nested/index-yfm.md.xliff",
   "es/nested/index.yaml.skl",
@@ -802,6 +798,23 @@ exports[`Translate command > do not resolve liquid conditions if vars not specif
     </body>
   </file>
 </xliff>"
+`;
+
+exports[`Translate command > do not translate merged entries with included toc > filelist 1`] = `
+"[
+  "included-toc.md.skl",
+  "included-toc.md.xliff",
+  "index.md.skl",
+  "index.md.xliff",
+  "merged-included-toc-item.md.skl",
+  "merged-included-toc-item.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
 `;
 
 exports[`Translate command > extract openapi spec files > filelist 1`] = `

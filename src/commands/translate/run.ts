@@ -4,11 +4,12 @@ import type {ConfigDefaults} from './utils/config';
 import type {Config} from '~/core/config';
 import type {Toc} from '~/core/toc';
 
-import {extname, join, resolve} from 'node:path';
+import {dirname, extname, join, resolve} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 
 import {TocService} from '~/core/toc';
 import {Run as BaseRun} from '~/core/run';
+import {normalizePath} from '~/core/utils';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
 import {MarkdownService} from '~/core/markdown';
@@ -22,7 +23,7 @@ export class Run extends BaseRun<CommonRunConfig> {
     readonly meta: MetaService;
     readonly toc: TocService;
     readonly markdown: MarkdownService;
-    readonly tocYamlList: Set<string>;
+    readonly tocYamlList: Set<NormalizedPath>;
 
     constructor(config: Config<CommonRunConfig>) {
         super(config);
@@ -58,19 +59,47 @@ export class Run extends BaseRun<CommonRunConfig> {
         }
     }
 
-    async getFiles() {
+    async getFiles(): Promise<[string[], [string, string][]]> {
         const allFiles = new Set<NormalizedPath>();
+        const copiedFromPaths = new Set<NormalizedPath>();
+        const mergedDirectories = new Set<NormalizedPath>();
 
         for (const entry of this.toc.entries) {
-            allFiles.add(entry);
+            const metadata = this.meta.get(entry);
+            if (metadata.sourcePath) {
+                const sourcePath = metadata.sourcePath as NormalizedPath;
+                copiedFromPaths.add(sourcePath);
+
+                const sourcePathWithLang = normalizePath(
+                    join(this.config.source.language, sourcePath),
+                );
+                copiedFromPaths.add(sourcePathWithLang);
+
+                const sourceDir = normalizePath(dirname(sourcePath));
+                mergedDirectories.add(sourceDir);
+                const sourceDirWithLang = normalizePath(
+                    join(this.config.source.language, sourceDir),
+                );
+                mergedDirectories.add(sourceDirWithLang);
+            }
         }
 
         for (const entry of this.toc.entries) {
+            if (!copiedFromPaths.has(entry)) {
+                allFiles.add(entry);
+            }
+        }
+
+        for (const entry of this.toc.entries) {
+            if (copiedFromPaths.has(entry)) {
+                continue;
+            }
+
             try {
                 const deps = await this.markdown.deps(entry);
 
                 for (const dep of deps) {
-                    if (dep.path.endsWith('.md')) {
+                    if (dep.path.endsWith('.md') && !copiedFromPaths.has(dep.path)) {
                         allFiles.add(dep.path);
                     }
                 }
@@ -80,9 +109,22 @@ export class Run extends BaseRun<CommonRunConfig> {
             }
         }
 
-        const allFilesArray = Array.from([...allFiles, ...this.tocYamlList]);
+        const filteredTocYamlList = Array.from(this.tocYamlList).filter((toc) => {
+            if (copiedFromPaths.has(toc)) {
+                return false;
+            }
 
-        return resolveFiles(
+            const tocDir = normalizePath(dirname(toc));
+            if (mergedDirectories.has(tocDir)) {
+                return false;
+            }
+
+            return true;
+        });
+
+        const allFilesArray = Array.from([...allFiles, ...filteredTocYamlList]);
+
+        const [resolvedFiles, skipped] = resolveFiles(
             this.config.input,
             this.config.files,
             this.config.include,
@@ -91,6 +133,24 @@ export class Run extends BaseRun<CommonRunConfig> {
             ['.md', '.yaml'],
             this.config.filter ? allFilesArray : null,
         );
+
+        const finalFiles: string[] = resolvedFiles.filter((file) => {
+            const normalizedFile = normalizePath(file);
+
+            if (copiedFromPaths.has(normalizedFile)) {
+                return false;
+            }
+
+            for (const mergedDir of mergedDirectories) {
+                if (normalizedFile.startsWith(mergedDir + '/') || normalizedFile === mergedDir) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        return [finalFiles, skipped] as [string[], [string, string][]];
     }
 
     async getFileContent(file: NormalizedPath) {
