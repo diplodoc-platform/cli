@@ -13,6 +13,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
+import {STATIC_ASSETS_FOLDER} from '~/constants';
 
 import {
     Scheduler,
@@ -234,6 +235,12 @@ export class OutputMd {
                 // TODO: save normalized config instead
                 if (run.config[configPath]) {
                     await run.copy(run.config[configPath], join(run.output, '.yfm'));
+                }
+
+                const assetsFolder = join(run.input, STATIC_ASSETS_FOLDER);
+                if (run.exists(assetsFolder)) {
+                    run.logger.copy(assetsFolder, join(run.output, STATIC_ASSETS_FOLDER));
+                    await run.copy(assetsFolder, join(run.output, STATIC_ASSETS_FOLDER));
                 }
             });
     }

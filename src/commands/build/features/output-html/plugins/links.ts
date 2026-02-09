@@ -4,9 +4,10 @@ import type {Logger} from '~/core/logger';
 
 import url from 'url';
 import {bold} from 'chalk';
-import {dirname, isAbsolute, join} from 'node:path';
+import {basename, dirname, isAbsolute, join} from 'node:path';
 
 import {normalizePath} from '~/core/utils';
+import {STATIC_ASSETS_FOLDER} from '~/constants';
 
 import {walkLinks} from '../utils';
 
@@ -40,6 +41,20 @@ export default ((md, opts) => {
             const file = normalizePath(
                 pathname ? join(dirname(state.env.path || path), pathname) : path,
             );
+
+            const isDownloadableFile =
+                file.includes(`/${STATIC_ASSETS_FOLDER}/`) ||
+                file.startsWith(`${STATIC_ASSETS_FOLDER}/`);
+
+            if (isDownloadableFile) {
+                if (!existsInProject(file)) {
+                    link.attrSet('YFM003', 'missing-in-toc');
+                }
+
+                link.attrSet('href', url.format({...parsed, pathname: file}));
+                link.attrSet('download', basename(file));
+                return;
+            }
 
             if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
                 const fileMissingInProject = !existsInProject(file);

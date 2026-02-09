@@ -23,7 +23,7 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {ASSETS_FOLDER} from '~/constants';
+import {ASSETS_FOLDER, STATIC_ASSETS_FOLDER} from '~/constants';
 
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {getHooks as getEntryHooks} from '../../services/entry';
@@ -222,6 +222,11 @@ export class OutputHtml {
                 // TODO: we copy all files. Required to copy only used files.
                 // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
+                const assetsFolder = join(run.input, STATIC_ASSETS_FOLDER);
+                if (run.exists(assetsFolder)) {
+                    run.logger.copy(assetsFolder, join(run.output, STATIC_ASSETS_FOLDER));
+                    await run.copy(assetsFolder, join(run.output, STATIC_ASSETS_FOLDER));
+                }
                 await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
             });
 
@@ -276,6 +281,13 @@ function getHref(root: AbsolutePath, path: NormalizedPath) {
 
         if (!href.startsWith('/')) {
             href = join(dirname(path), href);
+        }
+
+        if (
+            href.includes(`/${STATIC_ASSETS_FOLDER}/`) ||
+            href.startsWith(`${STATIC_ASSETS_FOLDER}/`)
+        ) {
+            return href;
         }
 
         const filePath = join(root, href);
