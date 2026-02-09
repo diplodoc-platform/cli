@@ -100,6 +100,16 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
+    generateMapTestTemplate(
+        'do not translate merged entries with included toc',
+        'mocks/translation/toc-include',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+    );
+
     generateMapTestTemplate('do not filter files on extract', 'mocks/translation/dir-files', {
         subcommand: 'extract',
         source: 'ru-RU',
