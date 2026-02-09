@@ -37,20 +37,19 @@ module.exports = {
         if (filtered.length === 0) {
             return [];
         }
+
         return [
-            ...filtered.map((f) => `prettier --write ${f}`),
-            ...filtered.map(
-                (f) => `env ESLINT_USE_FLAT_CONFIG=false npx eslint --max-warnings=0 --fix ${f}`,
-            ),
+            `prettier --write ${filtered.join(' ')}`,
+            `env ESLINT_USE_FLAT_CONFIG=false npx eslint --max-warnings=0 --fix`,
         ];
     },
     // Handle .lintstagedrc.js separately (only prettier, no eslint)
     '.lintstagedrc.js': (filenames) => filenames.map((f) => `prettier --write ${f}`),
     '**/*.{css,scss}': (filenames) => [
-        ...filenames.map((f) => `prettier --write ${f}`),
-        ...filenames.map((f) => `stylelint --fix ${f}`),
+        `prettier --write ${filenames.join(' ')}`,
+        `stylelint --fix ${filenames.join(' ')}`,
     ],
-    '**/*.{json,yaml,yml,md}': (filenames) => filenames.map((f) => `prettier --write ${f}`),
+    '**/*.{json,yaml,yml,md}': (filenames) => `prettier --write ${filenames.join(' ')}`,
     '**/*.{svg,svgx}': ['svgo'],
     // Run unit tests when test files or source files change
     '**/*.{ts,tsx}': (filenames) => {
