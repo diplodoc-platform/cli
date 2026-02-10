@@ -1,0 +1,66 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Static files from _assets directory > Download link should be enabled > filelist 1`] = `
+"[
+  "_assets/test.yaml",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled > filelist 2`] = `
+"[
+  "_assets/test.yaml",
+  "index.html",
+  "toc.js"
+]"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+### Download static file
+
+[Download](_assets/test.yaml)"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 2`] = `
+"title: Test123
+href: index.md
+path: toc.yaml
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 3`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Test123</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h3 id=\\"download-static-file\\"&gt;&lt;a href=\\"index.html#download-static-file\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Download static file&lt;/span&gt;&lt;/a&gt;Download static file&lt;/h3&gt;/n&lt;p&gt;&lt;a href=\\"_assets/test.yaml\\" download=\\"test.yaml\\"&gt;Download&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 4`] = `"window.__DATA__.data.toc = {"title":"Test123","href":"index.html","path":"toc.yaml","id":"UUID"};"`;

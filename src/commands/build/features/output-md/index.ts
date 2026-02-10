@@ -244,6 +244,10 @@ export class OutputMd {
 
             await all(
                 assets.map(async ({path, size}) => {
+                    if (!path) {
+                        return;
+                    }
+
                     if (!isMediaLink(path)) {
                         return;
                     }

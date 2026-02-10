@@ -1,6 +1,6 @@
 import {describe, expect, it} from 'vitest';
 
-import {isExternalHref, shortLink, walkLinks} from './url';
+import {isExternalHref, isMediaLink, shortLink, walkLinks} from './url';
 
 describe('url utils', () => {
     describe('isExternalHref', () => {
@@ -101,6 +101,87 @@ describe('url utils', () => {
             expect(shortLink('./folder/index.html')).toBe('./folder/');
             expect(shortLink('../folder/index')).toBe('../folder/');
             expect(shortLink('../index')).toBe('../');
+        });
+    });
+
+    describe('isMediaLink', () => {
+        it('should return true for image formats', () => {
+            const imageFormats = [
+                'image.svg',
+                'image.png',
+                'image.gif',
+                'image.jpg',
+                'image.jpeg',
+                'image.bmp',
+                'image.webp',
+                'image.ico',
+            ];
+
+            imageFormats.forEach((format) => {
+                expect(isMediaLink(format)).toBe(true);
+            });
+        });
+
+        it('should return true for document formats', () => {
+            const docFormats = [
+                'document.txt',
+                'document.pdf',
+                'document.docx',
+                'document.xlsx',
+                'document.vsd',
+            ];
+
+            docFormats.forEach((format) => {
+                expect(isMediaLink(format)).toBe(true);
+            });
+        });
+
+        it('should return true for yaml and json formats', () => {
+            expect(isMediaLink('config.yaml')).toBe(true);
+            expect(isMediaLink('config.yml')).toBe(true);
+            expect(isMediaLink('data.json')).toBe(true);
+            expect(isMediaLink('_assets/test.yaml')).toBe(true);
+            expect(isMediaLink('folder/_assets/config.json')).toBe(true);
+        });
+
+        it('should return false for executable and script formats', () => {
+            const executableFormats = [
+                'script.exe',
+                'script.sh',
+                'script.bat',
+                'script.cmd',
+                'script.ps1',
+                'library.dll',
+                'library.so',
+                'page.php',
+                'page.jsp',
+                'page.asp',
+                'app.jar',
+                'installer.msi',
+            ];
+
+            executableFormats.forEach((format) => {
+                expect(isMediaLink(format)).toBe(false);
+            });
+        });
+
+        it('should return false for markdown and html files', () => {
+            expect(isMediaLink('page.md')).toBe(false);
+            expect(isMediaLink('page.html')).toBe(false);
+            expect(isMediaLink('page.htm')).toBe(false);
+        });
+
+        it('should be case insensitive', () => {
+            expect(isMediaLink('IMAGE.PNG')).toBe(true);
+            expect(isMediaLink('Document.PDF')).toBe(true);
+            expect(isMediaLink('Config.YAML')).toBe(true);
+            expect(isMediaLink('Data.JSON')).toBe(true);
+        });
+
+        it('should handle paths with directories', () => {
+            expect(isMediaLink('folder/image.png')).toBe(true);
+            expect(isMediaLink('_assets/config.yaml')).toBe(true);
+            expect(isMediaLink('deep/nested/path/file.json')).toBe(true);
         });
     });
 });
