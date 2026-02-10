@@ -23,6 +23,7 @@ export type BaseConfig = {
     strict?: boolean;
     jobs?: number;
     extensions?: (string | ExtensionInfo)[];
+    originAsInput?: boolean;
 };
 
 export type ExtensionInfo<Options extends Hash = Hash> = {

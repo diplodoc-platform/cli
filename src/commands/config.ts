@@ -107,6 +107,11 @@ const config = (defaultConfig: string) =>
         default: defaultConfig,
     });
 
+const originAsInput = option({
+    flags: '--origin-as-input',
+    desc: 'Allow modify input dir.',
+});
+
 export const options = {
     quiet,
     strict,
@@ -115,4 +120,5 @@ export const options = {
     config,
     input,
     output,
+    originAsInput,
 };

@@ -144,8 +144,7 @@ export class Run<TConfig = BaseConfig> {
         return paths.map(normalizePath);
     }
 
-    @bounded
-    async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
+    @bounded async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
         const isFile = (await this.fs.stat(from)).isFile();
 
         if (from === to) {

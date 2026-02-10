@@ -344,6 +344,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     private async cleanup() {
-        await this.run.remove(this.run.input);
+        if (this.run.input !== this.run.originalInput) {
+            await this.run.remove(this.run.input);
+        }
     }
 }
