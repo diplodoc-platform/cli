@@ -2,17 +2,17 @@ import type {Config} from '~/core/config';
 import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
-import {ok} from 'node:assert';
 import {dirname, join} from 'node:path';
+import pmap from 'p-map';
+import {ok} from 'node:assert';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
-import pmap from 'p-map';
 
 import {bounded, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
-import {InsecureAccessError} from './errors';
 import {fs} from './fs';
+import {InsecureAccessError} from './errors';
 
 type GlobOptions = {
     cwd?: AbsolutePath;
@@ -144,43 +144,43 @@ export class Run<TConfig = BaseConfig> {
         return paths.map(normalizePath);
     }
 
-    @bounded async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
+    @bounded
+    async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
         const isFile = (await this.fs.stat(from)).isFile();
-        const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
-            // const realpath = this.realpath(from);
-            //
-            // ok(
-            //     realpath[0].startsWith(this.originalInput),
-            //     new InsecureAccessError(realpath[0], realpath),
-            // );
-
-            await this.fs.unlink(to).catch(() => {});
-            await this.fs.copyFile(from, to, fsConstants.COPYFILE_FICLONE);
-        };
 
         if (from === to) {
             return [];
         }
 
-        const dirs = new Set();
-        const files = isFile
+        const files: [string, string][] = isFile
             ? [[from, to]]
-            : (
-                  await this.glob('**', {
-                      cwd: from,
-                      ignore,
-                  })
-              ).map((file) => [join(from, file), join(to, file)]);
+            : (await this.glob('**', {cwd: from, ignore})).map((file) => [
+                  join(from, file),
+                  join(to, file),
+              ]);
 
-        await pmap(files, async ([from, to]) => {
-            const dir = dirname(to);
-            if (!dirs.has(dir)) {
-                await this.fs.mkdir(dir, {recursive: true});
-                dirs.add(dir);
+        const mkdirPromises = new Map<string, Promise<void>>();
+
+        const ensureDir = (dir: string) => {
+            let promise = mkdirPromises.get(dir);
+            if (!promise) {
+                promise = this.fs.mkdir(dir, {recursive: true}).then(() => {});
+                mkdirPromises.set(dir, promise);
             }
+            return promise;
+        };
 
-            await hardlink(from, to);
-        });
+        await pmap(
+            files,
+            async ([src, dest]) => {
+                const dir = dirname(dest);
+
+                await ensureDir(dir);
+
+                await this.fs.copyFile(src, dest, fsConstants.COPYFILE_FICLONE);
+            },
+            {concurrency: 30},
+        );
 
         return files;
     }
