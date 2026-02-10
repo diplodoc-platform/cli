@@ -23,6 +23,14 @@ type Options = {
 export default ((md, opts) => {
     const plugin = (state: StateCore) => {
         walkLinks(state, (link, href) => {
+            // Skip already processed links to avoid double-resolution
+            // (e.g. when term plugin calls md.parse for popup content,
+            // links inside nested includes get processed during inner parse,
+            // then the outer parse would incorrectly re-resolve them)
+            if (link.meta?.linksPluginProcessed) {
+                return;
+            }
+
             const {path, log, entries, existsInProject} = opts;
 
             if (!href) {
@@ -57,6 +65,9 @@ export default ((md, opts) => {
                     pathname: file.replace(PAGE_LINK_REGEXP, '.html'),
                 }),
             );
+
+            link.meta = link.meta || {};
+            link.meta.linksPluginProcessed = true;
         });
     };
 
