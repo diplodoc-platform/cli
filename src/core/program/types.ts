@@ -15,6 +15,7 @@ export type BaseArgs = {
     strict: boolean;
     jobs: number | true;
     extensions?: string[];
+    originAsInput: boolean;
 };
 
 export type BaseConfig = {
