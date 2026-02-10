@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.22.5](https://github.com/diplodoc-platform/cli/compare/v5.22.4...v5.22.5) (2026-02-10)
+
+
+### Bug Fixes
+
+* do not translate merged entries on toc ([81741bf](https://github.com/diplodoc-platform/cli/commit/81741bf05e1b905964c9a7c04748260dcd9d2c15))
+* DOCSTOOLS-3562 incorrect link in term with include ([acb9ddd](https://github.com/diplodoc-platform/cli/commit/acb9ddd6ad52b479161ea43d36b6aa22d65c43df))
+
 ## [5.22.4](https://github.com/diplodoc-platform/cli/compare/v5.22.3...v5.22.4) (2026-02-05)
 
 
