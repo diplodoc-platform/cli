@@ -3,7 +3,7 @@
 # To modify this workflow, edit it in diplodoc/devops/lint/scaffolding/.github/workflows/
 # and then run the scaffolding update process.
 
-name: Release Package to npm
+name: Release to npm
 
 # This workflow handles both stable and prerelease publishing to npm
 # - Stable: triggered by release event or manual dispatch with 'stable' type

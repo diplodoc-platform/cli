@@ -61,3 +61,10 @@ jobs:
           name: coverage
           path: coverage/
           retention-days: 7
+
+      - name: SonarCloud Scan
+        if: success() && steps.coverage-run.outputs.ran == 'true'
+        uses: SonarSource/sonarqube-scan-action@v7.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

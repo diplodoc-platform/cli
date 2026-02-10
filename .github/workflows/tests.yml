@@ -3,7 +3,7 @@
 # To modify this workflow, edit it in diplodoc/devops/lint/scaffolding/.github/workflows/
 # and then run the scaffolding update process.
 
-name: Tests
+name: Quality
 
 on:
   push:
