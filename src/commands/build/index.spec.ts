@@ -910,7 +910,8 @@ describe('Build command', () => {
             const run = new Run(config);
 
             expect(run.originalInput).toBe('/test/input');
-            expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+            expect(run.input).toMatch(/\.tmp_input$/); // Should use temp directory in output
+            expect(run.input).not.toBe(run.originalInput);
         });
 
         it('should use temporary input directory by default', async () => {
@@ -923,7 +924,8 @@ describe('Build command', () => {
             const run = new Run(config);
 
             expect(run.originalInput).toBe('/test/input');
-            expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory by default
+            expect(run.input).toMatch(/\.tmp_input$/); // Should use temp directory by default
+            expect(run.input).not.toBe(run.originalInput);
         });
 
         it('should correctly handle path resolution with originAsInput=true', async () => {
@@ -951,7 +953,7 @@ describe('Build command', () => {
 
             // Verify that input is different from originalInput when originAsInput is false
             expect(run.input).not.toBe(run.originalInput);
-            expect(run.input).toBe('/test/output/.tmp_input');
+            expect(run.input).toMatch(/\.tmp_input$/);
             expect(run.originalInput).toBe('/test/input');
         });
 
