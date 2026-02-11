@@ -216,13 +216,6 @@ const originAsInput = option({
     defaultInfo: false,
 });
 
-const copyOnWrite = option({
-    flags: '--copy-on-write',
-    desc: 'Use COPYFILE_FICLONE flag for file copying.',
-    hidden: true,
-    defaultInfo: true,
-});
-
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -392,6 +385,7 @@ export const options = {
     output: globalOptions.output,
     config: globalOptions.config,
     strict: globalOptions.strict,
+    copyOnWrite: globalOptions.copyOnWrite,
     langs,
     outputFormat,
     varsPreset,
@@ -414,5 +408,4 @@ export const options = {
     maxHtmlSize,
     maxAssetSize,
     originAsInput,
-    copyOnWrite,
 };

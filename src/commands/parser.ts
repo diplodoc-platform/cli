@@ -16,6 +16,7 @@ export const parse = (argv: string[], name = NAME): BaseArgs => {
         .addOption(options.jobs)
         .addOption(options.config(YFM_CONFIG_FILENAME))
         .addOption(options.extensions)
+        .addOption(options.copyOnWrite)
         .helpOption(false)
         .allowUnknownOption(true);
 

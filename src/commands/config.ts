@@ -107,6 +107,13 @@ const config = (defaultConfig: string) =>
         default: defaultConfig,
     });
 
+const copyOnWrite = option({
+    flags: '--copy-on-write',
+    desc: 'Use COPYFILE_FICLONE flag for file copying.',
+    hidden: true,
+    defaultInfo: true,
+});
+
 export const options = {
     quiet,
     strict,
@@ -115,4 +122,5 @@ export const options = {
     config,
     input,
     output,
+    copyOnWrite,
 };
