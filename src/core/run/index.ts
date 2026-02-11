@@ -169,6 +169,8 @@ export class Run<TConfig = BaseConfig> {
             return promise;
         };
 
+        const mode = this.config.copyOnWrite ? fsConstants.COPYFILE_FICLONE : 0;
+
         await pmap(
             files,
             async ([src, dest]) => {
@@ -176,7 +178,7 @@ export class Run<TConfig = BaseConfig> {
 
                 await ensureDir(dir);
 
-                await this.fs.copyFile(src, dest, fsConstants.COPYFILE_FICLONE);
+                await this.fs.copyFile(src, dest, mode);
             },
             {concurrency: 30},
         );

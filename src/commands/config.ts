@@ -110,6 +110,14 @@ const config = (defaultConfig: string) =>
 const originAsInput = option({
     flags: '--origin-as-input',
     desc: 'Allow modify input dir.',
+    hidden: true,
+});
+
+const copyOnWrite = option({
+    flags: '--copy-on-write',
+    desc: 'Use COPYFILE_FICLONE flag for file copying.',
+    hidden: true,
+    default: true,
 });
 
 export const options = {
@@ -121,4 +129,5 @@ export const options = {
     input,
     output,
     originAsInput,
+    copyOnWrite,
 };
