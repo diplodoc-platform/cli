@@ -47,8 +47,6 @@ export class Program extends BaseProgram {
         options.quiet,
         options.strict,
         options.jobs,
-        options.originAsInput,
-        options.copyOnWrite,
     ];
 
     protected readonly modules = [this.build, this.publish, this.translate];

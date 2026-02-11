@@ -78,6 +78,8 @@ const command = 'Build';
             addMetadataMeta: true,
             lint: {enabled: true, config: {}},
             vcsPath: {enabled: true},
+            originAsInput: false,
+            copyOnWrite: true,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
@@ -144,6 +146,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxHtmlSize,
         options.maxAssetSize,
         options.strict,
+        options.originAsInput,
+        options.copyOnWrite,
     ];
 
     readonly modules = [

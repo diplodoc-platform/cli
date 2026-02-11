@@ -15,8 +15,6 @@ export type BaseArgs = {
     strict: boolean;
     jobs: number | true;
     extensions?: string[];
-    originAsInput: boolean;
-    copyOnWrite: boolean;
 };
 
 export type BaseConfig = {
@@ -25,8 +23,6 @@ export type BaseConfig = {
     strict?: boolean;
     jobs?: number;
     extensions?: (string | ExtensionInfo)[];
-    originAsInput?: boolean;
-    copyOnWrite?: boolean;
 };
 
 export type ExtensionInfo<Options extends Hash = Hash> = {

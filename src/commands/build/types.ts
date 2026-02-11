@@ -74,6 +74,8 @@ type BaseConfig = {
     neuroExpert?: NeuroExpertBase;
     pdfDebug: boolean;
     content: ContentConfig;
+    copyOnWrite: boolean;
+    originAsInput: boolean;
 };
 
 export type VcsArgs = {

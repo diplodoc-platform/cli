@@ -209,6 +209,20 @@ const maxAssetSize = option({
     parser: fileSizeConverter({disableIfZero: true}),
 });
 
+const originAsInput = option({
+    flags: '--origin-as-input',
+    desc: 'Allow modify input dir.',
+    hidden: true,
+    defaultInfo: false,
+});
+
+const copyOnWrite = option({
+    flags: '--copy-on-write',
+    desc: 'Use COPYFILE_FICLONE flag for file copying.',
+    hidden: true,
+    defaultInfo: true,
+});
+
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -399,4 +413,6 @@ export const options = {
     maxInlineSvgSize,
     maxHtmlSize,
     maxAssetSize,
+    originAsInput,
+    copyOnWrite,
 };

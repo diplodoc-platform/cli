@@ -655,33 +655,16 @@ describe('Build command', () => {
             'feedback',
         ]);
 
-        // copyOnWrite is a global option, not a build command option
-        // Testing it through config integration instead
+        testBooleanFlag('originAsInput', '--origin-as-input', false);
 
-        describe('originAsInput', () => {
-            // originAsInput is a hidden global option, so we only test config-based usage
-            test(
-                'should handle config enabled',
-                '',
-                {
-                    originAsInput: true,
-                },
-                {
-                    originAsInput: true,
-                },
-            );
+        testBooleanFlag('copyOnWrite', '--copy-on-write', true);
 
-            test(
-                'should handle config disabled',
-                '',
-                {
-                    originAsInput: false,
-                },
-                {
-                    originAsInput: false,
-                },
-            );
-        });
+        test(
+            'should prioritize CLI no-copy-on-write over config',
+            '--no-copy-on-write',
+            {copyOnWrite: true},
+            {copyOnWrite: false},
+        );
 
         // test('should handle required props in config', '', {
         //     input: './input',
