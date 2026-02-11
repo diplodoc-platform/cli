@@ -111,6 +111,7 @@ const originAsInput = option({
     flags: '--origin-as-input',
     desc: 'Allow modify input dir.',
     hidden: true,
+    default: false,
 });
 
 const copyOnWrite = option({

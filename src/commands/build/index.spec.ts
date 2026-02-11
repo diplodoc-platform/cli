@@ -10,6 +10,7 @@ import {
     testBooleanFlag,
     testNestedBooleanFlag,
 } from './__tests__';
+import {Run} from './run';
 
 describe('Build command', () => {
     describe('config', () => {
@@ -653,6 +654,31 @@ describe('Build command', () => {
             'feedback',
         ]);
 
+        describe('originAsInput', () => {
+            // originAsInput is a hidden global option, so we only test config-based usage
+            test(
+                'should handle config enabled',
+                '',
+                {
+                    originAsInput: true,
+                },
+                {
+                    originAsInput: true,
+                },
+            );
+
+            test(
+                'should handle config disabled',
+                '',
+                {
+                    originAsInput: false,
+                },
+                {
+                    originAsInput: false,
+                },
+            );
+        });
+
         // test('should handle required props in config', '', {
         //     input: './input',
         //     output: './output',
@@ -870,6 +896,76 @@ describe('Build command', () => {
                     'Unknown unit type at config: G. Allowed: K, M, k, m or without unit',
                 );
             });
+        });
+    });
+
+    describe('originAsInput integration', () => {
+        it('should use original input directory when originAsInput is true', async () => {
+            const config = {
+                input: '/test/input',
+                output: '/test/output',
+                originAsInput: true,
+            } as BuildConfig;
+
+            const run = new Run(config);
+
+            expect(run.originalInput).toBe('/test/input');
+            expect(run.input).toBe('/test/input'); // Should use original input directly
+        });
+
+        it('should use temporary input directory when originAsInput is false', async () => {
+            const config = {
+                input: '/test/input',
+                output: '/test/output',
+                originAsInput: false,
+            } as BuildConfig;
+
+            const run = new Run(config);
+
+            expect(run.originalInput).toBe('/test/input');
+            expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+        });
+
+        it('should use temporary input directory by default', async () => {
+            const config = {
+                input: '/test/input',
+                output: '/test/output',
+                // originAsInput not specified, should default to false
+            } as BuildConfig;
+
+            const run = new Run(config);
+
+            expect(run.originalInput).toBe('/test/input');
+            expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory by default
+        });
+
+        it('should correctly handle path resolution with originAsInput=true', async () => {
+            const config = {
+                input: '/test/input',
+                output: '/test/output',
+                originAsInput: true,
+            } as BuildConfig;
+
+            const run = new Run(config);
+
+            // Verify that input and originalInput are the same when originAsInput is true
+            expect(run.input).toBe(run.originalInput);
+            expect(run.input).toBe('/test/input');
+        });
+
+        it('should correctly handle path resolution with originAsInput=false', async () => {
+            const config = {
+                input: '/test/input',
+                output: '/test/output',
+                originAsInput: false,
+            } as BuildConfig;
+
+            const run = new Run(config);
+
+            // Verify that input is different from originalInput when originAsInput is false
+            expect(run.input).not.toBe(run.originalInput);
+            expect(run.input).toBe('/test/output/.tmp_input');
+            expect(run.originalInput).toBe('/test/input');
         });
     });
 
