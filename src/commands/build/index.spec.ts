@@ -1,6 +1,7 @@
 import type {BuildConfig} from '.';
 
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
+import {constants as fsConstants} from 'node:fs/promises';
 
 import {combineProps, fileSizeConverter} from './config';
 import {
@@ -654,6 +655,9 @@ describe('Build command', () => {
             'feedback',
         ]);
 
+        // copyOnWrite is a global option, not a build command option
+        // Testing it through config integration instead
+
         describe('originAsInput', () => {
             // originAsInput is a hidden global option, so we only test config-based usage
             test(
@@ -966,6 +970,99 @@ describe('Build command', () => {
             expect(run.input).not.toBe(run.originalInput);
             expect(run.input).toBe('/test/output/.tmp_input');
             expect(run.originalInput).toBe('/test/input');
+        });
+
+        describe('copyOnWrite integration', () => {
+            it('should use COPYFILE_FICLONE flag when copyOnWrite is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    copyOnWrite: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // Verify that COPYFILE_FICLONE flag was used
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    fsConstants.COPYFILE_FICLONE,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
+            });
+
+            it('should not use COPYFILE_FICLONE flag when copyOnWrite is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    copyOnWrite: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // Verify that no flags were used (0)
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    0,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
+            });
+
+            it('should default to copyOnWrite=false when not specified in config object', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    // copyOnWrite not specified, will be undefined
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // When copyOnWrite is undefined in config object, it defaults to false (0)
+                // because the default value is only applied during CLI argument parsing
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    0,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
+            });
         });
     });
 
