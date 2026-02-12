@@ -1,6 +1,7 @@
 import type {BuildConfig} from '.';
 
-import {describe, expect, it, vi} from 'vitest';
+import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
+import type {MockInstance} from 'vitest';
 import {constants as fsConstants} from 'node:fs/promises';
 
 import {combineProps, fileSizeConverter} from './config';
@@ -915,74 +916,157 @@ describe('Build command', () => {
     });
 
     describe('originAsInput integration', () => {
-        it('should use original input directory when originAsInput is true', async () => {
-            const config = {
-                input: '/test/input',
-                output: '/test/output',
-                originAsInput: true,
-            } as BuildConfig;
+        describe('with mocked file system', () => {
+            let realpathSyncSpy: MockInstance;
 
-            const run = new Run(config);
+            beforeEach(() => {
+                // Mock realpathSync to properly resolve paths instead of relying on error behavior
+                realpathSyncSpy = vi
+                    .spyOn(Run.prototype, 'realpathSync')
+                    .mockImplementation((path: AbsolutePath) => {
+                        // Simulate proper path resolution for existing paths
+                        if (path === '/test/input' || path === '/test/output') {
+                            return path as AbsolutePath;
+                        }
+                        // For temp paths, resolve them relative to output
+                        if (path.includes('.tmp_input')) {
+                            return '/test/output/.tmp_input' as AbsolutePath;
+                        }
+                        return path as AbsolutePath;
+                    });
+            });
 
-            expect(run.originalInput).toBe('/test/input');
-            expect(run.input).toBe('/test/input'); // Should use original input directly
+            afterEach(() => {
+                realpathSyncSpy.mockRestore();
+            });
+
+            it('should use original input directory when originAsInput is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/input'); // Should use original input directly
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should use temporary input directory when originAsInput is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+                expect(run.input).not.toBe(run.originalInput);
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should use temporary input directory by default', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    // originAsInput not specified, should default to false
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory by default
+                expect(run.input).not.toBe(run.originalInput);
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should correctly handle path resolution with originAsInput=true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Verify that input and originalInput are the same when originAsInput is true
+                expect(run.input).toBe(run.originalInput);
+                expect(run.input).toBe('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should correctly handle path resolution with originAsInput=false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Verify that input is different from originalInput when originAsInput is false
+                expect(run.input).not.toBe(run.originalInput);
+                expect(run.input).toBe('/test/output/.tmp_input');
+                expect(run.originalInput).toBe('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
         });
 
-        it('should use temporary input directory when originAsInput is false', async () => {
-            const config = {
-                input: '/test/input',
-                output: '/test/output',
-                originAsInput: false,
-            } as BuildConfig;
+        describe('with createTestRun factory', () => {
+            function createTestRun(config: BuildConfig): Run {
+                const run = new Run(config);
 
-            const run = new Run(config);
+                // Mock realpathSync to simulate proper file system behavior
+                vi.spyOn(run, 'realpathSync').mockImplementation((path: AbsolutePath) => {
+                    // Simulate proper path resolution for existing paths
+                    if (path === '/test/input' || path === '/test/output') {
+                        return path as AbsolutePath;
+                    }
+                    // For temp paths, resolve them relative to output
+                    if (path.includes('.tmp_input')) {
+                        return '/test/output/.tmp_input' as AbsolutePath;
+                    }
+                    return path as AbsolutePath;
+                });
 
-            expect(run.originalInput).toBe('/test/input');
-            expect(run.input).toMatch(/\.tmp_input$/); // Should use temp directory in output
-            expect(run.input).not.toBe(run.originalInput);
-        });
+                return run;
+            }
 
-        it('should use temporary input directory by default', async () => {
-            const config = {
-                input: '/test/input',
-                output: '/test/output',
-                // originAsInput not specified, should default to false
-            } as BuildConfig;
+            it('should use original input directory when originAsInput is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
 
-            const run = new Run(config);
+                const run = createTestRun(config);
 
-            expect(run.originalInput).toBe('/test/input');
-            expect(run.input).toMatch(/\.tmp_input$/); // Should use temp directory by default
-            expect(run.input).not.toBe(run.originalInput);
-        });
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/input'); // Should use original input directly
+            });
 
-        it('should correctly handle path resolution with originAsInput=true', async () => {
-            const config = {
-                input: '/test/input',
-                output: '/test/output',
-                originAsInput: true,
-            } as BuildConfig;
+            it('should use temporary input directory when originAsInput is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
 
-            const run = new Run(config);
+                const run = createTestRun(config);
 
-            // Verify that input and originalInput are the same when originAsInput is true
-            expect(run.input).toBe(run.originalInput);
-            expect(run.input).toBe('/test/input');
-        });
-
-        it('should correctly handle path resolution with originAsInput=false', async () => {
-            const config = {
-                input: '/test/input',
-                output: '/test/output',
-                originAsInput: false,
-            } as BuildConfig;
-
-            const run = new Run(config);
-
-            // Verify that input is different from originalInput when originAsInput is false
-            expect(run.input).not.toBe(run.originalInput);
-            expect(run.input).toMatch(/\.tmp_input$/);
-            expect(run.originalInput).toBe('/test/input');
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+                expect(run.input).not.toBe(run.originalInput);
+            });
         });
 
         describe('copyOnWrite integration', () => {
