@@ -965,7 +965,8 @@ describe('Build command', () => {
                 const run = new Run(config);
 
                 expect(run.originalInput).toBe('/test/input');
-                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+                // Should use temp directory in output - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
                 expect(run.input).not.toBe(run.originalInput);
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
@@ -981,7 +982,8 @@ describe('Build command', () => {
                 const run = new Run(config);
 
                 expect(run.originalInput).toBe('/test/input');
-                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory by default
+                // Should use temp directory by default - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
                 expect(run.input).not.toBe(run.originalInput);
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
@@ -1014,7 +1016,8 @@ describe('Build command', () => {
 
                 // Verify that input is different from originalInput when originAsInput is false
                 expect(run.input).not.toBe(run.originalInput);
-                expect(run.input).toBe('/test/output/.tmp_input');
+                // Use platform-agnostic assertion for temp input path
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
                 expect(run.originalInput).toBe('/test/input');
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
                 expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
@@ -1064,7 +1067,8 @@ describe('Build command', () => {
                 const run = createTestRun(config);
 
                 expect(run.originalInput).toBe('/test/input');
-                expect(run.input).toBe('/test/output/.tmp_input'); // Should use temp directory in output
+                // Should use temp directory in output - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
                 expect(run.input).not.toBe(run.originalInput);
             });
         });
