@@ -17,6 +17,7 @@ export type BaseArgs = {
     workerMaxOldSpace: number;
     extensions?: string[];
     copyOnWrite: boolean;
+    originAsInput: boolean;
 };
 
 export type BaseConfig = {
@@ -27,6 +28,7 @@ export type BaseConfig = {
     workerMaxOldSpace?: number;
     extensions?: (string | ExtensionInfo)[];
     copyOnWrite?: boolean;
+    originAsInput?: boolean;
 };
 
 export type ExtensionInfo<Options extends Hash = Hash> = {
