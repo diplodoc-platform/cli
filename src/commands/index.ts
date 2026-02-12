@@ -47,6 +47,7 @@ export class Program extends BaseProgram {
         options.quiet,
         options.strict,
         options.jobs,
+        options.workerMaxOldSpace,
         options.copyOnWrite,
     ];
 

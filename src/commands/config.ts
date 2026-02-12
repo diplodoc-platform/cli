@@ -49,6 +49,12 @@ const jobs = option({
     default: 0,
 });
 
+const workerMaxOldSpace = option({
+    flags: '--worker-max-old-space <number>',
+    desc: `Set max old space size for worker threads in megabytes.`,
+    default: 0,
+});
+
 const extensions = option({
     flags: '-e, --extensions <string>',
     desc: `
@@ -118,6 +124,7 @@ export const options = {
     quiet,
     strict,
     jobs,
+    workerMaxOldSpace,
     extensions,
     config,
     input,

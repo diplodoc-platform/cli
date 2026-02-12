@@ -1,4 +1,5 @@
 import type {LogConsumer, LogRecord} from '~/core/logger';
+import type {WorkerOptions} from 'worker_threads';
 
 import os from 'node:os';
 import {isMainThread} from 'node:worker_threads';
@@ -11,8 +12,8 @@ import {Observable, Subject} from 'threads/observable';
 import {expose} from 'threads/worker';
 
 import {Defer, Graph, all, console, race, wait} from '~/core/utils';
-import {LogLevel} from '~/core/logger';
 import {Program, parse} from '~/commands';
+import {LogLevel} from '~/core/logger';
 
 let pool: Pool;
 let program: Program;
@@ -127,13 +128,14 @@ if (!isMainThread) {
 }
 
 export async function init(_program: Program, runargv: string[]) {
-    let {jobs} = parse(runargv);
+    let {jobs, workerMaxOldSpace} = parse(runargv);
 
     if (jobs === true) {
         jobs = os.cpus().length - 1;
     }
 
     jobs = Number(jobs);
+    workerMaxOldSpace = Number(workerMaxOldSpace);
 
     if (jobs <= 1) {
         return;
@@ -153,7 +155,15 @@ export async function init(_program: Program, runargv: string[]) {
         pool = Pool(
             async () => {
                 const defer = threads[index++];
-                const thread = await spawn<ThreadAPI>(new Worker('./index'));
+
+                const workerOptions: WorkerOptions = {};
+                if (workerMaxOldSpace > 0) {
+                    workerOptions.resourceLimits = {
+                        maxOldGenerationSizeMb: workerMaxOldSpace,
+                    };
+                }
+
+                const thread = await spawn<ThreadAPI>(new Worker('./index', workerOptions));
 
                 defer.resolve(thread);
 

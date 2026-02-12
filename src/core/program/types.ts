@@ -14,6 +14,7 @@ export type BaseArgs = {
     quiet: boolean;
     strict: boolean;
     jobs: number | true;
+    workerMaxOldSpace: number;
     extensions?: string[];
     copyOnWrite: boolean;
 };
@@ -23,6 +24,7 @@ export type BaseConfig = {
     quiet?: boolean;
     strict?: boolean;
     jobs?: number;
+    workerMaxOldSpace?: number;
     extensions?: (string | ExtensionInfo)[];
     copyOnWrite?: boolean;
 };

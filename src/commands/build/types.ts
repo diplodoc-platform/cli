@@ -82,6 +82,10 @@ export type VcsArgs = {
     vcsToken: string;
 };
 
+export type WorkerArgs = {
+    workerMaxOldSpace: number;
+};
+
 export type BuildArgs = ProgramArgs &
     BaseArgs &
     Partial<
@@ -99,6 +103,7 @@ export type BuildArgs = ProgramArgs &
             CustomResourcesArgs &
             TocFilteringArgs &
             VcsArgs &
+            WorkerArgs &
             WatchArgs &
             ThemerArgs
     >;
