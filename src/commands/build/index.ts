@@ -8,14 +8,14 @@ import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
+import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
+import {getHooks as getTocHooks} from '~/core/toc';
 import * as threads from '~/commands/threads';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
-import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
 import {Command} from '~/core/config';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {getHooks as getTocHooks} from '~/core/toc';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -146,6 +146,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxHtmlSize,
         options.maxAssetSize,
         options.strict,
+        options.originAsInput,
+        options.copyOnWrite,
     ];
 
     readonly modules = [

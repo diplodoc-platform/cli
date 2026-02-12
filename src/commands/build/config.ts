@@ -378,6 +378,8 @@ export const options = {
     output: globalOptions.output,
     config: globalOptions.config,
     strict: globalOptions.strict,
+    originAsInput: globalOptions.originAsInput,
+    copyOnWrite: globalOptions.copyOnWrite,
     langs,
     outputFormat,
     varsPreset,
