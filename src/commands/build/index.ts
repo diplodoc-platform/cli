@@ -80,6 +80,7 @@ const command = 'Build';
             vcsPath: {enabled: true},
             originAsInput: false,
             copyOnWrite: true,
+            workerMaxOldSpace: 0,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
@@ -148,6 +149,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.strict,
         options.originAsInput,
         options.copyOnWrite,
+        options.workerMaxOldSpace,
     ];
 
     readonly modules = [

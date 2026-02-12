@@ -380,6 +380,7 @@ export const options = {
     strict: globalOptions.strict,
     originAsInput: globalOptions.originAsInput,
     copyOnWrite: globalOptions.copyOnWrite,
+    workerMaxOldSpace: globalOptions.workerMaxOldSpace,
     langs,
     outputFormat,
     varsPreset,

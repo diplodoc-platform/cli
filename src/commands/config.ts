@@ -52,7 +52,7 @@ const jobs = option({
 const workerMaxOldSpace = option({
     flags: '--worker-max-old-space <number>',
     desc: `Set max old space size for worker threads in megabytes.`,
-    default: 0,
+    parser: (value) => Number(value),
 });
 
 const extensions = option({

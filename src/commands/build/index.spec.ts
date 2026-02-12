@@ -666,6 +666,34 @@ describe('Build command', () => {
             {copyOnWrite: false},
         );
 
+        describe('workerMaxOldSpace', () => {
+            test('should handle default', '', {
+                workerMaxOldSpace: 0,
+            });
+
+            test('should handle arg', '--worker-max-old-space 512', {
+                workerMaxOldSpace: 512,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    workerMaxOldSpace: 1024,
+                },
+                {
+                    workerMaxOldSpace: 1024,
+                },
+            );
+
+            test(
+                'should prioritize CLI arg over config',
+                '--worker-max-old-space 256',
+                {workerMaxOldSpace: 1024},
+                {workerMaxOldSpace: 256},
+            );
+        });
+
         // test('should handle required props in config', '', {
         //     input: './input',
         //     output: './output',
