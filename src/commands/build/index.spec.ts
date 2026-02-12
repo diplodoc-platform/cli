@@ -1,7 +1,7 @@
 import type {BuildConfig} from '.';
-
-import {describe, expect, it, vi, beforeEach, afterEach} from 'vitest';
 import type {MockInstance} from 'vitest';
+
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {constants as fsConstants} from 'node:fs/promises';
 
 import {combineProps, fileSizeConverter} from './config';
