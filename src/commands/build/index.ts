@@ -78,9 +78,6 @@ const command = 'Build';
             addMetadataMeta: true,
             lint: {enabled: true, config: {}},
             vcsPath: {enabled: true},
-            originAsInput: false,
-            copyOnWrite: true,
-            workerMaxOldSpace: 0,
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
