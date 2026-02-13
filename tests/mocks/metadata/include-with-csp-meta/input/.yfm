@@ -1,0 +1,8 @@
+allowCustomResources: true
+resources:
+  csp:
+    - style-src:
+        - unsafe-inline
+        - yastatic.net
+    - connect-src:
+        - uaas.yandex.ru

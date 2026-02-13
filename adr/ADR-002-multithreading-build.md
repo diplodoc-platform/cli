@@ -84,6 +84,7 @@ await run.write(path, addFrontmatter(content, meta)); // Same result!
 ❌ **Redundant work** — Same file may be written multiple times by different paths  
 ❌ **Complexity** — Must ensure all write paths are consistent  
 ❌ **Easy to miss** — New code paths may not follow the pattern  
+❌ **Downstream consumers** — Files that previously had no frontmatter (e.g. includes) now always have it; any code that inlines their content must strip frontmatter before rendering (see ADR-004)  
 
 ### Neutral
 

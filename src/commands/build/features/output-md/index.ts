@@ -183,6 +183,9 @@ export class OutputMd {
                                 // and if the include is written after the entry, metadata is lost.
                                 // By ensuring both paths produce identical output, write order
                                 // becomes irrelevant (see ADR-002: Multithreading Build).
+                                // When these files are used as includes (e.g. md2html), the consumer
+                                // must strip frontmatter before rendering the body (see output-html
+                                // includes plugin).
                                 const vars = run.vars.for(graph.path);
                                 run.meta.addSystemVars(graph.path, vars.__system);
                                 run.meta.addMetadata(graph.path, vars.__metadata);
