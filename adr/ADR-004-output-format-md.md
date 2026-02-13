@@ -89,12 +89,12 @@ export function addMetaFrontmatter(
 ### Negative
 
 ❌ **Larger output** — include files now have frontmatter overhead  
-❌ **Changed behavior** — consumers expecting raw includes need adjustment  
+❌ **Consumer contract** — any code that inlines include content (e.g. the md2html includes plugin) **must strip frontmatter** before rendering; otherwise YAML metadata leaks into output as visible text  
 
 ### Neutral
 
 - Include files are still valid markdown with frontmatter
-- In md2html, include content is inserted into parent document (frontmatter handling depends on include resolver)
+- The md2html includes plugin strips frontmatter via `contentWithoutFrontmatter()` before passing content to `md.parse()` (see `output-html/plugins/includes.ts`)
 
 ## File Write Scenarios
 

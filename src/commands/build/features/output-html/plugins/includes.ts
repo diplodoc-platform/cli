@@ -4,8 +4,19 @@ import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
+import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {filterTokens, normalizePath} from '~/core/utils';
+
+/**
+ * Strips YAML frontmatter from include file content if present.
+ * Include files written by md2md may have frontmatter (e.g. csp, metadata);
+ * when used as include body they must not be rendered as content.
+ */
+export function contentWithoutFrontmatter(raw: string): string {
+    const [, content] = extractFrontMatter(raw, {json: true});
+    return content;
+}
 
 function stripTitleTokens(tokens: Token[]) {
     const [open, _, close] = tokens;
@@ -98,9 +109,11 @@ function unfoldIncludes(
                 return;
             }
 
+            const bodyContent = contentWithoutFrontmatter(includeContent);
+
             const fileTokens =
                 cache[includeFullPath] ||
-                md.parse(includeContent, {
+                md.parse(bodyContent, {
                     ...env,
                     path: includeFullPath,
                 });
