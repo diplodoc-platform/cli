@@ -1,4 +1,4 @@
-import {readdirSync, readFileSync} from 'node:fs';
+import {readFileSync, readdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
 
@@ -42,40 +42,37 @@ describe('Allow load custom resources', () => {
         md2md: false,
     });
 
-    test(
-        'include file with csp metadata does not leak frontmatter into rendered HTML (two-step build)',
-        async () => {
-            const {inputPath, outputPath} = getTestPaths('mocks/metadata/include-with-csp-meta');
+    test('include file with csp metadata does not leak frontmatter into rendered HTML (two-step build)', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/metadata/include-with-csp-meta');
 
-            // Step 1: md2md — include files get CSP frontmatter from config resources
-            await TestAdapter.testBuildPass(inputPath, outputPath, {
-                md2md: true,
-                md2html: false,
-            });
+        // Step 1: md2md — include files get CSP frontmatter from config resources
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+        });
 
-            // Verify that md2md wrote frontmatter to the include file
-            const mdIncludePath = findFile(outputPath, (n) =>
-                n.includes('support') && n.endsWith('.md'),
-            );
-            expect(mdIncludePath).toBeTruthy();
-            const mdContent = readFileSync(mdIncludePath!, 'utf8');
-            expect(mdContent).toMatch(/^---/);
-            expect(mdContent).toMatch(/csp:/);
+        // Verify that md2md wrote frontmatter to the include file
+        const mdIncludePath = findFile(
+            outputPath,
+            (n) => n.includes('support') && n.endsWith('.md'),
+        );
+        expect(mdIncludePath).toBeTruthy();
+        const mdContent = readFileSync(mdIncludePath!, 'utf8');
+        expect(mdContent).toMatch(/^---/);
+        expect(mdContent).toMatch(/csp:/);
 
-            // Step 2: md2html on md2md output — include frontmatter must not leak into HTML
-            await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
-                md2md: false,
-                md2html: true,
-            });
+        // Step 2: md2html on md2md output — include frontmatter must not leak into HTML
+        await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
+            md2md: false,
+            md2html: true,
+        });
 
-            const htmlPath = findFile(outputPath + '-html', (n) => n === 'page.html');
-            expect(htmlPath).toBeTruthy();
-            const html = readFileSync(htmlPath!, 'utf8');
+        const htmlPath = findFile(outputPath + '-html', (n) => n === 'page.html');
+        expect(htmlPath).toBeTruthy();
+        const html = readFileSync(htmlPath!, 'utf8');
 
-            expect(html).not.toMatch(/style-src:\s*unsafe-inline/);
-            expect(html).not.toMatch(/connect-src:\s*uaas\.yandex\.ru/);
-            expect(html).toMatch(/Support content only/);
-        },
-        45000,
-    );
+        expect(html).not.toMatch(/style-src:\s*unsafe-inline/);
+        expect(html).not.toMatch(/connect-src:\s*uaas\.yandex\.ru/);
+        expect(html).toMatch(/Support content only/);
+    }, 45000);
 });

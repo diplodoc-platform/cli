@@ -4,7 +4,6 @@ import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
-
 import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {filterTokens, normalizePath} from '~/core/utils';
