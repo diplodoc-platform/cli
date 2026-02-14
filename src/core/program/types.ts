@@ -14,7 +14,10 @@ export type BaseArgs = {
     quiet: boolean;
     strict: boolean;
     jobs: number | true;
+    workerMaxOldSpace: number;
     extensions?: string[];
+    copyOnWrite: boolean;
+    originAsInput: boolean;
 };
 
 export type BaseConfig = {
@@ -22,7 +25,10 @@ export type BaseConfig = {
     quiet?: boolean;
     strict?: boolean;
     jobs?: number;
+    workerMaxOldSpace?: number;
     extensions?: (string | ExtensionInfo)[];
+    copyOnWrite?: boolean;
+    originAsInput?: boolean;
 };
 
 export type ExtensionInfo<Options extends Hash = Hash> = {

@@ -1,6 +1,8 @@
 import type {BuildConfig} from '.';
+import type {MockInstance} from 'vitest';
 
-import {describe, expect, it} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {constants as fsConstants} from 'node:fs/promises';
 
 import {combineProps, fileSizeConverter} from './config';
 import {
@@ -10,6 +12,7 @@ import {
     testBooleanFlag,
     testNestedBooleanFlag,
 } from './__tests__';
+import {Run} from './run';
 
 describe('Build command', () => {
     describe('config', () => {
@@ -653,6 +656,45 @@ describe('Build command', () => {
             'feedback',
         ]);
 
+        testBooleanFlag('originAsInput', '--origin-as-input', false);
+
+        testBooleanFlag('copyOnWrite', '--copy-on-write', true);
+
+        test(
+            'should prioritize CLI no-copy-on-write over config',
+            '--no-copy-on-write',
+            {copyOnWrite: true},
+            {copyOnWrite: false},
+        );
+
+        describe('workerMaxOldSpace', () => {
+            test('should handle default', '', {
+                workerMaxOldSpace: 0,
+            });
+
+            test('should handle arg', '--worker-max-old-space 512', {
+                workerMaxOldSpace: 512,
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    workerMaxOldSpace: 1024,
+                },
+                {
+                    workerMaxOldSpace: 1024,
+                },
+            );
+
+            test(
+                'should prioritize CLI arg over config',
+                '--worker-max-old-space 256',
+                {workerMaxOldSpace: 1024},
+                {workerMaxOldSpace: 256},
+            );
+        });
+
         // test('should handle required props in config', '', {
         //     input: './input',
         //     output: './output',
@@ -869,6 +911,258 @@ describe('Build command', () => {
                 expect(() => converter('5G', '2M')).toThrow(
                     'Unknown unit type at config: G. Allowed: K, M, k, m or without unit',
                 );
+            });
+        });
+    });
+
+    describe('originAsInput integration', () => {
+        describe('with mocked file system', () => {
+            let realpathSyncSpy: MockInstance;
+
+            beforeEach(() => {
+                // Mock realpathSync to properly resolve paths instead of relying on error behavior
+                realpathSyncSpy = vi
+                    .spyOn(Run.prototype, 'realpathSync')
+                    .mockImplementation((path: AbsolutePath) => {
+                        // Simulate proper path resolution for existing paths
+                        if (path === '/test/input' || path === '/test/output') {
+                            return path as AbsolutePath;
+                        }
+                        // For temp paths, resolve them relative to output
+                        if (path.includes('.tmp_input')) {
+                            return '/test/output/.tmp_input' as AbsolutePath;
+                        }
+                        return path as AbsolutePath;
+                    });
+            });
+
+            afterEach(() => {
+                realpathSyncSpy.mockRestore();
+            });
+
+            it('should use original input directory when originAsInput is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/input'); // Should use original input directly
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should use temporary input directory when originAsInput is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                // Should use temp directory in output - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
+                expect(run.input).not.toBe(run.originalInput);
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should use temporary input directory by default', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    // originAsInput not specified, should default to false
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                // Should use temp directory by default - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
+                expect(run.input).not.toBe(run.originalInput);
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should correctly handle path resolution with originAsInput=true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Verify that input and originalInput are the same when originAsInput is true
+                expect(run.input).toBe(run.originalInput);
+                expect(run.input).toBe('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+
+            it('should correctly handle path resolution with originAsInput=false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Verify that input is different from originalInput when originAsInput is false
+                expect(run.input).not.toBe(run.originalInput);
+                // Use platform-agnostic assertion for temp input path
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
+                expect(run.originalInput).toBe('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/input');
+                expect(realpathSyncSpy).toHaveBeenCalledWith('/test/output');
+            });
+        });
+
+        describe('with createTestRun factory', () => {
+            function createTestRun(config: BuildConfig): Run {
+                const run = new Run(config);
+
+                // Mock realpathSync to simulate proper file system behavior
+                vi.spyOn(run, 'realpathSync').mockImplementation((path: AbsolutePath) => {
+                    // Simulate proper path resolution for existing paths
+                    if (path === '/test/input' || path === '/test/output') {
+                        return path as AbsolutePath;
+                    }
+                    // For temp paths, resolve them relative to output
+                    if (path.includes('.tmp_input')) {
+                        return '/test/output/.tmp_input' as AbsolutePath;
+                    }
+                    return path as AbsolutePath;
+                });
+
+                return run;
+            }
+
+            it('should use original input directory when originAsInput is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: true,
+                } as BuildConfig;
+
+                const run = createTestRun(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                expect(run.input).toBe('/test/input'); // Should use original input directly
+            });
+
+            it('should use temporary input directory when originAsInput is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    originAsInput: false,
+                } as BuildConfig;
+
+                const run = createTestRun(config);
+
+                expect(run.originalInput).toBe('/test/input');
+                // Should use temp directory in output - use platform-agnostic assertion
+                expect(run.input).toMatch(/[\\/]test[\\/]output[\\/]\.tmp_input$/);
+                expect(run.input).not.toBe(run.originalInput);
+            });
+        });
+
+        describe('copyOnWrite integration', () => {
+            it('should use COPYFILE_FICLONE flag when copyOnWrite is true', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    copyOnWrite: true,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // Verify that COPYFILE_FICLONE flag was used
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    fsConstants.COPYFILE_FICLONE,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
+            });
+
+            it('should not use COPYFILE_FICLONE flag when copyOnWrite is false', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    copyOnWrite: false,
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // Verify that no flags were used (0)
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    0,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
+            });
+
+            it('should default to copyOnWrite=false when not specified in config object', async () => {
+                const config = {
+                    input: '/test/input',
+                    output: '/test/output',
+                    // copyOnWrite not specified, will be undefined
+                } as BuildConfig;
+
+                const run = new Run(config);
+
+                // Mock the file system operations
+                const statSpy = vi
+                    .spyOn(run.fs, 'stat')
+                    .mockResolvedValue({isFile: () => true} as any);
+                const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
+                const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
+
+                await run.copy('/test/input/file.md', '/test/output/file.md');
+
+                // When copyOnWrite is undefined in config object, it defaults to false (0)
+                // because the default value is only applied during CLI argument parsing
+                expect(copyFileSpy).toHaveBeenCalledWith(
+                    '/test/input/file.md',
+                    '/test/output/file.md',
+                    0,
+                );
+
+                statSpy.mockRestore();
+                mkdirSpy.mockRestore();
+                copyFileSpy.mockRestore();
             });
         });
     });
