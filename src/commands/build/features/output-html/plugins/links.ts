@@ -11,6 +11,7 @@ import {normalizePath} from '~/core/utils';
 import {walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
+const DOC_ASSETS_FOLDER = '_assets';
 
 type Options = {
     path: NormalizedPath;
@@ -45,26 +46,47 @@ export default ((md, opts) => {
                 return;
             }
 
-            const file = normalizePath(
-                pathname ? join(dirname(state.env.path || path), pathname) : path,
-            );
+            const isAssetsLink = pathname && pathname.startsWith(`${DOC_ASSETS_FOLDER}/`);
+            const hasDownloadAttr = link.attrGet('download') !== null;
 
-            if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
-                const fileMissingInProject = !existsInProject(file);
-                const fileMissingInToc = !entries.includes(file);
+            if ((isAssetsLink || hasDownloadAttr) && pathname) {
+                const fullAssetsPath = normalizePath(
+                    join(dirname(state.env.path || path), pathname),
+                );
 
-                if (fileMissingInProject || fileMissingInToc) {
-                    link.attrSet('YFM003', 'missing-in-toc');
+                if (!existsInProject(fullAssetsPath)) {
+                    link.attrSet('YFM003', 'file-not-found');
                 }
-            }
 
-            link.attrSet(
-                'href',
-                url.format({
-                    ...parsed,
-                    pathname: file.replace(PAGE_LINK_REGEXP, '.html'),
-                }),
-            );
+                link.attrSet(
+                    'href',
+                    url.format({
+                        ...parsed,
+                        pathname,
+                    }),
+                );
+            } else {
+                const file = normalizePath(
+                    pathname ? join(dirname(state.env.path || path), pathname) : path,
+                );
+
+                if (pathname && PAGE_LINK_REGEXP.test(pathname)) {
+                    const fileMissingInProject = !existsInProject(file);
+                    const fileMissingInToc = !entries.includes(file);
+
+                    if (fileMissingInProject || fileMissingInToc) {
+                        link.attrSet('YFM003', 'missing-in-toc');
+                    }
+                }
+
+                link.attrSet(
+                    'href',
+                    url.format({
+                        ...parsed,
+                        pathname: file.replace(PAGE_LINK_REGEXP, '.html'),
+                    }),
+                );
+            }
 
             link.meta = link.meta || {};
             link.meta.linksPluginProcessed = true;

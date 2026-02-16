@@ -223,6 +223,11 @@ export class OutputHtml {
                 // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
                 await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
+
+                const assetsPath = join(run.input, '_assets');
+                if (run.exists(assetsPath)) {
+                    await run.copy(assetsPath, join(run.output, '_assets'));
+                }
             });
 
         // Generate redirects
