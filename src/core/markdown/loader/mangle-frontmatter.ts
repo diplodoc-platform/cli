@@ -18,16 +18,17 @@ function safeExtractFrontmatter(this: LoaderContext, content: string) {
     } catch (error) {
         const err = error as YamlError;
         if (err.reason === 'duplicated mapping key') {
-            const err = error as YamlError;
             const path = this.path;
 
             const reason = err.reason || 'invalid front matter format';
             const line = typeof err.mark?.line === 'number' ? Number(err.mark.line) + 1 : undefined;
+            const key =
+                line === undefined ? '' : `${content.split('\n')[line]?.trim().split(':')[0]}`;
 
             const context =
                 line === undefined
                     ? `[Reason: "${reason}"]`
-                    : `[Reason: "${reason}"; Line: ${line}]`;
+                    : `[Reason: "${reason}"; Line: ${line}; Key: "${key}"]`;
 
             const errorMessage =
                 line === undefined

@@ -63,10 +63,10 @@ describe('Errors', () => {
 
     test('mocks/errors/invalid-frontmatter', ({md, html}: TestResult) => {
         expectErrors(md, [
-            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2]',
+            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2; Key: "title"]',
         ]);
         expectErrors(html, [
-            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2]',
+            'ERR index.md: 2: YAMLException / invalid front matter format [Reason: "duplicated mapping key"; Line: 2; Key: "title"]',
         ]);
     });
 
