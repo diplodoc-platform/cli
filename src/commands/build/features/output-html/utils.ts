@@ -17,6 +17,7 @@ import table from '@diplodoc/transform/lib/plugins/table';
 import term from '@diplodoc/transform/lib/plugins/term';
 import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
 import inlineCode from '@diplodoc/transform/lib/plugins/inline-code';
+import file from '@diplodoc/transform/lib/plugins/file';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
@@ -52,6 +53,7 @@ export function getBaseMdItPlugins() {
         table,
         term,
         inlineCode,
+        file,
         openapi.transform(),
         mermaid.transform({
             bundle: false,
