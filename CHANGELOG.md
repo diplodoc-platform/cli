@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.23.0](https://github.com/diplodoc-platform/cli/compare/v5.22.5...v5.23.0) (2026-02-16)
+
+
+### Features
+
+* add originAsInput, copy optimization ([#1672](https://github.com/diplodoc-platform/cli/issues/1672)) ([9f367ad](https://github.com/diplodoc-platform/cli/commit/9f367ad4aac8f55a8bbe6472c7ec82ea047c343e))
+
+
+### Bug Fixes
+
+* save liquid conditions on true ([388b530](https://github.com/diplodoc-platform/cli/commit/388b530b70a0e38e5b229a79b302f590ad1dd578))
+
 ## [5.22.5](https://github.com/diplodoc-platform/cli/compare/v5.22.4...v5.22.5) (2026-02-10)
 
 
