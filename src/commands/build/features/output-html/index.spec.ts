@@ -10,7 +10,7 @@ import {getHooks as getEntryHooks} from '../../services/entry';
 
 import {OutputHtml} from './index';
 
-describe('OutputHtml feature', () => {
+describe('OutputHtml feature ', () => {
     describe('YFM012 filesize limit exceeded', () => {
         it('should log error when html file size exceeds limit', async () => {
             const build = new Build();
