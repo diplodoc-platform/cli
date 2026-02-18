@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.23.1](https://github.com/diplodoc-platform/cli/compare/v5.23.0...v5.23.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* e2e for new transform ([d0169f4](https://github.com/diplodoc-platform/cli/commit/d0169f4dc8502cbcb12420e0fd5e43dcbc05c914))
+* prevent md2md metadata from leaking via include files ([d23be5d](https://github.com/diplodoc-platform/cli/commit/d23be5d8a3670d44d7f6f32fab437bca37ce2ce8))
+* snaphot update ([4046a68](https://github.com/diplodoc-platform/cli/commit/4046a6857fbfc4f8fb40b5bfab6d3b245c17f8b1))
+* static asset link ([5f4658d](https://github.com/diplodoc-platform/cli/commit/5f4658debfb3fbde5095db8e2845327c7305ca82))
+
 ## [5.23.0](https://github.com/diplodoc-platform/cli/compare/v5.22.5...v5.23.0) (2026-02-16)
 
 
