@@ -7,7 +7,6 @@ type YamlErrorMark = {
 };
 
 type YamlError = {
-    name?: string;
     reason?: string;
     mark?: YamlErrorMark;
 };
@@ -18,24 +17,15 @@ function safeExtractFrontmatter(this: LoaderContext, content: string) {
     } catch (error) {
         const err = error as YamlError;
         if (err.reason === 'duplicated mapping key') {
-            const path = this.path;
+            const line = typeof err.mark?.line === 'number' ? err.mark.line + 1 : undefined;
+            const key = line === undefined ? '' : content.split('\n')[line]?.trim().split(':')[0];
 
-            const reason = err.reason || 'invalid front matter format';
-            const line = typeof err.mark?.line === 'number' ? Number(err.mark.line) + 1 : undefined;
-            const key =
-                line === undefined ? '' : `${content.split('\n')[line]?.trim().split(':')[0]}`;
+            if (key && key !== 'vcsPath') {
+                const context = `[Reason: "${err.reason}"; Line: ${line}; Key: "${key}"]`;
+                const errorMessage = `${this.path}: ${line}: YFM017 / invalid front matter format ${context}`;
 
-            const context =
-                line === undefined
-                    ? `[Reason: "${reason}"]`
-                    : `[Reason: "${reason}"; Line: ${line}; Key: "${key}"]`;
-
-            const errorMessage =
-                line === undefined
-                    ? `${path}: ${err.name} / invalid front matter format ${context}`
-                    : `${path}: ${line}: ${err.name} / invalid front matter format ${context}`;
-
-            this.logger.error(errorMessage);
+                this.logger.error(errorMessage);
+            }
         }
         return extractFrontMatter(content, {json: true});
     }
