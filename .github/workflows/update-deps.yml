@@ -11,7 +11,34 @@ on:
       package:
         description: 'Package name to update'
         required: true
-        type: string
+        default: '@diplodoc/transform'
+        type: choice
+        options:
+          # === packages ===
+          - '@diplodoc/client'
+          - '@diplodoc/components'
+          - '@diplodoc/directive'
+          - '@diplodoc/gh-docs'
+          - '@diplodoc/liquid'
+          - '@diplodoc/sentenizer'
+          - '@diplodoc/transform'
+          - '@diplodoc/translation'
+          - '@diplodoc/utils'
+          - '@diplodoc/yfmlint'
+          # === extensions ===
+          - '@diplodoc/algolia-extension'
+          - '@diplodoc/color-extension'
+          - '@diplodoc/cut-extension'
+          - '@diplodoc/file-extension'
+          - '@diplodoc/folding-headings-extension'
+          - '@diplodoc/html-extension'
+          - '@diplodoc/latex-extension'
+          - '@diplodoc/mermaid-extension'
+          - '@diplodoc/openapi-extension'
+          - '@diplodoc/page-constructor-extension'
+          - '@diplodoc/quote-link-extension'
+          - '@diplodoc/search-extension'
+          - '@diplodoc/tabs-extension'
       version:
         description: 'Package version (use "latest" for latest version)'
         required: true
