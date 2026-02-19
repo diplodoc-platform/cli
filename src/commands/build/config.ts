@@ -186,13 +186,13 @@ const maxHtmlSize = option({
     flags: '--max-html-size <value>',
     desc: `
         Restriction on the maximum file size for rendered html file.
-        Default: 42M
+        Default: 16M
         Max size: 96M
 
         Example:
             {{PROGRAM}} build -i . -o ../build --max-html-size '128K'
     `,
-    default: '42M',
+    default: '16M',
     parser: fileSizeConverter({max: '96M'}),
 });
 
