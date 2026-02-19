@@ -133,7 +133,7 @@
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
     "mime-types": "2.1.35",
-    "minimatch": "9.0.3",
+    "minimatch": "10.2.1",
     "node-html-parser": "6.1.5",
     "simple-git": "3.22.0",
     "slugify": "1.6.5",
