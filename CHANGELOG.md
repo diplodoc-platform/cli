@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.24.0](https://github.com/diplodoc-platform/cli/compare/v5.23.1...v5.24.0) (2026-02-19)
+
+
+### Features
+
+* add error if duplicated key ([#1652](https://github.com/diplodoc-platform/cli/issues/1652)) ([e5f75b6](https://github.com/diplodoc-platform/cli/commit/e5f75b6d8876d1c5615af63f2245dc52f30b8d6a))
+
+
+### Bug Fixes
+
+* **e2e:** regression test ([ec1e9d8](https://github.com/diplodoc-platform/cli/commit/ec1e9d8bb2d22d4091de9f58c62af4ef7f6ede34))
+
 ## [5.23.1](https://github.com/diplodoc-platform/cli/compare/v5.23.0...v5.23.1) (2026-02-18)
 
 
