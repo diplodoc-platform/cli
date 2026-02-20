@@ -1,8 +1,9 @@
-name: Release to npm
+name: Release Package to npm
 
-# This workflow handles both stable and prerelease publishing to npm
+# This workflow handles stable releases, prereleases, and deprecation:
 # - Stable: triggered by release event or manual dispatch with 'stable' type
 # - Prerelease: triggered by manual dispatch with 'prerelease' type (only from non-protected branches)
+# - Deprecate: triggered by manual dispatch with 'deprecate' type (marks a version as deprecated)
 
 on:
   release:
@@ -17,6 +18,19 @@ on:
         options:
           - prerelease
           - stable
+          - deprecate
+      deprecate_version:
+        description: 'Version to deprecate (only for deprecate type)'
+        required: false
+        type: string
+      deprecate_message:
+        description: 'Deprecation message (only for deprecate type)'
+        required: false
+        type: string
+      deprecate_new_latest:
+        description: 'New latest version (required when deprecating current latest)'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -27,10 +41,12 @@ jobs:
     name: Publish to npm
     runs-on: ubuntu-latest
     # For prerelease - only from non-protected branches
+    # For deprecate - always allowed
     if: |
       github.event_name == 'release' ||
       (github.event_name == 'workflow_dispatch' && inputs.release_type == 'stable') ||
-      (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease' && github.ref_protected != true)
+      (github.event_name == 'workflow_dispatch' && inputs.release_type == 'prerelease' && github.ref_protected != true) ||
+      (github.event_name == 'workflow_dispatch' && inputs.release_type == 'deprecate')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,15 +68,19 @@ jobs:
         shell: bash
 
       - name: Install dependencies
+        if: inputs.release_type != 'deprecate'
         run: npm ci
 
       - name: Run tests
+        if: inputs.release_type != 'deprecate'
         run: npm test
 
       - name: Run type check
+        if: inputs.release_type != 'deprecate'
         run: npm run typecheck
 
       - name: Build package
+        if: inputs.release_type != 'deprecate'
         run: npm run build
 
       # === STABLE RELEASE STEPS ===
@@ -122,3 +142,41 @@ jobs:
         run: npm publish --tag $(git branch --show-current) --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      # === DEPRECATE STEPS ===
+      - name: Validate deprecate inputs
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'deprecate'
+        run: |
+          if [[ -z "${{ inputs.deprecate_version }}" ]]; then
+            echo "::error::deprecate_version is required for deprecate action"
+            exit 1
+          fi
+          if [[ -z "${{ inputs.deprecate_message }}" ]]; then
+            echo "::error::deprecate_message is required for deprecate action"
+            exit 1
+          fi
+
+      - name: Deprecate version
+        if: github.event_name == 'workflow_dispatch' && inputs.release_type == 'deprecate'
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          set -e
+
+          PACKAGE="${{ steps.package.outputs.name }}"
+          LATEST="$(npm view $PACKAGE@latest version 2>/dev/null || echo '')"
+          VERSION="${{ inputs.deprecate_version }}"
+          MESSAGE="${{ inputs.deprecate_message }}"
+          TARGET="$PACKAGE@$VERSION"
+
+          if [[ "$LATEST" == "$VERSION" ]]; then
+            if [[ -z "${{ inputs.deprecate_new_latest }}" ]]; then
+              echo "::error::deprecate_new_latest is required when deprecating the current latest version ($LATEST)"
+              exit 1
+            fi
+            echo "::notice::Setting new latest tag to $PACKAGE@${{ inputs.deprecate_new_latest }}"
+            npm dist-tag add "$PACKAGE@${{ inputs.deprecate_new_latest }}" latest
+          fi
+
+          echo "::notice::Deprecating $TARGET. Reason: $MESSAGE"
+          npm deprecate "$TARGET" "$MESSAGE"
