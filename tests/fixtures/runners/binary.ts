@@ -10,8 +10,12 @@ export class BinaryRunner implements Runner {
         this.binaryPath = binaryPath;
     }
 
-    async runYfmDocs(argv: string[]) {
-        const {stderr, exitCode} = await execa(this.binaryPath, argv, {all: true, reject: false});
+    async runYfmDocs(argv: string[], env?: Record<string, string>) {
+        const {stderr, exitCode} = await execa(this.binaryPath, argv, {
+            all: true,
+            reject: false,
+            env: {...process.env, ...env},
+        });
         const report = {
             code: exitCode || 0,
             warns: fillLog(/^WARN/, stderr),
