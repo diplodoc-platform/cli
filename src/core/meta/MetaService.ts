@@ -86,6 +86,12 @@ export class MetaService {
         this.meta.set(file, meta);
     }
 
+    assign(path: RelativePath, meta: Meta) {
+        const file = normalizePath(path);
+
+        this.meta.set(file, {...this.meta.get(file), ...meta});
+    }
+
     /**
      * Returns normalized, merged metadata for a path.
      *
