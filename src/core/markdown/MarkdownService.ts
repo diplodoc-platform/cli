@@ -170,7 +170,7 @@ export class MarkdownService {
             defer.reject(error);
         }
 
-        return ((await defer.promise) as CacheItem).content;
+        return (await defer.promise).content;
     }
 
     @bounded async dump(file: NormalizedPath, markdown?: string) {
