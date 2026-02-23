@@ -57,11 +57,9 @@ type Options = {
 
 interface CacheItem {
     content: string;
-    meta: {
-        __metadata?: Hash;
-        __system?: Hash;
-        meta: Meta;
-    };
+    varsMetadata?: Hash;
+    varsSystem?: Hash;
+    meta: Meta;
 }
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
@@ -127,10 +125,10 @@ export class MarkdownService {
         const key = hash(file, from);
 
         if (key in this.cache) {
-            const {content, meta} = await this.cache[key];
-            this.run.meta.addMetadata(file, meta.__metadata);
-            this.run.meta.addSystemVars(file, meta.__system);
-            this.run.meta.add(file, meta.meta, true);
+            const {content, varsMetadata, varsSystem, meta} = await this.cache[key];
+            this.run.meta.addMetadata(file, varsMetadata);
+            this.run.meta.addSystemVars(file, varsSystem);
+            this.run.meta.add(file, meta, true);
             return content;
         }
 
@@ -152,19 +150,15 @@ export class MarkdownService {
 
             await getHooks(this).Loaded.promise(raw, meta, file);
 
-            const metaCache = {
-                __metadata: vars.__metadata,
-                __system: vars.__system,
-                meta,
-            };
-
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
             this.run.meta.add(file, meta, true);
 
             const result = {
                 content,
-                meta: metaCache,
+                varsMetadata: vars.__metadata,
+                varsSystem: vars.__system,
+                meta,
             };
             this.cache[key] = result;
             defer.resolve(result);
@@ -176,7 +170,7 @@ export class MarkdownService {
             defer.reject(error);
         }
 
-        return (await defer.promise).content;
+        return ((await defer.promise) as CacheItem).content;
     }
 
     @bounded async dump(file: NormalizedPath, markdown?: string) {
