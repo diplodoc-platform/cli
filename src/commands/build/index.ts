@@ -313,7 +313,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     @threads.threaded('build.process')
     async process(file: NormalizedPath, meta: Meta): Promise<EntryInfo> {
-        this.run.meta.assign(file, meta);
+        this.run.meta.set(file, meta);
 
         const result = await this.run.entry.dump(file);
 
