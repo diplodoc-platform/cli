@@ -1,4 +1,4 @@
-import {describe, expect, test} from 'vitest';
+import {describe, test} from 'vitest';
 
 import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
 
