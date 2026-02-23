@@ -134,7 +134,7 @@ export class MarkdownService {
             return content;
         }
 
-        const defer = new Defer<CacheItem>();
+        const defer = new Defer();
 
         this.cache[key] = defer.promise;
 
