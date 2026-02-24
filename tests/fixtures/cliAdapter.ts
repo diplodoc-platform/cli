@@ -7,6 +7,7 @@ export interface BuildRunArgs {
     md2md?: boolean;
     md2html?: boolean;
     args?: string;
+    env?: Record<string, string>;
 }
 
 export interface TranslateRunArgs {
@@ -23,16 +24,11 @@ class Build {
         this.runner = runner;
     }
 
-    run(input: string, output: string, args: string[]) {
-        return this.runner.runYfmDocs([
-            '--input',
-            input,
-            '--output',
-            output,
-            '--quiet',
-            '--allowHTML',
-            ...args,
-        ]);
+    run(input: string, output: string, args: string[], env?: Record<string, string>) {
+        return this.runner.runYfmDocs(
+            ['--input', input, '--output', output, '--quiet', '--allowHTML', ...args],
+            env,
+        );
     }
 }
 
@@ -43,17 +39,11 @@ class Extract {
         this.runner = runner;
     }
 
-    run(input: string, output: string, args: string[]) {
-        return this.runner.runYfmDocs([
-            'translate',
-            'extract',
-            '--input',
-            input,
-            '--output',
-            output,
-            '--quiet',
-            ...args,
-        ]);
+    run(input: string, output: string, args: string[], env?: Record<string, string>) {
+        return this.runner.runYfmDocs(
+            ['translate', 'extract', '--input', input, '--output', output, '--quiet', ...args],
+            env,
+        );
     }
 }
 
@@ -67,7 +57,7 @@ export class CliTestAdapter {
     async testBuildPass(
         inputPath: string,
         outputPath: string,
-        {md2md = true, md2html = true, args = ''}: BuildRunArgs = {},
+        {md2md = true, md2html = true, args = '', env}: BuildRunArgs = {},
     ): Promise<void> {
         await cleanupDirectory(outputPath);
         await cleanupDirectory(`${outputPath}-md`);
@@ -78,14 +68,16 @@ export class CliTestAdapter {
         const tasks = [];
 
         if (md2md && md2html) {
-            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md']));
+            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md'], env));
             tasks.push(() =>
-                this.build.run(inputPath, `${outputPath}-html`, [...baseArgs, '-f', 'html']),
+                this.build.run(inputPath, `${outputPath}-html`, [...baseArgs, '-f', 'html'], env),
             );
         } else if (md2md) {
-            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md']));
+            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'md'], env));
         } else {
-            tasks.push(() => this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'html']));
+            tasks.push(() =>
+                this.build.run(inputPath, outputPath, [...baseArgs, '-f', 'html'], env),
+            );
         }
 
         for (const task of tasks) {
