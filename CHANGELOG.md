@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.24.2](https://github.com/diplodoc-platform/cli/compare/v5.24.1...v5.24.2) (2026-02-24)
+
+
+### Bug Fixes
+
+* do not copy twice toc entry ([b78508a](https://github.com/diplodoc-platform/cli/commit/b78508a57fbc4c7c9bd4f0fe8b3ed1c7b9d2caec))
+
 ## [5.24.1](https://github.com/diplodoc-platform/cli/compare/v5.24.0...v5.24.1) (2026-02-24)
 
 
