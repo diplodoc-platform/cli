@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.24.1](https://github.com/diplodoc-platform/cli/compare/v5.24.0...v5.24.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform to 4.70.0 ([04aa1f0](https://github.com/diplodoc-platform/cli/commit/04aa1f0dd78813d10068ae0088fce7a7739531ac))
+* metadata lost ([#1698](https://github.com/diplodoc-platform/cli/issues/1698)) ([5c914b7](https://github.com/diplodoc-platform/cli/commit/5c914b72cbac7d5bc6ded3c6720cf06e8826e988))
+
 ## [5.24.0](https://github.com/diplodoc-platform/cli/compare/v5.23.1...v5.24.0) (2026-02-19)
 
 
