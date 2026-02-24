@@ -256,6 +256,10 @@ export class OutputMd {
                     }
                     cache.add(path);
 
+                    if (run.toc.isEntry(path)) {
+                        return;
+                    }
+
                     if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
                         run.logger.error(
                             'YFM013',

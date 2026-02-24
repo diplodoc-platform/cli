@@ -280,7 +280,7 @@ function getHref(root: AbsolutePath, path: NormalizedPath) {
         }
 
         if (!href.startsWith('/')) {
-            href = join(dirname(path), href);
+            href = normalizePath(join(dirname(path), href));
         }
 
         const filePath = join(root, href);
