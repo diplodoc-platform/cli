@@ -6,3 +6,5 @@
 Текс <a href="_assets/test.yaml" download="Config">Скачать</a> потом текст
 
 Текс [Download](_assets/test.yaml){download="Config"} потом текст
+
+[Link to pc page](./pc-index.yaml)

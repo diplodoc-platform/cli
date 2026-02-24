@@ -4,6 +4,7 @@ exports[`Static files from _assets directory > Download link should be enabled >
 "[
   "_assets/test.yaml",
   "index.md",
+  "pc-index.yaml",
   "toc.yaml"
 ]"
 `;
@@ -12,6 +13,7 @@ exports[`Static files from _assets directory > Download link should be enabled >
 "[
   "_assets/test.yaml",
   "index.html",
+  "pc-index.html",
   "toc.js"
 ]"
 `;
@@ -31,17 +33,59 @@ vcsPath: index.md
 Текс <a href="_assets/test.yaml" download="Config">Скачать</a> потом текст
 
 Текс [Download](_assets/test.yaml){download="Config"} потом текст
-"
+
+[Link to pc page](./pc-index.yaml)"
 `;
 
 exports[`Static files from _assets directory > Download link should be enabled 2`] = `
-"title: Test123
-href: index.md
-path: toc.yaml
+"description: []
+meta:
+  metadata:
+    - name: generator
+      content: Diplodoc Platform vDIPLODOC-VERSION
+  keywords:
+    - keyword: '{{ datalens-name }}'
+    - keyword: '{{ datalens-full-name }}'
+    - keyword: Сервис {{ datalens-name }}
+    - keyword: Сервис для бизнес аналитики
+    - keyword: BI аналитика
+    - keyword: Визуализация данных в {{ yandex-cloud }}
+    - keyword: Как подключиться к источнику данных
+    - keyword: бизнес-метрики в {{ yandex-cloud }}
+    - keyword: Аналитика {{ yandex-cloud }}
+  vcsPath: pc-index.yaml
+links:
+  - title: Подключения
+    description: Подключайте различные источники данных
+    href: concepts/connection
+  - title: Датасеты
+    description: Описывайте структуру данных, полученных из источника
+    href: dataset/
+  - title: Чарты
+    description: >-
+      Стройте чарты с помощью Self-service-конструктора визуализаций или
+      используйте JavaScript-кастомизацию
+    href: concepts/chart/
+  - title: Дашборды
+    description: Собирайте свои чарты на одной странице
+    href: concepts/dashboard
+  - title: Управление доступом
+    description: Какие права доступа нужны для работы с сервисом
+    href: security/
 "
 `;
 
 exports[`Static files from _assets directory > Download link should be enabled 3`] = `
+"title: Test123
+href: index.md
+path: toc.yaml
+items:
+  - name: Yaml index
+    href: pc-index.yaml
+"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 4`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -56,7 +100,7 @@ exports[`Static files from _assets directory > Download link should be enabled 3
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h3 id=\\"download-static-file\\"&gt;&lt;a href=\\"index.html#download-static-file\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Download static file&lt;/span&gt;&lt;/a&gt;Download static file&lt;/h3&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.yaml\\" download=\\"Configuration File\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Скачать&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Download&lt;/a&gt; потом текст&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/file-extension.css"],"vcsPath":"index.md"},"headings":[],"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h3 id=\\"download-static-file\\"&gt;&lt;a href=\\"index.html#download-static-file\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Download static file&lt;/span&gt;&lt;/a&gt;Download static file&lt;/h3&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.yaml\\" download=\\"Configuration File\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Скачать&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Download&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"pc-index.html\\"&gt;Link to pc page&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/file-extension.css"],"vcsPath":"index.md"},"headings":[],"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -70,4 +114,33 @@ exports[`Static files from _assets directory > Download link should be enabled 3
 </html>"
 `;
 
-exports[`Static files from _assets directory > Download link should be enabled 4`] = `"window.__DATA__.data.toc = {"title":"Test123","href":"index.html","path":"toc.yaml","id":"UUID"};"`;
+exports[`Static files from _assets directory > Download link should be enabled 5`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Test123</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="keywords" content="[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"description":[],"links":[{"title":"Подключения","description":"Подключайте различные источники данных","href":"concepts/connection/index.html"},{"title":"Датасеты","description":"Описывайте структуру данных, полученных из источника","href":"dataset/index.html"},{"title":"Чарты","description":"Стройте чарты с помощью Self-service-конструктора визуализаций или используйте JavaScript-кастомизацию","href":"concepts/chart/index.html"},{"title":"Дашборды","description":"Собирайте свои чарты на одной странице","href":"concepts/dashboard/index.html"},{"title":"Управление доступом","description":"Какие права доступа нужны для работы с сервисом","href":"security/index.html"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"keywords":[{"keyword":"{{ datalens-name }}"},{"keyword":"{{ datalens-full-name }}"},{"keyword":"Сервис {{ datalens-name }}"},{"keyword":"Сервис для бизнес аналитики"},{"keyword":"BI аналитика"},{"keyword":"Визуализация данных в {{ yandex-cloud }}"},{"keyword":"Как подключиться к источнику данных"},{"keyword":"бизнес-метрики в {{ yandex-cloud }}"},{"keyword":"Аналитика {{ yandex-cloud }}"}],"vcsPath":"pc-index.yaml"},"title":""},"router":{"pathname":"pc-index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Static files from _assets directory > Download link should be enabled 6`] = `"window.__DATA__.data.toc = {"title":"Test123","href":"index.html","path":"toc.yaml","items":[{"name":"Yaml index","href":"pc-index.html","id":"UUID"}],"id":"UUID"};"`;
