@@ -171,4 +171,71 @@ describe('Build themer feature', () => {
             ),
         ).toBe(true);
     });
+
+    it.each([
+        ['md2md', true, false],
+        ['md2html', false, true],
+    ])('generates theme.css from .yfm (%s)', async (_, md2md, md2html) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test5');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md,
+            md2html,
+        });
+
+        const cssPath = join(outputPath, '_assets', 'style', 'theme.css');
+        const css = await readFile(cssPath, 'utf8');
+
+        expect(css).toContain('--g-color-base-brand: var(--g-color-private-base-brand-550-solid);');
+        expect(css).toContain('--g-color-private-base-brand-550-solid: rgb(255 0 0);');
+        expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(234 4 5);');
+    });
+
+    it.each([
+        ['md2md', true, false],
+        ['md2html', false, true],
+    ])('flag overrides theme from .yfm (%s)', async (_, md2md, md2html) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test5');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md,
+            md2html,
+            args: '--theme pink',
+        });
+
+        const cssPath = join(outputPath, '_assets', 'style', 'theme.css');
+        const css = await readFile(cssPath, 'utf8');
+
+        expect(css).toContain('--g-color-base-brand: var(--g-color-private-base-brand-550-solid);');
+        expect(css).toContain('--g-color-private-base-brand-550-solid: rgb(255 192 203);');
+        expect(css).toContain('--g-color-private-base-brand-600-solid: rgb(234 177 188);');
+    });
+
+    it('add theme to front matter', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test5');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+        });
+
+        const mdPath = join(outputPath, 'index.md');
+        const md = await readFile(mdPath, 'utf8');
+
+        expect(md).toMatch(/theme:\s*_assets[/\\]style[/\\]theme\.css/);
+    });
+
+    it('does not add theme to front matter when theme.css is not generated', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test3');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+        });
+
+        const mdPath = join(outputPath, 'index.md');
+        const md = await readFile(mdPath, 'utf8');
+
+        expect(md).not.toMatch(/theme:\s*_assets[/\\]style[/\\]theme\.css/);
+    });
 });
