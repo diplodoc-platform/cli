@@ -2,15 +2,19 @@ import {readFileSync, readdirSync} from 'node:fs';
 import {join} from 'node:path';
 import {describe, expect, test} from 'vitest';
 
-import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
+import {TestAdapter, generateMapTestTemplate, getTestPaths} from '../fixtures';
 
 function findFile(dir: string, predicate: (name: string) => boolean): string | null {
     try {
         for (const name of readdirSync(dir, {withFileTypes: true})) {
             const full = join(dir, name.name);
+
             if (name.isDirectory()) {
                 const found = findFile(full, predicate);
-                if (found) return found;
+
+                if (found) {
+                    return found;
+                }
             } else if (predicate(name.name)) {
                 return full;
             }
@@ -18,20 +22,9 @@ function findFile(dir: string, predicate: (name: string) => boolean): string | n
     } catch {
         return null;
     }
+
     return null;
 }
-
-const generateMapTestTemplate = (
-    testTitle: string,
-    testRootPath: string,
-    {md2md = true, md2html = true},
-) => {
-    test(testTitle, async () => {
-        const {inputPath, outputPath} = getTestPaths(testRootPath);
-        await TestAdapter.testBuildPass(inputPath, outputPath, {md2md, md2html});
-        await compareDirectories(outputPath);
-    });
-};
 
 describe('Allow load custom resources', () => {
     generateMapTestTemplate('md2md with metadata', 'mocks/metadata/md2md-with-metadata', {
