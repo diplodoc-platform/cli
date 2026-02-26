@@ -28,6 +28,8 @@ export class BinaryRunner implements Runner {
                 // eslint-disable-next-line no-console
                 console.log(line);
             }
+        } else if (report.code > 0) {
+            console.error(stderr);
         }
 
         return report;

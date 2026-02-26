@@ -894,3 +894,306 @@ exports[`Alternates > skip-html-extension 13`] = `
 `;
 
 exports[`Alternates > skip-html-extension 14`] = `"window.__DATA__.data.toc = {"href":"ru/","items":[{"href":"ru/about","name":"About","id":"UUID"},{"href":"ru/deep/test","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used > filelist 1`] = `
+"[
+  ".yfm",
+  "az/about.html",
+  "az/deep/test.html",
+  "az/index.html",
+  "az/toc.js",
+  "en/about.html",
+  "en/deep/test.html",
+  "en/index.html",
+  "en/toc.js",
+  "index.html",
+  "ru/about.html",
+  "ru/deep/test.html",
+  "ru/index.html",
+  "ru/toc.js"
+]"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 1`] = `
+"langs: ['ru', 'en', {'lang': 'az', 'tld': 'az'}]
+"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 2`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"az/about.md"},"headings":[],"title":"About"},"router":{"pathname":"az/about","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 3`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"az/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"az/deep/test","depth":3,"base":"../../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 4`] = `
+"<!DOCTYPE html>
+<html lang="az" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"az/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"az/index.yaml"},"title":""},"router":{"pathname":"az/index","depth":2,"base":"../"},"lang":"az","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="az/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 5`] = `"window.__DATA__.data.toc = {"href":"az/index.html","items":[{"href":"az/about.html","name":"About","id":"UUID"},{"href":"az/deep/test.html","name":"Test","id":"UUID"}],"path":"az/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 6`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"en/about.md"},"headings":[],"title":"About"},"router":{"pathname":"en/about","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 7`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"en/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"en/deep/test","depth":3,"base":"../../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 8`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"en/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"en/index.yaml"},"title":""},"router":{"pathname":"en/index","depth":2,"base":"../"},"lang":"en","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="en/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 9`] = `"window.__DATA__.data.toc = {"href":"en/index.html","items":[{"href":"en/about.html","name":"About","id":"UUID"},{"href":"en/deep/test.html","name":"Test","id":"UUID"}],"path":"en/toc.yaml","id":"UUID"};"`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 10`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Redirect to ./ru/index.html</title>
+        <meta http-equiv="refresh" content="0; url=./ru/index.html">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <script type="application/javascript">
+            window.location.replace("./ru/index.html");
+        </script>
+    </head>
+    <body class="g-root g-root_theme_light">
+        If you are not redirected automatically, follow this <a href="./ru/index.html">link</a>.
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 11`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title>About</title>
+        <link rel="alternate" href="https://my-other-site.com/about" />
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"https://my-other-site.com/about"}],"vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 12`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../../" />
+        <title>Test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"ru/deep/test.md"},"headings":[],"title":"Test"},"router":{"pathname":"ru/deep/test","depth":3,"base":"../../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 13`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":true,"data":{"links":[{"url":"ru/about/index.html","name":"About"}]},"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"ru/index.yaml"},"title":""},"router":{"pathname":"ru/index","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="ru/toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Alternates with --no-add-alternate-meta > should not add alternate meta tags when --no-add-alternate-meta is used 14`] = `"window.__DATA__.data.toc = {"href":"ru/index.html","items":[{"href":"ru/about.html","name":"About","id":"UUID"},{"href":"ru/deep/test.html","name":"Test","id":"UUID"}],"path":"ru/toc.yaml","id":"UUID"};"`;

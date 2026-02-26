@@ -33,3 +33,17 @@ describe('Alternates', () => {
         await compareDirectories(outputPath + '-html');
     });
 });
+
+describe('Alternates with --no-add-alternate-meta', () => {
+    it('should not add alternate meta tags when --no-add-alternate-meta is used', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/alternates');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: false,
+            md2html: true,
+            args: '-j2 --no-add-alternate-meta',
+        });
+
+        await compareDirectories(outputPath);
+    });
+});

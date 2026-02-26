@@ -645,6 +645,13 @@ describe('Build command', () => {
         testBooleanFlag('addSystemMeta', '--add-system-meta', false);
         testBooleanFlag('allowHtml', '--allow-html', true);
         testBooleanFlag('sanitizeHtml', '--sanitize-html', true);
+        testBooleanFlag('addAlternateMeta', '--add-alternate-meta', true);
+        test(
+            'Should prioritize CLI no-add-alternate-meta over config',
+            '--no-add-alternate-meta',
+            {addAlternateMeta: true},
+            {addAlternateMeta: false},
+        );
 
         testNestedBooleanFlag('interfaceToc', '--interface-toc', true, ['interface', 'toc']);
         testNestedBooleanFlag('interfaceSearch', '--interface-search', true, [

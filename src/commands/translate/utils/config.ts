@@ -195,6 +195,7 @@ export function configDefaults() {
         addSystemMeta: false,
         addResourcesMeta: true,
         addMetadataMeta: true,
+        addAlternateMeta: true,
         template: {
             enabled: true,
             keepNotVar: false,
