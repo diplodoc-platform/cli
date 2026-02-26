@@ -8,6 +8,7 @@ import {flow} from 'lodash';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
+import {THEME_ASSETS_PATH} from '~/constants';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -118,6 +119,11 @@ export class OutputMd {
                         // Expected type missing, to be compatible with old formats
                         // @ts-ignore
                         meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
+                    }
+
+                    const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
+                    if (hasTheme) {
+                        meta.theme = THEME_ASSETS_PATH;
                     }
 
                     return meta;

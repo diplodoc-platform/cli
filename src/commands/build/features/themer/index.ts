@@ -20,7 +20,7 @@ export class Themer {
         });
 
         getBaseHooks(program).Config.tap('Themer', (config, args) => {
-            const theme = defined('theme', args);
+            const theme = defined('theme', args, config);
             config.theme = theme ? String(theme) : null;
 
             return config;
