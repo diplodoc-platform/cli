@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.25.2](https://github.com/diplodoc-platform/cli/compare/v5.25.1...v5.25.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client to 5.2.5 ([#1725](https://github.com/diplodoc-platform/cli/issues/1725)) ([649e571](https://github.com/diplodoc-platform/cli/commit/649e571f6d9378c84cc75fdc5993c407b20a7d50))
+* fixed handling of the label field in toc.yaml ([#1720](https://github.com/diplodoc-platform/cli/issues/1720)) ([7a24352](https://github.com/diplodoc-platform/cli/commit/7a2435218d42b6df932c5233ffd5be2e3c4f0acb))
+
 ## [5.25.1](https://github.com/diplodoc-platform/cli/compare/v5.25.0...v5.25.1) (2026-02-27)
 
 
