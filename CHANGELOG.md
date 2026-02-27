@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.24.3](https://github.com/diplodoc-platform/cli/compare/v5.24.2...v5.24.3) (2026-02-26)
+
+
+### Bug Fixes
+
+* add theme to front matter ([#1706](https://github.com/diplodoc-platform/cli/issues/1706)) ([ee7ace2](https://github.com/diplodoc-platform/cli/commit/ee7ace2374bac955b8a0afc2b64caf57fe66fcad))
+* **deps:** Update @diplodoc/client to 5.2.3 ([#1712](https://github.com/diplodoc-platform/cli/issues/1712)) ([69bb2b1](https://github.com/diplodoc-platform/cli/commit/69bb2b10bb40584ab559bfbf3176541403cedac7))
+
 ## [5.24.2](https://github.com/diplodoc-platform/cli/compare/v5.24.1...v5.24.2) (2026-02-24)
 
 
