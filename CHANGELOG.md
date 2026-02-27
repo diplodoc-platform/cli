@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.25.1](https://github.com/diplodoc-platform/cli/compare/v5.25.0...v5.25.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* fixed non-working options in .yfm ([#1708](https://github.com/diplodoc-platform/cli/issues/1708)) ([7656e6c](https://github.com/diplodoc-platform/cli/commit/7656e6ca8044a9b2bed1acb52df6edbc883074ae))
+
 ## [5.25.0](https://github.com/diplodoc-platform/cli/compare/v5.24.3...v5.25.0) (2026-02-27)
 
 
