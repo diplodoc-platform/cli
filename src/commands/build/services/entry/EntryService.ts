@@ -243,10 +243,12 @@ export class EntryService {
             },
         });
 
-        const canonical = setExt(path, 'html');
-        const alternate = this.run.alternates(path);
-        if (alternate.length > 0) {
-            this.run.meta.add(path, {canonical, alternate});
+        if (this.config.addAlternateMeta) {
+            const canonical = setExt(path, 'html');
+            const alternate = this.run.alternates(path);
+            if (alternate.length > 0) {
+                this.run.meta.add(path, {canonical, alternate});
+            }
         }
 
         const service = this.getService(path);

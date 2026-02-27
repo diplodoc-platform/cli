@@ -58,6 +58,7 @@ type BaseConfig = {
     addSystemMeta: boolean;
     addResourcesMeta: boolean;
     addMetadataMeta: boolean;
+    addAlternateMeta: boolean;
     // TODO(minor): we can generate this file all time
     addMapFile: boolean;
     mergeIncludes: boolean;
