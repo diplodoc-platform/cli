@@ -21,7 +21,13 @@ import file from '@diplodoc/transform/lib/plugins/file';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
-import * as pageConstructor from '@diplodoc/page-constructor-extension';
+// Use CSR mode: renders empty placeholder + data-content-encoded at build time,
+// runtime uses createRoot (not hydrateRoot) to render from scratch.
+// SSR mode is broken because its HTML passes through browser's HTML parser
+// (via dangerouslySetInnerHTML in the client app), which auto-fixes invalid
+// nested <a> tags from @gravity-ui/page-constructor's ImageCard component,
+// causing React hydration mismatches (#418/#423).
+import * as pageConstructor from '@diplodoc/page-constructor-extension/plugin/csr';
 import {noTranslate} from '@diplodoc/translation';
 
 import {filterTokens} from '~/core/utils';
