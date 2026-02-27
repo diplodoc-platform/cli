@@ -20,7 +20,7 @@ import {liquidSnippet} from '@diplodoc/liquid';
 import {evaluateWhen, normalizePath, own} from '~/core/utils';
 
 import {getHooks} from './hooks';
-import {getFirstValuable, isRelative} from './utils';
+import {getFirstValuable, isRelative, resolveLabel} from './utils';
 
 export type LoaderContext = LiquidContext & {
     /** Relative to run.input path to current processing toc */
@@ -107,11 +107,13 @@ export async function loader(this: LoaderContext, toc: RawToc): Promise<RawToc> 
  * Convert arrays to text fields (gets first truth value)
  */
 async function resolveFields(this: LoaderContext, toc: RawToc): Promise<RawToc> {
-    for (const field of ['title', 'label'] as const) {
-        const value = toc[field];
-        if (value) {
-            toc[field] = getFirstValuable<YfmString>(value, this.vars);
-        }
+    const titleValue = toc.title;
+    if (titleValue) {
+        toc.title = getFirstValuable<YfmString>(titleValue, this.vars);
+    }
+
+    if (toc.label) {
+        (toc as unknown as Toc).label = resolveLabel(toc.label, this.vars);
     }
 
     return toc;

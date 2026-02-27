@@ -26,7 +26,7 @@ class Build {
 
     run(input: string, output: string, args: string[], env?: Record<string, string>) {
         return this.runner.runYfmDocs(
-            ['--input', input, '--output', output, '--quiet', '--allowHTML', ...args],
+            ['--input', input, '--output', output, '--quiet', '--allowHtml', ...args],
             env,
         );
     }

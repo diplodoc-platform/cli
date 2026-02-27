@@ -12,7 +12,7 @@ exports[`Vars and conditions > Vars and conditions > filelist 1`] = `
 `;
 
 exports[`Vars and conditions > Vars and conditions 1`] = `
-"allowHTML: true
+"allowHtml: true
 "
 `;
 

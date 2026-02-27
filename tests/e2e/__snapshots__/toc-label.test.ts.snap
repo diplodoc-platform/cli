@@ -1,0 +1,127 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Toc label > should pass TocLabel object through to toc output > filelist 1`] = `
+"[
+  ".yfm",
+  "index.md",
+  "page1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output > filelist 2`] = `
+"[
+  ".yfm",
+  "index.html",
+  "page1.html",
+  "toc.js"
+]"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 1`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Toc Label Test
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: page1.md
+---
+# Page 1
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 4`] = `
+"title: Toc Label Test
+href: index.md
+label:
+  title: Preview
+  description: This service is in preview
+  theme: info
+items:
+  - name: Page 1
+    href: page1.md
+path: toc.yaml
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 5`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 6`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Toc Label Test | Toc Label Test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Toc Label Test"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 7`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Page 1 | Toc Label Test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"page1.md"},"headings":[],"title":"Page 1"},"router":{"pathname":"page1","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 8`] = `"window.__DATA__.data.toc = {"title":"Toc Label Test","href":"index.html","label":{"title":"Preview","description":"This service is in preview","theme":"info"},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

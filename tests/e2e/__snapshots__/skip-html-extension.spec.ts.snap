@@ -13,7 +13,7 @@ exports[`Skip html extension > correctly trims .html and index.html on monolingu
 `;
 
 exports[`Skip html extension > correctly trims .html and index.html on monolingual docs 1`] = `
-"allowHTML: true
+"allowHtml: true
 "
 `;
 
@@ -179,7 +179,7 @@ exports[`Skip html extension > correctly trims .html and index.html on multiling
 `;
 
 exports[`Skip html extension > correctly trims .html and index.html on multilingual docs 1`] = `
-"allowHTML: true
+"allowHtml: true
 langs: ['en','ru']
 "
 `;

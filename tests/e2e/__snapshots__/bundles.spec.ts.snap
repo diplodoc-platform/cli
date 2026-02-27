@@ -33,7 +33,7 @@ exports[`Check bundles > bundles list is correct > filelist 1`] = `
 `;
 
 exports[`Check bundles > bundles list is correct 1`] = `
-"allowHTML: true
+"allowHtml: true
 
 meta:
   rootPath: http://127.0.0.1:5000/
