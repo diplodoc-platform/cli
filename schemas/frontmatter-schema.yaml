@@ -1,0 +1,191 @@
+title: Markdown frontmatter schema
+description: >
+  YAML frontmatter block at the top of .md files (between --- delimiters).
+  Defines page metadata, SEO fields, resources, and access rules.
+type: object
+properties:
+  title:
+    type: string
+    translate: md
+    description: Page title for HTML head and SEO.
+
+  description:
+    type: string
+    translate: md
+    description: Meta description for SEO.
+
+  keywords:
+    type: array
+    items:
+      type: string
+    description: Keywords for the meta keywords tag.
+
+  noIndex:
+    type: boolean
+    description: Adds noindex/nofollow meta tag to prevent search engine indexing.
+
+  canonical:
+    type: string
+    format: uri
+    description: Canonical URL for the page.
+
+  copyright:
+    type: string
+    description: Copyright owner string.
+
+  alternate:
+    type: array
+    items:
+      $ref: '#/definitions/Alternate'
+    description: Alternate language versions of this page.
+
+  metadata:
+    oneOf:
+      - type: array
+        items:
+          $ref: '#/definitions/MetaItem'
+      - type: object
+    description: >
+      Custom meta tags.
+      Array of {name/property, content} objects or a key-value hash.
+
+  interface:
+    type: object
+    properties:
+      toc:
+        type: boolean
+      search:
+        type: boolean
+      feedback:
+        type: boolean
+    additionalProperties: true
+    description: Per-page UI overrides (takes precedence over .yfm config).
+
+  resources:
+    $ref: '#/definitions/Resources'
+    description: Per-page resources (legacy, prefer top-level script/style/csp).
+
+  script:
+    type: array
+    items:
+      type: string
+    description: Script file paths or URLs to include on this page.
+
+  style:
+    type: array
+    items:
+      type: string
+    description: Stylesheet file paths or URLs to include on this page.
+
+  csp:
+    type: array
+    items:
+      type: object
+    description: Content Security Policy directive overrides for this page.
+
+  vcsPath:
+    type: string
+    description: VCS file path override (duplicated keys allowed for this field).
+
+  sourcePath:
+    type: string
+    description: Source file path (usually set by the build system).
+
+  restricted-access:
+    type: array
+    items:
+      type: array
+      items:
+        type: string
+    description: >
+      Access restriction rules.
+      Each item is an array of conditions that must all be satisfied.
+
+  # ── System fields (added by build, not written by authors) ─────────
+  theme:
+    type: string
+    description: Path to generated theme CSS (system-generated in md2md output).
+
+  author:
+    $ref: '#/definitions/Contributor'
+    description: Page author from VCS (system-generated).
+
+  contributors:
+    type: array
+    items:
+      $ref: '#/definitions/Contributor'
+    description: Page contributors from VCS (system-generated).
+
+  updatedAt:
+    type: string
+    description: Last modification timestamp from VCS (system-generated).
+
+  __system:
+    type: object
+    description: System variables from presets (only when addSystemMeta is enabled).
+
+  __metadata:
+    type: array
+    items:
+      $ref: '#/definitions/MetaItem'
+    description: Metadata items from presets (only when addMetadataMeta is enabled).
+
+additionalProperties: true
+
+definitions:
+  Alternate:
+    type: object
+    properties:
+      href:
+        type: string
+        format: uri
+      hreflang:
+        type: string
+    required: ['href']
+    additionalProperties: false
+
+  MetaItem:
+    type: object
+    properties:
+      name:
+        type: string
+      property:
+        type: string
+      content:
+        type: string
+    required: ['content']
+    additionalProperties: false
+
+  Contributor:
+    type: object
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+        format: email
+      login:
+        type: string
+      name:
+        type: string
+      url:
+        type: string
+        format: uri
+    additionalProperties: false
+
+  Resources:
+    type: object
+    properties:
+      script:
+        type: array
+        items:
+          type: string
+      style:
+        type: array
+        items:
+          type: string
+      csp:
+        type: array
+        items:
+          type: object
+    additionalProperties: false
