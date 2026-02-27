@@ -178,6 +178,9 @@ export class Run extends BaseRun<BuildConfig> {
         return {
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
+            breaks: this.config.breaks,
+            linkify: this.config.linkify,
+            linkifyTlds: this.config.linkifyTlds,
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),
             plugins: this.markdown.plugins,
             path,

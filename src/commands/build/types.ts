@@ -52,6 +52,9 @@ type BaseConfig = {
     vars: Hash;
     allowHtml: boolean;
     sanitizeHtml: boolean;
+    breaks?: boolean;
+    linkify?: boolean;
+    linkifyTlds?: string | string[];
     ignoreStage: string[];
     ignore: string[];
     rawAddMeta: boolean;
