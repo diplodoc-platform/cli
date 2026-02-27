@@ -943,6 +943,119 @@ describe('toc-loader', () => {
         );
     });
 
+    describe('label', () => {
+        it(
+            'should handle string label',
+            test(dedent`
+                title: Test
+                label: Preview
+            `),
+        );
+
+        it(
+            'should handle TocLabel object',
+            test(dedent`
+                title: Test
+                label:
+                  title: Preview
+                  description: This service is in preview
+                  theme: info
+            `),
+        );
+
+        it(
+            'should handle TocLabel object with when condition (accepted)',
+            test(
+                dedent`
+                    title: Test
+                    label:
+                      title: KZ
+                      description: Available in Kazakhstan
+                      theme: info
+                      when: region == "kz"
+                `,
+                {},
+                {region: 'kz'},
+            ),
+        );
+
+        it(
+            'should handle TocLabel object with when condition (declined)',
+            test(
+                dedent`
+                    title: Test
+                    label:
+                      title: KZ
+                      description: Available in Kazakhstan
+                      theme: info
+                      when: region == "kz"
+                `,
+                {},
+                {region: 'ru'},
+            ),
+        );
+
+        it(
+            'should handle TocLabel array with when filter',
+            test(
+                dedent`
+                    title: Test
+                    label:
+                      - title: RU
+                        description: Available in Russia
+                        theme: normal
+                        when: region == "ru"
+                      - title: KZ
+                        description: Available in Kazakhstan
+                        theme: info
+                        when: region == "kz"
+                `,
+                {},
+                {region: 'kz'},
+            ),
+        );
+
+        it(
+            'should handle old TextFilter array format for label',
+            test(
+                dedent`
+                    title: Test
+                    label:
+                      - text: Label A
+                        when: var == "A"
+                      - text: Label B
+                        when: var == "B"
+                `,
+                {},
+                {var: 'B'},
+            ),
+        );
+
+        it(
+            'should interpolate liquid vars in TocLabel title and description',
+            test(
+                dedent`
+                    title: Test
+                    label:
+                      title: "{{label_title}}"
+                      description: "Service is {{label_status}}"
+                      theme: warning
+                `,
+                {},
+                {label_title: 'Preview', label_status: 'in preview'},
+            ),
+        );
+
+        it(
+            'should handle TocLabel without optional fields',
+            test(dedent`
+                title: Test
+                label:
+                  title: Beta
+            `),
+        );
+    });
+
     describe('object validation', () => {
         it('should not throw error when toc item name is [object Object] but log it', async () => {
             const content = dedent`

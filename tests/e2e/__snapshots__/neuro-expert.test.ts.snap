@@ -20,7 +20,7 @@ exports[`Neuro-expert > Neuro-expert > filelist 1`] = `
 `;
 
 exports[`Neuro-expert > Neuro-expert 1`] = `
-"allowHTML: true
+"allowHtml: true
 langs: ['en','ru']
 
 neuroExpert:

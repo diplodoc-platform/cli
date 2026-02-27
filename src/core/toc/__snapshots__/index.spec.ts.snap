@@ -102,6 +102,76 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > label > should handle TocLabel array with when filter 1`] = `
+"title: Test
+label:
+  title: KZ
+  description: Available in Kazakhstan
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object 1`] = `
+"title: Test
+label:
+  title: Preview
+  description: This service is in preview
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object with when condition (accepted) 1`] = `
+"title: Test
+label:
+  title: KZ
+  description: Available in Kazakhstan
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object with when condition (declined) 1`] = `
+"title: Test
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel without optional fields 1`] = `
+"title: Test
+label:
+  title: Beta
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle old TextFilter array format for label 1`] = `
+"title: Test
+label:
+  title: Label B
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle string label 1`] = `
+"title: Test
+label:
+  title: Preview
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should interpolate liquid vars in TocLabel title and description 1`] = `
+"title: Test
+label:
+  title: Preview
+  description: Service is in preview
+  theme: warning
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > navigation header items filtering > should filter both leftItems and rightItems 1`] = `
 "title: Test
 navigation:

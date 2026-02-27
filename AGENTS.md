@@ -31,12 +31,10 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
 ### CLI Commands
 
 1. **build** — main command for building documentation
-
    - Location: `src/commands/build/`
    - Subcommands and features are located in `src/commands/build/features/`
 
 2. **publish** — publishing documentation
-
    - Location: `src/commands/publish/`
 
 3. **translate** — translating documentation
@@ -85,16 +83,13 @@ The project uses path aliases:
 ### Architecture
 
 1. **Program** — main class that manages command execution
-
    - Located in `src/commands/index.ts`
    - Uses decorator pattern (`@withConfigDefaults`)
 
 2. **Commands** — CLI commands inherit from `BaseProgram`
-
    - Each command can have its own options, hooks, and handlers
 
 3. **Features** — functionality is grouped into features
-
    - Examples: `output-html`, `search`, `watch`, etc.
    - Each feature can have its own configuration and hooks
 
@@ -178,14 +173,12 @@ The same rules apply to `core/` as to commands:
 ### Code Conventions
 
 1. **File naming**:
-
    - Type files: `types.ts`
    - Configuration: `config.ts`
    - Main module file: `index.ts`
    - Tests: `*.spec.ts` or `*.test.ts`
 
 2. **Comments and documentation**:
-
    - **All code comments must be in English**
    - **All documentation files (ADR, AGENTS.md, README, etc.) must be in English**
    - JSDoc comments are used for exported functions/classes
@@ -197,13 +190,11 @@ The same rules apply to `core/` as to commands:
 ### Testing
 
 1. **Unit tests**:
-
    - Uses Vitest
    - Tests are next to code or in `__tests__/`
    - Prefer using `vitest-when` for mocking instead of standard `mockImplementation`
 
 2. **E2E tests**:
-
    - Located in `tests/e2e/`
    - Snapshots are used for output verification
 
@@ -269,21 +260,20 @@ Main configuration files:
 The `schemas/` directory stores schemas for fundamental project data structures:
 
 - **`toc-schema.yaml`** — schema for documentation table of contents (`toc.yaml`)
-
   - Defines the structure of navigation and document hierarchy
 
 - **`presets-schema.yaml`** — schema for template variables file (`presets.yaml`)
-
   - Defines variables used for document templating
 
 - **`leading-schema.yaml`** — schema for "leading" (overview) pages structure
-
   - Defines the structure of summary/overview pages in documentation
 
 - **`page-constructor-schema.yaml`** — schema for Page Constructor format
   - Defines the format for generating HTML pages from YAML descriptions
   - Based on [@gravity-ui/page-constructor](https://gravity-ui.com/ru/libraries/page-constructor)
   - Used to create pages from JSON/YAML block-based configurations
+
+**Important**: Schemas and TypeScript types must always be kept in sync. When modifying types in `src/` that correspond to a schema (e.g., `RawToc` ↔ `toc-schema.yaml`, `Preset` ↔ `presets-schema.yaml`), you must update the matching schema in `schemas/` and vice versa. A mismatch between schemas and code leads to bugs where valid input (per schema) is silently rejected by the implementation.
 
 ## Additional Resources
 
@@ -328,3 +318,4 @@ The `schemas/` directory stores schemas for fundamental project data structures:
 4. When working with VCS (GitHub/Arcadia), token configuration is required in `.env` or `.yfm`
 5. **All comments and documentation files (ADR, AGENTS.md, README, etc.) must be written in English**
 6. **The `src/steps/` directory is deprecated. Do not add new code there. If you need to fix existing code, carefully move it to `commands/build/features/`**
+7. **When changing TypeScript types that have a corresponding schema in `schemas/`, always update the schema to match, and vice versa**
