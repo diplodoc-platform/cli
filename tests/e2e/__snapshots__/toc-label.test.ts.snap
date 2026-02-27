@@ -3,6 +3,15 @@
 exports[`Toc label > should pass TocLabel object through to toc output > filelist 1`] = `
 "[
   ".yfm",
+  "index.md",
+  "page1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output > filelist 2`] = `
+"[
+  ".yfm",
   "index.html",
   "page1.html",
   "toc.js"
@@ -10,11 +19,56 @@ exports[`Toc label > should pass TocLabel object through to toc output > filelis
 `;
 
 exports[`Toc label > should pass TocLabel object through to toc output 1`] = `
-"allowHTML: true
+"allowHtml: true
 "
 `;
 
 exports[`Toc label > should pass TocLabel object through to toc output 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Toc Label Test
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: page1.md
+---
+# Page 1
+
+Content
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 4`] = `
+"title: Toc Label Test
+href: index.md
+label:
+  title: Preview
+  description: This service is in preview
+  theme: info
+items:
+  - name: Page 1
+    href: page1.md
+path: toc.yaml
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 5`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Toc label > should pass TocLabel object through to toc output 6`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -42,7 +96,7 @@ exports[`Toc label > should pass TocLabel object through to toc output 2`] = `
 </html>"
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 3`] = `
+exports[`Toc label > should pass TocLabel object through to toc output 7`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -70,4 +124,4 @@ exports[`Toc label > should pass TocLabel object through to toc output 3`] = `
 </html>"
 `;
 
-exports[`Toc label > should pass TocLabel object through to toc output 4`] = `"window.__DATA__.data.toc = {"title":"Toc Label Test","href":"index.html","label":{"title":"Preview","description":"This service is in preview","theme":"info"},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Toc label > should pass TocLabel object through to toc output 8`] = `"window.__DATA__.data.toc = {"title":"Toc Label Test","href":"index.html","label":{"title":"Preview","description":"This service is in preview","theme":"info"},"items":[{"name":"Page 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
