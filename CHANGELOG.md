@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.25.0](https://github.com/diplodoc-platform/cli/compare/v5.24.3...v5.25.0) (2026-02-27)
+
+
+### Features
+
+* add addAlternateMeta option ([#1710](https://github.com/diplodoc-platform/cli/issues/1710)) ([8277869](https://github.com/diplodoc-platform/cli/commit/82778692c8694219bbb628fafc36268d66ea8902))
+
 ## [5.24.3](https://github.com/diplodoc-platform/cli/compare/v5.24.2...v5.24.3) (2026-02-26)
 
 
