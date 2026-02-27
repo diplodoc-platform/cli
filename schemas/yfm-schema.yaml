@@ -88,6 +88,19 @@ properties:
     type: boolean
     description: Sanitize transformed HTML output. Slow but more secure.
 
+  sanitizeOptions:
+    type: object
+    description: Sanitizer configuration options (passed to the HTML sanitizer).
+    additionalProperties: true
+
+  linkifyTlds:
+    oneOf:
+      - type: string
+      - type: array
+        items:
+          type: string
+    description: TLD configuration for the linkify plugin.
+
   ignore:
     type: array
     items:
@@ -113,6 +126,10 @@ properties:
     type: boolean
     description: Write all documentation paths to file.json.
     deprecated: Use buildManifest instead.
+
+  addAlternateMeta:
+    type: boolean
+    description: Add alternate and canonical meta tags to pages.
 
   supportGithubAnchors:
     type: boolean
@@ -392,12 +409,53 @@ properties:
     $ref: '#/definitions/NeuroExpertConfig'
     description: AI expert widget configuration.
 
+  # ── Bug widget ─────────────────────────────────────────────────────
+  yabug:
+    $ref: '#/definitions/YaBugConfig'
+    description: Bug report widget configuration (docs-viewer).
+
+  # ── Feedback widget ─────────────────────────────────────
+  yafeedback:
+    $ref: '#/definitions/YaFeedbackConfig'
+    description: Feedback widget configuration (docs-viewer).
+
   # ── Viewer preview ─────────────────────────────────────────────────
   docs-viewer:
+    $ref: '#/definitions/DocsViewerConfig'
+    description: Configuration for the docs-viewer preview server.
+
+  # ── Pages (error/access pages) ────────────────────────────────────
+  pages:
     type: object
-    description: >
-      Configuration for the docs-viewer preview server.
-      Accepts viewer-specific options such as project-name, logo-options, etc.
+    properties:
+      accessDenied:
+        type: object
+        additionalProperties: true
+      notFound:
+        type: object
+        additionalProperties: true
+      serverError:
+        type: object
+        additionalProperties: true
+    additionalProperties: false
+    description: Custom error/access-denied page configuration.
+
+  # ── Query parameters (iframe forwarding) ─────────────────────────
+  queryParameters:
+    type: object
+    properties:
+      iframes:
+        type: array
+        items:
+          type: object
+          properties:
+            domain:
+              type: string
+            parameters:
+              type: array
+          additionalProperties: false
+    additionalProperties: false
+    description: Query parameter forwarding rules for embedded iframes.
 
   # ── Command scopes ─────────────────────────────────────────────────
   build:
@@ -568,7 +626,52 @@ definitions:
         type: boolean
       provider:
         type: string
-        description: Search provider identifier (e.g. local, algolia).
+        enum: ['local', 'algolia']
+        description: Search provider identifier (local or algolia).
+      appId:
+        type: string
+        description: Algolia Application ID (provider=algolia).
+      apiKey:
+        type: string
+        sensitive: true
+        description: Algolia API Key for indexing (provider=algolia).
+      searchApiKey:
+        type: string
+        description: Client-side Algolia API key for search queries (provider=algolia).
+      indexName:
+        type: string
+        description: Algolia Index Name (provider=algolia).
+      index:
+        type: boolean
+        description: Whether to create and upload the search index (provider=algolia).
+      api:
+        type: string
+        description: Path to the client-side search API script (provider=algolia).
+      tolerance:
+        type: integer
+        minimum: 0
+        maximum: 2
+        description: >
+          Wildcard search tolerance level (provider=local).
+          0 — exact match, 1 — trailing wildcard, 2 — leading and trailing.
+      confidence:
+        type: string
+        enum: ['phrased', 'sparsed']
+        description: Search scoring strategy (provider=local).
+      indexSettings:
+        type: object
+        description: >
+          Algolia index settings (provider=algolia).
+          Passed to Algolia setSettings. Supports searchableAttributes,
+          attributesToHighlight, etc.
+        additionalProperties: true
+      querySettings:
+        type: object
+        description: >
+          Algolia query settings (provider=algolia).
+          Merged into each search request. Supports hitsPerPage,
+          attributesToRetrieve, etc.
+        additionalProperties: true
     additionalProperties: true
 
   NeuroExpertConfig:
@@ -623,12 +726,256 @@ definitions:
         description: Glob patterns to exclude from upload.
     additionalProperties: false
 
+  YaBugConfig:
+    type: object
+    properties:
+      disabled:
+        type: boolean
+        description: Disable the bug report widget.
+      form:
+        type: string
+        description: Custom bug report form URL or path.
+    additionalProperties: false
+
+  YaFeedbackConfig:
+    type: object
+    properties:
+      ownerId:
+        oneOf:
+          - type: string
+          - type: object
+            description: >
+              Map of language codes to owner IDs.
+              Use "default" key for fallback.
+            additionalProperties:
+              type: string
+        description: Pythia feedback survey owner ID.
+      hideHeader:
+        type: boolean
+        description: Hide the feedback widget header.
+      disabled:
+        type: boolean
+        description: Disable the feedback widget.
+      testIds:
+        type: object
+        description: Test form IDs for A/B testing.
+        additionalProperties: true
+    additionalProperties: false
+
+  DocsViewerConfig:
+    type: object
+    properties:
+      project-name:
+        type: string
+        description: >
+          Project URL slug. Lowercase, alphanumeric, hyphens, underscores.
+          Max 63 chars. Reserved names: build, docs-assets, api.
+      no-index:
+        type: boolean
+        description: Disallow indexing by external search engines.
+      lang:
+        type: string
+        description: Default language for localization (e.g. "ru").
+      langs:
+        type: array
+        items:
+          type: string
+        description: Languages shown in the docs UI; first is default.
+      favicon-src:
+        type: string
+        description: Favicon URL for the browser tab.
+      logo-options:
+        $ref: '#/definitions/LogoOptions'
+        description: Logo configuration for the docs viewer.
+      metrika:
+        oneOf:
+          - type: integer
+          - type: array
+            items:
+              type: integer
+        description: Yandex Metrika counter ID(s).
+      themes:
+        type: array
+        items:
+          type: string
+          enum: ['light', 'dark']
+        description: Available themes. Server-only.
+      gtm:
+        type: object
+        properties:
+          id:
+            type: string
+            description: Google Tag Manager container ID.
+          mode:
+            type: string
+            enum: ['base', 'notification']
+            description: GTM consent mode (base or notification).
+        additionalProperties: false
+        description: Google Tag Manager settings for the viewer.
+      github-url-prefix:
+        type: string
+        description: Base URL for GitHub source links.
+      logo-link-preview:
+        type: string
+        description: Logo URL for link previews.
+      ytm:
+        type: object
+        properties:
+          id:
+            type: integer
+            description: Yandex Turbo Metrika counter ID.
+        additionalProperties: false
+        description: Yandex Turbo Metrika configuration.
+      pdf:
+        type: boolean
+        description: Enable PDF generation in docs-build action.
+      support-widget:
+        $ref: '#/definitions/SupportWidgetConfig'
+        description: Support chat widget (Yandex Messenger).
+      logo-src:
+        type: string
+        description: Legacy logo URL for light theme (prefer logo-options.src).
+      logo-dark-src:
+        type: string
+        description: Legacy logo URL for dark theme (prefer logo-options.src-dark).
+      logo-title:
+        type: string
+        description: Legacy logo title (prefer logo-options.title).
+      uxfb:
+        type: object
+        properties:
+          enabled:
+            type: boolean
+          id:
+            type: string
+        additionalProperties: true
+        description: UX feedback iframe (Yandex Forms).
+      embed:
+        type: array
+        items:
+          type: object
+          properties:
+            host:
+              type: string
+        description: Allowed embedding hosts (frame-ancestors).
+      index-page:
+        type: object
+        properties:
+          title:
+            type: string
+          description:
+            type: string
+          service-url:
+            type: string
+          hidden:
+            type: boolean
+        additionalProperties: true
+        description: Index page configuration.
+      show-toc-header:
+        type: boolean
+        description: Show the table-of-contents header.
+      search-by-toc:
+        type: boolean
+        description: Enable search by TOC product.
+      protected:
+        type: boolean
+        description: Enable access protection for the project.
+      subscription:
+        type: object
+        properties:
+          notifications:
+            type: object
+            properties:
+              type:
+                type: string
+            additionalProperties: false
+        additionalProperties: false
+        description: Subscription/notification settings.
+      startrek:
+        type: object
+        additionalProperties: true
+        description: Startrek integration settings (internal).
+    additionalProperties: true
+
+  LogoOptions:
+    type: object
+    properties:
+      src:
+        oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        description: Logo image URL for light theme. Object form maps lang to URL.
+      src-dark:
+        oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        description: Logo image URL for dark theme.
+      src-mobile:
+        oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        description: Logo image URL for light theme on mobile.
+      src-mobile-dark:
+        oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        description: Logo image URL for dark theme on mobile.
+      src-preview:
+        oneOf:
+          - type: string
+          - type: object
+            additionalProperties:
+              type: string
+        description: Logo for OpenGraph share preview.
+      url:
+        type: string
+        description: >
+          Link target when clicking the logo.
+          Supports {lang} placeholder.
+      title:
+        type: string
+        description: Fallback text when logo image is not set.
+      img-has:
+        type: object
+        properties:
+          width:
+            type: string
+            description: Logo width (CSS value).
+          offset:
+            type: boolean
+            description: Apply offset to logo layout.
+        additionalProperties: false
+        description: Logo layout hints.
+    additionalProperties: false
+
+  SupportWidgetConfig:
+    type: object
+    properties:
+      bot-guid:
+        type: string
+        description: Yandex Messenger bot GUID.
+      service-id:
+        type: string
+        description: Yandex Messenger support service ID.
+      disabled:
+        type: boolean
+        description: Disable the support widget.
+    additionalProperties: true
+
   TranslateConfig:
     type: object
     properties:
       provider:
         type: string
-        description: Translation service provider identifier (e.g. yandex).
+        description: Translation service provider identifier.
       source:
         oneOf:
           - type: string

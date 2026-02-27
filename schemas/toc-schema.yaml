@@ -168,6 +168,23 @@ definitions:
               renderMode:
                 type: string
                 enum: ['inline', 'hidden']
+      tags:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/OpenApiCustomTag'
+
+  OpenApiCustomTag:
+    type: object
+    properties:
+      hidden:
+        type: boolean
+      name:
+        type: string
+      path:
+        type: string
+      alias:
+        type: string
+    additionalProperties: false
 
   OpenApiIncluderFilter:
     type: object
