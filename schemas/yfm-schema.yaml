@@ -603,6 +603,11 @@ definitions:
           cycles:
             type: boolean
             description: Enable loop constructs.
+          cicles:
+            type: boolean
+            description: >
+              Alternative spelling of cycles (used in documentation).
+              Enable loop constructs.
         additionalProperties: false
     additionalProperties: false
 
@@ -658,6 +663,12 @@ definitions:
         type: string
         enum: ['phrased', 'sparsed']
         description: Search scoring strategy (provider=local).
+      confidense:
+        type: string
+        enum: ['phrased', 'sparsed']
+        description: >
+          Alternative spelling of confidence.
+          Search scoring strategy (provider=local).
       indexSettings:
         type: object
         description: >

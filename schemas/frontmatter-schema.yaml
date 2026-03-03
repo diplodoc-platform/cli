@@ -54,10 +54,19 @@ properties:
     properties:
       toc:
         type: boolean
+        description: Show/hide the table of contents sidebar.
+      toc-header:
+        type: boolean
+        description: Show/hide the TOC header section.
       search:
         type: boolean
+        description: Show/hide the search input.
       feedback:
         type: boolean
+        description: Show/hide feedback controls.
+      favicon-src:
+        type: string
+        description: Custom favicon URL for this page.
     additionalProperties: true
     description: Per-page UI overrides (takes precedence over .yfm config).
 
@@ -230,10 +239,16 @@ definitions:
     properties:
       name:
         type: string
+        description: Meta tag name attribute (e.g. "title", "copyright").
       property:
         type: string
+        description: Meta tag property attribute (e.g. "og:title", "article:section").
+      http-equiv:
+        type: string
+        description: Meta tag http-equiv attribute (e.g. "content-type", "refresh").
       content:
         type: string
+        description: Meta tag content value.
     required: ['content']
     additionalProperties: false
 
