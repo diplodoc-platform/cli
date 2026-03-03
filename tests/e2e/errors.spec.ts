@@ -92,10 +92,29 @@ describe('Errors', () => {
     });
 });
 
+describe('Include chain errors', () => {
+    test('mocks/errors/unreachable-link-in-include', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR index.md: 5: YFM003 / unreachable-link Link is unreachable [Context: "index.md:5 → _includes/chapter.md:1 ↛ _includes/nonexistent.html; Reason: File is not declared in toc"]',
+        ]);
+    });
+
+    test('mocks/errors/unreachable-link-in-nested-include', ({html}: TestResult) => {
+        expectErrors(html, [
+            'ERR index.md: 3: YFM003 / unreachable-link Link is unreachable [Context: "index.md:3 → _includes/chapter.md:3 → _includes/details.md:1 ↛ _includes/nonexistent.html; Reason: File is not declared in toc"]',
+        ]);
+    });
+
+    test('mocks/errors/valid-link-in-include', ({html}: TestResult) => {
+        const yfm003 = html.errors.filter((e: string) => e.includes('YFM003'));
+        expect(yfm003).toEqual([]);
+    });
+});
+
 describe('Warnings', () => {
     test('mocks/warning/unreachable-autotitle', ({html}: TestResult) => {
         expectWarnings(html, [
-            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "[Unreachable autotitle anchor: "link.html#unknown_yfm010"] [{#T}](./link.md#unknown_yfm010)"]',
+            'WARN index.md: 1: YFM010 / unreachable-autotitle-anchor Auto title anchor is unreachable [Context: "Unreachable autotitle anchor: "link.html#unknown_yfm010"; Line: 1"]',
         ]);
     });
 });

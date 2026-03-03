@@ -8,6 +8,11 @@ import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {filterTokens, normalizePath} from '~/core/utils';
 
+export interface IncludeChainEntry {
+    file: string;
+    line: number;
+}
+
 /**
  * Strips YAML frontmatter from include file content if present.
  * Include files written by md2md may have frontmatter (e.g. csp, metadata);
@@ -16,6 +21,28 @@ import {filterTokens, normalizePath} from '~/core/utils';
 export function contentWithoutFrontmatter(raw: string): string {
     const [, content] = extractFrontMatter(raw, {json: true});
     return content;
+}
+
+/**
+ * Tags tokens (and their children) with include source metadata.
+ * Tokens already tagged by a deeper nested include are not overwritten.
+ */
+function tagTokensWithSource(
+    tokens: Token[],
+    sourceFile: string,
+    includeChain: IncludeChainEntry[],
+) {
+    for (const token of tokens) {
+        if (!token.meta?.sourceFile) {
+            token.meta = token.meta || {};
+            token.meta.sourceFile = sourceFile;
+            token.meta.includeChain = includeChain;
+        }
+
+        if (token.children) {
+            tagTokensWithSource(token.children, sourceFile, includeChain);
+        }
+    }
 }
 
 function stripTitleTokens(tokens: Token[]) {
@@ -111,11 +138,17 @@ function unfoldIncludes(
 
             const bodyContent = contentWithoutFrontmatter(includeContent);
 
+            const parentChain: IncludeChainEntry[] = env.includeChain || [];
+            const currentChain: IncludeChainEntry[] = includeLine
+                ? [...parentChain, {file: path, line: includeLine}]
+                : [...parentChain];
+
             const fileTokens =
                 cache[includeFullPath] ||
                 md.parse(bodyContent, {
                     ...env,
                     path: includeFullPath,
+                    includeChain: currentChain,
                 });
 
             let includedTokens: Token[];
@@ -146,6 +179,8 @@ function unfoldIncludes(
             } else {
                 cache[includeFullPath] = fileTokens;
             }
+
+            tagTokensWithSource(includedTokens, includeFullPath, currentChain);
 
             tokens.splice(index, 1, ...includedTokens);
 
