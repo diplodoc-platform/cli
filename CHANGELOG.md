@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.25.4](https://github.com/diplodoc-platform/cli/compare/v5.25.3...v5.25.4) (2026-03-04)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/search-extension to 3.0.2 ([#1732](https://github.com/diplodoc-platform/cli/issues/1732)) ([8ba2e51](https://github.com/diplodoc-platform/cli/commit/8ba2e514fc9585dad1253df7757ffc030f63f205))
+* **deps:** Update @diplodoc/transform to 4.70.1 ([#1736](https://github.com/diplodoc-platform/cli/issues/1736)) ([6435d63](https://github.com/diplodoc-platform/cli/commit/6435d63e3e501474a2e16614b9e7233d1c21ce5d))
+* fixed search favicon ([#1730](https://github.com/diplodoc-platform/cli/issues/1730)) ([475726a](https://github.com/diplodoc-platform/cli/commit/475726a731697cb7cb6b98b599bb4abea97069ab))
+* switch page-constructor to CSR mode to fix hydration bugs ([#1726](https://github.com/diplodoc-platform/cli/issues/1726)) ([f9a9271](https://github.com/diplodoc-platform/cli/commit/f9a9271c6b93d79206917b42f3faefea79f8c6e6))
+
 ## [5.25.3](https://github.com/diplodoc-platform/cli/compare/v5.25.2...v5.25.3) (2026-03-02)
 
 
