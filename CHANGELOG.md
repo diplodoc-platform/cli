@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.26.0](https://github.com/diplodoc-platform/cli/compare/v5.25.4...v5.26.0) (2026-03-05)
+
+
+### Features
+
+* **cli:** add token-level source tracking to includes plugin ([013b06b](https://github.com/diplodoc-platform/cli/commit/013b06bed998e5a09082d71d1142933e52cdab39))
+
+
+### Bug Fixes
+
+* race for write file ([30cdb6e](https://github.com/diplodoc-platform/cli/commit/30cdb6e55c9a246e50191585f24f16c6ea041021))
+
 ## [5.25.4](https://github.com/diplodoc-platform/cli/compare/v5.25.3...v5.25.4) (2026-03-04)
 
 
