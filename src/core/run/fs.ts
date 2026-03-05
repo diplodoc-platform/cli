@@ -5,6 +5,7 @@ import {
     readFile,
     readdir,
     realpath,
+    rename,
     rm,
     rmdir,
     stat,
@@ -27,6 +28,7 @@ export type FileSystem = {
     readdir: typeof readdir;
     readFile: typeof readFile;
     writeFile: typeof writeFile;
+    rename: typeof rename;
 };
 
 export const fs = {
@@ -43,4 +45,5 @@ export const fs = {
     readdir,
     readFile,
     writeFile,
+    rename,
 };
