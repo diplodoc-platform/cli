@@ -98,6 +98,7 @@ export class Run<TConfig = BaseConfig> {
      * Asserts file path is in project scope.
      * Drops hardlinks (unlink before write).
      * Creates directory for file.
+     * Uses atomic write via temporary file + rename to prevent concurrent writes.
      *
      * @param {AbsolutePath} path - unixlike absolute path to file
      * @param {string} content - file content
@@ -112,14 +113,39 @@ export class Run<TConfig = BaseConfig> {
         // This allow to detect already created files in parallel processing.
         await wait(1);
 
-        // Sync exists check can detect created file as fast as possible.
-        if (this.exists(path) && !force) {
+        // Check if file already exists (fast sync check)
+        if (!force && this.exists(path)) {
             return;
         }
 
         await this.fs.mkdir(dirname(path), {recursive: true});
-        await this.fs.unlink(path).catch(() => {});
-        await this.fs.writeFile(path, content, 'utf8');
+
+        // Use atomic write: write to temp file first, then rename
+        // rename is atomic on POSIX filesystems, preventing race conditions
+        const tempPath = `${path}.tmp.${Date.now()}.${Math.random().toString(36).slice(2)}`;
+
+        try {
+            await this.fs.writeFile(tempPath, content, 'utf8');
+
+            // Try atomic rename first (works on POSIX, overwrites existing file atomically)
+            try {
+                await this.fs.rename(tempPath, path);
+            } catch (renameError: unknown) {
+                // On Windows, rename may fail if target exists
+                // Fall back to unlink + rename
+                const error = renameError as Error & {code?: string};
+                if (error?.code === 'ENOENT' || error?.code === 'EEXIST') {
+                    await this.fs.unlink(path).catch(() => {});
+                    await this.fs.rename(tempPath, path);
+                } else {
+                    throw renameError;
+                }
+            }
+        } catch (error) {
+            // Clean up temp file on error
+            await this.fs.unlink(tempPath).catch(() => {});
+            throw error;
+        }
     }
 
     /**
