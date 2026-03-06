@@ -110,6 +110,10 @@ export class MetaService {
             meta[field] = uniq(meta[field] as string[]).filter(Boolean);
         }
 
+        if (meta.alternate?.length) {
+            meta.alternate.sort((a, b) => (a.href > b.href ? 1 : -1));
+        }
+
         for (const field of [
             'script',
             'style',
