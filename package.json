@@ -57,6 +57,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
+    "test:concurrent": "node scripts/test-concurrent-build.mjs",
     "typecheck": "tsc --noEmit",
     "regenerate-schemas": "scripts/regenerate-schemas.js",
     "lint": "lint update && lint",
