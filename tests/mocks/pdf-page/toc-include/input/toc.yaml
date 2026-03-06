@@ -1,0 +1,7 @@
+title: Root
+href: index.md
+items:
+  - name: Section
+    include:
+      mode: link
+      path: section/toc.yaml

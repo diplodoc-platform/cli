@@ -84,6 +84,26 @@ describe('Pdf page with titles', () => {
     );
 });
 
+describe('Pdf page with multiple independent tocs', () => {
+    generateMapTestTemplate(
+        'creates a separate pdf folder for each independent toc.yaml',
+        'mocks/pdf-page/multiple-tocs',
+        '--pdf',
+        '',
+        true,
+    );
+});
+
+describe('Pdf page with toc include', () => {
+    generateMapTestTemplate(
+        'creates a single pdf folder for root toc when section is connected via include',
+        'mocks/pdf-page/toc-include',
+        '--pdf',
+        '',
+        true,
+    );
+});
+
 describe('Pdf generation with md2md phase, only files structure', () => {
     generateMd2mdTestTemplate(
         'Generates md2md content, then uses it for md2html render with pdf when .yfm options is specified',

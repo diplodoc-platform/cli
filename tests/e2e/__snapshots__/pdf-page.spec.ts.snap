@@ -110,6 +110,18 @@ exports[`Pdf page mode > creates a pdf folder when the --pdf flag is specified 2
 
 exports[`Pdf page mode > creates a pdf folder when the --pdf flag is specified 3`] = `"{"data":{"leading":false,"pdfTitlePages":{"content":"","pageCount":0},"cssLink":["_bundle/search-css-0","_bundle/app-css-1","_bundle/search-css-2","_bundle/search-css-3","_bundle/search-css-4"],"html":"<div class=\\"pdf-page-wrapper\\" data-page-break=\\"true\\"><h2 data-original-article=\\"index.html\\">Header<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#index\\" id=\\"index\\"></a></h2><p>Content</p>/n<p><a href=\\"#page1\\">Link 1</a><br>/n<a href=\\"page2.html\\">Link 2</a></p>/n</div><div class=\\"pdf-page-wrapper\\" data-page-break=\\"true\\"><h2 id=\\"syntax_test_syntax-page\\" data-original-article=\\"syntax/test.html\\"><a href=\\"#syntax_test_syntax-page\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"><span class=\\"visually-hidden\\" data-no-index=\\"true\\">Syntax page</span></a>Syntax page<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#syntax_test\\" id=\\"syntax_test\\"></a></h2>/n</div><div class=\\"pdf-page-wrapper\\" data-page-break=\\"true\\"><h2 data-original-article=\\"page1.html\\">Page 1<a class=\\"yfm-anchor\\" aria-hidden=\\"true\\" href=\\"#page1\\" id=\\"page1\\"></a></h2><p><a href=\\"page2.html#hash\\">Link</a></p>/n<h4 id=\\"page1_include-link-page\\"><a href=\\"#page1_include-link-page\\" class=\\"yfm-anchor\\" aria-hidden=\\"true\\"><span class=\\"visually-hidden\\" data-no-index=\\"true\\">Include link page</span></a>Include link page</h4>/n<p><a href=\\"#syntax_test\\">link</a></p>/n</div>","headings":[],"meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}]},"title":"Skip html extension","toc":{"title":"Skip html extension","href":"index.html","items":[{"name":"Syntax","href":"syntax/test.html","id":"UUID"},{"name":"Title 1","href":"page1.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"}},"router":{"pathname":"pdf-page","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}"`;
 
+exports[`Pdf page with multiple independent tocs > creates a separate pdf folder for each independent toc.yaml > filelist 1`] = `
+"[
+  ".yfm",
+  "index.html",
+  "section1/index.html",
+  "section1/toc.js",
+  "section2/index.html",
+  "section2/toc.js",
+  "toc.js"
+]"
+`;
+
 exports[`Pdf page with titles > Generates content for pdf genrator with title pages > filelist 1`] = `
 "[
   "pdf-page-toc.js",
@@ -164,6 +176,15 @@ exports[`Pdf page with titles > Generates pdf title pages as regular entries for
   "pdf/pdf-page-toc.js",
   "pdf/pdf-page.html",
   "pdf/pdf-page.json",
+  "toc.js"
+]"
+`;
+
+exports[`Pdf page with toc include > creates a single pdf folder for root toc when section is connected via include > filelist 1`] = `
+"[
+  ".yfm",
+  "index.html",
+  "section/index.html",
   "toc.js"
 ]"
 `;
