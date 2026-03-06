@@ -110,6 +110,14 @@ export class MetaService {
             meta[field] = uniq(meta[field] as string[]).filter(Boolean);
         }
 
+        if (meta.alternate?.length) {
+            meta.alternate = meta.alternate.sort((a, b) => (a.href > b.href ? 1 : -1));
+        }
+
+        if (meta.contributors?.length) {
+            meta.contributors = meta.contributors.sort((a, b) => (a.login > b.login ? 1 : -1));
+        }
+
         for (const field of [
             'script',
             'style',
