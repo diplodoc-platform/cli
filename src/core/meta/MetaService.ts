@@ -111,7 +111,7 @@ export class MetaService {
         }
 
         if (meta.alternate?.length) {
-            meta.alternate = meta.alternate.sort((a, b) => (a.href > b.href ? 1 : -1));
+            meta.alternate.sort((a, b) => (a.href > b.href ? 1 : -1));
         }
 
         for (const field of [

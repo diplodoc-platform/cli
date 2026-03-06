@@ -178,8 +178,8 @@ metadata:
 alternate:
   - az/about
   - en/about
-  - ru/about
   - https://my-other-site.com/about
+  - ru/about
 canonical: ru/about.html
 vcsPath: ru/about.md
 ---
@@ -476,7 +476,7 @@ exports[`Alternates > internal 24`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"ru/about.html","hreflang":"ru"},{"href":"https://my-other-site.com/about"}],"canonical":"ru/about.html","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about.html","hreflang":"az"},{"href":"en/about.html","hreflang":"en"},{"href":"https://my-other-site.com/about"},{"href":"ru/about.html","hreflang":"ru"}],"canonical":"ru/about.html","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -815,7 +815,7 @@ exports[`Alternates > skip-html-extension 11`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about","hreflang":"az"},{"href":"en/about","hreflang":"en"},{"href":"ru/about","hreflang":"ru"},{"href":"https://my-other-site.com/about"}],"canonical":"ru/about","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"az/about","hreflang":"az"},{"href":"en/about","hreflang":"en"},{"href":"https://my-other-site.com/about"},{"href":"ru/about","hreflang":"ru"}],"canonical":"ru/about","vcsPath":"ru/about.md"},"headings":[],"title":"About"},"router":{"pathname":"ru/about","depth":2,"base":"../"},"lang":"ru","langs":["ru","en",{"lang":"az","tld":"az"}],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
