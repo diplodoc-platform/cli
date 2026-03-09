@@ -44,6 +44,7 @@ export type StepActor<Context extends Hash = Hash> = {
 export type HashedGraphNode = IncludeInfo & {
     content: string;
     hash: string;
+    deps: HashedGraphNode[];
 };
 
 // TODO(major): Deprecate

@@ -23,6 +23,7 @@ import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} fr
 import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
+import {extractIncludedBlocks} from './extract-included';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -114,6 +115,11 @@ export class Run extends BaseRun<BuildConfig> {
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
+        const {content: cleanMarkdown, files: includedFiles} = extractIncludedBlocks(
+            markdown,
+            file,
+        );
+
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
         const assetsRemap = await remap(assets.map(get('path')), async (path) => {
             if (path?.endsWith('.svg')) {
@@ -123,14 +129,22 @@ export class Run extends BaseRun<BuildConfig> {
             }
         });
 
+        const depFiles = await remap(deps.map(get('path')), (path) => {
+            const embedded = includedFiles[path];
+            if (typeof embedded === 'string') {
+                return embedded;
+            }
+            return this.files(path, file);
+        });
+
         const {parse, compile, env} = transformer({
             ...this.transformConfig(file, assetsRemap),
-            files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
+            files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
             assets: assetsRemap,
         });
 
-        const tokens = parse(markdown);
+        const tokens = parse(cleanMarkdown);
         const result = compile(tokens);
 
         return [result, env] as const;
@@ -139,6 +153,11 @@ export class Run extends BaseRun<BuildConfig> {
     async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
+        const {content: cleanMarkdown, files: includedFiles} = extractIncludedBlocks(
+            markdown,
+            file,
+        );
+
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
         const assetsRemap = await remap(assets.map(get('path')), async (path) => {
             if (path?.endsWith('.svg')) {
@@ -148,14 +167,22 @@ export class Run extends BaseRun<BuildConfig> {
             }
         });
 
+        const depFiles = await remap(deps.map(get('path')), (path) => {
+            const embedded = includedFiles[path];
+            if (typeof embedded === 'string') {
+                return embedded;
+            }
+            return this.files(path, file);
+        });
+
         const pluginOptions = {
             ...this.transformConfig(file, assetsRemap),
-            files: await remap(deps.map(get('path')), (path) => this.files(path, file)),
+            files: {...depFiles, ...includedFiles},
             titles: await remap(titles, this.titles),
             assets: assetsRemap,
         };
 
-        return yfmlint(markdown, file, {
+        return yfmlint(cleanMarkdown, file, {
             lintConfig: this.config.lint.config,
             pluginOptions,
             plugins: pluginOptions.plugins,

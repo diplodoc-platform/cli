@@ -24,6 +24,7 @@ import {
 } from './utils';
 import {mergeSvg} from './plugins/merge-svg';
 import {mergeAutotitles} from './plugins/merge-autotitles';
+import {mergeIncludes} from './plugins/merge-includes';
 import {rehashIncludes} from './plugins/resolve-deps';
 import {options} from './config';
 
@@ -69,7 +70,7 @@ export class OutputMd {
                 hashIncludes: true,
             });
             const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
-                mergeIncludes: false,
+                mergeIncludes: true,
             });
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
                 mergeAutotitles: true,
@@ -156,6 +157,7 @@ export class OutputMd {
                                 config.hashIncludes &&
                                     !config.mergeIncludes &&
                                     rehashIncludes(run, deps),
+                                config.mergeIncludes && !write && mergeIncludes(run, deps),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
                                 config.mergeSvg && mergeSvg(run, svgList, graph.assets),
@@ -171,7 +173,7 @@ export class OutputMd {
 
                             processed.set(graph.path, hashed);
 
-                            if (copiedIncludes.has(link) || !write) {
+                            if (copiedIncludes.has(link) || !write || config.mergeIncludes) {
                                 return hashed;
                             }
                             copiedIncludes.add(link);
