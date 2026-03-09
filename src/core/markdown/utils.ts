@@ -448,6 +448,24 @@ function parseSimpleLink(str: string, start: number) {
     return null;
 }
 
+export function findIncludedBlockRanges(content: string): Location[] {
+    const INCLUDED_OPEN = /{%\s*included\s*\(.+?\)\s*%}/g;
+    const INCLUDED_CLOSE = /{%\s*endincluded\s*%}/g;
+    const ranges: Location[] = [];
+
+    let openMatch;
+    // eslint-disable-next-line no-cond-assign
+    while ((openMatch = INCLUDED_OPEN.exec(content))) {
+        INCLUDED_CLOSE.lastIndex = INCLUDED_OPEN.lastIndex;
+        const closeMatch = INCLUDED_CLOSE.exec(content);
+        if (closeMatch) {
+            ranges.push([openMatch.index, INCLUDED_CLOSE.lastIndex]);
+        }
+    }
+
+    return ranges;
+}
+
 export function filterRanges<T extends {location: Location}>(
     excludes: Location[],
     infos: T[],

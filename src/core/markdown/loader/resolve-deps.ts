@@ -5,11 +5,11 @@ import {dirname, join} from 'node:path';
 
 import {normalizePath, parseLocalUrl, rebasePath} from '~/core/utils';
 
-import {filterRanges, findLink} from '../utils';
+import {filterRanges, findIncludedBlockRanges, findLink} from '../utils';
 
 export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
-    const exclude = [...this.api.comments.get()];
+    const exclude = [...this.api.comments.get(), ...findIncludedBlockRanges(content)];
 
     // Include example: {% include [createfolder](create-folder.md) %}
     // Regexp result: [createfolder](create-folder.md)

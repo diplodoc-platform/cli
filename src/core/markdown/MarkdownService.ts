@@ -167,7 +167,25 @@ export class MarkdownService {
             // But if we move this two lines above, then program exits unexpectedly
             await getHooks(this).Resolved.promise(content, file);
         } catch (error) {
-            defer.reject(error);
+            const isFileNotFound =
+                error instanceof Error && 'code' in error && error.code === 'ENOENT';
+
+            if (isFileNotFound && from) {
+                // File may not exist when its content is embedded via {% included %}
+                // blocks (produced by md2md --merge-includes). Resolve with empty
+                // content so callers can fall back to embedded data.
+                const empty = {
+                    content: '',
+                    varsMetadata: {} as Hash,
+                    varsSystem: {} as Hash,
+                    meta: {} as Meta,
+                };
+                this.cache[key] = empty;
+                this.pathToDeps.set(key, []);
+                defer.resolve(empty);
+            } else {
+                defer.reject(error);
+            }
         }
 
         return (await defer.promise).content;
@@ -287,7 +305,14 @@ export class MarkdownService {
         const deps = this.pathToDeps.get(key) || [];
         const internals: IncludeInfo[][] = await all(
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
-                return this._deps(path, from || file);
+                try {
+                    return await this._deps(path, from || file);
+                } catch {
+                    // Include file may not exist on disk when its content
+                    // is embedded in the parent via {% included %} blocks
+                    // (produced by md2md --merge-includes).
+                    return [];
+                }
             }),
         );
 

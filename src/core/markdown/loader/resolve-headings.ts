@@ -1,11 +1,11 @@
 import type {Location} from '../types';
 import type {LoaderContext} from '../loader';
 
-import {filterRanges} from '../utils';
+import {filterRanges, findIncludedBlockRanges} from '../utils';
 
 export function resolveHeadings(this: LoaderContext, content: string) {
     const headings = [];
-    const exclude = [...this.api.comments.get()];
+    const exclude = [...this.api.comments.get(), ...findIncludedBlockRanges(content)];
 
     const heading = /(?<=^|\n)([#=-])/g;
 

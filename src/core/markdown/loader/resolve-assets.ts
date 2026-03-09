@@ -5,7 +5,13 @@ import {join} from 'node:path';
 
 import {fs, normalizePath, rebasePath} from '~/core/utils';
 
-import {filterRanges, findDefs, findLinksInfo, findPcImages} from '../utils';
+import {
+    filterRanges,
+    findDefs,
+    findIncludedBlockRanges,
+    findLinksInfo,
+    findPcImages,
+} from '../utils';
 
 function fixUnreachableLink(path: RelativePath, loaderContext: LoaderContext) {
     let newPath = path;
@@ -68,6 +74,7 @@ export function resolveAssets(this: LoaderContext, content: string) {
         ...this.api.deps.get().map(({location}) => location),
         ...this.api.comments.get(),
         ...this.api.blockCodes.get(),
+        ...findIncludedBlockRanges(content),
     ];
 
     const defs = filterRanges(exclude, findDefs(content));
