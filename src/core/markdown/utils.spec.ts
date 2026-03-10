@@ -1,8 +1,15 @@
 import type {ConstructorBlock} from '@diplodoc/page-constructor-extension';
+import type {Location} from './types';
 
 import {describe, expect, it} from 'vitest';
 
-import {findPcImages, getPcIconTitle, parsePcBlocks} from './utils';
+import {
+    filterRanges,
+    findIncludedBlockRanges,
+    findPcImages,
+    getPcIconTitle,
+    parsePcBlocks,
+} from './utils';
 
 describe('parsePcBlocks', () => {
     it('should find icon and image in flat array', () => {
@@ -304,5 +311,94 @@ describe('findPcImages', () => {
         `;
 
         expect(findPcImages(content)).toEqual([]);
+    });
+});
+
+describe('findIncludedBlockRanges', () => {
+    it('should find a single included block range', () => {
+        const content = '{% included (_includes/file.md) %}\nContent\n{% endincluded %}';
+        const ranges = findIncludedBlockRanges(content);
+        expect(ranges).toHaveLength(1);
+        expect(ranges[0][0]).toBe(0);
+        expect(ranges[0][1]).toBe(content.length);
+    });
+
+    it('should find multiple included blocks', () => {
+        const content = [
+            '{% included (_includes/a.md) %}',
+            'Content A',
+            '{% endincluded %}',
+            'Some text between',
+            '{% included (_includes/b.md) %}',
+            'Content B',
+            '{% endincluded %}',
+        ].join('\n');
+        const ranges = findIncludedBlockRanges(content);
+        expect(ranges).toHaveLength(2);
+    });
+
+    it('should return empty array when no included blocks', () => {
+        const content = '# Normal markdown\n\nSome text.';
+        expect(findIncludedBlockRanges(content)).toEqual([]);
+    });
+
+    it('should handle included block without matching endincluded', () => {
+        const content = '{% included (_includes/file.md) %}\nContent without end';
+        const ranges = findIncludedBlockRanges(content);
+        expect(ranges).toEqual([]);
+    });
+
+    it('should handle colon-chain keys', () => {
+        const content = '{% included (_includes/outer.md:inner.md) %}\nNested\n{% endincluded %}';
+        const ranges = findIncludedBlockRanges(content);
+        expect(ranges).toHaveLength(1);
+    });
+});
+
+describe('filterRanges', () => {
+    it('should filter items fully inside excluded range', () => {
+        const excludes: Location[] = [[10, 50]];
+        const items = [{location: [15, 30] as Location}];
+        expect(filterRanges(excludes, items)).toEqual([]);
+    });
+
+    it('should keep items outside excluded range', () => {
+        const excludes: Location[] = [[10, 50]];
+        const items = [{location: [60, 80] as Location}];
+        expect(filterRanges(excludes, items)).toEqual(items);
+    });
+
+    it('should filter items overlapping start of excluded range', () => {
+        const excludes: Location[] = [[10, 50]];
+        const items = [{location: [5, 20] as Location}];
+        expect(filterRanges(excludes, items)).toEqual([]);
+    });
+
+    it('should filter items overlapping end of excluded range', () => {
+        const excludes: Location[] = [[10, 50]];
+        const items = [{location: [40, 60] as Location}];
+        expect(filterRanges(excludes, items)).toEqual([]);
+    });
+
+    it('should handle multiple excludes', () => {
+        const excludes: Location[] = [
+            [10, 20],
+            [30, 40],
+        ];
+        const items = [
+            {location: [5, 8] as Location},
+            {location: [12, 18] as Location},
+            {location: [25, 28] as Location},
+            {location: [35, 38] as Location},
+        ];
+        const result = filterRanges(excludes, items);
+        expect(result).toHaveLength(2);
+        expect(result[0].location).toEqual([5, 8]);
+        expect(result[1].location).toEqual([25, 28]);
+    });
+
+    it('should return all items when no excludes', () => {
+        const items = [{location: [5, 10] as Location}, {location: [15, 20] as Location}];
+        expect(filterRanges([], items)).toEqual(items);
     });
 });

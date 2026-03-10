@@ -1,0 +1,276 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Merge includes (md2md) > basic: simple include is inlined > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > basic: simple include is inlined 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > basic: simple include is inlined 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+Content before include.
+
+## Included Section
+
+This is the included content.
+
+
+Content after include.
+"
+`;
+
+exports[`Merge includes (md2md) > basic: simple include is inlined 3`] = `
+"title: Merge Includes Basic
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Hash Fallback Test
+"
+`;
+
+exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+{% include notitle [section-a](_includes/sections.md#section-a) %}
+
+{% include notitle [section-b](_includes/sections.md#section-b) %}
+
+{% included (_includes/sections.md) %}
+# Sections
+
+## Section A {#section-a}
+
+Content of section A.
+
+## Section B {#section-b}
+
+Content of section B.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 3`] = `
+"title: Hash Fallback Test
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+Before outer include.
+
+## Outer Section
+
+Content from outer include.
+
+{% include [inner](_includes/inner.md) %}
+
+End of outer include.
+
+
+After outer include.
+
+{% included (_includes/inner.md) %}
+### Inner Section
+
+Content from inner include.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 3`] = `
+"title: Merge Includes Nested
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+## Section With Links
+
+See [the guide](_includes/guide.md) for more details.
+
+![diagram](_includes/sub/images/diagram.png)
+
+[ref-link]: _includes/reference.md "Reference"
+
+"
+`;
+
+exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 3`] = `
+"title: Merge Includes Relative Paths
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged > filelist 1`] = `
+"[
+  "_includes/simple-hash.md",
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 1`] = `
+"## Included Section
+
+This is the included content.
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+Content before include.
+
+{% include [simple-include](_includes/simple-hash.md) %}
+
+Content after include.
+"
+`;
+
+exports[`Merge includes (md2md) > without flag: includes are NOT merged 4`] = `
+"title: Merge Includes Basic
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;

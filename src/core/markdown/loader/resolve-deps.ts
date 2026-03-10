@@ -24,6 +24,12 @@ export function resolveDependencies(this: LoaderContext, content: string) {
             continue;
         }
 
+        const matchStart = match.index;
+        const matchEnd = INCLUDE_CONTENTS.lastIndex;
+        if (exclude.some(([exStart, exEnd]) => matchStart >= exStart && matchEnd <= exEnd)) {
+            continue;
+        }
+
         const link = findLink(match[0]) as string;
         // TODO: warn about non local urls
         const include = parseLocalUrl<IncludeInfo>(link);
