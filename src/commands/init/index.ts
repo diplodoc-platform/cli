@@ -2,9 +2,9 @@ import type {BaseArgs, BaseConfig} from '~/core/program';
 
 import {basename, join} from 'node:path';
 import {mkdir, readdir, writeFile} from 'node:fs/promises';
-
 import {bold, green} from 'chalk';
 
+import {console} from '~/core/utils';
 import {BaseProgram, withConfigDefaults} from '~/core/program';
 import {Command} from '~/core/config';
 
