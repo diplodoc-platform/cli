@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.26.1](https://github.com/diplodoc-platform/cli/compare/v5.26.0...v5.26.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* pdf multi toc ([d53bd74](https://github.com/diplodoc-platform/cli/commit/d53bd74c87bc5fd8bec7a1aac96002113add9b3e))
+* sorted alternates and contributors ([#1743](https://github.com/diplodoc-platform/cli/issues/1743)) ([249018c](https://github.com/diplodoc-platform/cli/commit/249018c13ec037987d81dbf92a638bc58651237a))
+
 ## [5.26.0](https://github.com/diplodoc-platform/cli/compare/v5.25.4...v5.26.0) (2026-03-05)
 
 
