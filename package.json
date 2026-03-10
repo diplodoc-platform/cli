@@ -138,7 +138,7 @@
     "simple-git": "3.22.0",
     "slugify": "1.6.5",
     "strip-ansi": "^7.1.2",
-    "svgo": "3.3.2",
+    "svgo": "3.3.3",
     "ts-patch": "3.3.0",
     "typescript": "5.4.5",
     "typescript-transform-paths": "3.5.5",
