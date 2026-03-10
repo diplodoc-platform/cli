@@ -41,8 +41,8 @@ describe('extractIncludedBlocks', () => {
 
         const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
 
-        expect(result.files['_includes/a.md']).toBe('Content A');
-        expect(result.files['_includes/b.md']).toBe('Content B');
+        expect(result.files['_includes/a.md' as NormalizedPath]).toBe('Content A');
+        expect(result.files['_includes/b.md' as NormalizedPath]).toBe('Content B');
     });
 
     it('should resolve colon-chain keys for nested includes', () => {
@@ -58,8 +58,8 @@ describe('extractIncludedBlocks', () => {
 
         const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
 
-        expect(result.files['_includes/outer.md']).toBe('Outer content');
-        expect(result.files['_includes/inner.md']).toBe('Inner content');
+        expect(result.files['_includes/outer.md' as NormalizedPath]).toBe('Outer content');
+        expect(result.files['_includes/inner.md' as NormalizedPath]).toBe('Inner content');
     });
 
     it('should resolve colon-chain keys relative to parent path', () => {
@@ -69,7 +69,7 @@ describe('extractIncludedBlocks', () => {
 
         const result = extractIncludedBlocks(content, 'en/docs/page.md' as NormalizedPath);
 
-        expect(result.files['en/docs/sub/file.md']).toBe('File content');
+        expect(result.files['en/docs/sub/file.md' as NormalizedPath]).toBe('File content');
     });
 
     it('should return content unchanged when no included blocks', () => {
@@ -87,7 +87,7 @@ describe('extractIncludedBlocks', () => {
 
         const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
 
-        expect(result.files['_includes/empty.md']).toBe('');
+        expect(result.files['_includes/empty.md' as NormalizedPath]).toBe('');
     });
 
     it('should handle included blocks with multiline content', () => {
@@ -103,7 +103,9 @@ describe('extractIncludedBlocks', () => {
 
         const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
 
-        expect(result.files['_includes/multi.md']).toBe('# Title\n\nParagraph 1\n\nParagraph 2');
+        expect(result.files['_includes/multi.md' as NormalizedPath]).toBe(
+            '# Title\n\nParagraph 1\n\nParagraph 2',
+        );
     });
 
     it('should resolve deeply nested colon-chain keys', () => {
@@ -116,7 +118,7 @@ describe('extractIncludedBlocks', () => {
         const result = extractIncludedBlocks(content, 'root.md' as NormalizedPath);
 
         // root.md → a/b.md → a/c/d.md → a/c/e.md
-        expect(result.files['a/c/e.md']).toBe('Deep content');
+        expect(result.files['a/c/e.md' as NormalizedPath]).toBe('Deep content');
     });
 
     it('should preserve content before and after included blocks', () => {
@@ -131,6 +133,6 @@ describe('extractIncludedBlocks', () => {
         const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
 
         expect(result.content).toBe('Line before\nLine after');
-        expect(result.files['inc.md']).toBe('Included');
+        expect(result.files['inc.md' as NormalizedPath]).toBe('Included');
     });
 });

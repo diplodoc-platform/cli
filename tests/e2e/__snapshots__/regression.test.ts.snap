@@ -10,7 +10,6 @@ exports[`Regression > internal > filelist 1`] = `
   "_assets/5_1.png",
   "_assets/empty.pdf",
   "autotitle.md",
-  "entry-as-include-hash.md",
   "entry-as-include.md",
   "generic/1.md",
   "generic/2.md",
@@ -21,11 +20,6 @@ exports[`Regression > internal > filelist 1`] = `
   "included-item.md",
   "includer-of-entry.md",
   "includes.md",
-  "includes/deep-hash.md",
-  "includes/fragments-hash.md",
-  "includes/test-hash.md",
-  "includes/tools-hash.md",
-  "includes/user-hash.md",
   "index.yaml",
   "latex.md",
   "merge/merge.md",
@@ -119,7 +113,8 @@ default-var-value
 
 [noext-link](./includes)
 
-{% include [user](includes/user-hash.md) %}
+Bob
+
 "
 `;
 
@@ -183,21 +178,6 @@ metadata:
     content: Diplodoc Platform vDIPLODOC-VERSION
 __system:
   testVar: test-value
-vcsPath: entry-as-include.md
----
-# Entry that is also used as include
-
-This file is both an entry (in toc) and included by another file.
-"
-`;
-
-exports[`Regression > internal 6`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-__system:
-  testVar: test-value
 vcsPath: generic/1.md
 ---
 # Note 1
@@ -206,7 +186,7 @@ Note content 1
 "
 `;
 
-exports[`Regression > internal 7`] = `
+exports[`Regression > internal 6`] = `
 "---
 metadata:
   - name: generator
@@ -221,7 +201,7 @@ Note content 1
 "
 `;
 
-exports[`Regression > internal 8`] = `
+exports[`Regression > internal 7`] = `
 "---
 metadata:
   - name: generator
@@ -234,7 +214,7 @@ Note content 1
 "
 `;
 
-exports[`Regression > internal 9`] = `
+exports[`Regression > internal 8`] = `
 "---
 metadata:
   - name: generator
@@ -249,7 +229,7 @@ Note content 1
 "
 `;
 
-exports[`Regression > internal 10`] = `
+exports[`Regression > internal 9`] = `
 "---
 metadata:
   - name: generator
@@ -264,7 +244,7 @@ Note content 2
 "
 `;
 
-exports[`Regression > internal 11`] = `
+exports[`Regression > internal 10`] = `
 "---
 metadata:
   - name: generator
@@ -288,7 +268,7 @@ vcsPath: images.md
 [![img 3](_assets/3.png)](latex.md)"
 `;
 
-exports[`Regression > internal 12`] = `
+exports[`Regression > internal 11`] = `
 "---
 metadata:
   - name: generator
@@ -313,7 +293,7 @@ Included item text
 "
 `;
 
-exports[`Regression > internal 13`] = `
+exports[`Regression > internal 12`] = `
 "---
 metadata:
   - name: generator
@@ -326,11 +306,14 @@ vcsPath: includer-of-entry.md
 
 This file includes another file that is also an entry.
 
-{% include [entry-as-include](entry-as-include-hash.md) %}
+# Entry that is also used as include
+
+This file is both an entry (in toc) and included by another file.
+
 "
 `;
 
-exports[`Regression > internal 14`] = `
+exports[`Regression > internal 13`] = `
 "---
 metadata:
   - name: generator
@@ -341,16 +324,20 @@ vcsPath: includes.md
 ---
 Text
 
-{% include [user](includes/user-hash.md) %}
+Bob
 
-{% include [test](includes/test-hash.md) %}
 
-{% include [test](includes/fragments-hash.md#f1) %}
+Test
 
-{% include [test](includes/fragments-hash.md#p1) %}
+
+{% include [test](includes/fragments.md#f1) %}
+
+{% include [test](includes/fragments.md#p1) %}
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
-{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
+{% include [user](includes/user.md) %}
+
+[![img 3](_assets/3.png)](latex.md)
 
 ^[?](*term)^
 
@@ -363,24 +350,8 @@ Link after include
 Link after include
 
 [*term]: Test terms
-"
-`;
 
-exports[`Regression > internal 15`] = `
-"---
-__system:
-  testVar: test-value
----
-{% include [user](./user-hash.md) %}
-
-[![img 3](../_assets/3.png)](../latex.md)"
-`;
-
-exports[`Regression > internal 16`] = `
-"---
-__system:
-  testVar: test-value
----
+{% included (includes/fragments.md) %}
 ### F1 {#f1}
 Content F1
 
@@ -398,37 +369,15 @@ Some paragraph with anchor {#p1}
 Some paragraph without anchor
 
 Some paragraph with anchor {#p2}
-"
-`;
 
-exports[`Regression > internal 17`] = `
-"---
-__system:
-  testVar: test-value
----
-Test
-"
-`;
-
-exports[`Regression > internal 18`] = `
-"---
-__system:
-  testVar: test-value
----
-Tool: Hammer and Laser
-"
-`;
-
-exports[`Regression > internal 19`] = `
-"---
-__system:
-  testVar: test-value
----
+{% endincluded %}
+{% included (includes/user.md) %}
 Bob
-"
+
+{% endincluded %}"
 `;
 
-exports[`Regression > internal 20`] = `
+exports[`Regression > internal 14`] = `
 "description:
   - Some text
 links:
@@ -446,7 +395,7 @@ meta:
 "
 `;
 
-exports[`Regression > internal 21`] = `
+exports[`Regression > internal 15`] = `
 "---
 metadata:
   - name: generator
@@ -461,7 +410,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Regression > internal 22`] = `
+exports[`Regression > internal 16`] = `
 "---
 metadata:
   - name: generator
@@ -474,11 +423,12 @@ vcsPath: merge/merge.md
 
 [merged](./merged.md)
 
-{% include [tools](../includes/tools-hash.md) %}
+Tool: Hammer and Laser
+
 "
 `;
 
-exports[`Regression > internal 23`] = `
+exports[`Regression > internal 17`] = `
 "---
 metadata:
   - name: generator
@@ -494,7 +444,7 @@ Should be linked in toc.yaml
 "
 `;
 
-exports[`Regression > internal 24`] = `
+exports[`Regression > internal 18`] = `
 "items:
   - name: Use merged
     href: merge.md
@@ -506,7 +456,7 @@ path: merge/toc.yaml
 "
 `;
 
-exports[`Regression > internal 25`] = `
+exports[`Regression > internal 19`] = `
 "---
 metadata:
   - name: generator
@@ -531,7 +481,7 @@ Some mermaid info
 "
 `;
 
-exports[`Regression > internal 26`] = `
+exports[`Regression > internal 20`] = `
 "---
 metadata:
   - name: generator
@@ -631,7 +581,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 27`] = `
+exports[`Regression > internal 21`] = `
 "---
 metadata:
   - name: generator
@@ -713,7 +663,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 28`] = `
+exports[`Regression > internal 22`] = `
 "---
 metadata:
   - name: generator
@@ -732,7 +682,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 23`] = `
 "files:
   - from: c.md
     to: d.md
@@ -742,7 +692,7 @@ common:
 "
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 24`] = `
 "---
 metadata:
   - name: generator
@@ -759,7 +709,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 25`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -820,13 +770,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 26`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 27`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -854,7 +804,7 @@ exports[`Regression > internal 33`] = `
 </html>"
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 28`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -882,7 +832,7 @@ exports[`Regression > internal 34`] = `
 </html>"
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 29`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -910,7 +860,7 @@ exports[`Regression > internal 35`] = `
 </html>"
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 30`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -938,7 +888,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 31`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -966,7 +916,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 32`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -994,7 +944,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 33`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1022,7 +972,7 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 34`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1050,7 +1000,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 35`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1078,7 +1028,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1106,7 +1056,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1134,7 +1084,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1162,7 +1112,7 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1190,7 +1140,7 @@ exports[`Regression > internal 45`] = `
 </html>"
 `;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1218,7 +1168,7 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1246,7 +1196,7 @@ exports[`Regression > internal 47`] = `
 </html>"
 `;
 
-exports[`Regression > internal 48`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1274,7 +1224,7 @@ exports[`Regression > internal 48`] = `
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1302,9 +1252,9 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 44`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 51`] = `
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1332,7 +1282,7 @@ exports[`Regression > internal 51`] = `
 </html>"
 `;
 
-exports[`Regression > internal 52`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1362,7 +1312,7 @@ exports[`Regression > internal 52`] = `
 </html>"
 `;
 
-exports[`Regression > internal 53`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1392,7 +1342,7 @@ exports[`Regression > internal 53`] = `
 </html>"
 `;
 
-exports[`Regression > internal 54`] = `
+exports[`Regression > internal 48`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1420,7 +1370,7 @@ exports[`Regression > internal 54`] = `
 </html>"
 `;
 
-exports[`Regression > internal 55`] = `
+exports[`Regression > internal 49`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1448,4 +1398,4 @@ exports[`Regression > internal 55`] = `
 </html>"
 `;
 
-exports[`Regression > internal 56`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 50`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

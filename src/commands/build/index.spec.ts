@@ -1,5 +1,7 @@
 import type {BuildConfig} from '.';
 import type {MockInstance} from 'vitest';
+import type {ExtendedOption} from '~/core/config';
+import type {Stats} from 'node:fs';
 
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {constants as fsConstants} from 'node:fs/promises';
@@ -721,11 +723,11 @@ describe('Build command', () => {
                     },
                 };
 
-                const args: Hash = {
+                const args: Hash<ExtendedOption> = {
                     maxInlineSvgSize: {
                         defaultValue: 2048,
-                        parseArg: (value: unknown) => Number(value),
-                    },
+                        parseArg: (value: string, _previous: unknown) => Number(value),
+                    } as ExtendedOption,
                 };
 
                 const result = combineProps(
@@ -747,11 +749,11 @@ describe('Build command', () => {
                     content: {},
                 };
 
-                const args: Hash = {
+                const args: Hash<ExtendedOption> = {
                     maxInlineSvgSize: {
                         defaultValue: 1024,
-                        parseArg: (value: unknown) => Number(value),
-                    },
+                        parseArg: (value: string, _previous: unknown) => Number(value),
+                    } as ExtendedOption,
                 };
 
                 const result = combineProps(
@@ -774,11 +776,11 @@ describe('Build command', () => {
                     },
                 };
 
-                const args: Hash = {
+                const args: Hash<ExtendedOption> = {
                     maxInlineSvgSize: {
                         defaultValue: 2048,
-                        parseArg: (value: string) => parseInt(value, 10),
-                    },
+                        parseArg: (value: string, _previous: unknown) => parseInt(value, 10),
+                    } as ExtendedOption,
                 };
 
                 const result = combineProps(
@@ -801,7 +803,7 @@ describe('Build command', () => {
                     },
                 };
 
-                const args: Hash = {};
+                const args: Hash<ExtendedOption> = {};
 
                 const result = combineProps(config as BuildConfig, 'content', [], args);
 
@@ -814,7 +816,7 @@ describe('Build command', () => {
                     content: {},
                 };
 
-                const args: Hash = {};
+                const args: Hash<ExtendedOption> = {};
 
                 const result = combineProps(
                     config as BuildConfig,
@@ -1093,7 +1095,7 @@ describe('Build command', () => {
                 // Mock the file system operations
                 const statSpy = vi
                     .spyOn(run.fs, 'stat')
-                    .mockResolvedValue({isFile: () => true} as any);
+                    .mockResolvedValue({isFile: () => true} as Stats);
                 const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
                 const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
 
@@ -1123,7 +1125,7 @@ describe('Build command', () => {
                 // Mock the file system operations
                 const statSpy = vi
                     .spyOn(run.fs, 'stat')
-                    .mockResolvedValue({isFile: () => true} as any);
+                    .mockResolvedValue({isFile: () => true} as Stats);
                 const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
                 const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
 
@@ -1153,7 +1155,7 @@ describe('Build command', () => {
                 // Mock the file system operations
                 const statSpy = vi
                     .spyOn(run.fs, 'stat')
-                    .mockResolvedValue({isFile: () => true} as any);
+                    .mockResolvedValue({isFile: () => true} as Stats);
                 const mkdirSpy = vi.spyOn(run.fs, 'mkdir').mockResolvedValue(undefined);
                 const copyFileSpy = vi.spyOn(run.fs, 'copyFile').mockResolvedValue();
 

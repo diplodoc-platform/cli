@@ -39,9 +39,11 @@ describe('Allow load custom resources', () => {
         const {inputPath, outputPath} = getTestPaths('mocks/metadata/include-with-csp-meta');
 
         // Step 1: md2md — include files get CSP frontmatter from config resources
+        // Disable merge-includes so include files are written to disk for verification
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
+            args: '--no-merge-includes',
         });
 
         // Verify that md2md wrote frontmatter to the include file

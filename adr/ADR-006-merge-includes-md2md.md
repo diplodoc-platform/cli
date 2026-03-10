@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft (Proposal)
+**Реализовано (v6). Этап 1a + 1b: запись/чтение (md2md→md2html), инлайнинг простых includes, полная поддержка rebasing ссылок. Интеграция с viewer не требует изменений.**
 
 ## Context
 
@@ -649,7 +649,7 @@ function findTermDefinitionEnd(state, startLine, endLine) {
 
 **Задачи (TODO):**
 
-1. ⬜ Проверить интеграцию с viewer (передача `root` в transform options)
+1. ✅ Проверить интеграцию с viewer — изменений не требуется, `root` уже передаётся (см. v6)
 2. ⬜ Добавить e2e тест для полного цикла write→read (md2md→md2html)
 
 **Файлы:**
@@ -665,8 +665,11 @@ function findTermDefinitionEnd(state, startLine, endLine) {
 - `src/core/markdown/loader/resolve-assets.ts` — исключение `{% included %}` из asset-поиска
 - `src/core/markdown/loader/resolve-headings.ts` — исключение `{% included %}` из heading-поиска
 - `src/commands/build/extract-included.spec.ts` — 9 unit-тестов для extractIncludedBlocks
-- `src/commands/build/features/output-md/plugins/merge-includes.spec.ts` — 33 unit-теста (rebaseUrl, rebaseRelativePaths)
-- `tests/e2e/merge-includes.spec.ts` — 5 e2e тестов
+- `src/commands/build/features/output-md/plugins/merge-includes.spec.ts` — 62 unit-теста
+  (rebaseUrl, rebaseRelativePaths, canInlineInclude, stripFirstHeading, linked images,
+  code fences, nested links, term references, catastrophic backtracking)
+- `tests/e2e/merge-includes.spec.ts` — 6 e2e тестов (simple inline, nested, relative-paths,
+  hash-fallback, without flag)
 - `tests/mocks/merge-includes/` — test fixtures
 
 **Детали реализации:**
@@ -725,17 +728,21 @@ fallback из Этапа 1a. Это гибридный подход, при ко
 - Нет паттерна `[*key]:` в контенте включаемого файла (нет term definitions)
 - `notitle` — поддерживается (простое удаление первого заголовка)
 
-**Задачи:**
+**Задачи (выполнено):**
 
-1. ⬜ Реализовать `canInlineInclude(includeLine, includeContent)` — проверка критериев
-2. ⬜ Реализовать `stripFirstHeading(content)` — удаление первого заголовка для `notitle`
-3. ⬜ Модифицировать `mergeIncludes` плагин — для каждого dep: если `canInlineInclude` → inline,
-   иначе → `{% included %}` fallback
-4. ⬜ Обработка вложенных includes при инлайнинге: если parent инлайнится, `{% include %}`
-   директивы внутри него ребейсятся (уже работает), а дочерние deps добавляются как
-   `{% included %}` с ребейсенными ключами (без colon-chain)
-5. ⬜ Unit-тесты для `canInlineInclude`, `stripFirstHeading`, смешанный inline+fallback
-6. ⬜ E2E тесты: простой inline, notitle inline, fallback для hash/indent/terms, смешанный
+1. ✅ Реализован `canInlineInclude(dep, parentContent)` — проверка indent, hash в link, term definitions
+2. ✅ Реализован `stripFirstHeading(content)` — удаление первого заголовка для `notitle`
+3. ✅ Модифицирован `mergeIncludes` плагин — для каждого dep: если `canInlineInclude` → inline,
+   иначе → `{% included %}` fallback. Дедупликация по ключу через `seen` Set.
+4. ✅ Обработка вложенных includes: инлайненные deps используют `collectFallbackDepsForInlined`
+   с ребейсенными ключами; не-инлайненные — `collectFallbackDepsWithChain` с colon-chain.
+5. ✅ Unit-тесты для `canInlineInclude` (6), `stripFirstHeading` (8), linked image rebase (2)
+6. ✅ E2E тесты: simple inline, nested (outer inline + inner fallback), relative-paths rebase,
+   hash-fallback deduplication, without flag
+7. ✅ Исправлен `rebaseLinksInLine` — добавлена обработка linked images `[![alt](img)](url)`
+   через `LINKED_IMAGE_RE`, т.к. `INLINE_LINK_RE` ловил только внутреннюю часть.
+8. ✅ Обновлены снапшоты всех затронутых e2e тестов (preprocess, regression, includes,
+   pdf-page, include-toc, metadata)
 
 **Обработка вложенных includes:**
 
@@ -805,6 +812,38 @@ function stripFirstHeading(content: string): string {
 - Reference-style links `[text][ref]` не ребейсятся (только definitions и inline links)
 
 **Результат**: ~80% инклюдов встраиваются по месту, остальные работают через fallback.
+
+**Что было сломано и исправлено (v5-v6) — rebasing ссылок:**
+
+Инлайнинг с `rebaseRelativePaths()` привнёс массу ошибок `YFM003` (unreachable link) на реальных
+документациях. Корневые причины:
+
+1. **Неполное покрытие markdown link syntax**: Начальный `INLINE_LINK_RE` не покрывал linked images
+   с атрибутами, double-bracket autotitle синтаксис `[[!TITLE path]](url)`, вложенные ссылки.
+   Каждый новый edge case требовал отдельного regex или усложнения существующего.
+
+2. **Катастрофический бэктрекинг (ReDoS)**: Попытка обработать вложенные скобки через
+   `(?:[^\[\]]*|\[[^\]]*\])*` привела к экспоненциальному времени на строках с незакрытыми
+   скобками (часто в code spans с `<`, `>`, `[` в тексте).
+
+3. **Некорректная детекция code blocks**: Inline backtick-выражения вроде `` `code()` ``
+   интерпретировались как открывающий fenced code block → все ссылки после них пропускались.
+
+4. **Ребейз «не-ссылок»**: YFM term references (`[*term]`) и liquid directives (`{%...%}`)
+   ошибочно ребейзились как файловые пути.
+
+**Эволюция решения:**
+
+| Версия | Подход                                          | Проблемы                          |
+| ------ | ----------------------------------------------- | --------------------------------- |
+| v5.0   | `INLINE_LINK_RE` + `LINKED_IMAGE_RE`            | Не ловил атрибуты, double-bracket |
+| v5.1   | + `FULL_LINKED_IMAGE_RE` + placeholder-механизм | Double-rebase, сложность          |
+| v5.2   | + `DOUBLE_BRACKET_LINK_RE` + вложенные скобки   | Catastrophic backtracking         |
+| v5.3   | Backtrack-safe regex                            | Не обрабатывал вложенные ссылки   |
+| **v6** | **`LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g`**       | **Нет — решает все кейсы**        |
+
+Финальное решение v6 — замена всех сложных regex одним простым, который матчит `](url`
+в любом контексте. Это паттерн, общий для ВСЕХ типов markdown-ссылок.
 
 ---
 
@@ -1346,10 +1385,89 @@ WARN: Duplicate anchor '#intro' found:
    напрямую через `this.files()` без `extractIncludedBlocks`.
    **Исправлено**: lint() аналогично transform() использует extractIncludedBlocks.
 
-**Оставшееся TODO:**
+**Задачи (v5 — этап 1b, инлайнинг простых includes, выполнено):**
 
-1. **Viewer**: Не передаёт `root` в transform options → `preprocessors/included` не может
-   корректно резолвить пути через `getFullIncludePath()` (отдельная задача)
+1. ✅ Реализован `canInlineInclude(dep, parentContent)` — проверка критериев инлайнинга
+   (indent=0, нет hash в link, нет term definitions в контенте)
+2. ✅ Реализован `stripFirstHeading(content)` — удаление первого заголовка для `notitle`
+3. ✅ Модифицирован `mergeIncludes` — гибридный inline + fallback для каждого dep
+4. ✅ Дедупликация `{% included %}` блоков через `seen` Set
+5. ✅ Обработка вложенных deps при инлайнинге: `collectFallbackDepsForInlined` с ребейсенными ключами
+6. ✅ Исправлен `rebaseLinksInLine` — добавлена `LINKED_IMAGE_RE` для `[![alt](img)](url)`
+7. ✅ `output-md/index.ts` передаёт `graph.content` как `parentContent` в `mergeIncludes`
+8. ✅ Обновлены все e2e снапшоты (preprocess, regression, includes, pdf-page, include-toc)
+
+**Задачи (v6 — исправления rebasing ссылок и интеграция с viewer, выполнено):**
+
+Массовое тестирование на реальных документациях выявило серию ошибок `YFM003` (unreachable link)
+и `YFM016` (self-include), вызванных некорректным rebasing'ом ссылок при инлайнинге. Все исправлены:
+
+1. ✅ **YFM016: self-include из `{% included %}` блоков**: `resolveDependencies` находила
+   `{% include %}` директивы внутри `{% included %}` блоков и считала их self-include.
+   **Исправлено**: в `resolve-deps.ts` добавлен early `continue` для exclude ranges.
+
+2. ✅ **YFM003: некорректный rebase linked images с атрибутами**: Ссылки вида
+   `[![alt](img){height=25px}](url)` не ребейзились из-за attributes между `)` и `]`.
+   **Исправлено**: через серию улучшений regex (позднее поглощено упрощением).
+
+3. ✅ **YFM003: rebase term-references и template directives**: `rebaseUrl()` пыталась
+   ребейзить YFM-ссылки на термины (`*term`) и liquid-выражения (`{%...}`).
+   **Исправлено**: добавлены проверки `url.startsWith('*')` и `url.startsWith('{')` в `rebaseUrl`.
+
+4. ✅ **YFM003: некорректная детекция code fences**: Строки с inline backticks вроде
+   `` `console.log()` `` ошибочно интерпретировались как открытие fenced code block.
+   **Исправлено**: проверка по CommonMark — backtick fence не открывается если info string
+   содержит backtick символы.
+
+5. ✅ **YFM003: нестандартное закрытие code fence**: Закрывающий fence вида ` ```|| `
+   (в таблицах) не распознавался из-за строгого `\s*$` в regex.
+   **Исправлено**: regex закрытия fence теперь допускает `\s*\|\|` после fence символов.
+
+6. ✅ **YFM003: leading space в URL ссылки**: Ссылки с пробелом `[text]( url)` не ребейзились.
+   **Исправлено**: `\s*` после открывающей скобки в regex.
+
+7. ✅ **YFM003: double-bracket autotitle синтаксис**: `[[!TITLE path]](url)` не ребейзились.
+   **Исправлено**: через промежуточное решение с вложенными скобками (позднее упрощено).
+
+8. ✅ **ReDoS (catastrophic backtracking)**: Строки с незакрытыми скобками в code spans
+   вызывали бесконечный цикл в regex `(?:[^\[\]]*|\[[^\]]*\])*`.
+   **Исправлено**: рефакторинг regex на backtrack-safe структуру (позднее упрощено).
+
+9. ✅ **YFM003: вложенные ссылки**: `[outer [inner](inner-url) text](outer-url)` — сложные
+   regex не могли корректно обработать обе URL во вложенных ссылках.
+   **Исправлено**: полная замена на простой `LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g`,
+   который матчит паттерн `](url` в любом контексте вложенности.
+
+**Итоговое решение rebasing'а:**
+
+Вместо сложных regex для каждого типа ссылок (`INLINE_LINK_RE`, `LINKED_IMAGE_RE`,
+`FULL_LINKED_IMAGE_RE`, `DOUBLE_BRACKET_LINK_RE` + placeholder-механизм) используется
+один универсальный regex:
+
+```typescript
+const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
+```
+
+Этот regex матчит паттерн `](url` — общий для ВСЕХ markdown-ссылок (inline, linked images,
+nested links, autotitle) вне зависимости от глубины вложенности и сложности link text.
+Для link definitions сохранён отдельный `LINK_DEF_RE`.
+
+**Результат**: 62 unit-теста, 118 e2e тестов, проверено на >10 реальных документациях.
+
+10. ✅ **Viewer интеграция**: Проведён анализ кода viewer'а
+    (`docs-viewer-external/packages/models/src/transformer`). **Изменений не требуется**:
+    - `root` УЖЕ передаётся в `transformMarkdown` options (`doc-transform.js:140,148`)
+    - `@diplodoc/transform` v4.70.1 содержит `preprocessors/included` — парсит `{% included %}`
+      блоки и сохраняет контент в `md.included[resolvedPath]`
+    - `md.ts:139` передаёт `md` в `preprocess()` → preprocessor получает markdown-it instance
+    - Viewer'овский includes plugin (`plugins/includes/index.js:79-80`) уже делает lookup:
+      `md?.included?.[resolve('./', pathname)]`
+    - Ключи совпадают: preprocessor хранит по `resolve(fromDir, relativePath)`,
+      plugin ищет по `resolve('./', viewerResolvedPath)` — оба дают одинаковый абсолютный путь
+    - Colon-chain ключи обрабатываются preprocessor'ом: `_includes/outer.md:inner.md` →
+      `getFullIncludePath('_includes/outer.md', root, path)` → `getFullIncludePath('inner.md', root, outer)`
+
+**Оставшееся TODO:** Нет. Все задачи этапов 1a и 1b выполнены, включая интеграцию с viewer.
 
 ---
 

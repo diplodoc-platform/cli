@@ -157,7 +157,9 @@ export class OutputMd {
                                 config.hashIncludes &&
                                     !config.mergeIncludes &&
                                     rehashIncludes(run, deps),
-                                config.mergeIncludes && !write && mergeIncludes(run, deps),
+                                config.mergeIncludes &&
+                                    !write &&
+                                    mergeIncludes(run, deps, graph.content),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
                                 config.mergeSvg && mergeSvg(run, svgList, graph.assets),

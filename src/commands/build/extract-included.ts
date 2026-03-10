@@ -48,12 +48,12 @@ export function extractIncludedBlocks(
 
     let i = 0;
     while (i < lines.length) {
-        const match = lines[i].match(INCLUDE_REGEXP);
+        const match = INCLUDE_REGEXP.exec(lines[i]);
         if (match) {
             const key = match[1];
             const blockLines: string[] = [];
             i++;
-            while (i < lines.length && !lines[i].match(INCLUDE_END_REGEXP)) {
+            while (i < lines.length && !INCLUDE_END_REGEXP.exec(lines[i])) {
                 blockLines.push(lines[i]);
                 i++;
             }
