@@ -151,7 +151,18 @@ export class OutputMd {
                             }
 
                             const deps: HashedGraphNode[] = await all(
-                                graph.deps.map((dep) => dump(dep, true)),
+                                graph.deps.map(async (dep) => {
+                                    const dumped = await dump(dep, true);
+                                    // Preserve per-directive IncludeInfo fields (link, match,
+                                    // location) which may differ for same-path deps
+                                    // (e.g. same file included with different #hash fragments).
+                                    return {
+                                        ...dumped,
+                                        link: dep.link,
+                                        match: dep.match,
+                                        location: dep.location,
+                                    };
+                                }),
                             );
                             const scheduler = new Scheduler([
                                 config.hashIncludes &&
