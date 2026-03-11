@@ -25,11 +25,15 @@ langs: ['en','ru']
 
 neuroExpert:
   projectId:
-    en: none
+    en: false
     ru: 77fac9c9ad9811f0997f4641db830dfd
     default: 77fac9c9ad9811f0997f4641db830dfd
   parentId: null
   disabled: false
+  customLabel:
+    en: false
+    ru: 'new label'
+    default: 'default label'
 "
 `;
 
@@ -45,7 +49,6 @@ exports[`Neuro-expert > Neuro-expert 2`] = `
         <link rel="alternate" href="en/folder/index.html" hreflang="en" />
         <link rel="alternate" href="ru/folder/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -61,27 +64,6 @@ exports[`Neuro-expert > Neuro-expert 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript">
-            const neuroExpertScript = document.createElement('script');
-            neuroExpertScript.type = "module";
-            neuroExpertScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            const neuroExpertDiv = document.createElement("div");
-            neuroExpertDiv.id = "neuro-expert-widget";
-            neuroExpertDiv.className = "dc-neuro-expert-widget";
-            neuroExpertScript.onload = () => {
-                function tryAppend() {
-                    const widgetsDiv = document.getElementById("dc-widgets");
-                    if (widgetsDiv) {
-                        widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"none","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
-                    } else {
-                        setTimeout(tryAppend, 50);
-                    }
-                }
-                tryAppend();
-            };
-            document.body.appendChild(neuroExpertScript);
-        </script>
     </body>
 </html>"
 `;
@@ -98,7 +80,6 @@ exports[`Neuro-expert > Neuro-expert 3`] = `
         <link rel="alternate" href="en/index-test-html/index.html" hreflang="en" />
         <link rel="alternate" href="ru/index-test-html/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -114,27 +95,6 @@ exports[`Neuro-expert > Neuro-expert 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript">
-            const neuroExpertScript = document.createElement('script');
-            neuroExpertScript.type = "module";
-            neuroExpertScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            const neuroExpertDiv = document.createElement("div");
-            neuroExpertDiv.id = "neuro-expert-widget";
-            neuroExpertDiv.className = "dc-neuro-expert-widget";
-            neuroExpertScript.onload = () => {
-                function tryAppend() {
-                    const widgetsDiv = document.getElementById("dc-widgets");
-                    if (widgetsDiv) {
-                        widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"none","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
-                    } else {
-                        setTimeout(tryAppend, 50);
-                    }
-                }
-                tryAppend();
-            };
-            document.body.appendChild(neuroExpertScript);
-        </script>
     </body>
 </html>"
 `;
@@ -184,7 +144,6 @@ exports[`Neuro-expert > Neuro-expert 5`] = `
         <link rel="alternate" href="ru/page1.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="neuroExpert" content="[object Object]">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -200,27 +159,6 @@ exports[`Neuro-expert > Neuro-expert 5`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript">
-            const neuroExpertScript = document.createElement('script');
-            neuroExpertScript.type = "module";
-            neuroExpertScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            const neuroExpertDiv = document.createElement("div");
-            neuroExpertDiv.id = "neuro-expert-div";
-            neuroExpertDiv.className = "dc-neuro-expert-widget";
-            neuroExpertScript.onload = () => {
-                function tryAppend() {
-                    const widgetsDiv = document.getElementById("dc-widgets");
-                    if (widgetsDiv) {
-                        widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"none","hasOutsideClick":true,"parentId":"neuro-expert-div"});
-                    } else {
-                        setTimeout(tryAppend, 50);
-                    }
-                }
-                tryAppend();
-            };
-            document.body.appendChild(neuroExpertScript);
-        </script>
     </body>
 </html>"
 `;
@@ -237,7 +175,6 @@ exports[`Neuro-expert > Neuro-expert 6`] = `
         <link rel="alternate" href="en/page2.html" hreflang="en" />
         <link rel="alternate" href="ru/page2.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -253,27 +190,6 @@ exports[`Neuro-expert > Neuro-expert 6`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="en/toc.js"></script>
-        <script type="application/javascript">
-            const neuroExpertScript = document.createElement('script');
-            neuroExpertScript.type = "module";
-            neuroExpertScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            const neuroExpertDiv = document.createElement("div");
-            neuroExpertDiv.id = "neuro-expert-widget";
-            neuroExpertDiv.className = "dc-neuro-expert-widget";
-            neuroExpertScript.onload = () => {
-                function tryAppend() {
-                    const widgetsDiv = document.getElementById("dc-widgets");
-                    if (widgetsDiv) {
-                        widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"none","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
-                    } else {
-                        setTimeout(tryAppend, 50);
-                    }
-                }
-                tryAppend();
-            };
-            document.body.appendChild(neuroExpertScript);
-        </script>
     </body>
 </html>"
 `;
@@ -340,7 +256,7 @@ exports[`Neuro-expert > Neuro-expert 9`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -393,7 +309,7 @@ exports[`Neuro-expert > Neuro-expert 10`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -446,7 +362,7 @@ exports[`Neuro-expert > Neuro-expert 11`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -499,7 +415,7 @@ exports[`Neuro-expert > Neuro-expert 12`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -552,7 +468,7 @@ exports[`Neuro-expert > Neuro-expert 13`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }

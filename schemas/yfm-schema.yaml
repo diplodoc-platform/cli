@@ -701,6 +701,15 @@ definitions:
           - type: 'null'
       disabled:
         type: boolean
+      customLabel:
+        type: object
+        description: >
+          Map of language codes to custom widget header labels.
+          Use "default" key for fallback. Only for whitelisted projects.
+        additionalProperties:
+          oneOf:
+            - type: string
+            - type: boolean
     additionalProperties: false
 
   PublishConfig:

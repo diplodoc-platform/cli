@@ -19,11 +19,23 @@ export function getNeuroExpertCsp(): Hash<string[]>[] {
     ];
 }
 
-export function getNeuroExpertScript(projectId: string, neuroExpert: NeuroExpertBase): string {
+export function resolveByLang(
+    map: Record<string, string> | undefined,
+    lang: string,
+): string | undefined {
+    return map?.[lang] ?? map?.default ?? undefined;
+}
+
+export function getNeuroExpertScript(
+    projectId: string,
+    neuroExpert: NeuroExpertBase,
+    customLabel?: string,
+): string {
     const settings = {
         projectId,
         hasOutsideClick: neuroExpert.hasOutsideClick,
         parentId: neuroExpert.parentId,
+        customLabel,
     };
 
     const neuroExpertScriptUrl =

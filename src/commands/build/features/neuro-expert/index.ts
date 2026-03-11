@@ -4,7 +4,7 @@ import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getBuildHooks} from '~/commands';
 
-import {getNeuroExpertCsp, getNeuroExpertScript} from './utils';
+import {getNeuroExpertCsp, getNeuroExpertScript, resolveByLang} from './utils';
 
 export type NeuroExpertConfig = {
     neuroExpert: NeuroExpertBase;
@@ -17,6 +17,9 @@ export type NeuroExpertBase = {
     hasOutsideClick?: boolean;
     parentId?: string | null;
     disabled?: boolean;
+    customLabel?: {
+        [key: string]: string;
+    };
 };
 
 const NEURO_EXPERT_PARENT_ID = 'neuro-expert-widget';
@@ -32,6 +35,7 @@ export class NeuroExpert {
                 hasOutsideClick: neuroExpert?.hasOutsideClick ?? true,
                 parentId: neuroExpert?.parentId ?? NEURO_EXPERT_PARENT_ID,
                 disabled,
+                customLabel: neuroExpert?.customLabel,
             };
 
             return config;
@@ -48,20 +52,23 @@ export class NeuroExpert {
                         ...(meta.neuroExpert ?? {}),
                     };
 
-                    const projectId =
-                        neuroExpert.projectId?.[template.lang] ??
-                        neuroExpert.projectId?.default ??
-                        undefined;
+                    const projectId = resolveByLang(neuroExpert.projectId, template.lang);
 
                     if (!neuroExpert || neuroExpert.disabled || !projectId) {
                         return;
                     }
 
+                    const customLabel = resolveByLang(neuroExpert.customLabel, template.lang);
+
                     const neuroExpertCsp = getNeuroExpertCsp();
 
                     neuroExpertCsp.map((csp) => template.addCsp(csp));
 
-                    const neuroExpertScript = getNeuroExpertScript(projectId, neuroExpert);
+                    const neuroExpertScript = getNeuroExpertScript(
+                        projectId,
+                        neuroExpert,
+                        customLabel,
+                    );
 
                     template.addScript(neuroExpertScript, {
                         position: 'state',
