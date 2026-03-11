@@ -17,6 +17,9 @@ export type NeuroExpertBase = {
     hasOutsideClick?: boolean;
     parentId?: string | null;
     disabled?: boolean;
+    customLabel?: {
+        [key: string]: string;
+    };
 };
 
 const NEURO_EXPERT_PARENT_ID = 'neuro-expert-widget';
@@ -32,6 +35,7 @@ export class NeuroExpert {
                 hasOutsideClick: neuroExpert?.hasOutsideClick ?? true,
                 parentId: neuroExpert?.parentId ?? NEURO_EXPERT_PARENT_ID,
                 disabled,
+                customLabel: neuroExpert?.customLabel,
             };
 
             return config;
@@ -57,11 +61,20 @@ export class NeuroExpert {
                         return;
                     }
 
+                    const customLabel =
+                        neuroExpert.customLabel?.[template.lang] ??
+                        neuroExpert.customLabel?.default ??
+                        undefined;
+
                     const neuroExpertCsp = getNeuroExpertCsp();
 
                     neuroExpertCsp.map((csp) => template.addCsp(csp));
 
-                    const neuroExpertScript = getNeuroExpertScript(projectId, neuroExpert);
+                    const neuroExpertScript = getNeuroExpertScript(
+                        projectId,
+                        neuroExpert,
+                        customLabel,
+                    );
 
                     template.addScript(neuroExpertScript, {
                         position: 'state',
