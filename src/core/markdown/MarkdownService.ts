@@ -19,8 +19,8 @@ import {SourceMap} from '@diplodoc/liquid';
 
 import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
-import {getHooks, withHooks} from './hooks';
 import {LoaderAPI, loader} from './loader';
+import {getHooks, withHooks} from './hooks';
 import {parseHeading} from './utils';
 
 type MarkdownServiceConfig = {
@@ -31,7 +31,7 @@ type MarkdownServiceConfig = {
         legacyConditions: boolean;
         features: {
             substitutions: boolean;
-            conditions: boolean | string;
+            conditions?: boolean | 'strict';
         };
         scopes: {
             code: boolean;
@@ -54,6 +54,13 @@ type Options = {
     mode: 'build' | 'translate';
     skipMissingVars: boolean;
 };
+
+interface CacheItem {
+    content: string;
+    varsMetadata?: Hash;
+    varsSystem?: Hash;
+    meta: Meta;
+}
 
 function hash(path: NormalizedPath, from?: NormalizedPath) {
     return `${path}${from ? '+' + from : ''}`;
@@ -99,7 +106,7 @@ export class MarkdownService {
 
     private pathToSourcemap = new Buckets<Record<number | string, string>>();
 
-    private cache: Hash<Promise<string> | string> = {};
+    private cache: Hash<Promise<CacheItem> | CacheItem> = {};
 
     private options;
 
@@ -118,7 +125,11 @@ export class MarkdownService {
         const key = hash(file, from);
 
         if (key in this.cache) {
-            return this.cache[key];
+            const {content, varsMetadata, varsSystem, meta} = await this.cache[key];
+            this.run.meta.addMetadata(file, varsMetadata);
+            this.run.meta.addSystemVars(file, varsSystem);
+            this.run.meta.add(file, meta, true);
+            return content;
         }
 
         const defer = new Defer();
@@ -141,10 +152,16 @@ export class MarkdownService {
 
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta);
+            this.run.meta.add(file, meta, true);
 
-            this.cache[key] = content;
-            defer.resolve(content);
+            const result = {
+                content,
+                varsMetadata: vars.__metadata,
+                varsSystem: vars.__system,
+                meta,
+            };
+            this.cache[key] = result;
+            defer.resolve(result);
 
             // TODO: this may trigger uncaught exceptions
             // But if we move this two lines above, then program exits unexpectedly
@@ -153,7 +170,7 @@ export class MarkdownService {
             defer.reject(error);
         }
 
-        return defer.promise;
+        return (await defer.promise).content;
     }
 
     @bounded async dump(file: NormalizedPath, markdown?: string) {
@@ -411,6 +428,7 @@ export class MarkdownService {
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
                 legacyConditions: this.config.template.legacyConditions,
+                keepConditionSyntaxOnTrue: this.options.mode === 'translate',
             },
             options: {
                 disableLiquid: !this.config.template.enabled,

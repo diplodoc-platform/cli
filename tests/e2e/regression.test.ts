@@ -33,5 +33,7 @@ describe('Regression', () => {
         - not_var liquid syntax
         - normalize leading hrefs
         - empty href in toc item
+        - term inside superscript: ^[?](*term)^
+        - term inside link text: [[?](*term)](url)
     `);
 });

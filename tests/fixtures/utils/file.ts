@@ -1,8 +1,12 @@
+import type {BuildRunArgs} from '../cliAdapter';
+
 import {readFileSync} from 'node:fs';
 import {rm} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
 import {glob} from 'glob';
-import {expect} from 'vitest';
+import {expect, test} from 'vitest';
+
+import {TestAdapter} from '../cliAdapter';
 
 import {bundleless, hashless, platformless} from './test';
 
@@ -118,4 +122,17 @@ export function getTestPaths(testRootPath: string): TestPaths {
 
 export function cleanupDirectory(path: string) {
     return rm(path, {recursive: true, force: true});
+}
+
+export function generateMapTestTemplate(
+    testTitle: string,
+    testRootPath: string,
+    options: BuildRunArgs = {},
+) {
+    test(testTitle, async () => {
+        const {inputPath, outputPath} = getTestPaths(testRootPath);
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, options);
+        await compareDirectories(outputPath);
+    });
 }

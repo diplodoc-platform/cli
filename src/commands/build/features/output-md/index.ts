@@ -8,6 +8,7 @@ import {flow} from 'lodash';
 
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, defined} from '~/core/config';
+import {THEME_ASSETS_PATH} from '~/constants';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getMetaHooks} from '~/core/meta';
@@ -120,6 +121,11 @@ export class OutputMd {
                         meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
                     }
 
+                    const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
+                    if (hasTheme) {
+                        meta.theme = THEME_ASSETS_PATH;
+                    }
+
                     return meta;
                 });
 
@@ -183,6 +189,9 @@ export class OutputMd {
                                 // and if the include is written after the entry, metadata is lost.
                                 // By ensuring both paths produce identical output, write order
                                 // becomes irrelevant (see ADR-002: Multithreading Build).
+                                // When these files are used as includes (e.g. md2html), the consumer
+                                // must strip frontmatter before rendering the body (see output-html
+                                // includes plugin).
                                 const vars = run.vars.for(graph.path);
                                 run.meta.addSystemVars(graph.path, vars.__system);
                                 run.meta.addMetadata(graph.path, vars.__metadata);
@@ -252,6 +261,10 @@ export class OutputMd {
                         return;
                     }
                     cache.add(path);
+
+                    if (run.toc.isEntry(path)) {
+                        return;
+                    }
 
                     if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
                         run.logger.error(

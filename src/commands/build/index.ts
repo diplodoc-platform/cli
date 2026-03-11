@@ -8,14 +8,14 @@ import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
+import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
+import {getHooks as getTocHooks} from '~/core/toc';
 import * as threads from '~/commands/threads';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
-import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
 import {Command} from '~/core/config';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
-import {getHooks as getTocHooks} from '~/core/toc';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
@@ -43,6 +43,7 @@ import {Watch} from './features/watch';
 import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
 import {NeuroExpert} from './features/neuro-expert';
+import {Themer} from './features/themer';
 
 export type * from './types';
 
@@ -75,6 +76,7 @@ const command = 'Build';
             addSystemMeta: false,
             addResourcesMeta: true,
             addMetadataMeta: true,
+            addAlternateMeta: true,
             lint: {enabled: true, config: {}},
             vcsPath: {enabled: true},
         }) as Partial<BuildConfig>,
@@ -108,6 +110,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly legacy = new Legacy();
 
+    readonly themer = new Themer();
+
     readonly tocFiltering = new TocFiltering();
 
     readonly command = new Command('build').description('Build documentation in target directory');
@@ -128,6 +132,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.addMapFile,
         options.staticContent,
         options.addSystemMeta,
+        options.addAlternateMeta,
         options.ignore,
         options.ignoreStage,
         options.vcs,
@@ -141,6 +146,9 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxHtmlSize,
         options.maxAssetSize,
         options.strict,
+        options.originAsInput,
+        options.copyOnWrite,
+        options.workerMaxOldSpace,
     ];
 
     readonly modules = [
@@ -156,6 +164,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.watch,
         this.md,
         this.html,
+        this.themer,
         this.legacy,
         this.tocFiltering,
         this.skipHtml,
@@ -340,6 +349,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     private async cleanup() {
-        await this.run.remove(this.run.input);
+        if (this.run.input !== this.run.originalInput) {
+            await this.run.remove(this.run.input);
+        }
     }
 }

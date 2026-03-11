@@ -71,7 +71,9 @@ export class VcsService implements VcsConnector {
         ]);
 
         result.vcsPath = vcsPath || undefined;
-        result.author = author || undefined;
+        if (!(this.connector instanceof DefaultVcsConnector)) {
+            result.author = author || undefined;
+        }
         result.contributors = contributors.length ? contributors : undefined;
         result.updatedAt = updatedAt || undefined;
 

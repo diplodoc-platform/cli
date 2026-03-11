@@ -204,7 +204,7 @@ export class PdfPage {
                     });
 
                     if (!entries.length) {
-                        return;
+                        continue;
                     }
 
                     const tocDir = dirname(toc.path);

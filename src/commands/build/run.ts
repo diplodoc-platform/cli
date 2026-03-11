@@ -89,7 +89,9 @@ export class Run extends BaseRun<BuildConfig> {
 
         this.originalInput = this.realpathSync(config.input);
         this.output = this.realpathSync(config.output);
-        this.input = resolve(this.output, TMP_INPUT_FOLDER);
+        this.input = config.originAsInput
+            ? this.originalInput
+            : resolve(this.output, TMP_INPUT_FOLDER);
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.
@@ -176,6 +178,9 @@ export class Run extends BaseRun<BuildConfig> {
         return {
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
+            breaks: this.config.breaks,
+            linkify: this.config.linkify,
+            linkifyTlds: this.config.linkifyTlds,
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),
             plugins: this.markdown.plugins,
             path,

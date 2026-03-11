@@ -105,4 +105,71 @@ describe('OutputHtml feature', () => {
             expect(loggerLintSpy).not.toHaveBeenCalled();
         });
     });
+
+    describe('_assets directory copying', () => {
+        it('should copy _assets folder when it exists', async () => {
+            const build = new Build();
+            const feature = new OutputHtml();
+            feature.apply(build);
+
+            const run = setupRun({
+                content: {
+                    maxHtmlSize: 1000,
+                    maxAssetSize: 1000,
+                },
+            } as unknown as BuildConfig);
+
+            vi.spyOn(run.toc, 'entries', 'get').mockReturnValue([]);
+            vi.spyOn(run.markdown, 'assets').mockResolvedValue([]);
+
+            const existsSpy = vi.spyOn(run, 'exists').mockReturnValue(true);
+            const copySpy = vi.spyOn(run, 'copy').mockResolvedValue([]);
+
+            const buildHooks = getHooks(build);
+            const afterRunHook = buildHooks.AfterRun.for('html').taps.find(
+                (tap: FullTap) => tap.name === 'Html',
+            )?.fn;
+
+            if (afterRunHook) {
+                await afterRunHook(run);
+            }
+
+            expect(existsSpy).toHaveBeenCalled();
+            expect(copySpy).toHaveBeenCalled();
+        });
+
+        it('should skip copying _assets folder when it does not exist', async () => {
+            const build = new Build();
+            const feature = new OutputHtml();
+            feature.apply(build);
+
+            const run = setupRun({
+                content: {
+                    maxHtmlSize: 1000,
+                    maxAssetSize: 1000,
+                },
+            } as unknown as BuildConfig);
+
+            vi.spyOn(run.toc, 'entries', 'get').mockReturnValue([]);
+            vi.spyOn(run.markdown, 'assets').mockResolvedValue([]);
+
+            const existsSpy = vi.spyOn(run, 'exists').mockReturnValue(false);
+            const copySpy = vi.spyOn(run, 'copy').mockResolvedValue([]);
+
+            const buildHooks = getHooks(build);
+            const afterRunHook = buildHooks.AfterRun.for('html').taps.find(
+                (tap: FullTap) => tap.name === 'Html',
+            )?.fn;
+
+            if (afterRunHook) {
+                await afterRunHook(run);
+            }
+
+            expect(existsSpy).toHaveBeenCalled();
+            const assetsCallFound = copySpy.mock.calls.some((call) =>
+                call[0]?.toString().includes('_assets'),
+            );
+            expect(assetsCallFound).toBe(false);
+        });
+    });
 });

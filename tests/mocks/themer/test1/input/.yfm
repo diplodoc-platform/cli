@@ -1,0 +1,3 @@
+resources:
+  style:
+    - _assets/style/custom.css

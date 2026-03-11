@@ -115,7 +115,11 @@ export class Lint {
 
                     const deps = await run.markdown.deps(vfile.path);
                     const assets = await run.markdown.assets(vfile.path);
-                    const errors = await run.lint(vfile.path, vfile.data, {deps, assets});
+
+                    const errors = await run.lint(vfile.path, vfile.data, {
+                        deps,
+                        assets,
+                    });
 
                     if (errors) {
                         for (const error of errors) {

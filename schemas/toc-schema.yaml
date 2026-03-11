@@ -26,7 +26,18 @@ properties:
       - string
       - boolean
   navigation:
-    $ref: '#/definitions/Navigation'
+    oneOf:
+      - type: boolean
+      - type: string
+      - $ref: '#/definitions/Navigation'
+  pdf:
+    type: object
+    properties:
+      startPages:
+        type: array
+        items:
+          type: string
+    additionalProperties: false
   items:
     $ref: '#/definitions/TocItems'
 
@@ -66,9 +77,17 @@ definitions:
       labeled:
         type: boolean
       hidden:
+        type: boolean
+      restricted-access:
+        oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+      when:
         type:
-          - boolean
           - string
+          - boolean
       items:
         $ref: '#/definitions/TocItems'
     oneOf:
@@ -76,7 +95,6 @@ definitions:
       - $ref: '#/definitions/TocItemWithInclude'
 
   TocItemWithLink:
-    required: ['name']
     properties:
       name:
         type: string
@@ -150,6 +168,23 @@ definitions:
               renderMode:
                 type: string
                 enum: ['inline', 'hidden']
+      tags:
+        type: object
+        additionalProperties:
+          $ref: '#/definitions/OpenApiCustomTag'
+
+  OpenApiCustomTag:
+    type: object
+    properties:
+      hidden:
+        type: boolean
+      name:
+        type: string
+      path:
+        type: string
+      alias:
+        type: string
+    additionalProperties: false
 
   OpenApiIncluderFilter:
     type: object
@@ -210,10 +245,10 @@ definitions:
     allOf:
       - $ref: '#/definitions/NavigationBaseItem'
       - oneOf:
-        - $ref: '#/definitions/NavigationLinkItem'
-        - $ref: '#/definitions/NavigationButtonItem'
-        - $ref: '#/definitions/NavigationDropdownItem'
-        - $ref: '#/definitions/NavigationControlsItem'
+          - $ref: '#/definitions/NavigationLinkItem'
+          - $ref: '#/definitions/NavigationButtonItem'
+          - $ref: '#/definitions/NavigationDropdownItem'
+          - $ref: '#/definitions/NavigationControlsItem'
 
   NavigationBaseItem:
     type: object
@@ -229,6 +264,10 @@ definitions:
         format: url
       iconSize:
         type: number
+      when:
+        type:
+          - string
+          - boolean
 
   NavigationLinkItem:
     type: object

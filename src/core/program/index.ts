@@ -37,6 +37,9 @@ type ExtensionConfig = {
 @withConfigDefaults(() => ({
     strict: false,
     quiet: false,
+    originAsInput: false,
+    copyOnWrite: true,
+    workerMaxOldSpace: 0,
 }))
 /**
  * Program should follow some simple rules:

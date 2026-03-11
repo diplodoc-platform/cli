@@ -1,4 +1,4 @@
-allowHTML: true
+allowHtml: true
 langs: ['en','ru']
 
 neuroExpert:

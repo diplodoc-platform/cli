@@ -16,6 +16,10 @@ export function platformless(text: string): string {
                 /(content"?[:=]{1}[" ]{1}Diplodoc.*? )v\d+\.\d+\.\d+(?:-[\w-]+)?/g,
                 `$1vDIPLODOC-VERSION`,
             )
+            .replace(
+                /(aria-describedby=\\":term_element\\" tabindex=\\"\d\\" id=\\")[a-zA-Z0-9]{1,10}/g,
+                `$1vTERM-ID`,
+            )
             .replace(/(\\(?![/"'])){1,2}/g, '/')
             .replace(
                 /id=\\"inline-code-id-[a-zA-Z0-9]{8}\\"/g,

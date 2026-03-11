@@ -1,6 +1,6 @@
 const {basename, dirname, join} = require('node:path');
 const {chmod, copyFile, mkdir} = require('node:fs/promises');
-const esbuild = require('esbuild');
+const infra = require('@diplodoc/lint/esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
 const {sync: glob} = require('glob');
@@ -26,7 +26,7 @@ const baseConfig = {
 
 const externals = new Set();
 const lib = (entry, format) =>
-    esbuild.build({
+    infra.build({
         ...baseConfig,
         format,
         outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
@@ -58,14 +58,17 @@ const build = async (entry, outfile, format) => {
         outfile: file,
     };
 
+    // We need these packages into the binary because they are required at runtime
+    const bundledDeps = ['@gravity-ui/uikit-themer', 'chroma-js'];
+
     config.external = [
-        ...Object.keys(dependencies),
+        ...Object.keys(dependencies).filter((dep) => !bundledDeps.includes(dep)),
         '@diplodoc/cli',
         '@diplodoc/cli/lib',
         '@diplodoc/cli/package',
     ];
 
-    await esbuild.build(config);
+    await infra.build(config);
 
     await chmod(file, '755');
 };
@@ -87,7 +90,7 @@ const extension = async (entry, outfile, format) => {
 
     config.external = ['@diplodoc/cli'];
 
-    await esbuild.build(config);
+    await infra.build(config);
 };
 
 const copy = async (from, to) => {

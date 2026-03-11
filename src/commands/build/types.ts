@@ -16,6 +16,7 @@ import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search'
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
+import type {ThemerArgs, ThemerConfig} from './features/themer';
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
@@ -51,12 +52,16 @@ type BaseConfig = {
     vars: Hash;
     allowHtml: boolean;
     sanitizeHtml: boolean;
+    breaks?: boolean;
+    linkify?: boolean;
+    linkifyTlds?: string | string[];
     ignoreStage: string[];
     ignore: string[];
     rawAddMeta: boolean;
     addSystemMeta: boolean;
     addResourcesMeta: boolean;
     addMetadataMeta: boolean;
+    addAlternateMeta: boolean;
     // TODO(minor): we can generate this file all time
     addMapFile: boolean;
     mergeIncludes: boolean;
@@ -80,6 +85,10 @@ export type VcsArgs = {
     vcsToken: string;
 };
 
+export type WorkerArgs = {
+    workerMaxOldSpace: number;
+};
+
 export type BuildArgs = ProgramArgs &
     BaseArgs &
     Partial<
@@ -97,7 +106,9 @@ export type BuildArgs = ProgramArgs &
             CustomResourcesArgs &
             TocFilteringArgs &
             VcsArgs &
-            WatchArgs
+            WorkerArgs &
+            WatchArgs &
+            ThemerArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -116,6 +127,7 @@ export type BuildRawConfig = BaseArgs &
     TocFilteringConfig &
     PreprocessConfig &
     WatchConfig &
+    ThemerConfig &
     NeuroExpertConfig;
 
 export type BuildConfig = Config<
@@ -136,6 +148,7 @@ export type BuildConfig = Config<
         TocFilteringConfig &
         PreprocessConfig &
         WatchConfig &
+        ThemerConfig &
         NeuroExpertConfig &
         ContentConfig
 >;

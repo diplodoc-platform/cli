@@ -2,8 +2,33 @@ import type {LoaderContext} from '../loader';
 
 import {extractFrontMatter, liquidJson} from '@diplodoc/liquid';
 
+type YamlErrorMark = {
+    line?: number;
+};
+
+type YamlError = {
+    reason?: string;
+    mark?: YamlErrorMark;
+};
+
 function safeExtractFrontmatter(this: LoaderContext, content: string) {
-    return extractFrontMatter(content, {json: true});
+    try {
+        return extractFrontMatter(content);
+    } catch (error) {
+        const err = error as YamlError;
+        if (err.reason === 'duplicated mapping key') {
+            const line = typeof err.mark?.line === 'number' ? err.mark.line + 1 : undefined;
+            const key = line === undefined ? '' : content.split('\n')[line]?.trim().split(':')[0];
+
+            if (key && key !== 'vcsPath') {
+                const context = `[Reason: "${err.reason}"; Line: ${line}; Key: "${key}"]`;
+                const errorMessage = `${this.path}: ${line}: YFM017 / invalid front matter format ${context}`;
+
+                this.logger.error(errorMessage);
+            }
+        }
+        return extractFrontMatter(content, {json: true});
+    }
 }
 
 export function mangleFrontMatter(this: LoaderContext, rawContent: string) {

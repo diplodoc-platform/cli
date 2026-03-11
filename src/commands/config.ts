@@ -49,6 +49,12 @@ const jobs = option({
     default: 0,
 });
 
+const workerMaxOldSpace = option({
+    flags: '--worker-max-old-space <number>',
+    desc: `Set max old space size for worker threads in megabytes.`,
+    parser: (value) => Number(value),
+});
+
 const extensions = option({
     flags: '-e, --extensions <string>',
     desc: `
@@ -107,12 +113,29 @@ const config = (defaultConfig: string) =>
         default: defaultConfig,
     });
 
+const copyOnWrite = option({
+    flags: '--copy-on-write',
+    desc: 'Use COPYFILE_FICLONE flag for file copying.',
+    hidden: true,
+    defaultInfo: true,
+});
+
+const originAsInput = option({
+    flags: '--origin-as-input',
+    desc: 'Allow modify input dir.',
+    hidden: true,
+    defaultInfo: false,
+});
+
 export const options = {
     quiet,
     strict,
     jobs,
+    workerMaxOldSpace,
     extensions,
     config,
     input,
     output,
+    copyOnWrite,
+    originAsInput,
 };

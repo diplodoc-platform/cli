@@ -118,6 +118,41 @@ describe('Markdown loader', () => {
             expect(result).toEqual('Simple text');
         });
 
+        it('should error on duplicated key in frontmatter', async () => {
+            const content = dedent`
+                ---
+                title: Test Document
+                title: Duplicate Key
+                ---
+                Simple text
+            `;
+            const context = loaderContext(content);
+            context.logger.error = Object.assign(vi.fn(), {count: 0});
+
+            await loader.call(context, content);
+
+            expect(context.logger.error).toBeCalledWith(
+                'file.md: 2: YFM017 / invalid front matter format [Reason: "duplicated mapping key"; Line: 2; Key: "title"]',
+            );
+        });
+
+        it('should not error on duplicated vcsPath in frontmatter', async () => {
+            const content = dedent`
+                ---
+                title: Test Document
+                vcsPath: path/one.md
+                vcsPath: path/two.md
+                ---
+                Simple text
+            `;
+            const context = loaderContext(content);
+            context.logger.error = Object.assign(vi.fn(), {count: 0});
+
+            await loader.call(context, content);
+
+            expect(context.logger.error).not.toBeCalled();
+        });
+
         it('should not template frontmatter if disabled', async () => {
             const content = dedent`
                 ---

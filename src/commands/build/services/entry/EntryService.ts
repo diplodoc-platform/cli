@@ -12,7 +12,7 @@ import {dedent} from 'ts-dedent';
 import {render} from '@diplodoc/client/ssr';
 
 import {Graph, VFile, copyJson, getDepth, getDepthPath, langFromPath, setExt} from '~/core/utils';
-import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, VERSION} from '~/constants';
+import {BUNDLE_FOLDER, DEFAULT_CSP_SETTINGS, THEME_ASSETS_PATH, VERSION} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {getTitle} from './utils/seo';
@@ -178,6 +178,12 @@ export class EntryService {
             .map(rebase)
             .map(template.addStyle);
 
+        const outputThemePath = join(this.run.output, THEME_ASSETS_PATH);
+
+        if (this.run.exists(outputThemePath)) {
+            template.addStyle(THEME_ASSETS_PATH);
+        }
+
         style.map(template.addStyle);
 
         template.addScript(template.escape(JSON.stringify(state)), {
@@ -237,10 +243,12 @@ export class EntryService {
             },
         });
 
-        const canonical = setExt(path, 'html');
-        const alternate = this.run.alternates(path);
-        if (alternate.length > 0) {
-            this.run.meta.add(path, {canonical, alternate});
+        if (this.config.addAlternateMeta) {
+            const canonical = setExt(path, 'html');
+            const alternate = this.run.alternates(path);
+            if (alternate.length > 0) {
+                this.run.meta.add(path, {canonical, alternate});
+            }
         }
 
         const service = this.getService(path);

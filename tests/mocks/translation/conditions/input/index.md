@@ -1,11 +1,37 @@
-#|
-||
-**Заголовок**
-||
-||
-Доступны в любом отчете в виде [целей](../general/goals.md), а также в отчетах:
-{% if tld == "ru" or tld == "es" or tld == "pt" or tld == "com" or tld == "tr" %}- [электронной коммерции](../reports/ecommerce.md){% endif %}{% if tld == "zh" %}- электронной коммерции{% endif %};
-{% if tld == "ru"%}- [по параметрам посетителей](../data/user-params-data.md){% endif %}{% if tld == "es" or tld == "pt" or tld == "com" or tld == "zh" or tld == "tr" %}- по параметрам посетителей{% endif %};
-{% if tld == "ru" or tld == "es" or tld == "pt" or tld == "com" or tld == "tr" %}- [по параметрам визитов](../data/visit-params-data.md){% endif %}{% if tld == "zh" %}- по параметрам визитов{% endif %}
-||
-|#
+[existing file](./exists.md)
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}Test text{% endif %}
+
+{% if inner == true %}inner test text{% endif %}
+
+{% if prod == true %}Test text{% if inner == true %}inner test text{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    #### List
+
+    {% if item == true %}1. Item {% endif %}
+
+    Some text
+
+    {% endif %}
+
+{% endif %}
+
+#### Standalone contains condition
+
+{% if list contains "item" %}
+
+    #### List
+
+{% endif %}
+
+#### Inline contains condition
+
+{% if  prod == true %}
+
+    #### List {% if list contains "item" %} sub text {% endif %}
+
+{% endif %}

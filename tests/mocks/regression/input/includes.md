@@ -11,7 +11,14 @@ Text
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
 {% include [For includes/deep.md](includes/deep.md) %}
 
+^[?](*term)^
+
+[[?](*term)](http://ya.ru)
+
+
 Link after include
 [{#T}](./1.md#subtitle)
 
 Link after include
+
+[*term]: Test terms

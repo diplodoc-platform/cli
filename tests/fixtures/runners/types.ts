@@ -5,5 +5,5 @@ export type Report = {
 };
 
 export interface Runner {
-    runYfmDocs(argv: string[]): Promise<Report>;
+    runYfmDocs(argv: string[], env?: Record<string, string>): Promise<Report>;
 }

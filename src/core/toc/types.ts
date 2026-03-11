@@ -13,6 +13,12 @@ export type TextFilter = {
     text: string;
 } & Filter;
 
+export type RawTocLabel = {
+    title: string;
+    description?: string;
+    theme?: string;
+} & Filter;
+
 export type WithItems<Item> = {
     items?: Item[];
 };
@@ -23,19 +29,25 @@ export type RawToc = {
         startPages: string[];
     };
     title?: YfmString | TextFilter[];
-    label?: YfmString | TextFilter[];
+    label?: YfmString | TextFilter[] | RawTocLabel | RawTocLabel[];
     stage?: string;
     href?: YfmString & (RelativePath | URIString);
     navigation?: boolean | YfmString | Navigation;
     items?: RawTocItem[];
 };
 
-// TODO: add precise types
+export type NavigationHeaderItem = Filter & {
+    text?: string;
+    type?: string;
+    url?: string;
+    [key: string]: unknown;
+};
+
 export type Navigation = {
-    logo: object;
-    header: {
-        leftItems?: object;
-        rightItems?: object;
+    logo?: object;
+    header?: {
+        leftItems?: NavigationHeaderItem[];
+        rightItems?: NavigationHeaderItem[];
     };
 };
 

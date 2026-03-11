@@ -66,6 +66,14 @@ describe('Pdf page mode', () => {
         'mocks/pdf-page/yfm-config',
         '-j2',
     );
+
+    generateMapTestTemplate(
+        'creates pdf-page.json for each standalone toc',
+        'mocks/pdf-page/multiple-tocs',
+        '--pdf',
+        '',
+        true,
+    );
 });
 
 describe('Pdf page with titles', () => {

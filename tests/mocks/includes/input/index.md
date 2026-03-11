@@ -60,3 +60,10 @@ This is a test page for various include scenarios.
 ## Include without title
 
 {% include [no-title-include](includes/no-title-include.md) %}
+
+## Include with anchor {#anchor}
+
+{% include notitle [anchor](#anchor) %}
+{% include [anchor](#anchor) %}
+
+{% include [no-title-include](includes/no-title-include.md#anchor) %}

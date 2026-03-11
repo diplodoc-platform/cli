@@ -20,7 +20,7 @@ export default defineConfig({
             include: ['src/**'],
             exclude: ['assets/**', 'tests/**', ...coverageConfigDefaults.exclude],
             excludeAfterRemap: true,
-            reporter: ['text', 'json', 'html'],
+            reporter: ['text', 'json', 'html', 'lcov'],
         },
         testTimeout: 60000,
     },

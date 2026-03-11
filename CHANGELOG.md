@@ -1,5 +1,202 @@
 # Changelog
 
+## [5.26.2](https://github.com/diplodoc-platform/cli/compare/v5.26.1...v5.26.2) (2026-03-10)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client to 5.2.8 ([#1747](https://github.com/diplodoc-platform/cli/issues/1747)) ([96972f6](https://github.com/diplodoc-platform/cli/commit/96972f6ecf528b7de2784ed3a0cdc401b457e344))
+
+## [5.26.1](https://github.com/diplodoc-platform/cli/compare/v5.26.0...v5.26.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* pdf multi toc ([d53bd74](https://github.com/diplodoc-platform/cli/commit/d53bd74c87bc5fd8bec7a1aac96002113add9b3e))
+* sorted alternates and contributors ([#1743](https://github.com/diplodoc-platform/cli/issues/1743)) ([249018c](https://github.com/diplodoc-platform/cli/commit/249018c13ec037987d81dbf92a638bc58651237a))
+
+## [5.26.0](https://github.com/diplodoc-platform/cli/compare/v5.25.4...v5.26.0) (2026-03-05)
+
+
+### Features
+
+* **cli:** add token-level source tracking to includes plugin ([013b06b](https://github.com/diplodoc-platform/cli/commit/013b06bed998e5a09082d71d1142933e52cdab39))
+
+
+### Bug Fixes
+
+* race for write file ([30cdb6e](https://github.com/diplodoc-platform/cli/commit/30cdb6e55c9a246e50191585f24f16c6ea041021))
+
+## [5.25.4](https://github.com/diplodoc-platform/cli/compare/v5.25.3...v5.25.4) (2026-03-04)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/search-extension to 3.0.2 ([#1732](https://github.com/diplodoc-platform/cli/issues/1732)) ([8ba2e51](https://github.com/diplodoc-platform/cli/commit/8ba2e514fc9585dad1253df7757ffc030f63f205))
+* **deps:** Update @diplodoc/transform to 4.70.1 ([#1736](https://github.com/diplodoc-platform/cli/issues/1736)) ([6435d63](https://github.com/diplodoc-platform/cli/commit/6435d63e3e501474a2e16614b9e7233d1c21ce5d))
+* fixed search favicon ([#1730](https://github.com/diplodoc-platform/cli/issues/1730)) ([475726a](https://github.com/diplodoc-platform/cli/commit/475726a731697cb7cb6b98b599bb4abea97069ab))
+* switch page-constructor to CSR mode to fix hydration bugs ([#1726](https://github.com/diplodoc-platform/cli/issues/1726)) ([f9a9271](https://github.com/diplodoc-platform/cli/commit/f9a9271c6b93d79206917b42f3faefea79f8c6e6))
+
+## [5.25.3](https://github.com/diplodoc-platform/cli/compare/v5.25.2...v5.25.3) (2026-03-02)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client to 5.2.6 ([#1728](https://github.com/diplodoc-platform/cli/issues/1728)) ([1d9b099](https://github.com/diplodoc-platform/cli/commit/1d9b09990cafb17a2158b0b4f05059357e6446ae))
+
+## [5.25.2](https://github.com/diplodoc-platform/cli/compare/v5.25.1...v5.25.2) (2026-02-27)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client to 5.2.5 ([#1725](https://github.com/diplodoc-platform/cli/issues/1725)) ([649e571](https://github.com/diplodoc-platform/cli/commit/649e571f6d9378c84cc75fdc5993c407b20a7d50))
+* fixed handling of the label field in toc.yaml ([#1720](https://github.com/diplodoc-platform/cli/issues/1720)) ([7a24352](https://github.com/diplodoc-platform/cli/commit/7a2435218d42b6df932c5233ffd5be2e3c4f0acb))
+
+## [5.25.1](https://github.com/diplodoc-platform/cli/compare/v5.25.0...v5.25.1) (2026-02-27)
+
+
+### Bug Fixes
+
+* fixed non-working options in .yfm ([#1708](https://github.com/diplodoc-platform/cli/issues/1708)) ([7656e6c](https://github.com/diplodoc-platform/cli/commit/7656e6ca8044a9b2bed1acb52df6edbc883074ae))
+
+## [5.25.0](https://github.com/diplodoc-platform/cli/compare/v5.24.3...v5.25.0) (2026-02-27)
+
+
+### Features
+
+* add addAlternateMeta option ([#1710](https://github.com/diplodoc-platform/cli/issues/1710)) ([8277869](https://github.com/diplodoc-platform/cli/commit/82778692c8694219bbb628fafc36268d66ea8902))
+
+## [5.24.3](https://github.com/diplodoc-platform/cli/compare/v5.24.2...v5.24.3) (2026-02-26)
+
+
+### Bug Fixes
+
+* add theme to front matter ([#1706](https://github.com/diplodoc-platform/cli/issues/1706)) ([ee7ace2](https://github.com/diplodoc-platform/cli/commit/ee7ace2374bac955b8a0afc2b64caf57fe66fcad))
+* **deps:** Update @diplodoc/client to 5.2.3 ([#1712](https://github.com/diplodoc-platform/cli/issues/1712)) ([69bb2b1](https://github.com/diplodoc-platform/cli/commit/69bb2b10bb40584ab559bfbf3176541403cedac7))
+
+## [5.24.2](https://github.com/diplodoc-platform/cli/compare/v5.24.1...v5.24.2) (2026-02-24)
+
+
+### Bug Fixes
+
+* do not copy twice toc entry ([b78508a](https://github.com/diplodoc-platform/cli/commit/b78508a57fbc4c7c9bd4f0fe8b3ed1c7b9d2caec))
+
+## [5.24.1](https://github.com/diplodoc-platform/cli/compare/v5.24.0...v5.24.1) (2026-02-24)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform to 4.70.0 ([04aa1f0](https://github.com/diplodoc-platform/cli/commit/04aa1f0dd78813d10068ae0088fce7a7739531ac))
+* metadata lost ([#1698](https://github.com/diplodoc-platform/cli/issues/1698)) ([5c914b7](https://github.com/diplodoc-platform/cli/commit/5c914b72cbac7d5bc6ded3c6720cf06e8826e988))
+
+## [5.24.0](https://github.com/diplodoc-platform/cli/compare/v5.23.1...v5.24.0) (2026-02-19)
+
+
+### Features
+
+* add error if duplicated key ([#1652](https://github.com/diplodoc-platform/cli/issues/1652)) ([e5f75b6](https://github.com/diplodoc-platform/cli/commit/e5f75b6d8876d1c5615af63f2245dc52f30b8d6a))
+
+
+### Bug Fixes
+
+* **e2e:** regression test ([ec1e9d8](https://github.com/diplodoc-platform/cli/commit/ec1e9d8bb2d22d4091de9f58c62af4ef7f6ede34))
+
+## [5.23.1](https://github.com/diplodoc-platform/cli/compare/v5.23.0...v5.23.1) (2026-02-18)
+
+
+### Bug Fixes
+
+* e2e for new transform ([d0169f4](https://github.com/diplodoc-platform/cli/commit/d0169f4dc8502cbcb12420e0fd5e43dcbc05c914))
+* prevent md2md metadata from leaking via include files ([d23be5d](https://github.com/diplodoc-platform/cli/commit/d23be5d8a3670d44d7f6f32fab437bca37ce2ce8))
+* snaphot update ([4046a68](https://github.com/diplodoc-platform/cli/commit/4046a6857fbfc4f8fb40b5bfab6d3b245c17f8b1))
+* static asset link ([5f4658d](https://github.com/diplodoc-platform/cli/commit/5f4658debfb3fbde5095db8e2845327c7305ca82))
+
+## [5.23.0](https://github.com/diplodoc-platform/cli/compare/v5.22.5...v5.23.0) (2026-02-16)
+
+
+### Features
+
+* add originAsInput, copy optimization ([#1672](https://github.com/diplodoc-platform/cli/issues/1672)) ([9f367ad](https://github.com/diplodoc-platform/cli/commit/9f367ad4aac8f55a8bbe6472c7ec82ea047c343e))
+
+
+### Bug Fixes
+
+* save liquid conditions on true ([388b530](https://github.com/diplodoc-platform/cli/commit/388b530b70a0e38e5b229a79b302f590ad1dd578))
+
+## [5.22.5](https://github.com/diplodoc-platform/cli/compare/v5.22.4...v5.22.5) (2026-02-10)
+
+
+### Bug Fixes
+
+* do not translate merged entries on toc ([81741bf](https://github.com/diplodoc-platform/cli/commit/81741bf05e1b905964c9a7c04748260dcd9d2c15))
+* DOCSTOOLS-3562 incorrect link in term with include ([acb9ddd](https://github.com/diplodoc-platform/cli/commit/acb9ddd6ad52b479161ea43d36b6aa22d65c43df))
+
+## [5.22.4](https://github.com/diplodoc-platform/cli/compare/v5.22.3...v5.22.4) (2026-02-05)
+
+
+### Bug Fixes
+
+* added a more detailed error when trying to include an anchor ([#1653](https://github.com/diplodoc-platform/cli/issues/1653)) ([ba38ef9](https://github.com/diplodoc-platform/cli/commit/ba38ef92b5c9135037fe623b0b8b49e483de9d1b))
+
+## [5.22.3](https://github.com/diplodoc-platform/cli/compare/v5.22.2...v5.22.3) (2026-02-03)
+
+
+### Bug Fixes
+
+* fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
+
+## [5.22.2](https://github.com/diplodoc-platform/cli/compare/v5.22.1...v5.22.2) (2026-02-03)
+
+
+### Bug Fixes
+
+* fixed release-please-config ([#1647](https://github.com/diplodoc-platform/cli/issues/1647)) ([af77b4e](https://github.com/diplodoc-platform/cli/commit/af77b4e99a16532f0b6573586d2393c97cfc6b20))
+
+## [5.22.1](https://github.com/diplodoc-platform/cli/compare/v5.22.0...v5.22.1) (2026-02-02)
+
+
+### Bug Fixes
+
+* skip create empty preset files ([#1624](https://github.com/diplodoc-platform/cli/issues/1624)) ([317f767](https://github.com/diplodoc-platform/cli/commit/317f767c53785b3226a6d62270380a06fde08a3d))
+
+## [5.22.0](https://github.com/diplodoc-platform/cli/compare/v5.21.0...v5.22.0) (2026-02-02)
+
+
+### Features
+
+* add themer ([#1594](https://github.com/diplodoc-platform/cli/issues/1594)) ([ee0a59f](https://github.com/diplodoc-platform/cli/commit/ee0a59f2146ea7e912e46dfd4b50ce7033d4ee2a))
+
+## [5.21.0](https://github.com/diplodoc-platform/cli/compare/v5.20.1...v5.21.0) (2026-02-02)
+
+
+### Features
+
+* vars are supported in toc header ([#1629](https://github.com/diplodoc-platform/cli/issues/1629)) ([642654e](https://github.com/diplodoc-platform/cli/commit/642654e86aba7956521d4cce02fecc0bf31cb424))
+
+## [5.20.1](https://github.com/diplodoc-platform/cli/compare/v5.20.0...v5.20.1) (2026-01-30)
+
+
+### Bug Fixes
+
+* add author inherit when default connector ([#1619](https://github.com/diplodoc-platform/cli/issues/1619)) ([6b63c5b](https://github.com/diplodoc-platform/cli/commit/6b63c5bb39ed7acf4390eff8310a33a540774c78))
+* add into output only root or ref tocs ([#1625](https://github.com/diplodoc-platform/cli/issues/1625)) ([35f0542](https://github.com/diplodoc-platform/cli/commit/35f05427815aba16a84164ee8e045a0a6aaf2cf8))
+* copy changelog image ([#1610](https://github.com/diplodoc-platform/cli/issues/1610)) ([5de989a](https://github.com/diplodoc-platform/cli/commit/5de989a1a79a9d3b569d443fff8c86be421e9052))
+* remove folders with only presets.yaml file ([#1626](https://github.com/diplodoc-platform/cli/issues/1626)) ([b6746e8](https://github.com/diplodoc-platform/cli/commit/b6746e83943b0b93023494f51d5b94a193aa558d))
+* use isRaw flag ([#1613](https://github.com/diplodoc-platform/cli/issues/1613)) ([9eb844d](https://github.com/diplodoc-platform/cli/commit/9eb844d64a9dc8dfddc8f661de12c648d6aef0cb))
+
+## [5.20.0](https://github.com/diplodoc-platform/cli/compare/v5.19.10...v5.20.0) (2026-01-28)
+
+
+### Features
+
+* when-conditions are supported in page-constructor ([#1599](https://github.com/diplodoc-platform/cli/issues/1599)) ([ae4f14d](https://github.com/diplodoc-platform/cli/commit/ae4f14dd384b8b025a74c75e4129c86f87677c03))
+* when-conditions are supported in toc header ([#1617](https://github.com/diplodoc-platform/cli/issues/1617)) ([b4dbc77](https://github.com/diplodoc-platform/cli/commit/b4dbc77938d3f2da33514ae6d5f62bb14fc08757))
+
+
+### Bug Fixes
+
+* fix strict mode option ([2eb4e31](https://github.com/diplodoc-platform/cli/commit/2eb4e31310560ff0005621b1226d09f59eb2e122))
+
 ## [5.19.10](https://github.com/diplodoc-platform/cli/compare/v5.19.9...v5.19.10) (2026-01-23)
 
 

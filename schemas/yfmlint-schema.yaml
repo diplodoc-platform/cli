@@ -1,0 +1,419 @@
+title: YFM lint configuration file schema (.yfmlint)
+type: object
+properties:
+  default:
+    type: boolean
+    description: Default state for all rules. false disables all unless overridden.
+
+  log-levels:
+    type: object
+    description: >
+      Log levels per rule. Merged into the main config before processing.
+      Values: error, warn, info, disabled.
+    properties:
+      # ── Markdownlint rules (MD001–MD048) ─────────────────────────────
+      MD001:
+        $ref: '#/definitions/LogLevel'
+      MD002:
+        $ref: '#/definitions/LogLevel'
+      MD003:
+        $ref: '#/definitions/LogLevel'
+      MD004:
+        $ref: '#/definitions/LogLevel'
+      MD005:
+        $ref: '#/definitions/LogLevel'
+      MD006:
+        $ref: '#/definitions/LogLevel'
+      MD007:
+        $ref: '#/definitions/LogLevel'
+      MD009:
+        $ref: '#/definitions/LogLevel'
+      MD010:
+        $ref: '#/definitions/LogLevel'
+      MD011:
+        $ref: '#/definitions/LogLevel'
+      MD012:
+        $ref: '#/definitions/LogLevel'
+      MD013:
+        $ref: '#/definitions/LogLevel'
+      MD014:
+        $ref: '#/definitions/LogLevel'
+      MD018:
+        $ref: '#/definitions/LogLevel'
+      MD019:
+        $ref: '#/definitions/LogLevel'
+      MD020:
+        $ref: '#/definitions/LogLevel'
+      MD021:
+        $ref: '#/definitions/LogLevel'
+      MD022:
+        $ref: '#/definitions/LogLevel'
+      MD023:
+        $ref: '#/definitions/LogLevel'
+      MD024:
+        $ref: '#/definitions/LogLevel'
+      MD025:
+        $ref: '#/definitions/LogLevel'
+      MD026:
+        $ref: '#/definitions/LogLevel'
+      MD027:
+        $ref: '#/definitions/LogLevel'
+      MD028:
+        $ref: '#/definitions/LogLevel'
+      MD029:
+        $ref: '#/definitions/LogLevel'
+      MD030:
+        $ref: '#/definitions/LogLevel'
+      MD031:
+        $ref: '#/definitions/LogLevel'
+      MD032:
+        $ref: '#/definitions/LogLevel'
+      MD033:
+        $ref: '#/definitions/LogLevel'
+      MD034:
+        $ref: '#/definitions/LogLevel'
+      MD035:
+        $ref: '#/definitions/LogLevel'
+      MD036:
+        $ref: '#/definitions/LogLevel'
+      MD037:
+        $ref: '#/definitions/LogLevel'
+      MD038:
+        $ref: '#/definitions/LogLevel'
+      MD039:
+        $ref: '#/definitions/LogLevel'
+      MD040:
+        $ref: '#/definitions/LogLevel'
+      MD041:
+        $ref: '#/definitions/LogLevel'
+      MD042:
+        $ref: '#/definitions/LogLevel'
+      MD043:
+        $ref: '#/definitions/LogLevel'
+      MD044:
+        $ref: '#/definitions/LogLevel'
+      MD045:
+        $ref: '#/definitions/LogLevel'
+      MD046:
+        $ref: '#/definitions/LogLevel'
+      MD047:
+        $ref: '#/definitions/LogLevel'
+      MD048:
+        $ref: '#/definitions/LogLevel'
+      # ── YFM rules (YFM001–YFM017) ───────────────────────────────────
+      YFM001:
+        $ref: '#/definitions/LogLevel'
+      YFM002:
+        $ref: '#/definitions/LogLevel'
+      YFM003:
+        $ref: '#/definitions/LogLevel'
+      YFM004:
+        $ref: '#/definitions/LogLevel'
+      YFM005:
+        $ref: '#/definitions/LogLevel'
+      YFM006:
+        $ref: '#/definitions/LogLevel'
+      YFM007:
+        $ref: '#/definitions/LogLevel'
+      YFM008:
+        $ref: '#/definitions/LogLevel'
+      YFM009:
+        $ref: '#/definitions/LogLevel'
+      YFM010:
+        $ref: '#/definitions/LogLevel'
+      YFM011:
+        $ref: '#/definitions/LogLevel'
+      YFM012:
+        $ref: '#/definitions/LogLevel'
+      YFM013:
+        $ref: '#/definitions/LogLevel'
+      YFM014:
+        $ref: '#/definitions/LogLevel'
+      YFM015:
+        $ref: '#/definitions/LogLevel'
+      YFM016:
+        $ref: '#/definitions/LogLevel'
+      YFM017:
+        $ref: '#/definitions/LogLevel'
+    additionalProperties:
+      $ref: '#/definitions/LogLevel'
+
+  # ── Markdownlint rules (MD) — root-level config with params ──────
+  MD001:
+    $ref: '#/definitions/RuleValue'
+    description: 'heading-increment: Heading levels should only increment by one level at a time.'
+
+  MD002:
+    $ref: '#/definitions/RuleValue'
+    description: 'first-heading-h1: First heading should be a top-level heading.'
+
+  MD003:
+    $ref: '#/definitions/RuleValue'
+    description: 'heading-style: Heading style.'
+
+  MD004:
+    $ref: '#/definitions/RuleValue'
+    description: 'ul-style: Unordered list style.'
+
+  MD005:
+    $ref: '#/definitions/RuleValue'
+    description: 'list-indent: Inconsistent indentation for list items at the same level.'
+
+  MD006:
+    $ref: '#/definitions/RuleValue'
+    description: 'ul-start-left: Consider starting bulleted lists at the beginning of the line.'
+
+  MD007:
+    $ref: '#/definitions/RuleValue'
+    description: 'ul-indent: Unordered list indentation.'
+
+  MD009:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-trailing-spaces: Trailing spaces.'
+
+  MD010:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-hard-tabs: Hard tabs.'
+
+  MD011:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-reversed-links: Reversed link syntax.'
+
+  MD012:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-multiple-blanks: Multiple consecutive blank lines.'
+
+  MD013:
+    $ref: '#/definitions/RuleValue'
+    description: 'line-length: Line length.'
+
+  MD014:
+    $ref: '#/definitions/RuleValue'
+    description: 'commands-show-output: Dollar signs used before commands without showing output.'
+
+  MD018:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-missing-space-atx: No space after hash on atx style heading.'
+
+  MD019:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-multiple-space-atx: Multiple spaces after hash on atx style heading.'
+
+  MD020:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-missing-space-closed-atx: No space inside hashes on closed atx style heading.'
+
+  MD021:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-multiple-space-closed-atx: Multiple spaces inside hashes on closed atx style heading.'
+
+  MD022:
+    $ref: '#/definitions/RuleValue'
+    description: 'blanks-around-headings: Headings should be surrounded by blank lines.'
+
+  MD023:
+    $ref: '#/definitions/RuleValue'
+    description: 'heading-start-left: Headings must start at the beginning of the line.'
+
+  MD024:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-duplicate-heading: Multiple headings with the same content.'
+
+  MD025:
+    $ref: '#/definitions/RuleValue'
+    description: 'single-h1: Multiple top-level headings in the same document.'
+
+  MD026:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-trailing-punctuation: Trailing punctuation in heading.'
+
+  MD027:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-multiple-space-blockquote: Multiple spaces after blockquote symbol.'
+
+  MD028:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-blanks-blockquote: Blank line inside blockquote.'
+
+  MD029:
+    $ref: '#/definitions/RuleValue'
+    description: 'ol-prefix: Ordered list item prefix.'
+
+  MD030:
+    $ref: '#/definitions/RuleValue'
+    description: 'list-marker-space: Spaces after list markers.'
+
+  MD031:
+    $ref: '#/definitions/RuleValue'
+    description: 'blanks-around-fences: Fenced code blocks should be surrounded by blank lines.'
+
+  MD032:
+    $ref: '#/definitions/RuleValue'
+    description: 'blanks-around-lists: Lists should be surrounded by blank lines.'
+
+  MD033:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-inline-html: Inline HTML. Controlled automatically via allowHtml config.'
+
+  MD034:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-bare-urls: Bare URL used.'
+
+  MD035:
+    $ref: '#/definitions/RuleValue'
+    description: 'hr-style: Horizontal rule style.'
+
+  MD036:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-emphasis-as-heading: Emphasis used instead of a heading.'
+
+  MD037:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-space-in-emphasis: Spaces inside emphasis markers.'
+
+  MD038:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-space-in-code: Spaces inside code span elements.'
+
+  MD039:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-space-in-links: Spaces inside link text.'
+
+  MD040:
+    $ref: '#/definitions/RuleValue'
+    description: 'fenced-code-language: Fenced code blocks should have a language specified.'
+
+  MD041:
+    $ref: '#/definitions/RuleValue'
+    description: 'first-line-h1: First line in a file should be a top-level heading.'
+
+  MD042:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-empty-links: No empty links.'
+
+  MD043:
+    $ref: '#/definitions/RuleValue'
+    description: 'required-headings: Required heading structure.'
+
+  MD044:
+    $ref: '#/definitions/RuleValue'
+    description: 'proper-names: Proper names should have the correct capitalization.'
+
+  MD045:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-alt-text: Images should have alternate text.'
+
+  MD046:
+    $ref: '#/definitions/RuleValue'
+    description: 'code-block-style: Code block style.'
+
+  MD047:
+    $ref: '#/definitions/RuleValue'
+    description: 'single-trailing-newline: Files should end with a single newline character.'
+
+  MD048:
+    $ref: '#/definitions/RuleValue'
+    description: 'code-fence-style: Code fence style.'
+
+  # ── YFM rules — yfmlint package (YFM001–YFM011) ─────────────────
+  YFM001:
+    oneOf:
+      - type: boolean
+      - $ref: '#/definitions/LogLevel'
+      - type: object
+        properties:
+          level:
+            $ref: '#/definitions/LogLevel'
+          maximum:
+            type: integer
+            minimum: 1
+            default: 100
+        additionalProperties: false
+    description: 'inline-code-length: Inline code span exceeds maximum length.'
+
+  YFM002:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-header-found-for-link: Link references a header that does not exist.'
+
+  YFM003:
+    $ref: '#/definitions/RuleValue'
+    description: 'unreachable-link: Linked file does not exist or is not in TOC.'
+
+  YFM004:
+    $ref: '#/definitions/RuleValue'
+    description: 'table-not-closed: YFM table is missing a closing token.'
+
+  YFM005:
+    $ref: '#/definitions/RuleValue'
+    description: 'tab-list-not-closed: Tab list is missing a closing token.'
+
+  YFM006:
+    $ref: '#/definitions/RuleValue'
+    description: 'term-definition-duplicated: Same term is defined more than once.'
+
+  YFM007:
+    $ref: '#/definitions/RuleValue'
+    description: 'term-used-without-definition: Term is used but never defined.'
+
+  YFM008:
+    $ref: '#/definitions/RuleValue'
+    description: 'term-inside-definition-not-allowed: Term reference inside its own definition.'
+
+  YFM009:
+    $ref: '#/definitions/RuleValue'
+    description: 'no-term-definition-in-content: Term definitions must be at end of file.'
+
+  YFM010:
+    $ref: '#/definitions/RuleValue'
+    description: 'unreachable-autotitle-anchor: Auto title anchor is unreachable.'
+
+  YFM011:
+    $ref: '#/definitions/RuleValue'
+    description: 'max-svg-size: SVG file exceeds the maximum allowed size.'
+
+  # ── YFM rules — CLI build-time (YFM012–YFM017) ──────────────────
+  YFM012:
+    $ref: '#/definitions/RuleValue'
+    description: 'max-html-size: Output HTML file size exceeds the limit.'
+
+  YFM013:
+    $ref: '#/definitions/RuleValue'
+    description: 'max-asset-size: Single asset file size exceeds the limit.'
+
+  YFM014:
+    $ref: '#/definitions/RuleValue'
+    description: 'anchor-as-filepath: Anchor cannot be used as file path in include.'
+    readOnly: true
+
+  YFM015:
+    $ref: '#/definitions/RuleValue'
+    description: 'anchor-not-found: Anchor not found in included file.'
+    readOnly: true
+
+  YFM016:
+    $ref: '#/definitions/RuleValue'
+    description: 'self-include: The file is included in itself.'
+    readOnly: true
+
+  YFM017:
+    $ref: '#/definitions/RuleValue'
+    description: 'invalid-frontmatter: Invalid front matter format (e.g. duplicated mapping key).'
+    readOnly: true
+
+additionalProperties:
+  $ref: '#/definitions/RuleValue'
+
+definitions:
+  LogLevel:
+    type: string
+    enum: ['error', 'warn', 'info', 'disabled']
+
+  RuleValue:
+    oneOf:
+      - type: boolean
+      - $ref: '#/definitions/LogLevel'
+      - type: object
+        properties:
+          level:
+            $ref: '#/definitions/LogLevel'
+        additionalProperties: true

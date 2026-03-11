@@ -102,6 +102,258 @@ path: toc.yaml
 "
 `;
 
+exports[`toc-loader > label > should handle TocLabel array with when filter 1`] = `
+"title: Test
+label:
+  title: KZ
+  description: Available in Kazakhstan
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object 1`] = `
+"title: Test
+label:
+  title: Preview
+  description: This service is in preview
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object with when condition (accepted) 1`] = `
+"title: Test
+label:
+  title: KZ
+  description: Available in Kazakhstan
+  theme: info
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel object with when condition (declined) 1`] = `
+"title: Test
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle TocLabel without optional fields 1`] = `
+"title: Test
+label:
+  title: Beta
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle old TextFilter array format for label 1`] = `
+"title: Test
+label:
+  title: Label B
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should handle string label 1`] = `
+"title: Test
+label:
+  title: Preview
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > label > should interpolate liquid vars in TocLabel title and description 1`] = `
+"title: Test
+label:
+  title: Preview
+  description: Service is in preview
+  theme: warning
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should filter both leftItems and rightItems 1`] = `
+"title: Test
+navigation:
+  logo:
+    url: ./
+  header:
+    leftItems:
+      - text: Visible
+        type: link
+        url: ./visible.md
+    rightItems:
+      - type: controls
+      - text: Visible
+        type: link
+        url: ./visible2.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should filter navigation header leftItems by when condition 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Always visible
+        type: link
+        url: ./index.md
+      - text: Visible when true
+        type: link
+        url: ./page1.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should filter navigation header rightItems by when condition 1`] = `
+"title: Test
+navigation:
+  header:
+    rightItems:
+      - type: controls
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should handle navigation without header 1`] = `
+"title: Test
+navigation:
+  logo:
+    url: ./
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate both text and url in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Go to Home
+        type: link
+        url: ./index.md
+    rightItems:
+      - text: User Admin
+        type: link
+        url: ./profile.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate nested items in dropdown 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Menu
+        type: dropdown
+        items:
+          - text: Option 1
+            type: link
+            url: ./option1.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate strings in arrays 1`] = `
+"title: Test
+navigation:
+  customTags:
+    - first
+    - second
+    - static
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate text in leftItems 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Hello World
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate text in rightItems 1`] = `
+"title: Test
+navigation:
+  header:
+    rightItems:
+      - text: Welcome Admin
+        type: link
+        url: ./profile.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate type field in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Dynamic
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate url in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Page
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should interpolate urlTitle and icon in navigation items 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Button
+        type: button
+        url: ./index.md
+        urlTitle: Go to Home Page
+        icon: https://example.com/home.svg
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should not filter navigation when conditions feature is disabled 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Should remain
+        type: link
+        url: ./page.md
+        when: false
+path: toc.yaml
+"
+`;
+
+exports[`toc-loader > navigation header items filtering > should not interpolate navigation items when substitutions is disabled 1`] = `
+"title: Test
+navigation:
+  header:
+    leftItems:
+      - text: Hello {{name}}
+        type: link
+        url: ./index.md
+path: toc.yaml
+"
+`;
+
 exports[`toc-loader > object validation > should not throw error when nested toc item has [object Object] values but log it 1`] = `
 [
   {

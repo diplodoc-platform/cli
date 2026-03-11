@@ -1,7 +1,13 @@
 **english** | [русский](https://github.com/diplodoc-platform/cli/blob/master/README.ru.md)
-- - -
+
+---
 
 [![NPM version](https://img.shields.io/npm/v/@diplodoc/cli.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/cli)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_cli&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=diplodoc-platform_cli)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_cli&metric=coverage)](https://sonarcloud.io/summary/new_code?id=diplodoc-platform_cli)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_cli&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=diplodoc-platform_cli)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_cli&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=diplodoc-platform_cli)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=diplodoc-platform_cli&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=diplodoc-platform_cli)
 
 # yfm-docs
 

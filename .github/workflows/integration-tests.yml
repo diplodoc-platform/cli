@@ -1,0 +1,47 @@
+name: 'Tests: integration'
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: [22]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install latest npm (>= 11.5.1)
+        run: |
+          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@latest
+        shell: bash
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run build
+        run: npm run build
+
+      - name: Run e2e tests
+        working-directory: tests
+        run: npm ci && npm test

@@ -2,17 +2,17 @@ import type {Config} from '~/core/config';
 import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
-import {ok} from 'node:assert';
 import {dirname, join} from 'node:path';
+import pmap from 'p-map';
+import {ok} from 'node:assert';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
-import pmap from 'p-map';
 
 import {bounded, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
-import {InsecureAccessError} from './errors';
 import {fs} from './fs';
+import {InsecureAccessError} from './errors';
 
 type GlobOptions = {
     cwd?: AbsolutePath;
@@ -98,6 +98,7 @@ export class Run<TConfig = BaseConfig> {
      * Asserts file path is in project scope.
      * Drops hardlinks (unlink before write).
      * Creates directory for file.
+     * Uses atomic write via temporary file + rename to prevent concurrent writes.
      *
      * @param {AbsolutePath} path - unixlike absolute path to file
      * @param {string} content - file content
@@ -112,14 +113,39 @@ export class Run<TConfig = BaseConfig> {
         // This allow to detect already created files in parallel processing.
         await wait(1);
 
-        // Sync exists check can detect created file as fast as possible.
-        if (this.exists(path) && !force) {
+        // Check if file already exists (fast sync check)
+        if (!force && this.exists(path)) {
             return;
         }
 
         await this.fs.mkdir(dirname(path), {recursive: true});
-        await this.fs.unlink(path).catch(() => {});
-        await this.fs.writeFile(path, content, 'utf8');
+
+        // Use atomic write: write to temp file first, then rename
+        // rename is atomic on POSIX filesystems, preventing race conditions
+        const tempPath = `${path}.tmp.${Date.now()}.${Math.random().toString(36).slice(2)}`;
+
+        try {
+            await this.fs.writeFile(tempPath, content, 'utf8');
+
+            // Try atomic rename first (works on POSIX, overwrites existing file atomically)
+            try {
+                await this.fs.rename(tempPath, path);
+            } catch (renameError: unknown) {
+                // On Windows, rename may fail if target exists
+                // Fall back to unlink + rename
+                const error = renameError as Error & {code?: string};
+                if (error?.code === 'ENOENT' || error?.code === 'EEXIST') {
+                    await this.fs.unlink(path).catch(() => {});
+                    await this.fs.rename(tempPath, path);
+                } else {
+                    throw renameError;
+                }
+            }
+        } catch (error) {
+            // Clean up temp file on error
+            await this.fs.unlink(tempPath).catch(() => {});
+            throw error;
+        }
     }
 
     /**
@@ -146,41 +172,42 @@ export class Run<TConfig = BaseConfig> {
 
     @bounded async copy(from: AbsolutePath, to: AbsolutePath, ignore: string[] = []) {
         const isFile = (await this.fs.stat(from)).isFile();
-        const hardlink = async (from: AbsolutePath, to: AbsolutePath) => {
-            // const realpath = this.realpath(from);
-            //
-            // ok(
-            //     realpath[0].startsWith(this.originalInput),
-            //     new InsecureAccessError(realpath[0], realpath),
-            // );
-
-            await this.fs.unlink(to).catch(() => {});
-            await this.fs.copyFile(from, to, fsConstants.COPYFILE_FICLONE);
-        };
 
         if (from === to) {
             return [];
         }
 
-        const dirs = new Set();
-        const files = isFile
+        const files: [string, string][] = isFile
             ? [[from, to]]
-            : (
-                  await this.glob('**', {
-                      cwd: from,
-                      ignore,
-                  })
-              ).map((file) => [join(from, file), join(to, file)]);
+            : (await this.glob('**', {cwd: from, ignore})).map((file) => [
+                  join(from, file),
+                  join(to, file),
+              ]);
 
-        await pmap(files, async ([from, to]) => {
-            const dir = dirname(to);
-            if (!dirs.has(dir)) {
-                await this.fs.mkdir(dir, {recursive: true});
-                dirs.add(dir);
+        const mkdirPromises = new Map<string, Promise<void>>();
+
+        const ensureDir = (dir: string) => {
+            let promise = mkdirPromises.get(dir);
+            if (!promise) {
+                promise = this.fs.mkdir(dir, {recursive: true}).then(() => {});
+                mkdirPromises.set(dir, promise);
             }
+            return promise;
+        };
 
-            await hardlink(from, to);
-        });
+        const mode = this.config.copyOnWrite ? fsConstants.COPYFILE_FICLONE : 0;
+
+        await pmap(
+            files,
+            async ([src, dest]) => {
+                const dir = dirname(dest);
+
+                await ensureDir(dir);
+
+                await this.fs.copyFile(src, dest, mode);
+            },
+            {concurrency: 30},
+        );
 
         return files;
     }

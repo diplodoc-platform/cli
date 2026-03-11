@@ -9,7 +9,7 @@ exports[`Local search > internal > filelist 1`] = `
 `;
 
 exports[`Local search > internal 1`] = `
-"allowHTML: true
+"allowHtml: true
 langs: ['en','ru']
 
 interface:

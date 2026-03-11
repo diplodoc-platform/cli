@@ -100,6 +100,16 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
+    generateMapTestTemplate(
+        'do not translate merged entries with included toc',
+        'mocks/translation/toc-include',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+    );
+
     generateMapTestTemplate('do not filter files on extract', 'mocks/translation/dir-files', {
         subcommand: 'extract',
         source: 'ru-RU',
@@ -176,4 +186,30 @@ describe('Translate command', () => {
         source: 'ru-RU',
         target: 'en-US',
     });
+
+    let conditionVars = {prod: true, inner: true, list: ['item']};
+    generateMapTestTemplate(
+        'save truthy liquid conditions structures',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditionVars)}`,
+        },
+        false,
+    );
+
+    conditionVars = {prod: false, inner: false, list: ['item']};
+    generateMapTestTemplate(
+        'remove falsy liquid conditions structures',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditionVars)}`,
+        },
+        false,
+    );
 });

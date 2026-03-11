@@ -4,8 +4,46 @@ import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
+import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {filterTokens, normalizePath} from '~/core/utils';
+
+export interface IncludeChainEntry {
+    file: string;
+    line: number;
+}
+
+/**
+ * Strips YAML frontmatter from include file content if present.
+ * Include files written by md2md may have frontmatter (e.g. csp, metadata);
+ * when used as include body they must not be rendered as content.
+ */
+export function contentWithoutFrontmatter(raw: string): string {
+    const [, content] = extractFrontMatter(raw, {json: true});
+    return content;
+}
+
+/**
+ * Tags tokens (and their children) with include source metadata.
+ * Tokens already tagged by a deeper nested include are not overwritten.
+ */
+function tagTokensWithSource(
+    tokens: Token[],
+    sourceFile: string,
+    includeChain: IncludeChainEntry[],
+) {
+    for (const token of tokens) {
+        if (!token.meta?.sourceFile) {
+            token.meta = token.meta || {};
+            token.meta.sourceFile = sourceFile;
+            token.meta.includeChain = includeChain;
+        }
+
+        if (token.children) {
+            tagTokensWithSource(token.children, sourceFile, includeChain);
+        }
+    }
+}
 
 function stripTitleTokens(tokens: Token[]) {
     const [open, _, close] = tokens;
@@ -67,6 +105,24 @@ function unfoldIncludes(
             const includeLine = token.map ? token.map[0] + 1 : undefined;
             const includePath = token.attrGet('path') as string;
             const keyword = token.attrGet('keyword');
+
+            if (includePath.startsWith('#')) {
+                log.warn(
+                    [
+                        `YFM014 ${path}: Anchor "${includePath}" cannot be used as file path`,
+                        ``,
+                        `Expected syntax:`,
+                        `  {% include [text](path/to/file.md) %}`,
+                        ``,
+                        `Include will be skipped.`,
+                    ].join('\n'),
+                );
+
+                tokens.splice(index, 1);
+
+                return;
+            }
+
             const [pathname, hash] = includePath.split('#');
             const includeFullPath = normalizePath(join(dirname(path), pathname));
             const includeContent = files[includeFullPath];
@@ -76,20 +132,38 @@ function unfoldIncludes(
                 log.error(
                     `Include skipped in (${bold(includeLocation)}). Include source for ${bold(includeFullPath)} not found`,
                 );
+
                 return;
             }
 
+            const bodyContent = contentWithoutFrontmatter(includeContent);
+
+            const parentChain: IncludeChainEntry[] = env.includeChain || [];
+            const currentChain: IncludeChainEntry[] = includeLine
+                ? [...parentChain, {file: path, line: includeLine}]
+                : [...parentChain];
+
             const fileTokens =
                 cache[includeFullPath] ||
-                md.parse(includeContent, {
+                md.parse(bodyContent, {
                     ...env,
                     path: includeFullPath,
+                    includeChain: currentChain,
                 });
 
             let includedTokens: Token[];
             if (hash) {
-                // TODO: add warning about missed block
                 includedTokens = cutTokens(fileTokens, hash);
+
+                if (includedTokens.length === 0) {
+                    log.warn(
+                        [
+                            `YFM015 ${path}: Anchor "#${hash}" not found in ${includeFullPath}`,
+                            ``,
+                            `Include will be skipped.`,
+                        ].join('\n'),
+                    );
+                }
             } else {
                 includedTokens = fileTokens;
             }
@@ -105,6 +179,8 @@ function unfoldIncludes(
             } else {
                 cache[includeFullPath] = fileTokens;
             }
+
+            tagTokensWithSource(includedTokens, includeFullPath, currentChain);
 
             tokens.splice(index, 1, ...includedTokens);
 

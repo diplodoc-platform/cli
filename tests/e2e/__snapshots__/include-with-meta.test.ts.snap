@@ -1,0 +1,67 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes > filelist 1`] = `
+"[
+  "included.md",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+title: Included Page Title
+description: This is the description for the included page
+vcsPath: included.md
+---
+
+# Included Page
+
+This is the content of the included page.
+
+## Section 1
+
+Some content in section 1.
+
+## Section 2
+
+Some content in section 2.
+"
+`;
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+title: Main Page Title
+description: This is the description for the main page
+vcsPath: index.md
+---
+
+# Main Page
+
+This is the main page content.
+
+## Including another page
+
+Here we include the content from the included page:
+
+[Included Page](./included.md)
+
+"
+`;
+
+exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preserve meta information in includes 3`] = `
+"items:
+  - name: Main Page
+    href: index.md
+    items:
+      - name: Included Page
+        href: included.md
+path: toc.yaml
+"
+`;

@@ -120,6 +120,12 @@ const addSystemMeta = option({
     desc: 'Should add system section variables form presets into files meta data.',
 });
 
+const addAlternateMeta = option({
+    flags: '--add-alternate-meta',
+    desc: 'Should add alternate and canonical meta data.',
+    defaultInfo: true,
+});
+
 const interfaceToc = option({
     flags: '--interface-toc',
     desc: `
@@ -378,6 +384,9 @@ export const options = {
     output: globalOptions.output,
     config: globalOptions.config,
     strict: globalOptions.strict,
+    originAsInput: globalOptions.originAsInput,
+    copyOnWrite: globalOptions.copyOnWrite,
+    workerMaxOldSpace: globalOptions.workerMaxOldSpace,
     langs,
     outputFormat,
     varsPreset,
@@ -399,4 +408,5 @@ export const options = {
     maxInlineSvgSize,
     maxHtmlSize,
     maxAssetSize,
+    addAlternateMeta,
 };

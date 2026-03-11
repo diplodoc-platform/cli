@@ -98,7 +98,7 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded async page(lang: string) {
-        const template = new Template('_search' as NormalizedPath, lang);
+        const template = new Template(normalizePath(join('_search', lang, 'index.html')), lang);
         const config = this.run.config;
         const baseInterface = config.interface;
         const faviconSrc =
