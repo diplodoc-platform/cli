@@ -36,8 +36,30 @@ describe('Merge includes (md2md)', () => {
         await compareDirectories(outputPath);
     });
 
-    test('hash-fallback: includes with hash use fallback, deduped', async () => {
+    test('hash-section: includes with hash extract sections inline', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/hash-fallback');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('term-inline: includes inside term defs use fallback (not inlined)', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/term-inline');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('inline-context: non-standalone includes use fallback', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/inline-context');
 
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,

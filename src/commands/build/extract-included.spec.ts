@@ -134,5 +134,51 @@ describe('extractIncludedBlocks', () => {
 
         expect(result.content).toBe('Line before\nLine after');
         expect(result.files['inc.md' as NormalizedPath]).toBe('Included');
+        expect(result.errors).toEqual([]);
+    });
+
+    it('should report error when endincluded is missing', () => {
+        const content = [
+            '# Main',
+            '{% included (_includes/broken.md) %}',
+            'Content without closing tag',
+            'More content',
+        ].join('\n');
+
+        const result = extractIncludedBlocks(content, 'docs/page.md' as NormalizedPath);
+
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toContain('docs/page.md');
+        expect(result.errors[0]).toContain('line 2');
+        expect(result.errors[0]).toContain('_includes/broken.md');
+        expect(result.errors[0]).toContain('missing {% endincluded %}');
+        expect(result.files['docs/_includes/broken.md' as NormalizedPath]).toBe(
+            'Content without closing tag\nMore content',
+        );
+    });
+
+    it('should report errors for multiple unclosed blocks', () => {
+        const content = [
+            '{% included (a.md) %}',
+            'Content A',
+            '{% endincluded %}',
+            '{% included (b.md) %}',
+            'Content B without end',
+        ].join('\n');
+
+        const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
+
+        expect(result.errors).toHaveLength(1);
+        expect(result.errors[0]).toContain('line 4');
+        expect(result.errors[0]).toContain('b.md');
+        expect(result.files['a.md' as NormalizedPath]).toBe('Content A');
+        expect(result.files['b.md' as NormalizedPath]).toBe('Content B without end');
+    });
+
+    it('should return empty errors when all blocks are closed', () => {
+        const content = ['{% included (a.md) %}', 'Content', '{% endincluded %}'].join('\n');
+
+        const result = extractIncludedBlocks(content, 'main.md' as NormalizedPath);
+        expect(result.errors).toEqual([]);
     });
 });

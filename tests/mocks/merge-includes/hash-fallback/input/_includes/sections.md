@@ -2,7 +2,17 @@
 
 ## Section A {#section-a}
 
-Content of section A.
+{% list tabs %}
+
+- Tab 1
+
+    ```
+    # Heading inside code
+    ```
+
+    Content of tab 1.
+
+{% endlist %}
 
 ## Section B {#section-b}
 

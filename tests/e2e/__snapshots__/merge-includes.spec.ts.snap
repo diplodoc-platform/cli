@@ -51,7 +51,7 @@ path: toc.yaml
 "
 `;
 
-exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped > filelist 1`] = `
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline > filelist 1`] = `
 "[
   "index.md",
   "main.md",
@@ -59,7 +59,7 @@ exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback
 ]"
 `;
 
-exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 1`] = `
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 1`] = `
 "---
 metadata:
   - name: generator
@@ -70,7 +70,7 @@ vcsPath: index.md
 "
 `;
 
-exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 2`] = `
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 2`] = `
 "---
 metadata:
   - name: generator
@@ -79,26 +79,100 @@ vcsPath: main.md
 ---
 # Main Document
 
-{% include notitle [section-a](_includes/sections.md#section-a) %}
+{% list tabs %}
 
-{% include notitle [section-b](_includes/sections.md#section-b) %}
+- Tab 1
 
-{% included (_includes/sections.md) %}
-# Sections
+    \`\`\`
+    # Heading inside code
+    \`\`\`
 
-## Section A {#section-a}
+    Content of tab 1.
 
-Content of section A.
-
-## Section B {#section-b}
+{% endlist %}
 
 Content of section B.
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 3`] = `
+"title: Hash Fallback Test
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Document with inline includes
+
+Standalone include (should be inlined):
+
+## Note Content {#note}
+
+This is an important note.
+
+With multiple lines.
+
+Inline in text (should fallback): See {% include [note](_includes/snippet.md#note) %} for details.
+
+Standalone table include (should be inlined):
+
+## Table Content {#table}
+
+#|
+|| Header 1 | Header 2 ||
+|| Cell 1 | Cell 2 ||
+|#
+
+{% included (_includes/snippet.md) %}
+## Note Content {#note}
+
+This is an important note.
+
+With multiple lines.
+
+## Table Content {#table}
+
+#|
+|| Header 1 | Header 2 ||
+|| Cell 1 | Cell 2 ||
+|#
 
 {% endincluded %}"
 `;
 
-exports[`Merge includes (md2md) > hash-fallback: includes with hash use fallback, deduped 3`] = `
-"title: Hash Fallback Test
+exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback 3`] = `
+"title: Merge Includes Inline Context
 href: index.md
 items:
   - name: Main
@@ -211,6 +285,91 @@ See [the guide](_includes/guide.md) for more details.
 
 exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 3`] = `
 "title: Merge Includes Relative Paths
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# API Reference
+
+Метод возвращает данные для [площадки](*placeID).
+
+Параметр [тип синхронизации](*syncFactor) указывает вид кода.
+
+Параметр [обязательный](*requiredParam) является обязательным.
+
+Обычный инклюд на отдельной строке (до термов — инлайнится):
+
+## Required {#requiredParam}
+
+Обязательный параметр.
+
+[*placeID]: {% include notitle [desc](_includes/defs.md#placeID) %}
+
+[*syncFactor]: {% include notitle [desc](_includes/defs.md#syncFactor) %}
+
+[*requiredParam]: {% include notitle [desc](_includes/defs.md#requiredParam) %}
+    
+{% include notitle [note](_includes/defs.md#placeID) %}
+
+{% included (_includes/defs.md) %}
+## PlaceID {#placeID}
+
+ID площадки.
+
+Читайте также:
+
+- [Получить список](../list.md)
+
+## SyncFactor {#syncFactor}
+
+Вид кода.
+
+Допустимые значения:
+
+- \`1\` — асинхронный;
+- \`2\` — синхронный.
+
+## Required {#requiredParam}
+
+Обязательный параметр.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 3`] = `
+"title: Merge Includes Term Inline
 href: index.md
 items:
   - name: Main

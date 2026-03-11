@@ -1,6 +1,6 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {EntryGraph} from '~/core/markdown';
+import type {EntryGraph, EntryGraphNode} from '~/core/markdown';
 import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
@@ -143,27 +143,25 @@ export class OutputMd {
 
                         vfile.data = (await dump(graph)).content;
 
+                        // Preserve per-directive IncludeInfo fields (link, match,
+                        // location) which may differ for same-path deps
+                        // (e.g. same file included with different #hash fragments).
+                        async function dumpDep(dep: EntryGraphNode): Promise<HashedGraphNode> {
+                            const dumped = await dump(dep, true);
+                            return {
+                                ...dumped,
+                                link: dep.link,
+                                match: dep.match,
+                                location: dep.location,
+                            };
+                        }
+
                         async function dump(graph: EntryGraph, write = false) {
-                            // Cache by path instead of path+from is allowed here
-                            // because from is already top level path here.
                             if (processed.has(graph.path)) {
                                 return processed.get(graph.path);
                             }
 
-                            const deps: HashedGraphNode[] = await all(
-                                graph.deps.map(async (dep) => {
-                                    const dumped = await dump(dep, true);
-                                    // Preserve per-directive IncludeInfo fields (link, match,
-                                    // location) which may differ for same-path deps
-                                    // (e.g. same file included with different #hash fragments).
-                                    return {
-                                        ...dumped,
-                                        link: dep.link,
-                                        match: dep.match,
-                                        location: dep.location,
-                                    };
-                                }),
-                            );
+                            const deps: HashedGraphNode[] = await all(graph.deps.map(dumpDep));
                             const scheduler = new Scheduler([
                                 config.hashIncludes &&
                                     !config.mergeIncludes &&
