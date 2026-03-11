@@ -1,0 +1,7 @@
+items:
+  - name: Plain article
+    href: plain.md
+  - name: Article with explicit vcsPath
+    href: with-vcs.md
+  - name: Article with explicit sourcePath
+    href: with-source.md

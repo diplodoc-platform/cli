@@ -20,6 +20,7 @@ export interface VcsConnector {
 export interface VcsMetadata extends Partial<Resources> {
     vcsPath?: NormalizedPath;
     sourcePath?: NormalizedPath;
+    mergeFrom?: NormalizedPath;
     updatedAt?: string;
     author?: Contributor;
     contributors?: Contributor[];

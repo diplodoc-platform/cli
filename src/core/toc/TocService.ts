@@ -381,7 +381,10 @@ export class TocService {
                     normalizePath(relative(this.run.input, path)),
                 );
                 const {sourcePath, vcsPath} = this.meta.get(from);
-                this.meta.add(to, {sourcePath: vcsPath || sourcePath || from});
+                this.meta.add(to, {
+                    sourcePath: vcsPath || sourcePath,
+                    mergeFrom: !vcsPath && !sourcePath ? from : undefined,
+                });
                 this.logger.copy(pair[0], pair[1]);
             }
         }
