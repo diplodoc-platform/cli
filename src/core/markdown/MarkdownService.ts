@@ -170,10 +170,12 @@ export class MarkdownService {
             const isFileNotFound =
                 error instanceof Error && 'code' in error && error.code === 'ENOENT';
 
-            if (isFileNotFound && from) {
-                // File may not exist when its content is embedded via {% included %}
-                // blocks (produced by md2md --merge-includes). Resolve with empty
-                // content so callers can fall back to embedded data.
+            const isMergedInput =
+                this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
+            if (isFileNotFound && from && isMergedInput) {
+                // In md2html reading merged output: dep files don't exist on disk,
+                // their content is embedded via {% included %} blocks.
+                // Resolve with empty content so callers can fall back to embedded data.
                 const empty = {
                     content: '',
                     varsMetadata: {} as Hash,
@@ -307,11 +309,13 @@ export class MarkdownService {
             (this.pathToDeps.get(key) || []).map(async ({path}) => {
                 try {
                     return await this._deps(path, from || file);
-                } catch {
-                    // Include file may not exist on disk when its content
-                    // is embedded in the parent via {% included %} blocks
-                    // (produced by md2md --merge-includes).
-                    return [];
+                } catch (error) {
+                    const isMergedInput =
+                        this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
+                    if (isMergedInput) {
+                        return [];
+                    }
+                    throw error;
                 }
             }),
         );

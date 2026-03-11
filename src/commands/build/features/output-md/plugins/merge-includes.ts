@@ -2,10 +2,20 @@ import type {Run} from '../../..';
 import type {HashedGraphNode, StepFunction} from '../utils';
 
 import {dirname, join, relative} from 'node:path';
+import slugify from 'slugify';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
 
 import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
+
+const CODE_FENCE_RE = /^(`{3,}|~{3,})/;
+const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
+const LINK_DEF_RE = /^(\s*\[[^\]]+\]:\s+)(\S+)(\s.*|)$/;
+const NOTITLE_RE = /\bnotitle\b/;
+const TERM_DEF_RE = /^\[\*[^[\]]+\]:/m;
+const HEADING_FULL_RE = /^(#{1,6})\s+([^\n]+)$/; // NOSONAR — simplified to avoid ReDoS
+const CUSTOM_ANCHOR_RE = /\{#([\w-]+)\}/;
+const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 
 /**
  * Computes the rebased URL for a relative link when content is moved
@@ -44,6 +54,45 @@ export function rebaseUrl(url: string, fromDir: string, toDir: string): string |
     return newPath + suffix;
 }
 
+interface FenceState {
+    active: boolean;
+    char: string;
+    len: number;
+}
+
+function newFenceState(): FenceState {
+    return {active: false, char: '', len: 0};
+}
+
+/**
+ * Tracks fenced code blocks across sequential line processing.
+ * Returns true if the current line is inside a code block (should be skipped).
+ */
+function processCodeFence(trimmed: string, state: FenceState): boolean {
+    if (state.active) {
+        const ch = state.char === '`' ? '`' : '~';
+        const closeRe = new RegExp(String.raw`^${ch}{${state.len},}(\s*$|\s*\|\|)`);
+        if (closeRe.test(trimmed)) {
+            state.active = false;
+        }
+        return true;
+    }
+
+    const match = CODE_FENCE_RE.exec(trimmed);
+    if (match) {
+        const fence = match[1];
+        const info = trimmed.slice(fence.length);
+        if (!fence.startsWith('`') || !info.includes('`')) {
+            state.active = true;
+            state.char = fence[0];
+            state.len = fence.length;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /**
  * Rebases all relative markdown links, images, and link definitions
  * in content from one file location to another.
@@ -63,51 +112,21 @@ export function rebaseRelativePaths(
     }
 
     const lines = content.split('\n');
-    let inCodeBlock = false;
-    let fenceChar = '';
-    let fenceLength = 0;
-
-    const openFenceRe = /^(`{3,}|~{3,})/;
+    const fence = newFenceState();
 
     const result = lines.map((line) => {
-        const trimmed = line.trimStart();
-
-        if (inCodeBlock) {
-            const fencePattern = fenceChar === '`' ? '`' : '~';
-            const closeRe = new RegExp(String.raw`^${fencePattern}{${fenceLength},}(\s*$|\s*\|\|)`);
-            if (closeRe.exec(trimmed)) {
-                inCodeBlock = false;
-                fenceChar = '';
-                fenceLength = 0;
-            }
+        if (processCodeFence(line.trimStart(), fence)) {
             return line;
-        } else {
-            const match = openFenceRe.exec(trimmed);
-            if (match) {
-                const fence = match[1];
-                const infoString = trimmed.slice(fence.length);
-                if (!fence.startsWith('`') || !infoString.includes('`')) {
-                    inCodeBlock = true;
-                    fenceChar = fence[0];
-                    fenceLength = fence.length;
-                    return line;
-                }
-            }
         }
-
         return rebaseLinksInLine(line, fromDir, toDir);
     });
 
     return result.join('\n');
 }
 
-// Matches ](url in any markdown link — handles nested links, linked images, etc.
-// Every markdown link has a ](url) part regardless of nesting depth.
-const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
-const LINK_DEF_RE = /^(\s*\[[^\]]+\]:\s+)(\S+)(\s.*|)$/;
-
 function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string {
     line = line.replace(LINK_URL_RE, (_match, prefix, url) => {
+        // NOSONAR — regex with /g is intentional
         const rebased = rebaseUrl(url, fromDir, toDir);
         if (rebased === null) {
             return _match;
@@ -131,31 +150,40 @@ export function stripHash(link: string): string {
     return hashIndex >= 0 ? link.slice(0, hashIndex) : link;
 }
 
-const NOTITLE_RE = /\bnotitle\b/;
-const TERM_DEF_RE = /^\[\*\w+\]:/m;
-const HEADING_RE = /^#{1,6}\s/;
-
 /**
  * Determines whether an include dependency can be safely inlined
  * (replaced in-place) rather than using the {% included %} fallback.
  *
- * Criteria: no indent, no hash fragment, no term definitions in content.
+ * Conditions that prevent inlining:
+ * 1. The included file contains term definitions (deferred to Step 4).
+ * 2. The include directive appears at or after the first term definition
+ *    in the parent content.  Term definitions always go at the end of a
+ *    page, so every include below them belongs to the term section and
+ *    must not be expanded until Step 4.
+ * 3. The include directive is NOT standalone on its line — there is
+ *    non-whitespace content before or after it (e.g. inside a term
+ *    definition, blockquote, table cell, or inline text).
+ *    Inlining multi-line content into such contexts breaks markdown structure.
  */
 export function canInlineInclude(dep: HashedGraphNode, parentContent: string): boolean {
-    const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
-    const indent = dep.location[0] - lineStart;
-    if (indent > 0) {
-        return false;
-    }
-
-    // dep.hash is the content hash (for rehashing), not the URL fragment.
-    // Check the original link for a URL hash fragment.
-    if (dep.link.includes('#')) {
-        return false;
-    }
-
     const depContent = contentWithoutFrontmatter(dep.content);
     if (TERM_DEF_RE.test(depContent)) {
+        return false;
+    }
+
+    const firstTermDefPos = parentContent.search(TERM_DEF_RE);
+    if (firstTermDefPos >= 0 && dep.location[0] >= firstTermDefPos) {
+        return false;
+    }
+
+    const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
+    const lineEnd = parentContent.indexOf('\n', dep.location[1]);
+    const actualEnd = lineEnd >= 0 ? lineEnd : parentContent.length;
+
+    const before = parentContent.slice(lineStart, dep.location[0]);
+    const after = parentContent.slice(dep.location[1], actualEnd);
+
+    if (before.trim() !== '' || after.trim() !== '') {
         return false;
     }
 
@@ -173,7 +201,7 @@ export function stripFirstHeading(content: string): string {
         if (trimmed === '') {
             continue;
         }
-        if (HEADING_RE.test(trimmed)) {
+        if (parseHeading(trimmed)) {
             lines.splice(i, 1);
             if (i < lines.length && lines[i].trim() === '') {
                 lines.splice(i, 1);
@@ -183,6 +211,128 @@ export function stripFirstHeading(content: string): string {
         break;
     }
     return lines.join('\n');
+}
+
+/**
+ * Adds indentation to all lines of content except the first line (which
+ * is already preceded by indent in the parent) and empty lines.
+ *
+ * Preserves original line endings (\r\n, \r, \n) for cross-platform support.
+ */
+export function addIndent(content: string, indent: string): string {
+    if (!indent) {
+        return content;
+    }
+
+    const parts = content.split(/(\r\n|\r|\n)/);
+    let isFirstTextLine = true;
+    const result: string[] = [];
+
+    for (const part of parts) {
+        if (part === '\r\n' || part === '\n' || part === '\r') {
+            result.push(part);
+            continue;
+        }
+
+        if (isFirstTextLine) {
+            isFirstTextLine = false;
+            result.push(part);
+            continue;
+        }
+
+        result.push(part ? indent + part : part);
+    }
+
+    return result.join('');
+}
+
+/** Parses a heading line and returns level + resolved anchor, or null. */
+function parseHeading(trimmed: string): {level: number; anchor: string} | null {
+    const m = HEADING_FULL_RE.exec(trimmed);
+    if (!m) {
+        return null;
+    }
+    const text = m[2];
+    const custom = CUSTOM_ANCHOR_RE.exec(text);
+    const anchor = custom
+        ? custom[1]
+        : slugify(text.replace(/\{#[\w-]+\}/g, '').trim(), {lower: true, remove: SLUG_REMOVE_RE}); // NOSONAR — regex with /g is intentional
+    return {level: m[1].length, anchor};
+}
+
+/**
+ * Checks whether a heading terminates the current section or starts
+ * the target section.  Mutates `ctx` when the target is found.
+ * Returns the extracted section content when terminated, null otherwise.
+ */
+function processHeadingForSection(
+    heading: {level: number; anchor: string},
+    hash: string,
+    ctx: {start: number; level: number},
+    lines: string[],
+    i: number,
+): string | null {
+    if (ctx.start >= 0 && heading.level <= ctx.level) {
+        return sliceLines(lines, ctx.start, i);
+    }
+    if (ctx.start < 0 && heading.anchor === hash) {
+        ctx.start = i;
+        ctx.level = heading.level;
+    }
+    return null;
+}
+
+function extractParagraph(lines: string[], start: number): string {
+    let end = start + 1;
+    while (end < lines.length && lines[end].trim() !== '') {
+        end++;
+    }
+    return sliceLines(lines, start, end);
+}
+
+function sliceLines(lines: string[], start: number, end?: number): string {
+    return lines.slice(start, end).join('\n').trimEnd();
+}
+
+/**
+ * Extracts a section from markdown content by anchor.
+ *
+ * For heading anchors: returns content from the matched heading to the
+ * next heading of same or lower level, or EOF.
+ *
+ * For paragraph anchors ({#id} in non-heading text): returns just
+ * the paragraph containing the anchor.
+ *
+ * Skips fenced code blocks so that headings inside them do not
+ * prematurely terminate the section.
+ */
+export function extractSection(content: string, hash: string): string {
+    const lines = content.split('\n');
+    const ctx = {start: -1, level: 0};
+    const fence = newFenceState();
+
+    for (let i = 0; i < lines.length; i++) {
+        const trimmed = lines[i].trim();
+
+        if (processCodeFence(trimmed, fence)) {
+            continue;
+        }
+
+        const heading = parseHeading(trimmed);
+        if (heading) {
+            const result = processHeadingForSection(heading, hash, ctx, lines, i);
+            if (result !== null) {
+                return result;
+            }
+            continue;
+        }
+
+        if (ctx.start < 0 && CUSTOM_ANCHOR_RE.exec(trimmed)?.[1] === hash) {
+            return extractParagraph(lines, i);
+        }
+    }
+
+    return ctx.start >= 0 ? sliceLines(lines, ctx.start) : content;
 }
 
 type FallbackEntry = {key: string; content: string};
@@ -249,14 +399,34 @@ export function collectFallbackDepsWithChain(
 
 /**
  * Prepares content from a dependency for inlining: strips frontmatter,
- * optionally removes the first heading (notitle), and rebases paths.
+ * extracts section by hash, optionally removes the first heading (notitle),
+ * rebases paths, and applies indentation.
  */
-export function prepareInlinedContent(dep: HashedGraphNode, entry: NormalizedPath): string {
+export function prepareInlinedContent(
+    dep: HashedGraphNode,
+    entry: NormalizedPath,
+    parentContent: string,
+): string {
     let depContent = contentWithoutFrontmatter(dep.content);
+
+    const hashIndex = dep.link.indexOf('#');
+    if (hashIndex >= 0) {
+        depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
+    }
+
     if (NOTITLE_RE.test(dep.match)) {
         depContent = stripFirstHeading(depContent);
     }
-    return rebaseRelativePaths(depContent, dep.path, entry);
+
+    depContent = rebaseRelativePaths(depContent, dep.path, entry);
+
+    const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
+    const indent = parentContent.slice(lineStart, dep.location[0]);
+    if (indent) {
+        depContent = addIndent(depContent, indent);
+    }
+
+    return depContent;
 }
 
 /**
@@ -279,14 +449,15 @@ export function addFallbackDep(
 }
 
 /**
- * Merge includes plugin (Step 1a + 1b).
+ * Merge includes plugin (Steps 1a + 1b + 2 + 3).
  *
  * For each include dep:
- * - Simple includes (no indent, no hash, no term defs) are inlined:
- *   the {% include %} directive is replaced with rebased content.
- * - Complex includes use {% included %} fallback blocks appended at EOF.
+ * - Standalone includes (sole content on their line) without term definitions
+ *   are inlined, with indent and hash support.
+ * - Non-standalone includes (e.g. inside term definitions, inline text) and
+ *   includes with term definitions use {% included %} fallback blocks at EOF.
  *
- * parentContent is the current content of the root file (needed for indent check).
+ * parentContent is the current content of the root file (needed for context checks).
  */
 export function mergeIncludes(
     _run: Run,
@@ -314,7 +485,7 @@ export function mergeIncludes(
 
         for (const dep of deps) {
             if (canInlineInclude(dep, parentContent)) {
-                const inlinedContent = prepareInlinedContent(dep, entry);
+                const inlinedContent = prepareInlinedContent(dep, entry, parentContent);
                 scheduler.add(dep.location, inlineActor, {dep, inlinedContent});
 
                 if (dep.deps.length > 0) {

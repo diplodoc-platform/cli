@@ -41,8 +41,9 @@ function resolveColonChainKey(key: string, parentPath: NormalizedPath): Normaliz
 export function extractIncludedBlocks(
     content: string,
     parentPath: NormalizedPath,
-): {content: string; files: Record<NormalizedPath, string>} {
+): {content: string; files: Record<NormalizedPath, string>; errors: string[]} {
     const files: Record<NormalizedPath, string> = {};
+    const errors: string[] = [];
     const lines = content.split('\n');
     const cleanLines: string[] = [];
 
@@ -51,11 +52,18 @@ export function extractIncludedBlocks(
         const match = INCLUDE_REGEXP.exec(lines[i]);
         if (match) {
             const key = match[1];
+            const openLine = i + 1;
             const blockLines: string[] = [];
             i++;
             while (i < lines.length && !INCLUDE_END_REGEXP.exec(lines[i])) {
                 blockLines.push(lines[i]);
                 i++;
+            }
+
+            if (i >= lines.length) {
+                errors.push(
+                    `${parentPath}: line ${openLine}: {% included (${key}) %} block is never closed — missing {% endincluded %}`,
+                );
             }
             i++;
 
@@ -67,5 +75,5 @@ export function extractIncludedBlocks(
         }
     }
 
-    return {content: cleanLines.join('\n'), files};
+    return {content: cleanLines.join('\n'), files, errors};
 }

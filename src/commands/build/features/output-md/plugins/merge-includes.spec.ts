@@ -6,9 +6,11 @@ import {Scheduler} from '../utils';
 
 import {
     addFallbackDep,
+    addIndent,
     canInlineInclude,
     collectFallbackDepsForInlined,
     collectFallbackDepsWithChain,
+    extractSection,
     mergeIncludes,
     prepareInlinedContent,
     rebaseRelativePaths,
@@ -378,25 +380,25 @@ describe('canInlineInclude', () => {
         expect(canInlineInclude(dep, content)).toBe(true);
     });
 
-    it('should reject include with indent', () => {
+    it('should allow include with indent (Step 2)', () => {
         const content = '  {% include [label](_includes/simple.md) %}';
         const dep = makeDep({location: [2, content.length], match: content.slice(2)});
-        expect(canInlineInclude(dep, content)).toBe(false);
+        expect(canInlineInclude(dep, content)).toBe(true);
     });
 
-    it('should reject include with indent after newline', () => {
+    it('should allow include with indent after newline (Step 2)', () => {
         const content = 'Line 1\n   {% include [label](_includes/simple.md) %}';
         const dep = makeDep({location: [10, content.length], match: content.slice(10)});
-        expect(canInlineInclude(dep, content)).toBe(false);
+        expect(canInlineInclude(dep, content)).toBe(true);
     });
 
-    it('should reject include with hash fragment in link', () => {
+    it('should allow include with hash fragment in link (Step 3)', () => {
         const content = '{% include [label](_includes/file.md#section) %}';
         const dep = makeDep({
             location: [0, content.length],
             link: '_includes/file.md#section',
         });
-        expect(canInlineInclude(dep, content)).toBe(false);
+        expect(canInlineInclude(dep, content)).toBe(true);
     });
 
     it('should reject include when content has term definitions', () => {
@@ -408,11 +410,104 @@ describe('canInlineInclude', () => {
         expect(canInlineInclude(dep, content)).toBe(false);
     });
 
+    it('should reject include when content has term definitions with hyphens', () => {
+        const content = '{% include [label](_includes/terms.md) %}';
+        const dep = makeDep({
+            location: [0, content.length],
+            content: '# Terms\n\n[*ekat-mgt]: Some definition',
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
     it('should allow include with notitle modifier', () => {
         const content = '{% include notitle [label](_includes/simple.md) %}';
         const dep = makeDep({
             location: [0, content.length],
             match: content,
+        });
+        expect(canInlineInclude(dep, content)).toBe(true);
+    });
+
+    it('should reject include inside a term definition', () => {
+        const includeDirective = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const content = `[*placeID]: ${includeDirective}`;
+        const dep = makeDep({
+            location: [13, content.length],
+            match: includeDirective,
+            link: '_includes/v.1.md#placeID',
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should reject include inside a term definition after newline', () => {
+        const includeDirective = '{% include notitle [desc](_includes/v.1.md#sync) %}';
+        const content = `# Title\n\n[*syncFactor]: ${includeDirective}`;
+        const dep = makeDep({
+            location: [content.indexOf('{%'), content.length],
+            match: includeDirective,
+            link: '_includes/v.1.md#sync',
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should reject include with text after it on the same line', () => {
+        const includeDirective = '{% include [label](_includes/simple.md) %}';
+        const content = `${includeDirective} some trailing text`;
+        const dep = makeDep({
+            location: [0, includeDirective.length],
+            match: includeDirective,
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should reject include inline within a sentence', () => {
+        const includeDirective = '{% include [label](_includes/simple.md) %}';
+        const content = `See ${includeDirective} for details.`;
+        const dep = makeDep({
+            location: [4, 4 + includeDirective.length],
+            match: includeDirective,
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should reject standalone include that appears after first term definition', () => {
+        const includeDirective = '{% include notitle [note](_includes/notes.md#banner) %}';
+        const content = [
+            '[*placeID]: {% include notitle [desc](_includes/v.1.md#placeID) %}',
+            '    ',
+            includeDirective,
+        ].join('\n');
+        const startPos = content.indexOf(includeDirective);
+        const dep = makeDep({
+            location: [startPos, startPos + includeDirective.length],
+            match: includeDirective,
+            link: '_includes/notes.md#banner',
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should reject standalone include after term definition with hyphens in name', () => {
+        const includeDirective = '{% include [desc](_includes/storages/ekat-mgt.md) %}';
+        const content = [
+            '[*ekat-mgt]:',
+            '   {% include [ekat-mgt](_includes/storages/ekat-mgt.md) %}',
+            '',
+            includeDirective,
+        ].join('\n');
+        const startPos = content.indexOf(includeDirective);
+        const dep = makeDep({
+            location: [startPos, startPos + includeDirective.length],
+            match: includeDirective,
+        });
+        expect(canInlineInclude(dep, content)).toBe(false);
+    });
+
+    it('should allow standalone include that appears before first term definition', () => {
+        const includeDirective = '{% include [ch](_includes/chapter.md) %}';
+        const content = [includeDirective, '', '[*term]: Definition here'].join('\n');
+        const dep = makeDep({
+            location: [0, includeDirective.length],
+            match: includeDirective,
         });
         expect(canInlineInclude(dep, content)).toBe(true);
     });
@@ -474,6 +569,130 @@ describe('stripHash', () => {
 
     it('should strip only the first hash', () => {
         expect(stripHash('file.md#a#b')).toBe('file.md');
+    });
+});
+
+describe('addIndent', () => {
+    it('should return content unchanged when no indent', () => {
+        expect(addIndent('Line 1\nLine 2', '')).toBe('Line 1\nLine 2');
+    });
+
+    it('should not indent first line', () => {
+        expect(addIndent('Line 1\nLine 2\nLine 3', '  ')).toBe('Line 1\n  Line 2\n  Line 3');
+    });
+
+    it('should not indent empty lines', () => {
+        expect(addIndent('Line 1\n\nLine 3', '  ')).toBe('Line 1\n\n  Line 3');
+    });
+
+    it('should handle single line content', () => {
+        expect(addIndent('Only line', '   ')).toBe('Only line');
+    });
+
+    it('should handle tab indent', () => {
+        expect(addIndent('A\nB', '\t')).toBe('A\n\tB');
+    });
+
+    it('should preserve CRLF line endings (Windows)', () => {
+        expect(addIndent('Line 1\r\nLine 2\r\nLine 3', '  ')).toBe(
+            'Line 1\r\n  Line 2\r\n  Line 3',
+        );
+    });
+
+    it('should preserve CR line endings (old Mac)', () => {
+        expect(addIndent('Line 1\rLine 2\rLine 3', '  ')).toBe('Line 1\r  Line 2\r  Line 3');
+    });
+
+    it('should not indent empty lines with CRLF', () => {
+        expect(addIndent('Line 1\r\n\r\nLine 3', '  ')).toBe('Line 1\r\n\r\n  Line 3');
+    });
+});
+
+describe('extractSection', () => {
+    it('should extract section by explicit anchor', () => {
+        const content = '# Other\n\nIgnored.\n\n## Target {#my-section}\n\nContent.\n\n## Next';
+        expect(extractSection(content, 'my-section')).toBe('## Target {#my-section}\n\nContent.');
+    });
+
+    it('should extract section by auto-generated slug', () => {
+        const content = '# First\n\nSkip.\n\n## Getting Started\n\nTarget.';
+        expect(extractSection(content, 'getting-started')).toBe('## Getting Started\n\nTarget.');
+    });
+
+    it('should extract section until heading of same level', () => {
+        const content = '## A\n\nContent A.\n\n## B\n\nContent B.';
+        expect(extractSection(content, 'a')).toBe('## A\n\nContent A.');
+    });
+
+    it('should extract section until heading of lower level', () => {
+        const content = '### Deep\n\nContent.\n\n## Shallow\n\nAfter.';
+        expect(extractSection(content, 'deep')).toBe('### Deep\n\nContent.');
+    });
+
+    it('should extract section to EOF if no following heading', () => {
+        const content = '# Intro\n\n## Only Section\n\nAll content here.';
+        expect(extractSection(content, 'only-section')).toBe(
+            '## Only Section\n\nAll content here.',
+        );
+    });
+
+    it('should include sub-headings in the section', () => {
+        const content = '## Main\n\nText.\n\n### Sub\n\nSub text.\n\n## Next';
+        expect(extractSection(content, 'main')).toBe('## Main\n\nText.\n\n### Sub\n\nSub text.');
+    });
+
+    it('should return full content if hash not found', () => {
+        const content = '# Title\n\nBody.';
+        expect(extractSection(content, 'nonexistent')).toBe(content);
+    });
+
+    it('should handle heading with trailing anchor attributes', () => {
+        const content = '## Setup {#setup}\n\nSetup text.\n\n## Usage';
+        expect(extractSection(content, 'setup')).toBe('## Setup {#setup}\n\nSetup text.');
+    });
+
+    it('should skip headings inside fenced code blocks', () => {
+        const content = [
+            '## Section {#target}',
+            '',
+            '{% list tabs %}',
+            '',
+            '- Tab 1',
+            '',
+            '    ```',
+            '    # Heading inside code block',
+            '    ## Another heading',
+            '    ```',
+            '',
+            '    More content.',
+            '',
+            '{% endlist %}',
+            '',
+            '## Next',
+        ].join('\n');
+        const result = extractSection(content, 'target');
+        expect(result).toContain('{% list tabs %}');
+        expect(result).toContain('# Heading inside code block');
+        expect(result).toContain('{% endlist %}');
+        expect(result).not.toContain('## Next');
+    });
+
+    it('should handle 4+ backtick fences in extractSection', () => {
+        const content = [
+            '## Section {#target}',
+            '',
+            '````',
+            '## Fake heading',
+            '````',
+            '',
+            'After code.',
+            '',
+            '## Next',
+        ].join('\n');
+        const result = extractSection(content, 'target');
+        expect(result).toContain('## Fake heading');
+        expect(result).toContain('After code.');
+        expect(result).not.toContain('## Next');
     });
 });
 
@@ -632,43 +851,102 @@ describe('collectFallbackDepsWithChain', () => {
 
 describe('prepareInlinedContent', () => {
     it('should strip frontmatter and rebase paths', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
         const dep = makeDep({
             path: '_includes/chapter.md' as NormalizedPath,
             content: '---\ntitle: Chapter\n---\n[link](./local.md)',
-            match: '{% include [ch](_includes/chapter.md) %}',
+            match: parentContent,
+            location: [0, parentContent.length],
         });
-        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath);
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
         expect(result).toBe('[link](_includes/local.md)');
     });
 
     it('should strip first heading when notitle', () => {
+        const parentContent = '{% include notitle [ch](_includes/chapter.md) %}';
         const dep = makeDep({
             path: '_includes/chapter.md' as NormalizedPath,
             content: '# Chapter Title\n\nBody text.',
-            match: '{% include notitle [ch](_includes/chapter.md) %}',
+            match: parentContent,
+            location: [0, parentContent.length],
         });
-        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath);
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
         expect(result).toBe('Body text.');
     });
 
     it('should not strip heading without notitle', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
         const dep = makeDep({
             path: '_includes/chapter.md' as NormalizedPath,
             content: '# Chapter Title\n\nBody.',
-            match: '{% include [ch](_includes/chapter.md) %}',
+            match: parentContent,
+            location: [0, parentContent.length],
         });
-        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath);
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
         expect(result).toBe('# Chapter Title\n\nBody.');
     });
 
     it('should not rebase when same directory', () => {
+        const parentContent = '{% include [ch](docs/chapter.md) %}';
         const dep = makeDep({
             path: 'docs/chapter.md' as NormalizedPath,
             content: '[link](./local.md)',
-            match: '{% include [ch](docs/chapter.md) %}',
+            match: parentContent,
+            location: [0, parentContent.length],
         });
-        const result = prepareInlinedContent(dep, 'docs/main.md' as NormalizedPath);
+        const result = prepareInlinedContent(dep, 'docs/main.md' as NormalizedPath, parentContent);
         expect(result).toBe('[link](./local.md)');
+    });
+
+    it('should add indent when include is indented (Step 2)', () => {
+        const parentContent = '   {% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            content: 'Line 1\nLine 2\nLine 3',
+            match: '{% include [ch](_includes/chapter.md) %}',
+            location: [3, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
+        expect(result).toBe('Line 1\n   Line 2\n   Line 3');
+    });
+
+    it('should preserve tab+space indent from parent (mixed whitespace)', () => {
+        const parentContent = '\t {% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            content: 'Line 1\nLine 2',
+            match: '{% include [ch](_includes/chapter.md) %}',
+            location: [2, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
+        expect(result).toBe('Line 1\n\t Line 2');
+    });
+
+    it('should extract section by hash (Step 3)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md#intro) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md#intro',
+            content:
+                '# Other\n\nIgnored.\n\n## Introduction {#intro}\n\nTarget content.\n\n## Next',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
+        expect(result).toBe('## Introduction {#intro}\n\nTarget content.');
+    });
+
+    it('should extract section by auto-generated slug (Step 3)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md#getting-started) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md#getting-started',
+            content: '# Intro\n\nSkipped.\n\n## Getting Started\n\nTarget.',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
+        expect(result).toBe('## Getting Started\n\nTarget.');
     });
 });
 
@@ -757,35 +1035,32 @@ describe('mergeIncludes', () => {
         expect(result).toBe('Inlined text.');
     });
 
-    it('should produce fallback block for include with hash', async () => {
-        const parentContent = '{% include [label](_includes/file.md#section) %}';
+    it('should inline include with hash, extracting section (Step 3)', async () => {
+        const parentContent = '{% include [label](_includes/file.md#intro) %}';
         const dep = makeDep({
             path: '_includes/file.md' as NormalizedPath,
-            link: '_includes/file.md#section',
+            link: '_includes/file.md#intro',
             match: parentContent,
             location: [0, parentContent.length],
-            content: '# Section\n\nContent.',
+            content: '# Other\n\nSkip.\n\n## Introduction {#intro}\n\nContent.',
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toContain(parentContent);
-        expect(result).toContain('{% included (_includes/file.md) %}');
-        expect(result).toContain('{% endincluded %}');
+        expect(result).toBe('## Introduction {#intro}\n\nContent.');
     });
 
-    it('should produce fallback block for indented include', async () => {
+    it('should inline indented include with addIndent (Step 2)', async () => {
         const parentContent = 'Text before\n  {% include [label](_includes/indented.md) %}';
         const dep = makeDep({
             path: '_includes/indented.md' as NormalizedPath,
             link: '_includes/indented.md',
             match: '{% include [label](_includes/indented.md) %}',
             location: [14, parentContent.length],
-            content: 'Fallback content.',
+            content: 'Line 1\nLine 2',
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toContain(parentContent);
-        expect(result).toContain('{% included (_includes/indented.md) %}');
+        expect(result).toBe('Text before\n  Line 1\n  Line 2');
     });
 
     it('should inline with notitle stripping heading', async () => {
@@ -838,9 +1113,9 @@ describe('mergeIncludes', () => {
         expect(result).toContain('Inner content.');
     });
 
-    it('should handle mix of inlined and fallback deps', async () => {
+    it('should handle mix of inlined and fallback deps (terms cause fallback)', async () => {
         const inlinePart = '{% include [a](_includes/a.md) %}';
-        const fallbackPart = '{% include [b](_includes/b.md#sec) %}';
+        const fallbackPart = '{% include [b](_includes/b.md) %}';
         const parentContent = `${inlinePart}\n${fallbackPart}`;
 
         const depA = makeDep({
@@ -853,10 +1128,10 @@ describe('mergeIncludes', () => {
         });
         const depB = makeDep({
             path: '_includes/b.md' as NormalizedPath,
-            link: '_includes/b.md#sec',
+            link: '_includes/b.md',
             match: fallbackPart,
             location: [inlinePart.length + 1, parentContent.length],
-            content: '# Section\n\nContent B.',
+            content: 'Content B.\n\n[*term]: Definition',
             deps: [],
         });
         const result = await runMerge([depA, depB], parentContent, 'main.md' as NormalizedPath);
@@ -865,8 +1140,8 @@ describe('mergeIncludes', () => {
         expect(result).toContain('{% included (_includes/b.md) %}');
     });
 
-    it('should collect nested deps of fallback include with colon-chain', async () => {
-        const parentContent = '{% include [a](_includes/a.md#sec) %}';
+    it('should collect nested deps of fallback include with colon-chain (term-based fallback)', async () => {
+        const parentContent = '{% include [a](_includes/a.md) %}';
         const inner = makeDep({
             path: '_includes/inner.md' as NormalizedPath,
             link: 'inner.md',
@@ -875,14 +1150,89 @@ describe('mergeIncludes', () => {
         });
         const dep = makeDep({
             path: '_includes/a.md' as NormalizedPath,
-            link: '_includes/a.md#sec',
+            link: '_includes/a.md',
             match: parentContent,
             location: [0, parentContent.length],
-            content: 'Parent content with include.',
+            content: 'Content.\n\n[*term]: Definition here',
             deps: [inner],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
         expect(result).toContain('{% included (_includes/a.md) %}');
         expect(result).toContain('{% included (_includes/a.md:inner.md) %}');
+    });
+
+    it('should NOT inline include inside a term definition (non-standalone)', async () => {
+        const includeDirective = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const parentContent = `[*placeID]: ${includeDirective}`;
+        const dep = makeDep({
+            path: '_includes/v.1.md' as NormalizedPath,
+            link: '_includes/v.1.md#placeID',
+            match: includeDirective,
+            location: [13, parentContent.length],
+            content:
+                '## PlaceID {#placeID}\n\nID площадки.\n\nЧитайте также:\n\n- [Список](list.md)',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        expect(result).toContain('[*placeID]:');
+        expect(result).toContain(includeDirective);
+        expect(result).toContain('{% included (_includes/v.1.md) %}');
+    });
+
+    it('should NOT inline include in inline text context', async () => {
+        const includeDirective = '{% include [snippet](_includes/note.md) %}';
+        const parentContent = `See ${includeDirective} for details.`;
+        const dep = makeDep({
+            path: '_includes/note.md' as NormalizedPath,
+            link: '_includes/note.md',
+            match: includeDirective,
+            location: [4, 4 + includeDirective.length],
+            content: 'Important note.\n\nWith details.',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        expect(result).toContain('See {% include');
+        expect(result).toContain('{% included (_includes/note.md) %}');
+    });
+
+    it('should NOT inline standalone include after first term definition', async () => {
+        const termInclude = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const noteInclude = '{% include notitle [note](_includes/notes.md#banner) %}';
+        const parentContent = [`[*placeID]: ${termInclude}`, '    ', noteInclude].join('\n');
+
+        const termStart = parentContent.indexOf(termInclude);
+        const noteStart = parentContent.indexOf(noteInclude);
+
+        const depTerm = makeDep({
+            path: '_includes/v.1.md' as NormalizedPath,
+            link: '_includes/v.1.md#placeID',
+            match: termInclude,
+            location: [termStart, termStart + termInclude.length],
+            content: '## PlaceID {#placeID}\n\nID площадки.',
+            deps: [],
+        });
+        const depNote = makeDep({
+            path: '_includes/notes.md' as NormalizedPath,
+            link: '_includes/notes.md#banner',
+            match: noteInclude,
+            location: [noteStart, noteStart + noteInclude.length],
+            content: '## Banner {#banner}\n\n{% note info %}\n\nWarning text.\n\n{% endnote %}',
+            deps: [],
+        });
+
+        const result = await runMerge(
+            [depTerm, depNote],
+            parentContent,
+            'main.md' as NormalizedPath,
+        );
+
+        expect(result).toContain(termInclude);
+        expect(result).toContain(noteInclude);
+        expect(result).toContain('{% included (_includes/v.1.md) %}');
+        expect(result).toContain('{% included (_includes/notes.md) %}');
+
+        const mainContent = result.split('{% included')[0];
+        expect(mainContent).not.toContain('{% note info %}');
+        expect(mainContent).not.toContain('ID площадки');
     });
 });

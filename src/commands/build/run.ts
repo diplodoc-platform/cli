@@ -115,10 +115,14 @@ export class Run extends BaseRun<BuildConfig> {
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
-        const {content: cleanMarkdown, files: includedFiles} = extractIncludedBlocks(
-            markdown,
-            file,
-        );
+        const {
+            content: cleanMarkdown,
+            files: includedFiles,
+            errors,
+        } = extractIncludedBlocks(markdown, file);
+        for (const error of errors) {
+            this.logger.error(error);
+        }
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
         const assetsRemap = await remap(assets.map(get('path')), async (path) => {
@@ -153,10 +157,14 @@ export class Run extends BaseRun<BuildConfig> {
     async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
-        const {content: cleanMarkdown, files: includedFiles} = extractIncludedBlocks(
-            markdown,
-            file,
-        );
+        const {
+            content: cleanMarkdown,
+            files: includedFiles,
+            errors,
+        } = extractIncludedBlocks(markdown, file);
+        for (const error of errors) {
+            this.logger.error(error);
+        }
 
         const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
         const assetsRemap = await remap(assets.map(get('path')), async (path) => {
