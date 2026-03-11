@@ -3,8 +3,12 @@ langs: ['en','ru']
 
 neuroExpert:
   projectId:
-    en: none
+    en: false
     ru: 77fac9c9ad9811f0997f4641db830dfd
     default: 77fac9c9ad9811f0997f4641db830dfd
   parentId: null
   disabled: false
+  customLabel:
+    en: false
+    ru: 'new label'
+    default: 'default label'

@@ -19,6 +19,13 @@ export function getNeuroExpertCsp(): Hash<string[]>[] {
     ];
 }
 
+export function resolveByLang(
+    map: Record<string, string> | undefined,
+    lang: string,
+): string | undefined {
+    return map?.[lang] ?? map?.default ?? undefined;
+}
+
 export function getNeuroExpertScript(
     projectId: string,
     neuroExpert: NeuroExpertBase,

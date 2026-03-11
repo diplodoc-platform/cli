@@ -4,7 +4,7 @@ import {getEntryHooks} from '~/commands/build';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getBuildHooks} from '~/commands';
 
-import {getNeuroExpertCsp, getNeuroExpertScript} from './utils';
+import {getNeuroExpertCsp, getNeuroExpertScript, resolveByLang} from './utils';
 
 export type NeuroExpertConfig = {
     neuroExpert: NeuroExpertBase;
@@ -52,19 +52,13 @@ export class NeuroExpert {
                         ...(meta.neuroExpert ?? {}),
                     };
 
-                    const projectId =
-                        neuroExpert.projectId?.[template.lang] ??
-                        neuroExpert.projectId?.default ??
-                        undefined;
+                    const projectId = resolveByLang(neuroExpert.projectId, template.lang);
 
                     if (!neuroExpert || neuroExpert.disabled || !projectId) {
                         return;
                     }
 
-                    const customLabel =
-                        neuroExpert.customLabel?.[template.lang] ??
-                        neuroExpert.customLabel?.default ??
-                        undefined;
+                    const customLabel = resolveByLang(neuroExpert.customLabel, template.lang);
 
                     const neuroExpertCsp = getNeuroExpertCsp();
 

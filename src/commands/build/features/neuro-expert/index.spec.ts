@@ -2,7 +2,7 @@ import type {NeuroExpertConfig} from './index';
 
 import {describe, expect, it, vi} from 'vitest';
 
-import {getNeuroExpertCsp, getNeuroExpertScript} from './utils';
+import {getNeuroExpertCsp, getNeuroExpertScript, resolveByLang} from './utils';
 
 vi.mock('~/commands/build', () => ({
     getEntryHooks: vi.fn(),
@@ -161,6 +161,33 @@ describe('NeuroExpert utils', () => {
             expect(script).toContain(`neuroExpertDiv.id = "${customParentId}"`);
             expect(script).toContain(`"parentId":"${customParentId}"`);
         });
+
+        it('should include customLabel in settings when provided', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({projectId: {default: projectId}});
+
+            const script = getNeuroExpertScript(projectId, config.neuroExpert, 'My Label');
+
+            expect(script).toContain('"customLabel":"My Label"');
+        });
+
+        it('should not include customLabel in settings when not provided', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({projectId: {default: projectId}});
+
+            const script = getNeuroExpertScript(projectId, config.neuroExpert);
+
+            expect(script).not.toContain('"customLabel"');
+        });
+
+        it('should not include customLabel in settings when undefined', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({projectId: {default: projectId}});
+
+            const script = getNeuroExpertScript(projectId, config.neuroExpert, undefined);
+
+            expect(script).not.toContain('"customLabel"');
+        });
     });
 
     describe('NeuroExpert config', () => {
@@ -211,6 +238,26 @@ describe('NeuroExpert utils', () => {
             });
 
             expect(config.neuroExpert.projectId?.default).toBeUndefined();
+        });
+
+        it('should handle customLabel per locale', () => {
+            const config = createNeuroExpertConfig({
+                customLabel: {
+                    ru: 'Помощь',
+                    en: 'Help',
+                    default: 'Support',
+                },
+            });
+
+            expect(config.neuroExpert.customLabel?.ru).toBe('Помощь');
+            expect(config.neuroExpert.customLabel?.en).toBe('Help');
+            expect(config.neuroExpert.customLabel?.default).toBe('Support');
+        });
+
+        it('should handle missing customLabel', () => {
+            const config = createNeuroExpertConfig({customLabel: undefined});
+
+            expect(config.neuroExpert.customLabel).toBeUndefined();
         });
 
         it('should handle missing projectId entirely', () => {
@@ -325,6 +372,63 @@ describe('NeuroExpert utils', () => {
                 undefined;
 
             expect(ruProjectId).toBeUndefined();
+        });
+    });
+
+    describe('customLabel Locale Selection Logic', () => {
+        it('should select customLabel for specific locale', () => {
+            const config = createNeuroExpertConfig({
+                customLabel: {ru: 'Помощь', en: 'Help', default: 'Support'},
+            });
+
+            const label =
+                config.neuroExpert.customLabel?.ru ??
+                config.neuroExpert.customLabel?.default ??
+                undefined;
+
+            expect(label).toBe('Помощь');
+        });
+
+        it('should fall back to default customLabel when specific locale is missing', () => {
+            const config = createNeuroExpertConfig({
+                customLabel: {ru: 'Помощь', default: 'Support'},
+            });
+
+            const label =
+                config.neuroExpert.customLabel?.en ??
+                config.neuroExpert.customLabel?.default ??
+                undefined;
+
+            expect(label).toBe('Support');
+        });
+
+        it('should return undefined when customLabel is not set', () => {
+            const config = createNeuroExpertConfig({customLabel: undefined});
+
+            const label =
+                config.neuroExpert.customLabel?.ru ??
+                config.neuroExpert.customLabel?.default ??
+                undefined;
+
+            expect(label).toBeUndefined();
+        });
+    });
+
+    describe('resolveByLang', () => {
+        it('should return value for specific lang', () => {
+            expect(resolveByLang({ru: 'Помощь', default: 'Support'}, 'ru')).toBe('Помощь');
+        });
+
+        it('should fall back to default when lang is missing', () => {
+            expect(resolveByLang({ru: 'Помощь', default: 'Support'}, 'en')).toBe('Support');
+        });
+
+        it('should return undefined when both lang and default are missing', () => {
+            expect(resolveByLang({ru: 'Помощь'}, 'en')).toBeUndefined();
+        });
+
+        it('should return undefined when map is undefined', () => {
+            expect(resolveByLang(undefined, 'ru')).toBeUndefined();
         });
     });
 });
