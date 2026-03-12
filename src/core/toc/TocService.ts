@@ -387,19 +387,18 @@ export class TocService {
                 const fm = fmMatch
                     ? ((load(fmMatch[1]) as Record<string, unknown> | null) ?? {})
                     : {};
-                const fmVcsPath = fm.vcsPath as string | undefined;
-                const fmSourcePath = fm.sourcePath as string | undefined;
-                if (fmVcsPath) {
-                    this.meta.add(to, {vcsPath: fmVcsPath as NormalizedPath});
-                } else if (fmSourcePath) {
-                    this.meta.add(to, {sourcePath: fmSourcePath as NormalizedPath});
-                } else if (this.options.mode === 'translate') {
-                    this.meta.add(to, {sourcePath: from as NormalizedPath});
+                const vcsPath = fm.vcsPath as NormalizedPath | undefined;
+                const sourcePath =
+                    (fm.sourcePath as NormalizedPath | undefined) ||
+                    (this.options.mode === 'translate' ? (from as NormalizedPath) : undefined);
+                if (vcsPath) {
+                    this.meta.add(to, {vcsPath});
+                } else if (sourcePath) {
+                    this.meta.add(to, {sourcePath});
                 }
                 this.logger.copy(pair[0], pair[1]);
             }
         }
-
         const toc = (await loader.call(context, content)) as Toc;
 
         await getHooks(this).Included.promise(toc, include);
