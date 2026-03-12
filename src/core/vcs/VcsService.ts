@@ -175,10 +175,6 @@ export class VcsService implements VcsConnector {
             return normalizePath(meta.sourcePath);
         }
 
-        if (meta.mergeFrom) {
-            return normalizePath(join(base, meta.mergeFrom));
-        }
-
         return normalizePath(join(base, file));
     }
 }

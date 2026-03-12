@@ -110,8 +110,7 @@ exports[`Include with Meta > mode:merge should set sourcePath pointing to origin
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-mergeFrom: src/plain.md
-vcsPath: src/plain.md
+vcsPath: plain.md
 ---
 # Plain Article
 
@@ -125,8 +124,7 @@ exports[`Include with Meta > mode:merge should set sourcePath pointing to origin
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-mergeFrom: src-nested/inner/nested.md
-vcsPath: src-nested/inner/nested.md
+vcsPath: src-nested/nested.md
 ---
 # Double-Merged Article
 
@@ -169,7 +167,6 @@ metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: custom/source/path/with-source.md
-mergeFrom: src/with-source.md
 vcsPath: custom/source/path/with-source.md
 ---
 
@@ -185,7 +182,6 @@ exports[`Include with Meta > mode:merge should set sourcePath pointing to origin
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-mergeFrom: src/with-vcs.md
 vcsPath: custom/vcs/path/with-vcs.md
 ---
 

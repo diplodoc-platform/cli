@@ -27,7 +27,6 @@ const excludedMetaFields = [
     'updatedAt',
     'sourcePath',
     'vcsPath',
-    'mergeFrom',
     'noIndex',
     'canonical',
     'alternate',
