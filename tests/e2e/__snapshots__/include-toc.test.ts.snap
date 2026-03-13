@@ -16,20 +16,14 @@ exports[`Include toc > Nested toc inclusions with mixed including modes > fileli
 ]"
 `;
 
-exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `
-"---
-sourcePath: product1/core/_includes/inc.md
----
-This is the core include."
-`;
+exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `"This is the core include."`;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: product1/core/article1.md
-vcsPath: product1/core/article1.md
+vcsPath: product1/article1.md
 ---
 This is the core content of Article 1.
 
@@ -68,10 +62,7 @@ path: product1/toc.yaml
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -80,8 +71,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 5`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: product2/overlay1/product/article1.md
-vcsPath: product2/overlay1/product/article1.md
+vcsPath: product2/overlay1/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
 
@@ -90,10 +80,7 @@ This is the overlay content of Article 1 for product 2.
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -102,8 +89,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: product2/overlay2/product/article1.md
-vcsPath: product2/overlay2/product/article1.md
+vcsPath: product2/overlay2/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
@@ -112,10 +98,7 @@ This is the overlay number #2  of Article 1 content for product 2.
 `;
 
 exports[`Include toc > Nested toc inclusions with mixed including modes 8`] = `
-"---
-sourcePath: product2/core/_includes/inc.md
----
-This is the core include.
+"This is the core include.
 "
 `;
 
@@ -124,8 +107,7 @@ exports[`Include toc > Nested toc inclusions with mixed including modes 9`] = `
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: product2/core/article1.md
-vcsPath: product2/core/article1.md
+vcsPath: product2/overlay3/article1.md
 ---
 This is the core content of Article 1.
 
@@ -225,113 +207,6 @@ path: toc.yaml
 "
 `;
 
-exports[`Include toc > Toc is included inline, not as a new section > filelist 1`] = `
-"[
-  ".yfm",
-  "file1.md",
-  "fileA.md",
-  "fileB.md",
-  "fileC.md",
-  "fileX.md",
-  "toc.yaml"
-]"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 1`] = `
-"applyPresets: true
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 2`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: file1.md
----
-# File 1
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 3`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: folder/fileA.md
-title: File A
-description: YFM description
-vcsPath: folder/fileA.md
----
-# File A
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 4`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: folder/fileB.md
-vcsPath: folder/fileB.md
----
-# File B
-
-Lorem Ipsum is simply dummy text of the printing and typesetting industry.
-
----
-
-Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
-
----
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 5`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: folder/folder/fileC.md
-vcsPath: folder/folder/fileC.md
----
-# File C
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 6`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-vcsPath: fileX.md
----
-# File X
-"
-`;
-
-exports[`Include toc > Toc is included inline, not as a new section 7`] = `
-"items:
-  - name: Name1
-    href: file1.md
-  - name: NameA
-    href: fileA.md
-  - name: NameB
-    href: fileB.md
-  - name: NameC
-    href: fileC.md
-  - name: NameX
-    href: fileX.md
-path: toc.yaml
-"
-`;
-
 exports[`Include toc > Toc root merge on non root dir > filelist 1`] = `
 "[
   ".yfm",
@@ -357,9 +232,8 @@ meta:
       content: Diplodoc Platform vDIPLODOC-VERSION
   alternate:
     - ru/
-  sourcePath: ru/sub/folder/index.yaml
   canonical: ru/index.html
-  vcsPath: ru/sub/folder/index.yaml
+  vcsPath: ru/index.yaml
 "
 `;
 

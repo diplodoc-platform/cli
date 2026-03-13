@@ -17,4 +17,15 @@ describe('Include with Meta', () => {
 
         await compareDirectories(outputPath);
     });
+
+    test('mode:merge should set sourcePath pointing to original file, not merged copy', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc-sourcepath');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+        });
+
+        await compareDirectories(outputPath);
+    });
 });

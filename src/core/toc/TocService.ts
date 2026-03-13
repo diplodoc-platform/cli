@@ -1,6 +1,7 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
+import type {VcsService} from '~/core/vcs';
 import type {
     EntryTocItem,
     GraphData,
@@ -68,6 +69,7 @@ type WalkOptions<T> = {
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
     meta: MetaService;
+    vcs?: VcsService;
 };
 
 type Options = Partial<{
@@ -380,12 +382,23 @@ export class TocService {
                 const [from, to] = pair.map((path) =>
                     normalizePath(relative(this.run.input, path)),
                 );
-                const {sourcePath, vcsPath} = this.meta.get(from);
-                this.meta.add(to, {sourcePath: vcsPath || sourcePath || from});
+                const raw = (await this.run.read(pair[0] as AbsolutePath)) || '';
+                const fmMatch = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+                const fm = fmMatch
+                    ? ((load(fmMatch[1]) as Record<string, unknown> | null) ?? {})
+                    : {};
+                const vcsPath = fm.vcsPath as NormalizedPath | undefined;
+                const sourcePath =
+                    (fm.sourcePath as NormalizedPath | undefined) ||
+                    (this.options.mode === 'translate' ? (from as NormalizedPath) : undefined);
+                if (vcsPath) {
+                    this.meta.add(to, {vcsPath});
+                } else if (sourcePath) {
+                    this.meta.add(to, {sourcePath});
+                }
                 this.logger.copy(pair[0], pair[1]);
             }
         }
-
         const toc = (await loader.call(context, content)) as Toc;
 
         await getHooks(this).Included.promise(toc, include);

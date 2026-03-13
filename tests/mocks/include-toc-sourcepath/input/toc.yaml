@@ -1,0 +1,8 @@
+title: Test sourcePath with include modes
+href: index.md
+items:
+  - name: Index
+    href: index.md
+  - include: {mode: merge, path: src/toc.yaml}
+  - name: Linked section
+    include: {mode: link, path: linked/toc.yaml}

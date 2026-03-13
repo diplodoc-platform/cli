@@ -65,3 +65,129 @@ exports[`Include with Meta > Build with PAGE_PROCESS_CONCURRENCY=1 should preser
 path: toc.yaml
 "
 `;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy > filelist 1`] = `
+"[
+  "index.md",
+  "linked/linked-plain.md",
+  "plain.md",
+  "src-nested/nested.md",
+  "src-nested/toc.yaml",
+  "toc.yaml",
+  "with-source.md",
+  "with-vcs.md"
+]"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Root index page.
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: linked/linked-plain.md
+---
+# Linked Article
+
+Linked article (mode: link) - no file copying, vcsPath computed from original path.
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: plain.md
+---
+# Plain Article
+
+Merged article with no frontmatter vcsPath or sourcePath.
+sourcePath in output should point to original: src/plain.md
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: src-nested/nested.md
+---
+# Double-Merged Article
+
+Article merged twice (merge of merge).
+sourcePath should still point to original: src-nested/inner/nested.md
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 5`] = `
+"items:
+  - name: Double-merged article
+    href: nested.md
+path: src-nested/toc.yaml
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 6`] = `
+"title: Test sourcePath with include modes
+href: index.md
+items:
+  - name: Index
+    href: index.md
+  - name: Plain article
+    href: plain.md
+  - name: Article with explicit vcsPath
+    href: with-vcs.md
+  - name: Article with explicit sourcePath
+    href: with-source.md
+  - name: Linked section
+    items:
+      - name: Linked article
+        href: linked/linked-plain.md
+path: toc.yaml
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 7`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: custom/source/path/with-source.md
+vcsPath: custom/source/path/with-source.md
+---
+
+# Article With Explicit sourcePath
+
+Merged article with explicit sourcePath in frontmatter.
+sourcePath should be preserved after merge.
+"
+`;
+
+exports[`Include with Meta > mode:merge should set sourcePath pointing to original file, not merged copy 8`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: custom/vcs/path/with-vcs.md
+---
+
+# Article With Explicit vcsPath
+
+Merged article with explicit vcsPath in frontmatter.
+vcsPath should be preserved and used as sourcePath after merge.
+"
+`;
