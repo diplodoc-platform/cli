@@ -859,7 +859,9 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('[link](_includes/local.md)');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n[link](_includes/local.md)\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should strip first heading when notitle', () => {
@@ -871,7 +873,9 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('Body text.');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\nBody text.\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should not strip heading without notitle', () => {
@@ -883,7 +887,9 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('# Chapter Title\n\nBody.');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n# Chapter Title\n\nBody.\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should not rebase when same directory', () => {
@@ -895,7 +901,9 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'docs/main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('[link](./local.md)');
+        expect(result).toBe(
+            '<!-- source: docs/chapter.md -->\n[link](./local.md)\n<!-- endsource: docs/chapter.md -->',
+        );
     });
 
     it('should add indent when include is indented (Step 2)', () => {
@@ -907,7 +915,9 @@ describe('prepareInlinedContent', () => {
             location: [3, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('Line 1\n   Line 2\n   Line 3');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n   Line 1\n   Line 2\n   Line 3\n   <!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should preserve tab+space indent from parent (mixed whitespace)', () => {
@@ -919,7 +929,9 @@ describe('prepareInlinedContent', () => {
             location: [2, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('Line 1\n\t Line 2');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n\t Line 1\n\t Line 2\n\t <!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should extract section by hash (Step 3)', () => {
@@ -933,7 +945,9 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('## Introduction {#intro}\n\nTarget content.');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n## Introduction {#intro}\n\nTarget content.\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should extract section by auto-generated slug (Step 3)', () => {
@@ -946,7 +960,92 @@ describe('prepareInlinedContent', () => {
             location: [0, parentContent.length],
         });
         const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
-        expect(result).toBe('## Getting Started\n\nTarget.');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n## Getting Started\n\nTarget.\n<!-- endsource: _includes/chapter.md -->',
+        );
+    });
+
+    it('should add source map comment when enabled (Step 5)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: '# Chapter Title\n\nBody text.',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent, true);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should not add source map comment when disabled (Step 5)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: '# Chapter Title\n\nBody text.',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(
+            dep,
+            'main.md' as NormalizedPath,
+            parentContent,
+            false,
+        );
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should add source map comment after leading empty lines (Step 5)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: '\n\n# Chapter Title\n\nBody text.',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent, true);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should not add source map comment for empty content (Step 5)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: '',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent, true);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should not add source map comment for whitespace-only content (Step 5)', () => {
+        const parentContent = '{% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: '   \n\n  \n',
+            match: parentContent,
+            location: [0, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent, true);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should add source map comment with indent preserved (Step 5)', () => {
+        const parentContent = '  {% include [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            content: 'Line 1\nLine 2',
+            match: '{% include [ch](_includes/chapter.md) %}',
+            location: [2, parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent, true);
+        expect(result).toMatchSnapshot();
     });
 });
 
@@ -1032,7 +1131,9 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toBe('Inlined text.');
+        expect(result).toBe(
+            '<!-- source: _includes/simple.md -->\nInlined text.\n<!-- endsource: _includes/simple.md -->',
+        );
     });
 
     it('should inline include with hash, extracting section (Step 3)', async () => {
@@ -1046,7 +1147,9 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toBe('## Introduction {#intro}\n\nContent.');
+        expect(result).toBe(
+            '<!-- source: _includes/file.md -->\n## Introduction {#intro}\n\nContent.\n<!-- endsource: _includes/file.md -->',
+        );
     });
 
     it('should inline indented include with addIndent (Step 2)', async () => {
@@ -1060,7 +1163,9 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toBe('Text before\n  Line 1\n  Line 2');
+        expect(result).toBe(
+            'Text before\n  <!-- source: _includes/indented.md -->\n  Line 1\n  Line 2\n  <!-- endsource: _includes/indented.md -->',
+        );
     });
 
     it('should inline with notitle stripping heading', async () => {
@@ -1074,7 +1179,9 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toBe('Body text.');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\nBody text.\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should rebase links in inlined content', async () => {
@@ -1088,7 +1195,9 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toBe('[link](_includes/local.md)');
+        expect(result).toBe(
+            '<!-- source: _includes/chapter.md -->\n[link](_includes/local.md)\n<!-- endsource: _includes/chapter.md -->',
+        );
     });
 
     it('should collect sub-deps of inlined include as fallback entries', async () => {
@@ -1234,5 +1343,90 @@ describe('mergeIncludes', () => {
         const mainContent = result.split('{% included')[0];
         expect(mainContent).not.toContain('{% note info %}');
         expect(mainContent).not.toContain('ID площадки');
+    });
+
+    it('should add source map comments when enabled (Step 5)', async () => {
+        const parentContent = '{% include [label](_includes/simple.md) %}';
+        const dep = makeDep({
+            path: '_includes/simple.md' as NormalizedPath,
+            link: '_includes/simple.md',
+            match: parentContent,
+            location: [0, parentContent.length],
+            content: 'Inlined text.',
+            deps: [],
+        });
+        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const scheduler = new Scheduler([step]);
+        await scheduler.schedule('main.md' as NormalizedPath);
+        const result = await scheduler.process(parentContent);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should not add source map comments when disabled (Step 5)', async () => {
+        const parentContent = '{% include [label](_includes/simple.md) %}';
+        const dep = makeDep({
+            path: '_includes/simple.md' as NormalizedPath,
+            link: '_includes/simple.md',
+            match: parentContent,
+            location: [0, parentContent.length],
+            content: 'Inlined text.',
+            deps: [],
+        });
+        const step = mergeIncludes(mockRun, [dep], parentContent, false);
+        const scheduler = new Scheduler([step]);
+        await scheduler.schedule('main.md' as NormalizedPath);
+        const result = await scheduler.process(parentContent);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should add source map comments with notitle (Step 5)', async () => {
+        const parentContent = '{% include notitle [ch](_includes/chapter.md) %}';
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            match: parentContent,
+            location: [0, parentContent.length],
+            content: '# Chapter Title\n\nBody text.',
+            deps: [],
+        });
+        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const scheduler = new Scheduler([step]);
+        await scheduler.schedule('main.md' as NormalizedPath);
+        const result = await scheduler.process(parentContent);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should add source map comments with hash extraction (Step 5)', async () => {
+        const parentContent = '{% include [label](_includes/file.md#intro) %}';
+        const dep = makeDep({
+            path: '_includes/file.md' as NormalizedPath,
+            link: '_includes/file.md#intro',
+            match: parentContent,
+            location: [0, parentContent.length],
+            content: '# Other\n\nSkip.\n\n## Introduction {#intro}\n\nContent.',
+            deps: [],
+        });
+        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const scheduler = new Scheduler([step]);
+        await scheduler.schedule('main.md' as NormalizedPath);
+        const result = await scheduler.process(parentContent);
+        expect(result).toMatchSnapshot();
+    });
+
+    it('should add source map comments with indent (Step 5)', async () => {
+        const parentContent = 'Text before\n  {% include [label](_includes/indented.md) %}';
+        const dep = makeDep({
+            path: '_includes/indented.md' as NormalizedPath,
+            link: '_includes/indented.md',
+            match: '{% include [label](_includes/indented.md) %}',
+            location: [14, parentContent.length],
+            content: 'Line 1\nLine 2',
+            deps: [],
+        });
+        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const scheduler = new Scheduler([step]);
+        await scheduler.schedule('main.md' as NormalizedPath);
+        const result = await scheduler.process(parentContent);
+        expect(result).toMatchSnapshot();
     });
 });

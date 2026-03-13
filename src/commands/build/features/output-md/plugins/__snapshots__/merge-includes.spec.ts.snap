@@ -1,0 +1,71 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`mergeIncludes > should add source map comments when enabled (Step 5) 1`] = `
+"<!-- source: _includes/simple.md -->
+Inlined text.
+<!-- endsource: _includes/simple.md -->"
+`;
+
+exports[`mergeIncludes > should add source map comments with hash extraction (Step 5) 1`] = `
+"<!-- source: _includes/file.md -->
+## Introduction {#intro}
+
+Content.
+<!-- endsource: _includes/file.md -->"
+`;
+
+exports[`mergeIncludes > should add source map comments with indent (Step 5) 1`] = `
+"Text before
+  <!-- source: _includes/indented.md -->
+  Line 1
+  Line 2
+  <!-- endsource: _includes/indented.md -->"
+`;
+
+exports[`mergeIncludes > should add source map comments with notitle (Step 5) 1`] = `
+"<!-- source: _includes/chapter.md -->
+Body text.
+<!-- endsource: _includes/chapter.md -->"
+`;
+
+exports[`mergeIncludes > should not add source map comments when disabled (Step 5) 1`] = `"Inlined text."`;
+
+exports[`prepareInlinedContent > should add source map comment after leading empty lines (Step 5) 1`] = `
+"<!-- source: _includes/chapter.md -->
+
+
+# Chapter Title
+
+Body text.
+<!-- endsource: _includes/chapter.md -->"
+`;
+
+exports[`prepareInlinedContent > should add source map comment when enabled (Step 5) 1`] = `
+"<!-- source: _includes/chapter.md -->
+# Chapter Title
+
+Body text.
+<!-- endsource: _includes/chapter.md -->"
+`;
+
+exports[`prepareInlinedContent > should add source map comment with indent preserved (Step 5) 1`] = `
+"<!-- source: _includes/chapter.md -->
+  Line 1
+  Line 2
+  <!-- endsource: _includes/chapter.md -->"
+`;
+
+exports[`prepareInlinedContent > should not add source map comment for empty content (Step 5) 1`] = `""`;
+
+exports[`prepareInlinedContent > should not add source map comment for whitespace-only content (Step 5) 1`] = `
+"   
+
+  
+"
+`;
+
+exports[`prepareInlinedContent > should not add source map comment when disabled (Step 5) 1`] = `
+"# Chapter Title
+
+Body text."
+`;

@@ -312,7 +312,9 @@ export class MarkdownService {
                 } catch (error) {
                     const isMergedInput =
                         this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
-                    if (isMergedInput) {
+                    const isFileNotFound =
+                        error instanceof Error && 'code' in error && error.code === 'ENOENT';
+                    if (isMergedInput && isFileNotFound) {
                         return [];
                     }
                     throw error;

@@ -2,7 +2,7 @@
 
 ## Status
 
-**Реализовано (v8). Этапы 1a + 1b + 2 + 3: запись/чтение (md2md→md2html), инлайнинг с поддержкой indent (включая табы и смешанные отступы), hash section extraction (с корректной обработкой code blocks), полная поддержка rebasing ссылок, term boundary rule (инклюды после первого определения терма не инлайнятся). Интеграция с viewer не требует изменений. Единственное оставшееся ограничение — term definitions (Этап 4).**
+**Реализовано (v9). Этапы 1a + 1b + 2 + 3 + 5: запись/чтение (md2md→md2html), инлайнинг с поддержкой indent (включая табы и смешанные отступы), hash section extraction (с корректной обработкой code blocks), полная поддержка rebasing ссылок, term boundary rule (инклюды после первого определения терма не инлайнятся), source maps (inline комментарии для отладки). Интеграция с viewer не требует изменений. Единственное оставшееся ограничение — term definitions (Этап 4).**
 
 ## Context
 
@@ -1130,13 +1130,60 @@ function stripFirstHeading(content: string): string {
 
 **Пакет**: `packages/cli`
 
-**Задачи:**
+**Статус**: Реализовано (v9).
 
-1. Добавлять комментарии `<!-- source: path:line -->` перед включаемым контентом
-2. Опционально: флаг для отключения source maps
-3. Добавить тесты
+**Задачи (выполнено):**
 
-**Результат**: Возможность отладки склеенных файлов.
+1. ✅ Реализована генерация source map комментариев в `prepareInlinedContent`
+2. ✅ Добавлен параметр `enableSourceMaps` в `prepareInlinedContent` и `mergeIncludes` (по умолчанию `true`)
+3. ✅ Добавлена опция `--source-maps` в config (по умолчанию `true`)
+4. ✅ Unit-тесты для `prepareInlinedContent` с source maps (6 снапшотных тестов)
+5. ✅ Unit-тесты для `mergeIncludes` с source maps (5 снапшотных тестов)
+
+**Детали реализации:**
+
+Source map комментарии добавляются в `prepareInlinedContent`:
+
+- Формат: `<!-- source: path -->` в начале и `<!-- endsource: path -->` в конце
+- Обертывается весь контент включаемого файла
+- Не добавляется для пустого или whitespace-only контента
+- Сохраняет отступы при инлайнинге в списках/табах
+
+Опция `--source-maps` (CLI) и `sourceMaps` (config) управляют генерацией комментариев:
+
+- По умолчанию `true` — комментарии добавляются
+- `false` — отключает генерацию для чистого вывода
+
+**Пример вывода:**
+
+```markdown
+# Основной контент
+
+<!-- source: _includes/chapter.md -->
+
+## Глава 1
+
+Содержимое главы...
+
+<!-- endsource: _includes/chapter.md -->
+
+<!-- source: _includes/section.md -->
+
+### Подраздел
+
+Дополнительный контент.
+
+<!-- endsource: _includes/section.md -->
+```
+
+**Файлы:**
+
+- `src/commands/build/features/output-md/plugins/merge-includes.ts` — обновление `prepareInlinedContent` и `mergeIncludes`
+- `src/commands/build/features/output-md/config.ts` — опция `sourceMaps`
+- `src/commands/build/features/output-md/index.ts` — интеграция опции в конфигурацию и вызов `mergeIncludes`
+- `src/commands/build/features/output-md/plugins/merge-includes.spec.ts` — 11 новых снапшотных unit-тестов
+
+**Результат**: Возможность отладки склеенных файлов через source map комментарии.
 
 ---
 

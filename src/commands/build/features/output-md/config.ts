@@ -42,6 +42,12 @@ const disableMetaMaxLineWidth = option({
     desc: 'Disable max meta line width',
 });
 
+const mergeIncludesSourceMaps = option({
+    flags: '--merge-includes-source-maps',
+    hidden: true,
+    desc: 'Add source map comments to merged includes',
+});
+
 export const options = {
     hashIncludes,
     mergeIncludes,
@@ -50,4 +56,5 @@ export const options = {
     keepNotVar,
     legacyConditions,
     disableMetaMaxLineWidth,
+    mergeIncludesSourceMaps,
 };

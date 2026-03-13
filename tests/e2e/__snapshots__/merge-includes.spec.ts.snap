@@ -32,10 +32,12 @@ vcsPath: main.md
 
 Content before include.
 
+<!-- source: _includes/simple.md -->
 ## Included Section
 
 This is the included content.
 
+<!-- endsource: _includes/simple.md -->
 
 Content after include.
 "
@@ -79,6 +81,7 @@ vcsPath: main.md
 ---
 # Main Document
 
+<!-- source: _includes/sections.md -->
 {% list tabs %}
 
 - Tab 1
@@ -90,8 +93,11 @@ vcsPath: main.md
     Content of tab 1.
 
 {% endlist %}
+<!-- endsource: _includes/sections.md -->
 
+<!-- source: _includes/sections.md -->
 Content of section B.
+<!-- endsource: _includes/sections.md -->
 "
 `;
 
@@ -137,22 +143,26 @@ vcsPath: main.md
 
 Standalone include (should be inlined):
 
+<!-- source: _includes/snippet.md -->
 ## Note Content {#note}
 
 This is an important note.
 
 With multiple lines.
+<!-- endsource: _includes/snippet.md -->
 
 Inline in text (should fallback): See {% include [note](_includes/snippet.md#note) %} for details.
 
 Standalone table include (should be inlined):
 
+<!-- source: _includes/snippet.md -->
 ## Table Content {#table}
 
 #|
 || Header 1 | Header 2 ||
 || Cell 1 | Cell 2 ||
 |#
+<!-- endsource: _includes/snippet.md -->
 
 {% included (_includes/snippet.md) %}
 ## Note Content {#note}
@@ -213,6 +223,7 @@ vcsPath: main.md
 
 Before outer include.
 
+<!-- source: _includes/outer.md -->
 ## Outer Section
 
 Content from outer include.
@@ -221,6 +232,7 @@ Content from outer include.
 
 End of outer include.
 
+<!-- endsource: _includes/outer.md -->
 
 After outer include.
 
@@ -272,6 +284,7 @@ vcsPath: main.md
 ---
 # Main Document
 
+<!-- source: _includes/sub/with-links.md -->
 ## Section With Links
 
 See [the guide](_includes/guide.md) for more details.
@@ -280,6 +293,7 @@ See [the guide](_includes/guide.md) for more details.
 
 [ref-link]: _includes/reference.md "Reference"
 
+<!-- endsource: _includes/sub/with-links.md -->
 "
 `;
 
@@ -331,9 +345,11 @@ vcsPath: main.md
 
 Обычный инклюд на отдельной строке (до термов — инлайнится):
 
+<!-- source: _includes/defs.md -->
 ## Required {#requiredParam}
 
 Обязательный параметр.
+<!-- endsource: _includes/defs.md -->
 
 [*placeID]: {% include notitle [desc](_includes/defs.md#placeID) %}
 

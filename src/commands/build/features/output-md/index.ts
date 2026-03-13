@@ -35,6 +35,7 @@ export type OutputMdArgs = {
     mergeSvg: boolean;
     keepNotVar: boolean;
     legacyConditions: boolean;
+    mergeIncludesSourceMaps: boolean;
 };
 
 export type OutputMdConfig = {
@@ -43,6 +44,7 @@ export type OutputMdConfig = {
     mergeAutotitles: boolean;
     mergeSvg: boolean;
     disableMetaMaxLineWidth: boolean;
+    mergeIncludesSourceMaps: boolean;
 };
 
 export type PreprocessConfig = {
@@ -63,6 +65,7 @@ export class OutputMd {
             command.addOption(options.keepNotVar);
             command.addOption(options.disableMetaMaxLineWidth);
             command.addOption(options.legacyConditions);
+            command.addOption(options.mergeIncludesSourceMaps);
         });
 
         getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
@@ -70,7 +73,7 @@ export class OutputMd {
                 hashIncludes: true,
             });
             const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
-                mergeIncludes: true,
+                mergeIncludes: false,
             });
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
                 mergeAutotitles: true,
@@ -87,6 +90,14 @@ export class OutputMd {
             const disableMetaMaxLineWidth = defined('disableMetaMaxLineWidth', args, config || {}, {
                 disableMetaMaxLineWidth: false,
             });
+            const mergeIncludesSourceMaps = defined(
+                'mergeIncludesSourceMaps',
+                args,
+                config.preprocess || {},
+                {
+                    mergeIncludesSourceMaps: true,
+                },
+            );
             return Object.assign(config, {
                 template: {
                     ...config.template,
@@ -99,6 +110,7 @@ export class OutputMd {
                     mergeAutotitles,
                     mergeSvg,
                     disableMetaMaxLineWidth,
+                    mergeIncludesSourceMaps,
                 },
             });
         });
@@ -168,7 +180,12 @@ export class OutputMd {
                                     rehashIncludes(run, deps),
                                 config.mergeIncludes &&
                                     !write &&
-                                    mergeIncludes(run, deps, graph.content),
+                                    mergeIncludes(
+                                        run,
+                                        deps,
+                                        graph.content,
+                                        config.mergeIncludesSourceMaps,
+                                    ),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
                                 config.mergeSvg && mergeSvg(run, svgList, graph.assets),
