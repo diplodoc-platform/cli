@@ -400,12 +400,13 @@ export function collectFallbackDepsWithChain(
 /**
  * Prepares content from a dependency for inlining: strips frontmatter,
  * extracts section by hash, optionally removes the first heading (notitle),
- * rebases paths, and applies indentation.
+ * rebases paths, applies indentation, and adds source map comments.
  */
 export function prepareInlinedContent(
     dep: HashedGraphNode,
     entry: NormalizedPath,
     parentContent: string,
+    enableSourceMaps = true,
 ): string {
     let depContent = contentWithoutFrontmatter(dep.content);
 
@@ -419,6 +420,11 @@ export function prepareInlinedContent(
     }
 
     depContent = rebaseRelativePaths(depContent, dep.path, entry);
+
+    if (enableSourceMaps && depContent.trim()) {
+        depContent =
+            `<!-- source: ${dep.path} -->\n` + depContent + `\n<!-- endsource: ${dep.path} -->`;
+    }
 
     const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
     const indent = parentContent.slice(lineStart, dep.location[0]);
@@ -449,7 +455,7 @@ export function addFallbackDep(
 }
 
 /**
- * Merge includes plugin (Steps 1a + 1b + 2 + 3).
+ * Merge includes plugin (Steps 1a + 1b + 2 + 3 + 5).
  *
  * For each include dep:
  * - Standalone includes (sole content on their line) without term definitions
@@ -458,11 +464,13 @@ export function addFallbackDep(
  *   includes with term definitions use {% included %} fallback blocks at EOF.
  *
  * parentContent is the current content of the root file (needed for context checks).
+ * enableSourceMaps controls whether to add <!-- source: path:line --> comments.
  */
 export function mergeIncludes(
     _run: Run,
     deps: HashedGraphNode[],
     parentContent: string,
+    enableSourceMaps = true,
 ): StepFunction {
     return async function (scheduler, entry): Promise<void> {
         if (deps.length === 0) {
@@ -485,7 +493,12 @@ export function mergeIncludes(
 
         for (const dep of deps) {
             if (canInlineInclude(dep, parentContent)) {
-                const inlinedContent = prepareInlinedContent(dep, entry, parentContent);
+                const inlinedContent = prepareInlinedContent(
+                    dep,
+                    entry,
+                    parentContent,
+                    enableSourceMaps,
+                );
                 scheduler.add(dep.location, inlineActor, {dep, inlinedContent});
 
                 if (dep.deps.length > 0) {

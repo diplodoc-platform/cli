@@ -11,7 +11,13 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false > filelist 1`] = `
   "images.md",
   "included-item.md",
   "includes.md",
+  "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
   "includes/level11.md",
+  "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
   "latex.md",
   "level0.md",
   "level1/level1.md",
@@ -63,8 +69,7 @@ default-var-value
 
 [noext-link](includes)
 
-Bob
-
+{% include [user](includes/user-hash.md) %}
 "
 `;
 
@@ -321,46 +326,41 @@ vcsPath: includes.md
 ---
 Text
 
-Bob
+{% include [user](includes/user-hash.md) %}
 
-
-Test
-
+{% include [test](includes/test-hash.md) %}
 
 Link after include
 [{#T}](./1.md)
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
-{% include [user](includes/sub/user.md) %}
-
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
 
 Include with big indent
 
-- list item
-
-  {% include [user](includes/sub/userWithIndent.md) %}
-
-Link to mermaid diagram from 1 level
-[](mermaid.md)
-
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
 
 Link after include
 [{#T}](./1.md#subtitle)
-
-{% included (includes/sub/user.md) %}
-Bob
-
-{% endincluded %}
-{% included (includes/sub/userWithIndent.md) %}
-Link to mermaid diagram from 2 level
-[](../../mermaid.md)
-
-- User
-  Bob
-{% endincluded %}"
+"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false 7`] = `
+"{% include [user](sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 8`] = `
+"- list item
+
+  {% include [user](sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[](../mermaid.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 9`] = `
 "---
 metadata:
   - name: generator
@@ -371,7 +371,30 @@ vcsPath: includes/level11.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 8`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 10`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 11`] = `
+"Link to mermaid diagram from 2 level
+[](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
 "---
 metadata:
   - name: generator
@@ -384,7 +407,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 9`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
 "---
 metadata:
   - name: generator
@@ -401,7 +424,7 @@ vcsPath: level0.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 10`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 16`] = `
 "---
 metadata:
   - name: generator
@@ -417,7 +440,7 @@ vcsPath: level1/level1.md
 [{#T}](../includes/level11.md)"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 11`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 17`] = `
 "---
 metadata:
   - name: generator
@@ -433,7 +456,7 @@ vcsPath: level1/level2/level2.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 12`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 18`] = `
 "items:
   - name: level1
     href: level1.md
@@ -443,7 +466,7 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 19`] = `
 "---
 metadata:
   - name: generator
@@ -466,7 +489,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 20`] = `
 "---
 metadata:
   - name: generator
@@ -483,7 +506,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=false 21`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -528,7 +551,13 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true > filelist 1`] = `
   "images.md",
   "included-item.md",
   "includes.md",
+  "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
   "includes/level11.md",
+  "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
   "latex.md",
   "level0.md",
   "level1/level1.md",
@@ -580,8 +609,7 @@ default-var-value
 
 [noext-link](includes)
 
-Bob
-
+{% include [user](includes/user-hash.md) %}
 "
 `;
 
@@ -838,46 +866,41 @@ vcsPath: includes.md
 ---
 Text
 
-Bob
+{% include [user](includes/user-hash.md) %}
 
-
-Test
-
+{% include [test](includes/test-hash.md) %}
 
 Link after include
 [Title](./1.md)
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
-{% include [user](includes/sub/user.md) %}
-
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
 
 Include with big indent
 
-- list item
-
-  {% include [user](includes/sub/userWithIndent.md) %}
-
-Link to mermaid diagram from 1 level
-[Mermaid usage](mermaid.md)
-
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
 
 Link after include
 [Subtitle](./1.md#subtitle)
-
-{% included (includes/sub/user.md) %}
-Bob
-
-{% endincluded %}
-{% included (includes/sub/userWithIndent.md) %}
-Link to mermaid diagram from 2 level
-[Mermaid usage](../../mermaid.md)
-
-- User
-  Bob
-{% endincluded %}"
+"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true 7`] = `
+"{% include [user](sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
+"- list item
+
+  {% include [user](sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](../mermaid.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 9`] = `
 "---
 metadata:
   - name: generator
@@ -888,7 +911,30 @@ vcsPath: includes/level11.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 8`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 10`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 11`] = `
+"Link to mermaid diagram from 2 level
+[Mermaid usage](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
 "---
 metadata:
   - name: generator
@@ -901,7 +947,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 9`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
 "---
 metadata:
   - name: generator
@@ -918,7 +964,7 @@ vcsPath: level0.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 10`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 16`] = `
 "---
 metadata:
   - name: generator
@@ -934,7 +980,7 @@ vcsPath: level1/level1.md
 [Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 11`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 17`] = `
 "---
 metadata:
   - name: generator
@@ -950,7 +996,7 @@ vcsPath: level1/level2/level2.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 12`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 18`] = `
 "items:
   - name: level1
     href: level1.md
@@ -960,7 +1006,7 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 19`] = `
 "---
 metadata:
   - name: generator
@@ -983,7 +1029,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 20`] = `
 "---
 metadata:
   - name: generator
@@ -1000,7 +1046,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true 21`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
@@ -1045,7 +1091,13 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true > filelist 1`] 
   "images.md",
   "included-item.md",
   "includes.md",
+  "includes/deep-hash.md",
+  "includes/deepWithIndent-hash.md",
   "includes/level11.md",
+  "includes/sub/user-hash.md",
+  "includes/sub/userWithIndent-hash.md",
+  "includes/test-hash.md",
+  "includes/user-hash.md",
   "latex.md",
   "level0.md",
   "level1/level1.md",
@@ -1097,8 +1149,7 @@ default-var-value
 
 [noext-link](includes)
 
-Bob
-
+{% include [user](includes/user-hash.md) %}
 "
 `;
 
@@ -1355,46 +1406,41 @@ vcsPath: includes.md
 ---
 Text
 
-Bob
+{% include [user](includes/user-hash.md) %}
 
-
-Test
-
+{% include [test](includes/test-hash.md) %}
 
 Link after include
 [Title](./1.md)
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
-{% include [user](includes/sub/user.md) %}
-
+{% include [For includes/deep-hash.md](includes/deep-hash.md) %}
 
 Include with big indent
 
-- list item
-
-  {% include [user](includes/sub/userWithIndent.md) %}
-
-Link to mermaid diagram from 1 level
-[Mermaid usage](mermaid.md)
-
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
 
 Link after include
 [Subtitle](./1.md#subtitle)
-
-{% included (includes/sub/user.md) %}
-Bob
-
-{% endincluded %}
-{% included (includes/sub/userWithIndent.md) %}
-Link to mermaid diagram from 2 level
-[Mermaid usage](../../mermaid.md)
-
-- User
-  Bob
-{% endincluded %}"
+"
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 7`] = `
+"{% include [user](sub/user-hash.md) %}
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 8`] = `
+"- list item
+
+  {% include [user](sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](../mermaid.md)
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 9`] = `
 "---
 metadata:
   - name: generator
@@ -1405,7 +1451,30 @@ vcsPath: includes/level11.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 8`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 10`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 11`] = `
+"Link to mermaid diagram from 2 level
+[Mermaid usage](../../mermaid.md)
+
+- User
+  Bob"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 12`] = `
+"Test
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
+"Bob
+"
+`;
+
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 14`] = `
 "---
 metadata:
   - name: generator
@@ -1418,7 +1487,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 9`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
 "---
 metadata:
   - name: generator
@@ -1435,7 +1504,7 @@ vcsPath: level0.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 10`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 16`] = `
 "---
 metadata:
   - name: generator
@@ -1451,7 +1520,7 @@ vcsPath: level1/level1.md
 [Level 11 svg header ![Level 11 svg header](../_assets/1.svg)](../includes/level11.md)"
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 11`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 17`] = `
 "---
 metadata:
   - name: generator
@@ -1467,7 +1536,7 @@ vcsPath: level1/level2/level2.md
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 12`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 18`] = `
 "items:
   - name: level1
     href: level1.md
@@ -1477,7 +1546,7 @@ path: level1/toc.yaml
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 13`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 19`] = `
 "---
 metadata:
   - name: generator
@@ -1500,7 +1569,7 @@ Some mermaid info
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 14`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 20`] = `
 "---
 metadata:
   - name: generator
@@ -1517,7 +1586,7 @@ Item 1 text
 "
 `;
 
-exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
+exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 21`] = `
 "items:
   - name: Md item with not_var syntax
     href: 1.md
