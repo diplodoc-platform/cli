@@ -1,5 +1,22 @@
 # Changelog
 
+## [5.27.0](https://github.com/diplodoc-platform/cli/compare/v5.26.2...v5.27.0) (2026-03-16)
+
+
+### Features
+
+* Embedding the include at the bottom of the page ([c673209](https://github.com/diplodoc-platform/cli/commit/c6732098eb238b3a0ac982ecb24d147e802591dc))
+* Include wtih indent and hash ([cb11158](https://github.com/diplodoc-platform/cli/commit/cb111585b65cbbbe12dc61f61cfea81f06ac656f))
+* Simple inline includes ([203d15d](https://github.com/diplodoc-platform/cli/commit/203d15db7f090f66a9fae9b773a1f1d819271019))
+
+
+### Bug Fixes
+
+* add source maps for included ([c5e45b6](https://github.com/diplodoc-platform/cli/commit/c5e45b6a8256da4c9a922019373e59d174f99824))
+* added customLabel to neuro expert ([#1754](https://github.com/diplodoc-platform/cli/issues/1754)) ([ddf994b](https://github.com/diplodoc-platform/cli/commit/ddf994bd1688c774878ec0ff06aa809c543a6bb7))
+* bug in cache dump with 1 include and different hash ([ea472d3](https://github.com/diplodoc-platform/cli/commit/ea472d3fb47fc1c0616c5d02cdd478f54dfea23b))
+* **deps:** Update @diplodoc/transform to 4.70.2 ([ec6b767](https://github.com/diplodoc-platform/cli/commit/ec6b76779760b5c515d021f6c6c3a4dc2e0fa248))
+
 ## [5.26.2](https://github.com/diplodoc-platform/cli/compare/v5.26.1...v5.26.2) (2026-03-10)
 
 
