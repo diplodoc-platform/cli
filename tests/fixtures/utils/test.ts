@@ -17,7 +17,7 @@ export function platformless(text: string): string {
                 `$1vDIPLODOC-VERSION`,
             )
             .replace(
-                /(aria-controls=\\":term_element\\" aria-expanded=\\"false\\" tabindex=\\"\d\\" id=\\")[a-zA-Z0-9]{1,10}/g,
+                /(aria-controls=\\":term_element\\" tabindex=\\"\d\\" id=\\")[a-zA-Z0-9]{1,10}/g,
                 `$1vTERM-ID`,
             )
             .replace(/(\\(?![/"'])){1,2}/g, '/')
