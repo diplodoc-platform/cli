@@ -68,6 +68,8 @@ export function getPcIconTitle(iconPath: string): string {
 }
 
 export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/m;
+export const REF_DEF_REGEX = /^\s{0,100}\[([^\]]{0,500})]:\s{0,100}([^\s]{1,2048})/gm;
+export const INCLUDE_REGEX = /{%\s*include\s+[^%]{1,1024}%}/g;
 
 export function findPcImages(content: string): AssetInfo[] {
     const pcImages: AssetInfo[] = [];
@@ -208,7 +210,7 @@ export function findLinksInfo(content: string): AssetInfo[] {
 }
 
 export function findDefs(content: string): AssetInfo[] {
-    return find(/^\s*\[(.*?)]:\s*([^\s]+)/gm, content, (match) => {
+    return find(new RegExp(REF_DEF_REGEX.source, REF_DEF_REGEX.flags), content, (match) => {
         const parsed = parseLocalUrl(match[2]);
         if (!parsed) {
             return undefined;

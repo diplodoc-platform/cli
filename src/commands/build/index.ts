@@ -34,6 +34,7 @@ import {SinglePage} from './features/singlepage';
 import {PdfPage} from './features/pdf-page';
 import {Lint} from './features/linter';
 import {BuildManifest} from './features/build-manifest';
+import {CrawlerManifest} from './features/crawler-manifest';
 import {SkipHtml} from './features/skip-html';
 import {Changelogs} from './features/changelogs';
 import {OutputMd} from './features/output-md';
@@ -98,6 +99,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly buildManifest = new BuildManifest();
 
+    readonly crawlerManifest = new CrawlerManifest();
+
     readonly changelogs = new Changelogs();
 
     readonly md = new OutputMd();
@@ -159,6 +162,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.pdfPage,
         this.linter,
         this.buildManifest,
+        this.crawlerManifest,
         this.changelogs,
         this.search,
         this.watch,
