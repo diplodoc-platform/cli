@@ -571,37 +571,53 @@ function addIndent(content: string, indent: string): string {
 
 > **Важно**: Merge includes выполняется на том же этапе pipeline, что и merge SVG, autotitle — т.е. **после резолва liquid**. Это означает, что проблем с liquid переменными быть не должно.
 
-### Этап 0: Terms — multiline поддержка (КРИТИЧЕСКИЙ)
+### Этап 0: Terms — multiline поддержка + lint для includes (КРИТИЧЕСКИЙ)
 
-**Пакет**: `packages/transform`
+**Пакеты**: `packages/transform`, `packages/yfmlint`
 
-**Задачи:**
+**Статус**: Реализовано.
 
-1. Модифицировать [`termDefinitions.ts`](../../transform/src/transform/plugins/term/termDefinitions.ts:34) для поддержки multiline без ограничения на includes
-2. Новое правило: term definition продолжается до следующего `[*key]:` или EOF
-3. Добавить unit тесты для multiline terms
-4. Обеспечить обратную совместимость с текущим синтаксисом
+**Задачи (multiline — выполнено):**
 
-**Изменения в коде:**
+1. ✅ Модифицирован [`termDefinitions.ts`](../../transform/src/transform/plugins/term/termDefinitions.ts:34) — `findDefinitionEnd()` поддерживает multiline без ограничения на includes
+2. ✅ Новое правило: term definition продолжается до следующего `[*key]:` или EOF (при `multilineTermDefinitions: true`)
+3. ✅ Добавлена опция `multilineTermDefinitions` в `MarkdownItPluginOpts` (`typings.ts`)
+4. ✅ Unit-тесты для multiline terms (4 теста в `test/term.test.ts`)
+5. ✅ Обратная совместимость: по умолчанию `false`, старое поведение сохранено
 
-```typescript
-// Было: hasIncludeAfterBlanks() проверяет только {% include %}
-// Стало: definition продолжается до следующего term или EOF
+**Задачи (lint для includes — выполнено):**
 
-function findTermDefinitionEnd(state, startLine, endLine) {
-  const TERM_DEF_RE = /^\[\*[^\]]+\]:/;
+1. ✅ `termDefinitions.ts` — dfn_open токены маркируются атрибутом `from-include="true"`,
+   когда `state.env.includes.length > 0` (term definition создаётся внутри include-контекста).
+   Механизм: includes-плагин transform'а использует `env.includes` массив для детекции
+   циклов (push перед парсингом инклюда, pop после). Во время `getFileTokens()` → `md.parse()`
+   дочерний env наследует `includes` через spread (`{...state.env}`), поэтому `termDefinitions`
+   видит непустой массив.
+2. ✅ YFM009 модифицирован — пропускает dfn-токены с `from-include="true"`.
+   Ранее YFM009 стрелял, когда include-файл с term definitions (напр. `duration.md`)
+   подключался в середине страницы: после резолва includes dfn-токены оказывались
+   в середине общего потока токенов.
+3. ✅ YFM018 (новое правило, INFO) — информационное сообщение для term definitions из includes.
+4. ✅ `LogLevels.INFO` обработка в `utils.ts` → `logger.info()`.
+5. ✅ Unit-тесты: 3 теста YFM009 (from-include handling), 3 теста YFM018.
 
-  for (let line = startLine + 1; line <= endLine; line++) {
-    const content = getLineContent(state, line);
-    if (TERM_DEF_RE.test(content.trimStart())) {
-      return line - 1; // Конец текущего definition
-    }
-  }
-  return endLine; // До конца файла
-}
-```
+**Работает в обоих режимах:**
 
-**Результат**: Terms поддерживают произвольный multiline контент.
+- `mergeIncludes: false` — dep-файлы на диске, includes-плагин читает и резолвит
+- `mergeIncludes: true` — `{% included %}` блоки извлечены `extractIncludedBlocks()`,
+  контент в `pluginOptions.files`, includes-плагин резолвит из `files` dict или с диска
+
+**Файлы:**
+
+- `packages/transform/src/transform/plugins/term/termDefinitions.ts` — `findDefinitionEnd()`, `from-include` маркировка
+- `packages/transform/src/transform/typings.ts` — `multilineTermDefinitions` опция
+- `packages/yfmlint/src/rules/yfm009.ts` — пропуск `from-include` dfn-токенов
+- `packages/yfmlint/src/rules/yfm018.ts` — новое INFO-правило
+- `packages/yfmlint/src/rules/index.ts` — экспорт yfm018
+- `packages/yfmlint/src/config.ts` — `YFM018: LogLevels.INFO`
+- `packages/yfmlint/src/utils.ts` — обработка `LogLevels.INFO`
+- `packages/yfmlint/test/yfm009.test.ts` — 3 новых теста (from-include handling)
+- `packages/yfmlint/test/yfm018.test.ts` — 3 теста
 
 ---
 

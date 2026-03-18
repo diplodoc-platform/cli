@@ -43,6 +43,7 @@ export type ContentConfig = {
     maxHtmlSize: number;
     maxAssetSize: number;
     maxOpenapiIncludeSize: number;
+    multilineTermDefinitions: boolean;
 };
 
 type BaseConfig = {
