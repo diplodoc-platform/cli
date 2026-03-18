@@ -76,9 +76,9 @@
     ]
   },
   "dependencies": {
-    "@diplodoc/client": "^5.2.9",
+    "@diplodoc/client": "^5.2.10",
     "@diplodoc/liquid": "^1.4.0",
-    "@diplodoc/transform": "^4.70.3",
+    "@diplodoc/transform": "^4.70.4",
     "@diplodoc/translation": "^1.7.19",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "chalk": "^4.1.2",
