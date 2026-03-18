@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.27.2](https://github.com/diplodoc-platform/cli/compare/v5.27.1...v5.27.2) (2026-03-18)
+
+
+### Bug Fixes
+
+* **deps:** Update client, transform ([5171f9e](https://github.com/diplodoc-platform/cli/commit/5171f9e934dc5754aa67545ce23bc7bede9e7e1b))
+
 ## [5.27.1](https://github.com/diplodoc-platform/cli/compare/v5.27.0...v5.27.1) (2026-03-16)
 
 
