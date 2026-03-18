@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.27.4](https://github.com/diplodoc-platform/cli/compare/v5.27.3...v5.27.4) (2026-03-18)
+
+
+### Bug Fixes
+
+* **deps:** Update openapi@5.1.3 and test ([d2ae11d](https://github.com/diplodoc-platform/cli/commit/d2ae11d6ef5def612e41f4d016b60bdfc75a4ce7))
+
 ## [5.27.3](https://github.com/diplodoc-platform/cli/compare/v5.27.2...v5.27.3) (2026-03-18)
 
 
