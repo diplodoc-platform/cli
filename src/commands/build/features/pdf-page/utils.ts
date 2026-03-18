@@ -287,6 +287,7 @@ export function findCssDependencies(cssContent: string, cssFilePath: RelativePat
                     width: undefined,
                     height: undefined,
                     inline: false,
+                    title: undefined,
                 },
             };
 

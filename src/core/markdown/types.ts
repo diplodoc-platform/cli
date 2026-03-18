@@ -32,6 +32,7 @@ export type ImageOptions = {
     width: string | undefined | null;
     height: string | undefined | null;
     inline: boolean | undefined | null;
+    title: string | undefined | null;
 };
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {

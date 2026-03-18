@@ -230,6 +230,17 @@ const maxAssetSize = option({
     parser: fileSizeConverter({disableIfZero: true}),
 });
 
+const multilineTermDefinitions = option({
+    flags: '--multiline-term-definitions',
+    desc: `
+        Support multiline term definitions.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --multiline-term-definitions
+    `,
+    default: true,
+});
+
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -374,12 +385,19 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     config.content = combineProps(
         config,
         'content',
-        ['maxInlineSvgSize', 'maxHtmlSize', 'maxAssetSize', 'maxOpenapiIncludeSize'],
+        [
+            'maxInlineSvgSize',
+            'maxHtmlSize',
+            'maxAssetSize',
+            'maxOpenapiIncludeSize',
+            'multilineTermDefinitions',
+        ],
         {
             maxInlineSvgSize,
             maxHtmlSize,
             maxAssetSize,
             maxOpenapiIncludeSize,
+            multilineTermDefinitions,
         },
     ) as ContentConfig;
 
@@ -424,6 +442,7 @@ export const options = {
     maxInlineSvgSize,
     maxHtmlSize,
     maxAssetSize,
+    multilineTermDefinitions,
     addAlternateMeta,
     maxOpenapiIncludeSize,
 };

@@ -357,6 +357,12 @@ properties:
       maxAssetSize:
         $ref: '#/definitions/FileSize'
         description: Maximum asset file size. 0 disables the check.
+      multilineTermDefinitions:
+        type: boolean
+        description: >
+          Allow term definitions to span multiple lines.
+          When enabled, a definition continues until the next [*key]: or end of block.
+          Default: true.
     additionalProperties: false
 
   # ── TOC filtering ──────────────────────────────────────────────────
