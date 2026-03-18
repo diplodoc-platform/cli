@@ -20,6 +20,20 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecurceTop'
+  /hidden-test:
+    get:
+      tags:
+        - test-controller
+      summary: Test x-hidden attribute
+      description: Test various x-hidden scenarios
+      operationId: getHiddenTest
+      responses:
+        "200":
+          description: Response with hidden fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HiddenTestResponse'
 components:
   schemas:
     RecurceTop:
@@ -35,3 +49,63 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RecurceTop'
+    
+    # Hidden field schemas for testing
+    HiddenField:
+      type: string
+      description: This field should be hidden
+      x-hidden: true
+    
+    HiddenObject:
+      type: object
+      description: This entire object should be hidden
+      x-hidden: true
+      properties:
+        secret:
+          type: string
+    
+    HiddenTestResponse:
+      type: object
+      description: Response object with various hidden field scenarios
+      properties:
+        visibleField:
+          type: string
+          description: This field should be visible
+        directlyHiddenField:
+          type: string
+          description: This field should be hidden (direct x-hidden)
+          x-hidden: true
+        refToHiddenField:
+          $ref: '#/components/schemas/HiddenField'
+        refToHiddenObject:
+          $ref: '#/components/schemas/HiddenObject'
+        nestedObject:
+          type: object
+          description: Object with hidden properties
+          properties:
+            visibleNested:
+              type: string
+            hiddenNested:
+              type: string
+              x-hidden: true
+            refToHiddenInNested:
+              $ref: '#/components/schemas/HiddenField'
+        arrayWithHiddenItems:
+          type: array
+          description: Array with hidden item schema
+          items:
+            $ref: '#/components/schemas/HiddenField'
+        mixedVisibility:
+          type: object
+          properties:
+            field1:
+              type: string
+            field2:
+              $ref: '#/components/schemas/HiddenField'
+            field3:
+              type: string
+            field4:
+              type: string
+              x-hidden: true
+            field5:
+              type: string
