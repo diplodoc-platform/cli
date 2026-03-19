@@ -11,9 +11,11 @@ export function resolveDependencies(this: LoaderContext, content: string) {
     const includes = [];
     const exclude = [...this.api.comments.get(), ...findIncludedBlockRanges(content)];
 
+    const includeRegex = new RegExp(INCLUDE_REGEX.source, INCLUDE_REGEX.flags);
+
     let match;
     // eslint-disable-next-line no-cond-assign
-    while ((match = INCLUDE_REGEX.exec(content))) {
+    while ((match = includeRegex.exec(content))) {
         // Ugly workaround for include examples
         // TODO: rewrite all inspect code on markdown-it parsing with minimal set of plugins
         if (content[match.index - 1] === '`') {
@@ -21,7 +23,7 @@ export function resolveDependencies(this: LoaderContext, content: string) {
         }
 
         const matchStart = match.index;
-        const matchEnd = INCLUDE_REGEX.lastIndex;
+        const matchEnd = includeRegex.lastIndex;
         if (exclude.some(([exStart, exEnd]) => matchStart >= exStart && matchEnd <= exEnd)) {
             continue;
         }
@@ -42,8 +44,8 @@ export function resolveDependencies(this: LoaderContext, content: string) {
 
             include.path = rebasePath(currentPath, include.path as RelativePath);
             include.link = link;
-            include.match = content.slice(match.index, INCLUDE_REGEX.lastIndex);
-            include.location = [match.index, INCLUDE_REGEX.lastIndex];
+            include.match = content.slice(match.index, includeRegex.lastIndex);
+            include.location = [match.index, includeRegex.lastIndex];
 
             includes.push(include);
         }

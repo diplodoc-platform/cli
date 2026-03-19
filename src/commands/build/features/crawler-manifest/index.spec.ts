@@ -218,6 +218,12 @@ plain https://plain.example.com text
             ).toEqual([]);
         });
 
+        it('extracts include path without space before bracket (notitle form)', () => {
+            expect(extractIncludePaths('{% include[label](./snippet.md) %}')).toEqual([
+                './snippet.md',
+            ]);
+        });
+
         it('returns empty for content without includes', () => {
             expect(extractIncludePaths('Just regular [link](https://example.com) text')).toEqual(
                 [],
@@ -295,10 +301,14 @@ plain https://plain.example.com text
         const makeRun = (files: Record<string, string>) =>
             ({
                 input: '/input',
-                read: vi.fn(async (path: string) => {
-                    const relative = path.slice('/input/'.length);
-                    if (relative in files) return files[relative];
-                    throw new Error(`File not found: ${path}`);
+                read: vi.fn(async (absolutePath: string) => {
+                    const relative = absolutePath.replace(/\\/g, '/').replace(/^\/input\//, '');
+
+                    if (relative in files) {
+                        return files[relative];
+                    }
+
+                    throw new Error(`File not found: ${absolutePath}`);
                 }),
             }) as unknown as Run;
 

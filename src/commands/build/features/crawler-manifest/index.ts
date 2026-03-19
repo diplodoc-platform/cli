@@ -1,15 +1,17 @@
+import type Token from 'markdown-it/lib/token';
 import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
 
 import {dirname, join} from 'node:path';
 import {load as yamlLoad} from 'js-yaml';
+import MarkdownIt from 'markdown-it';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {isExternalHref, normalizePath, walkLinks} from '~/core/utils';
-import {INCLUDE_REGEX, REF_DEF_REGEX, findLink} from '~/core/markdown';
+import {INCLUDE_REGEX, findLink} from '~/core/markdown';
 import {valuable} from '~/core/config';
 
 import {options} from './config';
@@ -24,10 +26,52 @@ export type CrawlerManifestConfig = {
 
 const MANIFEST_FILENAME = 'crawler-manifest.json';
 
-const INLINE_LINK_REGEX = /\[[^\]]{0,500}\]\(([^)\s"']{1,2048})/g;
-const AUTOLINK_REGEX = /<([^>\s]{1,2048})>/g;
-const BARE_URL_REGEX = /\bhttps?:\/\/[^\s<>)[\]"']+/g;
 const FILE_BLOCK_REGEX = /{%\s*file\s[^%]*?src="([^"]{1,2048})"/g;
+
+const md = new MarkdownIt({html: true, linkify: true});
+
+function walkTokens(tokens: Token[], links: Set<string>): void {
+    for (const token of tokens) {
+        if (token.type === 'link_open') {
+            const href = token.attrGet('href');
+
+            if (href && isExternalHref(href)) {
+                links.add(href);
+            }
+        } else if (token.type === 'image') {
+            const src = token.attrGet('src');
+
+            if (src && isExternalHref(src)) {
+                links.add(src);
+            }
+        }
+
+        if (token.children) {
+            walkTokens(token.children, links);
+        }
+    }
+}
+
+export function extractExternalLinks(content: string): string[] {
+    const links = new Set<string>();
+    const env: {references?: Record<string, {href: string}>} = {};
+
+    walkTokens(md.parse(content, env), links);
+
+    for (const ref of Object.values(env.references ?? {})) {
+        if (ref.href && isExternalHref(ref.href)) {
+            links.add(ref.href);
+        }
+    }
+
+    for (const match of content.matchAll(FILE_BLOCK_REGEX)) {
+        if (isExternalHref(match[1])) {
+            links.add(match[1]);
+        }
+    }
+
+    return [...links];
+}
 
 function stripFencedBlocks(content: string): string {
     const lines = content.split('\n');
@@ -65,47 +109,6 @@ function stripNonContent(content: string): string {
     return stripFencedBlocks(content.replace(/<!--[\s\S]*?-->/g, '')).replace(/`[^`\n]+`/g, '');
 }
 
-export function extractExternalLinks(content: string): string[] {
-    const links = new Set<string>();
-    const stripped = stripNonContent(content);
-
-    for (const match of stripped.matchAll(INLINE_LINK_REGEX)) {
-        if (isExternalHref(match[1])) {
-            links.add(match[1]);
-        }
-    }
-
-    for (const match of stripped.matchAll(AUTOLINK_REGEX)) {
-        if (isExternalHref(match[1])) {
-            links.add(match[1]);
-        }
-    }
-
-    for (const match of stripped.matchAll(REF_DEF_REGEX)) {
-        if (isExternalHref(match[2])) {
-            links.add(match[2]);
-        }
-    }
-
-    for (const match of stripped.matchAll(FILE_BLOCK_REGEX)) {
-        if (isExternalHref(match[1])) {
-            links.add(match[1]);
-        }
-    }
-
-    for (const match of stripped.matchAll(BARE_URL_REGEX)) {
-        let url = match[0];
-
-        while (url.length > 0 && '.,;:!?'.includes(url[url.length - 1])) {
-            url = url.slice(0, -1);
-        }
-
-        links.add(url);
-    }
-
-    return [...links];
-}
-
 export function collectExternalLinksFromYaml(content: string): string[] {
     const links: string[] = [];
 
@@ -113,7 +116,7 @@ export function collectExternalLinksFromYaml(content: string): string[] {
         const data = yamlLoad(content);
 
         if (data && typeof data === 'object') {
-            walkLinks(data as object, (value) => {
+            walkLinks(data, (value) => {
                 if (isExternalHref(value)) {
                     links.push(value);
                 }
@@ -130,6 +133,7 @@ export function extractIncludePaths(content: string): string[] {
 
     for (const match of stripped.matchAll(INCLUDE_REGEX)) {
         const link = findLink(match[0]);
+
         if (link && !isExternalHref(link)) {
             paths.push(link);
         }
@@ -179,7 +183,7 @@ export async function collectLinks(
 }
 
 export class CrawlerManifest {
-    private links = new Map<string, string[]>();
+    private readonly links = new Map<string, string[]>();
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('CrawlerManifest', (command: Command) => {
@@ -205,6 +209,8 @@ export class CrawlerManifest {
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('CrawlerManifest', (run: Run) => {
+                this.links.clear();
+
                 getTocHooks(run.toc).Loaded.tapPromise('CrawlerManifest', async (toc: Toc) => {
                     if (!run.config.crawlerManifest) {
                         return;
@@ -254,8 +260,10 @@ export class CrawlerManifest {
 
                 for (const {from, to} of run.redirects.files) {
                     if (isExternalHref(to)) {
-                        const existing = this.links.get(from) ?? [];
-                        this.links.set(from, [...existing, to]);
+                        const key = from.startsWith('/') ? from.slice(1) : from;
+                        const existing = this.links.get(key) ?? [];
+
+                        this.links.set(key, [...existing, to]);
                     }
                 }
 
