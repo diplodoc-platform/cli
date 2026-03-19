@@ -41,6 +41,7 @@ export type ContentConfig = {
     maxInlineSvgSize: number;
     maxHtmlSize: number;
     maxAssetSize: number;
+    maxOpenapiIncludeSize: number;
 };
 
 type BaseConfig = {

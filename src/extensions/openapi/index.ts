@@ -34,7 +34,32 @@ export class Extension implements IExtension {
                     const {toc, files} = await includer(run, options, from);
 
                     const root = join(run.input, dirname(options.path));
+                    const maxOpenapiIncludeSize =
+                        (run.config as Hash)?.content?.maxOpenapiIncludeSize || 0;
                     for (const {path, content} of files) {
+                        if (
+                            maxOpenapiIncludeSize > 0 &&
+                            Buffer.byteLength(content, 'utf-8') > maxOpenapiIncludeSize
+                        ) {
+                            const stub = [
+                                '---',
+                                'noIndex: true',
+                                '---',
+                                '',
+                                '{% note warning %}',
+                                '',
+                                'This page exceeds the maximum allowed size and cannot be displayed.',
+                                '',
+                                '{% endnote %}',
+                            ].join('\n');
+                            run.logger.warn(
+                                `OpenAPI page ${path} exceeds max-openapi-include-size limit ` +
+                                    `(${Buffer.byteLength(content, 'utf-8')} > ${maxOpenapiIncludeSize} bytes). ` +
+                                    `Replacing with stub.`,
+                            );
+                            await run.write(join(root, path), stub, true);
+                            continue;
+                        }
                         await run.write(join(root, path), content, true);
                     }
 

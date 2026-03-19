@@ -145,6 +145,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxInlineSvgSize,
         options.maxHtmlSize,
         options.maxAssetSize,
+        options.maxOpenapiIncludeSize,
         options.strict,
         options.originAsInput,
         options.copyOnWrite,
