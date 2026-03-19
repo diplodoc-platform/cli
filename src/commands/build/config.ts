@@ -174,6 +174,21 @@ const pdfDebug = option({
     default: false,
 });
 
+const maxOpenapiIncludeSize = option({
+    flags: '--max-openapi-include-size <value>',
+    desc: `
+        Restriction on the maximum generated content size for OpenAPI includer pages.
+        Pages exceeding this limit will be replaced with a stub.
+        For disabled use '0' --max-openapi-include-size '0'
+        Default: 0 (disabled)
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --max-openapi-include-size '8M'
+    `,
+    default: '0',
+    parser: fileSizeConverter({disableIfZero: true}),
+});
+
 const maxInlineSvgSize = option({
     flags: '--max-inline-svg-size <value>',
     desc: `
@@ -359,11 +374,12 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
     config.content = combineProps(
         config,
         'content',
-        ['maxInlineSvgSize', 'maxHtmlSize', 'maxAssetSize'],
+        ['maxInlineSvgSize', 'maxHtmlSize', 'maxAssetSize', 'maxOpenapiIncludeSize'],
         {
             maxInlineSvgSize,
             maxHtmlSize,
             maxAssetSize,
+            maxOpenapiIncludeSize,
         },
     ) as ContentConfig;
 
@@ -409,4 +425,5 @@ export const options = {
     maxHtmlSize,
     maxAssetSize,
     addAlternateMeta,
+    maxOpenapiIncludeSize,
 };

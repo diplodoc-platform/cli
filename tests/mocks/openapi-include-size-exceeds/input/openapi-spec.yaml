@@ -1,0 +1,190 @@
+openapi: 3.0.1
+info:
+  title: Large Test API
+  version: v1
+  description: This is a large API specification used for testing the max openapi include size limit.
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /users:
+    get:
+      tags:
+        - user-controller
+      summary: Get all users
+      description: Returns a list of all users in the system with their details.
+      operationId: getAllUsers
+      parameters:
+        - name: page
+          in: query
+          required: false
+          description: Page number for pagination
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: Number of items per page
+          schema:
+            type: integer
+        - name: sort
+          in: query
+          required: false
+          description: Sort field
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      tags:
+        - user-controller
+      summary: Create a new user
+      description: Creates a new user in the system.
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /users/{id}:
+    get:
+      tags:
+        - user-controller
+      summary: Get user by ID
+      description: Returns a single user by their unique identifier.
+      operationId: getUserById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The unique identifier of the user
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier
+        name:
+          type: string
+          description: Full name of the user
+        email:
+          type: string
+          description: Email address
+        role:
+          type: string
+          description: User role in the system
+          enum: [admin, editor, viewer]
+        address:
+          $ref: '#/components/schemas/Address'
+        metadata:
+          $ref: '#/components/schemas/Metadata'
+    UserCreate:
+      type: object
+      required:
+        - name
+        - email
+      properties:
+        name:
+          type: string
+          description: Full name of the user
+        email:
+          type: string
+          description: Email address
+        role:
+          type: string
+          description: User role in the system
+          enum: [admin, editor, viewer]
+        address:
+          $ref: '#/components/schemas/Address'
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Street address
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State or province
+        zip:
+          type: string
+          description: Postal code
+        country:
+          type: string
+          description: Country name
+    Metadata:
+      type: object
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updatedAt:
+          type: string
+          format: date-time
+          description: Last update timestamp
+        lastLogin:
+          type: string
+          format: date-time
+          description: Last login timestamp
+        loginCount:
+          type: integer
+          description: Total number of logins
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          description: Error code
+        message:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Detailed error information
