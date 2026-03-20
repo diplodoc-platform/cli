@@ -89,6 +89,7 @@ export class OutputHtml {
                     const data = getStateData(vfile.data);
                     const state = await run.entry.state(vfile.path, data);
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
+                    template.setCspDisabled(Boolean(run.config.disableCsp));
 
                     const html = await run.entry.page(template, state, toc.data);
                     vfile.path = setExt(vfile.path, '.html');

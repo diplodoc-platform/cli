@@ -140,6 +140,7 @@ export class SinglePage {
 
                         const state = await run.entry.state(htmlPath, data);
                         const template = new Template(htmlPath, state.lang, [__SinglePage__]);
+                        template.setCspDisabled(Boolean(run.config.disableCsp));
                         const page = await run.entry.page(template, state, tocData);
 
                         state.data.toc = tocData;

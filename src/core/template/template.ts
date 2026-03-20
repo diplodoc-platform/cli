@@ -86,6 +86,8 @@ export class Template {
 
     private csp: Hash<string[]> = {};
 
+    private cspDisabled = false;
+
     private meta: Hash[] = [];
 
     private styles: StyleInfo[] = [];
@@ -257,12 +259,30 @@ export class Template {
     }
 
     /**
+     * Disables CSP injection for this template.
+     * When disabled, all addCsp() calls become no-ops.
+     *
+     * @param disabled - Whether to disable CSP
+     * @returns Template instance for method chaining
+     */
+    @bounded setCspDisabled(disabled: boolean) {
+        this.cspDisabled = disabled;
+
+        return this;
+    }
+
+    /**
      * Merges CSP (Content Security Policy) directives (can be called multiple times).
+     * No-op when setCspDisabled(true) has been called.
      *
      * @param rules - CSP directives hash (e.g., `{'script-src': ["'self'", "'nonce-abc'"]}`)
      * @returns Template instance for method chaining
      */
     @bounded addCsp(rules: Hash<string[]>) {
+        if (this.cspDisabled) {
+            return;
+        }
+
         for (const [key, records] of Object.entries(rules)) {
             this.csp[key] = this.csp[key] || [];
             this.csp[key].push(...records);

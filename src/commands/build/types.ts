@@ -78,6 +78,7 @@ type BaseConfig = {
     };
     pdf: Record<string, boolean>;
     neuroExpert?: NeuroExpertBase;
+    disableCsp?: boolean;
     pdfDebug: boolean;
     content: ContentConfig;
 };

@@ -278,6 +278,12 @@ properties:
     type: boolean
     description: Allow loading custom resources in static output mode.
 
+  disableCsp:
+    type: boolean
+    description: >
+      Do not inject Content-Security-Policy meta tags into generated HTML pages.
+      Use when CSP is managed externally (e.g. via server HTTP headers).
+
   # ── Theme ──────────────────────────────────────────────────────────
   theme:
     oneOf:
