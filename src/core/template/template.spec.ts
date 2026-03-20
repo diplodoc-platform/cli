@@ -5,7 +5,7 @@ import {Template} from './template';
 describe('Template', () => {
     describe('setCspDisabled', () => {
         it('should not include CSP meta tag when disabled', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.setCspDisabled(true);
             template.addCsp({'script-src': ["'self'"]});
 
@@ -15,7 +15,7 @@ describe('Template', () => {
         });
 
         it('should include CSP meta tag when not disabled', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.addCsp({'script-src': ["'self'"]});
 
             const html = template.dump();
@@ -25,7 +25,7 @@ describe('Template', () => {
         });
 
         it('should ignore all addCsp calls when disabled', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.setCspDisabled(true);
             template.addCsp({'script-src': ["'self'"]});
             template.addCsp({'style-src': ["'unsafe-inline'"]});
@@ -40,7 +40,7 @@ describe('Template', () => {
         });
 
         it('should ignore addCsp calls made before and after setCspDisabled', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.addCsp({'script-src': ['https://before.com']});
             template.setCspDisabled(true);
             template.addCsp({'style-src': ['https://after.com']});
@@ -54,7 +54,7 @@ describe('Template', () => {
         });
 
         it('should re-enable CSP when set back to false', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.setCspDisabled(true);
             template.addCsp({'script-src': ['https://ignored.com']});
             template.setCspDisabled(false);
@@ -68,14 +68,14 @@ describe('Template', () => {
         });
 
         it('should return template instance for chaining', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             const result = template.setCspDisabled(true);
 
             expect(result).toBe(template);
         });
 
         it('should not affect other template features when CSP is disabled', () => {
-            const template = new Template('index.html', 'en');
+            const template = new Template('index.html' as RelativePath, 'en');
             template.setCspDisabled(true);
             template.setTitle('Test Page');
             template.addBody('<div>content</div>');
