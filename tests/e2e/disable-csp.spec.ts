@@ -1,5 +1,5 @@
 import {readFileSync, readdirSync} from 'node:fs';
-import {join} from 'node:path';
+import {join, sep} from 'node:path';
 import {describe, expect, test} from 'vitest';
 
 import {TestAdapter, getTestPaths} from '../fixtures';
@@ -44,7 +44,7 @@ describe('disableCsp', () => {
         }
 
         // Content pages (under en/) should still have the neuroExpert widget script
-        const contentPages = htmlFiles.filter((f) => f.includes('/en/'));
+        const contentPages = htmlFiles.filter((f) => f.includes(`${sep}en${sep}`));
         expect(contentPages.length).toBeGreaterThan(0);
 
         for (const htmlFile of contentPages) {
