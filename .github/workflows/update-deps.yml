@@ -9,9 +9,8 @@ on:
   workflow_dispatch:
     inputs:
       package:
-        description: 'Package name to update'
-        required: true
-        default: '@diplodoc/transform'
+        description: 'Package name to update (single selection)'
+        required: false
         type: choice
         options:
           # === packages ===
@@ -38,6 +37,15 @@ on:
           - '@diplodoc/quote-link-extension'
           - '@diplodoc/search-extension'
           - '@diplodoc/tabs-extension'
+      update_as_dev:
+        description: 'Update as devDependency (only for single package selection)'
+        required: false
+        type: boolean
+        default: false
+      packages:
+        description: 'Package names to update (comma-separated, e.g., "@diplodoc/transform,dev:@diplodoc/client"). Use "dev:" prefix for devDependencies. If empty, uses single package selection above.'
+        required: false
+        type: string
       version:
         description: 'Package version (use "latest" for latest version)'
         required: true
@@ -73,8 +81,48 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Update package
-        run: npm install --no-workspaces ${{ inputs.package }}@${{ inputs.version }}
+      - name: Update packages
+        run: |
+          set -e
+
+          # Determine which packages to update
+          if [[ -n "${{ inputs.packages }}" ]]; then
+            # Use multi-selection field with dev: prefix support
+            PACKAGES_INPUT="${{ inputs.packages }}"
+            
+            # Parse comma-separated packages
+            IFS=',' read -ra PACKAGES <<< "$PACKAGES_INPUT"
+            
+            for PACKAGE_ENTRY in "${PACKAGES[@]}"; do
+              # Trim whitespace
+              PACKAGE_ENTRY=$(echo "$PACKAGE_ENTRY" | xargs)
+              
+              # Check for dev: prefix
+              if [[ "$PACKAGE_ENTRY" == dev:* ]]; then
+                PACKAGE="${PACKAGE_ENTRY#dev:}"
+                echo "::info::Updating $PACKAGE to ${{ inputs.version }} as devDependency"
+                npm install --no-workspaces --save-dev "$PACKAGE@${{ inputs.version }}"
+              else
+                PACKAGE="$PACKAGE_ENTRY"
+                echo "::info::Updating $PACKAGE to ${{ inputs.version }}"
+                npm install --no-workspaces "$PACKAGE@${{ inputs.version }}"
+              fi
+            done
+          elif [[ -n "${{ inputs.package }}" ]]; then
+            # Use single selection field
+            PACKAGE="${{ inputs.package }}"
+            
+            if [[ "${{ inputs.update_as_dev }}" == "true" ]]; then
+              echo "::info::Updating $PACKAGE to ${{ inputs.version }} as devDependency"
+              npm install --no-workspaces --save-dev "$PACKAGE@${{ inputs.version }}"
+            else
+              echo "::info::Updating $PACKAGE to ${{ inputs.version }}"
+              npm install --no-workspaces "$PACKAGE@${{ inputs.version }}"
+            fi
+          else
+            echo "::error::Either package or packages must be specified"
+            exit 1
+          fi
 
       - name: Regenerate package-lock.json for standalone mode
         run: npm install --no-workspaces --package-lock-only
@@ -91,20 +139,64 @@ jobs:
             exit 0
           fi
 
-          # Get actual installed version
-          VERSION=$(npm explore --no-workspaces ${{ inputs.package }} "node -pe 'require(\"./package.json\").version'" --shell sh)
+          # Determine which packages to update
+          if [[ -n "${{ inputs.packages }}" ]]; then
+            # Use multi-selection field with dev: prefix support
+            PACKAGES_INPUT="${{ inputs.packages }}"
+            
+            # Parse comma-separated packages
+            IFS=',' read -ra PACKAGES <<< "$PACKAGES_INPUT"
+            
+            # Get actual installed versions for all packages
+            VERSIONS=""
+            for PACKAGE_ENTRY in "${PACKAGES[@]}"; do
+              # Trim whitespace
+              PACKAGE_ENTRY=$(echo "$PACKAGE_ENTRY" | xargs)
+              
+              # Check for dev: prefix
+              if [[ "$PACKAGE_ENTRY" == dev:* ]]; then
+                PACKAGE="${PACKAGE_ENTRY#dev:}"
+                DEV_PREFIX="dev:"
+              else
+                PACKAGE="$PACKAGE_ENTRY"
+                DEV_PREFIX=""
+              fi
+              
+              VERSION=$(npm explore --no-workspaces "$PACKAGE" "node -pe 'require(\"./package.json\").version'" --shell sh)
+              if [[ -n "$VERSIONS" ]]; then
+                VERSIONS="$VERSIONS, "
+              fi
+              VERSIONS="$VERSIONS$DEV_PREFIX$PACKAGE@$VERSION"
+            done
+          elif [[ -n "${{ inputs.package }}" ]]; then
+            # Use single selection field
+            PACKAGE="${{ inputs.package }}"
+            VERSION=$(npm explore --no-workspaces "$PACKAGE" "node -pe 'require(\"./package.json\").version'" --shell sh)
+            
+            if [[ "${{ inputs.update_as_dev }}" == "true" ]]; then
+              VERSIONS="dev:$PACKAGE@$VERSION"
+            else
+              VERSIONS="$PACKAGE@$VERSION"
+            fi
+          else
+            echo "::error::Either package or packages must be specified"
+            exit 1
+          fi
 
           # Configure git
           git config --global user.email "95919151+yc-ui-bot@users.noreply.github.com"
           git config --global user.name "yc-ui-bot"
 
-          # Create branch and commit
-          BRANCH_NAME="ci/update-deps/${{ inputs.package }}-$VERSION"
+          # Create branch name (use first package for simplicity)
+          # Remove dev: prefix and @ symbol for valid branch name
+          FIRST_PACKAGE=$(echo "$PACKAGES_INPUT" | cut -d',' -f1 | xargs)
+          FIRST_PACKAGE=$(echo "$FIRST_PACKAGE" | sed 's/^dev://; s/@//g')
+          BRANCH_NAME="ci/update-deps/$FIRST_PACKAGE-${{ inputs.version }}"
           git push -f origin :$BRANCH_NAME || true
           git checkout -b $BRANCH_NAME
           git add package.json package-lock.json
-          git commit -m "fix(deps): Update ${{ inputs.package }} to $VERSION" --no-verify
+          git commit -m "fix(deps): Update $VERSIONS" --no-verify
           git push -u origin $BRANCH_NAME
 
           # Create PR
-          gh pr create --title "fix(deps): Update ${{ inputs.package }} to $VERSION" --body "Automated dependency update" --base master
+          gh pr create --title "fix(deps): Update $VERSIONS" --body "Automated dependency update" --base master
