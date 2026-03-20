@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.28.0](https://github.com/diplodoc-platform/cli/compare/v5.27.4...v5.28.0) (2026-03-20)
+
+
+### Features
+
+* added crawler manifest ([#1771](https://github.com/diplodoc-platform/cli/issues/1771)) ([efca399](https://github.com/diplodoc-platform/cli/commit/efca3990087a98b6f47da105ff291eb021a71f50))
+* implement max openapi include size ([2e327d1](https://github.com/diplodoc-platform/cli/commit/2e327d11c5aaea74b9f68c0ee48d3c862ec9d929))
+
 ## [5.27.4](https://github.com/diplodoc-platform/cli/compare/v5.27.3...v5.27.4) (2026-03-18)
 
 
