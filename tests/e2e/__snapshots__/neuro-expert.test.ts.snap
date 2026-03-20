@@ -256,7 +256,7 @@ exports[`Neuro-expert > Neuro-expert 9`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -309,7 +309,7 @@ exports[`Neuro-expert > Neuro-expert 10`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -362,7 +362,7 @@ exports[`Neuro-expert > Neuro-expert 11`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -415,7 +415,7 @@ exports[`Neuro-expert > Neuro-expert 12`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
@@ -468,7 +468,7 @@ exports[`Neuro-expert > Neuro-expert 13`] = `
                     const widgetsDiv = document.getElementById("dc-widgets");
                     if (widgetsDiv) {
                         widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget"});
+                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
                     } else {
                         setTimeout(tryAppend, 50);
                     }
