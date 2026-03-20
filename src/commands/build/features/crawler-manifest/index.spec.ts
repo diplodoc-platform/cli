@@ -218,6 +218,12 @@ plain https://plain.example.com text
             ).toEqual([]);
         });
 
+        it('extracts include when label contains percent sign', () => {
+            expect(extractIncludePaths('{% include [налог 3%](_includes/tax-new.md) %}')).toEqual([
+                '_includes/tax-new.md',
+            ]);
+        });
+
         it('extracts include path without space before bracket (notitle form)', () => {
             expect(extractIncludePaths('{% include[label](./snippet.md) %}')).toEqual([
                 './snippet.md',

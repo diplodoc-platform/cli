@@ -29,6 +29,7 @@ const MANIFEST_FILENAME = 'crawler-manifest.json';
 const FILE_BLOCK_REGEX = /{%\s*file\s[^%]*?src="([^"]{1,2048})"/g;
 
 const md = new MarkdownIt({html: true, linkify: true});
+const mdNoLinkify = new MarkdownIt({html: true, linkify: false});
 
 function walkTokens(tokens: Token[], links: Set<string>): void {
     for (const token of tokens) {
@@ -52,11 +53,11 @@ function walkTokens(tokens: Token[], links: Set<string>): void {
     }
 }
 
-export function extractExternalLinks(content: string): string[] {
+export function extractExternalLinks(content: string, {linkify = true} = {}): string[] {
     const links = new Set<string>();
     const env: {references?: Record<string, {href: string}>} = {};
 
-    walkTokens(md.parse(content, env), links);
+    walkTokens((linkify ? md : mdNoLinkify).parse(content, env), links);
 
     for (const ref of Object.values(env.references ?? {})) {
         if (ref.href && isExternalHref(ref.href)) {
@@ -163,12 +164,13 @@ export async function collectLinks(
         return [];
     }
 
-    const links = extractExternalLinks(content);
     const isYaml = normalized.endsWith('.yaml') || normalized.endsWith('.yml');
-
-    if (isYaml) {
-        links.push(...collectExternalLinksFromYaml(content));
-    }
+    const links = isYaml
+        ? [
+              ...extractExternalLinks(content, {linkify: false}),
+              ...collectExternalLinksFromYaml(content),
+          ]
+        : extractExternalLinks(content);
 
     if (normalized.endsWith('.md')) {
         for (const includePath of extractIncludePaths(content)) {
