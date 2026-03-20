@@ -367,6 +367,12 @@ properties:
     type: boolean
     description: Emit yfm-build-manifest.json with all documentation paths.
 
+  crawlerManifest:
+    type: boolean
+    description: >
+      Emit crawler-manifest.json mapping each source file to its external links.
+      Useful for link-health checks (detecting 404, 403, etc.).
+
   changelogs:
     oneOf:
       - type: boolean

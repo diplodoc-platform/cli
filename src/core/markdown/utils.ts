@@ -68,6 +68,7 @@ export function getPcIconTitle(iconPath: string): string {
 }
 
 export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/m;
+export const INCLUDE_REGEX = /{%\s*include\s*.+?%}/g;
 
 export function findPcImages(content: string): AssetInfo[] {
     const pcImages: AssetInfo[] = [];

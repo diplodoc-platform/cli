@@ -11,6 +11,7 @@ import type {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {OutputMdConfig, PreprocessConfig} from './features/output-md';
 import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
+import type {CrawlerManifestArgs, CrawlerManifestConfig} from './features/crawler-manifest';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
@@ -100,6 +101,7 @@ export type BuildArgs = ProgramArgs &
             SkipHtmlArgs &
             LintArgs &
             BuildManifestArgs &
+            CrawlerManifestArgs &
             PreprocessConfig &
             ChangelogsArgs &
             SearchArgs &
@@ -141,6 +143,7 @@ export type BuildConfig = Config<
         SkipHtmlConfig &
         LintConfig &
         BuildManifestConfig &
+        CrawlerManifestConfig &
         OutputMdConfig &
         ChangelogsConfig &
         SearchConfig &
