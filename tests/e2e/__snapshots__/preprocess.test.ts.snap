@@ -5,6 +5,7 @@ exports[`Preprocess > HashIncludes=true(ignore),Autotitles=true,MergeIncludes=tr
   ".yfm",
   "1.md",
   "_assets/1.png",
+  "_assets/2.png",
   "autotitle.md",
   "images.md",
   "included-item.md",
@@ -138,12 +139,12 @@ metadata:
 Text
 
 Bob
-
+d usageMermaid usagemd) %}
 
 Test
 
 
-Link after include
+Link after incMermaid usagelude
 [Title](./1.md)
 
 <!--{% include [For includes/deep.md](includes/deep.md) %}-->
@@ -153,11 +154,20 @@ Bob
 
 Include with big indent
 
-  - list item
+- list item
 
-    - User
-      Bob
+  Link to mermaid diagram from 2 level
+  [Mermaid usage](../../mermaid.md)
 
+  - User
+    Bob
+Indent.md) %}
+
+Link to mermaid diagram from 1 level
+[Mermaid usage](../mermaid.md)
+
+Img
+![simple image](../_assets/2.png)
 
 
 Include as codeblock
@@ -209,6 +219,20 @@ Include as codeblock
 
 Link after include
 [Subtitle](./1.md#subtitle)
+
+[*popup-1]: # Included item
+
+Included item text
+
+<!-- :   {% include [rec-off](./commented-include.md) %} -->
+
+{% note alert "Alert!" %}
+
+  <!-- content -->
+
+{% endnote %}
+
+
 "
 `;
 
@@ -457,7 +481,7 @@ Link after include
 
 Include with big indent
 
-  {% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
+{% include [For includes/deep.md](includes/deepWithIndent-hash.md) %}
 
 Include as codeblock
 
@@ -472,6 +496,8 @@ Include as codeblock
 
 Link after include
 [{#T}](./1.md#subtitle)
+
+[*popup-1]: {% include notitle [popup_1](included-item-hash.md) %}
 "
 `;
 
@@ -484,6 +510,9 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false,MergeIncludes=false 9`]
 "- list item
 
   {% include [user](./sub/userWithIndent-hash.md) %}
+
+Link to mermaid diagram from 1 level
+[](../mermaid.md)
 "
 `;
 
@@ -493,7 +522,10 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false,MergeIncludes=false 10`
 `;
 
 exports[`Preprocess > HashIncludes=true,Autotitles=false,MergeIncludes=false 11`] = `
-"- User
+"Link to mermaid diagram from 2 level
+[](../../mermaid.md)
+
+- User
   Bob
 "
 `;
