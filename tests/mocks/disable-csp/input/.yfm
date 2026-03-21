@@ -1,0 +1,8 @@
+allowHtml: true
+langs: ['en']
+
+disableCsp: true
+
+neuroExpert:
+  projectId:
+    default: test-project-id
