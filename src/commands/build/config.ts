@@ -238,7 +238,7 @@ const multilineTermDefinitions = option({
         Example:
             {{PROGRAM}} build -i . -o ../build --multiline-term-definitions
     `,
-    default: true,
+    default: false,
 });
 
 export function combineProps<C extends BuildConfig>(
