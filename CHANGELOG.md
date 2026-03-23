@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.29.0](https://github.com/diplodoc-platform/cli/compare/v5.28.0...v5.29.0) (2026-03-23)
+
+
+### Features
+
+* add disableCsp config option ([#1776](https://github.com/diplodoc-platform/cli/issues/1776)) ([e056ac3](https://github.com/diplodoc-platform/cli/commit/e056ac3918db0e8e405380690884fa01bda45a89))
+* Set YFM009 Error, support miltiline termDefinitions ([82fae22](https://github.com/diplodoc-platform/cli/commit/82fae22470b8e01e625631f802102b0b67d9b498))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.2.11, @diplodoc/transform@4.71.0 ([691cf45](https://github.com/diplodoc-platform/cli/commit/691cf4528fac9269bac4b94738299d76ad4f6e97))
+
 ## [5.28.0](https://github.com/diplodoc-platform/cli/compare/v5.27.4...v5.28.0) (2026-03-20)
 
 
