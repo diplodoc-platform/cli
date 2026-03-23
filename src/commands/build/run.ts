@@ -229,7 +229,7 @@ export class Run extends BaseRun<BuildConfig> {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
             },
-            multilineTermDefinitions: this.config.content.multilineTermDefinitions ?? true,
+            multilineTermDefinitions: this.config.content.multilineTermDefinitions ?? false,
             rawContent: (path: string): string => {
                 const asset = assets[path];
                 if (typeof asset !== 'string') {

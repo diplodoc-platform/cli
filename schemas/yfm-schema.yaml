@@ -362,7 +362,7 @@ properties:
         description: >
           Allow term definitions to span multiple lines.
           When enabled, a definition continues until the next [*key]: or end of block.
-          Default: true.
+          Default: false.
     additionalProperties: false
 
   # ── TOC filtering ──────────────────────────────────────────────────
