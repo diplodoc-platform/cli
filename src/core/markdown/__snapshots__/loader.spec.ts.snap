@@ -13,6 +13,7 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -32,6 +33,7 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "_images/auth_3.png",
@@ -51,6 +53,7 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "link.png",
@@ -77,6 +80,7 @@ exports[`Markdown loader > resolveAssets > should detect link asset 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -103,6 +107,7 @@ exports[`Markdown loader > resolveAssets > should detect link image asset 1`] = 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -122,6 +127,7 @@ exports[`Markdown loader > resolveAssets > should detect link image asset 1`] = 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some-big.png",
@@ -148,6 +154,7 @@ exports[`Markdown loader > resolveAssets > should detect link to anchor 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": null,
@@ -185,6 +192,7 @@ exports[`Markdown loader > resolveAssets > should skip assets in nested code blo
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -204,6 +212,7 @@ exports[`Markdown loader > resolveAssets > should skip assets in nested code blo
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some4.png",
@@ -229,6 +238,7 @@ exports[`Markdown loader > resolveAssets > should skip commented content 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -248,6 +258,7 @@ exports[`Markdown loader > resolveAssets > should skip commented content 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some-big.png",
@@ -280,6 +291,7 @@ exports[`Markdown loader > resolveAssets > should work with case sensitive image
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some1.PNG",
@@ -299,6 +311,7 @@ exports[`Markdown loader > resolveAssets > should work with case sensitive image
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some2.pnG",
@@ -325,6 +338,7 @@ exports[`Markdown loader > resolveAssets > should work with deflists 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "image.jpeg",
@@ -351,6 +365,7 @@ exports[`Markdown loader > resolveAssets > should work with images in yfm table 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -377,6 +392,7 @@ exports[`Markdown loader > resolveAssets > should work with images with paramete
       "options": {
         "height": "200",
         "inline": undefined,
+        "title": undefined,
         "width": "100",
       },
       "path": "some1.png",
@@ -396,6 +412,7 @@ exports[`Markdown loader > resolveAssets > should work with images with paramete
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": "100",
       },
       "path": "some2.png",
@@ -415,6 +432,7 @@ exports[`Markdown loader > resolveAssets > should work with images with paramete
       "options": {
         "height": "200",
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some3.png",
@@ -441,6 +459,7 @@ exports[`Markdown loader > resolveAssets > should work with images with title ba
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": "800",
       },
       "path": "some1.png",
@@ -460,6 +479,7 @@ exports[`Markdown loader > resolveAssets > should work with images with title ba
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": "800",
       },
       "path": "some2.png",
@@ -479,6 +499,7 @@ exports[`Markdown loader > resolveAssets > should work with images with title ba
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some3.png",
@@ -505,6 +526,7 @@ exports[`Markdown loader > resolveAssets > should work with inline svg images 1`
       "options": {
         "height": undefined,
         "inline": true,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some1.svg",
@@ -524,6 +546,7 @@ exports[`Markdown loader > resolveAssets > should work with inline svg images 1`
       "options": {
         "height": undefined,
         "inline": false,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some2.svg",
@@ -578,6 +601,7 @@ exports[`Markdown loader > resolveAssets > should work with popup with % in name
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "*link1",
@@ -597,6 +621,7 @@ exports[`Markdown loader > resolveAssets > should work with popup with % in name
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "*link2%",
@@ -638,6 +663,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "code",
@@ -658,6 +684,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "code",
@@ -699,6 +726,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "code",
@@ -719,6 +747,7 @@ exports[`Markdown loader > resolveAssets > should work with reference images wit
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "code",
@@ -766,6 +795,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some1.png",
@@ -785,6 +815,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some2.png",
@@ -804,6 +835,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images 1`] = `
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some3.png",
@@ -830,6 +862,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images format 
       "options": {
         "height": "100",
         "inline": undefined,
+        "title": undefined,
         "width": "100",
       },
       "path": "some1.png",
@@ -849,6 +882,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images format 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": "100",
       },
       "path": "some2.png",
@@ -868,6 +902,7 @@ exports[`Markdown loader > resolveAssets > should work with sized images format 
       "options": {
         "height": "100",
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some3.png",
@@ -894,6 +929,7 @@ exports[`Markdown loader > resolveAssets > should work with spaced images 1`] = 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some1.png",
@@ -913,6 +949,7 @@ exports[`Markdown loader > resolveAssets > should work with spaced images 1`] = 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some2.png",
@@ -932,6 +969,7 @@ exports[`Markdown loader > resolveAssets > should work with spaced images 1`] = 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some3.png",
@@ -957,6 +995,7 @@ exports[`Markdown loader > resolveBlockCodes > should add assets in definition l
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -976,6 +1015,7 @@ exports[`Markdown loader > resolveBlockCodes > should add assets in definition l
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1023,6 +1063,7 @@ exports[`Markdown loader > resolveBlockCodes > should add assets in definition l
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1054,6 +1095,7 @@ exports[`Markdown loader > resolveBlockCodes > should detect asset in multiline 
       "options": {
         "height": undefined,
         "inline": undefined,
+        "title": undefined,
         "width": undefined,
       },
       "path": "some.png",
@@ -1079,6 +1121,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle adjacent code block
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1098,6 +1141,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle adjacent code block
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1122,6 +1166,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle code blocks with on
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1141,6 +1186,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle code blocks with on
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1165,6 +1211,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle empty code blocks 1
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1184,6 +1231,7 @@ exports[`Markdown loader > resolveBlockCodes > should handle empty code blocks 1
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1208,6 +1256,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1227,6 +1276,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1246,6 +1296,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some4.png",
@@ -1276,6 +1327,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1295,6 +1347,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1319,6 +1372,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1338,6 +1392,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1357,6 +1412,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1376,6 +1432,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some4.png",
@@ -1400,6 +1457,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1419,6 +1477,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in code blocks
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1443,6 +1502,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1462,6 +1522,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1486,6 +1547,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1505,6 +1567,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in fenced code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1529,6 +1592,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in indented co
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1548,6 +1612,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in indented co
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some2.png",
@@ -1567,6 +1632,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in indented co
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1586,6 +1652,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in indented co
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some4.png",
@@ -1610,6 +1677,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1629,6 +1697,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",
@@ -1653,6 +1722,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some1.png",
@@ -1672,6 +1742,7 @@ exports[`Markdown loader > resolveBlockCodes > should skip assets in inline code
     "options": {
       "height": undefined,
       "inline": undefined,
+      "title": undefined,
       "width": undefined,
     },
     "path": "some3.png",

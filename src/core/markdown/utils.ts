@@ -127,7 +127,12 @@ export function findPcImages(content: string): AssetInfo[] {
                 search: null,
                 location: [matchIndex, blockEnd],
                 // no inline svg inside page-constructor because we hasn't a location for asset
-                options: {width: undefined, height: undefined, inline: false},
+                options: {
+                    width: undefined,
+                    height: undefined,
+                    inline: false,
+                    title: getPcIconTitle(img) || '',
+                },
             });
         }
 
@@ -356,6 +361,7 @@ function parseLinkOptions(str: string, start: number): ImageOptions {
         width: undefined,
         height: undefined,
         inline: undefined,
+        title: undefined,
     };
     let code,
         level = 0,
