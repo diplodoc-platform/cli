@@ -1,0 +1,8 @@
+title: main
+items:
+  - include:
+      path: test
+      includers:
+        - name: generic
+          autotitle: false
+          input: test
