@@ -16,6 +16,7 @@ import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
+    linkIndex?: boolean;
 }>;
 
 type Graph = {
@@ -83,6 +84,23 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
 
         if (typeof value === 'string') {
             return {name, href: value};
+        }
+
+        if (options.linkIndex) {
+            const entries = Object.entries(value);
+            const indexEntry = entries.find(([k]) => k === 'index');
+            const childEntries = entries.filter(([k]) => k !== 'index');
+
+            const result: RawTocItem = {
+                name: key as YfmString,
+                items: childEntries.map(item),
+            };
+
+            if (indexEntry && typeof indexEntry[1] === 'string') {
+                result.href = indexEntry[1];
+            }
+
+            return result;
         }
 
         return {name: key as YfmString, items: Object.entries(value).map(item)};
