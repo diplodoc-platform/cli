@@ -508,3 +508,210 @@ items:
 path: toc.yaml
 "
 `;
+
+exports[`Include toc > Toc with generic includer and linkIndex option > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub index"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 7`] = `
+"title: main
+items:
+  - name: test
+    href: test/test.md
+  - name: index
+    href: test/index.md
+  - name: sub
+    items:
+      - name: sub-2
+        href: test/sub/sub-2.md
+      - name: sub-1
+        href: test/sub/sub-1.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: test/sub/sub/sub-3.md
+    href: test/sub/index.md
+path: toc.yaml
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub index"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 7`] = `
+"title: main
+items:
+  - name: test
+    href: test/test.md
+  - name: index
+    href: test/index.md
+  - name: sub
+    items:
+      - name: sub-2
+        href: test/sub/sub-2.md
+      - name: sub-1
+        href: test/sub/sub-1.md
+      - name: index
+        href: test/sub/index.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: test/sub/sub/sub-3.md
+path: toc.yaml
+"
+`;

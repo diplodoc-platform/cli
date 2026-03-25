@@ -52,4 +52,16 @@ describe('Include toc', () => {
         await TestAdapter.testBuildPass(inputPath, outputPath);
         await compareDirectories(outputPath);
     });
+
+    test('Toc with generic includer and linkIndex option', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test8');
+        await TestAdapter.testBuildPass(inputPath, outputPath);
+        await compareDirectories(outputPath);
+    });
+
+    test('Toc with generic includer keeps index.md as child item by default', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test9');
+        await TestAdapter.testBuildPass(inputPath, outputPath);
+        await compareDirectories(outputPath);
+    });
 });
