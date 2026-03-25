@@ -31,7 +31,7 @@ npm i @diplodoc/cli -g
 ```
 
 ```bash
-npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
+npm run start -- -i ./input-folder -o ./output-folder -v "{\"name\":\"Alice\"}"
 ```
 
 ## Source files
