@@ -1497,3 +1497,76 @@ describe('include dependency handling', () => {
         expect(dependants[0]).toBe('toc.yaml' as NormalizedPath);
     });
 });
+
+describe('pdfDebug entries', () => {
+    it('should include endPages as entries when pdfDebug is true', async () => {
+        const {run} = setupService({});
+        const toc = new TocService(run, {pdfDebug: true});
+
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
+                pdf:
+                  endPages:
+                    - end-page1.md
+                    - end-page2.md
+                items:
+                  - name: Item
+                    href: page.md
+            `);
+
+        when(run.vars.for)
+            .calledWith('toc.yaml' as NormalizedPath)
+            .thenReturn({});
+
+        await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+        const entries = toc.entries;
+        expect(entries).toContain('end-page1.md' as NormalizedPath);
+        expect(entries).toContain('end-page2.md' as NormalizedPath);
+    });
+
+    it('should not include endPages as entries when pdfDebug is false', async () => {
+        const {run, toc} = setupService({});
+
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
+                pdf:
+                  endPages:
+                    - end-page1.md
+                items:
+                  - name: Item
+                    href: page.md
+            `);
+
+        when(run.vars.for)
+            .calledWith('toc.yaml' as NormalizedPath)
+            .thenReturn({});
+
+        await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+        expect(toc.entries).not.toContain('end-page1.md' as NormalizedPath);
+    });
+
+    it('should include startPages as entries when pdfDebug is true', async () => {
+        const {run} = setupService({});
+        const toc = new TocService(run, {pdfDebug: true});
+
+        when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
+            .thenResolve(dedent`
+                pdf:
+                  startPages:
+                    - start-page1.md
+                items:
+                  - name: Item
+                    href: page.md
+            `);
+
+        when(run.vars.for)
+            .calledWith('toc.yaml' as NormalizedPath)
+            .thenReturn({});
+
+        await toc.init(['toc.yaml'] as NormalizedPath[]);
+
+        expect(toc.entries).toContain('start-page1.md' as NormalizedPath);
+    });
+});
