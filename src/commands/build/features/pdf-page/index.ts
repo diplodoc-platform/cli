@@ -236,13 +236,13 @@ export class PdfPage {
                     try {
                         const pdfStartPagesContent = joinPdfPageResults(
                             pdfStartPages.filter(Boolean),
-                            tocDir as NormalizedPath,
+                            tocDir,
                             pdfLinks,
                         );
 
                         const pdfEndPagesContent = joinPdfPageResults(
                             pdfEndPages.filter(Boolean),
-                            tocDir as NormalizedPath,
+                            tocDir,
                             pdfLinks,
                         );
 
