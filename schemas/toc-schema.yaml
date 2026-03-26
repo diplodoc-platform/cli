@@ -37,6 +37,10 @@ properties:
         type: array
         items:
           type: string
+      endPages:
+        type: array
+        items:
+          type: string
     additionalProperties: false
   items:
     $ref: '#/definitions/TocItems'

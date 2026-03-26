@@ -94,11 +94,22 @@ export class PdfPage {
 
                 getTocHooks(run.toc).Loaded.tapPromise({name: 'pdfTitle'}, async (loadedToc) => {
                     const pdfStartPages = loadedToc?.pdf?.startPages;
+                    const pdfEndPages = loadedToc?.pdf?.endPages;
 
                     if (pdfStartPages) {
                         const tocLikeEntries = pdfStartPages.map((page) => ({href: page}));
 
                         // We want to treat pdf start pages as regular entries for arc CI
+                        run.toc.pushAdditionalEntries(loadedToc.path, {
+                            items: tocLikeEntries,
+                            path: loadedToc.path,
+                        } as Toc);
+                    }
+
+                    if (pdfEndPages) {
+                        const tocLikeEntries = pdfEndPages.map((page) => ({href: page}));
+
+                        // We want to treat pdf end pages as regular entries for arc CI
                         run.toc.pushAdditionalEntries(loadedToc.path, {
                             items: tocLikeEntries,
                             path: loadedToc.path,
@@ -179,12 +190,23 @@ export class PdfPage {
                 for (const toc of run.toc.tocs) {
                     const entries: PdfPageResult[] = [];
                     const pdfStartPages: PdfPageResult[] = [];
+                    const pdfEndPages: PdfPageResult[] = [];
 
                     // First we want to process pdf title pages
                     for (const page of toc.pdf?.startPages || []) {
                         const normalizedPath = normalizePath(join(dirname(toc.path), page));
                         const mdPage = await run.markdown.dump(normalizedPath);
                         pdfStartPages.push({
+                            path: page,
+                            content: mdPage.data,
+                        });
+                    }
+
+                    // Second we want to process pdf ending pages
+                    for (const page of toc.pdf?.endPages || []) {
+                        const normalizedPath = normalizePath(join(dirname(toc.path), page));
+                        const mdPage = await run.markdown.dump(normalizedPath);
+                        pdfEndPages.push({
                             path: page,
                             content: mdPage.data,
                         });
@@ -218,6 +240,12 @@ export class PdfPage {
                             pdfLinks,
                         );
 
+                        const pdfEndPagesContent = joinPdfPageResults(
+                            pdfEndPages.filter(Boolean),
+                            tocDir as NormalizedPath,
+                            pdfLinks,
+                        );
+
                         const pdfPageBody = joinPdfPageResults(
                             entries.filter(Boolean),
                             tocDir as NormalizedPath,
@@ -233,6 +261,10 @@ export class PdfPage {
                             pdfTitlePages: {
                                 content: pdfStartPagesContent,
                                 pageCount: pdfStartPages.length,
+                            },
+                            pdfEndingPages: {
+                                content: pdfEndPagesContent,
+                                pageCount: pdfEndPages.length,
                             },
                             cssLink: run.manifest.app.css.map((file: string) =>
                                 join(BUNDLE_FOLDER, file),

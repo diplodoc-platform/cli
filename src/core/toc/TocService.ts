@@ -326,12 +326,20 @@ export class TocService {
         }
 
         const pdfStartPages = toc?.pdf?.startPages;
+        const pdfEndPages = toc?.pdf?.endPages;
         const {pdfDebug} = this.options;
 
         if (pdfStartPages && pdfDebug) {
             const tocLikeEntries = pdfStartPages.map((page) => ({href: page}));
 
             // We want to treat pdf start pages as regular entries for puprose of debug
+            this.addEntries(file, {items: tocLikeEntries, path: toc.path} as Toc);
+        }
+
+        if (pdfEndPages && pdfDebug) {
+            const tocLikeEntries = pdfEndPages.map((page) => ({href: page}));
+
+            // We want to treat pdf end pages as regular entries for puprose of debug
             this.addEntries(file, {items: tocLikeEntries, path: toc.path} as Toc);
         }
 
