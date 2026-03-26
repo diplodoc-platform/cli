@@ -1,6 +1,7 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VcsServiceConfig} from '~/core/vcs';
+import type {VFile} from '~/core/utils';
 
 import {uniq} from 'lodash';
 
@@ -55,13 +56,23 @@ export class Contributors {
         });
 
         getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
+            const addMetadata = async <T extends string | object, P extends {path: NormalizedPath}>(
+                vfile: VFile<T>,
+                rawDeps: P[],
+            ) => {
+                const deps = uniq(rawDeps.map(get('path')));
+                const meta = await run.vcs.metadata(vfile.path, deps);
+
+                run.meta.add(vfile.path, meta);
+                run.meta.addResources(vfile.path, meta);
+            };
+
             getLeadingHooks(run.leading).Dump.tapPromise(
                 {name: 'Contributors', stage: -1},
                 async (vfile) => {
                     const rawDeps = await run.leading.deps(vfile.path);
-                    const deps = uniq(rawDeps.map(({path}) => path));
 
-                    run.meta.add(vfile.path, await run.vcs.metadata(vfile.path, deps));
+                    await addMetadata(vfile, rawDeps);
                 },
             );
 
@@ -69,11 +80,8 @@ export class Contributors {
                 {name: 'Contributors', stage: -1},
                 async (vfile) => {
                     const rawDeps = await run.markdown.deps(vfile.path);
-                    const deps = uniq(rawDeps.map(get('path')));
-                    const meta = await run.vcs.metadata(vfile.path, deps);
 
-                    run.meta.add(vfile.path, meta);
-                    run.meta.addResources(vfile.path, meta);
+                    await addMetadata(vfile, rawDeps);
                 },
             );
         });
