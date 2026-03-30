@@ -163,6 +163,12 @@ const feedbackUrl = option({
     `,
 });
 
+const disableCsp = option({
+    flags: '--disable-csp',
+    desc: 'Disable Content-Security-Policy meta tag injection into generated HTML pages.',
+    defaultInfo: false,
+});
+
 const pdfDebug = option({
     flags: '--pdf-debug',
     desc: `
@@ -439,6 +445,7 @@ export const options = {
     interfaceFeedback,
     feedbackUrl,
     pdfDebug,
+    disableCsp,
     maxInlineSvgSize,
     maxHtmlSize,
     maxAssetSize,
