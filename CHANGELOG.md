@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.31.0](https://github.com/diplodoc-platform/cli/compare/v5.30.0...v5.31.0) (2026-03-30)
+
+
+### Features
+
+* **cli:** add --disable-csp CLI flag ([#1795](https://github.com/diplodoc-platform/cli/issues/1795)) ([0439a96](https://github.com/diplodoc-platform/cli/commit/0439a96f8c1ab9e3329eabcad0b46b71327d3e80))
+
 ## [5.30.0](https://github.com/diplodoc-platform/cli/compare/v5.29.0...v5.30.0) (2026-03-30)
 
 
