@@ -26,7 +26,8 @@ export type WithItems<Item> = {
 export type RawToc = {
     path: NormalizedPath;
     pdf?: {
-        startPages: string[];
+        startPages?: string[];
+        endPages?: string[];
     };
     title?: YfmString | TextFilter[];
     label?: YfmString | TextFilter[] | RawTocLabel | RawTocLabel[];
@@ -98,7 +99,8 @@ export type IncludeInfo = {
 export type Toc = {
     path: NormalizedPath;
     pdf?: {
-        startPages: string[];
+        startPages?: string[];
+        endPages?: string[];
     };
     id: string;
     title?: string;

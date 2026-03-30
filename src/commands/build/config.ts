@@ -166,7 +166,7 @@ const feedbackUrl = option({
 const pdfDebug = option({
     flags: '--pdf-debug',
     desc: `
-        Adds to output files from pdf startPages section from toc.yaml
+        Adds to output files from pdf startPages and endPages sections from toc.yaml
 
         Example:
             {{PROGRAM}} build -i . -o ../build --pdf-debug

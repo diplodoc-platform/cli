@@ -22,7 +22,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [22]
+        node-version: [22.21.1]
 
     steps:
       - name: Checkout repository
