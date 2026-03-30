@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.30.0](https://github.com/diplodoc-platform/cli/compare/v5.29.0...v5.30.0) (2026-03-30)
+
+
+### Features
+
+* added endPages ([#1792](https://github.com/diplodoc-platform/cli/issues/1792)) ([434a095](https://github.com/diplodoc-platform/cli/commit/434a095a47816a58ef0ff44d86a3df218655a213))
+* **generic-includer:** add linkIndex option ([#1784](https://github.com/diplodoc-platform/cli/issues/1784)) ([bb3ee39](https://github.com/diplodoc-platform/cli/commit/bb3ee3908ef5042ead8f7ac01771808da170a8fc))
+
+
+### Bug Fixes
+
+* add missing CSP for contributors on leading pages ([#1785](https://github.com/diplodoc-platform/cli/issues/1785)) ([843f065](https://github.com/diplodoc-platform/cli/commit/843f0651d2781a47b1f990c4926366392a3e6c1b))
+
 ## [5.29.0](https://github.com/diplodoc-platform/cli/compare/v5.28.0...v5.29.0) (2026-03-23)
 
 
