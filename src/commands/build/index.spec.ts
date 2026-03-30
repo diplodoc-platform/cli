@@ -548,6 +548,10 @@ describe('Build command', () => {
             test('should handle config enabled', '', {disableCsp: true}, {disableCsp: true});
 
             test('should handle config disabled', '', {disableCsp: false}, {disableCsp: false});
+
+            test('should enable disableCsp when arg is present', '--disable-csp', {
+                disableCsp: true,
+            });
         });
 
         describe('maxInlineSvgSize', () => {

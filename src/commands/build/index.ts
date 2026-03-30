@@ -145,6 +145,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.interfaceSearch,
         options.interfaceFeedback,
         options.pdfDebug,
+        options.disableCsp,
         options.maxInlineSvgSize,
         options.maxHtmlSize,
         options.maxAssetSize,
