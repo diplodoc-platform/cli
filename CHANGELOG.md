@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.32.0](https://github.com/diplodoc-platform/cli/compare/v5.31.2...v5.32.0) (2026-04-01)
+
+
+### Features
+
+* added crawler section in .yfm support ([#1807](https://github.com/diplodoc-platform/cli/issues/1807)) ([75c350f](https://github.com/diplodoc-platform/cli/commit/75c350fe7337ad41ea3917d83437e71955bffe3e))
+
 ## [5.31.2](https://github.com/diplodoc-platform/cli/compare/v5.31.1...v5.31.2) (2026-04-01)
 
 
