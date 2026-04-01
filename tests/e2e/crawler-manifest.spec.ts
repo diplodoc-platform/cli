@@ -55,4 +55,20 @@ describe('Crawler manifest', () => {
 
         expect(manifest['index.md']).toContain('https://config.example.com');
     });
+
+    test('excludes urls by exact match and regexp from docs-viewer.crawler.exclude', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/crawler-manifest/exclude');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+        });
+
+        const manifestContent = await readFile(join(outputPath, 'crawler-manifest.json'), 'utf-8');
+        const manifest = JSON.parse(manifestContent);
+
+        expect(manifest['index.md']).toContain('https://kept.example.com');
+        expect(manifest['index.md']).not.toContain('https://excluded-exact.example.com');
+        expect(manifest['index.md']).not.toContain('https://excluded-regexp.example.com/some/path');
+    });
 });

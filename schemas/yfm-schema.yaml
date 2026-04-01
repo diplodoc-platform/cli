@@ -933,6 +933,27 @@ definitions:
         type: object
         additionalProperties: true
         description: Startrek integration settings (internal).
+      crawler:
+        type: object
+        properties:
+          exclude:
+            type: object
+            properties:
+              url:
+                type: array
+                items:
+                  type: string
+                description: Exact external URLs to exclude from crawler-manifest.json.
+              regexp:
+                type: array
+                items:
+                  type: string
+                description: >
+                  Regular expression patterns (JS /pattern/flags syntax) matching
+                  external URLs to exclude from crawler-manifest.json.
+            additionalProperties: false
+        additionalProperties: false
+        description: Crawler-manifest filter settings.
     additionalProperties: true
 
   LogoOptions:
