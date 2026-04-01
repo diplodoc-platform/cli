@@ -7,7 +7,7 @@ import {
     collectLinks,
     extractExternalLinks,
     extractIncludePaths,
-    parseExcludeRegexps,
+    parseRegexps,
 } from './index';
 
 describe('CrawlerManifest feature', () => {
@@ -383,34 +383,34 @@ plain https://plain.example.com text
         });
     });
 
-    describe('parseExcludeRegexps', () => {
+    describe('parseRegexps', () => {
         it('parses a JS regexp literal /pattern/flags', () => {
-            const [re] = parseExcludeRegexps(['/example\\.com/']);
+            const [re] = parseRegexps(['/example\\.com/']);
             expect(re.test('https://example.com')).toBe(true);
             expect(re.test('https://other.com')).toBe(false);
         });
 
         it('parses a regexp literal with flags', () => {
-            const [re] = parseExcludeRegexps(['/EXAMPLE/i']);
+            const [re] = parseRegexps(['/EXAMPLE/i']);
             expect(re.flags).toContain('i');
             expect(re.test('https://example.com')).toBe(true);
         });
 
         it('treats a plain string as a regexp pattern when not wrapped in slashes', () => {
-            const [re] = parseExcludeRegexps(['example\\.com']);
+            const [re] = parseRegexps(['example\\.com']);
             expect(re.test('https://example.com')).toBe(true);
         });
 
         it('skips non-string entries', () => {
-            expect(parseExcludeRegexps([null, 42, true])).toHaveLength(0);
+            expect(parseRegexps([null, 42, true])).toHaveLength(0);
         });
 
         it('skips invalid regexp patterns', () => {
-            expect(parseExcludeRegexps(['/[invalid/'])).toHaveLength(0);
+            expect(parseRegexps(['/[invalid/'])).toHaveLength(0);
         });
 
         it('returns empty array for empty input', () => {
-            expect(parseExcludeRegexps([])).toEqual([]);
+            expect(parseRegexps([])).toEqual([]);
         });
     });
 });

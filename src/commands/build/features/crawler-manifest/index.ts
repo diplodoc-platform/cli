@@ -26,6 +26,17 @@ export type CrawlerManifestConfig = {
 
 const MANIFEST_FILENAME = 'crawler-manifest.json';
 
+type CrawlerExcludeConfig = {
+    'docs-viewer'?: {
+        crawler?: {
+            exclude?: {
+                url?: unknown;
+                regexp?: unknown;
+            };
+        };
+    };
+};
+
 const REGEXP_LITERAL = /^\/(.+)\/([gimsuy]*)$/;
 
 const FILE_BLOCK_REGEX = /{%\s*file\s[^%]*?src="([^"]{1,2048})"/g;
@@ -186,7 +197,7 @@ export async function collectLinks(
     return links;
 }
 
-export function parseExcludeRegexps(patterns: unknown[]): RegExp[] {
+export function parseRegexps(patterns: unknown[]): RegExp[] {
     const result: RegExp[] = [];
 
     for (const pattern of patterns) {
@@ -225,20 +236,15 @@ export class CrawlerManifest {
 
             config.crawlerManifest = crawlerManifest;
 
-            const rawConfig = config as unknown as Record<string, unknown>;
-            const exclude = (rawConfig['docs-viewer'] as Record<string, unknown> | undefined)
-                ?.crawler as Record<string, unknown> | undefined;
-            const excludeSection = exclude?.exclude as Record<string, unknown> | undefined;
+            const exclude = (config as CrawlerExcludeConfig)?.['docs-viewer']?.crawler?.exclude;
 
             this.excludeUrls = new Set(
-                Array.isArray(excludeSection?.url)
-                    ? (excludeSection.url as unknown[]).filter(
-                          (v): v is string => typeof v === 'string',
-                      )
+                Array.isArray(exclude?.url)
+                    ? exclude.url.filter((v): v is string => typeof v === 'string')
                     : [],
             );
-            this.excludeRegexps = Array.isArray(excludeSection?.regexp)
-                ? parseExcludeRegexps(excludeSection.regexp as unknown[])
+            this.excludeRegexps = Array.isArray(exclude?.regexp)
+                ? parseRegexps(exclude.regexp)
                 : [];
 
             return config;
