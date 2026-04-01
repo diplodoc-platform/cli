@@ -26,6 +26,19 @@ export type CrawlerManifestConfig = {
 
 const MANIFEST_FILENAME = 'crawler-manifest.json';
 
+type CrawlerExcludeConfig = {
+    'docs-viewer'?: {
+        crawler?: {
+            exclude?: {
+                url?: unknown;
+                regexp?: unknown;
+            };
+        };
+    };
+};
+
+const REGEXP_LITERAL = /^\/(.+)\/([gimsuy]*)$/;
+
 const FILE_BLOCK_REGEX = /{%\s*file\s[^%]*?src="([^"]{1,2048})"/g;
 
 const md = new MarkdownIt({html: true, linkify: true});
@@ -184,8 +197,26 @@ export async function collectLinks(
     return links;
 }
 
+export function parseRegexps(patterns: unknown[]): RegExp[] {
+    const result: RegExp[] = [];
+
+    for (const pattern of patterns) {
+        if (typeof pattern !== 'string') continue;
+
+        const match = REGEXP_LITERAL.exec(pattern);
+
+        try {
+            result.push(match ? new RegExp(match[1], match[2]) : new RegExp(pattern));
+        } catch {}
+    }
+
+    return result;
+}
+
 export class CrawlerManifest {
     private readonly links = new Map<string, string[]>();
+    private excludeUrls = new Set<string>();
+    private excludeRegexps: RegExp[] = [];
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('CrawlerManifest', (command: Command) => {
@@ -204,6 +235,17 @@ export class CrawlerManifest {
             }
 
             config.crawlerManifest = crawlerManifest;
+
+            const exclude = (config as CrawlerExcludeConfig)?.['docs-viewer']?.crawler?.exclude;
+
+            this.excludeUrls = new Set(
+                Array.isArray(exclude?.url)
+                    ? exclude.url.filter((v): v is string => typeof v === 'string')
+                    : [],
+            );
+            this.excludeRegexps = Array.isArray(exclude?.regexp)
+                ? parseRegexps(exclude.regexp)
+                : [];
 
             return config;
         });
@@ -226,10 +268,12 @@ export class CrawlerManifest {
                         }
                     });
 
-                    if (externalLinks.length > 0) {
+                    const filtered = this.filterLinks(externalLinks);
+
+                    if (filtered.length > 0) {
                         this.links.set(toc.path, [
                             ...(this.links.get(toc.path) ?? []),
-                            ...externalLinks,
+                            ...filtered,
                         ]);
                     }
                 });
@@ -247,9 +291,10 @@ export class CrawlerManifest {
                 }
 
                 const externalLinks = await collectLinks(run, entry);
+                const filtered = this.filterLinks([...new Set(externalLinks)]);
 
-                if (externalLinks.length > 0) {
-                    this.links.set(entry, [...new Set(externalLinks)]);
+                if (filtered.length > 0) {
+                    this.links.set(entry, filtered);
                 }
             });
 
@@ -261,7 +306,7 @@ export class CrawlerManifest {
                 }
 
                 for (const {from, to} of run.redirects.files) {
-                    if (isExternalHref(to)) {
+                    if (isExternalHref(to) && !this.isExcluded(to)) {
                         const key = from.startsWith('/') ? from.slice(1) : from;
                         const existing = this.links.get(key) ?? [];
 
@@ -281,5 +326,21 @@ export class CrawlerManifest {
                     true,
                 );
             });
+    }
+
+    private isExcluded(url: string): boolean {
+        if (this.excludeUrls.has(url)) {
+            return true;
+        }
+
+        return this.excludeRegexps.some((re) => re.test(url));
+    }
+
+    private filterLinks(links: string[]): string[] {
+        if (this.excludeUrls.size === 0 && this.excludeRegexps.length === 0) {
+            return links;
+        }
+
+        return links.filter((url) => !this.isExcluded(url));
     }
 }
