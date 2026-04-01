@@ -207,22 +207,6 @@ export class CrawlerManifest {
     private excludeUrls = new Set<string>();
     private excludeRegexps: RegExp[] = [];
 
-    private isExcluded(url: string): boolean {
-        if (this.excludeUrls.has(url)) {
-            return true;
-        }
-
-        return this.excludeRegexps.some((re) => re.test(url));
-    }
-
-    private filterLinks(links: string[]): string[] {
-        if (this.excludeUrls.size === 0 && this.excludeRegexps.length === 0) {
-            return links;
-        }
-
-        return links.filter((url) => !this.isExcluded(url));
-    }
-
     apply(program: Build) {
         getBaseHooks(program).Command.tap('CrawlerManifest', (command: Command) => {
             command.addOption(options.crawlerManifest);
@@ -336,5 +320,21 @@ export class CrawlerManifest {
                     true,
                 );
             });
+    }
+
+    private isExcluded(url: string): boolean {
+        if (this.excludeUrls.has(url)) {
+            return true;
+        }
+
+        return this.excludeRegexps.some((re) => re.test(url));
+    }
+
+    private filterLinks(links: string[]): string[] {
+        if (this.excludeUrls.size === 0 && this.excludeRegexps.length === 0) {
+            return links;
+        }
+
+        return links.filter((url) => !this.isExcluded(url));
     }
 }
