@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.33.0](https://github.com/diplodoc-platform/cli/compare/v5.32.1...v5.33.0) (2026-04-06)
+
+
+### Features
+
+* added init command ([#1748](https://github.com/diplodoc-platform/cli/issues/1748)) ([16a26b7](https://github.com/diplodoc-platform/cli/commit/16a26b7e3b97592df05900c1426bdb025b78196a))
+
 ## [5.32.1](https://github.com/diplodoc-platform/cli/compare/v5.32.0...v5.32.1) (2026-04-03)
 
 
