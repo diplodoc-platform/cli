@@ -1,5 +1,6 @@
 **русский** | [english](https://github.com/diplodoc-platform/cli/blob/master/README.md)
-- - -
+
+---
 
 [![NPM version](https://img.shields.io/npm/v/@diplodoc/cli.svg?style=flat)](https://www.npmjs.org/package/@diplodoc/cli)
 
@@ -28,6 +29,58 @@ npm i @diplodoc/cli -g
 npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```
 
+## `yfm init`
+
+Инициализация нового проекта документации Diplodoc.
+
+### Использование
+
+```bash
+yfm init [options]
+```
+
+Запуск без флагов в терминале запускает интерактивный визард. Передайте `--skip-interactive` чтобы использовать флаги и дефолтные значения.
+
+### Опции
+
+| Опция                     | По умолчанию        | Описание                                      |
+| ------------------------- | ------------------- | --------------------------------------------- |
+| `-o, --output <path>`     | `.`                 | Директория для создания проекта               |
+| `--name <string>`         | basename директории | Название проекта                              |
+| `--langs <string>`        | `en`                | Языки через запятую, например `en,ru`         |
+| `--default-lang <string>` | первый из `--langs` | Язык по умолчанию                             |
+| `--template <string>`     | `minimal`           | `minimal` или `full`                          |
+| `--header`                | `true`              | Навигационная шапка в `toc.yaml`              |
+| `--force`                 | `false`             | Перезаписать существующую директорию          |
+| `--dry-run`               | `false`             | Показать что будет создано, без записи файлов |
+| `--skip-interactive`      | `false`             | Пропустить визард                             |
+
+### Создаваемые файлы
+
+**`minimal`**
+
+```
+<output>/
+├── .yfm
+├── toc.yaml
+└── index.md
+```
+
+**`full`** — дополнительно создаёт `presets.yaml`, `pc.yaml` и расширенный `.yfm` с конфигурацией pdf, search, vcs, authors.
+
+Для многоязычных проектов (`--langs en,ru`) контент размещается в поддиректориях по языку:
+
+```
+<output>/
+├── .yfm
+├── presets.yaml
+├── en/
+│   ├── toc.yaml
+│   └── index.md
+└── ru/
+    ├── toc.yaml
+    └── index.md
+```
 
 ## Исходники
 
