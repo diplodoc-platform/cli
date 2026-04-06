@@ -5,16 +5,15 @@ exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm > file
   ".yfm",
   "en/index.md",
   "en/toc.yaml",
-  "presets.yaml",
   "ru/index.md",
   "ru/toc.yaml"
 ]"
 `;
 
 exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 1`] = `
-"lang: en
-langs: ['ru', 'en']
-"
+"allowHtml: true
+lang: en
+langs: ['ru', 'en']"
 `;
 
 exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 2`] = `
@@ -42,12 +41,6 @@ items:
 `;
 
 exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 4`] = `
-"default:
-  project-name: My Docs
-"
-`;
-
-exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 5`] = `
 "# Welcome
 
 This is your documentation project created with [Diplodoc](https://diplodoc.com).
@@ -58,7 +51,7 @@ Edit this file or add new pages and update \`toc.yaml\`.
 "
 `;
 
-exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 6`] = `
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 5`] = `
 "title: My Docs
 href: index.md
 navigation:
@@ -76,16 +69,15 @@ exports[`yfm init — multi-lang > --no-header removes navigation from all toc.y
   ".yfm",
   "en/index.md",
   "en/toc.yaml",
-  "presets.yaml",
   "ru/index.md",
   "ru/toc.yaml"
 ]"
 `;
 
 exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 1`] = `
-"lang: ru
-langs: ['ru', 'en']
-"
+"allowHtml: true
+lang: ru
+langs: ['ru', 'en']"
 `;
 
 exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 2`] = `
@@ -109,12 +101,6 @@ items:
 `;
 
 exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 4`] = `
-"default:
-  project-name: My Docs
-"
-`;
-
-exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 5`] = `
 "# Welcome
 
 This is your documentation project created with [Diplodoc](https://diplodoc.com).
@@ -125,7 +111,7 @@ Edit this file or add new pages and update \`toc.yaml\`.
 "
 `;
 
-exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 6`] = `
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 5`] = `
 "title: My Docs
 href: index.md
 items:
@@ -139,16 +125,15 @@ exports[`yfm init — multi-lang > creates project structure > filelist 1`] = `
   ".yfm",
   "en/index.md",
   "en/toc.yaml",
-  "presets.yaml",
   "ru/index.md",
   "ru/toc.yaml"
 ]"
 `;
 
 exports[`yfm init — multi-lang > creates project structure 1`] = `
-"lang: ru
-langs: ['ru', 'en']
-"
+"allowHtml: true
+lang: ru
+langs: ['ru', 'en']"
 `;
 
 exports[`yfm init — multi-lang > creates project structure 2`] = `
@@ -176,12 +161,6 @@ items:
 `;
 
 exports[`yfm init — multi-lang > creates project structure 4`] = `
-"default:
-  project-name: My Docs
-"
-`;
-
-exports[`yfm init — multi-lang > creates project structure 5`] = `
 "# Welcome
 
 This is your documentation project created with [Diplodoc](https://diplodoc.com).
@@ -192,7 +171,7 @@ Edit this file or add new pages and update \`toc.yaml\`.
 "
 `;
 
-exports[`yfm init — multi-lang > creates project structure 6`] = `
+exports[`yfm init — multi-lang > creates project structure 5`] = `
 "title: My Docs
 href: index.md
 navigation:
@@ -213,13 +192,7 @@ exports[`yfm init — single-lang > --no-header removes navigation block > filel
 ]"
 `;
 
-exports[`yfm init — single-lang > --no-header removes navigation block 1`] = `
-"# YFM project config
-# Docs: https://diplodoc.com/docs/ru/project/config
-
-lang: ru
-"
-`;
+exports[`yfm init — single-lang > --no-header removes navigation block 1`] = `"lang: en"`;
 
 exports[`yfm init — single-lang > --no-header removes navigation block 2`] = `
 "# Welcome
@@ -249,13 +222,7 @@ exports[`yfm init — single-lang > creates project structure > filelist 1`] = `
 ]"
 `;
 
-exports[`yfm init — single-lang > creates project structure 1`] = `
-"# YFM project config
-# Docs: https://diplodoc.com/docs/ru/project/config
-
-lang: ru
-"
-`;
+exports[`yfm init — single-lang > creates project structure 1`] = `"lang: en"`;
 
 exports[`yfm init — single-lang > creates project structure 2`] = `
 "# Welcome
@@ -289,13 +256,7 @@ exports[`yfm init — single-lang > derives project name from output directory b
 ]"
 `;
 
-exports[`yfm init — single-lang > derives project name from output directory basename 1`] = `
-"# YFM project config
-# Docs: https://diplodoc.com/docs/ru/project/config
-
-lang: ru
-"
-`;
+exports[`yfm init — single-lang > derives project name from output directory basename 1`] = `"lang: en"`;
 
 exports[`yfm init — single-lang > derives project name from output directory basename 2`] = `
 "# Welcome

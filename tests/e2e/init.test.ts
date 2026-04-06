@@ -22,7 +22,7 @@ afterEach(async () => {
 describe('yfm init — single-lang', () => {
     it('creates project structure', async () => {
         const out = join(tmpDir, 'proj');
-        const report = await run(['--output', out, '--name', 'My Docs']);
+        const report = await run(['--output', out, '--name', 'My Docs', '--skip-interactive']);
 
         expect(report.code).toBe(0);
         await compareDirectories(out);
@@ -37,7 +37,7 @@ describe('yfm init — single-lang', () => {
 
     it('--no-header removes navigation block', async () => {
         const out = join(tmpDir, 'proj');
-        await run(['--output', out, '--name', 'My Docs', '--no-header']);
+        await run(['--output', out, '--name', 'My Docs', '--no-header', '--skip-interactive']);
 
         await compareDirectories(out);
     });
@@ -46,7 +46,15 @@ describe('yfm init — single-lang', () => {
 describe('yfm init — multi-lang', () => {
     it('creates project structure', async () => {
         const out = join(tmpDir, 'proj');
-        const report = await run(['--output', out, '--langs', 'ru,en', '--name', 'My Docs']);
+        const report = await run([
+            '--output',
+            out,
+            '--langs',
+            'ru,en',
+            '--name',
+            'My Docs',
+            '--skip-interactive',
+        ]);
 
         expect(report.code).toBe(0);
         await compareDirectories(out);
@@ -63,6 +71,7 @@ describe('yfm init — multi-lang', () => {
             'en',
             '--name',
             'My Docs',
+            '--skip-interactive',
         ]);
 
         await compareDirectories(out);
@@ -70,7 +79,16 @@ describe('yfm init — multi-lang', () => {
 
     it('--no-header removes navigation from all toc.yaml files', async () => {
         const out = join(tmpDir, 'proj');
-        await run(['--output', out, '--langs', 'ru,en', '--no-header', '--name', 'My Docs']);
+        await run([
+            '--output',
+            out,
+            '--langs',
+            'ru,en',
+            '--no-header',
+            '--name',
+            'My Docs',
+            '--skip-interactive',
+        ]);
 
         await compareDirectories(out);
     });
