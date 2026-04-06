@@ -34,6 +34,59 @@ npm i @diplodoc/cli -g
 npm run start -- -i ./input-folder -o ./ouput-folder -v "{\"name\":\"Alice\"}"
 ```
 
+## `yfm init`
+
+Initialize a new Diplodoc documentation project.
+
+### Usage
+
+```bash
+yfm init [options]
+```
+
+Running without flags in a terminal starts an interactive wizard. Pass `--skip-interactive` to use flags and defaults only.
+
+### Options
+
+| Option                    | Default            | Description                                       |
+| ------------------------- | ------------------ | ------------------------------------------------- |
+| `-o, --output <path>`     | `.`                | Directory to create the project in                |
+| `--name <string>`         | directory basename | Project name                                      |
+| `--langs <string>`        | `en`               | Comma-separated list of languages, e.g. `en,ru`   |
+| `--default-lang <string>` | first of `--langs` | Default language                                  |
+| `--template <string>`     | `minimal`          | `minimal` or `full`                               |
+| `--header`                | `true`             | Add navigation header with controls to `toc.yaml` |
+| `--force`                 | `false`            | Overwrite existing output directory               |
+| `--dry-run`               | `false`            | Preview files without writing                     |
+| `--skip-interactive`      | `false`            | Skip wizard                                       |
+
+### Created files
+
+**`minimal`**
+
+```
+<output>/
+├── .yfm
+├── toc.yaml
+└── index.md
+```
+
+**`full`** — adds `presets.yaml`, `pc.yaml` and extended `.yfm` with pdf, search, vcs, authors config.
+
+For multilingual projects (`--langs en,ru`) content is placed in per-language subdirectories:
+
+```
+<output>/
+├── .yfm
+├── presets.yaml
+├── en/
+│   ├── toc.yaml
+│   └── index.md
+└── ru/
+    ├── toc.yaml
+    └── index.md
+```
+
 ## Source files
 
 ### Preparation

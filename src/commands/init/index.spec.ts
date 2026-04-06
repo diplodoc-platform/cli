@@ -11,6 +11,10 @@ function makeInit(overrides: Partial<ConstructorParameters<typeof Init>[0]> = {}
         output: join(tmpdir(), 'unused'),
         langs: ['ru'],
         header: true,
+        template: 'minimal',
+        force: false,
+        dryRun: false,
+        skipInteractive: true,
         input: '/' as AbsolutePath,
         quiet: false,
         strict: false,
@@ -32,9 +36,7 @@ afterEach(async () => {
 describe('Init.action() — single-lang', () => {
     it('creates .yfm, toc.yaml, index.md in non-existent output dir', async () => {
         const out = join(tmpDir, 'proj');
-        const init = makeInit({output: out, langs: ['ru'], name: 'My Docs'});
-
-        await init.action();
+        await makeInit({output: out, langs: ['ru'], name: 'My Docs'}).action();
 
         expect(existsSync(join(out, '.yfm'))).toBe(true);
         expect(existsSync(join(out, 'toc.yaml'))).toBe(true);
@@ -87,8 +89,7 @@ describe('Init.action() — single-lang', () => {
     });
 
     it('succeeds when output dir already exists and is empty', async () => {
-        const out = tmpDir;
-        await expect(makeInit({output: out}).action()).resolves.not.toThrow();
+        await expect(makeInit({output: tmpDir}).action()).resolves.not.toThrow();
     });
 });
 
@@ -101,13 +102,6 @@ describe('Init.action() — multi-lang', () => {
         expect(existsSync(join(out, 'ru/index.md'))).toBe(true);
         expect(existsSync(join(out, 'en/toc.yaml'))).toBe(true);
         expect(existsSync(join(out, 'en/index.md'))).toBe(true);
-    });
-
-    it('creates presets.yaml', async () => {
-        const out = join(tmpDir, 'proj');
-        await makeInit({output: out, langs: ['ru', 'en']}).action();
-
-        expect(existsSync(join(out, 'presets.yaml'))).toBe(true);
     });
 
     it('.yfm contains inline langs array', async () => {
@@ -130,6 +124,100 @@ describe('Init.action() — multi-lang', () => {
 
         expect(readFileSync(join(out, '.yfm'), 'utf8')).toMatch(/^lang: en/m);
     });
+
+    it('ignores defaultLang if it is not in langs', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, langs: ['ru', 'en'], defaultLang: 'fr'}).action();
+
+        expect(readFileSync(join(out, '.yfm'), 'utf8')).toMatch(/^lang: ru/m);
+    });
+});
+
+describe('Init.action() — template: full', () => {
+    it('single-lang: creates pc.yaml', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, langs: ['ru'], template: 'full'}).action();
+
+        expect(existsSync(join(out, 'pc.yaml'))).toBe(true);
+    });
+
+    it('single-lang: creates presets.yaml', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, langs: ['ru'], template: 'full', name: 'Test'}).action();
+
+        expect(existsSync(join(out, 'presets.yaml'))).toBe(true);
+    });
+
+    it('single-lang: .yfm contains extended config', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, langs: ['ru'], template: 'full'}).action();
+
+        const yfm = readFileSync(join(out, '.yfm'), 'utf8');
+        expect(yfm).toContain('pdf:');
+        expect(yfm).toContain('search:');
+        expect(yfm).toContain('vcs: true');
+    });
+
+    it('multi-lang: creates pc.yaml per language', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, langs: ['ru', 'en'], template: 'full'}).action();
+
+        expect(existsSync(join(out, 'ru/pc.yaml'))).toBe(true);
+        expect(existsSync(join(out, 'en/pc.yaml'))).toBe(true);
+    });
+});
+
+describe('Init.action() — --force', () => {
+    it('overwrites existing files', async () => {
+        const out = join(tmpDir, 'proj');
+
+        await makeInit({output: out, langs: ['ru'], name: 'First'}).action();
+        await makeInit({output: out, langs: ['ru'], name: 'Second', force: true}).action();
+
+        expect(readFileSync(join(out, 'toc.yaml'), 'utf8')).toContain('title: Second');
+    });
+
+    it('removes files from previous run that are not in new output', async () => {
+        const out = join(tmpDir, 'proj');
+
+        // Первый раз — multilang, создаёт ru/ и en/
+        await makeInit({output: out, langs: ['ru', 'en'], name: 'First'}).action();
+        expect(existsSync(join(out, 'ru/toc.yaml'))).toBe(true);
+
+        // Второй раз — single-lang с --force, ru/ должна исчезнуть
+        await makeInit({output: out, langs: ['ru'], name: 'Second', force: true}).action();
+        expect(existsSync(join(out, 'ru/toc.yaml'))).toBe(false);
+    });
+
+    it('succeeds on non-empty directory without --force would throw', async () => {
+        const out = tmpDir;
+        await writeFile(join(out, 'existing.txt'), 'data');
+
+        await expect(makeInit({output: out, force: true}).action()).resolves.not.toThrow();
+    });
+});
+
+describe('Init.action() — --dry-run', () => {
+    it('does not create any files', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, dryRun: true}).action();
+
+        expect(existsSync(out)).toBe(false);
+    });
+
+    it('does not throw on non-empty directory', async () => {
+        const out = tmpDir;
+        await writeFile(join(out, 'existing.txt'), 'data');
+
+        await expect(makeInit({output: out, dryRun: true}).action()).resolves.not.toThrow();
+    });
+
+    it('can be combined with --force without writing files', async () => {
+        const out = join(tmpDir, 'proj');
+        await makeInit({output: out, dryRun: true, force: true}).action();
+
+        expect(existsSync(out)).toBe(false);
+    });
 });
 
 describe('Init.action() — errors', () => {
@@ -138,5 +226,12 @@ describe('Init.action() — errors', () => {
         await writeFile(join(out, 'existing.txt'), 'data');
 
         await expect(makeInit({output: out}).action()).rejects.toThrow('is not empty');
+    });
+
+    it('error message suggests --force', async () => {
+        const out = tmpDir;
+        await writeFile(join(out, 'existing.txt'), 'data');
+
+        await expect(makeInit({output: out}).action()).rejects.toThrow('--force');
     });
 });

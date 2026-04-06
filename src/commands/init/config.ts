@@ -15,7 +15,7 @@ const output = (defaultPath = '.') =>
 const langs = option({
     flags: '--langs <string>',
     desc: 'Comma-separated list of project languages.',
-    default: ['ru'],
+    default: ['en'],
     parser: (v: string) => v.split(',').map((l) => l.trim()),
 });
 
@@ -35,10 +35,38 @@ const header = option({
     default: true,
 });
 
+const force = option({
+    flags: '--force',
+    desc: 'Forces overwriting of the project.',
+    default: false,
+});
+
+const dryRun = option({
+    flags: '--dry-run',
+    desc: 'Show what will be created without actually creating the files.',
+    default: false,
+});
+
+const template = option({
+    flags: '--template <string>',
+    desc: 'Project template: minimal or full.',
+    default: 'minimal',
+});
+
+const skipInteractive = option({
+    flags: '--skip-interactive',
+    desc: 'Skip interactive wizard and use defaults.',
+    default: false,
+});
+
 export const options = {
     output,
     langs,
     defaultLang,
     name,
     header,
+    force,
+    dryRun,
+    template,
+    skipInteractive,
 };

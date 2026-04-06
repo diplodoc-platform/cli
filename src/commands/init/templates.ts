@@ -1,10 +1,45 @@
-export function yfmConfig(langs: string[], defaultLang: string): string {
+import type {TemplateType} from './types';
+
+const extendedConfig = `
+
+pdf:
+  enabled: true
+
+interface:
+  toc-header: false
+
+vcs: true
+mtimes: true
+authors: true
+
+breaks: true
+linkify: true
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased
+`;
+
+export function yfmConfig(langs: string[], defaultLang: string, template: TemplateType): string {
     if (langs.length > 1) {
         const langList = langs.map((l) => `'${l}'`).join(', ');
-        return `lang: ${defaultLang}\nlangs: [${langList}]\n`;
+        const baseConfig = `allowHtml: true\nlang: ${defaultLang}\nlangs: [${langList}]`;
+
+        if (template === 'minimal') {
+            return baseConfig;
+        }
+
+        return baseConfig + extendedConfig;
     }
 
-    return `# YFM project config\n# Docs: https://diplodoc.com/docs/ru/project/config\n\nlang: ${defaultLang}\n`;
+    const baseConfig = `lang: ${defaultLang}`;
+
+    if (template === 'minimal') {
+        return baseConfig;
+    }
+
+    return baseConfig + extendedConfig;
 }
 
 export function tocYaml(projectName: string, header = true): string {
@@ -25,6 +60,15 @@ This is your documentation project created with [Diplodoc](https://diplodoc.com)
 ## Getting started
 
 Edit this file or add new pages and update \`toc.yaml\`.
+`;
+}
+
+export function pcYaml(): string {
+    return `blocks:
+- type: basic-card
+  title: Basic card
+  description: Description
+  text: Text
 `;
 }
 
