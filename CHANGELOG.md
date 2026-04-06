@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.32.1](https://github.com/diplodoc-platform/cli/compare/v5.32.0...v5.32.1) (2026-04-03)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform@4.73.2, @diplodoc/client@5.2.14 ([#1813](https://github.com/diplodoc-platform/cli/issues/1813)) ([a2bcc75](https://github.com/diplodoc-platform/cli/commit/a2bcc75999791e78f780175d1cbbe6abac2f3c82))
+
 ## [5.32.0](https://github.com/diplodoc-platform/cli/compare/v5.31.2...v5.32.0) (2026-04-01)
 
 
