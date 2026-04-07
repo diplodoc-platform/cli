@@ -1,3 +1,5 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/frontmatter/draft-01/schema#'
 title: Markdown frontmatter schema
 description: >
   YAML frontmatter block at the top of .md files (between --- delimiters).

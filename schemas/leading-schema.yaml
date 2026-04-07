@@ -11,16 +11,114 @@ properties:
 
   meta:
     type: object
+    description: >
+      Page metadata (SEO fields, resources, access rules).
+      Identical to markdown frontmatter metadata — all Meta fields are allowed
+      in addition to the leading-page-specific title and description overrides.
     properties:
       title:
         $ref: '#/definitions/TextItems'
         translate: md
+        description: SEO title override (takes precedence over the top-level title).
       description:
         $ref: '#/definitions/TextItems'
         translate: md
+        description: SEO description override.
       noIndex:
         type: boolean
-    additionalProperties: false
+        description: Adds noindex/nofollow meta tag to prevent search engine indexing.
+      keywords:
+        type: array
+        items:
+          type: string
+        description: Keywords for the meta keywords tag.
+      canonical:
+        type: string
+        format: uri
+        description: Canonical URL for the page.
+      copyright:
+        type: string
+        description: Copyright owner string.
+      alternate:
+        type: array
+        items:
+          $ref: '#/definitions/Alternate'
+        description: Alternate language versions of this page.
+      metadata:
+        oneOf:
+          - type: array
+            items:
+              $ref: '#/definitions/MetaItem'
+          - type: object
+        description: Custom meta tags (array of {name/property, content} or key-value hash).
+      restricted-access:
+        type: array
+        items:
+          type: array
+          items:
+            type: string
+        description: Access restriction rules.
+      script:
+        type: array
+        items:
+          type: string
+        description: Script file paths or URLs to include on this page.
+      style:
+        type: array
+        items:
+          type: string
+        description: Stylesheet file paths or URLs to include on this page.
+      csp:
+        type: array
+        items:
+          type: object
+        description: Content Security Policy directive overrides for this page.
+      resources:
+        type: object
+        properties:
+          script:
+            type: array
+            items:
+              type: string
+          style:
+            type: array
+            items:
+              type: string
+          csp:
+            type: array
+            items:
+              type: object
+        additionalProperties: false
+        description: Per-page resources (legacy, prefer top-level script/style/csp).
+      vcsPath:
+        type: string
+        description: VCS file path override.
+      sourcePath:
+        type: string
+        description: Source file path (usually set by the build system).
+      updatedAt:
+        type: string
+        description: Last modification timestamp from VCS (system-generated).
+      author:
+        $ref: '#/definitions/Contributor'
+        description: Page author from VCS (system-generated).
+      contributors:
+        type: array
+        items:
+          $ref: '#/definitions/Contributor'
+        description: Page contributors from VCS (system-generated).
+      editable:
+        type: boolean
+        description: Whether the document is editable (system-generated).
+      __system:
+        type: object
+        description: System variables from presets (only when addSystemMeta is enabled).
+      __metadata:
+        type: array
+        items:
+          $ref: '#/definitions/MetaItem'
+        description: Metadata items from presets (only when addMetadataMeta is enabled).
+    additionalProperties: true
 
   nav:
     type: object
@@ -35,17 +133,22 @@ properties:
       type: object
       properties:
         title:
-          type: string
+          $ref: '#/definitions/TextItems'
           translate: md
         description:
-          type: string
+          $ref: '#/definitions/TextItems'
           translate: md
         href:
           type: string
           format: url
-      additionalProperties: false
+        when:
+          type:
+            - string
+            - boolean
+          description: Visibility condition (Liquid expression or boolean).
+      additionalProperties: true
 
-additionalProperties: false
+additionalProperties: true
 
 definitions:
   TextItems:
@@ -54,6 +157,70 @@ definitions:
       - type: array
         translate: md
         items:
-          type: string
-          translate: md
+          oneOf:
+            - type: string
+              translate: md
+            - $ref: '#/definitions/TextItem'
 
+  TextItem:
+    type: object
+    description: >
+      Conditional text item. The first item whose `when` condition is truthy is used.
+    properties:
+      text:
+        oneOf:
+          - type: string
+          - type: array
+            items:
+              type: string
+        translate: md
+        description: Text content (string or array of strings).
+      when:
+        type:
+          - string
+          - boolean
+        description: Visibility condition (Liquid expression or boolean).
+    required: ['text']
+    additionalProperties: true
+
+  Alternate:
+    type: object
+    properties:
+      href:
+        type: string
+        format: uri
+      hreflang:
+        type: string
+    required: ['href']
+    additionalProperties: false
+
+  MetaItem:
+    type: object
+    properties:
+      name:
+        type: string
+      property:
+        type: string
+      http-equiv:
+        type: string
+      content:
+        type: string
+    required: ['content']
+    additionalProperties: false
+
+  Contributor:
+    type: object
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+        format: email
+      login:
+        type: string
+      name:
+        type: string
+      url:
+        type: string
+        format: uri
+    additionalProperties: false
