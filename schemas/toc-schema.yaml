@@ -82,6 +82,12 @@ definitions:
         type: boolean
       hidden:
         type: boolean
+      analyticsEvents:
+        oneOf:
+          - $ref: '#/definitions/AnalyticsEvent'
+          - type: array
+            items:
+              $ref: '#/definitions/AnalyticsEvent'
       restricted-access:
         oneOf:
           - type: string
@@ -318,10 +324,10 @@ definitions:
                 translate: md
       analyticsEvents:
         oneOf:
-          - $ref: '#/definitions/NavigationAnalyticsEvent'
+          - $ref: '#/definitions/AnalyticsEvent'
           - type: array
             items:
-              $ref: '#/definitions/NavigationAnalyticsEvent'
+              $ref: '#/definitions/AnalyticsEvent'
       target:
         $ref: '#/definitions/NavigationLinkTarget'
       width:
@@ -353,7 +359,7 @@ definitions:
     type: string
     enum: ['_self', '_blank', '_parent', '_top']
 
-  NavigationAnalyticsEvent:
+  AnalyticsEvent:
     type: object
     required: ['name']
     properties:
