@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.33.2](https://github.com/diplodoc-platform/cli/compare/v5.33.1...v5.33.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* fixed bundledDeps ([#1827](https://github.com/diplodoc-platform/cli/issues/1827)) ([d013d74](https://github.com/diplodoc-platform/cli/commit/d013d74320fd92a1d6e8123892057eea5ebc1ee7))
+
 ## [5.33.1](https://github.com/diplodoc-platform/cli/compare/v5.33.0...v5.33.1) (2026-04-08)
 
 
