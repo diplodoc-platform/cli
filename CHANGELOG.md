@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.34.0](https://github.com/diplodoc-platform/cli/compare/v5.33.2...v5.34.0) (2026-04-10)
+
+
+### Features
+
+* **schemas:** add analytics.metrika property to yfm schema ([#1825](https://github.com/diplodoc-platform/cli/issues/1825)) ([4e3f857](https://github.com/diplodoc-platform/cli/commit/4e3f857f0c859809fe7e7cf02c55b3707774b8b8))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.3.1 ([#1832](https://github.com/diplodoc-platform/cli/issues/1832)) ([218b1d1](https://github.com/diplodoc-platform/cli/commit/218b1d1f54e674a219e132f4e0206f3d6da5f160))
+
 ## [5.33.2](https://github.com/diplodoc-platform/cli/compare/v5.33.1...v5.33.2) (2026-04-08)
 
 
