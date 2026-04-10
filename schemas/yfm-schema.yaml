@@ -409,19 +409,7 @@ properties:
     type: boolean
 
   analytics:
-    type: object
-    properties:
-      gtm:
-        type: object
-        properties:
-          id:
-            type: string
-          mode:
-            type: string
-            enum: ['base', 'notification']
-        additionalProperties: false
-    additionalProperties: true
-    description: Web analytics configuration (e.g. Google Tag Manager).
+    $ref: '#/definitions/AnalyticsConfig'
 
   neuroExpert:
     $ref: '#/definitions/NeuroExpertConfig'
@@ -1099,3 +1087,69 @@ definitions:
         sensitive: true
         description: Authorization token for translation API (provider-specific).
     additionalProperties: true
+
+  AnalyticsConfig:
+    description: Web analytics configuration (e.g. Google Tag Manager).
+    type: object
+    properties:
+      gtm:
+        $ref: '#/definitions/AnalyticsGtmConfig'
+      metrika:
+        type: array
+        items:
+          $ref: '#/definitions/AnalyticsMetrikaConfig'
+    additionalProperties: true
+
+  AnalyticsGtmConfig:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+      mode:
+        type: string
+        enum: [base, notification]
+
+  AnalyticsMetrikaConfig:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      params:
+        type: object
+        additionalProperties: false
+        properties:
+          accurateTrackBounce:
+            type: [boolean, number]
+          childIframe:
+            type: boolean
+          clickmap:
+            type: boolean
+          defer:
+            type: boolean
+          ecommerce:
+            oneOf:
+              - type: boolean
+              - type: string
+              - type: array
+                items:
+                  type: string
+          trackHash:
+            type: boolean
+          trackLinks:
+            type: boolean
+          trustedDomains:
+            type: array
+            items:
+              type: string
+          webvisor:
+            type: boolean
+          triggerEvent:
+            type: boolean
+          sendTitle:
+            type: boolean
+          ssr:
+            type: boolean
