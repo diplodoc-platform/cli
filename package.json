@@ -113,7 +113,7 @@
     "@diplodoc/page-constructor-extension": "^0.13.2",
     "@diplodoc/search-extension": "^3.0.2",
     "@diplodoc/tsconfig": "^1.0.2",
-    "@diplodoc/yfmlint": "^1.6.0",
+    "@diplodoc/yfmlint": "^1.7.0",
     "@octokit/core": "4.2.4",
     "@types/async": "3.2.15",
     "@types/chalk": "2.2.0",
