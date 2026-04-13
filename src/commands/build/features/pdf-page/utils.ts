@@ -50,7 +50,9 @@ export function replacePdfLink(root: HTMLElement, entries: string[]) {
         // TODO: fix transform method packages/cli/src/commands/build/run.ts -> packages/transform/src/transform/md.ts:140
         const href = (node.getAttribute('href') || '').replace(/(\/[^/]+)\1+/g, '$1');
 
-        if (entries.includes(href.replace('html', 'md').replace(/#.*$/, ''))) {
+        const entryKey = href.replace(/#.*$/, '').replace(/\.(md|html)$/, '') + '.md';
+
+        if (entries.includes(entryKey as NormalizedPath)) {
             node.setAttribute('href', getPdfUrl('.', href));
         }
     }

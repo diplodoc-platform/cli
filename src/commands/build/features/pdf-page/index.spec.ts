@@ -247,6 +247,22 @@ describe('PDF Page Utils', () => {
         });
     });
 
+    it('should replace links without extension that have a fragment', () => {
+        const root2 = parse(`
+            <div>
+                <a href="ru/about#qqq">Same-page anchor</a>
+                <a href="ru/features.html#qqq1">Cross-page anchor</a>
+            </div>
+        `);
+        const entries = ['ru/about.md', 'ru/features.md'];
+
+        replacePdfLink(root2, entries);
+
+        const links = Array.from(root2.querySelectorAll('a')).map((a) => a.getAttribute('href'));
+
+        expect(links).toEqual(['#ru_about_qqq', '#ru_features_qqq1']);
+    });
+
     describe('isEntryHidden', () => {
         let toc: Toc;
 
