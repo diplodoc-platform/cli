@@ -250,7 +250,7 @@ describe('PDF Page Utils', () => {
             const root2 = parse(`
                 <div>
                     <a href="ru/about#qqq">Same-page anchor</a>
-                    <a href="ru/features#qqq1">Cross-page anchor</a>
+                    <a href="ru/features.html#qqq1">Cross-page anchor</a>
                 </div>
             `);
             const entries = ['ru/about.md', 'ru/features.md'];
