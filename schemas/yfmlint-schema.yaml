@@ -135,6 +135,8 @@ properties:
         $ref: '#/definitions/LogLevel'
       YFM017:
         $ref: '#/definitions/LogLevel'
+      YFM020:
+        $ref: '#/definitions/LogLevel'
     additionalProperties:
       $ref: '#/definitions/LogLevel'
 
@@ -399,6 +401,24 @@ properties:
     $ref: '#/definitions/RuleValue'
     description: 'invalid-frontmatter: Invalid front matter format (e.g. duplicated mapping key).'
     readOnly: true
+
+  YFM020:
+    oneOf:
+      - type: boolean
+      - $ref: '#/definitions/LogLevel'
+      - type: object
+        properties:
+          level:
+            $ref: '#/definitions/LogLevel'
+          customDirectives:
+            type: array
+            items:
+              type: string
+            description: >
+              Custom directive names to allow (e.g. diagram, mermaid).
+              Both opening ({% name %}) and closing ({% endname %}) forms are whitelisted.
+        additionalProperties: false
+    description: 'invalid-yfm-directive: YFM directive is unknown or has invalid syntax.'
 
 additionalProperties:
   $ref: '#/definitions/RuleValue'
