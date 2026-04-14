@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.34.3](https://github.com/diplodoc-platform/cli/compare/v5.34.2...v5.34.3) (2026-04-14)
+
+
+### Bug Fixes
+
+* hash for tests ([09ab447](https://github.com/diplodoc-platform/cli/commit/09ab44775391b4847485399083d9257f2da28b43))
+
 ## [5.34.2](https://github.com/diplodoc-platform/cli/compare/v5.34.1...v5.34.2) (2026-04-14)
 
 
