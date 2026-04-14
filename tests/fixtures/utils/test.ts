@@ -30,9 +30,9 @@ export function platformless(text: string): string {
 
 export function hashless(text: string): string {
     return text
-        .replace(/-[a-z0-9]{12}\./g, '-hash.')
+        .replace(/-[a-z0-9]{12,16}\./g, '-hash.')
         .replace(/rnd-[a-z0-9]{1,8}__/g, 'rnd-hash__')
-        .replace(/(\/|\\)[a-z0-9]{12,13}-(index|registry|resources)\./g, '/hash-$2.');
+        .replace(/(\/|\\)[a-z0-9]{12,16}-(index|registry|resources)\./g, '/hash-$2.');
 }
 
 export function bundleless(text: string): string {
