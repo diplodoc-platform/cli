@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.34.2](https://github.com/diplodoc-platform/cli/compare/v5.34.1...v5.34.2) (2026-04-14)
+
+
+### Bug Fixes
+
+* fixed anchor in md ([#1839](https://github.com/diplodoc-platform/cli/issues/1839)) ([0dd1b00](https://github.com/diplodoc-platform/cli/commit/0dd1b00cda45b351c041762fded9138947864b3e))
+
 ## [5.34.1](https://github.com/diplodoc-platform/cli/compare/v5.34.0...v5.34.1) (2026-04-13)
 
 
