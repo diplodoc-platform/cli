@@ -23,6 +23,7 @@ import {
     joinPdfPageResults,
     replacePCNestedLinks,
 } from './utils';
+import {copyPdfIconAsset} from './copy-pdf-icon-asset';
 import {options} from './config';
 
 export type PdfPageArgs = {
@@ -50,6 +51,7 @@ export class PdfPage {
             const hiddenPolicy = config?.pdf?.hiddenPolicy ?? true;
 
             config.pdf = {
+                ...(typeof config.pdf === 'object' ? config.pdf : {}),
                 enabled: pdfArg || pdfEnabled,
                 hiddenPolicy,
             };
@@ -290,6 +292,12 @@ export class PdfPage {
                         run.logger.error(error);
                     }
                 }
+            });
+
+        getBuildHooks(program)
+            .AfterRun.for('md')
+            .tapPromise('PdfPageIcon', async (run) => {
+                await copyPdfIconAsset(run);
             });
 
         getBuildHooks(program)
