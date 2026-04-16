@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.34.5](https://github.com/diplodoc-platform/cli/compare/v5.34.4...v5.34.5) (2026-04-16)
+
+
+### Bug Fixes
+
+* bundless ([b3feea1](https://github.com/diplodoc-platform/cli/commit/b3feea1cfc26c6696cea7695e4f15f957db6fb81))
+
 ## [5.34.4](https://github.com/diplodoc-platform/cli/compare/v5.34.3...v5.34.4) (2026-04-15)
 
 
