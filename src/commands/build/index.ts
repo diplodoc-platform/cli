@@ -14,6 +14,7 @@ import * as threads from '~/commands/threads';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
 import {Extension as GenericIncluderExtension} from '~/extensions/generic-includer';
 import {Extension as LocalSearchExtension} from '~/extensions/local-search';
+import {Extension as TextFeedbackExtension} from '~/extensions/feedback';
 import {Command} from '~/core/config';
 import {PAGE_PROCESS_CONCURRENCY, Stage, YFM_CONFIG_FILENAME} from '~/constants';
 import {
@@ -179,6 +180,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
+        new TextFeedbackExtension(),
     ];
 
     /**
