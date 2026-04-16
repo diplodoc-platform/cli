@@ -73,7 +73,7 @@ export class EntryService {
     }
 
     async state(path: NormalizedPath, data: PageData) {
-        const {langs, analytics, interface: baseInterface, feedback} = this.config;
+        const {langs, analytics, interface: baseInterface, feedback, pdf} = this.config;
         const lang = langFromPath(path, this.config);
         const {interface: metaInterface} = data.meta;
 
@@ -82,8 +82,22 @@ export class EntryService {
             ...(metaInterface ?? {}),
         };
 
+        const pdfLink = pdf?.pdfFileUrl;
+        const pdfIconConfig =
+            pdf?.icon !== undefined || pdf?.position !== undefined || pdf?.size !== undefined
+                ? {
+                      ...(pdf.icon !== undefined && {icon: pdf.icon}),
+                      ...(pdf.position !== undefined && {position: pdf.position}),
+                      ...(pdf.size !== undefined && {size: pdf.size}),
+                  }
+                : undefined;
+
         const state: PageState = {
-            data,
+            data: {
+                ...data,
+                ...(pdfLink !== undefined && {pdfLink}),
+                ...(pdfIconConfig !== undefined && {pdfIconConfig}),
+            },
             router: {
                 pathname: setExt(path, ''),
                 // TODO: remove in favor of base

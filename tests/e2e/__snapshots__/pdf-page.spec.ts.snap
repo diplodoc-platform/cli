@@ -130,6 +130,157 @@ exports[`Pdf page mode > creates pdf-page.json for each standalone toc > filelis
 ]"
 `;
 
+exports[`Pdf page with custom icon > md2html copies all files and produces correct pdfIconConfig in __DATA__ > filelist 1`] = `
+"[
+  ".yfm",
+  "_assets/custom-pdf-icon.svg",
+  "index.html",
+  "pdf/output.pdf",
+  "toc.js"
+]"
+`;
+
+exports[`Pdf page with custom icon > md2html copies all files and produces correct pdfIconConfig in __DATA__ 1`] = `
+"pdf:
+    enabled: true
+    size: M
+    position: header
+    icon: _assets/custom-pdf-icon.svg
+    pdfFileUrl: pdf/output.pdf"
+`;
+
+exports[`Pdf page with custom icon > md2html copies all files and produces correct pdfIconConfig in __DATA__ 2`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>PDF mock index | Pdf custom link</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"PDF mock index","pdfLink":"pdf/output.pdf","pdfIconConfig":{"icon":"_assets/custom-pdf-icon.svg","position":"header","size":"M"}},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Pdf page with custom icon > md2html copies all files and produces correct pdfIconConfig in __DATA__ 3`] = `
+"%PDF-1.7
+%����
+4 0 obj
+<< /Length 5 0 R
+   /Filter /FlateDecode
+>>
+stream
+x�3T0 B]C afl�g����U�� 5T�
+endstream
+endobj
+5 0 obj
+   29
+endobj
+3 0 obj
+<<
+>>
+endobj
+7 0 obj
+<< /Type /ObjStm
+   /Length 8 0 R
+   /N 1
+   /First 4
+   /Filter /FlateDecode
+>>
+stream
+x�3S0���� 8]
+endstream
+endobj
+8 0 obj
+   16
+endobj
+9 0 obj
+<< /Type /ObjStm
+   /Length 12 0 R
+   /N 4
+   /First 23
+   /Filter /FlateDecode
+>>
+stream
+x�U�_k�0����eLh�t+҇Z(c��m�!�\`�a$�c��K�v�<���å %�I�@sP�t��%��u�Hj�I H����
+>gT�i���n7+j��IH�P�^+И>����&�L;��K/L�tE�7Zr۫���Dx�2�
+���t��O�=�&��ଽ��Z�>��e���qq�{YV�,G��8�'��dw�Q�iDY��ϋ�LWtrT����P/W�
+�'�N��:��^�������FMZH���yrBa��Ɲ�_Ǌ[���[Ew�[C��^o�
+endstream
+endobj
+12 0 obj
+   282
+endobj
+13 0 obj
+<< /Type /XRef
+   /Length 58
+   /Filter /FlateDecode
+   /Size 14
+   /W [1 2 2]
+   /Root 11 0 R
+   /Info 10 0 R
+>>
+stream
+x�c\`\`�������D012�1002���J�;��H0��+�:F���t(�t�� �M
+endstream
+endobj
+startxref
+735
+%%EOF
+%BeginExifToolUpdate
+10 0 obj
+<<
+/CreationDate (D:20260423161755+02'00)
+>>
+endobj
+14 0 obj
+<<
+/Type /XRef
+/Length 21
+/Size 15
+/W [ 1 4 2 ]
+/Root 11 0 R
+/Info 10 0 R
+/Index [ 0 1 10 1 14 1 ]
+/Prev 735
+>>
+stream
+     ��  �      
+endstream
+endobj
+%EndExifToolUpdate 961
+startxref
+1043
+%%EOF
+"
+`;
+
+exports[`Pdf page with custom icon > md2html copies all files and produces correct pdfIconConfig in __DATA__ 4`] = `"window.__DATA__.data.toc = {"title":"Pdf custom link","href":"index.html","path":"toc.yaml","id":"UUID"};"`;
+
+exports[`Pdf page with custom icon > md2md copies custom pdf icon asset to output > filelist 1`] = `
+"[
+  ".yfm",
+  "_assets/custom-pdf-icon.svg",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
 exports[`Pdf page with titles > Generates content for pdf genrator with title pages > filelist 1`] = `
 "[
   "pdf-page-toc.js",

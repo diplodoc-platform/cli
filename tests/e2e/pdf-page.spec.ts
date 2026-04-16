@@ -98,3 +98,30 @@ describe('Pdf generation with md2md phase, only files structure', () => {
         'mocks/pdf-page/title-pages',
     );
 });
+
+describe('Pdf page with custom icon', () => {
+    test('md2md copies custom pdf icon asset to output', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/pdf-page/custom-pdf-icon');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--allow-custom-resources',
+        });
+
+        await compareDirectories(outputPath, true);
+        await cleanupDirectory(outputPath);
+    });
+
+    test('md2html copies all files and produces correct pdfIconConfig in __DATA__', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/pdf-page/custom-pdf-icon');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: false,
+            md2html: true,
+        });
+
+        await compareDirectories(outputPath);
+        await cleanupDirectory(outputPath);
+    });
+});
