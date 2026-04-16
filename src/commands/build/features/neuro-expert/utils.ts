@@ -8,7 +8,7 @@ export function getNeuroExpertCsp(): Hash<string[]>[] {
             'script-src': ['https://yastatic.net'],
         },
         {
-            'connect-src': ['https://browserweb.s3.mdst.yandex.net'],
+            'connect-src': ['https://browserweb.s3.mdst.yandex.net', 'https://expert.yandex.ru'],
         },
         {
             'frame-src': ['https://expert.yandex.ru'],
@@ -41,11 +41,30 @@ export function getNeuroExpertScript(
     const neuroExpertScriptUrl =
         'https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js';
 
+    if (neuroExpert.type === 'search') {
+        const iframeUrl = `https://expert.yandex.ru/expert/projects/${projectId}/iframe`;
+
+        return dedent`
+            const neuroExpertScript = document.createElement('script');
+            neuroExpertScript.type = "module";
+            neuroExpertScript.src = "${neuroExpertScriptUrl}";
+
+            const neuroExpertPreload = document.createElement("iframe");
+            neuroExpertPreload.src = "${iframeUrl}";
+            neuroExpertPreload.loading = "eager";
+            neuroExpertPreload.style.display = "none";
+            neuroExpertPreload.setAttribute("aria-hidden", "true");
+            document.body.appendChild(neuroExpertPreload);
+
+            document.body.appendChild(neuroExpertScript);
+        `;
+    }
+
     return dedent`
         const neuroExpertScript = document.createElement('script');
         neuroExpertScript.type = "module";
         neuroExpertScript.src = "${neuroExpertScriptUrl}";
-        
+
         const neuroExpertDiv = document.createElement("div");
         neuroExpertDiv.id = "${settings.parentId}";
         neuroExpertDiv.className = "dc-neuro-expert-widget";

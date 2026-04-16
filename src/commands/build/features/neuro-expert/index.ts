@@ -20,6 +20,7 @@ export type NeuroExpertBase = {
     customLabel?: {
         [key: string]: string;
     };
+    type?: 'widget' | 'search';
 };
 
 const NEURO_EXPERT_PARENT_ID = 'neuro-expert-widget';
@@ -36,6 +37,7 @@ export class NeuroExpert {
                 parentId: neuroExpert?.parentId ?? NEURO_EXPERT_PARENT_ID,
                 disabled,
                 customLabel: neuroExpert?.customLabel,
+                type: neuroExpert?.type ?? 'widget',
             };
 
             return config;
@@ -44,6 +46,24 @@ export class NeuroExpert {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('NeuroExpert', (run) => {
+                getEntryHooks(run.entry).State.tap('NeuroExpert', (state) => {
+                    const metaNeuroExpert = (state.data.meta as Hash)?.neuroExpert ?? {};
+                    const neuroExpert = {
+                        ...run.config.neuroExpert,
+                        ...metaNeuroExpert,
+                    };
+
+                    if (neuroExpert.type !== 'search') {
+                        return;
+                    }
+
+                    const projectId = resolveByLang(neuroExpert.projectId, state.lang);
+
+                    if (!neuroExpert.disabled && projectId) {
+                        state.neuroExpert = {projectId};
+                    }
+                });
+
                 getEntryHooks(run.entry).Page.tap('NeuroExpert', (template) => {
                     const meta = run.meta.get(template.path);
 

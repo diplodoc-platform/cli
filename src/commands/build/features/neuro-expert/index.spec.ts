@@ -46,7 +46,10 @@ describe('NeuroExpert utils', () => {
                     'script-src': ['https://yastatic.net'],
                 },
                 {
-                    'connect-src': ['https://browserweb.s3.mdst.yandex.net'],
+                    'connect-src': [
+                        'https://browserweb.s3.mdst.yandex.net',
+                        'https://expert.yandex.ru',
+                    ],
                 },
                 {
                     'frame-src': ['https://expert.yandex.ru'],
@@ -187,6 +190,22 @@ describe('NeuroExpert utils', () => {
             const script = getNeuroExpertScript(projectId, config.neuroExpert, undefined);
 
             expect(script).not.toContain('"customLabel"');
+        });
+
+        it('should generate search mode bootstrap script', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({
+                projectId: {default: projectId},
+                type: 'search',
+            });
+
+            const script = getNeuroExpertScript(projectId, config.neuroExpert);
+
+            expect(script).toContain(
+                `neuroExpertPreload.src = "https://expert.yandex.ru/expert/projects/${projectId}/iframe"`,
+            );
+            expect(script).toContain('document.body.appendChild(neuroExpertPreload);');
+            expect(script).not.toContain('window.initNeuroexpert(');
         });
     });
 

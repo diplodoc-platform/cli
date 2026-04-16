@@ -716,6 +716,13 @@ definitions:
           oneOf:
             - type: string
             - type: boolean
+      type:
+        type: string
+        enum: ['default', 'search']
+        description: >
+          Widget integration type.
+          default — floating widget initialized on page load.
+          search — widget activated via search suggest button.
     additionalProperties: false
 
   PublishConfig:

@@ -21,6 +21,7 @@ const rebase = (url: string) => join(BUNDLE_FOLDER, url);
 
 const excludedMetaFields = [
     'interface',
+    'neuroExpert',
     'resources',
     'contributors',
     'author',

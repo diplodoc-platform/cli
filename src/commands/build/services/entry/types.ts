@@ -58,4 +58,7 @@ export type PageState = {
     feedback?: {
         url?: string;
     };
+    neuroExpert?: {
+        projectId?: string;
+    };
 } & Hash;
