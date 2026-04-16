@@ -39,11 +39,24 @@ export function bundleless(text: string): string {
     for (const [entryKey, entry] of Object.entries(assets)) {
         for (const [typeKey, type] of Object.entries(entry)) {
             for (let index = 0; index < type.length; index++) {
-                let prev = '';
-                while (prev !== text) {
-                    prev = text;
-                    text = text.replace(type[index], `${entryKey}-${typeKey}-${index}`);
+                // Extract base name from manifest filename (e.g. "app-3ff8bc0b40bc2914.js" -> "app")
+                // Also handles suffixes like "vendor-00121562c7b7d3b5.rtl.css" -> base="vendor", suffix=".rtl", ext="css"
+                const filename = type[index];
+                const match = filename.match(/^(.+?)-[a-z0-9]{12,16}(\.[a-z]+)*\.([a-z]+)$/);
+                if (!match) {
+                    // Fallback: exact string replacement for filenames without hash pattern
+                    let prev = '';
+                    while (prev !== text) {
+                        prev = text;
+                        text = text.replace(filename, `${entryKey}-${typeKey}-${index}`);
+                    }
+                    continue;
                 }
+
+                const [, base, suffixes, ext] = match;
+                const suffixPattern = suffixes ? suffixes.replace(/\./g, '\\.') : '';
+                const pattern = new RegExp(`${base}-[a-z0-9]{12,16}${suffixPattern}\\.${ext}`, 'g');
+                text = text.replace(pattern, `${entryKey}-${typeKey}-${index}`);
             }
         }
     }

@@ -71,9 +71,7 @@ export async function compareDirectories(
             nodir: true,
             posix: true,
         })
-    )
-        .map(bundleless)
-        .sort();
+    ).sort();
 
     let filesForSnapshot;
 
@@ -87,7 +85,7 @@ export async function compareDirectories(
     // This is necessary for better test stability
     // We do not care in what order these files were received and processed
     // We sort only the final list and put it in the snapshot
-    filesForSnapshot = filesForSnapshot.map(hashless).sort();
+    filesForSnapshot = filesForSnapshot.map(bundleless).map(hashless).sort();
 
     if (!ignoreFileList) {
         expect(JSON.stringify(filesForSnapshot, null, 2)).toMatchSnapshot('filelist');
