@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.34.6](https://github.com/diplodoc-platform/cli/compare/v5.34.5...v5.34.6) (2026-04-16)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/yfmlint@1.7.2 ([#1851](https://github.com/diplodoc-platform/cli/issues/1851)) ([afa3366](https://github.com/diplodoc-platform/cli/commit/afa336616164e4cb90ca64d67cd86143a0d643e7))
+
 ## [5.34.5](https://github.com/diplodoc-platform/cli/compare/v5.34.4...v5.34.5) (2026-04-16)
 
 
