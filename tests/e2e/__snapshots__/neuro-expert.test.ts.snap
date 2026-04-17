@@ -111,7 +111,6 @@ exports[`Neuro-expert > Neuro-expert 4`] = `
         <link rel="alternate" href="en/index.html" hreflang="en" />
         <link rel="alternate" href="ru/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="neuroExpert" content="[object Object]">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -143,7 +142,6 @@ exports[`Neuro-expert > Neuro-expert 5`] = `
         <link rel="alternate" href="en/page1.html" hreflang="en" />
         <link rel="alternate" href="ru/page1.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta name="neuroExpert" content="[object Object]">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -228,7 +226,7 @@ exports[`Neuro-expert > Neuro-expert 9`] = `
         <link rel="alternate" href="en/folder/index.html" hreflang="en" />
         <link rel="alternate" href="ru/folder/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
+        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net https://expert.yandex.ru; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -281,7 +279,7 @@ exports[`Neuro-expert > Neuro-expert 10`] = `
         <link rel="alternate" href="en/index-test-html/index.html" hreflang="en" />
         <link rel="alternate" href="ru/index-test-html/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
+        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net https://expert.yandex.ru; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -334,7 +332,7 @@ exports[`Neuro-expert > Neuro-expert 11`] = `
         <link rel="alternate" href="en/index.html" hreflang="en" />
         <link rel="alternate" href="ru/index.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
+        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net https://expert.yandex.ru; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -387,7 +385,7 @@ exports[`Neuro-expert > Neuro-expert 12`] = `
         <link rel="alternate" href="en/page1.html" hreflang="en" />
         <link rel="alternate" href="ru/page1.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
+        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net https://expert.yandex.ru; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
@@ -440,13 +438,13 @@ exports[`Neuro-expert > Neuro-expert 13`] = `
         <link rel="alternate" href="en/page2.html" hreflang="en" />
         <link rel="alternate" href="ru/page2.html" hreflang="ru" />
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
-        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
+        <meta http-equiv="Content-Security-Policy" content="script-src https://yastatic.net; connect-src https://browserweb.s3.mdst.yandex.net https://expert.yandex.ru; frame-src https://expert.yandex.ru; font-src https://yastatic.net;">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h2 id=\\"hesh\\"&gt;&lt;a href=\\"ru/page2.html#hesh\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;хэш&lt;/span&gt;&lt;/a&gt;хэш&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"ru/folder/index.html\\"&gt;Ссылка&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;Внешняя ссылка&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page2.html","hreflang":"en"},{"href":"ru/page2.html","hreflang":"ru"}],"canonical":"ru/page2.html","vcsPath":"ru/page2.md"},"headings":[{"title":"хэш","href":"ru/page2.html#hesh","level":2}],"title":"Страница 2"},"router":{"pathname":"ru/page2","depth":2,"base":"../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"hesh\\"&gt;&lt;a href=\\"ru/page2.html#hesh\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;хэш&lt;/span&gt;&lt;/a&gt;хэш&lt;/h2&gt;/n&lt;p&gt;&lt;a href=\\"ru/folder/index.html\\"&gt;Ссылка&lt;/a&gt;&lt;br /&gt;/n&lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;Внешняя ссылка&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"alternate":[{"href":"en/page2.html","hreflang":"en"},{"href":"ru/page2.html","hreflang":"ru"}],"canonical":"ru/page2.html","neuroExpert":{"type":"search"},"vcsPath":"ru/page2.md"},"headings":[{"title":"хэш","href":"ru/page2.html#hesh","level":2}],"title":"Страница 2"},"router":{"pathname":"ru/page2","depth":2,"base":"../"},"lang":"ru","langs":["en","ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true},"neuroExpert":{"projectId":"77fac9c9ad9811f0997f4641db830dfd"}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -460,21 +458,12 @@ exports[`Neuro-expert > Neuro-expert 13`] = `
             const neuroExpertScript = document.createElement('script');
             neuroExpertScript.type = "module";
             neuroExpertScript.src = "https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js";
-            const neuroExpertDiv = document.createElement("div");
-            neuroExpertDiv.id = "neuro-expert-widget";
-            neuroExpertDiv.className = "dc-neuro-expert-widget";
-            neuroExpertScript.onload = () => {
-                function tryAppend() {
-                    const widgetsDiv = document.getElementById("dc-widgets");
-                    if (widgetsDiv) {
-                        widgetsDiv.appendChild(neuroExpertDiv);
-                        window.initNeuroexpert({"projectId":"77fac9c9ad9811f0997f4641db830dfd","hasOutsideClick":true,"parentId":"neuro-expert-widget","customLabel":"new label"});
-                    } else {
-                        setTimeout(tryAppend, 50);
-                    }
-                }
-                tryAppend();
-            };
+            const neuroExpertPreload = document.createElement("iframe");
+            neuroExpertPreload.src = "https://expert.yandex.ru/expert/projects/77fac9c9ad9811f0997f4641db830dfd/iframe";
+            neuroExpertPreload.loading = "eager";
+            neuroExpertPreload.style.display = "none";
+            neuroExpertPreload.setAttribute("aria-hidden", "true");
+            document.body.appendChild(neuroExpertPreload);
             document.body.appendChild(neuroExpertScript);
         </script>
     </body>

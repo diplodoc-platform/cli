@@ -1,3 +1,8 @@
+---
+neuroExpert:
+  type: search
+---
+
 # Страница 2
 
 ## хэш
