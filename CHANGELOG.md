@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.35.0](https://github.com/diplodoc-platform/cli/compare/v5.34.8...v5.35.0) (2026-04-17)
+
+
+### Features
+
+* added type option in neuroExpert ([#1853](https://github.com/diplodoc-platform/cli/issues/1853)) ([c8a1a49](https://github.com/diplodoc-platform/cli/commit/c8a1a49ed7f026712f92a0e3a5b9339a8f293bb1))
+* **analytics:** add csp rules when metrika counter is configured ([#1846](https://github.com/diplodoc-platform/cli/issues/1846)) ([8a81d87](https://github.com/diplodoc-platform/cli/commit/8a81d877596454375ed6693bfb51ba7ba00b1fab))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.4.1 ([#1860](https://github.com/diplodoc-platform/cli/issues/1860)) ([957034d](https://github.com/diplodoc-platform/cli/commit/957034db2516f79484e10775bb3e1f705bdc7619))
+
 ## [5.34.8](https://github.com/diplodoc-platform/cli/compare/v5.34.7...v5.34.8) (2026-04-17)
 
 
