@@ -45,6 +45,7 @@ import {Legacy} from './features/legacy';
 import {TocFiltering} from './features/toc-filtering';
 import {NeuroExpert} from './features/neuro-expert';
 import {Themer} from './features/themer';
+import {Analytics} from './features/analytics';
 
 export type * from './types';
 
@@ -123,6 +124,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly neuroExpert = new NeuroExpert();
 
+    readonly analytics = new Analytics();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -176,6 +179,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.tocFiltering,
         this.skipHtml,
         this.neuroExpert,
+        this.analytics,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
