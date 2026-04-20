@@ -5,6 +5,7 @@ import {describe, expect, it} from 'vitest';
 
 import {
     filterRanges,
+    findFileBlocks,
     findIncludedBlockRanges,
     findPcImages,
     getPcIconTitle,
@@ -311,6 +312,59 @@ describe('findPcImages', () => {
         `;
 
         expect(findPcImages(content)).toEqual([]);
+    });
+});
+
+describe('findFileBlocks', () => {
+    it('should find a single file block', () => {
+        const content = '{% file src="_assets/doc.pdf" name="Document" %}';
+        const results = findFileBlocks(content);
+        expect(results).toHaveLength(1);
+        expect(results[0].path).toBe('_assets/doc.pdf');
+    });
+
+    it('should find multiple file blocks', () => {
+        const content = [
+            'Text {% file src="_assets/a.pdf" name="A" %} more text',
+            'Text {% file src="_assets/b.txt" name="B" %} more text',
+        ].join('\n');
+        const results = findFileBlocks(content);
+        expect(results.map((r) => r.path)).toEqual(['_assets/a.pdf', '_assets/b.txt']);
+    });
+
+    it('should set AssetInfo fields correctly', () => {
+        const content = '{% file src="_assets/doc.pdf" name="Document" %}';
+        const [asset] = findFileBlocks(content);
+        expect(asset).toMatchObject({
+            path: '_assets/doc.pdf',
+            type: 'link',
+            subtype: null,
+            title: '',
+            autotitle: false,
+            hash: null,
+            search: null,
+            location: [0, content.length],
+        });
+    });
+
+    it('should work when src is not the first attribute', () => {
+        const content = '{% file name="Document" src="_assets/doc.pdf" %}';
+        const results = findFileBlocks(content);
+        expect(results).toHaveLength(1);
+        expect(results[0].path).toBe('_assets/doc.pdf');
+    });
+
+    it('should ignore external URLs', () => {
+        const content = '{% file src="https://example.com/doc.pdf" name="External" %}';
+        expect(findFileBlocks(content)).toHaveLength(0);
+    });
+
+    it('should return empty array when no file blocks', () => {
+        expect(findFileBlocks('# Just a heading\n\nSome text.')).toEqual([]);
+    });
+
+    it('should return empty array for empty content', () => {
+        expect(findFileBlocks('')).toEqual([]);
     });
 });
 
