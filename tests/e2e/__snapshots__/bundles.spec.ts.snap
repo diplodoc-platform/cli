@@ -3,22 +3,22 @@
 exports[`Check bundles > bundles list is correct > filelist 1`] = `
 "[
   ".yfm",
-  "_bundle/app-css-1",
-  "_bundle/app-js-0",
+  "_bundle/976-js",
+  "_bundle/app-css",
+  "_bundle/app-js",
+  "_bundle/app-rtl-css",
   "_bundle/latex-extension.css",
   "_bundle/latex-extension.js",
   "_bundle/mermaid-extension.js",
   "_bundle/page-constructor-extension.css",
   "_bundle/page-constructor-extension.js",
-  "_bundle/search-async-0",
-  "_bundle/search-css-0",
-  "_bundle/search-css-1",
-  "_bundle/search-css-2",
-  "_bundle/search-css-3",
-  "_bundle/search-css-4",
-  "_bundle/search-js-0",
-  "_bundle/search-js-1",
-  "_bundle/search-js-2",
+  "_bundle/react-js",
+  "_bundle/search-css",
+  "_bundle/search-js",
+  "_bundle/search-rtl-css",
+  "_bundle/vendor-css",
+  "_bundle/vendor-js",
+  "_bundle/vendor-rtl-css",
   "_search/api.js",
   "_search/ru/hash-index.js",
   "_search/ru/hash-registry.js",
@@ -65,8 +65,8 @@ exports[`Check bundles > bundles list is correct 2`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -82,9 +82,9 @@ exports[`Check bundles > bundles list is correct 2`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js"></script>
+        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
+        <script type="application/javascript" defer src="_bundle/react-js"></script>
         
     </body>
 </html>"
@@ -105,8 +105,8 @@ exports[`Check bundles > bundles list is correct 3`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -122,9 +122,9 @@ exports[`Check bundles > bundles list is correct 3`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js"></script>
+        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
+        <script type="application/javascript" defer src="_bundle/react-js"></script>
         
     </body>
 </html>"
@@ -145,8 +145,8 @@ exports[`Check bundles > bundles list is correct 4`] = `
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
         
-        <link type="text/css" rel="stylesheet" href="_bundle/search-css-0"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css-1"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
+        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -162,9 +162,9 @@ exports[`Check bundles > bundles list is correct 4`] = `
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
         <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-0"></script>
-        <script type="application/javascript" defer src="_bundle/search-js-2"></script>
+        <script type="application/javascript" defer src="_bundle/app-js"></script>
+        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
+        <script type="application/javascript" defer src="_bundle/react-js"></script>
         
     </body>
 </html>"
