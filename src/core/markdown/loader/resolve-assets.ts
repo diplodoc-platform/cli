@@ -8,6 +8,7 @@ import {fs, normalizePath, rebasePath} from '~/core/utils';
 import {
     filterRanges,
     findDefs,
+    findFileBlocks,
     findIncludedBlockRanges,
     findLinksInfo,
     findPcImages,
@@ -80,8 +81,9 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const defs = filterRanges(exclude, findDefs(content));
     const links = filterRanges(exclude, findLinksInfo(content));
     const pcImages = filterRanges(exclude, findPcImages(content));
+    const fileBlocks = filterRanges(exclude, findFileBlocks(content));
 
-    for (const info of [...defs, ...links, ...pcImages]) {
+    for (const info of [...defs, ...links, ...pcImages, ...fileBlocks]) {
         try {
             if (info.path !== null && !info.path?.startsWith('*') && !info.path?.includes('%')) {
                 info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);

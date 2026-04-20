@@ -137,6 +137,30 @@ export function findPcImages(content: string): AssetInfo[] {
     return pcImages;
 }
 
+export function findFileBlocks(content: string): AssetInfo[] {
+    const fileAssets: AssetInfo[] = [];
+    const rx = /{%\s*file\s.*?src="([^"]+)".*?%}/g;
+    let match;
+
+    while ((match = rx.exec(content)) !== null) {
+        const src = match[1];
+        const parsed = parseLocalUrl(src);
+        if (!parsed) {
+            continue;
+        }
+        fileAssets.push({
+            ...parsed,
+            type: 'link',
+            subtype: null,
+            title: '',
+            autotitle: false,
+            location: [match.index, match.index + match[0].length],
+        });
+    }
+
+    return fileAssets;
+}
+
 export function findLinksInfo(content: string): AssetInfo[] {
     const links = find(/]\(\s*/g, content, (match, rx) => {
         const link = parseLinkDestination(content, rx.lastIndex);
