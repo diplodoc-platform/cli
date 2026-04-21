@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.35.1](https://github.com/diplodoc-platform/cli/compare/v5.35.0...v5.35.1) (2026-04-21)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.5.0 ([#1861](https://github.com/diplodoc-platform/cli/issues/1861)) ([bc2e9b0](https://github.com/diplodoc-platform/cli/commit/bc2e9b07279a8e14422dd55e625cb906f1d14c27))
+* **deps:** Update @diplodoc/client@5.5.1 ([#1864](https://github.com/diplodoc-platform/cli/issues/1864)) ([fc561ad](https://github.com/diplodoc-platform/cli/commit/fc561ad11380a3d345f5451331766eb3420fdce1))
+* extend copy assets with file directive link ([22fbc30](https://github.com/diplodoc-platform/cli/commit/22fbc3011377ffd56c2f067e06f4fe902170829e))
+
 ## [5.35.0](https://github.com/diplodoc-platform/cli/compare/v5.34.8...v5.35.0) (2026-04-17)
 
 
