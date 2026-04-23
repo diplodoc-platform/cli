@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.35.2](https://github.com/diplodoc-platform/cli/compare/v5.35.1...v5.35.2) (2026-04-23)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.5.2 ([22262e3](https://github.com/diplodoc-platform/cli/commit/22262e379b03329ddd13a52b9af4c45c5678a6a0))
+
 ## [5.35.1](https://github.com/diplodoc-platform/cli/compare/v5.35.0...v5.35.1) (2026-04-21)
 
 
