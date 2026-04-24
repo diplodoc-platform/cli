@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.35.3](https://github.com/diplodoc-platform/cli/compare/v5.35.2...v5.35.3) (2026-04-24)
+
+
+### Bug Fixes
+
+* **deps:** Update dev:@diplodoc/search-extension@3.0.5 ([#1873](https://github.com/diplodoc-platform/cli/issues/1873)) ([debac90](https://github.com/diplodoc-platform/cli/commit/debac901d3e92baef592e90493662254a6192b30))
+
 ## [5.35.2](https://github.com/diplodoc-platform/cli/compare/v5.35.1...v5.35.2) (2026-04-23)
 
 
