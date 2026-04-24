@@ -12,12 +12,12 @@ const generateFilesYamlTestTemplate = (
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
-            args: args.concat(['--keep-not-var']).join(' '),
+            args: args.concat(['--keep-not-var', '--id-generator', 'deterministic']).join(' '),
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
-            args: args.join(' '),
+            args: args.concat(['--id-generator', 'deterministic']).join(' '),
         });
         await compareDirectories(outputPath);
     });

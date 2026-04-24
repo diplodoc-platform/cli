@@ -1,4 +1,5 @@
 import type {DocAnalytics} from '@diplodoc/client';
+import type {IDGeneratorStrategy} from '@diplodoc/utils';
 import type {NeuroExpertBase, NeuroExpertConfig} from './features/neuro-expert';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
 import type {VarsService} from '~/core/vars';
@@ -46,6 +47,8 @@ export type ContentConfig = {
     multilineTermDefinitions: boolean;
 };
 
+export type {IDGeneratorStrategy};
+
 type BaseConfig = {
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
@@ -82,6 +85,12 @@ type BaseConfig = {
     disableCsp?: boolean;
     pdfDebug: boolean;
     content: ContentConfig;
+    /**
+     * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
+     * - 'random' (default): uses Math.random() — legacy behavior.
+     * - 'deterministic': uses per-file counters with prefix (e.g. 'term-1').
+     */
+    idGenerator: IDGeneratorStrategy;
 };
 
 export type VcsArgs = {

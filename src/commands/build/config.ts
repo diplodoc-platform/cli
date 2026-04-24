@@ -247,6 +247,25 @@ const multilineTermDefinitions = option({
     default: false,
 });
 
+const idGenerator = option({
+    flags: '--id-generator <value>',
+    choices: ['random', 'deterministic', 'constant'],
+    defaultInfo: 'random',
+    desc: `
+        Strategy for generating element IDs (e.g. for tabs, terms, code blocks).
+
+        If ${bold('random')} is selected, IDs are generated using Math.random() (legacy behavior).
+
+        If ${bold('deterministic')} is selected, IDs are generated using per-file counters
+        with a prefix (e.g. 'term-1', 'tab-2'). This produces stable, reproducible IDs
+        across builds, which is useful for snapshot testing and diffing output.
+
+        If ${bold('constant')} is selected, all generated IDs are the constant string '1'.
+        This eliminates ID-related noise when diffing output of two build modes
+        (e.g. with-merge-includes vs without-merge-includes).
+    `,
+});
+
 export function combineProps<C extends BuildConfig>(
     config: C,
     group: string,
@@ -452,4 +471,5 @@ export const options = {
     multilineTermDefinitions,
     addAlternateMeta,
     maxOpenapiIncludeSize,
+    idGenerator,
 };

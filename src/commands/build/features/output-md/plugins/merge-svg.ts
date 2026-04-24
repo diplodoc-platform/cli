@@ -2,6 +2,7 @@ import type {AssetInfo, ImageOptions} from '~/core/markdown/types';
 import type {Run} from '../../..';
 import type {StepFunction} from '../utils';
 
+import {createIDGeneratorByStrategy} from '@diplodoc/utils';
 import {replaceSvgContent} from '@diplodoc/transform/lib/plugins/images';
 import path from 'node:path';
 
@@ -15,6 +16,7 @@ function isImage(asset: AssetInfo) {
 export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetInfo[]) {
     const defs = assets.filter(isDef);
     const images = assets.filter(isImage);
+    const generateID = createIDGeneratorByStrategy(run.config.idGenerator);
 
     return async function (scheduler, entry): Promise<void> {
         type StepContext = {image: AssetInfo};
@@ -66,7 +68,7 @@ export function mergeSvg(run: Run, svgList: Map<string, string>, assets: AssetIn
 
             return (
                 content.substring(0, location[0] - 2 - title.length) +
-                replaceSvgContent(svgContent, options) +
+                replaceSvgContent(svgContent, options, generateID) +
                 content.substring(end)
             );
         };

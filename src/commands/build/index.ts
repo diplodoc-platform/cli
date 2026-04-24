@@ -81,6 +81,7 @@ const command = 'Build';
             addAlternateMeta: true,
             lint: {enabled: true, config: {}},
             vcsPath: {enabled: true},
+            idGenerator: 'random',
         }) as Partial<BuildConfig>,
 )
 export class Build extends BaseProgram<BuildConfig, BuildArgs> {
@@ -154,6 +155,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxAssetSize,
         options.maxOpenapiIncludeSize,
         options.multilineTermDefinitions,
+        options.idGenerator,
         options.strict,
         options.originAsInput,
         options.copyOnWrite,
