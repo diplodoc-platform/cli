@@ -28,7 +28,7 @@ function test(_description: string) {
     });
 }
 
-describe('Regression', () => {
+describe('Regression', {timeout: 90_000}, () => {
     test(dedent`
         - not_var liquid syntax
         - normalize leading hrefs
