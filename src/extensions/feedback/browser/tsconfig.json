@@ -1,0 +1,12 @@
+{
+  "extends": "@diplodoc/tsconfig",
+  "compilerOptions": {
+    "lib": ["ES2019", "DOM"],
+    "target": "ES2019",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "include": ["./**/*.ts"]
+}

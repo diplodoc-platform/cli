@@ -1,6 +1,7 @@
 const {basename, dirname, join} = require('node:path');
 const {chmod, copyFile, mkdir} = require('node:fs/promises');
 const infra = require('@diplodoc/lint/esbuild');
+const esbuild = require('esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
 const {sync: glob} = require('glob');
@@ -93,6 +94,23 @@ const extension = async (entry, outfile, format) => {
     await infra.build(config);
 };
 
+const browser = (entry, outfile) =>
+    esbuild.build({
+        tsconfig: './src/extensions/feedback/browser/tsconfig.json',
+        platform: 'browser',
+        target: ['es2019'],
+        format: 'iife',
+        bundle: true,
+        minify: true,
+        sourcemap: false,
+        logLevel: 'error',
+        entryPoints: [entry],
+        outfile: `build/${outfile}`,
+        define: {
+            'process.env.NODE_ENV': '"production"',
+        },
+    });
+
 const copy = async (from, to) => {
     await mkdir(dirname(join(__dirname, '../build', to)), {recursive: true});
     await copyFile(from, join(__dirname, '../build', to));
@@ -106,6 +124,10 @@ const extensions = [
     ['src/extensions/arcadia-vcs/index.ts', 'arcadia-vcs'],
 ];
 
+const browserBundles = [
+    ['src/extensions/feedback/browser/index.ts', 'extensions/feedback/resources/feedback.js'],
+];
+
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
 
 const files = [[require.resolve('@diplodoc/client/manifest'), 'manifest.json']];
@@ -116,6 +138,7 @@ Promise.all([
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
     ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
+    ...browserBundles.map(([entry, outfile]) => browser(entry, outfile)),
     ...files.map(([from, to]) => copy(from, to)),
 ]).then(() => {
     for (const dep of externals) {

@@ -14,10 +14,7 @@
       "@diplodoc/cli": ["./src"]
     }
   },
-  "include": [
-    "src/path.d.ts",
-    "src/globals.d.ts",
-    "src"
-  ],
+  "include": ["src/path.d.ts", "src/globals.d.ts", "src"],
+  "exclude": ["src/extensions/feedback/browser"],
   "types": ["node"]
 }
