@@ -8,6 +8,7 @@ import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
 import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {createIDGeneratorByStrategy} from '@diplodoc/utils';
 
 import {configPath} from '~/core/config';
 import {ASSETS_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
@@ -210,6 +211,8 @@ export class Run extends BaseRun<BuildConfig> {
     }
 
     private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
+        const generateID = createIDGeneratorByStrategy(this.config.idGenerator);
+
         return {
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
@@ -229,7 +232,10 @@ export class Run extends BaseRun<BuildConfig> {
                 enabled: this.config.content.maxInlineSvgSize !== 0,
                 maxFileSize: this.config.content.maxInlineSvgSize,
             },
-            multilineTermDefinitions: this.config.content.multilineTermDefinitions ?? false,
+            multilineTermDefinitions:
+                this.config.content.multilineTermDefinitions ??
+                this.config.multilineTermDefinitions,
+            generateID,
             rawContent: (path: string): string => {
                 const asset = assets[path];
                 if (typeof asset !== 'string') {

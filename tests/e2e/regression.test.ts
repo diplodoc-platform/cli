@@ -10,17 +10,17 @@ function test(_description: string) {
         await TestAdapter.testBuildPass(inputPath, outputPath, {
             md2md: true,
             md2html: false,
-            args: '-j2 --keep-not-var --add-system-meta',
+            args: '-j2 --keep-not-var --add-system-meta --id-generator deterministic',
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-html', {
             md2md: false,
             md2html: true,
-            args: '-j2',
+            args: '-j2 --id-generator deterministic',
         });
         await TestAdapter.testBuildPass(outputPath, outputPath + '-static-html', {
             md2md: false,
             md2html: true,
-            args: '-j2 --static-content',
+            args: '-j2 --static-content --id-generator deterministic',
         });
         await compareDirectories(outputPath);
         await compareDirectories(outputPath + '-html');
