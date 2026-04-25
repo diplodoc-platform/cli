@@ -13,9 +13,11 @@ export type SerializedGraph<Data = {type: string}> = {
 
 export class Graph<Data = {type: string}> extends DepGraph<Data> {
     static is<Data = {type: string}>(data: unknown): data is SerializedGraph<Data> {
+        if (data instanceof Graph) {
+            return true;
+        }
         return Boolean(
-            data instanceof Graph ||
-                (data && typeof data === 'object' && '__type' in data && data.__type === '$$Graph'),
+            data && typeof data === 'object' && '__type' in data && data.__type === '$$Graph',
         );
     }
 
