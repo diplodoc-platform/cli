@@ -267,8 +267,10 @@ function isObject(data: unknown): data is Object {
 }
 
 function isError(data: unknown): data is Error {
+    if (data instanceof Error) {
+        return true;
+    }
     return Boolean(
-        data instanceof Error ||
-            (data && typeof data === 'object' && '__type' in data && data.__type === '$$Error'),
+        data && typeof data === 'object' && '__type' in data && data.__type === '$$Error',
     );
 }
