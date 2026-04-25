@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.36.0](https://github.com/diplodoc-platform/cli/compare/v5.35.3...v5.36.0) (2026-04-25)
+
+
+### Features
+
+* use generateID from utils DOCSTOOLS-5561 ([02b65ed](https://github.com/diplodoc-platform/cli/commit/02b65ede92c85802b85eac57b1f62c18bf82340c))
+
 ## [5.35.3](https://github.com/diplodoc-platform/cli/compare/v5.35.2...v5.35.3) (2026-04-24)
 
 
