@@ -33,6 +33,7 @@ exports[`Regression > internal > filelist 1`] = `
   "merge/merge.md",
   "merge/merged.md",
   "merge/toc.yaml",
+  "mermaid-hash.md",
   "mermaid.md",
   "openapi/index.md",
   "openapi/test-controller/getHiddenTest.md",
@@ -402,6 +403,9 @@ Autotitle include
 
 Link after include
 
+## Mermaid
+{% include [test](mermaid-hash.md) %}
+
 [*term]: Test terms
 [*term1]: {% include [test](includes/fragments-hash.md#f3) %}
 [*term2]: {% include [test](includes/fragments-hash.md#f3) %}
@@ -671,6 +675,31 @@ Some mermaid info
 `;
 
 exports[`Regression > internal 28`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+__system:
+  testVar: test-value
+vcsPath: mermaid.md
+---
+# Mermaid usage
+
+\`\`\`mermaid
+
+  sequenceDiagram
+        rect rgba(251, 243, 232, 0.2)
+            Alice ->> Bob:
+        end
+  \`\`\`
+
+## Mermaid info {#info}
+
+Some mermaid info
+"
+`;
+
+exports[`Regression > internal 29`] = `
 "---
 metadata:
   - name: generator
@@ -964,7 +993,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 30`] = `
 "---
 metadata:
   - name: generator
@@ -1162,7 +1191,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 31`] = `
 "---
 metadata:
   - name: generator
@@ -1244,7 +1273,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 32`] = `
 "---
 metadata:
   - name: generator
@@ -1264,7 +1293,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 33`] = `
 "files:
   - from: c.md
     to: d.md
@@ -1274,7 +1303,7 @@ common:
 "
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 34`] = `
 "---
 metadata:
   - name: generator
@@ -1291,7 +1320,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 35`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -1356,13 +1385,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 36`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1390,7 +1419,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1418,7 +1447,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1446,7 +1475,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1474,7 +1503,7 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1502,7 +1531,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1530,7 +1559,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1558,7 +1587,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 44`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1586,7 +1615,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1614,7 +1643,7 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1642,7 +1671,7 @@ exports[`Regression > internal 45`] = `
 </html>"
 `;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1670,7 +1699,7 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `
+exports[`Regression > internal 48`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1698,7 +1727,7 @@ exports[`Regression > internal 47`] = `
 </html>"
 `;
 
-exports[`Regression > internal 48`] = `
+exports[`Regression > internal 49`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1712,7 +1741,7 @@ exports[`Regression > internal 48`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"includes.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"img 3\\" /&gt;&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;sup&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-2\\"&gt;?&lt;/i&gt;&lt;/sup&gt;&lt;/p&gt;/n&lt;p&gt;[&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-1\\"&gt;?&lt;/i&gt;](http://ya.ru)&lt;/p&gt;/n&lt;p&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1\\" role=\\"button\\" aria-controls=\\":term1_element\\" tabindex=\\"0\\" id=\\"term1-2\\"&gt;Term 1&lt;/i&gt; &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term2\\" role=\\"button\\" aria-controls=\\":term2_element\\" tabindex=\\"0\\" id=\\"term2-1\\"&gt;Term 2&lt;/i&gt;&lt;/p&gt;/n&lt;p&gt;Link after include&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Autotitle include&lt;/p&gt;/n/n&lt;p&gt;Link after include&lt;/p&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Test terms&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f3\\"&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term2_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f31\\"&gt;&lt;a href=\\"includes.html#f31\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"includes.md"},"headings":[{"title":"F3","href":"includes.html#f3","level":2},{"title":"F3","href":"includes.html#f31","level":2}],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"includes.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"img 3\\" /&gt;&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;sup&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-2\\"&gt;?&lt;/i&gt;&lt;/sup&gt;&lt;/p&gt;/n&lt;p&gt;[&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-1\\"&gt;?&lt;/i&gt;](http://ya.ru)&lt;/p&gt;/n&lt;p&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1\\" role=\\"button\\" aria-controls=\\":term1_element\\" tabindex=\\"0\\" id=\\"term1-2\\"&gt;Term 1&lt;/i&gt; &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term2\\" role=\\"button\\" aria-controls=\\":term2_element\\" tabindex=\\"0\\" id=\\"term2-1\\"&gt;Term 2&lt;/i&gt;&lt;/p&gt;/n&lt;p&gt;Link after include&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Autotitle include&lt;/p&gt;/n/n&lt;p&gt;Link after include&lt;/p&gt;/n&lt;h2 id=\\"mermaid\\"&gt;&lt;a href=\\"includes.html#mermaid\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Mermaid&lt;/span&gt;&lt;/a&gt;Mermaid&lt;/h2&gt;/n&lt;h1&gt;Mermaid usage&lt;/h1&gt;/n&lt;div class=\\"mermaid\\" data-content=\\"sequenceDiagram%0A%20%20%20%20%20%20%20%20rect%20rgba(251%2C%20243%2C%20232%2C%200.2)%0A%20%20%20%20%20%20%20%20%20%20%20%20Alice%20-%3E%3E%20Bob%3A%0A%20%20%20%20%20%20%20%20end%0A\\"&gt;&lt;/div&gt;&lt;h2 id=\\"info\\"&gt;&lt;a href=\\"includes.html#info\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Mermaid info&lt;/span&gt;&lt;/a&gt;Mermaid info&lt;/h2&gt;/n&lt;p&gt;Some mermaid info&lt;/p&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Test terms&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f3\\"&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term2_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f31\\"&gt;&lt;a href=\\"includes.html#f31\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":["_bundle/mermaid-extension.js"],"vcsPath":"includes.md"},"headings":[{"title":"Mermaid","href":"includes.html#mermaid","level":2},{"title":"Mermaid info","href":"includes.html#info","level":2},{"title":"F3","href":"includes.html#f3","level":2},{"title":"F3","href":"includes.html#f31","level":2}],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1726,7 +1755,7 @@ exports[`Regression > internal 48`] = `
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 50`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1754,7 +1783,7 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `
+exports[`Regression > internal 51`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1782,7 +1811,7 @@ exports[`Regression > internal 50`] = `
 </html>"
 `;
 
-exports[`Regression > internal 51`] = `
+exports[`Regression > internal 52`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1810,7 +1839,7 @@ exports[`Regression > internal 51`] = `
 </html>"
 `;
 
-exports[`Regression > internal 52`] = `
+exports[`Regression > internal 53`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1838,7 +1867,7 @@ exports[`Regression > internal 52`] = `
 </html>"
 `;
 
-exports[`Regression > internal 53`] = `
+exports[`Regression > internal 54`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1866,9 +1895,9 @@ exports[`Regression > internal 53`] = `
 </html>"
 `;
 
-exports[`Regression > internal 54`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 55`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 55`] = `
+exports[`Regression > internal 56`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1896,7 +1925,7 @@ exports[`Regression > internal 55`] = `
 </html>"
 `;
 
-exports[`Regression > internal 56`] = `
+exports[`Regression > internal 57`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1924,7 +1953,7 @@ exports[`Regression > internal 56`] = `
 </html>"
 `;
 
-exports[`Regression > internal 57`] = `
+exports[`Regression > internal 58`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1952,7 +1981,7 @@ exports[`Regression > internal 57`] = `
 </html>"
 `;
 
-exports[`Regression > internal 58`] = `
+exports[`Regression > internal 59`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1980,7 +2009,7 @@ exports[`Regression > internal 58`] = `
 </html>"
 `;
 
-exports[`Regression > internal 59`] = `
+exports[`Regression > internal 60`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -2008,7 +2037,7 @@ exports[`Regression > internal 59`] = `
 </html>"
 `;
 
-exports[`Regression > internal 60`] = `
+exports[`Regression > internal 61`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -2036,4 +2065,4 @@ exports[`Regression > internal 60`] = `
 </html>"
 `;
 
-exports[`Regression > internal 61`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 62`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

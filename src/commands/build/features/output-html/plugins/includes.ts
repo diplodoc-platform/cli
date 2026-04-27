@@ -60,10 +60,45 @@ type Options = MarkdownItPluginOpts & {
     files: Record<NormalizedPath, string>;
 };
 
+/**
+ * Merges resource arrays (script, style) collected during nested
+ * include parsing back into the parent env.  This is necessary because
+ * `{...env}` spread breaks the `meta` getter/setter proxy — extensions
+ * that run inside nested `md.parse` create a new `meta` object on the
+ * copy, and their additions are lost without explicit propagation.
+ */
+export function mergeNestedMeta(
+    parentEnv: Record<string, unknown>,
+    nestedMeta: Record<string, unknown> | undefined,
+) {
+    if (!nestedMeta) {
+        return;
+    }
+
+    const parent = (parentEnv.meta || {}) as Record<string, unknown>;
+    parentEnv.meta = parent;
+
+    for (const key of ['script', 'style']) {
+        const items = nestedMeta[key];
+        if (!Array.isArray(items) || items.length === 0) {
+            continue;
+        }
+        const target: string[] = (parent[key] as string[]) || [];
+        parent[key] = target;
+        for (const item of items) {
+            if (!target.includes(item)) {
+                target.push(item);
+            }
+        }
+    }
+}
+
+type CacheEntry = {tokens: Token[]; meta?: Record<string, unknown>};
+
 export default ((md, options) => {
     const {path: optPath, log} = options;
 
-    const cache: Hash<Token[]> = {};
+    const cache: Hash<CacheEntry> = {};
 
     const plugin = (state: StateCore) => {
         const {env} = state;
@@ -94,7 +129,7 @@ function unfoldIncludes(
     path: NormalizedPath,
     state: StateCore,
     options: Options,
-    cache: Hash<Token[]>,
+    cache: Hash<CacheEntry>,
 ) {
     const {log, files} = options;
     const {tokens, md, env} = state;
@@ -143,13 +178,25 @@ function unfoldIncludes(
                 ? [...parentChain, {file: path, line: includeLine}]
                 : [...parentChain];
 
-            const fileTokens =
-                cache[includeFullPath] ||
-                md.parse(bodyContent, {
+            const cached = cache[includeFullPath];
+            let fileTokens: Token[];
+            let nestedMeta: Record<string, unknown> | undefined;
+
+            if (cached) {
+                fileTokens = cached.tokens;
+                nestedMeta = cached.meta;
+            } else {
+                const nestedEnv = {
                     ...env,
                     path: includeFullPath,
                     includeChain: currentChain,
-                });
+                };
+                fileTokens = md.parse(bodyContent, nestedEnv);
+                nestedMeta = nestedEnv.meta as Record<string, unknown> | undefined;
+                cache[includeFullPath] = {tokens: fileTokens, meta: nestedMeta};
+            }
+
+            mergeNestedMeta(env, nestedMeta);
 
             let includedTokens: Token[];
             if (hash) {
@@ -172,12 +219,8 @@ function unfoldIncludes(
                 includedTokens = stripTitleTokens(includedTokens);
             }
 
-            // If this is first usage - pick original tokens
-            // otherwise copy tokens, do not use original, because there can be other meta.
-            if (cache[includeFullPath]) {
+            if (cached) {
                 includedTokens = includedTokens.map((token) => copyToken(state, token));
-            } else {
-                cache[includeFullPath] = fileTokens;
             }
 
             tagTokensWithSource(includedTokens, includeFullPath, currentChain);
