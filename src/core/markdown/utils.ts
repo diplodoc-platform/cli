@@ -137,6 +137,34 @@ export function findPcImages(content: string): AssetInfo[] {
     return pcImages;
 }
 
+export function findHtmlDownloadLinks(content: string): AssetInfo[] {
+    const assets: AssetInfo[] = [];
+    const tagRx = /<a\s[^>]*?\bdownload\b[^>]*>/gi;
+    const hrefRx = /\bhref="([^"]+)"/i;
+    let match;
+
+    while ((match = tagRx.exec(content)) !== null) {
+        const hrefMatch = hrefRx.exec(match[0]);
+        if (!hrefMatch) {
+            continue;
+        }
+        const parsed = parseLocalUrl(hrefMatch[1]);
+        if (!parsed) {
+            continue;
+        }
+        assets.push({
+            ...parsed,
+            type: 'link',
+            subtype: null,
+            title: '',
+            autotitle: false,
+            location: [match.index, match.index + match[0].length],
+        });
+    }
+
+    return assets;
+}
+
 export function findFileBlocks(content: string): AssetInfo[] {
     const fileAssets: AssetInfo[] = [];
     const rx = /{%\s*file\s.*?src="([^"]+)".*?%}/g;

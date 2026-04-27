@@ -952,8 +952,71 @@ describe('Markdown loader', () => {
                 Simple text
                 ![title][code]{width=100 height=200}
                 ![code][]{width=100}
-                
+
                 [code]: ./some.png
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect html anchor with download attribute (href first)', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/test.txt" download="Config">Download</a>
+                <a href="_assets/test.docx" download>Download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect html anchor with download attribute (download first)', async () => {
+            const content = dedent`
+                Simple text
+                <a download="Config" href="_assets/test.csv">Download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor without download attribute', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/test.txt">Not a download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor with external href and download', async () => {
+            const content = dedent`
+                Simple text
+                <a href="https://example.com/file.txt" download>External</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor with download but unsupported format', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/archive.zip" download>Download</a>
+                <a href="_assets/report.pdf" download>Download</a>
+                <a href="_assets/data.xlsx" download>Download</a>
             `;
             const context = loaderContext(content, {});
 

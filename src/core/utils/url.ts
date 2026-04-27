@@ -71,8 +71,7 @@ export function shortLink(href: string): string {
 
 export const MEDIA_FORMATS = /\.(svg|png|gif|jpe?g|bmp|webp|ico)$/i;
 
-// TODO: should we deprecate this?
-const DOC_FORMATS = /\.(txt|pdf|docx|xlsx|csv|vsd|ya?ml)$/i;
+const DOC_FORMATS = /\.(txt|ya?ml|docx|xlsx|pptx|pdf|csv)$/i;
 
 export function isMediaLink(link: string) {
     return MEDIA_FORMATS.test(link) || DOC_FORMATS.test(link);

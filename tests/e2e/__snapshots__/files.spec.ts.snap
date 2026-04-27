@@ -4,6 +4,8 @@ exports[`Static files from _assets directory > Download link should be enabled >
 "[
   "_assets/test.csv",
   "_assets/test.docx",
+  "_assets/test.pdf",
+  "_assets/test.pptx",
   "_assets/test.txt",
   "_assets/test.xlsx",
   "_assets/test.yaml",
@@ -17,6 +19,8 @@ exports[`Static files from _assets directory > Download link should be enabled >
 "[
   "_assets/test.csv",
   "_assets/test.docx",
+  "_assets/test.pdf",
+  "_assets/test.pptx",
   "_assets/test.txt",
   "_assets/test.xlsx",
   "_assets/test.yaml",
@@ -41,13 +45,13 @@ vcsPath: index.md
 
 Текст {% file src="_assets/test.docx" name="Configuration File txt" %} потом текст
 
-Текст {% file src="_assets/test.xlsx" name="Configuration File txt" %} потом текст
+Текст <a href="_assets/test.xlsx" download="Config">Скачать</a> потом текст
 
-Текст {% file src="_assets/test.csv" name="Configuration File txt" %} потом текст
+Текст <a href="_assets/test.csv" download="Config">Скачать</a> потом текст
 
-Текс <a href="_assets/test.yaml" download="Config">Скачать</a> потом текст
+Текст [Download](_assets/test.pdf){download="Config"} потом текст
 
-Текс [Download](_assets/test.yaml){download="Config"} потом текст
+Текст [Download](_assets/test.pptx){download="Config"} потом текст
 
 [Link to pc page](./pc-index.yaml)"
 `;
@@ -114,7 +118,7 @@ exports[`Static files from _assets directory > Download link should be enabled 4
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h3 id=\\"download-static-file\\"&gt;&lt;a href=\\"index.html#download-static-file\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Download static file&lt;/span&gt;&lt;/a&gt;Download static file&lt;/h3&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.yaml\\" download=\\"Configuration File\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.txt\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.docx\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.xlsx\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.csv\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Скачать&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текс &lt;a href=\\"_assets/test.yaml\\" download=\\"Config\\"&gt;Download&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"pc-index.html\\"&gt;Link to pc page&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"vcsPath":"index.md"},"headings":[],"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h3 id=\\"download-static-file\\"&gt;&lt;a href=\\"index.html#download-static-file\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Download static file&lt;/span&gt;&lt;/a&gt;Download static file&lt;/h3&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.yaml\\" download=\\"Configuration File\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.txt\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.docx\\" download=\\"Configuration File txt\\" class=\\"yfm-file\\"&gt;&lt;span class=\\"yfm-file__icon\\"&gt;&lt;/span&gt;Configuration File txt&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.xlsx\\" download=\\"Config\\"&gt;Скачать&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.csv\\" download=\\"Config\\"&gt;Скачать&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.pdf\\" download=\\"Config\\"&gt;Download&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;Текст &lt;a href=\\"_assets/test.pptx\\" download=\\"Config\\"&gt;Download&lt;/a&gt; потом текст&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"pc-index.html\\"&gt;Link to pc page&lt;/a&gt;&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"vcsPath":"index.md"},"headings":[],"title":""},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
