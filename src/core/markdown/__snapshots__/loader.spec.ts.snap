@@ -67,6 +67,62 @@ exports[`Markdown loader > resolveAssets > should detect asset 1`] = `
 ]
 `;
 
+exports[`Markdown loader > resolveAssets > should detect html anchor with download attribute (download first) 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        12,
+        57,
+      ],
+      "path": "_assets/test.csv",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should detect html anchor with download attribute (href first) 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        12,
+        57,
+      ],
+      "path": "_assets/test.txt",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        70,
+        107,
+      ],
+      "path": "_assets/test.docx",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+  ],
+]
+`;
+
 exports[`Markdown loader > resolveAssets > should detect link asset 1`] = `
 [
   [
@@ -175,6 +231,67 @@ exports[`Markdown loader > resolveAssets > should not detect asset with language
 `;
 
 exports[`Markdown loader > resolveAssets > should not detect asset with long fence 1`] = `
+[
+  [],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should not detect html anchor with download but unsupported format 1`] = `
+[
+  [
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        12,
+        51,
+      ],
+      "path": "_assets/archive.zip",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        64,
+        102,
+      ],
+      "path": "_assets/report.pdf",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+    {
+      "autotitle": false,
+      "hash": null,
+      "location": [
+        115,
+        152,
+      ],
+      "path": "_assets/data.xlsx",
+      "search": null,
+      "size": 0,
+      "subtype": null,
+      "title": "",
+      "type": "link",
+    },
+  ],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should not detect html anchor with external href and download 1`] = `
+[
+  [],
+]
+`;
+
+exports[`Markdown loader > resolveAssets > should not detect html anchor without download attribute 1`] = `
 [
   [],
 ]

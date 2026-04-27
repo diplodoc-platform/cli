@@ -9,6 +9,7 @@ import {
     filterRanges,
     findDefs,
     findFileBlocks,
+    findHtmlDownloadLinks,
     findIncludedBlockRanges,
     findLinksInfo,
     findPcImages,
@@ -82,8 +83,9 @@ export function resolveAssets(this: LoaderContext, content: string) {
     const links = filterRanges(exclude, findLinksInfo(content));
     const pcImages = filterRanges(exclude, findPcImages(content));
     const fileBlocks = filterRanges(exclude, findFileBlocks(content));
+    const htmlDownloadLinks = filterRanges(exclude, findHtmlDownloadLinks(content));
 
-    for (const info of [...defs, ...links, ...pcImages, ...fileBlocks]) {
+    for (const info of [...defs, ...links, ...pcImages, ...fileBlocks, ...htmlDownloadLinks]) {
         try {
             if (info.path !== null && !info.path?.startsWith('*') && !info.path?.includes('%')) {
                 info.path = rebasePath(this.path, decodeURIComponent(info.path) as RelativePath);
