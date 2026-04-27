@@ -25,6 +25,9 @@ Autotitle include
 
 Link after include
 
+## Mermaid
+{% include [test](mermaid.md) %}
+
 [*term]: Test terms
 [*term1]: {% include [test](includes/fragments.md#f3) %}
 [*term2]: {% include [test](includes/fragments.md#f3) %}
