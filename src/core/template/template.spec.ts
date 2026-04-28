@@ -91,4 +91,68 @@ describe('Template', () => {
             expect(html).not.toContain('Content-Security-Policy');
         });
     });
+
+    describe('dump body interpolation', () => {
+        it('should render default root container when body is empty', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+
+            const html = template.dump();
+
+            expect(html).toContain('<div id="root"></div>');
+        });
+
+        // Regression: https://github.com/diplodoc-platform/cli/issues/1893
+        // ts-dedent must not re-indent whitespace-significant body content.
+        it('should preserve whitespace in multi-line <pre><code> body', () => {
+            const code = [
+                '<pre><code class="hljs bash"># 1. comment',
+                './init.sh --dump-postgres',
+                '',
+                './init.sh --pg-sql',
+                '</code></pre>',
+            ].join('\n');
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addBody(code);
+
+            const html = template.dump();
+
+            // body lines must keep their original (zero) indentation
+            expect(html).toContain(code);
+            // no extra leading indentation injected on subsequent lines
+            expect(html).not.toMatch(/\n {2,}\.\/init\.sh --dump-postgres/);
+        });
+
+        it('should not re-indent lines of a multi-line body', () => {
+            const body = 'first\nsecond\nthird';
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addBody(body);
+
+            const html = template.dump();
+
+            expect(html).toContain('first\nsecond\nthird');
+        });
+
+        // The replacement must use a replacer function so the special patterns
+        // ($$, $&, $`, $', $n) of String.prototype.replace are NOT interpreted.
+        it('should insert body verbatim when it contains $-replacement patterns', () => {
+            const body = "<p>$$ and $& and $` and $' and $1 and $<name></p>";
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addBody(body);
+
+            const html = template.dump();
+
+            expect(html).toContain(body);
+            expect(html).toContain('$$ and $& and');
+        });
+
+        it('should concatenate multiple body fragments with newlines', () => {
+            const template = new Template('index.html' as RelativePath, 'en');
+            template.addBody('<div>one</div>');
+            template.addBody('<div>two</div>');
+
+            const html = template.dump();
+
+            expect(html).toContain('<div>one</div>\n<div>two</div>');
+        });
+    });
 });
