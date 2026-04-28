@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.36.1](https://github.com/diplodoc-platform/cli/compare/v5.36.0...v5.36.1) (2026-04-28)
+
+
+### Bug Fixes
+
+* copy pdf icon as custom resource ([0f36c8d](https://github.com/diplodoc-platform/cli/commit/0f36c8d2e44923c145ad6c33460799cd38080c08))
+* **deps:** Update @diplodoc/yfmlint@1.7.5 ([#1885](https://github.com/diplodoc-platform/cli/issues/1885)) ([f69b21f](https://github.com/diplodoc-platform/cli/commit/f69b21f5b7125e68f4fce5c8f1175ce65b845175))
+* Support includes in terms ([c687b6c](https://github.com/diplodoc-platform/cli/commit/c687b6c72383cd25754efd2de0dd6be143b2f9db))
+
 ## [5.36.0](https://github.com/diplodoc-platform/cli/compare/v5.35.3...v5.36.0) (2026-04-25)
 
 
