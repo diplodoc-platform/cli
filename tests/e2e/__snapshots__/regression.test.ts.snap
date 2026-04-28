@@ -23,6 +23,8 @@ exports[`Regression > internal > filelist 1`] = `
   "includes.md",
   "includes/deep-hash.md",
   "includes/fragments-hash.md",
+  "includes/fragments.md",
+  "includes/styles-hash.md",
   "includes/test-hash.md",
   "includes/tools-hash.md",
   "includes/user-hash.md",
@@ -63,6 +65,7 @@ exports[`Regression > internal > filelist 2`] = `
   "included-item.html",
   "includer-of-entry.html",
   "includes.html",
+  "includes/fragments.html",
   "index.html",
   "latex.html",
   "merge/merge.html",
@@ -157,10 +160,41 @@ Special local title
 Circular title
 [Header](./autotitle.md#header)
 
+Autotitle from include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
+Include with autotitle
+<!-- {% include [test](includes/fragments.md#f4) %} -->
+
+link with [some local term1](*term1-1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+All fragments
+
+{% include [test](includes/fragments-hash.md) %}
+
+
 ## Header {#header}
 
-Content
-"
+Content2
+
+{% include [test](includes/styles-hash.md) %}
+
+[*term1-1]: {% include [test](includes/fragments-hash.md#f3) %}"
 `;
 
 exports[`Regression > internal 4`] = `
@@ -358,13 +392,19 @@ Text
 
 [[?](*term)](http://ya.ru)
 
+[Term 1](*term1) [Term 2](*term2)
 
 Link after include
 [Subtitle](./1.md#subtitle)
 
+Autotitle include
+<!-- [{#T}](includes/fragments.md#f3) -->
+
 Link after include
 
 [*term]: Test terms
+[*term1]: {% include [test](includes/fragments-hash.md#f3) %}
+[*term2]: {% include [test](includes/fragments-hash.md#f3) %}
 "
 `;
 
@@ -380,8 +420,12 @@ __system:
 
 exports[`Regression > internal 16`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
 __system:
   testVar: test-value
+vcsPath: includes/fragments.md
 ---
 ### F1 {#f1}
 Content F1
@@ -400,15 +444,83 @@ Some paragraph with anchor {#p1}
 Some paragraph without anchor
 
 Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](../autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+[*term1]: Some description
 "
 `;
 
 exports[`Regression > internal 17`] = `
 "---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
 __system:
   testVar: test-value
+vcsPath: includes/fragments.md
 ---
-Test
+### F1 {#f1}
+Content F1
+
+## F2 {#f2}
+Content F2
+
+### F2.1 {#f2.1}
+Content F2.1
+
+## F3 {#f3}
+Content F3
+
+Some paragraph with anchor {#p1}
+
+Some paragraph without anchor
+
+Some paragraph with anchor {#p2}
+
+## F4 {#f4}
+Content F4
+[Header](../autotitle.md#header)
+
+### F4.1 {#f4.1}
+link with [some term1](*term1)
+
+{% list tabs %}
+
+- Название таба 1
+
+  Текст таба 1.
+
+  * Можно использовать списки.
+  * И **другую** разметку.
+
+- Название таба 2
+
+  Текст таба 2.
+
+{% endlist %}
+
+[*term1]: Some description
 "
 `;
 
@@ -417,7 +529,14 @@ exports[`Regression > internal 18`] = `
 __system:
   testVar: test-value
 ---
-Tool: Hammer and Laser
+<style>
+
+.yfm .border-yes {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+}
+
+</style>
 "
 `;
 
@@ -426,11 +545,29 @@ exports[`Regression > internal 19`] = `
 __system:
   testVar: test-value
 ---
-Bob
+Test
 "
 `;
 
 exports[`Regression > internal 20`] = `
+"---
+__system:
+  testVar: test-value
+---
+Tool: Hammer and Laser
+"
+`;
+
+exports[`Regression > internal 21`] = `
+"---
+__system:
+  testVar: test-value
+---
+Bob
+"
+`;
+
+exports[`Regression > internal 22`] = `
 "description:
   - Some text
 links:
@@ -448,7 +585,7 @@ meta:
 "
 `;
 
-exports[`Regression > internal 21`] = `
+exports[`Regression > internal 23`] = `
 "---
 metadata:
   - name: generator
@@ -463,7 +600,7 @@ $/sqrt{3x-1}+(1+x)^2$
 "
 `;
 
-exports[`Regression > internal 22`] = `
+exports[`Regression > internal 24`] = `
 "---
 metadata:
   - name: generator
@@ -480,7 +617,7 @@ vcsPath: merge/merge.md
 "
 `;
 
-exports[`Regression > internal 23`] = `
+exports[`Regression > internal 25`] = `
 "---
 metadata:
   - name: generator
@@ -496,7 +633,7 @@ Should be linked in toc.yaml
 "
 `;
 
-exports[`Regression > internal 24`] = `
+exports[`Regression > internal 26`] = `
 "items:
   - name: Use merged
     href: merge.md
@@ -508,7 +645,7 @@ path: merge/toc.yaml
 "
 `;
 
-exports[`Regression > internal 25`] = `
+exports[`Regression > internal 27`] = `
 "---
 metadata:
   - name: generator
@@ -533,7 +670,7 @@ Some mermaid info
 "
 `;
 
-exports[`Regression > internal 26`] = `
+exports[`Regression > internal 28`] = `
 "---
 metadata:
   - name: generator
@@ -827,7 +964,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 27`] = `
+exports[`Regression > internal 29`] = `
 "---
 metadata:
   - name: generator
@@ -1025,7 +1162,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 28`] = `
+exports[`Regression > internal 30`] = `
 "---
 metadata:
   - name: generator
@@ -1107,7 +1244,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 31`] = `
 "---
 metadata:
   - name: generator
@@ -1127,7 +1264,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 32`] = `
 "files:
   - from: c.md
     to: d.md
@@ -1137,7 +1274,7 @@ common:
 "
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 33`] = `
 "---
 metadata:
   - name: generator
@@ -1154,7 +1291,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 34`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -1167,6 +1304,8 @@ exports[`Regression > internal 32`] = `
   - name: Item with empty href
   - name: Multitoc item
     href: merge/merged.md
+  - name: Fragments
+    href: includes/fragments.md
   - name: Included Item
     href: included-item.md
   - name: Named include (items is Object here - this is not an error)
@@ -1217,13 +1356,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 35`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1251,7 +1390,7 @@ exports[`Regression > internal 34`] = `
 </html>"
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1265,7 +1404,7 @@ exports[`Regression > internal 35`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Circular title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"autotitle.md"},"headings":[{"title":"Header","href":"autotitle.html#header","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Empty title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special title&lt;br /&gt;/n&lt;a href=\\"1.html\\"&gt;Title&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special subtitle&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Empty local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Special local title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Circular title&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Autotitle from include&lt;/p&gt;/n/n&lt;p&gt;Include with autotitle&lt;/p&gt;/n/n&lt;p&gt;link with &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1-1\\" role=\\"button\\" aria-controls=\\":term1-1_element\\" tabindex=\\"0\\" id=\\"term1-1-1\\"&gt;some local term1&lt;/i&gt;&lt;/p&gt;/n&lt;div class=\\"yfm-tabs\\" data-diplodoc-group=\\"defaultTabsGroup-2\\" data-diplodoc-variant=\\"regular\\"&gt;/n&lt;div class=\\"yfm-tab-list\\" role=\\"tablist\\"&gt;/n&lt;div data-diplodoc-id=\\"название-таба-1\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%201\\" class=\\"yfm-tab yfm-tab-group active\\" role=\\"tab\\" aria-controls=\\"regular-3\\" tabindex=\\"0\\" data-diplodoc-is-active=\\"true\\"&gt;Название таба 1&lt;/div&gt;/n&lt;div data-diplodoc-id=\\"название-таба-2\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%202\\" class=\\"yfm-tab yfm-tab-group\\" role=\\"tab\\" aria-controls=\\"regular-4\\" tabindex=\\"-1\\" data-diplodoc-is-active=\\"false\\"&gt;Название таба 2&lt;/div&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-3\\" class=\\"yfm-tab-panel active\\" role=\\"tabpanel\\" data-title=\\"Название таба 1\\"&gt;/n&lt;p&gt;Текст таба 1.&lt;/p&gt;/n&lt;ul&gt;/n&lt;li&gt;Можно использовать списки.&lt;/li&gt;/n&lt;li&gt;И &lt;strong&gt;другую&lt;/strong&gt; разметку.&lt;/li&gt;/n&lt;/ul&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-4\\" class=\\"yfm-tab-panel\\" role=\\"tabpanel\\" data-title=\\"Название таба 2\\"&gt;/n&lt;p&gt;Текст таба 2.&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;All fragments&lt;/p&gt;/n&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"autotitle.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;h2 id=\\"f2\\"&gt;&lt;a href=\\"autotitle.html#f2\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F2&lt;/span&gt;&lt;/a&gt;F2&lt;/h2&gt;/n&lt;p&gt;Content F2&lt;/p&gt;/n&lt;h3 id=\\"f2.1\\"&gt;&lt;a href=\\"autotitle.html#f2.1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F2.1&lt;/span&gt;&lt;/a&gt;F2.1&lt;/h3&gt;/n&lt;p&gt;Content F2.1&lt;/p&gt;/n&lt;h2 id=\\"f3\\"&gt;&lt;a href=\\"autotitle.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"autotitle.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;h2 id=\\"f4\\"&gt;&lt;a href=\\"autotitle.html#f4\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F4&lt;/span&gt;&lt;/a&gt;F4&lt;/h2&gt;/n&lt;p&gt;Content F4&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h3 id=\\"f4.1\\"&gt;&lt;a href=\\"autotitle.html#f4.1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F4.1&lt;/span&gt;&lt;/a&gt;F4.1&lt;/h3&gt;/n&lt;p&gt;link with &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1\\" role=\\"button\\" aria-controls=\\":term1_element\\" tabindex=\\"0\\" id=\\"term1-1\\"&gt;some term1&lt;/i&gt;&lt;/p&gt;/n&lt;div class=\\"yfm-tabs\\" data-diplodoc-group=\\"defaultTabsGroup-1\\" data-diplodoc-variant=\\"regular\\"&gt;/n&lt;div class=\\"yfm-tab-list\\" role=\\"tablist\\"&gt;/n&lt;div data-diplodoc-id=\\"название-таба-1\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%201\\" class=\\"yfm-tab yfm-tab-group active\\" role=\\"tab\\" aria-controls=\\"regular-1\\" tabindex=\\"0\\" data-diplodoc-is-active=\\"true\\"&gt;Название таба 1&lt;/div&gt;/n&lt;div data-diplodoc-id=\\"название-таба-2\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%202\\" class=\\"yfm-tab yfm-tab-group\\" role=\\"tab\\" aria-controls=\\"regular-2\\" tabindex=\\"-1\\" data-diplodoc-is-active=\\"false\\"&gt;Название таба 2&lt;/div&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-1\\" class=\\"yfm-tab-panel active\\" role=\\"tabpanel\\" data-title=\\"Название таба 1\\"&gt;/n&lt;p&gt;Текст таба 1.&lt;/p&gt;/n&lt;ul&gt;/n&lt;li&gt;Можно использовать списки.&lt;/li&gt;/n&lt;li&gt;И &lt;strong&gt;другую&lt;/strong&gt; разметку.&lt;/li&gt;/n&lt;/ul&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-2\\" class=\\"yfm-tab-panel\\" role=\\"tabpanel\\" data-title=\\"Название таба 2\\"&gt;/n&lt;p&gt;Текст таба 2.&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Some description&lt;/p&gt;/n&lt;/dfn&gt;&lt;h2 id=\\"header\\"&gt;&lt;a href=\\"autotitle.html#header\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Header&lt;/span&gt;&lt;/a&gt;Header&lt;/h2&gt;/n&lt;p&gt;Content2&lt;/p&gt;/n&lt;style&gt;.yfm .border-yes {/n  border: 1px solid #ccc;/n  border-radius: 10px;/n}&lt;/style&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1-1_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f31\\"&gt;&lt;a href=\\"autotitle.html#f31\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"autotitle.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":[],"vcsPath":"autotitle.md"},"headings":[{"title":"F2","href":"autotitle.html#f2","level":2,"items":[{"title":"F2.1","href":"autotitle.html#f2.1","level":3}]},{"title":"F3","href":"autotitle.html#f3","level":2},{"title":"F4","href":"autotitle.html#f4","level":2,"items":[{"title":"F4.1","href":"autotitle.html#f4.1","level":3}]},{"title":"Header","href":"autotitle.html#header","level":2},{"title":"F3","href":"autotitle.html#f31","level":2}],"title":"Autotitles"},"router":{"pathname":"autotitle","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1279,7 +1418,7 @@ exports[`Regression > internal 35`] = `
 </html>"
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1307,7 +1446,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1335,7 +1474,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1363,7 +1502,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1391,7 +1530,7 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1419,7 +1558,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1447,7 +1586,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 44`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1475,7 +1614,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1503,7 +1642,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1531,7 +1670,7 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1559,7 +1698,7 @@ exports[`Regression > internal 45`] = `
 </html>"
 `;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 48`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1573,7 +1712,7 @@ exports[`Regression > internal 46`] = `
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"includes.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"img 3\\" /&gt;&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;sup&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-2\\"&gt;?&lt;/i&gt;&lt;/sup&gt;&lt;/p&gt;/n&lt;p&gt;[&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-1\\"&gt;?&lt;/i&gt;](http://ya.ru)&lt;/p&gt;/n&lt;p&gt;Link after include&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Link after include&lt;/p&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Test terms&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"includes.md"},"headings":[],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;p&gt;Text&lt;/p&gt;/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;Test&lt;/p&gt;/n&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"includes.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n/n&lt;p&gt;Bob&lt;/p&gt;/n&lt;p&gt;&lt;a href=\\"latex.html\\"&gt;&lt;img src=\\"_assets/3.png\\" alt=\\"img 3\\" /&gt;&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;&lt;sup&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-2\\"&gt;?&lt;/i&gt;&lt;/sup&gt;&lt;/p&gt;/n&lt;p&gt;[&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term\\" role=\\"button\\" aria-controls=\\":term_element\\" tabindex=\\"0\\" id=\\"vTERM-ID-1\\"&gt;?&lt;/i&gt;](http://ya.ru)&lt;/p&gt;/n&lt;p&gt;&lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1\\" role=\\"button\\" aria-controls=\\":term1_element\\" tabindex=\\"0\\" id=\\"term1-2\\"&gt;Term 1&lt;/i&gt; &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term2\\" role=\\"button\\" aria-controls=\\":term2_element\\" tabindex=\\"0\\" id=\\"term2-1\\"&gt;Term 2&lt;/i&gt;&lt;/p&gt;/n&lt;p&gt;Link after include&lt;br /&gt;/n&lt;a href=\\"1.html#subtitle\\"&gt;Subtitle&lt;/a&gt;&lt;/p&gt;/n&lt;p&gt;Autotitle include&lt;/p&gt;/n/n&lt;p&gt;Link after include&lt;/p&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Test terms&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f3\\"&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term2_element\\" role=\\"dialog\\"&gt;&lt;h2 id=\\"f31\\"&gt;&lt;a href=\\"includes.html#f31\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;&lt;a href=\\"includes.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"includes.md"},"headings":[{"title":"F3","href":"includes.html#f3","level":2},{"title":"F3","href":"includes.html#f31","level":2}],"title":""},"router":{"pathname":"includes","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1587,7 +1726,35 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `
+exports[`Regression > internal 49`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="../" />
+        <title></title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h3 id=\\"f1\\"&gt;&lt;a href=\\"includes/fragments.html#f1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F1&lt;/span&gt;&lt;/a&gt;F1&lt;/h3&gt;/n&lt;p&gt;Content F1&lt;/p&gt;/n&lt;h2 id=\\"f2\\"&gt;&lt;a href=\\"includes/fragments.html#f2\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F2&lt;/span&gt;&lt;/a&gt;F2&lt;/h2&gt;/n&lt;p&gt;Content F2&lt;/p&gt;/n&lt;h3 id=\\"f2.1\\"&gt;&lt;a href=\\"includes/fragments.html#f2.1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F2.1&lt;/span&gt;&lt;/a&gt;F2.1&lt;/h3&gt;/n&lt;p&gt;Content F2.1&lt;/p&gt;/n&lt;h2 id=\\"f3\\"&gt;&lt;a href=\\"includes/fragments.html#f3\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F3&lt;/span&gt;&lt;/a&gt;F3&lt;/h2&gt;/n&lt;p&gt;Content F3&lt;/p&gt;/n&lt;p id=\\"p1\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;p&gt;Some paragraph without anchor&lt;/p&gt;/n&lt;p id=\\"p2\\"&gt;Some paragraph with anchor&lt;/p&gt;/n&lt;h2 id=\\"f4\\"&gt;&lt;a href=\\"includes/fragments.html#f4\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F4&lt;/span&gt;&lt;/a&gt;F4&lt;/h2&gt;/n&lt;p&gt;Content F4&lt;br /&gt;/n&lt;a href=\\"autotitle.html#header\\"&gt;Header&lt;/a&gt;&lt;/p&gt;/n&lt;h3 id=\\"f4.1\\"&gt;&lt;a href=\\"includes/fragments.html#f4.1\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;F4.1&lt;/span&gt;&lt;/a&gt;F4.1&lt;/h3&gt;/n&lt;p&gt;link with &lt;i class=\\"yfm yfm-term_title\\" term-key=\\":term1\\" role=\\"button\\" aria-controls=\\":term1_element\\" tabindex=\\"0\\" id=\\"term1-1\\"&gt;some term1&lt;/i&gt;&lt;/p&gt;/n&lt;div class=\\"yfm-tabs\\" data-diplodoc-group=\\"defaultTabsGroup-1\\" data-diplodoc-variant=\\"regular\\"&gt;/n&lt;div class=\\"yfm-tab-list\\" role=\\"tablist\\"&gt;/n&lt;div data-diplodoc-id=\\"название-таба-1\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%201\\" class=\\"yfm-tab yfm-tab-group active\\" role=\\"tab\\" aria-controls=\\"regular-1\\" tabindex=\\"0\\" data-diplodoc-is-active=\\"true\\"&gt;Название таба 1&lt;/div&gt;/n&lt;div data-diplodoc-id=\\"название-таба-2\\" data-diplodoc-key=\\"%d0%9d%d0%b0%d0%b7%d0%b2%d0%b0%d0%bd%d0%b8%d0%b5%20%d1%82%d0%b0%d0%b1%d0%b0%202\\" class=\\"yfm-tab yfm-tab-group\\" role=\\"tab\\" aria-controls=\\"regular-2\\" tabindex=\\"-1\\" data-diplodoc-is-active=\\"false\\"&gt;Название таба 2&lt;/div&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-1\\" class=\\"yfm-tab-panel active\\" role=\\"tabpanel\\" data-title=\\"Название таба 1\\"&gt;/n&lt;p&gt;Текст таба 1.&lt;/p&gt;/n&lt;ul&gt;/n&lt;li&gt;Можно использовать списки.&lt;/li&gt;/n&lt;li&gt;И &lt;strong&gt;другую&lt;/strong&gt; разметку.&lt;/li&gt;/n&lt;/ul&gt;/n&lt;/div&gt;/n&lt;div id=\\"regular-2\\" class=\\"yfm-tab-panel\\" role=\\"tabpanel\\" data-title=\\"Название таба 2\\"&gt;/n&lt;p&gt;Текст таба 2.&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;dfn class=\\"yfm yfm-term_dfn\\" id=\\":term1_element\\" role=\\"dialog\\"&gt;&lt;p&gt;Some description&lt;/p&gt;/n&lt;/dfn&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":[],"vcsPath":"includes/fragments.md"},"headings":[{"title":"F2","href":"includes/fragments.html#f2","level":2,"items":[{"title":"F2.1","href":"includes/fragments.html#f2.1","level":3}]},{"title":"F3","href":"includes/fragments.html#f3","level":2},{"title":"F4","href":"includes/fragments.html#f4","level":2,"items":[{"title":"F4.1","href":"includes/fragments.html#f4.1","level":3}]}],"title":""},"router":{"pathname":"includes/fragments","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Regression > internal 50`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1615,7 +1782,7 @@ exports[`Regression > internal 47`] = `
 </html>"
 `;
 
-exports[`Regression > internal 48`] = `
+exports[`Regression > internal 51`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1643,7 +1810,7 @@ exports[`Regression > internal 48`] = `
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 52`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1671,7 +1838,7 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `
+exports[`Regression > internal 53`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1699,9 +1866,9 @@ exports[`Regression > internal 50`] = `
 </html>"
 `;
 
-exports[`Regression > internal 51`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 54`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 52`] = `
+exports[`Regression > internal 55`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1729,7 +1896,7 @@ exports[`Regression > internal 52`] = `
 </html>"
 `;
 
-exports[`Regression > internal 53`] = `
+exports[`Regression > internal 56`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1739,12 +1906,11 @@ exports[`Regression > internal 53`] = `
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;h1&gt;OpenAPI definition&lt;/h1&gt;/n&lt;p&gt;&lt;samp&gt;version: v0&lt;/samp&gt;&lt;/p&gt;/n&lt;h2 id=\\"sections\\"&gt;&lt;a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Sections&lt;/span&gt;&lt;/a&gt;Sections&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/index.html\\"&gt;test-controller&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n&lt;h2 id=\\"specification\\"&gt;&lt;a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Specification&lt;/span&gt;&lt;/a&gt;Specification&lt;/h2&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;Open API&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        },/n        \\"/hidden-test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Test x-hidden attribute\\",/n                \\"description\\": \\"Test various x-hidden scenarios\\",/n                \\"operationId\\": \\"getHiddenTest\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"Response with hidden fields\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"description\\": \\"Response object with various hidden field scenarios\\",/n                                    \\"properties\\": {/n                                        \\"visibleField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be visible\\"/n                                        },/n                                        \\"directlyHiddenField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be hidden (direct x-hidden)\\",/n                                            \\"x-hidden\\": true/n                                        },/n                                        \\"refToHiddenField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be hidden\\",/n                                            \\"x-hidden\\": true/n                                        },/n                                        \\"refToHiddenObject\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"description\\": \\"This entire object should be hidden\\",/n                                            \\"x-hidden\\": true,/n                                            \\"properties\\": {/n                                                \\"secret\\": {/n                                                    \\"type\\": \\"string\\"/n                                                }/n                                            }/n                                        },/n                                        \\"nestedObject\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"description\\": \\"Object with hidden properties\\",/n                                            \\"properties\\": {/n                                                \\"visibleNested\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"hiddenNested\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"refToHiddenInNested\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"description\\": \\"This field should be hidden\\",/n                                                    \\"x-hidden\\": true/n                                                }/n                                            }/n                                        },/n                                        \\"arrayWithHiddenItems\\": {/n                                            \\"type\\": \\"array\\",/n                                            \\"description\\": \\"Array with hidden item schema\\",/n                                            \\"items\\": {/n                                                \\"type\\": \\"string\\",/n                                                \\"description\\": \\"This field should be hidden\\",/n                                                \\"x-hidden\\": true/n                                            }/n                                        },/n                                        \\"mixedVisibility\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"properties\\": {/n                                                \\"field1\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"field2\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"description\\": \\"This field should be hidden\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"field3\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"field4\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"field5\\": {/n                                                    \\"type\\": \\"string\\"/n                                                }/n                                            }/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            },/n            \\"HiddenField\\": {/n                \\"type\\": \\"string\\",/n                \\"description\\": \\"This field should be hidden\\",/n                \\"x-hidden\\": true/n            },/n            \\"HiddenObject\\": {/n                \\"type\\": \\"object\\",/n                \\"description\\": \\"This entire object should be hidden\\",/n                \\"x-hidden\\": true,/n                \\"properties\\": {/n                    \\"secret\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"HiddenTestResponse\\": {/n                \\"type\\": \\"object\\",/n                \\"description\\": \\"Response object with various hidden field scenarios\\",/n                \\"properties\\": {/n                    \\"visibleField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be visible\\"/n                    },/n                    \\"directlyHiddenField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be hidden (direct x-hidden)\\",/n                        \\"x-hidden\\": true/n                    },/n                    \\"refToHiddenField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be hidden\\",/n                        \\"x-hidden\\": true/n                    },/n                    \\"refToHiddenObject\\": {/n                        \\"type\\": \\"object\\",/n                        \\"description\\": \\"This entire object should be hidden\\",/n                        \\"x-hidden\\": true,/n                        \\"properties\\": {/n                            \\"secret\\": {/n                                \\"type\\": \\"string\\"/n                            }/n                        }/n                    },/n                    \\"nestedObject\\": {/n                        \\"type\\": \\"object\\",/n                        \\"description\\": \\"Object with hidden properties\\",/n                        \\"properties\\": {/n                            \\"visibleNested\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"hiddenNested\\": {/n                                \\"type\\": \\"string\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"refToHiddenInNested\\": {/n                                \\"type\\": \\"string\\",/n                                \\"description\\": \\"This field should be hidden\\",/n                                \\"x-hidden\\": true/n                            }/n                        }/n                    },/n                    \\"arrayWithHiddenItems\\": {/n                        \\"type\\": \\"array\\",/n                        \\"description\\": \\"Array with hidden item schema\\",/n                        \\"items\\": {/n                            \\"type\\": \\"string\\",/n                            \\"description\\": \\"This field should be hidden\\",/n                            \\"x-hidden\\": true/n                        }/n                    },/n                    \\"mixedVisibility\\": {/n                        \\"type\\": \\"object\\",/n                        \\"properties\\": {/n                            \\"field1\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"field2\\": {/n                                \\"type\\": \\"string\\",/n                                \\"description\\": \\"This field should be hidden\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"field3\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"field4\\": {/n                                \\"type\\": \\"string\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"field5\\": {/n                                \\"type\\": \\"string\\"/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"25\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-25\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-25\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-25.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"],"vcsPath":"openapi/index.md"},"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":""},"router":{"pathname":"openapi/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;h1&gt;OpenAPI definition&lt;/h1&gt;/n&lt;p&gt;&lt;samp&gt;version: v0&lt;/samp&gt;&lt;/p&gt;/n&lt;h2 id=\\"sections\\"&gt;&lt;a href=\\"openapi/index.html#sections\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Sections&lt;/span&gt;&lt;/a&gt;Sections&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;&lt;a href=\\"openapi/test-controller/index.html\\"&gt;test-controller&lt;/a&gt;&lt;/li&gt;/n&lt;/ul&gt;/n&lt;h2 id=\\"specification\\"&gt;&lt;a href=\\"openapi/index.html#specification\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Specification&lt;/span&gt;&lt;/a&gt;Specification&lt;/h2&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;Open API&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;{/n    \\"openapi\\": \\"3.0.1\\",/n    \\"info\\": {/n        \\"title\\": \\"OpenAPI definition\\",/n        \\"version\\": \\"v0\\"/n    },/n    \\"servers\\": [/n        {/n            \\"url\\": \\"http://localhost:8080\\",/n            \\"description\\": \\"Generated server url\\"/n        }/n    ],/n    \\"paths\\": {/n        \\"/test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Simple get operation. тест новой верстки 3\\",/n                \\"description\\": \\"Defines a simple get operation with no inputs and a complex\\",/n                \\"operationId\\": \\"getWithPayloadResponse\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"200!!!!\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"properties\\": {/n                                        \\"A\\": {/n                                            \\"type\\": \\"string\\"/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        },/n        \\"/hidden-test\\": {/n            \\"get\\": {/n                \\"tags\\": [/n                    \\"test-controller\\"/n                ],/n                \\"summary\\": \\"Test x-hidden attribute\\",/n                \\"description\\": \\"Test various x-hidden scenarios\\",/n                \\"operationId\\": \\"getHiddenTest\\",/n                \\"responses\\": {/n                    \\"200\\": {/n                        \\"description\\": \\"Response with hidden fields\\",/n                        \\"content\\": {/n                            \\"application/json\\": {/n                                \\"schema\\": {/n                                    \\"type\\": \\"object\\",/n                                    \\"description\\": \\"Response object with various hidden field scenarios\\",/n                                    \\"properties\\": {/n                                        \\"visibleField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be visible\\"/n                                        },/n                                        \\"directlyHiddenField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be hidden (direct x-hidden)\\",/n                                            \\"x-hidden\\": true/n                                        },/n                                        \\"refToHiddenField\\": {/n                                            \\"type\\": \\"string\\",/n                                            \\"description\\": \\"This field should be hidden\\",/n                                            \\"x-hidden\\": true/n                                        },/n                                        \\"refToHiddenObject\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"description\\": \\"This entire object should be hidden\\",/n                                            \\"x-hidden\\": true,/n                                            \\"properties\\": {/n                                                \\"secret\\": {/n                                                    \\"type\\": \\"string\\"/n                                                }/n                                            }/n                                        },/n                                        \\"nestedObject\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"description\\": \\"Object with hidden properties\\",/n                                            \\"properties\\": {/n                                                \\"visibleNested\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"hiddenNested\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"refToHiddenInNested\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"description\\": \\"This field should be hidden\\",/n                                                    \\"x-hidden\\": true/n                                                }/n                                            }/n                                        },/n                                        \\"arrayWithHiddenItems\\": {/n                                            \\"type\\": \\"array\\",/n                                            \\"description\\": \\"Array with hidden item schema\\",/n                                            \\"items\\": {/n                                                \\"type\\": \\"string\\",/n                                                \\"description\\": \\"This field should be hidden\\",/n                                                \\"x-hidden\\": true/n                                            }/n                                        },/n                                        \\"mixedVisibility\\": {/n                                            \\"type\\": \\"object\\",/n                                            \\"properties\\": {/n                                                \\"field1\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"field2\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"description\\": \\"This field should be hidden\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"field3\\": {/n                                                    \\"type\\": \\"string\\"/n                                                },/n                                                \\"field4\\": {/n                                                    \\"type\\": \\"string\\",/n                                                    \\"x-hidden\\": true/n                                                },/n                                                \\"field5\\": {/n                                                    \\"type\\": \\"string\\"/n                                                }/n                                            }/n                                        }/n                                    }/n                                }/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    },/n    \\"components\\": {/n        \\"schemas\\": {/n            \\"RecurceTop\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"A\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"RecurceMiddle\\": {/n                \\"type\\": \\"object\\",/n                \\"properties\\": {/n                    \\"B\\": {/n                        \\"type\\": \\"array\\",/n                        \\"items\\": {/n                            \\"type\\": \\"object\\",/n                            \\"properties\\": {/n                                \\"A\\": {/n                                    \\"type\\": \\"string\\"/n                                }/n                            }/n                        }/n                    }/n                }/n            },/n            \\"HiddenField\\": {/n                \\"type\\": \\"string\\",/n                \\"description\\": \\"This field should be hidden\\",/n                \\"x-hidden\\": true/n            },/n            \\"HiddenObject\\": {/n                \\"type\\": \\"object\\",/n                \\"description\\": \\"This entire object should be hidden\\",/n                \\"x-hidden\\": true,/n                \\"properties\\": {/n                    \\"secret\\": {/n                        \\"type\\": \\"string\\"/n                    }/n                }/n            },/n            \\"HiddenTestResponse\\": {/n                \\"type\\": \\"object\\",/n                \\"description\\": \\"Response object with various hidden field scenarios\\",/n                \\"properties\\": {/n                    \\"visibleField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be visible\\"/n                    },/n                    \\"directlyHiddenField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be hidden (direct x-hidden)\\",/n                        \\"x-hidden\\": true/n                    },/n                    \\"refToHiddenField\\": {/n                        \\"type\\": \\"string\\",/n                        \\"description\\": \\"This field should be hidden\\",/n                        \\"x-hidden\\": true/n                    },/n                    \\"refToHiddenObject\\": {/n                        \\"type\\": \\"object\\",/n                        \\"description\\": \\"This entire object should be hidden\\",/n                        \\"x-hidden\\": true,/n                        \\"properties\\": {/n                            \\"secret\\": {/n                                \\"type\\": \\"string\\"/n                            }/n                        }/n                    },/n                    \\"nestedObject\\": {/n                        \\"type\\": \\"object\\",/n                        \\"description\\": \\"Object with hidden properties\\",/n                        \\"properties\\": {/n                            \\"visibleNested\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"hiddenNested\\": {/n                                \\"type\\": \\"string\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"refToHiddenInNested\\": {/n                                \\"type\\": \\"string\\",/n                                \\"description\\": \\"This field should be hidden\\",/n                                \\"x-hidden\\": true/n                            }/n                        }/n                    },/n                    \\"arrayWithHiddenItems\\": {/n                        \\"type\\": \\"array\\",/n                        \\"description\\": \\"Array with hidden item schema\\",/n                        \\"items\\": {/n                            \\"type\\": \\"string\\",/n                            \\"description\\": \\"This field should be hidden\\",/n                            \\"x-hidden\\": true/n                        }/n                    },/n                    \\"mixedVisibility\\": {/n                        \\"type\\": \\"object\\",/n                        \\"properties\\": {/n                            \\"field1\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"field2\\": {/n                                \\"type\\": \\"string\\",/n                                \\"description\\": \\"This field should be hidden\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"field3\\": {/n                                \\"type\\": \\"string\\"/n                            },/n                            \\"field4\\": {/n                                \\"type\\": \\"string\\",/n                                \\"x-hidden\\": true/n                            },/n                            \\"field5\\": {/n                                \\"type\\": \\"string\\"/n                            }/n                        }/n                    }/n                }/n            }/n        }/n    }/n}/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"25\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-25\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-25\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-25.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":[],"vcsPath":"openapi/index.md"},"headings":[{"title":"Sections","href":"openapi/index.html#sections","level":2},{"title":"Specification","href":"openapi/index.html#specification","level":2}],"title":""},"router":{"pathname":"openapi/index","depth":2,"base":"../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1754,12 +1920,11 @@ exports[`Regression > internal 53`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
     </body>
 </html>"
 `;
 
-exports[`Regression > internal 54`] = `
+exports[`Regression > internal 57`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1769,12 +1934,11 @@ exports[`Regression > internal 54`] = `
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Test x-hidden attribute&lt;/h1&gt;/n/n&lt;p&gt;Test various x-hidden scenarios&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#request\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/hidden-test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"17\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-17\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-17\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-17.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#responses\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#200-ok\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;Response with hidden fields&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#body\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"visibleField\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"nestedObject\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"visibleNested\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"arrayWithHiddenItems\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;[&lt;/span&gt;/n    &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;]&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"mixedVisibility\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field1\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field3\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field5\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"43\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-43\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-43\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-43.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;arrayWithHiddenItems&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: &lt;a href=\\"openapi/test-controller/getHiddenTest.html#entity-HiddenField\\"&gt;HiddenField&lt;/a&gt;[]&lt;/p&gt;/n&lt;p&gt;Array with hidden item schema&lt;/p&gt;/n&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;[&lt;/span&gt;/n  &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;]&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"78\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-78\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-78\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-78.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;mixedVisibility&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Type&lt;/strong&gt;: object&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field1&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-1\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field3&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-2\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field5&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-3\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field1\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field3\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field5\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"151\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-151\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-151\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-151.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;nestedObject&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Type&lt;/strong&gt;: object&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;visibleNested&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-4\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;p&gt;Object with hidden properties&lt;/p&gt;/n&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"visibleNested\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"197\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-197\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-197\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-197.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;visibleField&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;This field should be visible&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-5\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"],"vcsPath":"openapi/test-controller/getHiddenTest.md"},"headings":[{"title":"Request","href":"openapi/test-controller/getHiddenTest.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getHiddenTest.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getHiddenTest.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getHiddenTest.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getHiddenTest","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Test x-hidden attribute&lt;/h1&gt;/n/n&lt;p&gt;Test various x-hidden scenarios&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#request\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/hidden-test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"17\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-17\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-17\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-17.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#responses\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#200-ok\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;Response with hidden fields&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getHiddenTest.html#body\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"visibleField\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"nestedObject\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"visibleNested\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"arrayWithHiddenItems\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;[&lt;/span&gt;/n    &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;]&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"mixedVisibility\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field1\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field3\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n    &lt;span class=\\"hljs-attr\\"&gt;\\"field5\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n  &lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"43\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-43\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-43\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-43.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;arrayWithHiddenItems&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: &lt;a href=\\"openapi/test-controller/getHiddenTest.html#entity-HiddenField\\"&gt;HiddenField&lt;/a&gt;[]&lt;/p&gt;/n&lt;p&gt;Array with hidden item schema&lt;/p&gt;/n&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;[&lt;/span&gt;/n  &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;]&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"78\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-78\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-78\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-78.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;mixedVisibility&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Type&lt;/strong&gt;: object&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field1&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-1\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field3&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-2\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;field5&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-3\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field1\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field3\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;,&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"field5\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"151\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-151\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-151\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-151.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;nestedObject&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Type&lt;/strong&gt;: object&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;visibleNested&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-4\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;p&gt;Object with hidden properties&lt;/p&gt;/n&lt;details class=\\"yfm-cut json-schema-example\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;&lt;strong&gt;Example&lt;/strong&gt;&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"visibleNested\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"197\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-197\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-197\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-197.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;visibleField&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;This field should be visible&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-5\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":[],"vcsPath":"openapi/test-controller/getHiddenTest.md"},"headings":[{"title":"Request","href":"openapi/test-controller/getHiddenTest.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getHiddenTest.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getHiddenTest.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getHiddenTest.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getHiddenTest","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1784,12 +1948,11 @@ exports[`Regression > internal 54`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
     </body>
 </html>"
 `;
 
-exports[`Regression > internal 55`] = `
+exports[`Regression > internal 58`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1799,12 +1962,11 @@ exports[`Regression > internal 55`] = `
         <title></title>
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
-        <link type="text/css" rel="stylesheet" href="_assets/cut-extension.css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
         <script type="application/json" id="diplodoc-state">
-            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Simple get operation. тест новой верстки 3&lt;/h1&gt;/n/n&lt;p&gt;Defines a simple get operation with no inputs and a complex&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"17\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-17\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-17\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-17.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;200!!!!&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"A\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"43\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-43\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-43\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-43.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;A&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-1\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":["_assets/cut-extension.css"],"script":["_assets/cut-extension.js"],"vcsPath":"openapi/test-controller/getWithPayloadResponse.md"},"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+            {"data":{"leading":false,"html":"&lt;div class=\\"openapi\\"&gt;/n&lt;h1&gt;Simple get operation. тест новой верстки 3&lt;/h1&gt;/n/n&lt;p&gt;Defines a simple get operation with no inputs and a complex&lt;/p&gt;/n&lt;h2 id=\\"request\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#request\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Request&lt;/span&gt;&lt;/a&gt;Request&lt;/h2&gt;/n&lt;div class=\\"openapi__requests\\"&gt;/n&lt;div class=\\"openapi__request__wrapper\\" style=\\"--method:var(--dc-openapi-methods-get);margin-bottom:12px\\"&gt;/n&lt;div class=\\"openapi__request\\"&gt;/n&lt;p class=\\"openapi__method\\"&gt;GET&lt;/p&gt;/n/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs text\\"&gt;http://localhost:8080/test/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"17\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-17\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-17\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-17.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;/n&lt;p&gt;Generated server url&lt;/p&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;h2 id=\\"responses\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#responses\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Responses&lt;/span&gt;&lt;/a&gt;Responses&lt;/h2&gt;/n&lt;div class=\\"openapi__response__code__200\\"&gt;/n&lt;h2 id=\\"200-ok\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#200-ok\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;200 OK&lt;/span&gt;&lt;/a&gt;200 OK&lt;/h2&gt;/n&lt;p&gt;200!!!!&lt;/p&gt;/n&lt;div class=\\"openapi-entity\\"&gt;/n&lt;h3 id=\\"body\\"&gt;&lt;a href=\\"openapi/test-controller/getWithPayloadResponse.html#body\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Body&lt;/span&gt;&lt;/a&gt;Body&lt;/h3&gt;/n&lt;details class=\\"yfm-cut\\"&gt;&lt;summary class=\\"yfm-cut-title\\"&gt;application/json&lt;/summary&gt;&lt;div class=\\"yfm-cut-content\\"&gt;/n    &lt;div class=\\"yfm-code-floating-container\\"&gt;/n        &lt;pre&gt;&lt;code class=\\"hljs json\\"&gt;&lt;span class=\\"hljs-punctuation\\"&gt;{&lt;/span&gt;/n  &lt;span class=\\"hljs-attr\\"&gt;\\"A\\"&lt;/span&gt;&lt;span class=\\"hljs-punctuation\\"&gt;:&lt;/span&gt; &lt;span class=\\"hljs-string\\"&gt;\\"example\\"&lt;/span&gt;/n&lt;span class=\\"hljs-punctuation\\"&gt;}&lt;/span&gt;/n&lt;/code&gt;&lt;/pre&gt;/n/n        &lt;div class=\\"yfm-code-floating\\"&gt;/n            /n            &lt;button role=\\"button\\" class=\\"yfm-code-button yfm-clipboard-button\\"&gt;/n                &lt;svg width=\\"16\\" height=\\"16\\" viewBox=\\"0 0 24 24\\" class=\\"yfm-code-icon yfm-clipboard-icon\\" data-animation=\\"43\\"&gt;/n                    &lt;path fill=\\"currentColor\\" d=\\"M19,21H8V7H19M19,5H8A2,2 0 0,0 6,7V21A2,2 0 0,0 8,23H19A2,2 0 0,0 21,21V7A2,2 0 0,0 19,5M16,1H4A2,2 0 0,0 2,3V17H4V3H16V1Z\\"&gt;&lt;/path&gt;/n                    &lt;path stroke=\\"currentColor\\" fill=\\"transparent\\" stroke-width=\\"1.5\\" d=\\"M9.5 13l3 3l5 -5\\" visibility=\\"hidden\\"&gt;/n                        &lt;animate id=\\"visibileAnimation-43\\" attributeName=\\"visibility\\" from=\\"hidden\\" to=\\"visible\\" dur=\\"0.2s\\" fill=\\"freeze\\" begin&gt;&lt;/animate&gt;/n                        &lt;animate id=\\"hideAnimation-43\\" attributeName=\\"visibility\\" from=\\"visible\\" to=\\"hidden\\" dur=\\"1s\\" begin=\\"visibileAnimation-43.end+1\\" fill=\\"freeze\\"&gt;&lt;/animate&gt;/n                    &lt;/path&gt;/n                &lt;/svg&gt;/n            &lt;/button&gt;/n        &lt;/div&gt;/n    &lt;/div&gt;/n&lt;/div&gt;&lt;/details&gt;&lt;table class=\\"json-schema-properties\\"&gt;/n&lt;tbody&gt;/n&lt;tr&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Name&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td&gt;/n&lt;p&gt;&lt;strong&gt;Description&lt;/strong&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;tr&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-property\\"&gt;A&lt;/em&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;td class=\\"table-cell\\"&gt;/n&lt;p&gt;&lt;strong&gt;Type&lt;/strong&gt;: string&lt;/p&gt;/n&lt;p&gt;&lt;em class=\\"json-schema-reset json-schema-example\\"&gt;Example:&lt;/em&gt; &lt;code class=\\"yfm-clipboard-inline-code\\" role=\\"button\\" tabindex=\\"0\\" id=\\"inline-code-id-1\\"&gt;example&lt;/code&gt;&lt;/p&gt;/n&lt;/td&gt;/n&lt;/tr&gt;/n&lt;/tbody&gt;/n&lt;/table&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n&lt;/div&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"style":[],"script":[],"vcsPath":"openapi/test-controller/getWithPayloadResponse.md"},"headings":[{"title":"Request","href":"openapi/test-controller/getWithPayloadResponse.html#request","level":2},{"title":"Responses","href":"openapi/test-controller/getWithPayloadResponse.html#responses","level":2},{"title":"200 OK","href":"openapi/test-controller/getWithPayloadResponse.html#200-ok","level":2,"items":[{"title":"Body","href":"openapi/test-controller/getWithPayloadResponse.html#body","level":3}]}],"title":""},"router":{"pathname":"openapi/test-controller/getWithPayloadResponse","depth":3,"base":"../../"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
         </script>
         <script type="application/javascript">
             const data = document.querySelector('script#diplodoc-state');
@@ -1814,12 +1976,11 @@ exports[`Regression > internal 55`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_assets/cut-extension.js"></script>
     </body>
 </html>"
 `;
 
-exports[`Regression > internal 56`] = `
+exports[`Regression > internal 59`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1847,7 +2008,7 @@ exports[`Regression > internal 56`] = `
 </html>"
 `;
 
-exports[`Regression > internal 57`] = `
+exports[`Regression > internal 60`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1875,4 +2036,4 @@ exports[`Regression > internal 57`] = `
 </html>"
 `;
 
-exports[`Regression > internal 58`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 61`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

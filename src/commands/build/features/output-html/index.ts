@@ -23,12 +23,13 @@ import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMetaHooks} from '~/core/meta';
 import {ASSETS_FOLDER} from '~/constants';
 
 import {getHooks as getRedirectsHooks} from '../../services/redirects';
 import {getHooks as getEntryHooks} from '../../services/entry';
 
-import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
 
 const tocJS = (path: NormalizedPath) => setExt(path, '.js');
 
@@ -58,6 +59,10 @@ export class OutputHtml {
 
                         return item;
                     });
+                });
+
+                getMetaHooks(run.meta).Dump.tap('Html', (meta) => {
+                    return filterBundledExtensionAssets(meta);
                 });
 
                 // Dump Toc to js file

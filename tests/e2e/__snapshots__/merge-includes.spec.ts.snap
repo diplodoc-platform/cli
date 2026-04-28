@@ -36,7 +36,6 @@ Content before include.
 ## Included Section
 
 This is the included content.
-
 <!-- endsource: _includes/simple.md -->
 
 Content after include.
@@ -103,6 +102,124 @@ Content of section B.
 
 exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline 3`] = `
 "title: Hash Fallback Test
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+Content before list.
+
+1. First item
+
+2. Second item with hash-section include (section has no HTML, but other section in same file does):
+
+   <!-- source: _includes/mixed.md -->
+   Just plain text content without any HTML blocks.
+   <!-- endsource: _includes/mixed.md -->
+
+3. Third item
+
+Content after list.
+"
+`;
+
+exports[`Merge includes (md2md) > hash-section-html: hash-section include in list is inlined when only other section has <style> 3`] = `
+"title: Merge Includes Hash Section HTML
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+Content before list.
+
+- List item with inline include (any non-zero indent → HTML block must use fallback)
+
+   {% include [styles](_includes/styles.md) %}
+
+- Another list item
+
+Content after list.
+
+{% included (_includes/styles.md) %}
+<style>
+
+.yfm .highlight {
+    background: yellow;
+}
+
+</style>
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 3`] = `
+"title: Merge Includes HTML in List
 href: index.md
 items:
   - name: Main
@@ -228,20 +345,17 @@ Before outer include.
 
 Content from outer include.
 
-{% include [inner](_includes/inner.md) %}
-
-End of outer include.
-
-<!-- endsource: _includes/outer.md -->
-
-After outer include.
-
-{% included (_includes/inner.md) %}
+<!-- source: _includes/inner.md -->
 ### Inner Section
 
 Content from inner include.
+<!-- endsource: _includes/inner.md -->
 
-{% endincluded %}"
+End of outer include.
+<!-- endsource: _includes/outer.md -->
+
+After outer include.
+"
 `;
 
 exports[`Merge includes (md2md) > nested: outer inlined, inner as fallback 3`] = `
@@ -292,13 +406,65 @@ See [the guide](_includes/guide.md) for more details.
 ![diagram](_includes/sub/images/diagram.png)
 
 [ref-link]: _includes/reference.md "Reference"
-
 <!-- endsource: _includes/sub/with-links.md -->
 "
 `;
 
 exports[`Merge includes (md2md) > relative-paths: inlined content has rebased paths 3`] = `
 "title: Merge Includes Relative Paths
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# API Docs
+
+Use the [API](*api) and [SDK](*sdk) to build apps.
+
+<!-- source: _includes/chapter.md -->
+## Chapter
+
+Chapter content with [link](_includes/local.md).
+<!-- endsource: _includes/chapter.md -->
+
+[*api]: Application Programming Interface
+
+[*sdk]: Software Development Kit"
+`;
+
+exports[`Merge includes (md2md) > term-extract: dep with terms → terms extracted, content inlined (Step 4) 3`] = `
+"title: Merge Includes Term Extract
 href: index.md
 items:
   - name: Main
@@ -351,37 +517,26 @@ vcsPath: main.md
 Обязательный параметр.
 <!-- endsource: _includes/defs.md -->
 
-[*placeID]: {% include notitle [desc](_includes/defs.md#placeID) %}
-
-[*syncFactor]: {% include notitle [desc](_includes/defs.md#syncFactor) %}
-
-[*requiredParam]: {% include notitle [desc](_includes/defs.md#requiredParam) %}
-    
-{% include notitle [note](_includes/defs.md#placeID) %}
-
-{% included (_includes/defs.md) %}
-## PlaceID {#placeID}
-
-ID площадки.
+[*placeID]: ID площадки.
 
 Читайте также:
 
-- [Получить список](../list.md)
+- [Получить список](list.md)
 
-## SyncFactor {#syncFactor}
-
-Вид кода.
+[*syncFactor]: Вид кода.
 
 Допустимые значения:
 
 - \`1\` — асинхронный;
 - \`2\` — синхронный.
 
-## Required {#requiredParam}
+[*requiredParam]: Обязательный параметр.
+    
+ID площадки.
 
-Обязательный параметр.
+Читайте также:
 
-{% endincluded %}"
+- [Получить список](list.md)"
 `;
 
 exports[`Merge includes (md2md) > term-inline: includes inside term defs use fallback (not inlined) 3`] = `
@@ -442,6 +597,62 @@ Content after include.
 
 exports[`Merge includes (md2md) > without flag: includes are NOT merged 4`] = `
 "title: Merge Includes Basic
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+#|
+|| **Option** | **Details** ||
+|| Option A |
+Some description of option A.
+
+<!-- source: _includes/cell-content.md -->
+Buy now at [our store](https://example.com/store).
+<!-- endsource: _includes/cell-content.md -->
+||
+|| Option B | Plain text cell. ||
+|#
+
+Content after table.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 3`] = `
+"title: Merge Includes YFM Table
 href: index.md
 items:
   - name: Main

@@ -11,6 +11,7 @@ import {
     collectFallbackDepsForInlined,
     collectFallbackDepsWithChain,
     extractSection,
+    extractTermDefinitions,
     mergeIncludes,
     prepareInlinedContent,
     rebaseRelativePaths,
@@ -279,6 +280,13 @@ describe('rebaseRelativePaths', () => {
         expect(result).toBe('* [continuous integration (CI)](../concepts/ci-cd.md#ci) checks');
     });
 
+    it('should not rebase bracket-paren patterns inside inline code spans', () => {
+        const content =
+            '`YPath<Type>[Strict](yson, ypath)`: Extracts a value at `ypath` from `yson`.';
+        const result = rebaseRelativePaths(content, from, to);
+        expect(result).toBe(content);
+    });
+
     it('should not treat inline backtick fences as code blocks', () => {
         const content = [
             '```FROM [...] WHERE (id1="a") OR (id2="b")```',
@@ -401,22 +409,22 @@ describe('canInlineInclude', () => {
         expect(canInlineInclude(dep, content)).toBe(true);
     });
 
-    it('should reject include when content has term definitions', () => {
+    it('should allow include with term definitions in dep content (Step 4)', () => {
         const content = '{% include [label](_includes/terms.md) %}';
         const dep = makeDep({
             location: [0, content.length],
             content: '# Terms\n\n[*term]: Definition of term',
         });
-        expect(canInlineInclude(dep, content)).toBe(false);
+        expect(canInlineInclude(dep, content)).toBe(true);
     });
 
-    it('should reject include when content has term definitions with hyphens', () => {
+    it('should allow include with term definitions with hyphens in dep content (Step 4)', () => {
         const content = '{% include [label](_includes/terms.md) %}';
         const dep = makeDep({
             location: [0, content.length],
             content: '# Terms\n\n[*ekat-mgt]: Some definition',
         });
-        expect(canInlineInclude(dep, content)).toBe(false);
+        expect(canInlineInclude(dep, content)).toBe(true);
     });
 
     it('should allow include with notitle modifier', () => {
@@ -569,6 +577,76 @@ describe('stripHash', () => {
 
     it('should strip only the first hash', () => {
         expect(stripHash('file.md#a#b')).toBe('file.md');
+    });
+});
+
+describe('extractTermDefinitions', () => {
+    it('should return unchanged content when no terms', () => {
+        const content = '# Title\n\nBody text.';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe(content);
+        expect(result.terms).toEqual([]);
+    });
+
+    it('should extract single term definition', () => {
+        const content = '# Title\n\nBody.\n\n[*api]: Application Programming Interface';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe('# Title\n\nBody.');
+        expect(result.terms).toHaveLength(1);
+        expect(result.terms[0].key).toBe('api');
+        expect(result.terms[0].block).toBe('[*api]: Application Programming Interface');
+    });
+
+    it('should extract multiple term definitions', () => {
+        const content = 'Content.\n\n[*api]: API def\n\n[*sdk]: SDK def';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe('Content.');
+        expect(result.terms).toHaveLength(2);
+        expect(result.terms[0].key).toBe('api');
+        expect(result.terms[1].key).toBe('sdk');
+    });
+
+    it('should handle multiline term definition', () => {
+        const content = 'Content.\n\n[*api]: First line\nSecond line\n\n[*sdk]: SDK';
+        const result = extractTermDefinitions(content);
+        expect(result.terms[0].block).toBe('[*api]: First line\nSecond line');
+        expect(result.terms[1].block).toBe('[*sdk]: SDK');
+    });
+
+    it('should handle term definition with include directive', () => {
+        const content =
+            'Content.\n\n[*term]: {% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe('Content.');
+        expect(result.terms[0].block).toBe(
+            '[*term]: {% include notitle [desc](_includes/v.1.md#placeID) %}',
+        );
+    });
+
+    it('should not treat term-like syntax inside code blocks as terms', () => {
+        const content = 'Content.\n\n```\n[*fake]: Not a real term\n```\n\n[*real]: Real term';
+        const result = extractTermDefinitions(content);
+        expect(result.terms).toHaveLength(1);
+        expect(result.terms[0].key).toBe('real');
+    });
+
+    it('should handle term with hyphens and special characters', () => {
+        const content = 'Body.\n\n[*ekat-mgt]: Центр обработки данных';
+        const result = extractTermDefinitions(content);
+        expect(result.terms[0].key).toBe('ekat-mgt');
+    });
+
+    it('should trim trailing blank lines from clean content', () => {
+        const content = 'Body.\n\n\n\n[*term]: Definition';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe('Body.');
+    });
+
+    it('should handle content that is only term definitions', () => {
+        const content = '[*api]: API\n\n[*sdk]: SDK';
+        const result = extractTermDefinitions(content);
+        expect(result.cleanContent).toBe('');
+        expect(result.terms).toHaveLength(2);
     });
 });
 
@@ -1101,14 +1179,22 @@ describe('addFallbackDep', () => {
 });
 
 describe('mergeIncludes', () => {
-    const mockRun = {} as Parameters<typeof mergeIncludes>[0];
+    function makeMockRun(multilineTermDefinitions = true) {
+        return {
+            config: {content: {multilineTermDefinitions}},
+            logger: {warn: () => {}},
+        } as unknown as Parameters<typeof mergeIncludes>[0];
+    }
+
+    const mockRun = makeMockRun();
 
     async function runMerge(
         deps: HashedGraphNode[],
         parentContent: string,
         entry: NormalizedPath,
+        run = mockRun,
     ): Promise<string> {
-        const step = mergeIncludes(mockRun, deps, parentContent);
+        const step = mergeIncludes(run, deps, parentContent);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule(entry);
         return scheduler.process(parentContent);
@@ -1205,6 +1291,7 @@ describe('mergeIncludes', () => {
         const inner = makeDep({
             path: '_includes/inner.md' as NormalizedPath,
             link: 'inner.md',
+            match: '{% include [i](inner.md) %}',
             content: 'Inner content.',
             deps: [],
         });
@@ -1222,10 +1309,10 @@ describe('mergeIncludes', () => {
         expect(result).toContain('Inner content.');
     });
 
-    it('should handle mix of inlined and fallback deps (terms cause fallback)', async () => {
+    it('should inline dep with terms, extract and append them (Step 4)', async () => {
         const inlinePart = '{% include [a](_includes/a.md) %}';
-        const fallbackPart = '{% include [b](_includes/b.md) %}';
-        const parentContent = `${inlinePart}\n${fallbackPart}`;
+        const termsPart = '{% include [b](_includes/b.md) %}';
+        const parentContent = `${inlinePart}\n${termsPart}`;
 
         const depA = makeDep({
             path: '_includes/a.md' as NormalizedPath,
@@ -1238,22 +1325,24 @@ describe('mergeIncludes', () => {
         const depB = makeDep({
             path: '_includes/b.md' as NormalizedPath,
             link: '_includes/b.md',
-            match: fallbackPart,
+            match: termsPart,
             location: [inlinePart.length + 1, parentContent.length],
             content: 'Content B.\n\n[*term]: Definition',
             deps: [],
         });
         const result = await runMerge([depA, depB], parentContent, 'main.md' as NormalizedPath);
         expect(result).toContain('Content A.');
-        expect(result).toContain(fallbackPart);
-        expect(result).toContain('{% included (_includes/b.md) %}');
+        expect(result).toContain('Content B.');
+        expect(result).not.toContain('{% included');
+        expect(result).toContain('[*term]: Definition');
     });
 
-    it('should collect nested deps of fallback include with colon-chain (term-based fallback)', async () => {
+    it('should inline dep with terms and collect sub-deps as fallback (Step 4)', async () => {
         const parentContent = '{% include [a](_includes/a.md) %}';
         const inner = makeDep({
             path: '_includes/inner.md' as NormalizedPath,
             link: 'inner.md',
+            match: '{% include [i](inner.md) %}',
             content: 'Inner.',
             deps: [],
         });
@@ -1262,15 +1351,17 @@ describe('mergeIncludes', () => {
             link: '_includes/a.md',
             match: parentContent,
             location: [0, parentContent.length],
-            content: 'Content.\n\n[*term]: Definition here',
+            content: 'Content with {% include [i](inner.md) %}!\n\n[*term]: Definition here',
             deps: [inner],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
-        expect(result).toContain('{% included (_includes/a.md) %}');
-        expect(result).toContain('{% included (_includes/a.md:inner.md) %}');
+        expect(result).toContain('Content with');
+        expect(result).toContain('[*term]: Definition here');
+        expect(result).toContain('{% included (_includes/inner.md) %}');
+        expect(result).not.toContain('{% included (_includes/a.md) %}');
     });
 
-    it('should NOT inline include inside a term definition (non-standalone)', async () => {
+    it('should resolve include inside a term definition when multilineTerm=true', async () => {
         const includeDirective = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
         const parentContent = `[*placeID]: ${includeDirective}`;
         const dep = makeDep({
@@ -1283,6 +1374,26 @@ describe('mergeIncludes', () => {
             deps: [],
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        expect(result).toContain('[*placeID]:');
+        expect(result).toContain('ID площадки.');
+        expect(result).not.toContain('{% include');
+        expect(result).not.toContain('{% included');
+    });
+
+    it('should NOT inline include inside a term definition when multilineTerm=false', async () => {
+        const includeDirective = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const parentContent = `[*placeID]: ${includeDirective}`;
+        const dep = makeDep({
+            path: '_includes/v.1.md' as NormalizedPath,
+            link: '_includes/v.1.md#placeID',
+            match: includeDirective,
+            location: [13, parentContent.length],
+            content:
+                '## PlaceID {#placeID}\n\nID площадки.\n\nЧитайте также:\n\n- [Список](list.md)',
+            deps: [],
+        });
+        const run = makeMockRun(false);
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath, run);
         expect(result).toContain('[*placeID]:');
         expect(result).toContain(includeDirective);
         expect(result).toContain('{% included (_includes/v.1.md) %}');
@@ -1304,7 +1415,7 @@ describe('mergeIncludes', () => {
         expect(result).toContain('{% included (_includes/note.md) %}');
     });
 
-    it('should NOT inline standalone include after first term definition', async () => {
+    it('should resolve all includes in term section when multilineTerm=true', async () => {
         const termInclude = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
         const noteInclude = '{% include notitle [note](_includes/notes.md#banner) %}';
         const parentContent = [`[*placeID]: ${termInclude}`, '    ', noteInclude].join('\n');
@@ -1335,14 +1446,50 @@ describe('mergeIncludes', () => {
             'main.md' as NormalizedPath,
         );
 
+        expect(result).not.toContain('{% include');
+        expect(result).not.toContain('{% included');
+        expect(result).toContain('ID площадки.');
+        expect(result).toContain('{% note info %}');
+        expect(result).toContain('[*placeID]:');
+    });
+
+    it('should NOT inline includes after first term definition when multilineTerm=false', async () => {
+        const termInclude = '{% include notitle [desc](_includes/v.1.md#placeID) %}';
+        const noteInclude = '{% include notitle [note](_includes/notes.md#banner) %}';
+        const parentContent = [`[*placeID]: ${termInclude}`, '    ', noteInclude].join('\n');
+
+        const termStart = parentContent.indexOf(termInclude);
+        const noteStart = parentContent.indexOf(noteInclude);
+
+        const depTerm = makeDep({
+            path: '_includes/v.1.md' as NormalizedPath,
+            link: '_includes/v.1.md#placeID',
+            match: termInclude,
+            location: [termStart, termStart + termInclude.length],
+            content: '## PlaceID {#placeID}\n\nID площадки.',
+            deps: [],
+        });
+        const depNote = makeDep({
+            path: '_includes/notes.md' as NormalizedPath,
+            link: '_includes/notes.md#banner',
+            match: noteInclude,
+            location: [noteStart, noteStart + noteInclude.length],
+            content: '## Banner {#banner}\n\n{% note info %}\n\nWarning text.\n\n{% endnote %}',
+            deps: [],
+        });
+
+        const run = makeMockRun(false);
+        const result = await runMerge(
+            [depTerm, depNote],
+            parentContent,
+            'main.md' as NormalizedPath,
+            run,
+        );
+
         expect(result).toContain(termInclude);
         expect(result).toContain(noteInclude);
         expect(result).toContain('{% included (_includes/v.1.md) %}');
         expect(result).toContain('{% included (_includes/notes.md) %}');
-
-        const mainContent = result.split('{% included')[0];
-        expect(mainContent).not.toContain('{% note info %}');
-        expect(mainContent).not.toContain('ID площадки');
     });
 
     it('should add source map comments when enabled (Step 5)', async () => {
@@ -1355,7 +1502,8 @@ describe('mergeIncludes', () => {
             content: 'Inlined text.',
             deps: [],
         });
-        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const run = makeMockRun();
+        const step = mergeIncludes(run, [dep], parentContent, true);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule('main.md' as NormalizedPath);
         const result = await scheduler.process(parentContent);
@@ -1372,7 +1520,8 @@ describe('mergeIncludes', () => {
             content: 'Inlined text.',
             deps: [],
         });
-        const step = mergeIncludes(mockRun, [dep], parentContent, false);
+        const run = makeMockRun();
+        const step = mergeIncludes(run, [dep], parentContent, false);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule('main.md' as NormalizedPath);
         const result = await scheduler.process(parentContent);
@@ -1389,7 +1538,8 @@ describe('mergeIncludes', () => {
             content: '# Chapter Title\n\nBody text.',
             deps: [],
         });
-        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const run = makeMockRun();
+        const step = mergeIncludes(run, [dep], parentContent, true);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule('main.md' as NormalizedPath);
         const result = await scheduler.process(parentContent);
@@ -1406,7 +1556,8 @@ describe('mergeIncludes', () => {
             content: '# Other\n\nSkip.\n\n## Introduction {#intro}\n\nContent.',
             deps: [],
         });
-        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const run = makeMockRun();
+        const step = mergeIncludes(run, [dep], parentContent, true);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule('main.md' as NormalizedPath);
         const result = await scheduler.process(parentContent);
@@ -1423,10 +1574,82 @@ describe('mergeIncludes', () => {
             content: 'Line 1\nLine 2',
             deps: [],
         });
-        const step = mergeIncludes(mockRun, [dep], parentContent, true);
+        const run = makeMockRun();
+        const step = mergeIncludes(run, [dep], parentContent, true);
         const scheduler = new Scheduler([step]);
         await scheduler.schedule('main.md' as NormalizedPath);
         const result = await scheduler.process(parentContent);
         expect(result).toMatchSnapshot();
+    });
+
+    it('should extract root terms and append them at the end (Step 4)', async () => {
+        const includeDirective = '{% include [ch](_includes/chapter.md) %}';
+        const parentContent = [
+            includeDirective,
+            '',
+            '[*api]: Application Programming Interface',
+        ].join('\n');
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            match: includeDirective,
+            location: [0, includeDirective.length],
+            content: 'Chapter content.',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        const lines = result.split('\n');
+        const termLine = lines.findIndex((l) => l.startsWith('[*api]:'));
+        expect(termLine).toBeGreaterThan(0);
+        expect(result).toContain('Chapter content.');
+        expect(result).toContain('[*api]: Application Programming Interface');
+    });
+
+    it('should deduplicate identical terms from root and dep (Step 4)', async () => {
+        const includeDirective = '{% include [ch](_includes/chapter.md) %}';
+        const parentContent = [includeDirective, '', '[*api]: Same definition'].join('\n');
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            match: includeDirective,
+            location: [0, includeDirective.length],
+            content: 'Chapter.\n\n[*api]: Same definition',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        const occurrences = result.split('[*api]:').length - 1;
+        expect(occurrences).toBe(1);
+    });
+
+    it('should keep both terms with different keys from deps (Step 4)', async () => {
+        const includeDirective = '{% include [ch](_includes/chapter.md) %}';
+        const parentContent = includeDirective;
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            match: includeDirective,
+            location: [0, includeDirective.length],
+            content: 'Content.\n\n[*api]: API def\n\n[*sdk]: SDK def',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        expect(result).toContain('[*api]: API def');
+        expect(result).toContain('[*sdk]: SDK def');
+        expect(result).toContain('Content.');
+    });
+
+    it('should rebase paths inside extracted term blocks (Step 4)', async () => {
+        const includeDirective = '{% include [ch](_includes/chapter.md) %}';
+        const parentContent = includeDirective;
+        const dep = makeDep({
+            path: '_includes/chapter.md' as NormalizedPath,
+            link: '_includes/chapter.md',
+            match: includeDirective,
+            location: [0, includeDirective.length],
+            content: 'Content.\n\n[*term]: See [docs](./local.md) for info',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        expect(result).toContain('[*term]: See [docs](_includes/local.md) for info');
     });
 });
