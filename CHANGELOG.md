@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.36.2](https://github.com/diplodoc-platform/cli/compare/v5.36.1...v5.36.2) (2026-04-28)
+
+
+### Bug Fixes
+
+* correct use features with plugins on include pages DOCSTOOLS-5398 ([59a8824](https://github.com/diplodoc-platform/cli/commit/59a88249acfcbf2cbe76070968d73bf08681d80e))
+
 ## [5.36.1](https://github.com/diplodoc-platform/cli/compare/v5.36.0...v5.36.1) (2026-04-28)
 
 
