@@ -32,8 +32,6 @@ exports[`mergeIncludes > should not add source map comments when disabled (Step 
 
 exports[`prepareInlinedContent > should add source map comment after leading empty lines (Step 5) 1`] = `
 "<!-- source: _includes/chapter.md -->
-
-
 # Chapter Title
 
 Body text.
@@ -60,8 +58,7 @@ exports[`prepareInlinedContent > should not add source map comment for empty con
 exports[`prepareInlinedContent > should not add source map comment for whitespace-only content (Step 5) 1`] = `
 "   
 
-  
-"
+  "
 `;
 
 exports[`prepareInlinedContent > should not add source map comment when disabled (Step 5) 1`] = `

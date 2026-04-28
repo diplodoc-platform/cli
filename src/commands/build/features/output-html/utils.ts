@@ -84,6 +84,29 @@ export function getBaseMdItPlugins() {
     ];
 }
 
+/**
+ * Extension plugins (cut, tabs, file, etc.) add `_assets/{name}-extension.{js,css}`
+ * to `env.meta` when they detect their patterns in content. In the CLI's bundled
+ * environment these runtime files don't exist as separate assets — they're part of
+ * the app bundle. With merge-includes, inlined content makes these patterns visible
+ * to the main page transform, producing extra <link>/<script> tags that 404.
+ *
+ * Without merge-includes the issue was masked: the includes plugin spreads `env`,
+ * so meta mutations from nested `md.parse` calls were silently lost.
+ */
+const BUNDLED_EXTENSION_ASSET_RE = /^_assets\/[\w-]+-extension\.(js|css)$/;
+
+export function filterBundledExtensionAssets(meta: {script?: string[]; style?: string[]}) {
+    if (!meta) {
+        return meta;
+    }
+    return {
+        ...meta,
+        script: meta.script?.filter((s) => !BUNDLED_EXTENSION_ASSET_RE.test(s)),
+        style: meta.style?.filter((s) => !BUNDLED_EXTENSION_ASSET_RE.test(s)),
+    };
+}
+
 // TODO(major): Deprecate
 export function getCustomMdItPlugins() {
     try {

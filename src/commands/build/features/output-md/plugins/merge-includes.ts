@@ -1,7 +1,7 @@
 import type {Run} from '../../..';
-import type {HashedGraphNode, StepFunction} from '../utils';
+import type {HashedGraphNode, Scheduler, StepFunction} from '../utils';
 
-import {dirname, join, relative} from 'node:path';
+import {basename, dirname, join, relative} from 'node:path';
 import slugify from 'slugify';
 
 import {isExternalHref, normalizePath} from '~/core/utils';
@@ -10,12 +10,22 @@ import {contentWithoutFrontmatter} from '../../output-html/plugins/includes';
 
 const CODE_FENCE_RE = /^(`{3,}|~{3,})/;
 const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
-const LINK_DEF_RE = /^(\s*\[[^\]]+\]:\s+)(\S+)(\s.*|)$/;
+const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(\S+)(\s.*|)$/;
 const NOTITLE_RE = /\bnotitle\b/;
 const TERM_DEF_RE = /^\[\*[^[\]]+\]:/m;
+// YFM table cell/row separators that may follow an include on the same line.
+// These are structural tokens, not content — inlining is safe if the only
+// non-whitespace text after the include directive is one of these separators.
+const YFM_TABLE_SEP_RE = /^\|\||^\|#/;
 const HEADING_FULL_RE = /^(#{1,6})\s+([^\n]+)$/; // NOSONAR — simplified to avoid ReDoS
-const CUSTOM_ANCHOR_RE = /\{#([\w-]+)\}/;
+const CUSTOM_ANCHOR_RE = /\{\s*#([\w-]+)\s*\}/;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
+const TERM_DEF_LINE_RE = /^\[\*([^[\]]+)\]:/;
+// CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
+// These tags are NOT interrupted by blank lines and break rendering when indented
+// inside a list item (markdown-it parses them as plain text, not HTML blocks).
+// Types 2–6 (<div>, <!--, <?...) work correctly inside list items with any indent.
+const HTML_BLOCK_TYPE1_RE = /^<(script|pre|style|textarea)(?:\s|>|$)/i;
 
 /**
  * Computes the rebased URL for a relative link when content is moved
@@ -124,9 +134,16 @@ export function rebaseRelativePaths(
     return result.join('\n');
 }
 
+const CODE_SPAN_PLACEHOLDER_RE = /\uFFFDCS(\d+)\uFFFD/g;
+
 function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string {
-    line = line.replace(LINK_URL_RE, (_match, prefix, url) => {
-        // NOSONAR — regex with /g is intentional
+    const codeSpans: string[] = [];
+    let processed = line.replace(/(`+).*?\1/g, (match) => {
+        codeSpans.push(match);
+        return `\uFFFDCS${codeSpans.length - 1}\uFFFD`;
+    });
+
+    processed = processed.replace(LINK_URL_RE, (_match, prefix, url) => {
         const rebased = rebaseUrl(url, fromDir, toDir);
         if (rebased === null) {
             return _match;
@@ -134,7 +151,7 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
         return prefix + rebased;
     });
 
-    line = line.replace(LINK_DEF_RE, (_match, prefix, url, suffix) => {
+    processed = processed.replace(LINK_DEF_RE, (_match, prefix, url, suffix) => {
         const rebased = rebaseUrl(url, fromDir, toDir);
         if (rebased === null) {
             return _match;
@@ -142,7 +159,14 @@ function rebaseLinksInLine(line: string, fromDir: string, toDir: string): string
         return prefix + rebased + suffix;
     });
 
-    return line;
+    if (codeSpans.length > 0) {
+        processed = processed.replace(
+            CODE_SPAN_PLACEHOLDER_RE,
+            (_m, idx) => codeSpans[Number(idx)],
+        );
+    }
+
+    return processed;
 }
 
 export function stripHash(link: string): string {
@@ -150,40 +174,162 @@ export function stripHash(link: string): string {
     return hashIndex >= 0 ? link.slice(0, hashIndex) : link;
 }
 
+type TermBlock = {key: string; block: string};
+
+/**
+ * Extracts term definition blocks from markdown content.
+ * In multiline mode, each definition runs from `[*key]:` to the next
+ * `[*key]:` or EOF.  Returns clean content (without the term section)
+ * and the individual term blocks.
+ */
+export function extractTermDefinitions(content: string): {
+    cleanContent: string;
+    terms: TermBlock[];
+} {
+    const lines = content.split('\n');
+    const fence = newFenceState();
+
+    const termStarts: Array<{line: number; key: string}> = [];
+    for (let i = 0; i < lines.length; i++) {
+        if (processCodeFence(lines[i].trim(), fence)) {
+            continue;
+        }
+        const match = TERM_DEF_LINE_RE.exec(lines[i]);
+        if (match) {
+            termStarts.push({line: i, key: match[1]});
+        }
+    }
+
+    if (termStarts.length === 0) {
+        return {cleanContent: content, terms: []};
+    }
+
+    const firstTermLine = termStarts[0].line;
+
+    let cleanEnd = firstTermLine;
+    while (cleanEnd > 0 && lines[cleanEnd - 1].trim() === '') {
+        cleanEnd--;
+    }
+    const cleanContent = lines.slice(0, cleanEnd).join('\n');
+
+    const terms: TermBlock[] = [];
+    for (let t = 0; t < termStarts.length; t++) {
+        const start = termStarts[t].line;
+        const end = t + 1 < termStarts.length ? termStarts[t + 1].line : lines.length;
+        const blockLines = lines.slice(start, end);
+        while (blockLines.length > 0 && blockLines[blockLines.length - 1].trim() === '') {
+            blockLines.pop();
+        }
+        terms.push({key: termStarts[t].key, block: blockLines.join('\n')});
+    }
+
+    return {cleanContent, terms};
+}
+
+/**
+ * Returns true if the content contains a top-level CommonMark HTML block
+ * of **type 1** (`<script>`, `<style>`, `<pre>`, `<textarea>`) that starts
+ * at the very beginning of a line (column 0).
+ *
+ * Type-1 blocks are special: they are NOT interrupted by blank lines and
+ * break rendering when placed inside a list item with any non-zero indent —
+ * markdown-it parses them as plain text rather than HTML blocks.
+ *
+ * Other HTML (type 6: `<div>`, `<a>`, etc.) works correctly inside list
+ * items regardless of indent, so it does NOT trigger this check.
+ */
+export function hasTopLevelHtmlBlock(content: string): boolean {
+    const lines = content.split('\n');
+    const fence = newFenceState();
+
+    for (const line of lines) {
+        const trimmed = line.trimStart();
+        // processCodeFence returns true when the line is inside (or opens) a code fence
+        if (processCodeFence(trimmed, fence)) {
+            continue;
+        }
+        if (HTML_BLOCK_TYPE1_RE.test(trimmed) && line === trimmed) {
+            // line starts at column 0 (no leading whitespace)
+            return true;
+        }
+    }
+
+    return false;
+}
+
 /**
  * Determines whether an include dependency can be safely inlined
  * (replaced in-place) rather than using the {% included %} fallback.
  *
  * Conditions that prevent inlining:
- * 1. The included file contains term definitions (deferred to Step 4).
- * 2. The include directive appears at or after the first term definition
- *    in the parent content.  Term definitions always go at the end of a
- *    page, so every include below them belongs to the term section and
- *    must not be expanded until Step 4.
- * 3. The include directive is NOT standalone on its line — there is
- *    non-whitespace content before or after it (e.g. inside a term
- *    definition, blockquote, table cell, or inline text).
- *    Inlining multi-line content into such contexts breaks markdown structure.
+ * 1. The include directive appears at or after the first term definition
+ *    in the parent content (when `checkTermBoundary` is true).
+ * 2. There is non-whitespace content AFTER the include on the same line
+ *    (e.g. `text {% include %} more` — truly inline usage), UNLESS that
+ *    content is a YFM table cell/row separator (`||` or `|#`).  These
+ *    structural tokens are moved to a new line after the inlined content.
+ * 3. The include has any non-zero indent AND the dep content contains
+ *    a top-level CommonMark HTML block of **type 1** (`<script>`, `<style>`,
+ *    `<pre>`, `<textarea>`).  These tags are NOT interrupted by blank lines
+ *    and break rendering when indented inside a list item — markdown-it
+ *    parses them as plain text instead of HTML blocks.  Other HTML tags
+ *    (`<div>`, `<a>`, etc.) work correctly inside list items with any indent.
+ *
+ * Content before the include (list markers, definition colons, blockquote
+ * markers, whitespace) is allowed — the prefix stays in place and
+ * continuation lines receive equivalent-width whitespace indent.
+ *
+ * @param checkTermBoundary - When false, skip the term-section boundary
+ *   check.  Used for dep-mode processing where includes inside term
+ *   definitions should still be resolved (the root handles term extraction).
  */
-export function canInlineInclude(dep: HashedGraphNode, parentContent: string): boolean {
-    const depContent = contentWithoutFrontmatter(dep.content);
-    if (TERM_DEF_RE.test(depContent)) {
+/**
+ * Checks whether indented inlining of the dependency would break type-1
+ * HTML blocks (<script>, <style>, <pre>, <textarea>).  These are NOT
+ * interrupted by blank lines and break rendering when indented inside a
+ * list item — markdown-it parses them as plain text.
+ *
+ * When the include uses a #hash anchor, only the extracted section is
+ * checked (not the whole file).
+ */
+function indentedIncludeHasHtmlBlock(dep: HashedGraphNode, rawPrefix: string): boolean {
+    const indent = /^\s*$/.test(rawPrefix) ? rawPrefix : ' '.repeat(rawPrefix.length);
+    if (indent.length < 1) {
         return false;
     }
 
-    const firstTermDefPos = parentContent.search(TERM_DEF_RE);
-    if (firstTermDefPos >= 0 && dep.location[0] >= firstTermDefPos) {
+    let depContent = contentWithoutFrontmatter(dep.content);
+    const hashIndex = dep.link.indexOf('#');
+    if (hashIndex >= 0) {
+        depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
+    }
+
+    return hasTopLevelHtmlBlock(depContent);
+}
+
+export function canInlineInclude(
+    dep: HashedGraphNode,
+    parentContent: string,
+    checkTermBoundary = true,
+): boolean {
+    if (checkTermBoundary) {
+        const firstTermDefPos = parentContent.search(TERM_DEF_RE);
+        if (firstTermDefPos >= 0 && dep.location[0] >= firstTermDefPos) {
+            return false;
+        }
+    }
+
+    const lineEnd = parentContent.indexOf('\n', dep.location[1]);
+    const actualEnd = lineEnd >= 0 ? lineEnd : parentContent.length;
+    const after = parentContent.slice(dep.location[1], actualEnd);
+
+    if (after.trim() !== '' && !YFM_TABLE_SEP_RE.test(after.trim())) {
         return false;
     }
 
     const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
-    const lineEnd = parentContent.indexOf('\n', dep.location[1]);
-    const actualEnd = lineEnd >= 0 ? lineEnd : parentContent.length;
-
-    const before = parentContent.slice(lineStart, dep.location[0]);
-    const after = parentContent.slice(dep.location[1], actualEnd);
-
-    if (before.trim() !== '' || after.trim() !== '') {
+    const rawPrefix = parentContent.slice(lineStart, dep.location[0]);
+    if (rawPrefix && indentedIncludeHasHtmlBlock(dep, rawPrefix)) {
         return false;
     }
 
@@ -246,6 +392,19 @@ export function addIndent(content: string, indent: string): string {
     return result.join('');
 }
 
+/** Strips leading and trailing newline characters without regex backtracking. */
+function stripLeadingAndTrailingNewlines(s: string): string {
+    let start = 0;
+    while (start < s.length && s.codePointAt(start) === 10) {
+        start++;
+    }
+    let end = s.length;
+    while (end > start && s.codePointAt(end - 1) === 10) {
+        end--;
+    }
+    return start === 0 && end === s.length ? s : s.slice(start, end);
+}
+
 /** Parses a heading line and returns level + resolved anchor, or null. */
 function parseHeading(trimmed: string): {level: number; anchor: string} | null {
     const m = HEADING_FULL_RE.exec(trimmed);
@@ -256,7 +415,10 @@ function parseHeading(trimmed: string): {level: number; anchor: string} | null {
     const custom = CUSTOM_ANCHOR_RE.exec(text);
     const anchor = custom
         ? custom[1]
-        : slugify(text.replace(/\{#[\w-]+\}/g, '').trim(), {lower: true, remove: SLUG_REMOVE_RE}); // NOSONAR — regex with /g is intentional
+        : slugify(text.replace(/\{\s*#[\w-]+\s*\}/g, '').trim(), {
+              lower: true,
+              remove: SLUG_REMOVE_RE,
+          }); // NOSONAR — regex with /g is intentional
     return {level: m[1].length, anchor};
 }
 
@@ -347,12 +509,17 @@ export function collectFallbackDepsForInlined(
     depPath: NormalizedPath,
     rootPath: NormalizedPath,
     seen: Set<string>,
+    parentProcessedContent?: string,
 ): FallbackEntry[] {
     const result: FallbackEntry[] = [];
     const fromDir = dirname(depPath);
     const toDir = dirname(rootPath);
 
     for (const subDep of deps) {
+        if (parentProcessedContent && !parentProcessedContent.includes(subDep.match)) {
+            continue;
+        }
+
         const rebasedLink = rebaseUrl(stripHash(subDep.link), fromDir, toDir);
         const key = rebasedLink || stripHash(subDep.link);
 
@@ -400,13 +567,21 @@ export function collectFallbackDepsWithChain(
 /**
  * Prepares content from a dependency for inlining: strips frontmatter,
  * extracts section by hash, optionally removes the first heading (notitle),
+ * extracts term definitions (collecting them via termsCollector),
  * rebases paths, applies indentation, and adds source map comments.
+ *
+ * @param trailingSuffix - When the include directive is followed by a YFM
+ *   table separator (`||` or `|#`) on the same line, pass that separator
+ *   here.  It will be appended on a new line after the inlined content so
+ *   that the table structure is preserved.
  */
 export function prepareInlinedContent(
     dep: HashedGraphNode,
     entry: NormalizedPath,
     parentContent: string,
     enableSourceMaps = true,
+    termsCollector?: Array<TermBlock & {sourcePath: string}>,
+    trailingSuffix?: string,
 ): string {
     let depContent = contentWithoutFrontmatter(dep.content);
 
@@ -419,7 +594,28 @@ export function prepareInlinedContent(
         depContent = stripFirstHeading(depContent);
     }
 
+    if (termsCollector) {
+        const {cleanContent, terms} = extractTermDefinitions(depContent);
+        depContent = cleanContent;
+        for (const term of terms) {
+            const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
+            const conflict = termsCollector.find(
+                (t) => t.key === term.key && t.block !== rebasedBlock,
+            );
+            if (conflict) {
+                const newKey = makeUniqueTermKey(term.key, dep.path, termsCollector);
+                depContent = renameTermReferences(depContent, term.key, newKey);
+                const newBlock = rebasedBlock.replace(`[*${term.key}]:`, `[*${newKey}]:`);
+                termsCollector.push({key: newKey, block: newBlock, sourcePath: dep.path});
+            } else {
+                termsCollector.push({key: term.key, block: rebasedBlock, sourcePath: dep.path});
+            }
+        }
+    }
+
     depContent = rebaseRelativePaths(depContent, dep.path, entry);
+
+    depContent = stripLeadingAndTrailingNewlines(depContent);
 
     if (enableSourceMaps && depContent.trim()) {
         depContent =
@@ -427,9 +623,18 @@ export function prepareInlinedContent(
     }
 
     const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
-    const indent = parentContent.slice(lineStart, dep.location[0]);
-    if (indent) {
+    const rawPrefix = parentContent.slice(lineStart, dep.location[0]);
+    if (rawPrefix) {
+        const indent = /^\s*$/.test(rawPrefix) ? rawPrefix : ' '.repeat(rawPrefix.length);
         depContent = addIndent(depContent, indent);
+    }
+
+    // When the include is followed by a YFM table separator (|| or |#),
+    // append a newline so the separator ends up on its own line after the
+    // inlined content.  The separator itself is preserved by inlineActor
+    // via content.slice(dep.location[1]).
+    if (trailingSuffix) {
+        depContent += '\n';
     }
 
     return depContent;
@@ -454,31 +659,212 @@ export function addFallbackDep(
     }
 }
 
+function escapeRegExp(s: string): string {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
 /**
- * Merge includes plugin (Steps 1a + 1b + 2 + 3 + 5).
+ * Generates a unique term key when a conflict is detected.
+ * Appends the source file stem (e.g. `api` → `api__defs`).
+ * Adds a counter suffix if the generated key already exists.
+ */
+function makeUniqueTermKey(
+    baseKey: string,
+    sourcePath: string,
+    existing: ReadonlyArray<{key: string}>,
+): string {
+    const stem = basename(sourcePath, '.md').replace(/[^\w-]/g, '-');
+    const usedKeys = new Set(existing.map((t) => t.key));
+    let candidate = `${baseKey}__${stem}`;
+    let counter = 2;
+    while (usedKeys.has(candidate)) {
+        candidate = `${baseKey}__${stem}-${counter++}`;
+    }
+    return candidate;
+}
+
+/**
+ * Renames term references `[*oldKey]` → `[*newKey]` in content.
+ * Only matches references (not definitions, which have `:` after `]`).
+ */
+function renameTermReferences(content: string, oldKey: string, newKey: string): string {
+    const re = new RegExp(String.raw`\[\*${escapeRegExp(oldKey)}\](?!:)`, 'g');
+    return content.replace(re, `[*${newKey}]`);
+}
+
+/**
+ * Deduplicates collected term blocks by key.
+ * Same key + same block text → keep one.
+ * Same key + different text → keep first, log warning via run logger.
+ */
+function deduplicateTermBlocks(
+    allTerms: Array<TermBlock & {sourcePath: string}>,
+    logger?: {warn: (msg: string) => void},
+): string {
+    const seen = new Map<string, {block: string; sourcePath: string}>();
+
+    for (const term of allTerms) {
+        const existing = seen.get(term.key);
+        if (!existing) {
+            seen.set(term.key, {block: term.block, sourcePath: term.sourcePath});
+        } else if (existing.block !== term.block && logger) {
+            logger.warn(
+                `Term conflict [*${term.key}]: different definitions in ` +
+                    `${existing.sourcePath} and ${term.sourcePath} — keeping first`,
+            );
+        }
+    }
+
+    return Array.from(seen.values())
+        .map(({block}) => block)
+        .join('\n\n');
+}
+
+/**
+ * Resolves a dependency's content for inline substitution without
+ * source maps, indent, or term extraction — used when replacing
+ * {% include %} directives inside the term definition section.
+ */
+function resolveDepContent(dep: HashedGraphNode, entry: NormalizedPath): string {
+    let depContent = contentWithoutFrontmatter(dep.content);
+
+    const hashIndex = dep.link.indexOf('#');
+    if (hashIndex >= 0) {
+        depContent = extractSection(depContent, dep.link.slice(hashIndex + 1));
+    }
+
+    if (NOTITLE_RE.test(dep.match)) {
+        depContent = stripFirstHeading(depContent);
+    }
+
+    return rebaseRelativePaths(depContent, dep.path, entry);
+}
+
+type TermWithSource = TermBlock & {sourcePath: string};
+
+/**
+ * Resolves includes inside the term definition section and collects
+ * term blocks for later deduplication.
+ */
+function processTermSectionDeps(
+    deps: HashedGraphNode[],
+    parentContent: string,
+    firstTermDefPos: number,
+    entry: NormalizedPath,
+    scheduler: Scheduler,
+    seen: Set<string>,
+    fallbackEntries: FallbackEntry[],
+    allTerms: TermWithSource[],
+): void {
+    let termSectionText = parentContent.slice(firstTermDefPos);
+
+    const termDeps = deps.filter((d) => d.location[0] >= firstTermDefPos);
+    termDeps.sort((a, b) => b.location[0] - a.location[0]);
+
+    for (const dep of termDeps) {
+        const resolved = resolveDepContent(dep, entry);
+        const relStart = dep.location[0] - firstTermDefPos;
+        const relEnd = dep.location[1] - firstTermDefPos;
+        termSectionText =
+            termSectionText.slice(0, relStart) + resolved + termSectionText.slice(relEnd);
+
+        if (dep.deps.length > 0) {
+            fallbackEntries.push(
+                ...collectFallbackDepsForInlined(dep.deps, dep.path, entry, seen, dep.content),
+            );
+        }
+    }
+
+    const {terms: processedTerms} = extractTermDefinitions(termSectionText);
+    allTerms.push(...processedTerms.map((t) => ({...t, sourcePath: entry})));
+
+    scheduler.add(
+        [firstTermDefPos, parentContent.length],
+        async (content) => {
+            const pos = content.search(TERM_DEF_RE);
+            return pos >= 0 ? content.slice(0, pos).trimEnd() : content;
+        },
+        {},
+    );
+}
+
+/**
+ * Detects a YFM table separator (`||` or `|#`) immediately after the include
+ * directive on the same line.
+ */
+function getTrailingSuffix(parentContent: string, depLocationEnd: number): string | undefined {
+    const lineEnd = parentContent.indexOf('\n', depLocationEnd);
+    const afterEnd = lineEnd >= 0 ? lineEnd : parentContent.length;
+    const afterRaw = parentContent.slice(depLocationEnd, afterEnd);
+    const sepMatch = YFM_TABLE_SEP_RE.exec(afterRaw.trim());
+    return sepMatch ? sepMatch[0] : undefined;
+}
+
+/**
+ * Builds the appendix string containing deduplicated term blocks and
+ * `{% included %}` fallback blocks.
+ */
+function buildRootAppendix(
+    allTerms: TermWithSource[],
+    fallbackEntries: FallbackEntry[],
+    multilineTerm: boolean,
+    logger: Run['logger'],
+): string {
+    let appendix = '';
+
+    if (multilineTerm && allTerms.length > 0) {
+        appendix += '\n\n' + deduplicateTermBlocks(allTerms, logger);
+    }
+
+    if (fallbackEntries.length > 0) {
+        const blocks = fallbackEntries.map(
+            ({key, content}) => `{% included (${key}) %}\n${content}\n{% endincluded %}`,
+        );
+        appendix += '\n' + blocks.join('\n');
+    }
+
+    return appendix;
+}
+
+/**
+ * Merge includes plugin (Steps 1–4).
  *
  * For each include dep:
- * - Standalone includes (sole content on their line) without term definitions
- *   are inlined, with indent and hash support.
- * - Non-standalone includes (e.g. inside term definitions, inline text) and
- *   includes with term definitions use {% included %} fallback blocks at EOF.
+ * - Standalone includes before the term section are inlined, with indent,
+ *   hash, and term extraction support.
+ * - When `multilineTermDefinitions` is true:
+ *   - Includes inside the term section (after first [*key]:) are resolved
+ *     inline within the term block text (no fallback needed).
+ *   - Term definitions from root and inlined deps are extracted, deduplicated,
+ *     and appended at the end of the file.
+ * - When `multilineTermDefinitions` is false:
+ *   - Includes after the first term def use {% included %} fallback
+ *     (term definitions are left as-is).
+ * - Non-standalone includes always use {% included %} fallback blocks.
  *
- * parentContent is the current content of the root file (needed for context checks).
- * enableSourceMaps controls whether to add <!-- source: path:line --> comments.
+ * @param rootMode - When true (entry file), adds fallback blocks and term
+ *   sections at the end.  When false (dep files), only inlines standalone
+ *   includes so that nested include chains are resolved bottom-up.
  */
 export function mergeIncludes(
-    _run: Run,
+    run: Run,
     deps: HashedGraphNode[],
     parentContent: string,
     enableSourceMaps = true,
+    rootMode = true,
 ): StepFunction {
     return async function (scheduler, entry): Promise<void> {
         if (deps.length === 0) {
             return;
         }
 
+        const multilineTerm = rootMode
+            ? (run.config.content.multilineTermDefinitions ?? run.config.multilineTermDefinitions)
+            : false;
         const fallbackEntries: FallbackEntry[] = [];
         const seen = new Set<string>();
+        const allTerms: TermWithSource[] = [];
+        const firstTermDefPos = parentContent.search(TERM_DEF_RE);
 
         type InlineContext = {dep: HashedGraphNode; inlinedContent: string};
 
@@ -491,32 +877,62 @@ export function mergeIncludes(
             );
         };
 
+        if (multilineTerm && firstTermDefPos >= 0) {
+            processTermSectionDeps(
+                deps,
+                parentContent,
+                firstTermDefPos,
+                entry,
+                scheduler,
+                seen,
+                fallbackEntries,
+                allTerms,
+            );
+        }
+
         for (const dep of deps) {
-            if (canInlineInclude(dep, parentContent)) {
+            if (multilineTerm && firstTermDefPos >= 0 && dep.location[0] >= firstTermDefPos) {
+                continue;
+            }
+
+            if (canInlineInclude(dep, parentContent, rootMode)) {
+                const trailingSuffix = getTrailingSuffix(parentContent, dep.location[1]);
                 const inlinedContent = prepareInlinedContent(
                     dep,
                     entry,
                     parentContent,
                     enableSourceMaps,
+                    multilineTerm ? allTerms : undefined,
+                    trailingSuffix,
                 );
                 scheduler.add(dep.location, inlineActor, {dep, inlinedContent});
 
-                if (dep.deps.length > 0) {
+                if (rootMode && dep.deps.length > 0) {
                     fallbackEntries.push(
-                        ...collectFallbackDepsForInlined(dep.deps, dep.path, entry, seen),
+                        ...collectFallbackDepsForInlined(
+                            dep.deps,
+                            dep.path,
+                            entry,
+                            seen,
+                            dep.content,
+                        ),
                     );
                 }
-            } else {
+            } else if (rootMode) {
                 addFallbackDep(dep, seen, fallbackEntries);
             }
         }
 
-        if (fallbackEntries.length > 0) {
-            const blocks = fallbackEntries.map(
-                ({key, content}) => `{% included (${key}) %}\n${content}\n{% endincluded %}`,
+        if (rootMode) {
+            const appendix = buildRootAppendix(
+                allTerms,
+                fallbackEntries,
+                multilineTerm,
+                run.logger,
             );
-            const appendix = '\n' + blocks.join('\n');
-            scheduler.add([0, 0], async (content) => content + appendix, {});
+            if (appendix) {
+                scheduler.add([0, 0], async (content) => content + appendix, {});
+            }
         }
     } as StepFunction;
 }

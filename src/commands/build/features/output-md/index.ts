@@ -179,12 +179,12 @@ export class OutputMd {
                                     !config.mergeIncludes &&
                                     rehashIncludes(run, deps),
                                 config.mergeIncludes &&
-                                    !write &&
                                     mergeIncludes(
                                         run,
                                         deps,
                                         graph.content,
                                         config.mergeIncludesSourceMaps,
+                                        !write,
                                     ),
                                 config.mergeAutotitles &&
                                     mergeAutotitles(run, titles, graph.assets),
