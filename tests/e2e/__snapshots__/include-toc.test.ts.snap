@@ -716,7 +716,7 @@ path: toc.yaml
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading > filelist 1`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory > filelist 1`] = `
 "[
   "test/index.md",
   "test/sub/index.md",
@@ -728,7 +728,7 @@ exports[`Include toc > Toc with generic includer linkIndex uses autotitle from i
 ]"
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 1`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 1`] = `
 "---
 metadata:
   - name: generator
@@ -742,7 +742,7 @@ vcsPath: test/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 2`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 2`] = `
 "---
 metadata:
   - name: generator
@@ -753,7 +753,7 @@ vcsPath: test/sub/index.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 3`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 3`] = `
 "---
 metadata:
   - name: generator
@@ -768,7 +768,7 @@ vcsPath: test/sub/sub-1.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 4`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 4`] = `
 "---
 metadata:
   - name: generator
@@ -779,7 +779,7 @@ vcsPath: test/sub/sub-2.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 5`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 5`] = `
 "---
 metadata:
   - name: generator
@@ -790,7 +790,7 @@ vcsPath: test/sub/sub/sub-3.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 6`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 6`] = `
 "---
 metadata:
   - name: generator
@@ -801,7 +801,7 @@ vcsPath: test/test.md
 "
 `;
 
-exports[`Include toc > Toc with generic includer linkIndex uses autotitle from index.md heading 7`] = `
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 7`] = `
 "title: main
 items:
   - name: Test page

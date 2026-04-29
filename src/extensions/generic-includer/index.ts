@@ -17,6 +17,7 @@ type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
     linkIndex?: boolean;
+    linkIndexAutotitle?: boolean;
 }>;
 
 type Graph = {
@@ -94,17 +95,18 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
                 indexEntry && typeof indexEntry[1] === 'string' ? indexEntry[1] : undefined;
 
             if (indexHref) {
-                const directoryName = pageName(key, options);
+                const useIndexHeading =
+                    options.linkIndexAutotitle === true && options.autotitle !== false;
 
-                if (directoryName) {
+                if (useIndexHeading) {
                     return {
-                        name: directoryName,
                         href: indexHref,
                         items: childEntries.map(item),
                     };
                 }
 
                 return {
+                    name: key as YfmString,
                     href: indexHref,
                     items: childEntries.map(item),
                 };
