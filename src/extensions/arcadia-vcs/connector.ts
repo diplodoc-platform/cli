@@ -21,7 +21,10 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     private arc: ArcClient;
 
+    private run: Run<Config>;
+
     constructor(run: Run<Config>) {
+        this.run = run;
         this.config = run.config;
         this.arc = new ArcClient(run.config, dirname(run.config[configPath] as AbsolutePath));
     }
@@ -29,13 +32,23 @@ export class ArcadiaVcsConnector implements VcsConnector {
     async init() {
         const {mtimes, authors, contributors} = this.config;
 
-        await Promise.all(
-            [
-                mtimes.enabled && this.fillMTimes(),
-                authors.enabled && this.fillAuthors(),
-                contributors.enabled && this.fillContributors(),
-            ].filter(Boolean),
-        );
+        try {
+            await Promise.all(
+                [
+                    mtimes.enabled && this.fillMTimes(),
+                    authors.enabled && this.fillAuthors(),
+                    contributors.enabled && this.fillContributors(),
+                ].filter(Boolean),
+            );
+        } catch (error) {
+            if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
+                this.run.logger.warn(
+                    'Arcadia VCS extension disabled: arc is not available in this environment.',
+                );
+                return this;
+            }
+            throw error;
+        }
 
         return this;
     }
