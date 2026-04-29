@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.36.3](https://github.com/diplodoc-platform/cli/compare/v5.36.2...v5.36.3) (2026-04-29)
+
+
+### Bug Fixes
+
+* add warning for arcadia vcs ([#1892](https://github.com/diplodoc-platform/cli/issues/1892)) ([bf8353a](https://github.com/diplodoc-platform/cli/commit/bf8353a040e87011fdfc5efdb105d2fd5cbc9835))
+* **deps:** Update @diplodoc/client@5.5.3 ([4889ec3](https://github.com/diplodoc-platform/cli/commit/4889ec3a40068bb002191fef02385c542defea44))
+* **deps:** Update @diplodoc/translation@1.7.21 ([2cc971d](https://github.com/diplodoc-platform/cli/commit/2cc971dcd0b9e49716a680587a7da889be46fbad))
+
 ## [5.36.2](https://github.com/diplodoc-platform/cli/compare/v5.36.1...v5.36.2) (2026-04-28)
 
 
