@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.36.4](https://github.com/diplodoc-platform/cli/compare/v5.36.3...v5.36.4) (2026-04-29)
+
+
+### Bug Fixes
+
+* update file formats ([dc9ff56](https://github.com/diplodoc-platform/cli/commit/dc9ff569f5d011ac414b02d221474a5b4c3db749))
+
 ## [5.36.3](https://github.com/diplodoc-platform/cli/compare/v5.36.2...v5.36.3) (2026-04-29)
 
 
