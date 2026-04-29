@@ -64,4 +64,10 @@ describe('Include toc', () => {
         await TestAdapter.testBuildPass(inputPath, outputPath);
         await compareDirectories(outputPath);
     });
+
+    test('Toc with generic includer linkIndexAutotitle uses index.md heading for directory', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/include-toc/test10');
+        await TestAdapter.testBuildPass(inputPath, outputPath);
+        await compareDirectories(outputPath);
+    });
 });

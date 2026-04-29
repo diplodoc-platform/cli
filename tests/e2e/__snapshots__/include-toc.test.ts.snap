@@ -598,6 +598,7 @@ items:
   - name: index
     href: test/index.md
   - name: sub
+    href: test/sub/index.md
     items:
       - name: sub-2
         href: test/sub/sub-2.md
@@ -607,7 +608,6 @@ items:
         items:
           - name: sub-3
             href: test/sub/sub/sub-3.md
-    href: test/sub/index.md
 path: toc.yaml
 "
 `;
@@ -712,6 +712,113 @@ items:
         items:
           - name: sub-3
             href: test/sub/sub/sub-3.md
+path: toc.yaml
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# Root index
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub section
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# Sub one
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# Sub two
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# Sub three
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# Test page
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 7`] = `
+"title: main
+items:
+  - name: Test page
+    href: test/test.md
+  - name: Root index
+    href: test/index.md
+  - href: test/sub/index.md
+    items:
+      - name: Sub two
+        href: test/sub/sub-2.md
+      - name: Sub one
+        href: test/sub/sub-1.md
+      - name: sub
+        items:
+          - name: Sub three
+            href: test/sub/sub/sub-3.md
+    name: Sub section
 path: toc.yaml
 "
 `;

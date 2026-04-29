@@ -123,4 +123,136 @@ describe('Generic includer', () => {
 
         expect(dump(result)).toMatchSnapshot();
     });
+
+    it('should keep directory name as folder name when linkIndex is enabled by default', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                [
+                    'index.md',
+                    'test.md',
+                    'sub/index.md',
+                    'sub/sub-1.md',
+                    'sub/sub-2.md',
+                    'sub/sub/sub-3.md',
+                    'skip/sub/sub-1.md',
+                ] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    linkIndex: true,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should leave directory name empty when linkIndexAutotitle is enabled', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                [
+                    'index.md',
+                    'test.md',
+                    'sub/index.md',
+                    'sub/sub-1.md',
+                    'sub/sub-2.md',
+                    'sub/sub/sub-3.md',
+                    'skip/sub/sub-1.md',
+                ] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    linkIndex: true,
+                    linkIndexAutotitle: true,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should keep folder name when linkIndexAutotitle is set but autotitle is disabled', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                [
+                    'index.md',
+                    'test.md',
+                    'sub/index.md',
+                    'sub/sub-1.md',
+                    'sub/sub-2.md',
+                    'sub/sub/sub-3.md',
+                    'skip/sub/sub-1.md',
+                ] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    linkIndex: true,
+                    linkIndexAutotitle: true,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should use directory name when linkIndex is enabled and autotitle is disabled', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                [
+                    'index.md',
+                    'test.md',
+                    'sub/index.md',
+                    'sub/sub-1.md',
+                    'sub/sub-2.md',
+                    'sub/sub/sub-3.md',
+                    'skip/sub/sub-1.md',
+                ] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    linkIndex: true,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
 });

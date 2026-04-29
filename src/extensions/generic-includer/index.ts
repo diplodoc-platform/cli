@@ -17,6 +17,7 @@ type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
     linkIndex?: boolean;
+    linkIndexAutotitle?: boolean;
 }>;
 
 type Graph = {
@@ -90,17 +91,31 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             const entries = Object.entries(value);
             const indexEntry = entries.find(([k]) => k === 'index');
             const childEntries = entries.filter(([k]) => k !== 'index');
+            const indexHref =
+                indexEntry && typeof indexEntry[1] === 'string' ? indexEntry[1] : undefined;
 
-            const result: RawTocItem = {
+            if (indexHref) {
+                const useIndexHeading =
+                    options.linkIndexAutotitle === true && options.autotitle !== false;
+
+                if (useIndexHeading) {
+                    return {
+                        href: indexHref,
+                        items: childEntries.map(item),
+                    };
+                }
+
+                return {
+                    name: key as YfmString,
+                    href: indexHref,
+                    items: childEntries.map(item),
+                };
+            }
+
+            return {
                 name: key as YfmString,
                 items: childEntries.map(item),
             };
-
-            if (indexEntry && typeof indexEntry[1] === 'string') {
-                result.href = indexEntry[1];
-            }
-
-            return result;
         }
 
         return {name: key as YfmString, items: Object.entries(value).map(item)};
