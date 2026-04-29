@@ -6,3 +6,4 @@ items:
         - name: generic
           input: test
           linkIndex: true
+          linkIndexAutotitle: true
