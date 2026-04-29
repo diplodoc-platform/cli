@@ -1,5 +1,25 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Generic includer > should leave directory name empty when linkIndex is enabled with autotitle 1`] = `
+"path: toc.yaml
+items:
+  - href: index.md
+  - href: test.md
+  - href: sub/index.md
+    items:
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
+      - name: sub
+        items:
+          - href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - href: skip/sub/sub-1.md
+"
+`;
+
 exports[`Generic includer > should preserve insertion order without orderBy 1`] = `
 "path: toc.yaml
 items:
@@ -98,6 +118,33 @@ items:
   - name: test
     href: test.md
   - name: sub
+    items:
+      - name: sub-1
+        href: sub/sub-1.md
+      - name: sub-2
+        href: sub/sub-2.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - name: sub-1
+            href: skip/sub/sub-1.md
+"
+`;
+
+exports[`Generic includer > should use directory name when linkIndex is enabled and autotitle is disabled 1`] = `
+"path: toc.yaml
+items:
+  - name: index
+    href: index.md
+  - name: test
+    href: test.md
+  - name: sub
+    href: sub/index.md
     items:
       - name: sub-1
         href: sub/sub-1.md
