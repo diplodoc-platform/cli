@@ -1,5 +1,95 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Generic includer > should preserve insertion order without orderBy 1`] = `
+"path: toc.yaml
+items:
+  - name: banana
+    href: banana.md
+  - name: apple
+    href: apple.md
+  - name: cherry
+    href: cherry.md
+"
+`;
+
+exports[`Generic includer > should sort in descending order with order=desc 1`] = `
+"path: toc.yaml
+items:
+  - name: '20'
+    href: 20.md
+  - name: '10'
+    href: 10.md
+  - name: '2'
+    href: 2.md
+  - name: '1'
+    href: 1.md
+"
+`;
+
+exports[`Generic includer > should sort nested directories naturally 1`] = `
+"path: toc.yaml
+items:
+  - name: chapter-1
+    items:
+      - name: intro
+        href: chapter-1/intro.md
+      - name: section-1
+        href: chapter-1/section-1.md
+      - name: section-2
+        href: chapter-1/section-2.md
+      - name: section-10
+        href: chapter-1/section-10.md
+  - name: chapter-2
+    items:
+      - name: intro
+        href: chapter-2/intro.md
+  - name: chapter-10
+    items:
+      - name: intro
+        href: chapter-10/intro.md
+"
+`;
+
+exports[`Generic includer > should sort numeric filenames with orderBy=natural 1`] = `
+"path: toc.yaml
+items:
+  - name: '1'
+    href: 1.md
+  - name: '2'
+    href: 2.md
+  - name: '9'
+    href: 9.md
+  - name: '10'
+    href: 10.md
+  - name: '11'
+    href: 11.md
+  - name: '20'
+    href: 20.md
+  - name: '100'
+    href: 100.md
+"
+`;
+
+exports[`Generic includer > should sort with orderBy=filename lexicographically 1`] = `
+"path: toc.yaml
+items:
+  - name: '1'
+    href: 1.md
+  - name: '10'
+    href: 10.md
+  - name: '100'
+    href: 100.md
+  - name: '11'
+    href: 11.md
+  - name: '2'
+    href: 2.md
+  - name: '20'
+    href: 20.md
+  - name: '9'
+    href: 9.md
+"
+`;
+
 exports[`Generic includer > should use autotitle option 1`] = `
 "path: toc.yaml
 items:
