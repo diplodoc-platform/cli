@@ -2,7 +2,7 @@ import type {Command} from '~/core/config';
 import type {Build, EntryInfo, Run} from '~/commands/build';
 
 import {extname, join} from 'node:path';
-import {arch, platform, release as osRelease} from 'node:os';
+import {arch, release as osRelease, platform} from 'node:os';
 import {createHash} from 'node:crypto';
 
 import {getHooks as getBaseHooks} from '~/core/program';
