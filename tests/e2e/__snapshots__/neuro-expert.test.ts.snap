@@ -262,6 +262,44 @@ exports[`Neuro-expert > Neuro-expert 9`] = `
                 tryAppend();
             };
             document.body.appendChild(neuroExpertScript);
+            (function() {
+                var neuroExpertMetrikaIds = [];
+                var neuroExpertInitType = "widget";
+                var iframeActionMap = {
+                    "message-sent": "message"
+                };
+                function sendNeuroExpertGoal(action) {
+                    if (typeof ym === "undefined" || !neuroExpertMetrikaIds.length) {
+                        return;
+                    }
+                    var params = {
+                        action: action,
+                        initType: neuroExpertInitType
+                    };
+                    for (var i = 0; i < neuroExpertMetrikaIds.length; i++) {
+                        ym(neuroExpertMetrikaIds[i], "reachGoal", "DOCS_NEUROEXPERT_ACTION", params);
+                    }
+                }
+                neuroExpertDiv.addEventListener("click", function(e) {
+                    if (e.target.closest(".toggle-button")) {
+                        requestAnimationFrame(function() {
+                            var widgetPanel = neuroExpertDiv.querySelector(".widget");
+                            if (widgetPanel && widgetPanel.classList.contains("visible")) {
+                                sendNeuroExpertGoal("open");
+                            }
+                        });
+                    }
+                });
+                window.addEventListener("message", function(event) {
+                    if (event.origin !== "https://expert.yandex.ru") {
+                        return;
+                    }
+                    var action = iframeActionMap[event.data && event.data.type];
+                    if (action) {
+                        sendNeuroExpertGoal(action);
+                    }
+                });
+            })();
         </script>
     </body>
 </html>"
@@ -315,6 +353,44 @@ exports[`Neuro-expert > Neuro-expert 10`] = `
                 tryAppend();
             };
             document.body.appendChild(neuroExpertScript);
+            (function() {
+                var neuroExpertMetrikaIds = [];
+                var neuroExpertInitType = "widget";
+                var iframeActionMap = {
+                    "message-sent": "message"
+                };
+                function sendNeuroExpertGoal(action) {
+                    if (typeof ym === "undefined" || !neuroExpertMetrikaIds.length) {
+                        return;
+                    }
+                    var params = {
+                        action: action,
+                        initType: neuroExpertInitType
+                    };
+                    for (var i = 0; i < neuroExpertMetrikaIds.length; i++) {
+                        ym(neuroExpertMetrikaIds[i], "reachGoal", "DOCS_NEUROEXPERT_ACTION", params);
+                    }
+                }
+                neuroExpertDiv.addEventListener("click", function(e) {
+                    if (e.target.closest(".toggle-button")) {
+                        requestAnimationFrame(function() {
+                            var widgetPanel = neuroExpertDiv.querySelector(".widget");
+                            if (widgetPanel && widgetPanel.classList.contains("visible")) {
+                                sendNeuroExpertGoal("open");
+                            }
+                        });
+                    }
+                });
+                window.addEventListener("message", function(event) {
+                    if (event.origin !== "https://expert.yandex.ru") {
+                        return;
+                    }
+                    var action = iframeActionMap[event.data && event.data.type];
+                    if (action) {
+                        sendNeuroExpertGoal(action);
+                    }
+                });
+            })();
         </script>
     </body>
 </html>"
@@ -368,6 +444,44 @@ exports[`Neuro-expert > Neuro-expert 11`] = `
                 tryAppend();
             };
             document.body.appendChild(neuroExpertScript);
+            (function() {
+                var neuroExpertMetrikaIds = [];
+                var neuroExpertInitType = "widget";
+                var iframeActionMap = {
+                    "message-sent": "message"
+                };
+                function sendNeuroExpertGoal(action) {
+                    if (typeof ym === "undefined" || !neuroExpertMetrikaIds.length) {
+                        return;
+                    }
+                    var params = {
+                        action: action,
+                        initType: neuroExpertInitType
+                    };
+                    for (var i = 0; i < neuroExpertMetrikaIds.length; i++) {
+                        ym(neuroExpertMetrikaIds[i], "reachGoal", "DOCS_NEUROEXPERT_ACTION", params);
+                    }
+                }
+                neuroExpertDiv.addEventListener("click", function(e) {
+                    if (e.target.closest(".toggle-button")) {
+                        requestAnimationFrame(function() {
+                            var widgetPanel = neuroExpertDiv.querySelector(".widget");
+                            if (widgetPanel && widgetPanel.classList.contains("visible")) {
+                                sendNeuroExpertGoal("open");
+                            }
+                        });
+                    }
+                });
+                window.addEventListener("message", function(event) {
+                    if (event.origin !== "https://expert.yandex.ru") {
+                        return;
+                    }
+                    var action = iframeActionMap[event.data && event.data.type];
+                    if (action) {
+                        sendNeuroExpertGoal(action);
+                    }
+                });
+            })();
         </script>
     </body>
 </html>"
@@ -421,6 +535,44 @@ exports[`Neuro-expert > Neuro-expert 12`] = `
                 tryAppend();
             };
             document.body.appendChild(neuroExpertScript);
+            (function() {
+                var neuroExpertMetrikaIds = [];
+                var neuroExpertInitType = "widget";
+                var iframeActionMap = {
+                    "message-sent": "message"
+                };
+                function sendNeuroExpertGoal(action) {
+                    if (typeof ym === "undefined" || !neuroExpertMetrikaIds.length) {
+                        return;
+                    }
+                    var params = {
+                        action: action,
+                        initType: neuroExpertInitType
+                    };
+                    for (var i = 0; i < neuroExpertMetrikaIds.length; i++) {
+                        ym(neuroExpertMetrikaIds[i], "reachGoal", "DOCS_NEUROEXPERT_ACTION", params);
+                    }
+                }
+                neuroExpertDiv.addEventListener("click", function(e) {
+                    if (e.target.closest(".toggle-button")) {
+                        requestAnimationFrame(function() {
+                            var widgetPanel = neuroExpertDiv.querySelector(".widget");
+                            if (widgetPanel && widgetPanel.classList.contains("visible")) {
+                                sendNeuroExpertGoal("open");
+                            }
+                        });
+                    }
+                });
+                window.addEventListener("message", function(event) {
+                    if (event.origin !== "https://expert.yandex.ru") {
+                        return;
+                    }
+                    var action = iframeActionMap[event.data && event.data.type];
+                    if (action) {
+                        sendNeuroExpertGoal(action);
+                    }
+                });
+            })();
         </script>
     </body>
 </html>"

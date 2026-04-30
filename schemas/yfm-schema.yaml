@@ -718,10 +718,10 @@ definitions:
             - type: boolean
       type:
         type: string
-        enum: ['default', 'search']
+        enum: ['widget', 'search']
         description: >
           Widget integration type.
-          default — floating widget initialized on page load.
+          widget — floating widget initialized on page load.
           search — widget activated via search suggest button.
     additionalProperties: false
 

@@ -30,6 +30,7 @@ export function getNeuroExpertScript(
     projectId: string,
     neuroExpert: NeuroExpertBase,
     customLabel?: string,
+    metrikaIds?: number[],
 ): string {
     const settings = {
         projectId,
@@ -40,6 +41,8 @@ export function getNeuroExpertScript(
 
     const neuroExpertScriptUrl =
         'https://yastatic.net/s3/distribution/stardust/neuroexpert-widget/production/neuroexpert-widget.js';
+
+    const initType = neuroExpert.type ?? 'widget';
 
     if (neuroExpert.type === 'search') {
         const iframeUrl = `https://expert.yandex.ru/expert/projects/${projectId}/iframe`;
@@ -59,6 +62,8 @@ export function getNeuroExpertScript(
             document.body.appendChild(neuroExpertScript);
         `;
     }
+
+    const metricsScript = getNeuroExpertMetricsScript(initType, metrikaIds);
 
     return dedent`
         const neuroExpertScript = document.createElement('script');
@@ -85,5 +90,59 @@ export function getNeuroExpertScript(
         };
 
         document.body.appendChild(neuroExpertScript);
+
+        ${metricsScript}
+    `;
+}
+
+function getNeuroExpertMetricsScript(initType: string, metrikaIds?: number[]): string {
+    const idsJson = JSON.stringify(metrikaIds ?? []);
+
+    return dedent`
+        (function() {
+            var neuroExpertMetrikaIds = ${idsJson};
+            var neuroExpertInitType = "${initType}";
+            var iframeActionMap = {
+                "message-sent": "message"
+            };
+
+            function sendNeuroExpertGoal(action) {
+                if (typeof ym === "undefined" || !neuroExpertMetrikaIds.length) {
+                    return;
+                }
+
+                var params = {
+                    action: action,
+                    initType: neuroExpertInitType
+                };
+
+                for (var i = 0; i < neuroExpertMetrikaIds.length; i++) {
+                    ym(neuroExpertMetrikaIds[i], "reachGoal", "DOCS_NEUROEXPERT_ACTION", params);
+                }
+            }
+
+            neuroExpertDiv.addEventListener("click", function(e) {
+                if (e.target.closest(".toggle-button")) {
+                    requestAnimationFrame(function() {
+                        var widgetPanel = neuroExpertDiv.querySelector(".widget");
+                        if (widgetPanel && widgetPanel.classList.contains("visible")) {
+                            sendNeuroExpertGoal("open");
+                        }
+                    });
+                }
+            });
+
+            window.addEventListener("message", function(event) {
+                if (event.origin !== "https://expert.yandex.ru") {
+                    return;
+                }
+
+                var action = iframeActionMap[event.data && event.data.type];
+
+                if (action) {
+                    sendNeuroExpertGoal(action);
+                }
+            });
+        })();
     `;
 }
