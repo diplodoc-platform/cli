@@ -17,28 +17,6 @@ import {options} from './config';
 const STATS_FILENAME = 'yfm-build-stats.json';
 const SCHEMA_VERSION = 1;
 
-// Top-level boolean toggles we surface in the report. New flags can be appended
-// without breaking consumers — anything not listed here is just ignored.
-const KNOWN_FEATURE_FLAGS = [
-    'addAlternateMeta',
-    'addMapFile',
-    'addMetadataMeta',
-    'addResourcesMeta',
-    'addSystemMeta',
-    'allowHtml',
-    'buildManifest',
-    'contributors',
-    'crawlerManifest',
-    'mergeIncludes',
-    'pdfDebug',
-    'rawAddMeta',
-    'removeEmptyTocItems',
-    'removeHiddenTocItems',
-    'sanitizeHtml',
-    'singlePage',
-    'staticContent',
-] as const;
-
 type CountByKey = Record<string, number>;
 
 type OutputInfo = {
@@ -236,12 +214,16 @@ export class BuildStats {
     }
 }
 
-function toLangCode(lang: string | {lang: string}): string {
+export function toLangCode(lang: string | {lang: string}): string {
     return typeof lang === 'string' ? lang : lang.lang;
 }
 
-function collectFeatures(config: Hash<unknown>): string[] {
-    return KNOWN_FEATURE_FLAGS.filter((flag) => config[flag] === true);
+// Surface every config field that resolved to literal `true`. No whitelist —
+// whatever flags the user (or defaults) turned on shows up here.
+export function collectFeatures(config: Hash<unknown>): string[] {
+    return Object.keys(config)
+        .filter((key) => config[key] === true)
+        .sort();
 }
 
 function countMissed(run: Run): number {
@@ -255,7 +237,7 @@ function countMissed(run: Run): number {
     return count;
 }
 
-function stableStringify(value: unknown): string {
+export function stableStringify(value: unknown): string {
     if (value === null || typeof value !== 'object') {
         return JSON.stringify(value) ?? 'null';
     }
@@ -272,12 +254,25 @@ function stableStringify(value: unknown): string {
     );
 }
 
-function hashConfig(config: unknown): string {
+export function hashConfig(config: unknown): string {
     return createHash('sha256').update(stableStringify(config)).digest('hex').slice(0, 16);
 }
 
+const EMPTY_OUTPUT: OutputInfo = {
+    files: 0,
+    totalBytes: 0,
+    bytesByExtension: {},
+    largestFile: null,
+};
+
 async function readOutputSize(run: Run): Promise<OutputInfo> {
-    const files = await run.glob('**/*', {cwd: run.output});
+    let files: NormalizedPath[];
+    try {
+        files = await run.glob('**/*', {cwd: run.output});
+    } catch (error) {
+        run.logger.warn(`BuildStats: failed to glob output directory: ${error}`);
+        return EMPTY_OUTPUT;
+    }
 
     let totalBytes = 0;
     let largestFile: OutputInfo['largestFile'] = null;

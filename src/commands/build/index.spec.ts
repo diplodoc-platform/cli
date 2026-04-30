@@ -673,6 +673,8 @@ describe('Build command', () => {
 
         testBooleanFlag('originAsInput', '--origin-as-input', false);
 
+        testBooleanFlag('buildStats', '--build-stats', false);
+
         testBooleanFlag('copyOnWrite', '--copy-on-write', true);
 
         test(
