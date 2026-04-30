@@ -1,0 +1,58 @@
+allowHtml: true
+langs: ['fr', 'en', 'es', 'ru', {'lang': 'tr', 'tld': 'tr' }, {'lang': 'tr-AZ', 'tld': 'az' }, {'lang': 'de', 'href': 'https://example.com' }]
+buildManifest: true
+
+mtimes: true
+authors: true
+vcs: true
+
+extensions:
+  - arcadia-vcs
+
+pages:
+  accessDenied:
+    default:
+      text: "Дефолтный текст 403\n\nВторая строка"
+      accessText: "Custom link"
+      accessUrl: https://example.com
+    en:
+      text: "Ooops, access denied"
+      redirectUrl: en/syntax/media
+  notFound:
+    default:
+      text: "Дефолтный текст 404"
+    en:
+      text: "Ooops, page not found"
+
+neuroExpert:
+  projectId:
+    en: false
+    ru: 77fac9c9ad9811f0997f4641db830dfd
+    default: 77fac9c9ad9811f0997f4641db830dfd
+  hasOutsideClick: true
+  disabled: false
+
+yafeedback:
+  ownerId:
+    en: false
+    ru: 8a30cafa-2d59-4368-a5db-553633c49b26
+    default: 8a30cafa-2d59-4368-a5db-553633c49b26
+  disabled: false
+
+aiChat:
+  requestExamples:
+    en: false
+    ru: ['Request 1', 'Как создать документацию?']
+    default: false
+  soTags: ['alice', 'scotty']
+
+docs-viewer:
+  project-name: yfm-test-doc123
+  langs: ['fr', 'en', 'es', 'ru']
+  themes: ['dark']
+
+  releasers:
+    - martyanov-av
+
+  startrek:
+    queue: TESTTESTABC

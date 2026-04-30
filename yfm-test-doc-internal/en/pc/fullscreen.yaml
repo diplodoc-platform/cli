@@ -1,0 +1,283 @@
+fullScreen: true
+blocks:
+  - type: 'header-block'
+    width: 's'
+    offset: 'default'
+    title: 'Diplodoc'
+    resetPaddings: true
+    verticalOffset: 'l'
+    description: 'Платформа для создания технической документации в концепции Docs as Сode с открытым исходным кодом. Простое и удобное решение для развёртывания документации больших и маленьких команд.'
+    background:
+      image:
+        mobile: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-cover-mini.png'
+        desktop: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-cover.png'
+      color: '#C6FE4D'
+      fullWidth: false
+#      fullWidthMedia: true
+    buttons:
+      - text: 'Начать'
+        primary: true
+        theme: 'outlined'
+        size: 'promo'
+        url: '/'
+      - text: 'GitHub'
+        primary: true
+        theme: 'outlined'
+        size: 'promo'
+        url: 'https://github.com/diplodoc-platform'
+
+  - type: 'extended-features-block'
+    title:
+      text: 'Преимущества платформы'
+    items:
+      - title: 'Простота использования'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-1.svg'
+        text: 'Работа с документами как с кодом: в привычной среде и с минимальными усилиями по развёртыванию и поддержке.'
+      - title: 'Скорость работы'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-2.svg'
+        text: 'Быстрая сборка, валидация и выкладка документации любого размера. Полная интеграция в существующие CI/CD-системы для ускорения работы.'
+      - title: 'Общепринятый формат Markdown'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-3.svg'
+        text: 'Простой, понятный и широко распространенный синтаксис с поддержкой базового Markdown. Концентрируйтесь на контенте, а не на том, как доставить его до пользователя.'
+      - title: 'Обширная функциональность'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-4.svg'
+        text: 'Создание документов любой сложности, в том числе генерация из единого источника и работа с переменными. Широкие возможности по кастомизации и отображению гарантируют удовлетворённость конечных пользователей.'
+      - title: 'Интеграция с системами автоматической документации'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-5.svg'
+        text: 'Поддержка широко распространённой OpenAPI-спецификации «из коробки». Обеспечение работы специализированных систем через интерфейс подключаемых внешних документов.'
+      - title: 'Интегрированный поиск'
+        icon: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-icon-6.svg'
+        text: 'Самый частотный пользовательский сценарий по поиску документов на базе платформы без дополнительных затрат и усилий по поддержке.'
+
+  - type: 'filter-block'
+    centered: true
+    title:
+      text: 'Нам доверяют'
+    tags:
+      - id: 'one'
+        label: 'DoubleСloud'
+      - id: 'two'
+        label: 'Yandex Support'
+      - id: 'three'
+        label: 'Yandex Cloud'
+      - id: 'four'
+        label: 'YDB'
+      - id: 'five'
+        label: 'CatBoost'
+    colSizes:
+      all: 12
+      xl: 12
+      md: 12
+      sm: 12
+    items:
+      - tags:
+          - 'one'
+        card:
+          type: 'layout-item'
+          media:
+            image: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/diplodoc-tab-1.png'
+          border: true
+          content:
+            links:
+              - text: 'Посмотреть документацию'
+                url: 'https://double.cloud/docs/en/'
+                theme: 'normal'
+                arrow: true
+                color: #54BA7E
+
+      - tags:
+          - 'two'
+        card:
+          type: 'layout-item'
+          media:
+            image: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-trust-support.png'
+          border: true
+          content:
+            links:
+              - text: 'Посмотреть документацию'
+                url: 'https://yandex.ru/support2/audience/ru/'
+                theme: 'normal'
+                arrow: true
+                color: #54BA7E
+      - tags:
+          - 'three'
+        card:
+          type: 'layout-item'
+          media:
+            image: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/ddos-index-trust-yandex-cloud.png'
+          border: true
+          content:
+            links:
+              - text: 'Посмотреть документацию'
+                url: 'https://cloud.yandex.ru/docs/compute/'
+                theme: 'normal'
+                arrow: true
+                color: #54BA7E
+      - tags:
+          - 'four'
+        card:
+          type: 'layout-item'
+          media:
+            image: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/ddos-index-trust-ydb.png'
+          border: true
+          content:
+            links:
+              - text: 'Посмотреть документацию'
+                url: 'https://ydb.tech/en/docs/'
+                theme: 'normal'
+                arrow: true
+                color: #54BA7E
+      - tags:
+          - 'five'
+        card:
+          type: 'layout-item'
+          media:
+            image: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/ddos-index-trust-yandex-cat.png'
+          border: true
+          content:
+            links:
+              - text: 'Посмотреть документацию'
+                url: 'https://catboost.ai/en/docs/'
+                theme: 'normal'
+                arrow: true
+                color: #54BA7E
+
+  - type: 'card-layout-block'
+    title: 'Как это работает?'
+    colSizes:
+      all: 12
+      md: 4
+      sm: 6
+    children:
+      - type: 'layout-item'
+        content:
+          title: 'Архитектура'
+          text: 'Платформа Diplodoc имеет клиент-серверную архитектуру: серверная часть состоит из компонентов на Node.js, которые генерируют и отображают документационные проекты. Такая архитектура обеспечивает надёжность и горизонтальное масштабирование в случае необходимости.  '
+        media:
+          image: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-item-01-01.png'
+        fullScreen: true
+        border: true
+        disableCompress: true
+      - type: 'layout-item'
+        content:
+          title: 'Интеграция с GitHub'
+          text: 'Платформа Diplodoc имеет сквозную интеграцию с GitHub для обеспечения простого и стабильного механизма сборки и развёртывания документационных проектов. GitHub используется как хранилище исходного кода для документов и исполнения пайплайна проекта.'
+        media:
+          image: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-item-01-02.png'
+        fullScreen: true
+        border: true
+        disableCompress: true
+      - type: 'layout-item'
+        content:
+          title: 'Развёртывание'
+          text: 'Компании – пользователи сервиса Diplodoc используют встроенные механизмы выкладки документационного проекта с последующей их индексацией и отслеживанием версий. Документы могут обновляться как в автоматическом, так и в полуавтоматическом режиме с привлечением администратора со стороны пользователя.'
+        media:
+          image: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-item-01-03.png'
+        fullScreen: true
+        border: true
+        disableCompress: true
+
+  - type: playground
+    title: 'Создайте свой документ c Yandex Flavored Markdown'
+    content: |-
+      #### YFM синтаксис
+
+      Синтаксис Yandex Flavored Markdown базируется на CommonMark Spec,
+      дополняя его уникальными элементами из других языков разметки и
+      шаблонизаторов. В частности:
+
+      ---
+
+      #### Каты
+
+      {% cut "Заголовок ката" %}
+
+      Контент, который отобразится по нажатию.
+
+      {% endcut %}
+
+      ---
+
+      #### Табы
+
+      {% list tabs %}
+
+      - Название таба1
+
+        Текст таба1.
+
+         * Можно использовать списки.
+
+         * И **другую** разметку.
+
+      - Название таба2
+
+        Текст таба2.
+
+      {% endlist %}
+
+      ---
+
+      #### Заметки
+
+      {% note tip %}
+
+      Еще больше примеров синтаксиса в нашей [документации](https://ydocs.tech/en/)
+
+      {% endnote %}
+    animated: false
+
+  - type: 'card-layout-block'
+    title: 'Как попробовать Diplodoc'
+    children:
+      - type: 'background-card'
+        title: 'Обсудить пилотный проект'
+        text: 'Расскажите нам про свой проект и пожелания — команда Diplodoc поможет вам сделать документацию.'
+        background:
+          src: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-card-01.png'
+          disableCompress: true
+        paddingBottom: 'm'
+        buttons:
+          - text: 'Связаться с нами'
+            theme: 'outlined'
+            url: '/#contact'
+        border: none
+      - type: 'background-card'
+        title: 'Попробовать самостоятельно'
+        text: 'Создайте и опубликуйте проект документации для вашего продукта.'
+        background:
+          src: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-card-02.png'
+          disableCompress: true
+        paddingBottom: 'm'
+        buttons:
+          - text: 'Открыть онлайн-демо'
+            theme: 'outlined'
+            url: 'https://github.com/codespaces/new?repo=688437532'
+        border: none
+      - type: 'background-card'
+        title: 'Посмотреть проект на GitHub'
+        text: 'Мы выложили исходный код нашей платформы в открытый доступ. Вы можете помочь нам стать лучше.'
+        background:
+          src: 'https://storage.yandexcloud.net/diplodoc-www-assets/pages/index-diplodoc/ddos-index-card-03.png'
+          disableCompress: true
+        paddingBottom: 'm'
+        buttons:
+          - text: 'Перейти на GitHub'
+            theme: 'raised'
+            url: 'https://github.com/diplodoc-platform'
+        theme: 'dark'
+        border: none
+
+  - type: 'icons-block'
+    size: 'm'
+    title: 'Присоединяйтесь к сообществу'
+    items:
+      - src: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/github.svg'
+        text: 'GitHub'
+        url: 'https://github.com/diplodoc-platform'
+      - src: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/telegram.svg'
+        text: 'Telegram'
+        url: 'https://t.me/diplodoc_ru'
+      - src: 'https://storage.yandexcloud.net/cloud-www-assets/pages/index-diplodoc/stackoverflow.svg'
+        text: 'Stack Overflow'
+        url: 'https://stackoverflow.com/tags/diplodoc'

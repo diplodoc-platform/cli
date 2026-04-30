@@ -1,0 +1,68 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+paths:
+  /test:
+    get:
+      tags:
+      - test-controller
+      summary: Simple get operation. тест новой верстки 3
+      description: Defines a simple get operation with no inputs and a complex
+      operationId: getWithPayloadResponse
+      responses:
+        "200":
+          description: 200!!!!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SampleResponseSchemaImpl'
+components:
+  schemas:
+    Cat:
+      type: object
+      properties:
+        type:
+          type: string
+        foo:
+          type: string
+      description: Cat class
+    Dog:
+      type: object
+      properties:
+        type:
+          type: string
+        bar:
+          type: string
+      description: Dog class
+    Pet:
+      type: object
+      properties:
+        type:
+          type: string
+      description: Superclass
+      oneOf:
+      - $ref: '#/components/schemas/Cat'
+      - $ref: '#/components/schemas/Dog'
+    SampleResponseSchemaImpl:
+      type: object
+      properties:
+        age1:
+          type: integer
+          format: int32
+        age2:
+          type: integer
+          format: int32
+        pet:
+          type: object
+          properties:
+            type:
+              type: string
+          description: Superclass
+          oneOf:
+          - $ref: '#/components/schemas/Cat'
+          - $ref: '#/components/schemas/Dog'
+      description: SampleResponseSchemaImplDescription

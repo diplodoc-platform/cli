@@ -1,0 +1,39 @@
+title: Test123
+href: index.md
+items:
+  - name: Syntax
+    items:
+      - name: Tables
+        items:
+          - name: GFM Tables
+            href: syntax/tables/gfm.md
+          - name: Multiline tables
+            href: syntax/tables/multiline.md
+      - name: Code snippets
+        href: syntax/code.md
+      - name: Definition
+        href: syntax/term.md
+      - name: Media
+        href: syntax/media.md
+      - name: Cuts and tabs
+        href: syntax/cuts-tabs.md
+      - name: Additional features
+        href: syntax/additional.md
+  - name: Get started
+    href: index.md
+  - name: Get started 2
+    href: page.md
+  - name: Mermaid
+    href: mermaid.md
+  - name: Test redirects
+    items:
+      - name: From redirect
+        href: test-redirects/from-redirect.md
+      - name: From redirect with no-index
+        href: test-redirects/from-redirect-with-no-index.md
+      - name: From redirect with no-index 2
+        href: test-redirects/from-redirect-with-no-index-2.md
+      - name: To redirect
+        href: test-redirects/to-redirect.md
+      - name: To redirect with no-index
+        href: test-redirects/to-redirect-with-no-index.md

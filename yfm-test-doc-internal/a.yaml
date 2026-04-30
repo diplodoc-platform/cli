@@ -1,0 +1,18 @@
+title: Deploy TEST docs
+service: docstools
+
+ci:
+  includes:
+    docs: ci/registry/common/docs/docs.a.yaml
+
+  extends: "docs#/any/default-config"
+
+  secret: sec-01drh3z694nqvd4wa9qwc0y39z
+  runtime:
+    sandbox:
+      owner: DOCS_TO_YFM
+
+  actions:
+    precommit:
+      flow-vars:
+        docs_autorelease: true

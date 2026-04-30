@@ -1,0 +1,2 @@
+log-levels:
+  YAML001: 'warn'

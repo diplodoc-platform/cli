@@ -1,0 +1,247 @@
+meta:
+  title: Yandex Open Source | Наши проекты
+  description: 'В Яндексе мы разрабатываем и развиваем технологические решения самых разных сфер применения, размеров и сложности. Поэтому и в открытый доступ попадают самые разные проекты — главное, чтобы они приносили пользу не только нам, но и другим.'
+  sharing:
+    title: Yandex Open Source | Наши проекты
+    description: 'В Яндексе мы разрабатываем и развиваем технологические решения самых разных сфер применения, размеров и сложности. Поэтому и в открытый доступ попадают самые разные проекты — главное, чтобы они приносили пользу не только нам, но и другим.'
+    image: 'https://storage.yandexcloud.net/yandex-opensource/sharings/yos-share-ru.png'
+    keywords:
+      - yandex
+      - opensource
+
+blocks:
+  - type: header-block
+    title: "Наши проекты"
+    description: 'В Яндексе мы разрабатываем и развиваем технологические решения самых разных сфер применения, размеров и сложности. Поэтому и в открытый доступ попадают самые разные проекты — главное, чтобы они приносили пользу не только нам, но и другим.'
+    width: s
+    verticalOffset: l
+    offset: default
+    resetPaddings: true
+    breadcrumbs:
+      items:
+        - url: '/'
+          text: 'На главную'
+    background:
+      fullWidth: false
+      image: https://storage.yandexcloud.net/yandex-opensource/pages/projects/yos-projects-cover.png
+      color: '#EFF2F8'
+
+  - type: "card-layout-block"
+    indent:
+      top: 'm'
+    title: ''
+    description: ''
+    colSizes:
+      all: 12
+      lg: 4
+      md: 4
+      sm: 12
+    anchor:
+      url: "projects"
+      text: "projects"
+    children:
+
+      - type: 'background-card'
+        title: 'YDB'
+        text: 'Отказоустойчивая распределённая SQL база данных. Позволяет обрабатывать миллионы запросов в секунду и создавать сервисы, способные выдерживать большую операционную нагрузку. В опенсорсе с 2022 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://ydb.tech/ru'
+            theme: 'raised'
+          - text: 'GitHub'
+            url: 'https://github.com/ydb-platform'
+            theme: 'outlined-contrast'
+        backgroundColor: '#2399FF'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-ydb.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: dark
+
+      - type: 'background-card'
+        title: 'YTsaurus'
+        text: 'Масштабируемая и отказоустойчивая платформа для распределённого хранения и обработки больших данных. Позволяет выполнять все виды обработки данных, в том числе машинное обучение на GPU. В опенсорсе с 2023 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://ytsaurus.tech/ru'
+            theme: 'monochrome'
+          - text: 'GitHub'
+            url: 'https://github.com/ytsaurus/ytsaurus'
+            theme: 'outlined'
+        backgroundColor: '#FFB23E'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-yt.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'Gravity UI'
+        text: 'Набор библиотек и компонент для создания современных интерфейсов сервисов, лендингов, дашбордов и визуализаций. В опенсорсе с 2023 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://gravity-ui.com/'
+            theme: 'raised'
+          - text: 'GitHub'
+            url: 'https://github.com/gravity-ui'
+            theme: 'outlined-contrast'
+        backgroundColor: '#262626'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-gui.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: dark
+
+      - type: 'background-card'
+        title: 'DivKit'
+        text: 'Фреймворк для создания server‑driven интерфейсов. Позволяет создавать интерфейсы для всех платформ в одном месте и менять их без обновления приложений. В опенсорсе с 2022 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://divkit.tech/ru/'
+            theme: 'monochrome'
+          - text: 'GitHub'
+            url: 'https://github.com/divkit/divkit'
+            theme: 'outlined'
+        backgroundColor: '#F1F1F1'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-dk.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'Diplodoc'
+        text: 'Платформа для написания технической документации в концепции Docs as Code. Использует общепринятый синтаксис Markdown. В опенсорсе с 2023 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://diplodoc.com/'
+            theme: 'monochrome'
+          - text: 'GitHub'
+            url: 'https://github.com/diplodoc-platform'
+            theme: 'outlined'
+        backgroundColor: '#79F985'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-dd.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'CatBoost'
+        text: 'Библиотека для градиентного бустинга на дереве решений. Подходит для ранжирования, классификации, регрессии и других задач машинного обучения. В опенсорсе с 2017 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://catboost.ai/'
+            theme: 'monochrome'
+          - text: 'GitHub'
+            url: 'https://github.com/catboost/catboost'
+            theme: 'outlined'
+        backgroundColor: '#FFD426'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-cb.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'userver'
+        text: 'Асинхронный фреймворк для создания высоконагруженных приложений. Позволяет быстро создавать эффективные микросервисы на языке C++. В опенсорсе с 2022 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://userver.tech/'
+            theme: 'monochrome'
+          - text: 'GitHub'
+            url: 'https://github.com/userver-framework/userver'
+            theme: 'outlined'
+        backgroundColor: '#FF9D73'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-u.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'DataLens'
+        text: 'BI-платформа для визуализации и аналитики данных. В опенсорсе с 2023 года.'
+        buttons:
+          - text: 'Сайт'
+            url: 'https://datalens.tech/'
+            theme: 'raised'
+          - text: 'GitHub'
+            url: 'https://github.com/datalens-tech/datalens'
+            theme: 'outlined-contrast'
+        backgroundColor: '#FF7132'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-dl.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: dark
+
+      - type: 'background-card'
+        title: 'YaLM 100B'
+        text: 'Языковая модель семейства YaLM на 100 миллиардов параметров. Подходит для генерации и анализа текста. В опенсорсе с 2022 года.'
+        buttons:
+          - text: 'GitHub'
+            url: 'https://github.com/yandex/YaLM-100B'
+            theme: 'monochrome'
+        backgroundColor: '#FFD426'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-yalm.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: light
+
+      - type: 'background-card'
+        title: 'Yatagan'
+        text: 'Фреймворк для внедрения зависимостей, который позволяет ускорить сборку Android‑приложений. Создан на основе Dagger2 API — аналогичного открытого решения от Google. В опенсорсе с 2022 года.'
+        buttons:
+          - text: 'GitHub'
+            url: 'https://github.com/yandex/yatagan'
+            theme: 'raised'
+        backgroundColor: '#3F70EF'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-yatagan.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: dark
+
+      - type: 'background-card'
+        title: 'Scout'
+        text: 'Библиотека для внедрения зависимостей в проектах на Kotlin. Разрабатывается для приложения Яндекс Маркета на Android. В опенсорсе с 2023 года.'
+        buttons:
+          - text: 'GitHub'
+            url: 'https://github.com/yandex/scout'
+            theme: 'raised'
+        backgroundColor: '#1D1D1D'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-scout.png'
+          alt: 'card-background'
+        paddingBottom: 'm'
+        theme: dark
+
+      - type: 'background-card'
+        title: 'Больше наших проектов ищите на GitHub'
+        text: ''
+        buttons:
+          - text: 'GitHub'
+            url: 'https://github.com/orgs/yandex/repositories?type=all'
+            theme: monochrome
+        backgroundColor: '#F1F1F1'
+        background:
+          src: 'https://storage.yandexcloud.net/yandex-opensource/pages/projects/os-projects-card-yandex.png'
+          alt: 'card-background'
+        paddingBottom: 'l'
+        theme: light
+
+  - type: 'content-layout-block'
+    size: 'l'
+    centered: true
+    textContent:
+      title: ''
+      text: ''
+      additionalInfo: ''
+      buttons:
+        - text: 'Сделано на GravityUI'
+          theme: 'monochrome'
+          img: 'https://storage.yandexcloud.net/cloud-www-assets/pages/open-source/open-source-gravity-ui-button.svg'
+          url: 'https://gravity-ui.com/'

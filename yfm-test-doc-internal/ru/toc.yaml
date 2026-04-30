@@ -1,0 +1,74 @@
+title: Test123 internal
+href: index.md
+items:
+  - name: Синтаксис
+    href: syntax/index.md
+    items:
+      - name: Таблицы
+        items:
+          - name: GFM Tables
+            href: syntax/tables/gfm.md
+          - name: Многострочные таблицы
+            href: syntax/tables/multiline.md
+      - name: Фрагменты кода
+        href: syntax/code.md
+      - name: Определения
+        href: syntax/term.md
+      - name: Каты и табы
+        href: syntax/cuts-tabs.md
+  - name: Как начать
+    href: index.md
+  - name: Download link
+    href: download_link.md
+  - name: Как начать 2
+    href: page.md
+  - name: Aboba
+    href: aboba.md
+  - name: Restricted Access
+    restricted-access:
+      - user
+    items:
+      - name: Test user old style
+        restricted-access: user
+        href: ra-old.md
+      - name: Test user string
+        restricted-access: user
+        href: ra-string.md
+      - name: Test user array
+        restricted-access:
+          - user
+          - admin
+        href: ra-array.md
+  - name: Lorem
+    href: lorem.md
+  - name: Code include
+    href: code_include.md
+  - name: Page constructor
+    items:
+      - name: Старая разводящая
+        href: pc/index.yaml
+      - name: Diplodoc
+        href: pc/diplodoc.yaml
+      - name: Opensource
+        href: pc/opensource.yaml
+      - name: Fullscreen
+        href: pc/fullscreen.yaml
+      - name: Image Cards (hydration test)
+        href: pc/image-cards.md
+      - name: Animated Cards (hydration test)
+        href: pc/animated-cards.md
+      - name: Mixed Blocks (hydration test)
+        href: pc/mixed-blocks.md
+  - name: Тест HTML
+    items:
+      - name: Page Constructor
+        href: test-html/test-pc.yaml
+      - name: Markdown
+        href: test-html/test-md.md
+  - name: openapi
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: ru/openapi.yaml
+      mode: link

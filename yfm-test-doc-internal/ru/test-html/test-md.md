@@ -1,0 +1,18 @@
+<a href="https://example.com">Test 1</a>
+
+::: page-constructor
+blocks:
+  - type: header-block
+    title: '<a href="https://example.com">Test 2</a>'
+    description: 'Description'
+
+  - type: icons-block
+    title: 'Links and assets test'
+    items:
+      - src: ../_images/mountain.jpg
+        text: 'Local image asset'
+        url: ../index.md
+      - src: ../_images/mountain.jpg
+        text: 'External link'
+        url: https://example.com
+:::
