@@ -1,0 +1,69 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1`] = `
+{
+  "build": {
+    "configHash": "<NORMALIZED>",
+    "durationMs": "<NUMBER>",
+    "features": [
+      "allowHtml",
+      "buildStats",
+      "sanitizeHtml",
+      "staticContent",
+    ],
+    "finishedAt": "<NORMALIZED>",
+    "inputDir": "<NORMALIZED>",
+    "langs": [
+      "en",
+      "ru",
+    ],
+    "outputDir": "<NORMALIZED>",
+    "outputFormat": "html",
+    "phasesMs": {
+      "entries": "<NUMBER>",
+      "finalize": "<NUMBER>",
+      "prepare": "<NUMBER>",
+    },
+    "startedAt": "<NORMALIZED>",
+    "worker": {
+      "maxOldSpace": 0,
+    },
+  },
+  "cli": {
+    "arch": "<NORMALIZED>",
+    "node": "<NORMALIZED>",
+    "osRelease": "<NORMALIZED>",
+    "platform": "<NORMALIZED>",
+    "version": "<NORMALIZED>",
+  },
+  "counters": {
+    "entriesByExtension": {
+      ".md": 2,
+      ".yaml": 1,
+    },
+    "entriesByLang": {
+      "en": 2,
+      "ru": 1,
+    },
+    "entriesPlanned": 0,
+    "entriesProcessed": 3,
+    "errors": 0,
+    "missed": 0,
+    "tocs": 0,
+    "warnings": 0,
+  },
+  "output": {
+    "bytesByExtension": {
+      ".css": 512,
+      ".html": 6144,
+    },
+    "files": 4,
+    "largestFile": {
+      "bytes": 4096,
+      "path": "en/guide.html",
+    },
+    "totalBytes": 6656,
+  },
+  "schemaVersion": 1,
+}
+`;

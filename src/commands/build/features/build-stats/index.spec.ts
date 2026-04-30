@@ -1,96 +1,131 @@
-import {describe, expect, it} from 'vitest';
+import type {BuildConfig} from '../..';
+import type {Stats} from 'node:fs';
+import type {FullTap} from 'tapable';
 
-import {collectFeatures, hashConfig, stableStringify, toLangCode} from './index';
+import {describe, expect, it, vi} from 'vitest';
+import {when} from 'vitest-when';
 
-describe('Build stats feature', () => {
+import {getHooks as getBaseHooks} from '~/core/program';
+
+import {setupRun} from '../../__tests__';
+import {getHooks as getBuildHooks} from '../../hooks';
+import {Build} from '../..';
+
+import {BuildStats, collectFeatures, hashConfig} from './index';
+
+describe('BuildStats', () => {
     describe('collectFeatures', () => {
-        it('returns enabled boolean flags sorted alphabetically', () => {
+        it('returns config keys with literal `true`, sorted, ignoring truthy non-`true` values', () => {
             const features = collectFeatures({
                 singlePage: true,
                 staticContent: true,
                 addMapFile: true,
+                allowHtml: 1, // truthy but not `true`
+                sanitizeHtml: 'yes', // string
+                contributors: false,
+                lint: {enabled: true}, // nested — top-level only
             });
 
             expect(features).toEqual(['addMapFile', 'singlePage', 'staticContent']);
         });
-
-        it('skips flags that are not strictly `true`', () => {
-            const features = collectFeatures({
-                singlePage: true,
-                staticContent: false,
-                addMapFile: 1, // truthy but not `true`
-                allowHtml: 'yes', // string
-                neuroExpert: undefined,
-                contributors: null,
-                lint: {enabled: true}, // nested object — top-level only
-            });
-
-            expect(features).toEqual(['singlePage']);
-        });
-
-        it('returns empty array when nothing is enabled', () => {
-            expect(collectFeatures({})).toEqual([]);
-            expect(
-                collectFeatures({
-                    addMapFile: false,
-                    singlePage: false,
-                }),
-            ).toEqual([]);
-        });
-    });
-
-    describe('stableStringify', () => {
-        it('produces the same output regardless of key insertion order', () => {
-            const a = stableStringify({b: 1, a: 2, c: 3});
-            const b = stableStringify({c: 3, a: 2, b: 1});
-
-            expect(a).toBe(b);
-            expect(a).toBe('{"a":2,"b":1,"c":3}');
-        });
-
-        it('sorts keys recursively in nested objects', () => {
-            const out = stableStringify({outer: {z: 1, a: 2}});
-
-            expect(out).toBe('{"outer":{"a":2,"z":1}}');
-        });
-
-        it('preserves array order', () => {
-            expect(stableStringify([3, 1, 2])).toBe('[3,1,2]');
-        });
-
-        it('handles primitives and null', () => {
-            expect(stableStringify(null)).toBe('null');
-            expect(stableStringify('x')).toBe('"x"');
-            expect(stableStringify(42)).toBe('42');
-            expect(stableStringify(true)).toBe('true');
-        });
-
-        it('serializes undefined as null', () => {
-            expect(stableStringify(undefined)).toBe('null');
-        });
     });
 
     describe('hashConfig', () => {
-        it('returns a stable 16-char hex digest for equal configs', () => {
-            const hashA = hashConfig({a: 1, b: 2});
-            const hashB = hashConfig({b: 2, a: 1});
-
-            expect(hashA).toBe(hashB);
-            expect(hashA).toMatch(/^[0-9a-f]{16}$/);
+        it('is stable across key insertion order', () => {
+            expect(hashConfig({b: 1, a: 2, c: [1, 2]})).toBe(hashConfig({c: [1, 2], a: 2, b: 1}));
         });
 
-        it('produces different digests for different configs', () => {
+        it('changes when any value changes', () => {
             expect(hashConfig({a: 1})).not.toBe(hashConfig({a: 2}));
         });
     });
 
-    describe('toLangCode', () => {
-        it('returns the string as-is when given a string', () => {
-            expect(toLangCode('en')).toBe('en');
-        });
+    describe('snapshot', () => {
+        it('emits a stable JSON shape for a typical build', async () => {
+            const build = new Build();
+            new BuildStats().apply(build);
 
-        it('extracts the lang field from an extended-lang object', () => {
-            expect(toLangCode({lang: 'ru', tld: 'ru'} as {lang: string})).toBe('ru');
+            const run = setupRun({
+                buildStats: true,
+                outputFormat: 'html',
+                langs: ['en', 'ru'],
+                staticContent: true,
+                allowHtml: true,
+                sanitizeHtml: true,
+                workerMaxOldSpace: 0,
+            } as unknown as BuildConfig);
+
+            when(run.glob)
+                .calledWith('**/*', expect.anything())
+                .thenResolve([
+                    'en/index.html',
+                    'en/guide.html',
+                    'ru/index.html',
+                    'assets/style.css',
+                ] as NormalizedPath[]);
+
+            const sizes: Record<string, number> = {
+                'en/index.html': 1024,
+                'en/guide.html': 4096,
+                'ru/index.html': 1024,
+                'assets/style.css': 512,
+            };
+            vi.spyOn(run.fs, 'stat').mockImplementation((async (path: string) => {
+                const key = Object.keys(sizes).find((k) => path.endsWith(k));
+                return {size: key ? sizes[key] : 0} as Stats;
+            }) as unknown as typeof run.fs.stat);
+
+            let writtenJson: string | undefined;
+            vi.spyOn(run, 'write').mockImplementation(async (path, content) => {
+                if (String(path).endsWith('yfm-build-stats.json')) {
+                    writtenJson = content;
+                }
+            });
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+
+            const before = tapByName(getBaseHooks(build).BeforeAnyRun.taps, 'BuildStats');
+            const onEntry = tapByName(getBuildHooks(build).Entry.for('html').taps, 'BuildStats');
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildStats');
+
+            await before(run);
+            await onEntry(run, 'en/index.md' as NormalizedPath, {});
+            await onEntry(run, 'en/guide.yaml' as NormalizedPath, {});
+            await onEntry(run, 'ru/index.md' as NormalizedPath, {});
+            await after(run);
+
+            expect(writtenJson).toBeDefined();
+            expect(sanitize(JSON.parse(writtenJson as string))).toMatchSnapshot();
         });
     });
 });
+
+// Volatile fields are replaced with placeholders so the snapshot only asserts
+// shape and computed values that don't depend on the host or wall clock.
+function sanitize(stats: Hash<unknown>): unknown {
+    const PLACEHOLDER = '<NORMALIZED>';
+    const cli = stats.cli as Hash<unknown>;
+    const _build = stats.build as Hash<unknown>;
+    const phases = _build.phasesMs as Record<string, number | null>;
+
+    return {
+        ...stats,
+        cli: Object.fromEntries(Object.keys(cli).map((k) => [k, PLACEHOLDER])),
+        build: {
+            ..._build,
+            startedAt: PLACEHOLDER,
+            finishedAt: PLACEHOLDER,
+            durationMs: typeof _build.durationMs === 'number' ? '<NUMBER>' : _build.durationMs,
+            phasesMs: Object.fromEntries(
+                Object.entries(phases).map(([k, v]) => [k, v === null ? null : '<NUMBER>']),
+            ),
+            inputDir: PLACEHOLDER,
+            outputDir: PLACEHOLDER,
+            configHash: PLACEHOLDER,
+        },
+    };
+}

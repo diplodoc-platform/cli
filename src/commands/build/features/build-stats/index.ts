@@ -214,7 +214,7 @@ export class BuildStats {
     }
 }
 
-export function toLangCode(lang: string | {lang: string}): string {
+function toLangCode(lang: string | {lang: string}): string {
     return typeof lang === 'string' ? lang : lang.lang;
 }
 
@@ -237,7 +237,7 @@ function countMissed(run: Run): number {
     return count;
 }
 
-export function stableStringify(value: unknown): string {
+function stableStringify(value: unknown): string {
     if (value === null || typeof value !== 'object') {
         return JSON.stringify(value) ?? 'null';
     }
