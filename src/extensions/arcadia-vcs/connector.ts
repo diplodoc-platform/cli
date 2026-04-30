@@ -23,6 +23,8 @@ export class ArcadiaVcsConnector implements VcsConnector {
 
     private run: Run<Config>;
 
+    private arcAvailable = false;
+
     constructor(run: Run<Config>) {
         this.run = run;
         this.config = run.config;
@@ -40,6 +42,7 @@ export class ArcadiaVcsConnector implements VcsConnector {
                     contributors.enabled && this.fillContributors(),
                 ].filter(Boolean),
             );
+            this.arcAvailable = true;
         } catch (error) {
             if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') {
                 this.run.logger.warn(
@@ -67,7 +70,11 @@ export class ArcadiaVcsConnector implements VcsConnector {
         this.contributorsByPath = data.contributors;
     }
 
-    getBase() {
+    async getBase() {
+        if (!this.arcAvailable) {
+            return '.' as NormalizedPath;
+        }
+
         return this.arc.getBase();
     }
 
