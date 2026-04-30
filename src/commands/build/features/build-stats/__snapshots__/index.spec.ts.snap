@@ -37,6 +37,7 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
     "version": "<NORMALIZED>",
   },
   "counters": {
+    "contentBytes": 21,
     "entriesByExtension": {
       ".md": 2,
       ".yaml": 1,
@@ -48,7 +49,14 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
     "entriesPlanned": 0,
     "entriesProcessed": 3,
     "errors": 0,
-    "missed": 0,
+    "graph": {
+      "edges": 3,
+      "entries": 3,
+      "missed": 1,
+      "resources": 1,
+      "sources": 1,
+    },
+    "headings": 5,
     "tocs": 0,
     "warnings": 0,
   },

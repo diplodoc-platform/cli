@@ -1,5 +1,5 @@
 import type {Command} from '~/core/config';
-import type {Build, Run} from '~/commands/build';
+import type {Build, EntryInfo, Run} from '~/commands/build';
 
 import {extname, join} from 'node:path';
 import {arch, platform, release as osRelease} from 'node:os';
@@ -65,7 +65,23 @@ type BuildStatsFormat = {
         entriesProcessed: number;
         entriesByExtension: CountByKey;
         entriesByLang: CountByKey;
-        missed: number;
+        // Sums collected from per-entry `Entry`-hook info. Markdown only —
+        // leading (yaml) entries don't have headings/html.
+        headings: number;
+        contentBytes: number;
+        // Aggregated from `run.entry.relations` after build:
+        //   entries   — pages themselves (md/yaml leading)
+        //   sources   — included markdown files + autotitle link targets
+        //   resources — image/video assets + meta script/style references
+        //   missed    — paths the build tried to read but didn't find
+        //   edges     — total dependency edges (rough connectedness signal)
+        graph: {
+            entries: number;
+            sources: number;
+            resources: number;
+            missed: number;
+            edges: number;
+        };
         warnings: number;
         errors: number;
     };
@@ -92,6 +108,10 @@ export class BuildStats {
     private entriesByExtension: CountByKey = {};
 
     private entriesByLang: CountByKey = {};
+
+    private headings = 0;
+
+    private contentBytes = 0;
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildStats', (command: Command) => {
@@ -123,7 +143,7 @@ export class BuildStats {
             this.startedAt = Date.now();
         });
 
-        const onEntry = (run: Run, entry: NormalizedPath) => {
+        const onEntry = (run: Run, entry: NormalizedPath, info: DeepFrozen<EntryInfo>) => {
             if (!run.config.buildStats) {
                 return;
             }
@@ -141,6 +161,12 @@ export class BuildStats {
 
             const lang = langFromPath(entry, run.config) || '<none>';
             this.entriesByLang[lang] = (this.entriesByLang[lang] ?? 0) + 1;
+
+            // Markdown-only payload: leading (yaml) pages don't have headings/html.
+            if (info.leading === false) {
+                this.headings += info.headings?.length ?? 0;
+                this.contentBytes += info.html?.length ?? 0;
+            }
         };
 
         getBuildHooks(program).Entry.for('md').tap('BuildStats', onEntry);
@@ -193,7 +219,9 @@ export class BuildStats {
                     entriesProcessed: this.entryCount,
                     entriesByExtension: this.entriesByExtension,
                     entriesByLang: this.entriesByLang,
-                    missed: countMissed(run),
+                    headings: this.headings,
+                    contentBytes: this.contentBytes,
+                    graph: collectGraph(run),
                     warnings: logCounts.warn,
                     errors: logCounts.error,
                 },
@@ -211,6 +239,8 @@ export class BuildStats {
         this.entryCount = 0;
         this.entriesByExtension = {};
         this.entriesByLang = {};
+        this.headings = 0;
+        this.contentBytes = 0;
     }
 }
 
@@ -226,15 +256,39 @@ export function collectFeatures(config: Hash<unknown>): string[] {
         .sort();
 }
 
-function countMissed(run: Run): number {
-    let count = 0;
-    for (const node of run.entry.relations.overallOrder()) {
-        const data = run.entry.relations.getNodeData(node) as {type?: string} | undefined;
-        if (data?.type === 'missed') {
-            count++;
+type GraphCounters = BuildStatsFormat['counters']['graph'];
+
+function collectGraph(run: Run): GraphCounters {
+    const relations = run.entry.relations;
+    const counters: GraphCounters = {
+        entries: 0,
+        sources: 0,
+        resources: 0,
+        missed: 0,
+        edges: 0,
+    };
+
+    const nodes = relations.overallOrder();
+    for (const node of nodes) {
+        const data = relations.getNodeData(node) as {type?: string} | undefined;
+        switch (data?.type) {
+            case 'entry':
+                counters.entries++;
+                break;
+            case 'source':
+                counters.sources++;
+                break;
+            case 'resource':
+                counters.resources++;
+                break;
+            case 'missed':
+                counters.missed++;
+                break;
         }
+        counters.edges += relations.directDependenciesOf(node).length;
     }
-    return count;
+
+    return counters;
 }
 
 function stableStringify(value: unknown): string {

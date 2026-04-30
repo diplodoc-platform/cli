@@ -92,10 +92,32 @@ describe('BuildStats', () => {
             const onEntry = tapByName(getBuildHooks(build).Entry.for('html').taps, 'BuildStats');
             const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildStats');
 
+            const md = (h: number, html: string) => ({
+                leading: false,
+                headings: new Array(h).fill({content: 'h', location: {}}),
+                html,
+            });
+            const yaml = {leading: true, data: {}};
+
+            // Populate the graph the way real markdown processing would: pages
+            // are `entry`, included files are `source`, image/style assets are
+            // `resource`, and a missing file is `missed`. Edges point from page
+            // to its deps.
+            const rel = run.entry.relations;
+            rel.addNode('en/index.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('en/guide.yaml' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/index.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('en/_includes/intro.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('en/_assets/logo.png' as NormalizedPath, {type: 'resource'});
+            rel.addNode('en/missing.md' as NormalizedPath, {type: 'missed'});
+            rel.addDependency('en/index.md', 'en/_includes/intro.md');
+            rel.addDependency('en/index.md', 'en/_assets/logo.png');
+            rel.addDependency('en/index.md', 'en/missing.md');
+
             await before(run);
-            await onEntry(run, 'en/index.md' as NormalizedPath, {});
-            await onEntry(run, 'en/guide.yaml' as NormalizedPath, {});
-            await onEntry(run, 'ru/index.md' as NormalizedPath, {});
+            await onEntry(run, 'en/index.md' as NormalizedPath, md(3, '<p>hello</p>'));
+            await onEntry(run, 'en/guide.yaml' as NormalizedPath, yaml);
+            await onEntry(run, 'ru/index.md' as NormalizedPath, md(2, '<p>hi</p>'));
             await after(run);
 
             expect(writtenJson).toBeDefined();
