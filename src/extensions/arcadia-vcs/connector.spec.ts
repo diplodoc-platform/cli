@@ -8,7 +8,7 @@ import {configPath} from '@diplodoc/cli/lib/config';
 import {ArcadiaVcsConnector} from './connector';
 
 describe('ArcadiaVcsConnector', () => {
-    it('should log warning if error code is ENOENT', async () => {
+    it('should log warning if error code is ENOENT and return "." from getBase()', async () => {
         const error = new Error('spawn arc ENOENT');
         error.code = 'ENOENT';
         const warn = vi.fn();
@@ -33,6 +33,7 @@ describe('ArcadiaVcsConnector', () => {
         expect(warn).toHaveBeenCalledWith(
             'Arcadia VCS extension disabled: arc is not available in this environment.',
         );
+        expect(await connector.getBase()).toBe('.');
     });
 
     it('should not call warn if error code is not ENOENT', async () => {
