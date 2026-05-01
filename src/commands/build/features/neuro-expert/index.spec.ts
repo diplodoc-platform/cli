@@ -207,6 +207,53 @@ describe('NeuroExpert utils', () => {
             expect(script).toContain('document.body.appendChild(neuroExpertPreload);');
             expect(script).not.toContain('window.initNeuroexpert(');
         });
+
+        it('should include metrics script with metrikaIds', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({projectId: {default: projectId}});
+
+            const script = getNeuroExpertScript(
+                projectId,
+                config.neuroExpert,
+                undefined,
+                [111, 222],
+            );
+
+            expect(script).toContain('DOCS_NEUROEXPERT_ACTION');
+            expect(script).toContain('[111,222]');
+            expect(script).toContain('"widget"');
+            expect(script).toContain('.toggle-button');
+            expect(script).toContain('sendNeuroExpertGoal("open")');
+            expect(script).toContain('"message-sent": "message"');
+        });
+
+        it('should include metrics script even without metrikaIds', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({projectId: {default: projectId}});
+
+            const script = getNeuroExpertScript(projectId, config.neuroExpert);
+
+            expect(script).toContain('DOCS_NEUROEXPERT_ACTION');
+            expect(script).toContain('.toggle-button');
+            expect(script).toContain('[]');
+        });
+
+        it('should not include metrics script for search mode', () => {
+            const projectId = 'test-project-id';
+            const config = createNeuroExpertConfig({
+                projectId: {default: projectId},
+                type: 'search',
+            });
+
+            const script = getNeuroExpertScript(
+                projectId,
+                config.neuroExpert,
+                undefined,
+                [111, 222],
+            );
+
+            expect(script).not.toContain('DOCS_NEUROEXPERT_ACTION');
+        });
     });
 
     describe('NeuroExpert config', () => {

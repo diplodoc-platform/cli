@@ -25,6 +25,20 @@ export type NeuroExpertBase = {
 
 const NEURO_EXPERT_PARENT_ID = 'neuro-expert-widget';
 
+function extractMetrikaIds(analytics: Hash | undefined): number[] {
+    const rawMetrika = analytics?.metrika;
+
+    if (!Array.isArray(rawMetrika)) {
+        return [];
+    }
+
+    return rawMetrika
+        .filter(
+            (entry) => Boolean(entry) && typeof entry === 'object' && typeof entry.id === 'number',
+        )
+        .map((entry) => entry.id as number);
+}
+
 export class NeuroExpert {
     apply(program: Build) {
         getBaseHooks(program).Config.tap('NeuroExpert', (config) => {
@@ -84,10 +98,13 @@ export class NeuroExpert {
 
                     neuroExpertCsp.map((csp) => template.addCsp(csp));
 
+                    const metrikaIds = extractMetrikaIds(run.config.analytics);
+
                     const neuroExpertScript = getNeuroExpertScript(
                         projectId,
                         neuroExpert,
                         customLabel,
+                        metrikaIds,
                     );
 
                     template.addScript(neuroExpertScript, {
