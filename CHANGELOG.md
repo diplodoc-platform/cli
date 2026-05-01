@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.36.5](https://github.com/diplodoc-platform/cli/compare/v5.36.4...v5.36.5) (2026-05-01)
+
+
+### Bug Fixes
+
+* fixed arcadia-vcs ([#1907](https://github.com/diplodoc-platform/cli/issues/1907)) ([a59d063](https://github.com/diplodoc-platform/cli/commit/a59d063cba8b21c66a0905c394cd78547eef9758))
+
 ## [5.36.4](https://github.com/diplodoc-platform/cli/compare/v5.36.3...v5.36.4) (2026-04-29)
 
 
