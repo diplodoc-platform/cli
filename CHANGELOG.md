@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.36.6](https://github.com/diplodoc-platform/cli/compare/v5.36.5...v5.36.6) (2026-05-01)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.5.4 ([#1911](https://github.com/diplodoc-platform/cli/issues/1911)) ([b27e948](https://github.com/diplodoc-platform/cli/commit/b27e94849b219df993f4b2e67b2ede78e5fcbe80))
+* goals of the neuroexpert's actions in the metrics ([#1908](https://github.com/diplodoc-platform/cli/issues/1908)) ([ada52fe](https://github.com/diplodoc-platform/cli/commit/ada52fe6f9d63e74eb1e8ddde1f0f090f39cda58))
+
 ## [5.36.5](https://github.com/diplodoc-platform/cli/compare/v5.36.4...v5.36.5) (2026-05-01)
 
 
