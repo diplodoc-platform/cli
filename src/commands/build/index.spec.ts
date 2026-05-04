@@ -431,7 +431,7 @@ describe('Build command', () => {
             test('should handle default', '', {
                 preprocess: {
                     hashIncludes: true,
-                    mergeIncludes: false,
+                    mergeIncludes: true,
                     mergeAutotitles: true,
                     disableMetaMaxLineWidth: false,
                 },
