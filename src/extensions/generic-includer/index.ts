@@ -20,6 +20,7 @@ type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
     linkIndex?: boolean;
+    linkIndexAutotitle?: boolean;
     order?: Order;
     orderBy?: OrderBy;
 }>;
@@ -120,17 +121,31 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
         if (options.linkIndex) {
             const indexEntry = entries.find(([k]) => k === 'index');
             const childEntries = entries.filter(([k]) => k !== 'index');
+            const indexHref =
+                indexEntry && typeof indexEntry[1] === 'string' ? indexEntry[1] : undefined;
 
-            const result: RawTocItem = {
+            if (indexHref) {
+                const useIndexHeading =
+                    options.linkIndexAutotitle === true && options.autotitle !== false;
+                const result = {
+                    href: indexHref,
+                    items: childEntries.map(item),
+                };
+
+                if (useIndexHeading) {
+                    return result;
+                }
+
+                return {
+                    name: key as YfmString,
+                    ...result,
+                };
+            }
+
+            return {
                 name: key as YfmString,
                 items: childEntries.map(item),
             };
-
-            if (indexEntry && typeof indexEntry[1] === 'string') {
-                result.href = indexEntry[1];
-            }
-
-            return result;
         }
 
         return {name: key as YfmString, items: entries.map(item)};
