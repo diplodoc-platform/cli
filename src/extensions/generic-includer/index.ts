@@ -127,18 +127,18 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             if (indexHref) {
                 const useIndexHeading =
                     options.linkIndexAutotitle === true && options.autotitle !== false;
+                const result = {
+                    href: indexHref,
+                    items: childEntries.map(item),
+                };
 
                 if (useIndexHeading) {
-                    return {
-                        href: indexHref,
-                        items: childEntries.map(item),
-                    };
+                    return result;
                 }
 
                 return {
                     name: key as YfmString,
-                    href: indexHref,
-                    items: childEntries.map(item),
+                    ...result,
                 };
             }
 
