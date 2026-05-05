@@ -123,4 +123,128 @@ describe('Generic includer', () => {
 
         expect(dump(result)).toMatchSnapshot();
     });
+
+    it('should sort numeric filenames with orderBy=natural', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                ['10.md', '2.md', '1.md', '20.md', '11.md', '100.md', '9.md'] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    orderBy: 'natural',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should sort with orderBy=filename lexicographically', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                ['10.md', '2.md', '1.md', '20.md', '11.md', '100.md', '9.md'] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    orderBy: 'filename',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should sort in descending order with order=desc', async () => {
+        const {run} = await prepareExtension([
+            ['**/*.md', './test', ['1.md', '2.md', '10.md', '20.md'] as NormalizedPath[]],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    orderBy: 'natural',
+                    order: 'desc',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should sort nested directories naturally', async () => {
+        const {run} = await prepareExtension([
+            [
+                '**/*.md',
+                './test',
+                [
+                    'chapter-10/intro.md',
+                    'chapter-2/intro.md',
+                    'chapter-1/intro.md',
+                    'chapter-1/section-10.md',
+                    'chapter-1/section-2.md',
+                    'chapter-1/section-1.md',
+                ] as NormalizedPath[],
+            ],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                    orderBy: 'natural',
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
+
+    it('should preserve insertion order without orderBy', async () => {
+        const {run} = await prepareExtension([
+            ['**/*.md', './test', ['banana.md', 'apple.md', 'cherry.md'] as NormalizedPath[]],
+        ]);
+
+        const result = await getTocHooks(run.toc)
+            .Includer.for('generic')
+            .promise(
+                {path: 'toc.yaml' as NormalizedPath},
+                {
+                    input: './test',
+                    path: './test/toc.yaml',
+                    autotitle: false,
+                },
+                'toc.yaml' as NormalizedPath,
+            );
+
+        expect(dump(result)).toMatchSnapshot();
+    });
 });

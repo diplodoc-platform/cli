@@ -13,10 +13,15 @@ import {dirname, extname, join} from 'node:path';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 
+type Order = 'asc' | 'desc';
+type OrderBy = 'filename' | 'natural';
+
 type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
     linkIndex?: boolean;
+    order?: Order;
+    orderBy?: OrderBy;
 }>;
 
 type Graph = {
@@ -30,7 +35,8 @@ type Run = BaseRun & {
 const EXTENSION = 'GenericIncluder';
 const INCLUDER = 'generic';
 
-// TODO: implement sort
+const naturalCollator = new Intl.Collator(undefined, {numeric: true});
+
 export class Extension implements IExtension {
     apply(program: BaseProgram) {
         getBaseHooks<Run>(program).BeforeAnyRun.tap(EXTENSION, (run) => {
@@ -78,6 +84,29 @@ function pageName(key: string, options: Options) {
     return key as YfmString;
 }
 
+function compareKeys(orderBy: OrderBy): (a: string, b: string) => number {
+    if (orderBy === 'filename') {
+        return (a, b) => {
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        };
+    }
+
+    return naturalCollator.compare;
+}
+
+function sortEntries<T>(entries: [string, T][], options: Options): [string, T][] {
+    if (!options.orderBy) {
+        return entries;
+    }
+
+    const cmp = compareKeys(options.orderBy);
+    const direction = (options.order ?? 'asc') === 'desc' ? -1 : 1;
+
+    return [...entries].sort(([a], [b]) => direction * cmp(a, b));
+}
+
 function fillToc(toc: RawToc, graph: Graph, options: Options) {
     function item([key, value]: [string, Graph | (NormalizedPath & YfmString)]): RawTocItem {
         const name = pageName(key, options);
@@ -86,8 +115,9 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             return {name, href: value};
         }
 
+        const entries = sortEntries(Object.entries(value), options);
+
         if (options.linkIndex) {
-            const entries = Object.entries(value);
             const indexEntry = entries.find(([k]) => k === 'index');
             const childEntries = entries.filter(([k]) => k !== 'index');
 
@@ -103,10 +133,10 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             return result;
         }
 
-        return {name: key as YfmString, items: Object.entries(value).map(item)};
+        return {name: key as YfmString, items: entries.map(item)};
     }
 
-    toc.items = Object.entries(graph).map(item);
+    toc.items = sortEntries(Object.entries(graph), options).map(item);
 
     return toc;
 }
