@@ -25,6 +25,8 @@ properties:
     type:
       - string
       - boolean
+  analytics:
+    $ref: '#/definitions/AnalyticsConfig'
   navigation:
     oneOf:
       - type: boolean
@@ -352,6 +354,101 @@ definitions:
   NavigationLinkTarget:
     type: string
     enum: ['_self', '_blank', '_parent', '_top']
+
+  AnalyticsConfig:
+    description: Analytics and cookie consent configuration.
+    type: object
+    properties:
+      text:
+        type: string
+        description: Cookie consent popup text (HTML allowed).
+        translate: md
+      buttons:
+        $ref: '#/definitions/AnalyticsButtons'
+      gtm:
+        $ref: '#/definitions/AnalyticsGtmConfig'
+      metrika:
+        type: array
+        items:
+          $ref: '#/definitions/AnalyticsMetrikaConfig'
+    additionalProperties: true
+
+  AnalyticsButtons:
+    description: Cookie consent popup buttons.
+    type: object
+    properties:
+      accept:
+        $ref: '#/definitions/AnalyticsButton'
+      decline:
+        $ref: '#/definitions/AnalyticsButton'
+    additionalProperties: true
+
+  AnalyticsButton:
+    description: Cookie consent popup button.
+    type: object
+    properties:
+      text:
+        type: string
+        translate: md
+      theme:
+        type: string
+      size:
+        type: string
+    additionalProperties: true
+
+  AnalyticsGtmConfig:
+    type: object
+    additionalProperties: false
+    properties:
+      id:
+        type: string
+      mode:
+        type: string
+        enum: [base, notification]
+
+  AnalyticsMetrikaConfig:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+    properties:
+      id:
+        type: integer
+      params:
+        type: object
+        additionalProperties: false
+        properties:
+          accurateTrackBounce:
+            type: [boolean, number]
+          childIframe:
+            type: boolean
+          clickmap:
+            type: boolean
+          defer:
+            type: boolean
+          ecommerce:
+            oneOf:
+              - type: boolean
+              - type: string
+              - type: array
+                items:
+                  type: string
+          trackHash:
+            type: boolean
+          trackLinks:
+            type: boolean
+          trustedDomains:
+            type: array
+            items:
+              type: string
+          webvisor:
+            type: boolean
+          triggerEvent:
+            type: boolean
+          sendTitle:
+            type: boolean
+          ssr:
+            type: boolean
 
   NavigationAnalyticsEvent:
     type: object
