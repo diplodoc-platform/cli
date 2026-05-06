@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.37.0](https://github.com/diplodoc-platform/cli/compare/v5.36.6...v5.37.0) (2026-05-05)
+
+
+### Features
+
+* **generic-includer:** add linkIndexAutotitle option for directory titles from index.md ([#1898](https://github.com/diplodoc-platform/cli/issues/1898)) ([52c9672](https://github.com/diplodoc-platform/cli/commit/52c96728d64f73c2476c381861516585571940e6))
+* **generic-includer:** add opt-in natural sort options ([#1901](https://github.com/diplodoc-platform/cli/issues/1901)) ([e0e0d27](https://github.com/diplodoc-platform/cli/commit/e0e0d276eed417144c66260e1be8982d6a290f14))
+
 ## [5.36.6](https://github.com/diplodoc-platform/cli/compare/v5.36.5...v5.36.6) (2026-05-01)
 
 
