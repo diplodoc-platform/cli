@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. 100% inline coverage. The `{% included %}` fallback is kept as a safety net. Viewer integration requires no changes. Ten bugs were found in real documentation sets and fixed. The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. 100% inline coverage. The `{% included %}` fallback is kept as a safety net. Viewer integration requires no changes. Eighteen bugs were found in real documentation sets and fixed. The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -1248,7 +1248,7 @@ All primary stages (0–5) are **complete** and tested:
 - E2E tests: `tests/e2e/merge-includes.spec.ts` (full md2md → md2html cycle)
 - Regression tests: `tests/mocks/regression/` (input/output snapshots)
 - Large-scale runs on real docs: alice, ydb, yt, wiki, travel, etc.
-- 10 bugs found and fixed (see Known Bugs)
+- 18 bugs found and fixed (see Known Bugs)
 
 ## Consequences
 
@@ -1274,7 +1274,8 @@ All primary stages (0–5) are **complete** and tested:
 ## Known Bugs (found and fixed)
 
 Large-scale testing on real documentation (alice, ydb, yt, wiki, travel, etc.)
-surfaced 10 bugs. All fixed.
+surfaced 10 bugs. Further passes (webmaster, multiline terms, blockquotes, tables) found
+eight more. All fixed (Bugs 1–18 below).
 
 ### Bug 1: `<style>` tag stripped when inlining inside lists
 
@@ -1455,6 +1456,160 @@ the first line rendered as a code block or with wrong indent.
    `inline.content` holds original text without emphasis splitting.
 
 **Files**: `packages/transform/src/transform/plugins/term/index.ts`
+
+---
+
+### Bug 11: Term blocks mis-handled at merge-includes (duplicates, indent, comparison)
+
+**Symptom**: After merge-includes, duplicate term definitions, spurious `__…` suffix keys, or
+term-like lines inside indented / list contexts not treated as definitions.
+
+**Cause**: `TERM_DEF_LINE_RE` / extraction did not allow optional whitespace before `[*key]:`
+(the same way markdown-it’s term plugin uses `tShift`), and duplicate detection compared raw
+blocks without normalizing trivial layout differences.
+
+**Resolution**: Allow `\s*` before `[*…]:` in term line regexes; normalize blocks when comparing;
+skip true duplicates in the collector; keep conflict renaming when content differs.
+
+**Files**: `merge-includes.ts` (`extractTermDefinitions`, related helpers)
+
+---
+
+### Bug 12: `#hash` include sections and `notitle` left wrong slice or empty body
+
+**Symptom**: Includes with `#anchor` pulled the wrong range, or `notitle` produced an empty
+insert after stripping the only heading line.
+
+**Cause**: `extractSection` ended the slice at the next heading of **any** shallower level,
+which disagreed with `findBlockTokens` in `@diplodoc/transform` (section should end only at
+the **same** heading level). `stripFirstHeading` could leave only whitespace, which broke
+downstream inlining.
+
+**Resolution**: Align `extractSection` termination with `findBlockTokens` (same-level heading
+only). If stripping the first heading would leave whitespace-only content, keep the heading.
+
+**Files**: `merge-includes.ts` (`extractSection`, `stripFirstHeading`)
+
+---
+
+### Bug 13: Multiline term bodies with “structured” deps still inlined (YFM009 / broken HTML)
+
+**Symptom**: Linter / transform errors (e.g. YFM009) when a multiline `[*term]:` inlined deps
+that contained GFM-style bold-header tables, bold-leading list rows (`- **…` / `* **…`),
+or a **nested** `{% include %}` on a separate line from the term label (blockquote / paragraph).
+
+**Cause**: Those patterns are unsafe to paste inline inside a term section; plain inlining
+still ran when `canInlineInclude` allowed it.
+
+**Resolution**: Extend `canInlineInclude` / `processTermSectionDeps` so such deps use
+`{% included … %}` fallback (`addFallbackDep`) instead of full inlining. Exception: one-line
+`[*key]: {% include %}` remains inlined (`termIncludeSharesLineWithTermLabel`).
+
+**Files**: `merge-includes.ts` (`canInlineInclude`, `processTermSectionDeps`, helpers)
+
+---
+
+### Bug 14: Repeated list markers on every inlined line
+
+**Symptom**: Inlining into a list item duplicated `-` / `*` on continuation lines.
+
+**Cause**: `prepareInlinedContent` copied the full `rawPrefix` (including the list marker)
+literally for every line when “literal prefix” was chosen too broadly.
+
+**Resolution**: Use the **literal** `rawPrefix` only when it contains structural Markdown
+characters `>` (blockquote) or `|` (YFM table row); otherwise keep width with spaces
+(list markers are not repeated).
+
+**Files**: `merge-includes.ts` (`prepareInlinedContent`)
+
+---
+
+### Bug 15: Term definitions inside blockquotes not recognized
+
+**Symptom**: Multiline term with include in a blockquote did not get `{% included %}` where
+expected; inlining fell back to `<!-- source -->` and broke the intended layout.
+
+**Cause**: `TERM_DEF_RE` / `TERM_DEF_LINE_RE` required `[*key]:` at the start of the logical
+line and did not allow optional `> ` prefixes, so `firstTermDefPos` stayed `-1` for lines like
+`> [*wrap]:`.
+
+**Resolution**: Prefix pattern `(?:>\s*)*` before `\s*\[\*…` in both regexes so term defs
+inside blockquotes match the same definitions as the term plugin.
+
+**Files**: `merge-includes.ts` (`TERM_DEF_RE`, `TERM_DEF_LINE_RE`, callers)
+
+---
+
+### Bug 16: YFM004 `table-not-closed` for `> #|` after blockquoted include
+
+**Symptom**: On real docs (e.g. Webmaster `en/reference/host-id-important-urls.md`), YFM004
+**table-not-closed** with context `"> #|"`.
+
+**Cause**: Include directive on a blockquoted line (`> {% include … %}`) made
+`prepareInlinedContent` repeat the `>` prefix on continuation lines. The first real table line
+in the dep (`#|`) became `> #|`, which YFM does not parse as a valid table opener in that
+context.
+
+**Resolution**: If `rawPrefix` contains `>` and the dependency’s first non-empty line opens a
+YFM pipe table (`#|`), do **not** apply the blockquote indent to inlined lines (`indent = ''`);
+with source maps off, prepend `\n` so the opener is not glued to `>` on one line.
+
+**Files**: `merge-includes.ts` (`depStartsWithYfmTableOpener`, `prepareInlinedContent`)
+
+**Note**: Deliberately **not** supporting a real “YFM `#|` table fully inside a blockquote” via
+this path — that layout remains unsupported / author must restructure.
+
+---
+
+### Bug 17: Includes inside YFM shorthand table cells get source maps / indent
+
+**Symptom**: Includes inside YFM shorthand table cells (`||...|{% include %}` or
+`{% include %} ||`) produced broken table markup after `md2md` — source map comments
+and indentation were added, splitting the table row across multiple lines.
+
+**Cause**: `prepareInlinedContent` always added source map comments and indentation
+based on `rawPrefix`, regardless of whether the include sat inside a table cell.
+
+**Resolution**: Detect YFM shorthand table cell context via `isInsideYfmShorthandTableCell`
+(checks if `rawPrefix` contains `||` and ends with `|`, or if a `trailingSuffix` is present
+indicating a table separator follows the include). In that case, return bare `depContent`
+without source maps, indentation, or trailing newlines.
+
+**Files**: `merge-includes.ts` (`isInsideYfmShorthandTableCell`, `prepareInlinedContent`)
+
+---
+
+### Bug 18: Empty resolved include in term definition absorbs subsequent `{% included %}` block
+
+**Symptom**: A term definition `[*dom]: {% include [dom](...) %}` where the include
+resolved to empty content (e.g. due to Liquid locale filtering) left `[*dom]:` as a bare
+empty stub. The following `{% included %}` fallback block (belonging to a different term)
+was visually absorbed into `[*dom]:`'s body, breaking `md2html` rendering — term references
+like `[text](*dom)` could not find a valid definition.
+
+**Cause**: `processTermSectionDeps` replaced the `{% include %}` directive with empty
+resolved content, leaving the term definition line empty. During final assembly the empty
+`[*dom]:` was immediately followed by an unrelated `{% included %}` block which
+markdown-it's term plugin parsed as part of `[*dom]:`'s body.
+
+**Resolution**: In `processTermSectionDeps`, when an inlineable include resolves to empty
+content (`!resolved.trim()`), preserve the original `{% include %}` directive in the
+term definition body instead of replacing it with an empty string. This delegates
+resolution to `md2html`, which correctly handles the empty include and produces a
+term with an empty description (valid behavior). The `[*dom]:` line is no longer a bare
+stub, so it does not absorb subsequent content.
+
+**Files**: `merge-includes.ts` (`processTermSectionDeps`)
+
+---
+
+### Limitation: GFM tables with bold headers inside multiline term bodies (YFM009)
+
+**Context**: A multiline `[*term]:` body that inlines a file whose first rows are a GFM-style table (`**…|…**` then `---|`) used to confuse the term plugin / linter after merge-includes (YFM009).
+
+**Mitigation in CLI**: `canInlineInclude` detects risky patterns when the include sits in the term section (`processTermSectionDeps` calls `canInlineInclude(..., false)`): GFM `**…|…**` tables, `- **…` / `* **…` list openers, or a dependency that is **only** another `{% include %}` while the parent term uses a **multiline** layout (label and include not on the same line — blockquote or paragraph). Single-line `[*key]: {% include %}` stays inlined. Such deps get `{% included %}` fallback blocks.
+
+**Transform**: No plugin change required for these patterns as long as the fallback path is used.
 
 ---
 

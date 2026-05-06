@@ -73,7 +73,7 @@ export class OutputMd {
                 hashIncludes: true,
             });
             const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
-                mergeIncludes: false,
+                mergeIncludes: true,
             });
             const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
                 mergeAutotitles: true,
