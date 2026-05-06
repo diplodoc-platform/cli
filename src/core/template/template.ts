@@ -368,7 +368,7 @@ export class Template {
                     ${trailing(styles).map(style(this.csp)).join('\n')}
                 </body>
             </html>
-        `.replace(BODY, body.join('\n') || `<div id="root"></div>`);
+        `.replace(BODY, () => body.join('\n') || `<div id="root"></div>`);
     }
 }
 
