@@ -640,10 +640,7 @@ vcsPath: main.md
 || Option A |
 Some description of option A.
 
-<!-- source: _includes/cell-content.md -->
-Buy now at [our store](https://example.com/store).
-<!-- endsource: _includes/cell-content.md -->
-||
+Buy now at [our store](https://example.com/store).||
 || Option B | Plain text cell. ||
 |#
 
