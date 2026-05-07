@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {valuable} from '~/core/config';
 import {VERSION} from '~/constants';
-import {stats as loggerStats} from '~/core/logger';
+import {getHooks as getLoggerHooks, stats as loggerStats} from '~/core/logger';
 import {langFromPath} from '~/core/utils';
 
 import {options} from './config';
@@ -85,9 +85,17 @@ type BuildStatsFormat = {
         };
         warnings: number;
         errors: number;
+        // Per-code breakdown of logged warnings/errors. Codes look like
+        // `YFM\d+` (e.g. YFM013, YFM017); messages without a recognizable
+        // code go into the `(uncoded)` bucket.
+        warningsByCode: CountByKey;
+        errorsByCode: CountByKey;
     };
     output: OutputInfo;
 };
+
+const CODE_RE = /\bYFM\d+\b/;
+const UNCODED = '(uncoded)';
 
 export type BuildStatsArgs = {
     buildStats: boolean;
@@ -113,6 +121,10 @@ export class BuildStats {
     private headings = 0;
 
     private contentBytes = 0;
+
+    private warningsByCode: CountByKey = {};
+
+    private errorsByCode: CountByKey = {};
 
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildStats', (command: Command) => {
@@ -142,6 +154,14 @@ export class BuildStats {
 
             this.reset();
             this.startedAt = Date.now();
+
+            const loggerHooks = getLoggerHooks(run.logger);
+            loggerHooks.Warn.tap('BuildStats', (message) => {
+                this.bucketByCode(this.warningsByCode, message);
+            });
+            loggerHooks.Error.tap('BuildStats', (message) => {
+                this.bucketByCode(this.errorsByCode, message);
+            });
         });
 
         const onEntry = (run: Run, entry: NormalizedPath, info: DeepFrozen<EntryInfo>) => {
@@ -225,6 +245,8 @@ export class BuildStats {
                     graph: collectGraph(run),
                     warnings: logCounts.warn,
                     errors: logCounts.error,
+                    warningsByCode: this.warningsByCode,
+                    errorsByCode: this.errorsByCode,
                 },
                 output,
             };
@@ -242,6 +264,14 @@ export class BuildStats {
         this.entriesByLang = {};
         this.headings = 0;
         this.contentBytes = 0;
+        this.warningsByCode = {};
+        this.errorsByCode = {};
+    }
+
+    private bucketByCode(target: CountByKey, message: string) {
+        const match = message.match(CODE_RE);
+        const code = match ? match[0] : UNCODED;
+        target[code] = (target[code] ?? 0) + 1;
     }
 }
 

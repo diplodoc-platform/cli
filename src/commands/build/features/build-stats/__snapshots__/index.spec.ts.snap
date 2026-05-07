@@ -49,6 +49,9 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
     "entriesPlanned": 0,
     "entriesProcessed": 3,
     "errors": 0,
+    "errorsByCode": {
+      "YFM016": 2,
+    },
     "graph": {
       "edges": 3,
       "entries": 3,
@@ -59,6 +62,10 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
     "headings": 5,
     "tocs": 0,
     "warnings": 0,
+    "warningsByCode": {
+      "(uncoded)": 1,
+      "YFM013": 1,
+    },
   },
   "output": {
     "bytesByExtension": {

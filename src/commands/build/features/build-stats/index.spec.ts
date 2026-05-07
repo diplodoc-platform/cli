@@ -6,6 +6,7 @@ import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
 
 import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getLoggerHooks} from '~/core/logger';
 
 import {setupRun} from '../../__tests__';
 import {getHooks as getBuildHooks} from '../../hooks';
@@ -108,6 +109,17 @@ describe('BuildStats', () => {
             await onEntry(run, 'en/index.md' as NormalizedPath, md(3, '<p>hello</p>'));
             await onEntry(run, 'en/guide.yaml' as NormalizedPath, yaml);
             await onEntry(run, 'ru/index.md' as NormalizedPath, md(2, '<p>hi</p>'));
+
+            // Drive the logger hooks directly: setupRun mocks `logger.warn` /
+            // `logger.error` topics, which short-circuits the internal hook
+            // dispatch. We trigger the hooks so the by-code bucketing logic is
+            // actually exercised.
+            const loggerHooks = getLoggerHooks(run.logger);
+            loggerHooks.Warn.call('en/page.md: YFM013 / File asset limit exceeded');
+            loggerHooks.Warn.call('Some plain warning without a code');
+            loggerHooks.Error.call('en/cycle.md: YFM016 / The file is included in itself');
+            loggerHooks.Error.call('en/cycle2.md: YFM016 / Another cycle');
+
             await after(run);
 
             expect(writtenJson).toBeDefined();
