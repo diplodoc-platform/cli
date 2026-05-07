@@ -12,7 +12,10 @@ const CODE_FENCE_RE = /^(`{3,}|~{3,})/;
 const LINK_URL_RE = /(\]\(\s*)([^)\s]+)/g;
 const LINK_DEF_RE = /^(\s*\[(?!\*)[^\]]+\]:\s+)(\S+)(\s.*|)$/;
 const NOTITLE_RE = /\bnotitle\b/;
-const TERM_DEF_RE = /^\[\*[^[\]]+\]:/m;
+// Leading whitespace allowed — term definitions are often indented inside lists
+// (markdown-it termDefinitions uses tShift; merge-includes must match the same).
+// Optional `> ` prefixes so term defs inside blockquotes match (e.g. `> [*k]:`).
+const TERM_DEF_RE = /^(?:>\s*)*\s*\[\*[^[\]]+\]:/m;
 // YFM table cell/row separators that may follow an include on the same line.
 // These are structural tokens, not content — inlining is safe if the only
 // non-whitespace text after the include directive is one of these separators.
@@ -20,7 +23,7 @@ const YFM_TABLE_SEP_RE = /^\|\||^\|#/;
 const HEADING_FULL_RE = /^(#{1,6})\s+([^\n]+)$/; // NOSONAR — simplified to avoid ReDoS
 const CUSTOM_ANCHOR_RE = /\{\s*#([\w-]+)\s*\}/;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
-const TERM_DEF_LINE_RE = /^\[\*([^[\]]+)\]:/;
+const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
 // These tags are NOT interrupted by blank lines and break rendering when indented
 // inside a list item (markdown-it parses them as plain text, not HTML blocks).
@@ -264,6 +267,10 @@ export function hasTopLevelHtmlBlock(content: string): boolean {
  * Conditions that prevent inlining:
  * 1. The include directive appears at or after the first term definition
  *    in the parent content (when `checkTermBoundary` is true).
+ * 1b. The include lies inside the term section (after first `[*key]:`) and the
+ *    dependency matches a risky pattern (GFM `**…|…**` table, `- **…` list
+ *    opener, or “only nested include” on a separate line from `[*key]:`) —
+ *    use `{% included %}` paste.
  * 2. There is non-whitespace content AFTER the include on the same line
  *    (e.g. `text {% include %} more` — truly inline usage), UNLESS that
  *    content is a YFM table cell/row separator (`||` or `|#`).  These
@@ -333,6 +340,10 @@ export function canInlineInclude(
         return false;
     }
 
+    if (depBodyForcesIncludedFallbackWhenInsideTermSection(dep, parentContent)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -356,7 +367,10 @@ export function stripFirstHeading(content: string): string {
         }
         break;
     }
-    return lines.join('\n');
+    const result = lines.join('\n');
+    // `#hash` + `notitle` on a section that is only a heading line would
+    // otherwise yield an empty include (e.g. a single `#### {#id}` block).
+    return result.trim() === '' ? content : result;
 }
 
 /**
@@ -390,6 +404,20 @@ export function addIndent(content: string, indent: string): string {
     }
 
     return result.join('');
+}
+
+/**
+ * True when the first non-empty line opens a YFM pipe table (`#|`).
+ * That opener cannot sit in a blockquote continuation (`> #|` breaks
+ * YFM table parsing — YFM004 table-not-closed).
+ */
+function depStartsWithYfmTableOpener(depContent: string): boolean {
+    for (const line of depContent.split('\n')) {
+        if (line.trim()) {
+            return /^\s*#\|/.test(line);
+        }
+    }
+    return false;
 }
 
 /** Strips leading and trailing newline characters without regex backtracking. */
@@ -426,6 +454,12 @@ function parseHeading(trimmed: string): {level: number; anchor: string} | null {
  * Checks whether a heading terminates the current section or starts
  * the target section.  Mutates `ctx` when the target is found.
  * Returns the extracted section content when terminated, null otherwise.
+ *
+ * Section boundaries match `findBlockTokens` in `@diplodoc/transform`
+ * (includes plugin): the slice ends at the next heading of the **same**
+ * level only.  Deeper headings (e.g. `##` inside a `####` popup block) do
+ * not terminate the section; shallower headings (`##` after `###`) also do
+ * not — md2md output then matches token-level include-by-hash behavior.
  */
 function processHeadingForSection(
     heading: {level: number; anchor: string},
@@ -434,7 +468,7 @@ function processHeadingForSection(
     lines: string[],
     i: number,
 ): string | null {
-    if (ctx.start >= 0 && heading.level <= ctx.level) {
+    if (ctx.start >= 0 && heading.level === ctx.level) {
         return sliceLines(lines, ctx.start, i);
     }
     if (ctx.start < 0 && heading.anchor === hash) {
@@ -460,7 +494,8 @@ function sliceLines(lines: string[], start: number, end?: number): string {
  * Extracts a section from markdown content by anchor.
  *
  * For heading anchors: returns content from the matched heading to the
- * next heading of same or lower level, or EOF.
+ * next heading of the **same** level (matches transform `findBlockTokens`),
+ * or EOF.
  *
  * For paragraph anchors ({#id} in non-heading text): returns just
  * the paragraph containing the anchor.
@@ -565,6 +600,60 @@ export function collectFallbackDepsWithChain(
 }
 
 /**
+ * True when the include sits inside a YFM shorthand table cell
+ * (`||...|{% include %}` or `{% include %} ||`).
+ */
+function isInsideYfmShorthandTableCell(
+    rawPrefix: string,
+    trailingSuffix: string | undefined,
+): boolean {
+    if (trailingSuffix) {
+        return true;
+    }
+    return /\|\|/.test(rawPrefix) && /\|\s*$/.test(rawPrefix);
+}
+
+/**
+ * Wraps content with source map comments and applies indentation based on
+ * the include's position in the parent document.
+ */
+function applySourceMapsAndIndent(
+    depContent: string,
+    depPath: string,
+    rawPrefix: string,
+    enableSourceMaps: boolean,
+): string {
+    const blockquoteYfmTableBreakout =
+        Boolean(rawPrefix) && />/.test(rawPrefix) && depStartsWithYfmTableOpener(depContent);
+
+    if (enableSourceMaps && depContent.trim()) {
+        depContent =
+            `<!-- source: ${depPath} -->\n` + depContent + `\n<!-- endsource: ${depPath} -->`;
+    }
+
+    if (blockquoteYfmTableBreakout && !enableSourceMaps && depContent.trim()) {
+        depContent = '\n' + depContent;
+    }
+
+    if (rawPrefix) {
+        const useLiteralPrefix = /[>|]/.test(rawPrefix);
+        let indent: string;
+        if (blockquoteYfmTableBreakout) {
+            indent = '';
+        } else if (useLiteralPrefix) {
+            indent = rawPrefix;
+        } else if (/^\s*$/.test(rawPrefix)) {
+            indent = rawPrefix;
+        } else {
+            indent = ' '.repeat(rawPrefix.length);
+        }
+        depContent = addIndent(depContent, indent);
+    }
+
+    return depContent;
+}
+
+/**
  * Prepares content from a dependency for inlining: strips frontmatter,
  * extracts section by hash, optionally removes the first heading (notitle),
  * extracts term definitions (collecting them via termsCollector),
@@ -599,8 +688,16 @@ export function prepareInlinedContent(
         depContent = cleanContent;
         for (const term of terms) {
             const rebasedBlock = rebaseRelativePaths(term.block, dep.path, entry);
+            const normalized = normalizeTermBlockForCompare(rebasedBlock);
+            const duplicate = termsCollector.find(
+                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) === normalized,
+            );
+            if (duplicate) {
+                continue;
+            }
+
             const conflict = termsCollector.find(
-                (t) => t.key === term.key && t.block !== rebasedBlock,
+                (t) => t.key === term.key && normalizeTermBlockForCompare(t.block) !== normalized,
             );
             if (conflict) {
                 const newKey = makeUniqueTermKey(term.key, dep.path, termsCollector);
@@ -617,25 +714,14 @@ export function prepareInlinedContent(
 
     depContent = stripLeadingAndTrailingNewlines(depContent);
 
-    if (enableSourceMaps && depContent.trim()) {
-        depContent =
-            `<!-- source: ${dep.path} -->\n` + depContent + `\n<!-- endsource: ${dep.path} -->`;
-    }
-
     const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
     const rawPrefix = parentContent.slice(lineStart, dep.location[0]);
-    if (rawPrefix) {
-        const indent = /^\s*$/.test(rawPrefix) ? rawPrefix : ' '.repeat(rawPrefix.length);
-        depContent = addIndent(depContent, indent);
+
+    if (isInsideYfmShorthandTableCell(rawPrefix, trailingSuffix)) {
+        return depContent;
     }
 
-    // When the include is followed by a YFM table separator (|| or |#),
-    // append a newline so the separator ends up on its own line after the
-    // inlined content.  The separator itself is preserved by inlineActor
-    // via content.slice(dep.location[1]).
-    if (trailingSuffix) {
-        depContent += '\n';
-    }
+    depContent = applySourceMapsAndIndent(depContent, dep.path, rawPrefix, enableSourceMaps);
 
     return depContent;
 }
@@ -661,6 +747,14 @@ export function addFallbackDep(
 
 function escapeRegExp(s: string): string {
     return s.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
+}
+
+/**
+ * Normalizes term definition block text for duplicate/conflict comparison
+ * (trailing newline differences from different sources should not force a rename).
+ */
+function normalizeTermBlockForCompare(block: string): string {
+    return block.trim().replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 }
 
 /**
@@ -707,7 +801,11 @@ function deduplicateTermBlocks(
         const existing = seen.get(term.key);
         if (!existing) {
             seen.set(term.key, {block: term.block, sourcePath: term.sourcePath});
-        } else if (existing.block !== term.block && logger) {
+        } else if (
+            normalizeTermBlockForCompare(existing.block) !==
+                normalizeTermBlockForCompare(term.block) &&
+            logger
+        ) {
             logger.warn(
                 `Term conflict [*${term.key}]: different definitions in ` +
                     `${existing.sourcePath} and ${term.sourcePath} — keeping first`,
@@ -721,11 +819,11 @@ function deduplicateTermBlocks(
 }
 
 /**
- * Resolves a dependency's content for inline substitution without
- * source maps, indent, or term extraction — used when replacing
- * {% include %} directives inside the term definition section.
+ * Returns dependency markdown after frontmatter / `#hash` / `notitle`
+ * stripping, **before** path rebasing — shared by `resolveDepContent` and
+ * inline-safety heuristics.
  */
-function resolveDepContent(dep: HashedGraphNode, entry: NormalizedPath): string {
+function getDepSliceAfterIncludeProcessing(dep: HashedGraphNode): string {
     let depContent = contentWithoutFrontmatter(dep.content);
 
     const hashIndex = dep.link.indexOf('#');
@@ -737,7 +835,128 @@ function resolveDepContent(dep: HashedGraphNode, entry: NormalizedPath): string 
         depContent = stripFirstHeading(depContent);
     }
 
-    return rebaseRelativePaths(depContent, dep.path, entry);
+    return depContent;
+}
+
+/**
+ * True when the `[*key]:` label and the `{% include %}` start on the same
+ * logical line (classic single-line term include — safe to flatten).
+ */
+function termIncludeSharesLineWithTermLabel(parentContent: string, dep: HashedGraphNode): boolean {
+    const lineStart = parentContent.lastIndexOf('\n', dep.location[0] - 1) + 1;
+    const beforeInclude = parentContent.slice(lineStart, dep.location[0]);
+    return TERM_DEF_LINE_RE.test(beforeInclude);
+}
+
+/**
+ * Dependency body is only a single `{% include … %}` directive (optional
+ * surrounding blank lines / indentation).
+ */
+function depBodyIsOnlySingleIncludeDirective(dep: HashedGraphNode): boolean {
+    const c = getDepSliceAfterIncludeProcessing(dep).trim();
+    if (!c) {
+        return false;
+    }
+    const nonEmptyLines = c.split('\n').filter((line) => line.trim());
+    if (nonEmptyLines.length !== 1) {
+        return false;
+    }
+    const line = nonEmptyLines[0].trim();
+    return /^\{%\s*include\b/.test(line) && /%\}\s*$/.test(line);
+}
+
+/**
+ * First substantive line is a Markdown list item whose text starts with
+ * `**` (common in reusable snippets).  Inlined into a multiline term this
+ * interacts badly with term/dfn tokenization — use `{% included %}` paste.
+ */
+function depInnerStartsWithBoldBulletList(dep: HashedGraphNode): boolean {
+    const c = getDepSliceAfterIncludeProcessing(dep);
+    const lines = c.split('\n');
+    for (const line of lines) {
+        if (line.trim() === '') {
+            continue;
+        }
+        return /^\s*[-*+]\s+\*\*/.test(line);
+    }
+    return false;
+}
+
+/** GFM table with `**` header row — see `depBodyForcesIncludedFallbackWhenInsideTermSection`. */
+function depInnerMatchesGfmTableWithBoldHeader(dep: HashedGraphNode): boolean {
+    const c = getDepSliceAfterIncludeProcessing(dep);
+    const lines = c.split('\n');
+    let i = 0;
+    while (i < lines.length && lines[i].trim() === '') {
+        i++;
+    }
+    if (i >= lines.length) {
+        return false;
+    }
+    const first = lines[i].trim();
+    let j = i + 1;
+    while (j < lines.length && lines[j].trim() === '') {
+        j++;
+    }
+    if (j >= lines.length) {
+        return false;
+    }
+    const second = lines[j].trim();
+    if (!first.includes('|') || !first.includes('**')) {
+        return false;
+    }
+    // Delimiter: | --- | --- or --- | --- (GFM)
+    if (!/\|/.test(second)) {
+        return false;
+    }
+    if (!/^\|?[\s:]*-{3,}/.test(second) && !/-{3,}\s*\|/.test(second)) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Include sits in the multiline term section (at/after first `[*key]:`) and
+ * pulls content that must not be flattened into the parent term text.
+ *
+ * Triggers `{% included %}` paste when:
+ * - GFM table with `**` header row (YFM009), or
+ * - bullet list items starting with `**`, or
+ * - dependency is only another `{% include %}` **and** the parent layout is
+ *   multiline (term label and include not on the same line) — covers blockquote
+ *   and normal paragraph contexts without duplicating `-`/`>` on every inlined
+ *   line of the nested include.
+ */
+function depBodyForcesIncludedFallbackWhenInsideTermSection(
+    dep: HashedGraphNode,
+    parentContent: string,
+): boolean {
+    const firstTerm = parentContent.search(TERM_DEF_RE);
+    if (firstTerm < 0 || dep.location[0] < firstTerm) {
+        return false;
+    }
+    if (depInnerMatchesGfmTableWithBoldHeader(dep)) {
+        return true;
+    }
+    if (depInnerStartsWithBoldBulletList(dep)) {
+        return true;
+    }
+    if (
+        depBodyIsOnlySingleIncludeDirective(dep) &&
+        !termIncludeSharesLineWithTermLabel(parentContent, dep)
+    ) {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Resolves a dependency's content for inline substitution without
+ * source maps, indent, or term extraction — used when replacing
+ * {% include %} directives inside the term definition section.
+ */
+function resolveDepContent(dep: HashedGraphNode, entry: NormalizedPath): string {
+    return rebaseRelativePaths(getDepSliceAfterIncludeProcessing(dep), dep.path, entry);
 }
 
 type TermWithSource = TermBlock & {sourcePath: string};
@@ -762,7 +981,22 @@ function processTermSectionDeps(
     termDeps.sort((a, b) => b.location[0] - a.location[0]);
 
     for (const dep of termDeps) {
+        if (!canInlineInclude(dep, parentContent, false)) {
+            addFallbackDep(dep, seen, fallbackEntries);
+            continue;
+        }
+
         const resolved = resolveDepContent(dep, entry);
+
+        // If the resolved content is empty (e.g. locale-conditional file that
+        // produced nothing), leave the original {% include %} directive in place
+        // so that [*key]: keeps its include and md2html can resolve it at render
+        // time.  This prevents a bare empty [*key]: from absorbing unrelated
+        // {% included %} blocks that follow.
+        if (!resolved.trim()) {
+            continue;
+        }
+
         const relStart = dep.location[0] - firstTermDefPos;
         const relEnd = dep.location[1] - firstTermDefPos;
         termSectionText =
@@ -834,7 +1068,8 @@ function buildRootAppendix(
  *   hash, and term extraction support.
  * - When `multilineTermDefinitions` is true:
  *   - Includes inside the term section (after first [*key]:) are resolved
- *     inline within the term block text (no fallback needed).
+ *     inline when `canInlineInclude(..., false)` allows; otherwise
+ *     `{% included %}` fallback (e.g. GFM `**…|…**` table headers in the dep).
  *   - Term definitions from root and inlined deps are extracted, deduplicated,
  *     and appended at the end of the file.
  * - When `multilineTermDefinitions` is false:
