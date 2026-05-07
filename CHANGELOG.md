@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.37.1](https://github.com/diplodoc-platform/cli/compare/v5.37.0...v5.37.1) (2026-05-07)
+
+
+### Bug Fixes
+
+* terms in merge includes DOCSTOOLS-3760 ([50312d9](https://github.com/diplodoc-platform/cli/commit/50312d9057beba443fe294a561100e459160d451))
+
 ## [5.37.0](https://github.com/diplodoc-platform/cli/compare/v5.36.6...v5.37.0) (2026-05-05)
 
 
