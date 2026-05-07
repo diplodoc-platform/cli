@@ -11,7 +11,7 @@ import {setupRun} from '../../__tests__';
 import {getHooks as getBuildHooks} from '../../hooks';
 import {Build} from '../..';
 
-import {BuildStats, collectFeatures, hashConfig} from './index';
+import {BuildStats, collectFeatures} from './index';
 
 describe('BuildStats', () => {
     describe('collectFeatures', () => {
@@ -27,16 +27,6 @@ describe('BuildStats', () => {
             });
 
             expect(features).toEqual(['addMapFile', 'singlePage', 'staticContent']);
-        });
-    });
-
-    describe('hashConfig', () => {
-        it('is stable across key insertion order', () => {
-            expect(hashConfig({b: 1, a: 2, c: [1, 2]})).toBe(hashConfig({c: [1, 2], a: 2, b: 1}));
-        });
-
-        it('changes when any value changes', () => {
-            expect(hashConfig({a: 1})).not.toBe(hashConfig({a: 2}));
         });
     });
 
@@ -147,7 +137,8 @@ function sanitize(stats: Hash<unknown>): unknown {
             ),
             inputDir: PLACEHOLDER,
             outputDir: PLACEHOLDER,
-            configHash: PLACEHOLDER,
+            memoryUsageMb:
+                typeof _build.memoryUsageMb === 'number' ? '<NUMBER>' : _build.memoryUsageMb,
         },
     };
 }

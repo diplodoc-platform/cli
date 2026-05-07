@@ -3,7 +3,6 @@ import type {Build, EntryInfo, Run} from '~/commands/build';
 
 import {extname, join} from 'node:path';
 import {arch, release as osRelease, platform} from 'node:os';
-import {createHash} from 'node:crypto';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -23,7 +22,6 @@ type OutputInfo = {
     files: number;
     totalBytes: number;
     bytesByExtension: CountByKey;
-    largestFile: {path: string; bytes: number} | null;
 };
 
 type BuildStatsFormat = {
@@ -53,8 +51,11 @@ type BuildStatsFormat = {
         langs: string[];
         inputDir: string;
         outputDir: string;
-        configHash: string;
         features: string[];
+        // process.memoryUsage().heapUsed snapshot at AfterAnyRun, in MB.
+        // Final snapshot, not a peak — but cheap and useful as a regression
+        // signal ("build started consuming 2x more memory").
+        memoryUsageMb: number;
         worker: {
             maxOldSpace: number | null;
         };
@@ -204,8 +205,8 @@ export class BuildStats {
                     langs: (run.config.langs ?? []).map(toLangCode),
                     inputDir: run.originalInput,
                     outputDir: run.output,
-                    configHash: hashConfig(run.config),
                     features: collectFeatures(run.config as Hash<unknown>),
+                    memoryUsageMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
                     worker: {
                         maxOldSpace:
                             ((run.config as Hash<unknown>).workerMaxOldSpace as
@@ -291,32 +292,10 @@ function collectGraph(run: Run): GraphCounters {
     return counters;
 }
 
-function stableStringify(value: unknown): string {
-    if (value === null || typeof value !== 'object') {
-        return JSON.stringify(value) ?? 'null';
-    }
-    if (Array.isArray(value)) {
-        return '[' + value.map(stableStringify).join(',') + ']';
-    }
-    const keys = Object.keys(value as object).sort();
-    return (
-        '{' +
-        keys
-            .map((k) => JSON.stringify(k) + ':' + stableStringify((value as Hash<unknown>)[k]))
-            .join(',') +
-        '}'
-    );
-}
-
-export function hashConfig(config: unknown): string {
-    return createHash('sha256').update(stableStringify(config)).digest('hex').slice(0, 16);
-}
-
 const EMPTY_OUTPUT: OutputInfo = {
     files: 0,
     totalBytes: 0,
     bytesByExtension: {},
-    largestFile: null,
 };
 
 async function readOutputSize(run: Run): Promise<OutputInfo> {
@@ -329,7 +308,6 @@ async function readOutputSize(run: Run): Promise<OutputInfo> {
     }
 
     let totalBytes = 0;
-    let largestFile: OutputInfo['largestFile'] = null;
     const bytesByExtension: CountByKey = {};
 
     await Promise.all(
@@ -339,9 +317,6 @@ async function readOutputSize(run: Run): Promise<OutputInfo> {
                 const size = stat.size;
 
                 totalBytes += size;
-                if (!largestFile || size > largestFile.bytes) {
-                    largestFile = {path: file, bytes: size};
-                }
                 const ext = (extname(file) || '<noext>').toLowerCase();
                 bytesByExtension[ext] = (bytesByExtension[ext] ?? 0) + size;
             } catch {
@@ -354,6 +329,5 @@ async function readOutputSize(run: Run): Promise<OutputInfo> {
         files: files.length,
         totalBytes,
         bytesByExtension,
-        largestFile,
     };
 }

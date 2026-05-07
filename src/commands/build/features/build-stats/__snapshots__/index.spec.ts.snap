@@ -3,7 +3,6 @@
 exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1`] = `
 {
   "build": {
-    "configHash": "<NORMALIZED>",
     "durationMs": "<NUMBER>",
     "features": [
       "allowHtml",
@@ -17,6 +16,7 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
       "en",
       "ru",
     ],
+    "memoryUsageMb": "<NUMBER>",
     "outputDir": "<NORMALIZED>",
     "outputFormat": "html",
     "phasesMs": {
@@ -66,10 +66,6 @@ exports[`BuildStats > snapshot > emits a stable JSON shape for a typical build 1
       ".html": 6144,
     },
     "files": 4,
-    "largestFile": {
-      "bytes": 4096,
-      "path": "en/guide.html",
-    },
     "totalBytes": 6656,
   },
   "schemaVersion": 1,
