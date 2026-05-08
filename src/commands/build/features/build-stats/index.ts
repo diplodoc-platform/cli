@@ -3,6 +3,7 @@ import type {Build, EntryInfo, Run} from '~/commands/build';
 
 import {extname, join} from 'node:path';
 import {arch, release as osRelease, platform} from 'node:os';
+import pmap from 'p-map';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getBuildHooks} from '~/commands/build';
@@ -15,6 +16,7 @@ import {options} from './config';
 
 const STATS_FILENAME = 'yfm-build-stats.json';
 const SCHEMA_VERSION = 1;
+const STAT_CONCURRENCY = 30;
 
 type CountByKey = Record<string, number>;
 
@@ -186,7 +188,9 @@ export class BuildStats {
             // Markdown-only payload: leading (yaml) pages don't have headings/html.
             if (info.leading === false) {
                 this.headings += info.headings?.length ?? 0;
-                this.contentBytes += info.html?.length ?? 0;
+                // String.length is UTF-16 code units, not bytes — use UTF-8
+                // byte length to get a real "content size in bytes".
+                this.contentBytes += info.html ? Buffer.byteLength(info.html, 'utf8') : 0;
             }
         };
 
@@ -340,8 +344,11 @@ async function readOutputSize(run: Run): Promise<OutputInfo> {
     let totalBytes = 0;
     const bytesByExtension: CountByKey = {};
 
-    await Promise.all(
-        files.map(async (file) => {
+    // Bound concurrency so we don't open thousands of FDs at once and trip
+    // EMFILE on outputs with lots of files.
+    await pmap(
+        files,
+        async (file) => {
             try {
                 const stat = await run.fs.stat(join(run.output, file));
                 const size = stat.size;
@@ -352,7 +359,8 @@ async function readOutputSize(run: Run): Promise<OutputInfo> {
             } catch {
                 // File could be removed between glob and stat — silently skip.
             }
-        }),
+        },
+        {concurrency: STAT_CONCURRENCY},
     );
 
     return {
