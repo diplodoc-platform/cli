@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.38.0](https://github.com/diplodoc-platform/cli/compare/v5.37.1...v5.38.0) (2026-05-08)
+
+
+### Features
+
+* add analytics to toc schema ([#1836](https://github.com/diplodoc-platform/cli/issues/1836)) ([46357f7](https://github.com/diplodoc-platform/cli/commit/46357f73a674333af5b7a70c30318ddaca28c925))
+
 ## [5.37.1](https://github.com/diplodoc-platform/cli/compare/v5.37.0...v5.37.1) (2026-05-07)
 
 
