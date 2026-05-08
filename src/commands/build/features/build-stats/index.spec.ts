@@ -62,7 +62,10 @@ describe('BuildStats', () => {
                 'assets/style.css': 512,
             };
             vi.spyOn(run.fs, 'stat').mockImplementation((async (path: string) => {
-                const key = Object.keys(sizes).find((k) => path.endsWith(k));
+                // Normalize backslashes — on Windows `join` produces `\` paths
+                // but the fixture keys use forward slashes.
+                const normalized = path.replace(/\\/g, '/');
+                const key = Object.keys(sizes).find((k) => normalized.endsWith(k));
                 return {size: key ? sizes[key] : 0} as Stats;
             }) as unknown as typeof run.fs.stat);
 
