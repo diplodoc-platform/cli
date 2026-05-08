@@ -84,12 +84,12 @@ definitions:
         type: boolean
       hidden:
         type: boolean
-        analyticsEvents:
-          oneOf:
-            - $ref: '#/definitions/AnalyticsEvent'
-            - type: array
-              items:
-                $ref: '#/definitions/AnalyticsEvent'
+      analyticsEvents:
+        oneOf:
+          - $ref: '#/definitions/AnalyticsEvent'
+          - type: array
+            items:
+              $ref: '#/definitions/AnalyticsEvent'
       restricted-access:
         oneOf:
           - type: string
@@ -476,4 +476,6 @@ definitions:
             items:
               type: string
       context:
+        type: string
+      target:
         type: string
