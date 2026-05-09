@@ -74,6 +74,7 @@ definitions:
 
   TocItem:
     type: object
+    required: ['name']
     properties:
       name:
         type: string
@@ -115,7 +116,7 @@ definitions:
         type: string
 
   TocItemWithInclude:
-    required: ['include']
+    required: ['include', 'name']
     properties:
       name:
         type: string
@@ -168,6 +169,7 @@ definitions:
             format: url
       leadingPage:
         type: object
+        required: ['name']
         properties:
           name:
             type: string
