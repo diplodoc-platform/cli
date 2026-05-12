@@ -1410,6 +1410,39 @@ describe('prepareInlinedContent', () => {
         expect(result).not.toContain('<!-- source');
         expect(result).not.toContain('## Area');
     });
+
+    it('should not add indent when include is on a term definition line', () => {
+        const include = '{% include [idp](_includes/glossary-terms/idp.md) %}';
+        const parentContent = `[*idp]: ${include}`;
+        const dep = makeDep({
+            path: '_includes/glossary-terms/idp.md' as NormalizedPath,
+            content: 'Internal deployment platform.\nUsed for deploying services.',
+            match: include,
+            location: [parentContent.indexOf(include), parentContent.length],
+        });
+        const result = prepareInlinedContent(dep, 'main.md' as NormalizedPath, parentContent);
+        expect(result).toBe(
+            '<!-- source: _includes/glossary-terms/idp.md -->\nInternal deployment platform.\nUsed for deploying services.\n<!-- endsource: _includes/glossary-terms/idp.md -->',
+        );
+    });
+
+    it('should not add indent when include is on a long term definition line', () => {
+        const include = '{% include [devcluster](_includes/glossary/devcluster.md) %}';
+        const parentContent = `[*devcluster]: ${include}`;
+        const dep = makeDep({
+            path: '_includes/glossary/devcluster.md' as NormalizedPath,
+            content: 'Line 1\nLine 2\nLine 3',
+            match: include,
+            location: [parentContent.indexOf(include), parentContent.length],
+        });
+        const result = prepareInlinedContent(
+            dep,
+            'main.md' as NormalizedPath,
+            parentContent,
+            false,
+        );
+        expect(result).toBe('Line 1\nLine 2\nLine 3');
+    });
 });
 
 describe('addFallbackDep', () => {

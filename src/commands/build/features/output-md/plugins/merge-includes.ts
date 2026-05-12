@@ -637,8 +637,11 @@ function applySourceMapsAndIndent(
 
     if (rawPrefix) {
         const useLiteralPrefix = /[>|]/.test(rawPrefix);
+        const isTermDefPrefix = TERM_DEF_RE.test(rawPrefix);
         let indent: string;
         if (blockquoteYfmTableBreakout) {
+            indent = '';
+        } else if (isTermDefPrefix) {
             indent = '';
         } else if (useLiteralPrefix) {
             indent = rawPrefix;
