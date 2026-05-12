@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.38.1](https://github.com/diplodoc-platform/cli/compare/v5.38.0...v5.38.1) (2026-05-12)
+
+
+### Bug Fixes
+
+* fixed crawler manifest ([#1923](https://github.com/diplodoc-platform/cli/issues/1923)) ([f23e3cd](https://github.com/diplodoc-platform/cli/commit/f23e3cd780dc4abaca639c62a433b0203c14c1cc))
+* no add indent in term definitions ([5a9991c](https://github.com/diplodoc-platform/cli/commit/5a9991c7268c150e947167c9174d87aeca2fd55a))
+
 ## [5.38.0](https://github.com/diplodoc-platform/cli/compare/v5.37.1...v5.38.0) (2026-05-08)
 
 
