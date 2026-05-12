@@ -1,6 +1,7 @@
 import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
+import type {CrawlerExcludeConfig} from './types';
 
 import {join} from 'node:path';
 
@@ -11,7 +12,6 @@ import {isExternalHref, walkLinks} from '~/core/utils';
 import {valuable} from '~/core/config';
 
 import {options} from './config';
-import type {CrawlerExcludeConfig} from './types';
 import {collectCrawlerExcludes, collectLinks} from './utils';
 
 export type CrawlerManifestArgs = {
