@@ -3,12 +3,13 @@ import type {Run} from '~/commands/build';
 import {describe, expect, it, vi} from 'vitest';
 
 import {
+    collectCrawlerExcludes,
     collectExternalLinksFromYaml,
     collectLinks,
     extractExternalLinks,
     extractIncludePaths,
     parseRegexps,
-} from './index';
+} from './utils';
 
 describe('CrawlerManifest feature', () => {
     describe('extractExternalLinks', () => {
@@ -411,6 +412,172 @@ plain https://plain.example.com text
 
         it('returns empty array for empty input', () => {
             expect(parseRegexps([])).toEqual([]);
+        });
+    });
+
+    describe('collectCrawlerExcludes', () => {
+        it('collects exclude urls from root crawler config', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        url: ['https://root.example.com'],
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual(['https://root.example.com']);
+            expect(result.regexps).toEqual([]);
+        });
+
+        it('collects exclude urls from docs-viewer crawler config', () => {
+            const result = collectCrawlerExcludes({
+                'docs-viewer': {
+                    crawler: {
+                        exclude: {
+                            url: ['https://docs-viewer.example.com'],
+                        },
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual(['https://docs-viewer.example.com']);
+            expect(result.regexps).toEqual([]);
+        });
+
+        it('merges exclude urls from root and docs-viewer configs', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        url: ['https://root.example.com'],
+                    },
+                },
+                'docs-viewer': {
+                    crawler: {
+                        exclude: {
+                            url: ['https://docs-viewer.example.com'],
+                        },
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual([
+                'https://root.example.com',
+                'https://docs-viewer.example.com',
+            ]);
+        });
+
+        it('filters out non-string exclude urls', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        url: ['https://root.example.com', 123, null, true],
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual(['https://root.example.com']);
+        });
+
+        it('collects regexp excludes from root crawler config', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        regexp: ['/root\\.example\\.com/'],
+                    },
+                },
+            });
+
+            expect(result.regexps).toHaveLength(1);
+            expect(result.regexps[0].test('https://root.example.com')).toBe(true);
+            expect(result.regexps[0].test('https://other.example.com')).toBe(false);
+        });
+
+        it('collects regexp excludes from docs-viewer crawler config', () => {
+            const result = collectCrawlerExcludes({
+                'docs-viewer': {
+                    crawler: {
+                        exclude: {
+                            regexp: ['/docs-viewer\\.example\\.com/'],
+                        },
+                    },
+                },
+            });
+
+            expect(result.regexps).toHaveLength(1);
+            expect(result.regexps[0].test('https://docs-viewer.example.com')).toBe(true);
+            expect(result.regexps[0].test('https://other.example.com')).toBe(false);
+        });
+
+        it('merges regexp excludes from root and docs-viewer configs', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        regexp: ['/root\\.example\\.com/'],
+                    },
+                },
+                'docs-viewer': {
+                    crawler: {
+                        exclude: {
+                            regexp: ['/docs-viewer\\.example\\.com/'],
+                        },
+                    },
+                },
+            });
+
+            expect(result.regexps).toHaveLength(2);
+            expect(result.regexps.some((re) => re.test('https://root.example.com'))).toBe(true);
+            expect(result.regexps.some((re) => re.test('https://docs-viewer.example.com'))).toBe(
+                true,
+            );
+        });
+
+        it('collects urls and regexps together', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        url: ['https://exact.example.com'],
+                        regexp: ['/regexp\\.example\\.com/'],
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual(['https://exact.example.com']);
+            expect(result.regexps).toHaveLength(1);
+            expect(result.regexps[0].test('https://regexp.example.com')).toBe(true);
+        });
+
+        it('ignores non-array url and regexp values', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        url: 'https://example.com',
+                        regexp: '/example\\.com/',
+                    },
+                },
+            });
+
+            expect(result.urls).toEqual([]);
+            expect(result.regexps).toEqual([]);
+        });
+
+        it('filters invalid regexp patterns through parseRegexps', () => {
+            const result = collectCrawlerExcludes({
+                crawler: {
+                    exclude: {
+                        regexp: ['/valid\\.example\\.com/', '/[invalid/'],
+                    },
+                },
+            });
+
+            expect(result.regexps).toHaveLength(1);
+            expect(result.regexps[0].test('https://valid.example.com')).toBe(true);
+        });
+
+        it('returns empty values when crawler exclude config is missing', () => {
+            const result = collectCrawlerExcludes({});
+
+            expect(result.urls).toEqual([]);
+            expect(result.regexps).toEqual([]);
         });
     });
 });
