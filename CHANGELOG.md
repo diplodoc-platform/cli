@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.39.0](https://github.com/diplodoc-platform/cli/compare/v5.38.1...v5.39.0) (2026-05-13)
+
+
+### Features
+
+* **build:** emit build stats file with timing and counters ([#1905](https://github.com/diplodoc-platform/cli/issues/1905)) ([66a9dcd](https://github.com/diplodoc-platform/cli/commit/66a9dcdd9ffc0aff73f496ab891c0cc74f2a8f3a))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform@4.75.1 ([#1927](https://github.com/diplodoc-platform/cli/issues/1927)) ([f92b016](https://github.com/diplodoc-platform/cli/commit/f92b01603b4668e4ad93201427548c0a2cfbbd47))
+
 ## [5.38.1](https://github.com/diplodoc-platform/cli/compare/v5.38.0...v5.38.1) (2026-05-12)
 
 
