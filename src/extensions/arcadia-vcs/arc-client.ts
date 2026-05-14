@@ -63,7 +63,6 @@ export class ArcClient {
     async getAuthors(): Promise<Record<string, {login: string; commit: string}>> {
         const base = await this.getBase();
         const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
-        const handled = new Set<string>();
 
         const authors: Record<string, {login: string; commit: string}> = {};
 
@@ -73,9 +72,7 @@ export class ArcClient {
             const ignore = this.config.authors?.ignore || [];
 
             for (const commit of commits) {
-                const skip =
-                    shouldBeIgnored(ignore, {login: commit.login}) || handled.has(commit.sha);
-                handled.add(commit.sha);
+                const skip = shouldBeIgnored(ignore, {login: commit.login});
 
                 followPaths(
                     commit.paths,
