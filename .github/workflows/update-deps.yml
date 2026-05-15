@@ -37,11 +37,12 @@ on:
           - '@diplodoc/quote-link-extension'
           - '@diplodoc/search-extension'
           - '@diplodoc/tabs-extension'
+
       update_as_dev:
         description: 'Update as devDependency (only for single package selection)'
         required: false
         type: boolean
-        default: false
+        default: '@diplodoc/transform'
       packages:
         description: 'Package names to update (comma-separated, e.g., "@diplodoc/transform,dev:@diplodoc/client"). Use "dev:" prefix for devDependencies. If empty, uses single package selection above.'
         required: false

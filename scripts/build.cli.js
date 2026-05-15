@@ -1,6 +1,6 @@
 const {basename, dirname, join} = require('node:path');
 const {chmod, copyFile, mkdir} = require('node:fs/promises');
-const infra = require('@diplodoc/lint/esbuild');
+const infra = require('@diplodoc/infra/esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
 const {sync: glob} = require('glob');
