@@ -640,4 +640,35 @@ describe('ArcClient', () => {
             },
         ]);
     });
+
+    it('should not duplicate contributors if same commit in multiple scopes', async () => {
+        const sharedLog = dedent`
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Commit touching shared file
+
+            M   shared/file.md
+        `;
+
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '--name-status', '.'], expect.anything()).thenResolve({
+            stdout: sharedLog,
+        } as Result);
+        arc(['log', '--name-status', 'docs'], expect.anything()).thenResolve({
+            stdout: sharedLog,
+        } as Result);
+
+        const client = new ArcClient({vcs: {scopes: ['docs']}}, baseDir);
+        const contributors = await client.getContributors();
+
+        expect(contributors['shared/file.md']).toEqual([
+            {
+                login: 'author1',
+                commit: 'commit1',
+            },
+        ]);
+    });
 });

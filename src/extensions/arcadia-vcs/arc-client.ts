@@ -44,9 +44,10 @@ export class ArcClient {
                     commit.paths,
                     result,
                     (prev) => {
-                        return skip
-                            ? prev
-                            : (prev || []).concat({login: commit.login, commit: commit.sha});
+                        if (skip) return prev;
+                        const existing = prev || [];
+                        if (existing.some((e) => e.login === commit.login)) return existing;
+                        return existing.concat({login: commit.login, commit: commit.sha});
                     },
                     {
                         include: new Set(['A', 'D', 'M', 'R']),
