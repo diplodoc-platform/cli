@@ -1,25 +1,215 @@
-import {getTestPaths, runYfmDocs, compareDirectories} from '../utils';
+import type {TranslateRunArgs} from '../fixtures';
 
-const generateMapTestTemplate = (testTitle: string, testRootPath: string, extendedCommand: string) => {
-    test(testTitle, () => {
-        const {inputPath, outputPath} = getTestPaths(testRootPath);
-        runYfmDocs(inputPath, outputPath, {md2html: false, md2md: false, skipDefaults: true}, extendedCommand);
-        compareDirectories(outputPath, true);
-    });
-}
+import {describe, test} from 'vitest';
 
-const generateFilesYamlTestTemplate = (testTitle: string, testRootPath: string, extendedCommand: string) => {
-    test(testTitle, () => {
+import {TestAdapter, compareDirectories, getTestPaths} from '../fixtures';
+
+const generateMapTestTemplate = (
+    testTitle: string,
+    testRootPath: string,
+    args: TranslateRunArgs,
+    ignoreFileContent = true,
+    // TODO: added especialy for 'extract openapi spec files with custom openapi schema provided' test, arc test issue
+    ignoreFileList = false,
+) => {
+    test(testTitle, async () => {
         const {inputPath, outputPath} = getTestPaths(testRootPath);
-        runYfmDocs(inputPath, outputPath, {md2html: false, md2md: false, skipDefaults: true}, extendedCommand);
-        compareDirectories(outputPath);
+
+        await TestAdapter.testTranslatePass(inputPath, outputPath, args);
+
+        await compareDirectories(outputPath, ignoreFileContent, false, ignoreFileList);
     });
-}
+};
+
+const generateFilesYamlTestTemplate = (
+    testTitle: string,
+    testRootPath: string,
+    args: TranslateRunArgs,
+) => {
+    test(testTitle, async () => {
+        const {inputPath, outputPath} = getTestPaths(testRootPath);
+
+        await TestAdapter.testTranslatePass(inputPath, outputPath, args);
+
+        await compareDirectories(outputPath);
+    });
+};
+
+const buildFilesYamlTestTemplate = (
+    testTitle: string,
+    testRootPath: string,
+    buildProps: {md2md?: boolean; md2html?: boolean},
+) => {
+    test(testTitle, async () => {
+        const {inputPath, outputPath} = getTestPaths(testRootPath);
+        const {md2md, md2html} = buildProps;
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {md2html, md2md});
+
+        await compareDirectories(outputPath);
+    });
+};
 
 describe('Translate command', () => {
-    generateMapTestTemplate('filter files on extract', 'mocks/translation/dir-files', 'translate extract translate extract --source ru-RU --target es-ES')
+    buildFilesYamlTestTemplate(
+        'build translated md files and remove no-translate directives',
+        'mocks/translation/no-translate',
+        {md2md: true},
+    );
 
-    generateMapTestTemplate('filter files on extract with extra exclude option', 'mocks/translation/dir-files', 'translate extract --source ru-RU --target es-ES --exclude ru/_no-translate/*.md')
+    buildFilesYamlTestTemplate(
+        'build translated static files and remove no-translate directives',
+        'mocks/translation/no-translate',
+        {md2html: true},
+    );
 
-    generateFilesYamlTestTemplate('extract yaml scheme files', 'mocks/translation/yaml-scheme', 'translate extract --source ru-RU --target en-US')
+    generateFilesYamlTestTemplate('extract openapi spec files', 'mocks/translation/openapi', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
+
+    generateFilesYamlTestTemplate(
+        'extract openapi spec files with --no-ref-resolve option',
+        'mocks/translation/openapi',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: '--no-ref-resolve',
+        },
+    );
+
+    generateMapTestTemplate(
+        'extract openapi spec files with custom openapi schema provided',
+        'mocks/translation/openapi',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs:
+                '--schema mocks/translation/custom-schema/custom-openapi-schema-30.yaml',
+        },
+        false,
+        true,
+    );
+
+    generateFilesYamlTestTemplate('compose openapi spec files', 'mocks/translation/compose', {
+        subcommand: 'compose',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
+
+    generateMapTestTemplate(
+        'do not translate merged entries with included toc',
+        'mocks/translation/toc-include',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+    );
+
+    generateMapTestTemplate('do not filter files on extract', 'mocks/translation/dir-files', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'es-ES',
+    });
+
+    generateMapTestTemplate('filter files on extract', 'mocks/translation/dir-files', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'es-ES',
+        additionalArgs: '--filter',
+    });
+
+    generateMapTestTemplate(
+        'filter files on extract with extra exclude option',
+        'mocks/translation/dir-files',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: '--exclude ru/to-be-excluded.md --filter',
+        },
+    );
+
+    const vars = {skip: 'prod'};
+    generateMapTestTemplate(
+        'filter files on extract with extra vars option',
+        'mocks/translation/dir-files',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(vars)} --filter`,
+        },
+    );
+
+    const conditions = {tld: 'ru'};
+    generateMapTestTemplate(
+        'resolve liquid conditions if vars specified, liquid syntax will be deleted',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditions)}`,
+        },
+        false,
+    );
+
+    generateMapTestTemplate(
+        'do not resolve liquid conditions if vars not specified and send content as is for extract',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+        false,
+    );
+
+    generateMapTestTemplate(
+        'test no-translate directive',
+        'mocks/translation/no-translate',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+        false,
+    );
+
+    generateFilesYamlTestTemplate('extract yaml scheme files', 'mocks/translation/yaml-scheme', {
+        subcommand: 'extract',
+        source: 'ru-RU',
+        target: 'en-US',
+    });
+
+    let conditionVars = {prod: true, inner: true, list: ['item']};
+    generateMapTestTemplate(
+        'save truthy liquid conditions structures',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditionVars)}`,
+        },
+        false,
+    );
+
+    conditionVars = {prod: false, inner: false, list: ['item']};
+    generateMapTestTemplate(
+        'remove falsy liquid conditions structures',
+        'mocks/translation/conditions',
+        {
+            subcommand: 'extract',
+            source: 'ru-RU',
+            target: 'es-ES',
+            additionalArgs: `--vars ${JSON.stringify(conditionVars)}`,
+        },
+        false,
+    );
 });

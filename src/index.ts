@@ -1,50 +1,71 @@
-import type {HookMeta} from '~/core/utils';
+import {isMainThread} from 'node:worker_threads';
+import {red} from 'chalk';
+import dedent from 'ts-dedent';
 
-import {MAIN_TIMER_ID} from '~/constants';
+// eslint-disable-next-line import/order
+import './require';
+
+import * as threads from '~/commands/threads';
 import {Program, parse} from '~/commands';
-import {errorMessage, own} from '~/core/utils';
+import {MAIN_TIMER_ID} from '~/constants';
+import {stats} from '~/core/logger';
+import {console, noop} from '~/core/utils';
+
+import './suppress-noisy-logs';
 
 export * from '~/commands';
 
-if (require.main === module) {
+export const run = async (argv: string[]) => {
+    const program = new Program();
+
+    try {
+        const args = parse(argv);
+        await threads.init(program, argv);
+        await program.init(args);
+        await program.parse(argv);
+
+        const stat = stats(program.logger);
+
+        if (stat.error || (program.config.strict && stat.warn)) {
+            program.report.code = program.report.code || 1;
+        }
+    } catch (error: unknown) {
+        // eslint-disable-next-line no-console
+        console.error(error);
+        program.report.code = 1;
+    } finally {
+        await threads.terminate(true).catch(noop);
+    }
+
+    return program.report;
+};
+
+if (isMainThread && require.main === module) {
     (async () => {
         // eslint-disable-next-line no-console
         console.time(MAIN_TIMER_ID);
 
-        if (typeof VERSION !== 'undefined' && process.env.NODE_ENV !== 'test') {
+        if (global.VERSION) {
             // eslint-disable-next-line no-console
-            console.log(`Using v${VERSION} version`);
+            console.log(`Using v${global.VERSION} version`);
         }
 
-        let exitCode = 0;
-        try {
-            const args = parse(process.argv);
-            const program = new Program();
-            await program.init(args);
-            await program.parse(process.argv);
-        } catch (error: unknown) {
-            exitCode = 1;
+        const report = await run(process.argv);
 
-            if (own<HookMeta, 'hook'>(error, 'hook')) {
-                const {service, hook, name} = error.hook;
-                // eslint-disable-next-line no-console
-                console.error(
-                    `Intercept error for ${service}.${hook} hook from ${name} extension.`,
-                );
-            }
+        // eslint-disable-next-line no-console
+        console.timeEnd(MAIN_TIMER_ID);
 
-            const message = errorMessage(error);
-            if (message) {
-                // eslint-disable-next-line no-console
-                console.error(message);
-            }
-        }
-
-        if (process.env.NODE_ENV !== 'test') {
+        if (report.code) {
             // eslint-disable-next-line no-console
-            console.timeEnd(MAIN_TIMER_ID);
+            console.log(
+                red(dedent`
+                        ================================
+                        YFM build completed with ERRORS!
+                        ================================
+                    `),
+            );
         }
 
-        process.exit(exitCode);
+        process.exit(report.code);
     })();
 }

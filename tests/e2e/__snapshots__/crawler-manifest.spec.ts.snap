@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Crawler manifest > generates crawler-manifest.json 1`] = `
+{
+  "ru/index.md": [
+    "https://example.com",
+    "http://http.example.com",
+    "https://autolink.example.com",
+    "https://plain.example.com",
+    "https://image.example.com/logo.png",
+    "https://included.example.com",
+  ],
+  "ru/leading.yaml": [
+    "https://yaml.example.com",
+  ],
+  "ru/old-page": [
+    "https://external-redirect.example.com",
+  ],
+  "ru/references.md": [
+    "https://reference.example.com",
+  ],
+  "toc.yaml": [
+    "https://toc.example.com",
+  ],
+}
+`;

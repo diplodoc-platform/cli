@@ -1,0 +1,12 @@
+title: Пропустить расширение HTMLы
+href: index.md
+
+items:
+  - name: Заголовок 1
+    href: page1.md
+  - name: Заголовок 2
+    href: page2.md
+  - name: Заголовок 3
+    href: ./folder/index.md
+  - name: Заголовок 4
+    href: ./index-test-html/index.md

@@ -1,0 +1,124 @@
+import type {PageContent} from '@diplodoc/page-constructor-extension';
+import type {LoaderContext} from '../loader';
+import type {Logger} from '~/core/logger';
+
+import {dump as yamlDump, load as yamlLoad} from 'js-yaml';
+
+import {filterBlocksByConditions, hasWhenConditions} from '~/core/utils';
+
+import {PC_REGEX} from '../utils';
+
+type Replacement = {
+    start: number;
+    end: number;
+    replacement: string;
+};
+
+type ProcessOptions = {
+    vars: Record<string, unknown>;
+    skipMissingVars: boolean;
+    logger: Logger;
+    path: NormalizedPath;
+};
+
+function processPageConstructorBlocks(content: string, options: ProcessOptions): string {
+    const {vars, skipMissingVars, logger, path} = options;
+    const blocks: Replacement[] = [];
+    const openRegex = new RegExp(PC_REGEX.source, PC_REGEX.flags);
+
+    let searchStart = 0;
+
+    while (searchStart < content.length) {
+        const remaining = content.slice(searchStart);
+        const match = openRegex.exec(remaining);
+
+        if (!match) {
+            break;
+        }
+
+        const indent = match[1] || '';
+        const matchIndex = searchStart + match.index;
+        const contentStart = matchIndex + match[0].length;
+        const closePattern = new RegExp(`^${indent}:::[ \\t]*$`, 'm');
+        const afterMatch = content.slice(contentStart);
+        const closeMatch = closePattern.exec(afterMatch);
+
+        if (!closeMatch) {
+            searchStart = contentStart;
+            continue;
+        }
+
+        const yamlContent = afterMatch.slice(0, closeMatch.index);
+
+        let data: PageContent;
+
+        try {
+            data = yamlLoad(yamlContent) as PageContent;
+        } catch (error) {
+            logger.warn(`Failed to parse page-constructor YAML in ${path}: ${error}`);
+            searchStart = contentStart;
+            continue;
+        }
+
+        if (!hasWhenConditions(data)) {
+            searchStart = contentStart + closeMatch.index + closeMatch[0].length;
+            continue;
+        }
+
+        const filtered = filterBlocksByConditions(data, vars, skipMissingVars);
+        const hasBlocks = Array.isArray(filtered.blocks) && filtered.blocks.length > 0;
+
+        const blockStart = matchIndex;
+        const blockEnd = contentStart + closeMatch.index + closeMatch[0].length;
+
+        if (hasBlocks) {
+            const yaml = yamlDump(filtered, {
+                lineWidth: -1,
+                noRefs: true,
+                quotingType: "'",
+                forceQuotes: false,
+            });
+
+            const indentedYaml = yaml
+                .split('\n')
+                .filter((line) => line.trim())
+                .map((line) => `${indent}${line}`)
+                .join('\n');
+
+            blocks.push({
+                start: blockStart,
+                end: blockEnd,
+                replacement: `${indent}::: page-constructor\n${indentedYaml}\n${indent}:::\n`,
+            });
+        } else {
+            blocks.push({
+                start: blockStart,
+                end: blockEnd,
+                replacement: '',
+            });
+        }
+
+        searchStart = blockEnd;
+    }
+
+    for (let i = blocks.length - 1; i >= 0; i--) {
+        const {start, end, replacement} = blocks[i];
+        content = content.slice(0, start) + replacement + content.slice(end);
+    }
+
+    return content;
+}
+
+export function resolveConditions(this: LoaderContext, content: string): string {
+    const {skipMissingVars = false} = this.options;
+    const vars = this.vars || {};
+
+    content = processPageConstructorBlocks(content, {
+        vars,
+        skipMissingVars,
+        logger: this.logger,
+        path: this.path,
+    });
+
+    return content;
+}

@@ -1,0 +1,16 @@
+.idea
+.vscode
+.history
+.env
+.DS_Store
+.eslintrc.js
+vitest.config.mjs
+node_modules
+/lib
+/dist
+/build
+/cache
+/coverage
+/external
+/tests/mocks
+/tests/bin.mjs

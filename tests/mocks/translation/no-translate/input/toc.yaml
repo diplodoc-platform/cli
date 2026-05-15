@@ -1,0 +1,11 @@
+title: Test123
+href: index.md
+items:
+  - name: Не переводить
+    href: no-translate.md
+  - name: openapi
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml

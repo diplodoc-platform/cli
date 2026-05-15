@@ -1,0 +1,12 @@
+title: Crawler manifest test
+items:
+  - name: Index
+    href: ru/index.md
+  - name: No links
+    href: ru/no-links.md
+  - name: References
+    href: ru/references.md
+  - name: Leading
+    href: ru/leading.yaml
+  - name: External
+    href: https://toc.example.com

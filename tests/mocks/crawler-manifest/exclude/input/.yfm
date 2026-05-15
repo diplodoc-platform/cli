@@ -1,0 +1,9 @@
+crawlerManifest: true
+
+docs-viewer:
+  crawler:
+    exclude:
+      url:
+        - https://excluded-exact.example.com
+      regexp:
+        - /excluded-regexp\.example\.com/

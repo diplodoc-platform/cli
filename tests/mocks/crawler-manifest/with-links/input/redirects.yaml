@@ -1,0 +1,5 @@
+files:
+  - from: /ru/old-page
+    to: https://external-redirect.example.com
+  - from: /ru/moved
+    to: /ru/index.md

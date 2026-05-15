@@ -2,7 +2,6 @@ import type {LoaderContext} from '~/core/markdown/loader';
 import type {ChangelogItem} from '.';
 
 import {bold} from 'chalk';
-
 import transform from '@diplodoc/transform';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import changelog from '@diplodoc/transform/lib/plugins/changelog';
@@ -11,23 +10,24 @@ const BLOCK_START = '{% changelog %}';
 const BLOCK_END = '{% endchangelog %}';
 
 function parseChangelogs(content: string, path?: string) {
-    const result: ChangelogItem[] = [];
-
-    transform(content, {
+    const {
+        result: {changelogs},
+    } = transform(content, {
         plugins: [changelog, imsize],
         extractChangelogs: true,
-        changelogs: result,
         path,
     });
 
-    return result;
+    return changelogs || [];
 }
 
-export const collect = (changelogs: ChangelogItem[]) =>
+export const collect = (changelogsMap: Record<string, ChangelogItem[]>) =>
     function (this: LoaderContext, content: string) {
         let result = content;
         let lastPos = 0;
         const rawChangelogs = [];
+
+        const changelogs = changelogsMap[this.path] || [];
 
         // eslint-disable-next-line no-constant-condition
         while (true) {
@@ -61,6 +61,8 @@ export const collect = (changelogs: ChangelogItem[]) =>
             }
             changelogs.push(...parsedChangelogs);
         }
+
+        changelogsMap[this.path] = changelogs;
 
         return result;
     };

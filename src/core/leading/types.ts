@@ -6,6 +6,7 @@ import type {LoaderContext} from './loader';
 // import {PageContent} from '@gravity-ui/page-constructor';
 
 type PageContent = {
+    fullScreen: boolean;
     blocks: object;
 };
 
@@ -62,4 +63,13 @@ export type Plugin = (
 
 export type AssetInfo = Pick<UrlWithStringQuery, 'hash' | 'search'> & {
     path: NormalizedPath;
+    size: number;
 };
+
+type GraphEntryInfo = {type: 'entry'};
+
+type GraphMissedInfo = {type: 'missed'};
+
+type GraphAssetInfo = {type: 'resource' | 'source'};
+
+export type GraphInfo = GraphEntryInfo | GraphMissedInfo | GraphAssetInfo;

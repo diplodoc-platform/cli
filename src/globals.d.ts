@@ -1,6 +1,8 @@
 declare const __dirname: AbsolutePath;
 declare const require: Require;
-declare const VERSION: string;
+declare const global: typeof globalThis & {
+    VERSION: string;
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Hash<T = any> = Record<string, T>;
@@ -16,7 +18,11 @@ type DeepPartial<T> = {
 };
 
 type DeepFrozen<T> = {
-    readonly [P in keyof T]: T[P] extends {} ? DeepFrozen<T[P]> : T[P];
+    readonly [P in keyof T]: T[P] extends {}
+        ? T[P] extends AnyPath
+            ? T[P]
+            : DeepFrozen<T[P]>
+        : T[P];
 };
 
 type URIString = string & {
@@ -33,7 +39,7 @@ type Require = {
 };
 
 declare module 'node:fs/promises' {
-    import {EncodingOption} from 'node:fs';
+    import type {EncodingOption} from 'node:fs';
 
     export function readFile(path: AbsolutePath, options: EncodingOption): Promise<string>;
 

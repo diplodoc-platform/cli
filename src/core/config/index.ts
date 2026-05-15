@@ -1,12 +1,10 @@
 import {readFile} from 'node:fs/promises';
 import {dirname, resolve} from 'node:path';
 import {Command as BaseCommand, Help as BaseHelp, Option} from 'commander';
-import {identity} from 'lodash';
+import {identity, isObject, merge} from 'lodash';
 import {cyan, yellow} from 'chalk';
 import {load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
-
-type ExtendedError = Error & {code: string};
 
 export function toArray(value: string | string[], previous: string | string[]) {
     value = ([] as string[]).concat(value);
@@ -63,17 +61,33 @@ export function args(command: Command | null) {
 const deprecatedArg = (reason: string) => yellow('\nDEPRECATED:\n' + reason);
 
 export const scope = (scopeName: string) => (config: Hash) => {
-    return config[scopeName] || config;
+    const path = scopeName.split('.');
+    let current = config;
+
+    for (const part of path) {
+        if (current && typeof current === 'object' && part in current) {
+            current = current[part];
+        }
+    }
+
+    return current || config;
 };
 
 export const strictScope = (scopeName: string) => (config: Hash) => {
-    if (scopeName in config) {
-        return config[scopeName];
-    } else {
-        const error = new TypeError(`Scope ${scopeName} doesn't exist in config`) as ExtendedError;
-        error.code = 'ScopeException';
-        throw error;
+    const path = scopeName.split('.');
+    let current = config;
+
+    for (const part of path) {
+        if (current && typeof current === 'object' && part in current) {
+            current = current[part];
+        } else {
+            const error = new TypeError(`Scope ${scopeName} doesn't exist in config`);
+            error.code = 'ScopeException';
+            throw error;
+        }
     }
+
+    return current;
 };
 
 export const defined = (option: string, ...scopes: Hash[]) => {
@@ -89,6 +103,24 @@ export const defined = (option: string, ...scopes: Hash[]) => {
 // eslint-disable-next-line  @typescript-eslint/no-explicit-any
 export const valuable = (...values: any[]) =>
     values.some((value) => value !== null && value !== undefined);
+
+export const toggleable = <C extends Hash<unknown>>(
+    field: string,
+    args: Hash<unknown>,
+    config: C,
+) => {
+    const result = isObject(config[field]) ? {...(config[field] as Hash)} : {enabled: false};
+    // eslint-disable-next-line no-nested-ternary
+    result.enabled =
+        // eslint-disable-next-line no-nested-ternary
+        field in args
+            ? Boolean(args[field])
+            : isObject(config[field])
+              ? defined('enabled', config[field] as Hash, {enabled: true})
+              : defined(field, config, {[field]: false});
+
+    return result as C & {enabled: boolean};
+};
 
 const OptionSource = Symbol('OptionSource');
 
@@ -178,10 +210,7 @@ export async function resolveConfig<T extends Hash = {}>(
         const content = (await readFile(path, 'utf8')) || '{}';
         const data = load(content) as Hash;
 
-        return withConfigUtils(path, {
-            ...defaults,
-            ...filter(data),
-        });
+        return withConfigUtils(path, merge({}, defaults, filter(data)));
         // eslint-disable-next-line  @typescript-eslint/no-explicit-any
     } catch (error: any) {
         switch (error.code) {

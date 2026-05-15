@@ -1,19 +1,19 @@
 root = true
 
 [*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[{*.txt}]
-indent_style = unset
 
 [{*.json,*.yml,*.yaml}]
 indent_style = space
 indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
 
 [GNUmakefile]
 indent_style = tab

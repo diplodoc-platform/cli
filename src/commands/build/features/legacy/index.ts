@@ -5,6 +5,7 @@ import {LogLevels} from '@diplodoc/yfmlint';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {defined, valuable} from '~/core/config';
+
 import {options} from './config';
 
 export type LegacyArgs = {
@@ -75,7 +76,11 @@ export class Legacy {
 
             if (valuable(allowHTML)) {
                 config.allowHtml = allowHTML;
-                config.lint.config['MD033'] = allowHTML ? LogLevels.DISABLED : LogLevels.ERROR;
+                config.lint.config['MD033'] = allowHTML
+                    ? false
+                    : {
+                          loglevel: allowHTML ? LogLevels.DISABLED : LogLevels.ERROR,
+                      };
             }
 
             if (valuable(needToSanitizeHtml)) {

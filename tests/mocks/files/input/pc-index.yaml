@@ -1,0 +1,70 @@
+title:
+  - text: Yandex DataLens
+    when: product == "yandex-cloud"
+description:
+  - text:
+      - Yandex DataLens — это сервис бизнес-аналитики для визуализации ваших данных. Подключайтесь к различным источникам и визуализируйте данные, собирайте дашборды и формируйте отчеты в виде интерактивных презентаций.
+      - Отслеживайте ключевые продуктовые и бизнес-метрики в реальном времени, делитесь результатами с командой и принимайте обоснованные решения.
+      - Используйте Нейроаналитика для автоматического анализа данных, получения инсайтов, создания и редактирования визуализаций.
+    when: product == "yandex-cloud"
+meta:
+  title:
+    - text: Yandex DataLens
+      when: product == "yandex-cloud"
+  description:
+    - text: "Yandex DataLens — сервис бизнес-аналитики для визуализации данных. Подключайтесь к различным источникам и визуализируйте данные, собирайте дашборды, формируйте отчеты в виде интерактивных презентаций и принимайте решения на основе данных с помощью Нейроаналитика."
+      when: product == "yandex-cloud"
+  keywords:
+    - keyword: "{{ datalens-name }}"
+    - keyword: "{{ datalens-full-name }}"
+    - keyword: "Сервис {{ datalens-name }}"
+    - keyword: Сервис для бизнес аналитики
+    - keyword: BI аналитика
+    - keyword: "Визуализация данных в {{ yandex-cloud }}"
+    - keyword: Как подключиться к источнику данных
+    - keyword: "бизнес-метрики в {{ yandex-cloud }}"
+    - keyword: "Аналитика {{ yandex-cloud }}"
+links:
+  - title: Начало работы
+    description: Как начать работать с DataLens
+    when: audience == "external"
+    href: quickstart
+  - title: Нейроаналитик
+    description: Поможет интерпретировать ваши данные и написать код
+    href: concepts/neuroanalyst
+    when: product == "yandex-cloud"
+  - title: Подключения
+    description: Подключайте различные источники данных
+    href: concepts/connection
+  - title: Датасеты
+    description: Описывайте структуру данных, полученных из источника
+    href: dataset/
+  - title: Чарты
+    description: Стройте чарты с помощью Self-service-конструктора визуализаций или используйте JavaScript-кастомизацию
+    href: concepts/chart/
+  - title: Дашборды
+    description: Собирайте свои чарты на одной странице
+    href: concepts/dashboard
+  - title: Отчеты
+    description: Готовьте многостраничные документы для печати
+    when: product == "yandex-cloud" or product == "dlent"
+    href: reports/
+  - title: Квоты и лимиты
+    description: Технические и организационные ограничения сервиса
+    when: audience == "external"
+    href: concepts/limits
+  - title: Управление доступом
+    description: Какие права доступа нужны для работы с сервисом
+    href: security/
+  - title: Правила тарификации
+    description: Цены и правила расчета стоимости услуг сервиса
+    when: product == "yandex-cloud" and audience == "external"
+    href: pricing
+  - title: Обучающие курсы
+    description: Информация о доступных программах обучения
+    href: training
+    when: product == "yandex-cloud"
+  - title: DataLens Gallery
+    description: Готовые дашборды для вдохновения и решения бизнес-задач
+    href: concepts/gallery
+    when: product == "yandex-cloud" and audience == "external"

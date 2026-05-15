@@ -109,13 +109,6 @@ const useSource = option({
     `,
 });
 
-const useExperimentalParser = option({
-    flags: '--use-experimental-parser',
-    desc: `
-        Use experimental parser for markdown documents.
-    `,
-});
-
 const schema = option({
     flags: '--schema <path...>',
     desc: `
@@ -126,6 +119,33 @@ const schema = option({
 
     `,
     parser: toArray,
+});
+
+const filter = option({
+    flags: '--filter',
+    desc: `
+        If enabled translates only resolved files from toc.yaml
+        If disabled translates all files from project.
+
+        Disabled by default.
+
+        Example:
+            {{PROGRAM}} --filter
+
+    `,
+    default: false,
+});
+
+const noRefResolve = option({
+    flags: '--no-ref-resolve',
+    desc: `
+        Disables resolving ref in openapi whilest translate extract command.
+
+        Example:
+            {{PROGRAM}} --no-ref-resolve
+
+    `,
+    default: true,
 });
 
 export const options = {
@@ -141,6 +161,7 @@ export const options = {
     vars,
     dryRun,
     useSource,
-    useExperimentalParser,
     schema,
+    filter,
+    noRefResolve,
 };

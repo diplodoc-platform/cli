@@ -1,12 +1,198 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Generic includer > should use leadingPage.name option 1`] = `
-"items:
-  - name: Test Overview
+exports[`Generic includer > should keep directory name as folder name when linkIndex is enabled by default 1`] = `
+"path: toc.yaml
+items:
+  - href: index.md
+  - href: test.md
+  - name: sub
+    href: sub/index.md
+    items:
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
+      - name: sub
+        items:
+          - href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - href: skip/sub/sub-1.md
+"
+`;
+
+exports[`Generic includer > should keep folder name when linkIndexAutotitle is set but autotitle is disabled 1`] = `
+"path: toc.yaml
+items:
+  - name: index
     href: index.md
   - name: test
     href: test.md
   - name: sub
+    href: sub/index.md
+    items:
+      - name: sub-1
+        href: sub/sub-1.md
+      - name: sub-2
+        href: sub/sub-2.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - name: sub-1
+            href: skip/sub/sub-1.md
+"
+`;
+
+exports[`Generic includer > should leave directory name empty when linkIndexAutotitle is enabled 1`] = `
+"path: toc.yaml
+items:
+  - href: index.md
+  - href: test.md
+  - href: sub/index.md
+    items:
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
+      - name: sub
+        items:
+          - href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - href: skip/sub/sub-1.md
+"
+`;
+
+exports[`Generic includer > should preserve insertion order without orderBy 1`] = `
+"path: toc.yaml
+items:
+  - name: banana
+    href: banana.md
+  - name: apple
+    href: apple.md
+  - name: cherry
+    href: cherry.md
+"
+`;
+
+exports[`Generic includer > should sort in descending order with order=desc 1`] = `
+"path: toc.yaml
+items:
+  - name: '20'
+    href: 20.md
+  - name: '10'
+    href: 10.md
+  - name: '2'
+    href: 2.md
+  - name: '1'
+    href: 1.md
+"
+`;
+
+exports[`Generic includer > should sort nested directories naturally 1`] = `
+"path: toc.yaml
+items:
+  - name: chapter-1
+    items:
+      - name: intro
+        href: chapter-1/intro.md
+      - name: section-1
+        href: chapter-1/section-1.md
+      - name: section-2
+        href: chapter-1/section-2.md
+      - name: section-10
+        href: chapter-1/section-10.md
+  - name: chapter-2
+    items:
+      - name: intro
+        href: chapter-2/intro.md
+  - name: chapter-10
+    items:
+      - name: intro
+        href: chapter-10/intro.md
+"
+`;
+
+exports[`Generic includer > should sort numeric filenames with orderBy=natural 1`] = `
+"path: toc.yaml
+items:
+  - name: '1'
+    href: 1.md
+  - name: '2'
+    href: 2.md
+  - name: '9'
+    href: 9.md
+  - name: '10'
+    href: 10.md
+  - name: '11'
+    href: 11.md
+  - name: '20'
+    href: 20.md
+  - name: '100'
+    href: 100.md
+"
+`;
+
+exports[`Generic includer > should sort with orderBy=filename lexicographically 1`] = `
+"path: toc.yaml
+items:
+  - name: '1'
+    href: 1.md
+  - name: '10'
+    href: 10.md
+  - name: '100'
+    href: 100.md
+  - name: '11'
+    href: 11.md
+  - name: '2'
+    href: 2.md
+  - name: '20'
+    href: 20.md
+  - name: '9'
+    href: 9.md
+"
+`;
+
+exports[`Generic includer > should use autotitle option 1`] = `
+"path: toc.yaml
+items:
+  - name: index
+    href: index.md
+  - name: test
+    href: test.md
+  - name: sub
+    items:
+      - name: sub-1
+        href: sub/sub-1.md
+      - name: sub-2
+        href: sub/sub-2.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: sub/sub/sub-3.md
+  - name: skip
+    items:
+      - name: sub
+        items:
+          - name: sub-1
+            href: skip/sub/sub-1.md
+"
+`;
+
+exports[`Generic includer > should use directory name when linkIndex is enabled and autotitle is disabled 1`] = `
+"path: toc.yaml
+items:
+  - name: index
+    href: index.md
+  - name: test
+    href: test.md
+  - name: sub
+    href: sub/index.md
     items:
       - name: sub-1
         href: sub/sub-1.md
@@ -26,51 +212,41 @@ exports[`Generic includer > should use leadingPage.name option 1`] = `
 `;
 
 exports[`Generic includer > should use top path as input root, if input is not specified 1`] = `
-"items:
-  - name: Overview
-    href: index.md
-  - name: test
-    href: test.md
+"path: toc.yaml
+items:
+  - href: index.md
+  - href: test.md
   - name: sub
     items:
-      - name: sub-1
-        href: sub/sub-1.md
-      - name: sub-2
-        href: sub/sub-2.md
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
       - name: sub
         items:
-          - name: sub-3
-            href: sub/sub/sub-3.md
+          - href: sub/sub/sub-3.md
   - name: skip
     items:
       - name: sub
         items:
-          - name: sub-1
-            href: skip/sub/sub-1.md
+          - href: skip/sub/sub-1.md
 "
 `;
 
 exports[`Generic includer > should work 1`] = `
-"items:
-  - name: Overview
-    href: index.md
-  - name: test
-    href: test.md
+"path: toc.yaml
+items:
+  - href: index.md
+  - href: test.md
   - name: sub
     items:
-      - name: sub-1
-        href: sub/sub-1.md
-      - name: sub-2
-        href: sub/sub-2.md
+      - href: sub/sub-1.md
+      - href: sub/sub-2.md
       - name: sub
         items:
-          - name: sub-3
-            href: sub/sub/sub-3.md
+          - href: sub/sub/sub-3.md
   - name: skip
     items:
       - name: sub
         items:
-          - name: sub-1
-            href: skip/sub/sub-1.md
+          - href: skip/sub/sub-1.md
 "
 `;

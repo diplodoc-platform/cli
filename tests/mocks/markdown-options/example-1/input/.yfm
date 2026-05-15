@@ -1,0 +1,5 @@
+breaks: false
+linkify: true
+linkifyTlds:
+  - myext
+  - custom

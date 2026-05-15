@@ -1,0 +1,5 @@
+items:
+  name: Named include (items is Object here - this is not an error)
+  items:
+    - name: Item 1
+      href: folder/item-1.md

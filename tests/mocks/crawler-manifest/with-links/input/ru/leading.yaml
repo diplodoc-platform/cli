@@ -1,0 +1,5 @@
+blocks:
+  - type: card-with-image
+    title: Card title
+    description: |
+      Description with [external link](https://yaml.example.com) inside.

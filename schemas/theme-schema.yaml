@@ -1,0 +1,140 @@
+$schema: 'http://json-schema.org/draft-07/schema#'
+$id: 'https://diplodoc.com/schemas/theme/draft-01/schema#'
+title: Theme configuration file schema
+type: object
+properties:
+  base-brand:
+    type: string
+  base-selection:
+    type: string
+  base-background:
+    type: string
+  text-primary:
+    type: string
+  text-secondary:
+    type: string
+  base-simple-hover:
+    type: string
+  line-generic:
+    type: string
+  note-info-background:
+    type: string
+  note-tip-background:
+    type: string
+  note-warning-background:
+    type: string
+  note-important-background:
+    type: string
+  quote:
+    type: string
+  tab-active:
+    type: string
+  tab-text:
+    type: string
+  tab-text-hover:
+    type: string
+  link:
+    type: string
+  link-hover:
+    type: string
+  term-dfn-background:
+    type: string
+  code:
+    type: string
+  code-background:
+    type: string
+  inline-code:
+    type: string
+  inline-code-background:
+    type: string
+  table:
+    type: string
+  table-row-background:
+    type: string
+  table-background:
+    type: string
+  table-border:
+    type: string
+  mini-toc-border:
+    type: string
+  mini-toc:
+    type: string
+  mini-toc-hover:
+    type: string
+  mini-toc-active:
+    type: string
+  mini-toc-active-border:
+    type: string
+  light:
+    $ref: '#/definitions/ColorProperties'
+  dark:
+    $ref: '#/definitions/ColorProperties'
+additionalProperties: false
+
+definitions:
+  ColorProperties:
+    type: object
+    properties:
+      base-brand:
+        type: string
+      base-selection:
+        type: string
+      base-background:
+        type: string
+      text-primary:
+        type: string
+      text-secondary:
+        type: string
+      base-simple-hover:
+        type: string
+      line-generic:
+        type: string
+      note-info-background:
+        type: string
+      note-tip-background:
+        type: string
+      note-warning-background:
+        type: string
+      note-important-background:
+        type: string
+      quote:
+        type: string
+      tab-active:
+        type: string
+      tab-text:
+        type: string
+      tab-text-hover:
+        type: string
+      link:
+        type: string
+      link-hover:
+        type: string
+      term-dfn-background:
+        type: string
+      code:
+        type: string
+      code-background:
+        type: string
+      inline-code:
+        type: string
+      inline-code-background:
+        type: string
+      table:
+        type: string
+      table-row-background:
+        type: string
+      table-background:
+        type: string
+      table-border:
+        type: string
+      mini-toc-border:
+        type: string
+      mini-toc:
+        type: string
+      mini-toc-hover:
+        type: string
+      mini-toc-active:
+        type: string
+      mini-toc-active-border:
+        type: string
+    additionalProperties: false

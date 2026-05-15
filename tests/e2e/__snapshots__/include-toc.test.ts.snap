@@ -1,12 +1,49 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Include toc Nested toc inclusions with mixed including modes 2: filelist 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes > filelist 1`] = `
+"[
+  "product1/_includes/inc-hash.md",
+  "product1/article1.md",
+  "product1/toc.yaml",
+  "product2/overlay1/_includes/inc-hash.md",
+  "product2/overlay1/article1.md",
+  "product2/overlay2/_includes/inc-hash.md",
+  "product2/overlay2/article1.md",
+  "product2/overlay3/_includes/inc-hash.md",
+  "product2/overlay3/article1.md",
+  "product2/p2.md",
+  "product2/toc.yaml"
+]"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 1`] = `
+"---
+sourcePath: product1/core/_includes/inc.md
+---
+This is the core include."
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+sourcePath: product1/core/article1.md
+vcsPath: product1/core/article1.md
+---
+This is the core content of Article 1.
+
+{% include [x](_includes/inc-hash.md) %}
+"
+`;
+
+exports[`Include toc > Nested toc inclusions with mixed including modes 2 > filelist 1`] = `
 "[
   "toc.yaml"
 ]"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes 2: toc.yaml 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 2 1`] = `
 "title: main
 items:
   - name: toc_i/item
@@ -17,107 +54,91 @@ items:
     items:
       - name: core/concepts/toc_i/item
       - name: core/concepts/toc_p/item
+path: toc.yaml
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: filelist 1`] = `
-"[
-  "product1/_includes/inc.md",
-  "product1/article1.md",
-  "product1/toc.yaml",
-  "product2/overlay1/_includes/inc.md",
-  "product2/overlay1/article1.md",
-  "product2/overlay2/_includes/inc.md",
-  "product2/overlay2/article1.md",
-  "product2/overlay3/_includes/inc.md",
-  "product2/overlay3/article1.md",
-  "product2/p2.md",
-  "product2/toc.yaml"
-]"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes: product1/_includes/inc.md 1`] = `"This is the core include."`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes: product1/article1.md 1`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
-sourcePath: product1/core/article1.md
----
-This is the core content of Article 1.
-
-{% include [x](_includes/inc.md) %}
-"
-`;
-
-exports[`Include toc Nested toc inclusions with mixed including modes: product1/toc.yaml 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 3`] = `
 "title: Product 1 title
 items:
   - name: Article1
     href: article1.md
+path: product1/toc.yaml
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/_includes/inc.md 1`] = `
-"This is the core include.
+exports[`Include toc > Nested toc inclusions with mixed including modes 4`] = `
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay1/article1.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 5`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay1/product/article1.md
+vcsPath: product2/overlay1/product/article1.md
 ---
 This is the overlay content of Article 1 for product 2.
 
-{% include [x](_includes/inc.md) %}
+{% include [x](_includes/inc-hash.md) %}
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/_includes/inc.md 1`] = `
-"This is the core include.
+exports[`Include toc > Nested toc inclusions with mixed including modes 6`] = `
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay2/article1.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 7`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/overlay2/product/article1.md
+vcsPath: product2/overlay2/product/article1.md
 ---
 This is the overlay number #2  of Article 1 content for product 2.
 
-{% include [x](_includes/inc.md) %}
+{% include [x](_includes/inc-hash.md) %}
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/_includes/inc.md 1`] = `
-"This is the core include.
+exports[`Include toc > Nested toc inclusions with mixed including modes 8`] = `
+"---
+sourcePath: product2/core/_includes/inc.md
+---
+This is the core include.
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/overlay3/article1.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 9`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: product2/core/article1.md
+vcsPath: product2/core/article1.md
 ---
 This is the core content of Article 1.
 
-{% include [x](_includes/inc.md) %}
+{% include [x](_includes/inc-hash.md) %}
 "
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/p2.md 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 10`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: product2/p2.md
 ---
 This is the product 2 specific article.
 
@@ -125,7 +146,7 @@ Check here link to [Article1 overlay 1](overlay1/article1.md)
 Check here link to [Article1 overlay 2](overlay2/article1.md)"
 `;
 
-exports[`Include toc Nested toc inclusions with mixed including modes: product2/toc.yaml 1`] = `
+exports[`Include toc > Nested toc inclusions with mixed including modes 11`] = `
 "title: Product 2 title
 items:
   - name: P2 Article
@@ -142,20 +163,11 @@ items:
     items:
       - name: Article1
         href: overlay3/article1.md
+path: product2/toc.yaml
 "
 `;
 
-exports[`Include toc Toc is included in link mode: a1.md 1`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
----
-This is the /a1.md file content.
-"
-`;
-
-exports[`Include toc Toc is included in link mode: filelist 1`] = `
+exports[`Include toc > Toc is included in link mode > filelist 1`] = `
 "[
   "a1.md",
   "folder1/a1.md",
@@ -164,27 +176,40 @@ exports[`Include toc Toc is included in link mode: filelist 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc is included in link mode: folder1/a1.md 1`] = `
+exports[`Include toc > Toc is included in link mode 1`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+---
+This is the /a1.md file content.
+"
+`;
+
+exports[`Include toc > Toc is included in link mode 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: folder1/a1.md
 ---
 This is the /folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode: folder1/folder2/a1.md 1`] = `
+exports[`Include toc > Toc is included in link mode 3`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: folder1/folder2/a1.md
 ---
 This is the /folder1/folder1/a1.md file content.
 "
 `;
 
-exports[`Include toc Toc is included in link mode: toc.yaml 1`] = `
+exports[`Include toc > Toc is included in link mode 4`] = `
 "items:
   - name: A1
     href: a1.md
@@ -196,25 +221,39 @@ exports[`Include toc Toc is included in link mode: toc.yaml 1`] = `
         items:
           - name: A1
             href: folder1/folder2/a1.md
+path: toc.yaml
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: .yfm 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section > filelist 1`] = `
+"[
+  ".yfm",
+  "file1.md",
+  "fileA.md",
+  "fileB.md",
+  "fileC.md",
+  "fileX.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc is included inline, not as a new section 1`] = `
 "applyPresets: true
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: file1.md 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 2`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: file1.md
 ---
 # File 1
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: fileA.md 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 3`] = `
 "---
 metadata:
   - name: generator
@@ -222,6 +261,7 @@ metadata:
 sourcePath: folder/fileA.md
 title: File A
 description: YFM description
+vcsPath: folder/fileA.md
 ---
 # File A
 
@@ -233,12 +273,13 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: fileB.md 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 4`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/fileB.md
+vcsPath: folder/fileB.md
 ---
 # File B
 
@@ -252,40 +293,30 @@ Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, wh
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: fileC.md 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 5`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
 sourcePath: folder/folder/fileC.md
+vcsPath: folder/folder/fileC.md
 ---
 # File C
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: fileX.md 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 6`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: fileX.md
 ---
 # File X
 "
 `;
 
-exports[`Include toc Toc is included inline, not as a new section: filelist 1`] = `
-"[
-  ".yfm",
-  "file1.md",
-  "fileA.md",
-  "fileB.md",
-  "fileC.md",
-  "fileX.md",
-  "toc.yaml"
-]"
-`;
-
-exports[`Include toc Toc is included inline, not as a new section: toc.yaml 1`] = `
+exports[`Include toc > Toc is included inline, not as a new section 7`] = `
 "items:
   - name: Name1
     href: file1.md
@@ -297,15 +328,11 @@ exports[`Include toc Toc is included inline, not as a new section: toc.yaml 1`] 
     href: fileC.md
   - name: NameX
     href: fileX.md
+path: toc.yaml
 "
 `;
 
-exports[`Include toc Toc root merge on non root dir: .yfm 1`] = `
-"allowHtml: true
-"
-`;
-
-exports[`Include toc Toc root merge on non root dir: filelist 1`] = `
+exports[`Include toc > Toc root merge on non root dir > filelist 1`] = `
 "[
   ".yfm",
   "ru/index.yaml",
@@ -313,7 +340,12 @@ exports[`Include toc Toc root merge on non root dir: filelist 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc root merge on non root dir: ru/index.yaml 1`] = `
+exports[`Include toc > Toc root merge on non root dir 1`] = `
+"allowHtml: true
+"
+`;
+
+exports[`Include toc > Toc root merge on non root dir 2`] = `
 "blocks:
   - type: header-block
     title: Title
@@ -323,29 +355,24 @@ meta:
   metadata:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
+  alternate:
+    - ru/
   sourcePath: ru/sub/folder/index.yaml
+  canonical: ru/index.html
+  vcsPath: ru/sub/folder/index.yaml
 "
 `;
 
-exports[`Include toc Toc root merge on non root dir: ru/toc.yaml 1`] = `
+exports[`Include toc > Toc root merge on non root dir 3`] = `
 "title: Toc
 items:
   - name: sub-page
     href: index.yaml
+path: ru/toc.yaml
 "
 `;
 
-exports[`Include toc Toc with expressions: a1.md 1`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
----
-This is the /a1.md file content.
-"
-`;
-
-exports[`Include toc Toc with expressions: filelist 1`] = `
+exports[`Include toc > Toc with expressions > filelist 1`] = `
 "[
   "a1.md",
   "index.yaml",
@@ -353,7 +380,18 @@ exports[`Include toc Toc with expressions: filelist 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc with expressions: index.yaml 1`] = `
+exports[`Include toc > Toc with expressions 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+---
+This is the /a1.md file content.
+"
+`;
+
+exports[`Include toc > Toc with expressions 2`] = `
 "title: Title A
 description:
   - Desc A
@@ -362,6 +400,7 @@ meta:
     - name: generator
       content: Diplodoc Platform vDIPLODOC-VERSION
   title: Meta A
+  vcsPath: index.yaml
 links:
   - title: A1
     description: A1 desc
@@ -369,16 +408,17 @@ links:
 "
 `;
 
-exports[`Include toc Toc with expressions: toc.yaml 1`] = `
+exports[`Include toc > Toc with expressions 3`] = `
 "title: Title A
 href: index.yaml
 items:
   - name: A1
     href: a1.md
+path: toc.yaml
 "
 `;
 
-exports[`Include toc Toc with generic includer: filelist 1`] = `
+exports[`Include toc > Toc with generic includer > filelist 1`] = `
 "[
   "test/index.md",
   "test/sub/sub-1.md",
@@ -389,11 +429,12 @@ exports[`Include toc Toc with generic includer: filelist 1`] = `
 ]"
 `;
 
-exports[`Include toc Toc with generic includer: test/index.md 1`] = `
+exports[`Include toc > Toc with generic includer 1`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
 ---
 # H1
 
@@ -402,20 +443,12 @@ metadata:
 "
 `;
 
-exports[`Include toc Toc with generic includer: test/sub/sub/sub-3.md 1`] = `
+exports[`Include toc > Toc with generic includer 2`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
----
-# H1"
-`;
-
-exports[`Include toc Toc with generic includer: test/sub/sub-1.md 1`] = `
-"---
-metadata:
-  - name: generator
-    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
 ---
 # H1
 
@@ -425,30 +458,42 @@ metadata:
 "
 `;
 
-exports[`Include toc Toc with generic includer: test/sub/sub-2.md 1`] = `
+exports[`Include toc > Toc with generic includer 3`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
 ---
 # H1"
 `;
 
-exports[`Include toc Toc with generic includer: test/test.md 1`] = `
+exports[`Include toc > Toc with generic includer 4`] = `
 "---
 metadata:
   - name: generator
     content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
 ---
 # H1"
 `;
 
-exports[`Include toc Toc with generic includer: toc.yaml 1`] = `
+exports[`Include toc > Toc with generic includer 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer 6`] = `
 "title: main
 items:
   - name: test
     href: test/test.md
-  - name: Overview
+  - name: index
     href: test/index.md
   - name: sub
     items:
@@ -460,5 +505,320 @@ items:
         items:
           - name: sub-3
             href: test/sub/sub/sub-3.md
+path: toc.yaml
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub index"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer and linkIndex option 7`] = `
+"title: main
+items:
+  - name: test
+    href: test/test.md
+  - name: index
+    href: test/index.md
+  - name: sub
+    href: test/sub/index.md
+    items:
+      - name: sub-2
+        href: test/sub/sub-2.md
+      - name: sub-1
+        href: test/sub/sub-1.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: test/sub/sub/sub-3.md
+path: toc.yaml
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# H1
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub index"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# H1
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# H1"
+`;
+
+exports[`Include toc > Toc with generic includer keeps index.md as child item by default 7`] = `
+"title: main
+items:
+  - name: test
+    href: test/test.md
+  - name: index
+    href: test/index.md
+  - name: sub
+    items:
+      - name: sub-2
+        href: test/sub/sub-2.md
+      - name: sub-1
+        href: test/sub/sub-1.md
+      - name: index
+        href: test/sub/index.md
+      - name: sub
+        items:
+          - name: sub-3
+            href: test/sub/sub/sub-3.md
+path: toc.yaml
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory > filelist 1`] = `
+"[
+  "test/index.md",
+  "test/sub/index.md",
+  "test/sub/sub-1.md",
+  "test/sub/sub-2.md",
+  "test/sub/sub/sub-3.md",
+  "test/test.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/index.md
+---
+# Root index
+
+[same level link](./test.md)
+[inner link](./sub/sub-1.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/index.md
+---
+# Sub section
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-1.md
+---
+# Sub one
+
+[same level link](./sub-2.md)
+[outer link](../test.md)
+[inner link](./sub/sub-3.md)
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub-2.md
+---
+# Sub two
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/sub/sub/sub-3.md
+---
+# Sub three
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: test/test.md
+---
+# Test page
+"
+`;
+
+exports[`Include toc > Toc with generic includer linkIndexAutotitle uses index.md heading for directory 7`] = `
+"title: main
+items:
+  - name: Test page
+    href: test/test.md
+  - name: Root index
+    href: test/index.md
+  - href: test/sub/index.md
+    items:
+      - name: Sub two
+        href: test/sub/sub-2.md
+      - name: Sub one
+        href: test/sub/sub-1.md
+      - name: sub
+        items:
+          - name: Sub three
+            href: test/sub/sub/sub-3.md
+    name: Sub section
+path: toc.yaml
 "
 `;

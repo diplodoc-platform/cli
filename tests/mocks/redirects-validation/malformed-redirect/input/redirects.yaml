@@ -1,0 +1,6 @@
+common:
+  - form: /foo.md
+    to: /bar.md
+  - match: /barbar.md
+    redirect: /baz.md
+  -

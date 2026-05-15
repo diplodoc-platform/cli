@@ -1,43 +1,288 @@
-import type {Location} from './types';
+import type {AssetInfo, ImageOptions, Location} from './types';
+import type {ConstructorBlock, PageContent} from '@diplodoc/page-constructor-extension';
 
-type LinkInfo = {link: string; location: Location};
+import {load as yamlLoad} from 'js-yaml';
 
-export function findLinks<T extends boolean>(
-    content: string,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    return find(
-        /]\(\s*/g,
-        content,
-        (_, rx) => {
-            const link = parseLinkDestination(content, rx.lastIndex);
+import {MEDIA_FORMATS, parseLocalUrl, walkLinks} from '~/core/utils';
 
-            // TODO: add more precise filter for unix compatible paths
-            if (!link || link.match(/[${}]/)) {
-                return undefined;
+type AssetModifier = '!' | '@' | '';
+
+const modifiers = {'!': 'image', '@': 'video', '': 'link'} as const;
+
+export function findLink(content: string): string | undefined {
+    const rx = /]\(\s*/g;
+    const match = rx.exec(content);
+    if (!match) {
+        return undefined;
+    }
+
+    const link = parseLinkDestination(content, rx.lastIndex);
+
+    if (link === null || link.match(/[${}]/)) {
+        return undefined;
+    }
+
+    rx.lastIndex += link.length + 1;
+
+    return link;
+}
+
+export function extractImages(block: ConstructorBlock | string): string[] {
+    const images: string[] = [];
+
+    if (!block) {
+        return images;
+    }
+
+    if (typeof block === 'string') {
+        const trimmedBlock = block.trim();
+
+        if (MEDIA_FORMATS.test(trimmedBlock) && trimmedBlock.split(/\s+/).length === 1) {
+            images.push(trimmedBlock);
+        }
+
+        return images;
+    }
+
+    walkLinks(block, (value) => {
+        if (MEDIA_FORMATS.test(value) && value.split(/\s+/).length === 1) {
+            images.push(value);
+        }
+    });
+
+    return images;
+}
+
+export function parsePcBlocks(blocks: ConstructorBlock[] = [], images: string[] = []): string[] {
+    for (const block of blocks) {
+        images.push(...extractImages(block));
+    }
+
+    return images;
+}
+
+export function getPcIconTitle(iconPath: string): string {
+    const file = iconPath.split('/').pop() || iconPath;
+
+    return file.replace(/\.[^.]+$/, '');
+}
+
+export const PC_REGEX = /^([ \t]*):::\s*page-constructor[ \t]*\r?\n?/m;
+export const INCLUDE_REGEX = /{%\s*include\s*.+?%}/g;
+
+export function findPcImages(content: string): AssetInfo[] {
+    const pcImages: AssetInfo[] = [];
+    const openRegex = new RegExp(PC_REGEX.source, PC_REGEX.flags);
+
+    let searchStart = 0;
+
+    while (searchStart < content.length) {
+        const remaining = content.slice(searchStart);
+        const match = openRegex.exec(remaining);
+
+        if (!match) {
+            break;
+        }
+
+        const indent = match[1] || '';
+        const matchIndex = searchStart + match.index;
+        const startIdx = matchIndex + match[0].length;
+        const closeRegex = new RegExp(`^${indent}:::[ \\t]*$`, 'm');
+        const afterMatch = content.slice(startIdx);
+        const closeMatch = closeRegex.exec(afterMatch);
+
+        if (!closeMatch) {
+            searchStart = startIdx;
+            continue;
+        }
+
+        const rawBlock = afterMatch.slice(0, closeMatch.index);
+        let data: PageContent;
+
+        try {
+            data = yamlLoad(rawBlock) as PageContent;
+        } catch {
+            searchStart = startIdx;
+            continue;
+        }
+
+        const images = parsePcBlocks(data?.blocks as ConstructorBlock[], []);
+
+        for (const img of images) {
+            const parsed = parseLocalUrl(img);
+
+            if (!parsed) {
+                continue;
             }
 
-            rx.lastIndex += link.length + 1;
-            return link;
-        },
-        withPosition,
-    );
+            const blockEnd = startIdx + closeMatch.index + closeMatch[0].length;
+
+            pcImages.push({
+                ...parsed,
+                type: 'image',
+                subtype: 'image',
+                title: getPcIconTitle(img),
+                autotitle: false,
+                hash: null,
+                search: null,
+                location: [matchIndex, blockEnd],
+                // no inline svg inside page-constructor because we hasn't a location for asset
+                options: {width: undefined, height: undefined, inline: false, title: undefined},
+            });
+        }
+
+        searchStart = startIdx + closeMatch.index + closeMatch[0].length;
+    }
+
+    return pcImages;
 }
 
-export function findDefs<T extends boolean>(
-    content: string,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    return find(/^\s*\[.*?]:\s*([^\s]+)/gm, content, (match) => match[1], withPosition);
+export function findHtmlDownloadLinks(content: string): AssetInfo[] {
+    const assets: AssetInfo[] = [];
+    const tagRx = /<a\s[^>]*?\bdownload\b[^>]*>/gi;
+    const hrefRx = /\bhref="([^"]+)"/i;
+    let match;
+
+    while ((match = tagRx.exec(content)) !== null) {
+        const hrefMatch = hrefRx.exec(match[0]);
+        if (!hrefMatch) {
+            continue;
+        }
+        const parsed = parseLocalUrl(hrefMatch[1]);
+        if (!parsed) {
+            continue;
+        }
+        assets.push({
+            ...parsed,
+            type: 'link',
+            subtype: null,
+            title: '',
+            autotitle: false,
+            location: [match.index, match.index + match[0].length],
+        });
+    }
+
+    return assets;
 }
 
-function find<T extends boolean>(
+export function findFileBlocks(content: string): AssetInfo[] {
+    const fileAssets: AssetInfo[] = [];
+    const rx = /{%\s*file\s.*?src="([^"]+)".*?%}/g;
+    let match;
+
+    while ((match = rx.exec(content)) !== null) {
+        const src = match[1];
+        const parsed = parseLocalUrl(src);
+        if (!parsed) {
+            continue;
+        }
+        fileAssets.push({
+            ...parsed,
+            type: 'link',
+            subtype: null,
+            title: '',
+            autotitle: false,
+            location: [match.index, match.index + match[0].length],
+        });
+    }
+
+    return fileAssets;
+}
+
+export function findLinksInfo(content: string): AssetInfo[] {
+    const links = find(/]\(\s*/g, content, (match, rx) => {
+        const link = parseLinkDestination(content, rx.lastIndex);
+        const title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+        const options = parseLinkOptions(content, rx.lastIndex + (link?.length || 0) + 1);
+
+        // TODO: add more precise filter for unix compatible paths
+        if (link === null || title === null || link.match(/[${}]/)) {
+            return undefined;
+        }
+
+        const parsed = parseLocalUrl(link);
+        if (!parsed) {
+            return undefined;
+        }
+
+        const modifier = content[
+            rx.lastIndex - match[0].length - title.length - 2
+        ] as AssetModifier;
+        const type = modifiers[modifier] || 'link';
+
+        rx.lastIndex += link.length + 1;
+
+        return {
+            ...parsed,
+            type,
+            subtype: type === 'image' ? 'image' : null,
+            title,
+            autotitle: type === 'link' && (!title || title === '{#T}'),
+            options,
+        };
+    });
+
+    const referenceLinks = find(/]\[\s*/g, content, (match, rx) => {
+        let link = parseLinkDestination(content, rx.lastIndex, ['[', ']']);
+        let title = parseLinkTitle(content, rx.lastIndex - match[0].length);
+        const options = parseLinkOptions(content, rx.lastIndex + (link?.length || 0) + 1);
+
+        // TODO: add more precise filter for unix compatible paths
+        if ((link === null && title === null) || link?.match(/[${}]/)) {
+            return undefined;
+        }
+        title = title || '';
+        link = link || title;
+
+        const parsed = parseLocalUrl(link);
+        if (!parsed) {
+            return undefined;
+        }
+
+        const modifier = content[
+            rx.lastIndex - match[0].length - title.length - 2
+        ] as AssetModifier;
+        const type = modifiers[modifier] || 'link';
+
+        rx.lastIndex += (content[rx.lastIndex] === ']' ? 0 : link.length) + 1;
+
+        return {
+            ...parsed,
+            type,
+            subtype: 'reference',
+            code: link,
+            title,
+            autotitle: type === 'link' && (!title || title === '{#T}'),
+            options,
+        };
+    });
+
+    return [...links, ...referenceLinks];
+}
+
+export function findDefs(content: string): AssetInfo[] {
+    return find(/^\s*\[(.*?)]:\s*([^\s]+)/gm, content, (match) => {
+        const parsed = parseLocalUrl(match[2]);
+        if (!parsed) {
+            return undefined;
+        }
+
+        return {
+            ...parsed,
+            type: 'def',
+            code: match[1] || undefined,
+            title: '',
+            autotitle: true,
+        };
+    });
+}
+
+function find(
     matcher: RegExp,
     content: string,
-    map: (match: RegExpMatchArray, rx: RegExp) => string | void,
-    withPosition?: T,
-): T extends true ? LinkInfo[] : string[] {
-    const links = [];
+    map: (match: RegExpMatchArray, rx: RegExp) => Omit<AssetInfo, 'location'> | void,
+): AssetInfo[] {
+    const links: AssetInfo[] = [];
 
     let match;
     // eslint-disable-next-line no-cond-assign
@@ -47,20 +292,20 @@ function find<T extends boolean>(
             continue;
         }
 
-        // replace is related to parseLinkDestination from markdown-it
-        const link = result.replace(/\\/g, '');
-        const location = [match.index, matcher.lastIndex];
-        const info = withPosition ? ({link, location} as LinkInfo) : link;
-        if (link) {
-            links.push(info);
+        if (result) {
+            links.push({
+                ...result,
+                location: [match.index, matcher.lastIndex],
+            });
         }
     }
 
-    return links as T extends true ? LinkInfo[] : string[];
+    return links;
 }
 
-function parseLinkDestination(str: string, start: number) {
+function parseLinkDestination(str: string, start: number, symbols = ['(', ')']) {
     const max = str.length;
+    const [symbolStart, symbolEnd] = symbols.map((symbol) => symbol.charCodeAt(0));
 
     let code,
         level = 0,
@@ -90,14 +335,14 @@ function parseLinkDestination(str: string, start: number) {
             continue;
         }
 
-        if (code === 0x28 /* ( */) {
+        if (code === symbolStart /* ( or [ */) {
             level++;
             if (level > 32) {
                 return null;
             }
         }
 
-        if (code === 0x29 /* ) */) {
+        if (code === symbolEnd /* ) or ] */) {
             if (level === 0) {
                 break;
             }
@@ -115,6 +360,117 @@ function parseLinkDestination(str: string, start: number) {
     }
 
     return str.slice(start, pos);
+}
+
+function parseLinkTitle(str: string, start: number) {
+    let code,
+        prev,
+        level = 0,
+        pos = start;
+
+    while (pos >= 0) {
+        code = str.charCodeAt(pos);
+        prev = str.charCodeAt(pos - 1);
+
+        // ascii control characters
+        if (code < 0x20 || code === 0x7f) {
+            break;
+        }
+
+        if (prev === 0x5c /* \ */) {
+            pos -= 2;
+            continue;
+        }
+
+        if (code === 93 /* ] */) {
+            level++;
+            if (level > 32) {
+                return null;
+            }
+        }
+
+        if (code === 91 /* [ */) {
+            if (level === 1) {
+                break;
+            }
+            level--;
+        }
+
+        pos--;
+    }
+
+    return str.slice(pos + 1, start);
+}
+
+function parseLinkOptions(str: string, start: number): ImageOptions {
+    const max = str.length;
+    const options: ImageOptions = {
+        width: undefined,
+        height: undefined,
+        inline: undefined,
+        title: undefined,
+    };
+    let code,
+        level = 0,
+        pos = start,
+        startOption = start;
+
+    if (str[pos - 1] !== ')') {
+        level--;
+    }
+    if (str.charCodeAt(pos) !== 0x7b /* { */ && level === 0) {
+        return options;
+    }
+
+    while (pos < max) {
+        code = str.charCodeAt(pos);
+
+        if (code === 0x29 /* ) */ && level === -1) {
+            if (str.charCodeAt(pos + 1) !== 0x7b) {
+                return options;
+            }
+            level++;
+        }
+
+        if (code === 0x7b /* { */ && level > -1) {
+            level++;
+            startOption = pos + 1;
+            if (level > 32) {
+                return options;
+            }
+        }
+
+        if (code === 0x7d /* } */) {
+            if (level === 1) {
+                level--;
+                break;
+            }
+            level--;
+        }
+
+        pos++;
+    }
+
+    if (start === pos || level !== 0) {
+        return options;
+    }
+
+    const attrRegex = /(\w+)=(?:'([^']*)'|"([^"]*)"|(\S+))/g;
+    const optionsString = str.slice(startOption, pos);
+    let match;
+
+    while ((match = attrRegex.exec(optionsString)) !== null) {
+        const key = match[1] as keyof ImageOptions;
+        const value = match[2] || match[3] || match[4];
+
+        if (key === 'inline') {
+            options[key] = value === 'true';
+        } else {
+            options[key] = value;
+        }
+    }
+
+    return options;
 }
 
 function parseSimpleLink(str: string, start: number) {
@@ -146,6 +502,24 @@ function parseSimpleLink(str: string, start: number) {
     return null;
 }
 
+export function findIncludedBlockRanges(content: string): Location[] {
+    const INCLUDED_OPEN = /{%\s*included\s*\(.+?\)\s*%}/g;
+    const INCLUDED_CLOSE = /{%\s*endincluded\s*%}/g;
+    const ranges: Location[] = [];
+
+    let openMatch;
+    // eslint-disable-next-line no-cond-assign
+    while ((openMatch = INCLUDED_OPEN.exec(content))) {
+        INCLUDED_CLOSE.lastIndex = INCLUDED_OPEN.lastIndex;
+        const closeMatch = INCLUDED_CLOSE.exec(content);
+        if (closeMatch) {
+            ranges.push([openMatch.index, INCLUDED_CLOSE.lastIndex]);
+        }
+    }
+
+    return ranges;
+}
+
 export function filterRanges<T extends {location: Location}>(
     excludes: Location[],
     infos: T[],
@@ -161,4 +535,34 @@ export function filterRanges<T extends {location: Location}>(
     return infos.filter((item) => {
         return !excludes.some((exclude) => contains(exclude, item.location));
     });
+}
+
+export function parseHeading(content: string) {
+    const anchors = [];
+    const commonHeading = content.match(/^#+/);
+    const alternateHeading = content[content.length - 1];
+    const alternaleLevels = ['-', '='];
+    const level = commonHeading
+        ? commonHeading[0].length
+        : alternaleLevels.indexOf(alternateHeading) + 1;
+
+    if (commonHeading) {
+        content = content.replace(/^#+\s*/, '');
+    } else {
+        content = content.replace(/\n[-=]+$/, '');
+    }
+
+    const ANCHOR = /[^[]{(#[^}]+)}/g;
+
+    let match;
+    // eslint-disable-next-line no-cond-assign
+    while ((match = ANCHOR.exec(content))) {
+        anchors.push(match[1]);
+        content = content.replace(match[0], '');
+        ANCHOR.lastIndex -= match[0].length;
+    }
+
+    const title = content.trim();
+
+    return {anchors, title, level};
 }

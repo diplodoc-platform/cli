@@ -1,9 +1,10 @@
+import type {VFile} from '~/core/utils';
 import type {LeadingPage, Plugin} from './types';
+import type {Meta} from '~/core/meta';
 
 import {AsyncSeriesHook, AsyncSeriesWaterfallHook} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
-import {Meta} from '~/core/meta';
 
 export function hooks(name: string) {
     return {
@@ -16,10 +17,7 @@ export function hooks(name: string) {
             ['leading', 'meta', 'path'],
             `${name}.Resolved`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[LeadingPage, NormalizedPath]>(
-            ['leading', 'path'],
-            `${name}.Dump`,
-        ),
+        Dump: new AsyncSeriesHook<[VFile<LeadingPage>]>(['vfile'], `${name}.Dump`),
     };
 }
 

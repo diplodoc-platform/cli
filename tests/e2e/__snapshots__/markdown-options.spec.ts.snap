@@ -1,0 +1,209 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 > filelist 1`] = `
+"[
+  ".yfm",
+  "breaks.html",
+  "linkify-tlds.html",
+  "linkify.html",
+  "toc.js"
+]"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 1`] = `
+"breaks: false
+linkify: true
+linkifyTlds:
+  - myext
+  - custom
+"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 2`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Breaks test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;First sentence/nSecond sentence/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 3`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Linkify TLDs test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"http://example.myext\\"&gt;example.myext&lt;/a&gt; for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard &lt;a href=\\"http://example.com\\"&gt;example.com&lt;/a&gt; link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 4`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Linkify test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit &lt;a href=\\"https://example.com\\" target=\\"_blank\\" rel=\\"noreferrer noopener\\"&gt;https://example.com&lt;/a&gt; for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 1 5`] = `"window.__DATA__.data.toc = {"items":[{"name":"Breaks","href":"breaks.html","id":"UUID"},{"name":"Linkify","href":"linkify.html","id":"UUID"},{"name":"Linkify TLDs","href":"linkify-tlds.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 > filelist 1`] = `
+"[
+  ".yfm",
+  "breaks.html",
+  "linkify-tlds.html",
+  "linkify.html",
+  "toc.js"
+]"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 1`] = `
+"breaks: true
+linkify: false
+
+"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 2`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Breaks test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;First sentence&lt;br /&gt;/nSecond sentence&lt;br /&gt;/nThird sentence&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"breaks.md"},"headings":[],"title":"Breaks test"},"router":{"pathname":"breaks","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 3`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Linkify TLDs test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit example.myext for custom TLD.&lt;/p&gt;/n&lt;p&gt;Standard example.com link.&lt;/p&gt;/n&lt;p&gt;Unknown example.faketld should not be linked.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify-tlds.md"},"headings":[],"title":"Linkify TLDs test"},"router":{"pathname":"linkify-tlds","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 4`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Linkify test</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Visit https://example.com for more info.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"linkify.md"},"headings":[],"title":"Linkify test"},"router":{"pathname":"linkify","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Markdown options from .yfm config > Markdown options from .yfm config 2 5`] = `"window.__DATA__.data.toc = {"items":[{"name":"Breaks","href":"breaks.html","id":"UUID"},{"name":"Linkify","href":"linkify.html","id":"UUID"},{"name":"Linkify TLDs","href":"linkify-tlds.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

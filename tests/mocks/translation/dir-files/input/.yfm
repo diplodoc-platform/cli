@@ -1,0 +1,6 @@
+translate:
+    extract:
+        vars:
+            test: prod
+            skip: dev
+            

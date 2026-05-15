@@ -1,4 +1,4 @@
-import type {RawLintConfig} from '@diplodoc/yfmlint';
+import type {LintConfig as YfmLintConfig} from '@diplodoc/yfmlint';
 import type {Build} from '~/commands/build';
 import type {Command} from '~/core/config';
 
@@ -13,6 +13,7 @@ import {getHooks as getMarkdownHooks} from '~/core/markdown';
 import {configPath, resolveConfig, valuable} from '~/core/config';
 import {isExternalHref} from '~/core/utils';
 import {LINT_CONFIG_FILENAME} from '~/constants';
+
 import {options} from './config';
 
 const EXTENSIONS = /^\S.*\.(md|html|yaml|svg|png|gif|jpg|jpeg|bmp|webp|ico)$/;
@@ -37,7 +38,7 @@ export type LintRawConfig = {
 export type LintConfig = {
     lint: {
         enabled: boolean;
-        config: RawLintConfig;
+        config: YfmLintConfig;
     };
 };
 
@@ -95,7 +96,11 @@ export class Lint {
                 config.lint.config = normalizeConfig(levels, config.lint.config);
             }
 
-            config.lint.config['MD033'] = config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR;
+            config.lint.config['MD033'] = config.allowHtml
+                ? false
+                : {
+                      loglevel: config.allowHtml ? LogLevels.DISABLED : LogLevels.ERROR,
+                  };
 
             return config;
         });
@@ -103,53 +108,50 @@ export class Lint {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Lint', (run) => {
-                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (markdown, path) => {
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                     if (!run.config.lint.enabled) {
-                        return markdown;
+                        return;
                     }
 
-                    const deps = await run.markdown.deps(path);
-                    const assets = await run.markdown.assets(path);
-                    const errors = await run.lint(path, markdown, {
-                        deps: deps.map(({path}) => path),
+                    const deps = await run.markdown.deps(vfile.path);
+                    const assets = await run.markdown.assets(vfile.path);
+
+                    const errors = await run.lint(vfile.path, vfile.data, {
+                        deps,
                         assets,
                     });
 
                     if (errors) {
                         for (const error of errors) {
-                            error.lineNumber = run.markdown.remap(path, error.lineNumber);
+                            error.lineNumber = run.markdown.remap(vfile.path, error.lineNumber);
                         }
 
                         log(errors, run.logger);
                     }
-
-                    return markdown;
                 });
 
-                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (leading, path) => {
+                getLeadingHooks(run.markdown).Dump.tapPromise('Lint', async (vfile) => {
                     if (!run.config.lint.enabled) {
-                        return leading;
+                        return;
                     }
 
                     const logLevel = getLogLevel(run.config.lint.config, ['YAML001']);
 
                     if (logLevel === LogLevels.DISABLED) {
-                        return leading;
+                        return;
                     }
 
-                    run.leading.walkLinks(leading, (link: string) => {
+                    run.leading.walkLinks(vfile.data, (link: string) => {
                         if (isExternalHref(link) || !EXTENSIONS.test(link)) {
                             return;
                         }
 
-                        if (!run.exists(join(run.input, dirname(path), link))) {
+                        if (!run.exists(join(run.input, dirname(vfile.path), link))) {
                             run.logger[logLevel](
-                                `Link is unreachable: ${bold(link)} in ${bold(path)}`,
+                                `Link is unreachable: ${bold(link)} in ${bold(vfile.path)}`,
                             );
                         }
                     });
-
-                    return leading;
                 });
             });
 

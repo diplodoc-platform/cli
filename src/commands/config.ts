@@ -1,6 +1,9 @@
+import type {OptionInfo} from '~/core/config';
+
 import {resolve} from 'node:path';
 import {bold} from 'chalk';
-import {OptionInfo, option, toArray} from '~/core/config';
+
+import {option, toArray} from '~/core/config';
 
 export const NAME = 'yfm';
 
@@ -29,7 +32,27 @@ const strict = option({
         Run in strict mode.
         Process will exit with non zero code if there was some errors or warnings.
     `,
-    default: false,
+});
+
+const jobs = option({
+    flags: '-j, --jobs [number]>',
+    desc: `
+        Run program in <number> parallel threads.
+        This can speedup CPU bound operations.
+
+        If number not passed, program will run cpus - 1 thread.
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build -j 4
+            {{PROGRAM}} build -i . -o ../build -j
+    `,
+    default: 0,
+});
+
+const workerMaxOldSpace = option({
+    flags: '--worker-max-old-space <number>',
+    desc: `Set max old space size for worker threads in megabytes.`,
+    parser: (value) => Number(value),
 });
 
 const extensions = option({
@@ -90,11 +113,29 @@ const config = (defaultConfig: string) =>
         default: defaultConfig,
     });
 
+const copyOnWrite = option({
+    flags: '--copy-on-write',
+    desc: 'Use COPYFILE_FICLONE flag for file copying.',
+    hidden: true,
+    defaultInfo: true,
+});
+
+const originAsInput = option({
+    flags: '--origin-as-input',
+    desc: 'Allow modify input dir.',
+    hidden: true,
+    defaultInfo: false,
+});
+
 export const options = {
     quiet,
     strict,
+    jobs,
+    workerMaxOldSpace,
     extensions,
     config,
     input,
     output,
+    copyOnWrite,
+    originAsInput,
 };

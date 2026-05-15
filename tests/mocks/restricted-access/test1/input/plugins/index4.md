@@ -1,0 +1,4 @@
+---
+restricted-access:
+  - - customInFile
+---

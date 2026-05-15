@@ -1,5 +1,7 @@
+import type {IProvider, TranslateConfig} from '~/commands/translate/index';
+
 import {AsyncSeriesWaterfallHook, HookMap} from 'tapable';
-import {IProvider, TranslateConfig} from '~/commands/translate/index';
+
 import {generateHooksAccess} from '~/core/utils';
 
 export function hooks(name: string) {

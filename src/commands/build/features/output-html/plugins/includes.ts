@@ -4,17 +4,55 @@ import type {MarkdownItPluginCb, MarkdownItPluginOpts} from '@diplodoc/transform
 
 import {dirname, join} from 'node:path';
 import {bold} from 'chalk';
+import {extractFrontMatter} from '@diplodoc/liquid';
 
 import {filterTokens, normalizePath} from '~/core/utils';
 
-const INCLUDE_REGEXP = /^{%\s*include\s*(notitle)?\s*\[(.+?)]\((.+?)\)\s*%}$/;
+export interface IncludeChainEntry {
+    file: string;
+    line: number;
+}
+
+/**
+ * Strips YAML frontmatter from include file content if present.
+ * Include files written by md2md may have frontmatter (e.g. csp, metadata);
+ * when used as include body they must not be rendered as content.
+ */
+export function contentWithoutFrontmatter(raw: string): string {
+    const [, content] = extractFrontMatter(raw, {json: true});
+    return content;
+}
+
+/**
+ * Tags tokens (and their children) with include source metadata.
+ * Tokens already tagged by a deeper nested include are not overwritten.
+ */
+function tagTokensWithSource(
+    tokens: Token[],
+    sourceFile: string,
+    includeChain: IncludeChainEntry[],
+) {
+    for (const token of tokens) {
+        if (!token.meta?.sourceFile) {
+            token.meta = token.meta || {};
+            token.meta.sourceFile = sourceFile;
+            token.meta.includeChain = includeChain;
+        }
+
+        if (token.children) {
+            tagTokensWithSource(token.children, sourceFile, includeChain);
+        }
+    }
+}
 
 function stripTitleTokens(tokens: Token[]) {
     const [open, _, close] = tokens;
 
     if (open?.type === 'heading_open' && close?.type === 'heading_close') {
-        tokens.splice(0, 3);
+        return tokens.slice(3);
     }
+
+    return tokens;
 }
 
 type Options = MarkdownItPluginOpts & {
@@ -22,8 +60,45 @@ type Options = MarkdownItPluginOpts & {
     files: Record<NormalizedPath, string>;
 };
 
+/**
+ * Merges resource arrays (script, style) collected during nested
+ * include parsing back into the parent env.  This is necessary because
+ * `{...env}` spread breaks the `meta` getter/setter proxy — extensions
+ * that run inside nested `md.parse` create a new `meta` object on the
+ * copy, and their additions are lost without explicit propagation.
+ */
+export function mergeNestedMeta(
+    parentEnv: Record<string, unknown>,
+    nestedMeta: Record<string, unknown> | undefined,
+) {
+    if (!nestedMeta) {
+        return;
+    }
+
+    const parent = (parentEnv.meta || {}) as Record<string, unknown>;
+    parentEnv.meta = parent;
+
+    for (const key of ['script', 'style']) {
+        const items = nestedMeta[key];
+        if (!Array.isArray(items) || items.length === 0) {
+            continue;
+        }
+        const target: string[] = (parent[key] as string[]) || [];
+        parent[key] = target;
+        for (const item of items) {
+            if (!target.includes(item)) {
+                target.push(item);
+            }
+        }
+    }
+}
+
+type CacheEntry = {tokens: Token[]; meta?: Record<string, unknown>};
+
 export default ((md, options) => {
     const {path: optPath, log} = options;
+
+    const cache: Hash<CacheEntry> = {};
 
     const plugin = (state: StateCore) => {
         const {env} = state;
@@ -39,64 +114,118 @@ export default ((md, options) => {
         }
 
         env.includes.push(path);
-        unfoldIncludes(path, state, options);
+        unfoldIncludes(path, state, options, cache);
         env.includes.pop();
     };
 
     try {
         md.core.ruler.before('curly_attributes', 'includes', plugin);
-    } catch (e) {
+    } catch {
         md.core.ruler.push('includes', plugin);
     }
 }) as MarkdownItPluginCb<Options>;
 
-function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options) {
+function unfoldIncludes(
+    path: NormalizedPath,
+    state: StateCore,
+    options: Options,
+    cache: Hash<CacheEntry>,
+) {
     const {log, files} = options;
     const {tokens, md, env} = state;
 
     // @ts-ignore
-    filterTokens(tokens, 'paragraph_open', (_openToken, {index}) => {
-        const contentToken = tokens[index + 1];
-        const closeToken = tokens[index + 2];
-
-        if (contentToken.type !== 'inline' || closeToken.type !== 'paragraph_close') {
-            return;
-        }
-
-        const match = contentToken.content.match(INCLUDE_REGEXP);
-        if (!match) {
-            return;
-        }
-
+    filterTokens(tokens, 'include', (token, {index}) => {
         try {
-            const [, keyword /* description */, , includePath] = match;
+            const includeLine = token.map ? token.map[0] + 1 : undefined;
+            const includePath = token.attrGet('path') as string;
+            const keyword = token.attrGet('keyword');
+
+            if (includePath.startsWith('#')) {
+                log.warn(
+                    [
+                        `YFM014 ${path}: Anchor "${includePath}" cannot be used as file path`,
+                        ``,
+                        `Expected syntax:`,
+                        `  {% include [text](path/to/file.md) %}`,
+                        ``,
+                        `Include will be skipped.`,
+                    ].join('\n'),
+                );
+
+                tokens.splice(index, 1);
+
+                return;
+            }
+
             const [pathname, hash] = includePath.split('#');
             const includeFullPath = normalizePath(join(dirname(path), pathname));
             const includeContent = files[includeFullPath];
 
             if (typeof includeContent !== 'string') {
-                log.error(`Include skipped. Include source for ${bold(includeFullPath)} not found`);
+                const includeLocation = includeLine ? `${path}:${includeLine}` : path;
+                log.error(
+                    `Include skipped in (${bold(includeLocation)}). Include source for ${bold(includeFullPath)} not found`,
+                );
+
                 return;
             }
 
-            const fileTokens = md.parse(includeContent, {
-                ...env,
-                path: includeFullPath,
-            });
+            const bodyContent = contentWithoutFrontmatter(includeContent);
 
-            let includedTokens;
+            const parentChain: IncludeChainEntry[] = env.includeChain || [];
+            const currentChain: IncludeChainEntry[] = includeLine
+                ? [...parentChain, {file: path, line: includeLine}]
+                : [...parentChain];
+
+            const cached = cache[includeFullPath];
+            let fileTokens: Token[];
+            let nestedMeta: Record<string, unknown> | undefined;
+
+            if (cached) {
+                fileTokens = cached.tokens;
+                nestedMeta = cached.meta;
+            } else {
+                const nestedEnv = {
+                    ...env,
+                    path: includeFullPath,
+                    includeChain: currentChain,
+                };
+                fileTokens = md.parse(bodyContent, nestedEnv);
+                nestedMeta = nestedEnv.meta as Record<string, unknown> | undefined;
+                cache[includeFullPath] = {tokens: fileTokens, meta: nestedMeta};
+            }
+
+            mergeNestedMeta(env, nestedMeta);
+
+            let includedTokens: Token[];
             if (hash) {
-                // TODO: add warning about missed block
-                includedTokens = findBlockTokens(fileTokens, hash);
+                includedTokens = cutTokens(fileTokens, hash);
+
+                if (includedTokens.length === 0) {
+                    log.warn(
+                        [
+                            `YFM015 ${path}: Anchor "#${hash}" not found in ${includeFullPath}`,
+                            ``,
+                            `Include will be skipped.`,
+                        ].join('\n'),
+                    );
+                }
             } else {
                 includedTokens = fileTokens;
             }
 
             if (keyword === 'notitle') {
-                stripTitleTokens(includedTokens);
+                includedTokens = stripTitleTokens(includedTokens);
             }
 
-            tokens.splice(index, 3, ...includedTokens);
+            if (cached) {
+                includedTokens = includedTokens.map((token) => copyToken(state, token));
+            }
+
+            tagTokensWithSource(includedTokens, includeFullPath, currentChain);
+
+            tokens.splice(index, 1, ...includedTokens);
 
             return {skip: includedTokens.length};
         } catch (e) {
@@ -108,44 +237,64 @@ function unfoldIncludes(path: NormalizedPath, state: StateCore, options: Options
     });
 }
 
-function findBlockTokens(tokens: Token[], id: string) {
-    let blockTokens: Token[] = [];
-    let i = 0,
-        startToken,
-        start,
-        end;
-    while (i < tokens.length) {
-        const token = tokens[i];
+function copyToken(state: StateCore, token: Token) {
+    const result = new state.Token(token.type, token.tag, token.nesting);
 
-        if (typeof start === 'number' && startToken) {
-            if (startToken.type === 'paragraph_open' && token.type === 'paragraph_close') {
-                end = i + 1;
-                break;
-            } else if (startToken.type === 'heading_open') {
-                if (token.type === 'heading_open' && token.tag === startToken.tag) {
-                    end = i;
-                    break;
-                } else if (i === tokens.length - 1) {
-                    end = tokens.length;
-                }
-            }
-        }
+    Object.assign(result, token);
 
-        if (
+    result.attrs = token.attrs?.map(([key, value]) => [key, value]) || null;
+    result.map = (token.map?.slice() as [number, number]) || null;
+    result.children = token.children?.map((token) => copyToken(state, token)) || null;
+
+    return result;
+}
+
+function cutTokens(tokens: Token[], id: string) {
+    const start = tokens.findIndex((token) => {
+        return (
             (token.type === 'paragraph_open' || token.type === 'heading_open') &&
-            token.attrGet('id') === id &&
-            typeof start === 'undefined'
-        ) {
-            startToken = token;
-            start = i;
+            token.attrGet('id') === id
+        );
+    });
+
+    if (start === -1) {
+        return [];
+    }
+
+    const startToken = tokens[start];
+
+    switch (startToken.type) {
+        case 'paragraph_open':
+            return cutParagraph(tokens, start);
+        case 'heading_open':
+            return cutHeading(tokens, start);
+        default:
+            return [];
+    }
+}
+
+function cutParagraph(tokens: Token[], start: number) {
+    const end = tokens.findIndex((token, index) => {
+        return token.type === 'paragraph_close' && index > start;
+    });
+
+    if (end === -1) {
+        return [];
+    }
+
+    return tokens.slice(start, end + 1);
+}
+
+function cutHeading(tokens: Token[], start: number) {
+    const level = Number(tokens[start].tag.slice(1));
+
+    for (let index = start + 1; index < tokens.length; index++) {
+        const token = tokens[index];
+
+        if (token.type === 'heading_open' && level >= Number(token.tag.slice(1))) {
+            return tokens.slice(start, index);
         }
-
-        i++;
     }
 
-    if (typeof start === 'number' && typeof end === 'number') {
-        blockTokens = tokens.slice(start, end);
-    }
-
-    return blockTokens;
+    return tokens.slice(start);
 }

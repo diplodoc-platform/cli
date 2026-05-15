@@ -1,0 +1,9 @@
+title: OpenAPI Size Limit Within Test
+items:
+  - name: API
+    include:
+      path: api
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link

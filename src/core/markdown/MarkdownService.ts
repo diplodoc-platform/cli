@@ -1,34 +1,47 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
-import type {LoaderContext} from './loader';
-import type {AdditionalInfo, Collect, HeadingInfo, IncludeInfo, Location, Plugin} from './types';
+import type {LoaderContext, TransformMode} from './loader';
+import type {
+    AssetInfo,
+    Collect,
+    EntryGraph,
+    EntryInfo,
+    GraphInfo,
+    HeadingInfo,
+    IncludeInfo,
+    Location,
+    Plugin,
+} from './types';
 
-import {join} from 'node:path';
-import {uniq} from 'lodash';
+import {dirname, join} from 'node:path';
 import {SourceMap} from '@diplodoc/liquid';
 
-import {Buckets, Defer, all, bounded, fullPath, normalizePath} from '~/core/utils';
+import {Buckets, Defer, Graph, VFile, all, bounded, fullPath, normalizePath} from '~/core/utils';
 
+import {LoaderAPI, loader} from './loader';
 import {getHooks, withHooks} from './hooks';
-import {LoaderAPI, TransformMode, loader} from './loader';
+import {parseHeading} from './utils';
 
 type MarkdownServiceConfig = {
     outputFormat: `${TransformMode}`;
-    lang: string;
-    langs: string[];
-    allowHtml: boolean;
-    sanitizeHtml: boolean;
-    supportGithubAnchors?: boolean;
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
+        legacyConditions: boolean;
         features: {
             substitutions: boolean;
-            conditions: boolean;
+            conditions?: boolean | 'strict';
         };
         scopes: {
             code: boolean;
         };
+    };
+    preprocess?: {
+        mergeSvg?: boolean;
+        mergeIncludes?: boolean;
+        hashIncludes?: boolean;
+        mergeAutotitles?: boolean;
     };
 };
 
@@ -37,8 +50,20 @@ type Run = BaseRun<MarkdownServiceConfig> & {
     vars: VarsService;
 };
 
-function hash(this: MarkdownService, path: NormalizedPath, from: NormalizedPath[] = []) {
-    return `${path}+${from[0] || ''}`;
+type Options = {
+    mode: 'build' | 'translate';
+    skipMissingVars: boolean;
+};
+
+interface CacheItem {
+    content: string;
+    varsMetadata?: Hash;
+    varsSystem?: Hash;
+    meta: Meta;
+}
+
+function hash(path: NormalizedPath, from?: NormalizedPath) {
+    return `${path}${from ? '+' + from : ''}`;
 }
 
 const byLocation = (a: HeadingInfo, b: HeadingInfo) => a.location[0] - b.location[0];
@@ -75,18 +100,19 @@ export class MarkdownService {
 
     private pathToDeps = new Buckets<IncludeInfo[]>();
 
-    private pathToAssets = new Buckets<NormalizedPath[]>();
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
     private pathToHeadings = new Buckets<HeadingInfo[]>();
 
     private pathToSourcemap = new Buckets<Record<number | string, string>>();
 
-    private cache: Hash<Promise<string> | string> = {};
+    private cache: Hash<Promise<CacheItem> | CacheItem> = {};
 
-    private hash = hash;
+    private options;
 
-    constructor(run: Run) {
+    constructor(run: Run, options: Options = {mode: 'build', skipMissingVars: false}) {
         this.run = run;
+        this.options = options;
     }
 
     @bounded async init() {
@@ -94,12 +120,16 @@ export class MarkdownService {
         this._plugins = await getHooks(this).Plugins.promise(this._plugins);
     }
 
-    @bounded async load(path: RelativePath, from: NormalizedPath[] = []) {
+    @bounded async load(path: RelativePath, from?: NormalizedPath) {
         const file = normalizePath(path);
-        const key = this.hash(file, from);
+        const key = hash(file, from);
 
         if (key in this.cache) {
-            return this.cache[key];
+            const {content, varsMetadata, varsSystem, meta} = await this.cache[key];
+            this.run.meta.addMetadata(file, varsMetadata);
+            this.run.meta.addSystemVars(file, varsSystem);
+            this.run.meta.add(file, meta, true);
+            return content;
         }
 
         const defer = new Defer();
@@ -107,8 +137,9 @@ export class MarkdownService {
         this.cache[key] = defer.promise;
 
         try {
-            const raw = await this.run.read(join(this.run.input, file));
-            const vars = this.run.vars.for(from[0] || file);
+            const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
+            const raw = await this.run.read(source);
+            const vars = this.run.vars.for(file, from);
 
             const context = this.loaderContext(file, raw, vars, this.proxy(key));
             const content = await loader.call(context, raw);
@@ -117,102 +148,115 @@ export class MarkdownService {
             // So we don't expect Defer here.
             const meta = context.api.meta.get() as Meta;
 
-            await getHooks(this).Loaded.promise(raw, meta, file, from);
+            await getHooks(this).Loaded.promise(raw, meta, file);
 
             this.run.meta.addMetadata(file, vars.__metadata);
             this.run.meta.addSystemVars(file, vars.__system);
-            this.run.meta.add(file, meta);
+            this.run.meta.add(file, meta, true);
 
-            this.cache[key] = content;
-            defer.resolve(content);
+            const result = {
+                content,
+                varsMetadata: vars.__metadata,
+                varsSystem: vars.__system,
+                meta,
+            };
+            this.cache[key] = result;
+            defer.resolve(result);
 
             // TODO: this may trigger uncaught exceptions
             // But if we move this two lines above, then program exits unexpectedly
-            await getHooks(this).Resolved.promise(raw, file, from);
+            await getHooks(this).Resolved.promise(content, file);
         } catch (error) {
-            defer.reject(error);
+            const isFileNotFound =
+                error instanceof Error && 'code' in error && error.code === 'ENOENT';
+
+            const isMergedInput =
+                this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
+            if (isFileNotFound && from && isMergedInput) {
+                // In md2html reading merged output: dep files don't exist on disk,
+                // their content is embedded via {% included %} blocks.
+                // Resolve with empty content so callers can fall back to embedded data.
+                const empty = {
+                    content: '',
+                    varsMetadata: {} as Hash,
+                    varsSystem: {} as Hash,
+                    meta: {} as Meta,
+                };
+                this.cache[key] = empty;
+                this.pathToDeps.set(key, []);
+                defer.resolve(empty);
+            } else {
+                defer.reject(error);
+            }
         }
 
-        return defer.promise;
+        return (await defer.promise).content;
     }
 
-    @bounded async dump(path: RelativePath, markdown: string) {
+    @bounded async dump(file: NormalizedPath, markdown?: string) {
+        const vfile = new VFile<string, EntryInfo>(file, markdown || (await this.load(file)));
+
+        vfile.info = {title: '', headings: []};
+
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
+    }
+
+    async meta(path: RelativePath) {
+        return this._meta(normalizePath(path));
+    }
+
+    async deps(path: RelativePath) {
+        return this._deps(normalizePath(path));
+    }
+
+    async graph(path: RelativePath) {
+        return this._graph(normalizePath(path));
+    }
+
+    async relations(path: RelativePath) {
+        return this._relations(normalizePath(path));
+    }
+
+    async assets(path: RelativePath) {
+        return this._assets(normalizePath(path));
+    }
+
+    async headings(path: RelativePath) {
+        return this._headings(normalizePath(path));
+    }
+
+    async titles(path: RelativePath) {
         const file = normalizePath(path);
 
-        const info: AdditionalInfo = {title: '', headings: []};
-        const result = await getHooks(this).Dump.promise(markdown, file, info);
+        const titles: Hash<string> = {};
 
-        return [result, info] as const;
+        try {
+            const headings = await this.headings(file);
+            const contents = headings.map(({content}) => content);
+
+            for (const content of contents) {
+                const {level, title, anchors} = parseHeading(content);
+
+                if (level === 1 && !titles['#']) {
+                    titles['#'] = title;
+                }
+
+                for (const anchor of anchors) {
+                    titles[anchor] = title;
+                }
+            }
+        } catch {
+            // This is acceptable.
+            // If this is a real file and someone depends on his titles,
+            // then we throw exception in md plugin.
+        }
+
+        return titles;
     }
 
-    // @memoize(hash)
-    async meta(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        return this.pathToMeta.get(key);
-    }
-
-    // This is very buggy!
-    // @memoize(hash)
-    async deps(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        const deps = this.pathToDeps.get(key) || [];
-        const internals: IncludeInfo[][] = await all(
-            deps.map(async ({path, location}) => {
-                const deps = await this.deps(path, [...from, file]);
-
-                return deps.map((dep) => ({...dep, location}));
-            }),
-        );
-
-        return deps.concat(...internals);
-    }
-
-    // @memoize(hash)
-    async assets(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        const assets = this.pathToAssets.get(key) || new Set();
-        const deps = (await this.deps(file, from)) || [];
-        const internals: NormalizedPath[][] = await all(
-            deps.map(async ({path}) => {
-                return this.assets(path, [...from, file]);
-            }),
-        );
-
-        return uniq([...assets].concat(...internals));
-    }
-
-    // @memoize(hash)
-    async headings(path: RelativePath, from: NormalizedPath[] = []) {
-        const file = normalizePath(path);
-        const key = this.hash(file, from);
-
-        await this.load(path, from);
-
-        const headings = this.pathToHeadings.get(key) || [];
-        const deps = (await this.deps(file, from)) || [];
-        const internals: HeadingInfo[][] = await all(
-            deps.map(async ({path, location}) => {
-                const headings = await this.headings(path, [...from, file]);
-                return headings.map((heading) => ({...heading, location}));
-            }),
-        );
-
-        return headings.concat(...internals).sort(byLocation);
-    }
-
-    @bounded async analyze(path: RelativePath, raw: string, vars: Hash) {
+    @bounded async inspect(path: RelativePath, raw: string, vars: Hash) {
         const file = normalizePath(path);
         const api = new LoaderAPI();
         const context = this.loaderContext(file, raw, vars, api);
@@ -233,6 +277,144 @@ export class MarkdownService {
         }
 
         return Number(sourcemap[line]) || line;
+    }
+
+    release(path: NormalizedPath, from?: NormalizedPath) {
+        const key = hash(path, from);
+
+        delete this.cache[key];
+        this.pathToDeps.delete(key);
+        this.pathToMeta.delete(key);
+        this.pathToAssets.delete(key);
+        this.pathToHeadings.delete(key);
+        this.pathToComments.delete(key);
+        this.pathToSourcemap.delete(key);
+    }
+
+    private async _meta(file: NormalizedPath, from?: NormalizedPath) {
+        const key = hash(file, from);
+
+        await this.load(file, from);
+
+        return this.pathToMeta.get(key);
+    }
+
+    private async _deps(file: NormalizedPath, from?: NormalizedPath): Promise<IncludeInfo[]> {
+        const key = hash(file, from);
+
+        await this.load(file, from);
+
+        const deps = this.pathToDeps.get(key) || [];
+        const internals: IncludeInfo[][] = await all(
+            (this.pathToDeps.get(key) || []).map(async ({path}) => {
+                try {
+                    return await this._deps(path, from || file);
+                } catch (error) {
+                    const isMergedInput =
+                        this.config.outputFormat !== 'md' && this.config.preprocess?.mergeIncludes;
+                    const isFileNotFound =
+                        error instanceof Error && 'code' in error && error.code === 'ENOENT';
+                    if (isMergedInput && isFileNotFound) {
+                        return [];
+                    }
+                    throw error;
+                }
+            }),
+        );
+
+        return deps.concat(...internals);
+    }
+
+    private async _graph(path: NormalizedPath, from?: NormalizedPath): Promise<EntryGraph> {
+        const key = hash(path, from);
+
+        const content = await this.load(path, from);
+        const assets = this.pathToAssets.get(key) || [];
+        const deps = await all(
+            (this.pathToDeps.get(key) || []).map(async (dep) => {
+                return {
+                    ...dep,
+                    ...(await this._graph(dep.path, from || path)),
+                };
+            }),
+        );
+
+        return {path, content, deps, assets};
+    }
+
+    private async _relations(
+        path: NormalizedPath,
+        from?: NormalizedPath,
+    ): Promise<Graph<GraphInfo>> {
+        const key = hash(path, from);
+        const graph = new Graph<GraphInfo>();
+
+        graph.addNode(path, {type: 'entry'});
+
+        await this.load(path, from);
+        await all(
+            (this.pathToDeps.get(key) || []).map(async (dep) => {
+                graph.consume(await this._relations(dep.path, from || path));
+                graph.setNodeData(dep.path, {type: 'source'});
+                graph.addDependency(path, dep.path);
+            }),
+        );
+
+        (this.pathToAssets.get(key) || []).map(async (asset) => {
+            if (['image', 'video'].includes(asset.type)) {
+                graph.addNode(asset.path);
+                graph.setNodeData(asset.path, {type: 'resource'});
+                graph.addDependency(path, asset.path);
+            }
+
+            if (['link'].includes(asset.type) && asset.autotitle) {
+                graph.addNode(asset.path);
+                graph.setNodeData(asset.path, {type: 'source'});
+                graph.addDependency(path, asset.path);
+            }
+        });
+
+        const meta = this.run.meta.get(path);
+        const resources = ([] as string[]).concat(meta.script || [], meta.style || []);
+        for (const resource of resources) {
+            const file = normalizePath(join(dirname(path), resource));
+            graph.addNode(file);
+            graph.setNodeData(file, {type: 'resource'});
+            graph.addDependency(path, file);
+        }
+
+        return graph;
+    }
+
+    private async _assets(file: NormalizedPath, from?: NormalizedPath) {
+        const key = hash(file, from);
+
+        await this.load(file, from);
+
+        const assets = this.pathToAssets.get(key) || [];
+        const internals: AssetInfo[][] = await all(
+            (this.pathToDeps.get(key) || []).map(async ({path}) => {
+                return this._assets(path, from || file);
+            }),
+        );
+
+        return assets.concat(...internals);
+    }
+
+    private async _headings(file: NormalizedPath, from?: NormalizedPath) {
+        const key = hash(file, from);
+
+        await this.load(file, from);
+
+        const headings = this.pathToHeadings.get(key) || [];
+        const internals: HeadingInfo[][] = await all(
+            (this.pathToDeps.get(key) || []).map(async ({path, location}) => {
+                const headings = await this._headings(path, from || file);
+                return headings.map((heading) => ({...heading, location}));
+            }),
+        );
+
+        return headings.concat(...internals).sort(byLocation);
     }
 
     private proxy(key: string) {
@@ -261,20 +443,30 @@ export class MarkdownService {
             },
             emitFile: async (file: NormalizedPath, content: string) => {
                 const rootPath = fullPath(file, path);
-                await this.run.write(join(this.run.input, rootPath), content);
+                await this.run.write(join(this.run.input, rootPath), content, true);
             },
+            fullPath: (path: RelativePath) => join(this.run.input, path),
+            input: this.run.input,
             api: new LoaderAPI(api),
             collects: this.collects,
             sourcemap: new SourceMap(raw),
             settings: {
                 substitutions: this.config.template.features.substitutions,
-                conditions: this.config.template.features.conditions,
+                conditions:
+                    typeof this.config.template.features.conditions === 'string'
+                        ? (this.config.template.features.conditions as 'strict')
+                        : Boolean(this.config.template.features.conditions),
                 conditionsInCode: this.config.template.scopes.code,
-                keepNotVar: this.config.outputFormat === 'md',
+                keepNotVar: this.config.template.keepNotVar,
+                legacyConditions: this.config.template.legacyConditions,
+                keepConditionSyntaxOnTrue: this.options.mode === 'translate',
             },
             options: {
                 disableLiquid: !this.config.template.enabled,
+                mergeContentParts: this.config.preprocess?.mergeSvg ?? false,
+                skipMissingVars: this.options.skipMissingVars,
             },
+            mode: this.options.mode,
         };
     }
 }

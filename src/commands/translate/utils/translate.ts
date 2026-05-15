@@ -1,5 +1,7 @@
 import type {ComposeOptions, ExtractOptions} from '@diplodoc/translation';
+
 import {compose as _compose, extract as _extract} from '@diplodoc/translation';
+
 import {ComposeError, ExtractError} from './errors';
 
 type Content = Parameters<typeof _extract>[0];

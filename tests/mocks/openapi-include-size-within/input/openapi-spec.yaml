@@ -1,0 +1,16 @@
+openapi: 3.0.1
+info:
+  title: Small API
+  version: v1
+servers:
+  - url: http://localhost:8080
+paths:
+  /ping:
+    get:
+      tags:
+        - health
+      summary: Health check
+      operationId: ping
+      responses:
+        "200":
+          description: OK

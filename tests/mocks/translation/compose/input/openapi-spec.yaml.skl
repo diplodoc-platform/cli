@@ -1,0 +1,41 @@
+openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - '%%%2%%%'
+      summary: '%%%3%%%'
+      description: '%%%4%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%5%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
+            - %%%9%%%
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'

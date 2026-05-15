@@ -4,6 +4,7 @@ import {readFileSync} from 'node:fs';
 import {globSync} from 'glob';
 import {merge} from 'lodash';
 import {filter} from 'minimatch';
+
 import {defined} from '~/core/config';
 
 type PartialLocale = {
@@ -98,7 +99,7 @@ export function resolveFiles(
     exclude: string[],
     lang: string | null,
     exts: string[],
-    tocEntries: string[],
+    tocEntries?: string[] | null,
 ) {
     let result: string[];
     let skipped: [string, string][] = [];
@@ -152,7 +153,7 @@ export function resolveFiles(
     // For security purpose.
     ok(pathsInScope(result, input), `Insecure access to paths out of project scope (${result})!`);
 
-    return [result, skipped];
+    return [result, skipped] as [string[], [string, string][]];
 }
 
 export function resolveVars(config: {vars?: Hash}, args: {vars?: Hash}) {
@@ -191,18 +192,34 @@ export function configDefaults() {
         ignore: [],
         ignoreStage: [],
         vars: {},
-        meta: {},
+        rawAddMeta: false,
         addSystemMeta: false,
+        addResourcesMeta: true,
+        addMetadataMeta: true,
+        addAlternateMeta: true,
         template: {
-            enabled: false,
+            enabled: true,
+            keepNotVar: false,
+            legacyConditions: false,
             features: {
-                conditions: true,
-                substitutions: true,
+                conditions: 'strict' as const,
+                substitutions: false,
             },
             scopes: {
                 code: false,
                 text: false,
             },
         },
+        removeHiddenTocItems: false,
+        removeEmptyTocItems: false,
+        outputFormat: 'md' as 'md' | 'html',
+        // TODO: delete after MarkdownService redundant types delete
+        allowHtml: true,
+        sanitizeHtml: false,
+        lang: 'en',
+        langs: ['en'],
+        vcsPath: {enabled: true},
     };
 }
+
+export type ConfigDefaults = ReturnType<typeof configDefaults>;

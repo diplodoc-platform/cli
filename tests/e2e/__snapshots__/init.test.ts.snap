@@ -1,0 +1,283 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm > filelist 1`] = `
+"[
+  ".yfm",
+  "en/index.md",
+  "en/toc.yaml",
+  "ru/index.md",
+  "ru/toc.yaml"
+]"
+`;
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 1`] = `
+"allowHtml: true
+lang: en
+langs: ['ru', 'en']"
+`;
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 3`] = `
+"title: My Docs
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 4`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > --default-lang sets lang field in .yfm 5`] = `
+"title: My Docs
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files > filelist 1`] = `
+"[
+  ".yfm",
+  "en/index.md",
+  "en/toc.yaml",
+  "ru/index.md",
+  "ru/toc.yaml"
+]"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 1`] = `
+"allowHtml: true
+lang: ru
+langs: ['ru', 'en']"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 3`] = `
+"title: My Docs
+href: index.md
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 4`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > --no-header removes navigation from all toc.yaml files 5`] = `
+"title: My Docs
+href: index.md
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — multi-lang > creates project structure > filelist 1`] = `
+"[
+  ".yfm",
+  "en/index.md",
+  "en/toc.yaml",
+  "ru/index.md",
+  "ru/toc.yaml"
+]"
+`;
+
+exports[`yfm init — multi-lang > creates project structure 1`] = `
+"allowHtml: true
+lang: ru
+langs: ['ru', 'en']"
+`;
+
+exports[`yfm init — multi-lang > creates project structure 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > creates project structure 3`] = `
+"title: My Docs
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — multi-lang > creates project structure 4`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — multi-lang > creates project structure 5`] = `
+"title: My Docs
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — single-lang > --no-header removes navigation block > filelist 1`] = `
+"[
+  ".yfm",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`yfm init — single-lang > --no-header removes navigation block 1`] = `"lang: en"`;
+
+exports[`yfm init — single-lang > --no-header removes navigation block 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — single-lang > --no-header removes navigation block 3`] = `
+"title: My Docs
+href: index.md
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — single-lang > creates project structure > filelist 1`] = `
+"[
+  ".yfm",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`yfm init — single-lang > creates project structure 1`] = `"lang: en"`;
+
+exports[`yfm init — single-lang > creates project structure 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — single-lang > creates project structure 3`] = `
+"title: My Docs
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;
+
+exports[`yfm init — single-lang > derives project name from output directory basename > filelist 1`] = `
+"[
+  ".yfm",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`yfm init — single-lang > derives project name from output directory basename 1`] = `"lang: en"`;
+
+exports[`yfm init — single-lang > derives project name from output directory basename 2`] = `
+"# Welcome
+
+This is your documentation project created with [Diplodoc](https://diplodoc.com).
+
+## Getting started
+
+Edit this file or add new pages and update \`toc.yaml\`.
+"
+`;
+
+exports[`yfm init — single-lang > derives project name from output directory basename 3`] = `
+"title: my-project
+href: index.md
+navigation:
+  header:
+    rightItems:
+      - type: controls
+items:
+  - name: Overview
+    href: index.md
+"
+`;

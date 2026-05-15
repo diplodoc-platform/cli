@@ -1,0 +1,8 @@
+items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link

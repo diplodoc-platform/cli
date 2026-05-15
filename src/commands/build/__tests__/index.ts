@@ -2,14 +2,18 @@ import type {BuildConfig, BuildRawConfig} from '..';
 import type {Mock, MockInstance} from 'vitest';
 
 import {join} from 'node:path';
+import {merge} from 'lodash';
 import {describe, expect, it, vi} from 'vitest';
 import {when} from 'vitest-when';
-import {Build} from '..';
-import {Run} from '../run';
+
 import {parse} from '~/commands';
-import {handler as originalHandler} from '../handler';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {withConfigUtils} from '~/core/config';
+import {normalizePath} from '~/core/utils';
+
+import {handler as originalHandler} from '../handler';
+import {Run} from '../run';
+import {Build} from '..';
 
 export const handler = originalHandler as Mock;
 
@@ -17,6 +21,11 @@ export const handler = originalHandler as Mock;
 var resolveConfig: Mock;
 
 vi.mock('../handler');
+vi.mock('~/extensions/local-search', () => ({
+    Extension: function () {
+        return {apply() {}};
+    },
+}));
 vi.mock('~/core/config', async (importOriginal) => {
     resolveConfig = vi.fn((_path, {defaults, fallback}) => {
         return defaults || fallback;
@@ -63,7 +72,7 @@ export function setupRun(config: DeepPartial<BuildConfig>, run?: Run): RunSpy {
             );
         };
 
-    for (const method of ['glob', 'copy', 'read', 'write', 'remove'] as string[]) {
+    for (const method of ['glob', 'copy', 'read', 'write', 'remove', 'exists'] as string[]) {
         // @ts-ignore
         vi.spyOn(run, method).mockImplementation(impl(method));
     }
@@ -90,16 +99,25 @@ type BuildState = {
 export function setupBuild(state?: BuildState): Build {
     const build = new Build();
 
-    getBaseHooks(build).BeforeAnyRun.tap('Tests', (run) => {
+    getBaseHooks(build).BeforeAnyRun.tap({stage: -1, name: 'Tests'}, (run) => {
         if (!(run as RunSpy)[Mocked]) {
             setupRun({}, run as Run);
         }
 
+        vi.spyOn(run as RunSpy, 'manifest', 'get').mockReturnValue({
+            app: {js: [], css: [], async: []},
+            search: {js: [], css: [], async: []},
+        });
+
+        when(run.exists).calledWith(expect.anything()).thenReturn(false);
         when(run.copy).calledWith(expect.anything(), expect.anything()).thenResolve();
         when(run.copy)
             .calledWith(expect.anything(), expect.anything(), expect.anything())
             .thenResolve();
         when(run.write).calledWith(expect.anything(), expect.anything()).thenResolve();
+        when(run.write)
+            .calledWith(expect.anything(), expect.anything(), expect.anything())
+            .thenResolve();
         when(run.remove).calledWith(expect.anything()).thenResolve();
         when(run.glob).calledWith('**/toc.yaml', expect.anything()).thenResolve([]);
         when(run.glob).calledWith('**/presets.yaml', expect.anything()).thenResolve([]);
@@ -112,7 +130,9 @@ export function setupBuild(state?: BuildState): Build {
 
         if (state && state.files) {
             for (const [file, content] of Object.entries(state.files)) {
-                when(run.read).calledWith(join(run.input, file)).thenResolve(content);
+                when(run.read)
+                    .calledWith(normalizePath(join(run.input, file)) as AbsolutePath)
+                    .thenResolve(content);
             }
         }
     });
@@ -126,8 +146,13 @@ export async function runBuild(argv: string, build?: Build) {
     const rawArgs = ['node', 'index'].concat(argv.split(' '));
     const args = parse(rawArgs, 'build');
 
+    // Apply modules by calling init
     await build.init(args);
     await build.parse(rawArgs);
+
+    if (build.report.code > 0) {
+        throw new Error('Build exit with error');
+    }
 }
 
 export function testConfig(name: string, args: string, result: DeepPartial<BuildConfig>): void;
@@ -161,10 +186,7 @@ export function testConfig(name: string, args: string, config: any, result?: any
                 return withConfigUtils(null, {});
             }
 
-            return withConfigUtils(path, {
-                ...defaults,
-                ...config,
-            });
+            return withConfigUtils(path, merge({}, defaults, config));
         });
 
         handler.mockImplementation((run: Run) => {
@@ -174,12 +196,39 @@ export function testConfig(name: string, args: string, config: any, result?: any
         if (result instanceof Error) {
             await expect(() =>
                 runBuild('--input ./input --output ./output ' + args),
-            ).rejects.toThrow(result);
+            ).rejects.toThrow(expect.objectContaining(result));
         } else {
             await runBuild('--input ./input --output ./output ' + args);
 
             expect(handler).toBeCalled();
         }
+    });
+}
+
+export function testNestedBooleanFlag(
+    name: string,
+    arg: string,
+    defaults: boolean,
+    configPath: string[],
+) {
+    describe(name, () => {
+        const createConfig = (value: boolean) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const config: any = {};
+            let current = config;
+
+            for (let i = 0; i < configPath.length - 1; i++) {
+                current[configPath[i]] = {};
+                current = current[configPath[i]];
+            }
+
+            current[configPath[configPath.length - 1]] = value;
+            return config;
+        };
+
+        testConfig('should handle default', '', createConfig(defaults));
+
+        testConfig('should handle arg', arg, createConfig(defaults), createConfig(true));
     });
 }
 

@@ -1,0 +1,15 @@
+title: Skip html extension
+href: index.md
+
+items:
+  - name: Title 1
+    href: page1.md
+  - name: Title 2
+    href: page2.md
+    hidden: true
+  - name: Without href
+    hidden: true
+    items:
+      - name: Title 3
+        href: page3.md
+    

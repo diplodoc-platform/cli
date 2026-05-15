@@ -1,26 +1,37 @@
 import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {MetaService} from '~/core/meta';
-import type {IncludeInfo, RawToc, Toc, TocItem, WithItems} from './types';
+import type {
+    EntryTocItem,
+    GraphData,
+    GraphTocData,
+    IncludeInfo,
+    RawToc,
+    RawTocItem,
+    Toc,
+    WithItems,
+} from './types';
 import type {LoaderContext} from './loader';
+import type {WatchConfig} from '~/commands/build/features/watch';
 
 import {basename, dirname, join, relative} from 'node:path';
-import {load} from 'js-yaml';
+import {dump, load} from 'js-yaml';
 import {dedent} from 'ts-dedent';
 
 import {
     Defer,
+    Graph,
+    VFile,
     bounded,
     copyJson,
     errorMessage,
-    freezeJson,
-    isExternalHref,
     memoize,
     normalizePath,
     own,
 } from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
+import {isEntryItem} from './utils';
 import {isMergeMode, loader} from './loader';
 
 export type TocServiceConfig = {
@@ -28,8 +39,9 @@ export type TocServiceConfig = {
     ignoreStage: string[];
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         features: {
-            conditions: boolean;
+            conditions: boolean | string;
             substitutions: boolean;
         };
         scopes: {
@@ -38,25 +50,74 @@ export type TocServiceConfig = {
         };
     };
     removeHiddenTocItems: boolean;
-};
+    removeEmptyTocItems: boolean;
+} & Partial<WatchConfig>;
 
 type WalkStepResult<I> = I | I[] | null | undefined;
 
-enum Stage {
-    TECH_PREVIEW = 'tech-preview',
-}
+export type WalkStepContext<T extends object = {}> = Hash<unknown> & T;
+
+type RestrictedAccessContext = WalkStepContext<{
+    'restricted-access'?: string[][];
+}>;
+
+type WalkOptions<T> = {
+    accept: (item: T) => boolean;
+};
 
 type Run = BaseRun<TocServiceConfig> & {
     vars: VarsService;
     meta: MetaService;
 };
 
+type Options = Partial<{
+    skipMissingVars: boolean;
+    mode: 'translate' | 'build';
+    pdfDebug: boolean;
+}>;
+
 @withHooks
 export class TocService {
     readonly name = 'Toc';
 
+    readonly relations = new Graph<GraphData>();
+
+    get tocs() {
+        return (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc).map(this.for);
+    }
+
     get entries() {
-        return [...this._entries];
+        const allEntries = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isEntry);
+
+        // Find all TOC files and determine the minimum nesting level
+        const allTocPaths = (this.relations.overallOrder() as NormalizedPath[]).filter(this.isToc);
+        if (allTocPaths.length === 0) {
+            return allEntries;
+        }
+
+        // Calculate nesting levels for all TOC files
+        const nestingLevels = allTocPaths.map((tocPath) => tocPath.split('/').length);
+        const minNestingLevel = Math.min(...nestingLevels);
+
+        // Filter entries to include only those from TOC files that are either:
+        // 1. At the minimum nesting level (root TOC files)
+        // 2. Or TOC files that are referenced by includes from other TOC files
+        const filteredEntries = allEntries.filter((entry) => {
+            // Find all TOC files that reference this entry
+            const tocPaths = (this.relations.dependantsOf(entry) as NormalizedPath[]).filter(
+                this.isToc,
+            );
+
+            // Check if any of the referencing TOC files is a root TOC or is referenced itself
+            return tocPaths.some((tocPath) => {
+                const nestingLevel = tocPath.split('/').length;
+                const isRootToc = nestingLevel === minNestingLevel;
+                const isReferenced = this.relations.dependenciesOf(tocPath).length > 0;
+                return isRootToc || isReferenced;
+            });
+        });
+
+        return filteredEntries;
     }
 
     private run: Run;
@@ -65,11 +126,7 @@ export class TocService {
 
     private config: TocServiceConfig;
 
-    private _entries: Set<NormalizedPath> = new Set();
-
-    private processed: Hash<boolean> = {};
-
-    private cache: Map<NormalizedPath, Toc | Promise<Toc | undefined> | undefined> = new Map();
+    private options;
 
     private get vars() {
         return this.run.vars;
@@ -79,78 +136,234 @@ export class TocService {
         return this.run.meta;
     }
 
-    constructor(run: Run) {
+    constructor(run: Run, options: Options) {
         this.run = run;
         this.logger = run.logger;
         this.config = run.config;
+        this.options = {
+            skipMissingVars: false,
+            mode: 'build',
+            pdfDebug: false,
+            ...options,
+        };
     }
 
-    @bounded async load(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-
-        // There is no error. We really skip toc processing, if it was processed previously in any way.
-        // For example toc can be processed as include of some other toc.
-        if (this.processed[file]) {
-            return this.cache.get(file);
+    async init(paths: NormalizedPath[]) {
+        for (const path of paths) {
+            await this.load(path);
         }
 
-        this.processed[file] = true;
+        return this.tocs.filter((toc) => paths.includes(toc.path));
+    }
+
+    async pushAdditionalEntries(path: NormalizedPath, toc: Toc) {
+        await this.addEntries(path, toc);
+    }
+
+    async dump(file: NormalizedPath, toc?: Toc): Promise<VFile<Toc>> {
+        toc = toc || this.for(file);
+
+        return this._dump(toc.path, toc);
+    }
+
+    /**
+     * Visits items which will be project entries. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     */
+    async walkEntries<T extends WithItems<T> & {href: NormalizedPath}>(
+        items: T[] | undefined,
+        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+    ): Promise<T[] | undefined> {
+        return this.walkItems(items, actor, {accept: isEntryItem});
+    }
+
+    /**
+     * Visits all passed items. Applies actor to each item.
+     * Then applies actor to each item in actor result.items.
+     * Returns actor results.
+     */
+    async walkItems<T extends WithItems<T>>(
+        items: T[] | undefined,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T> = {accept: () => true},
+    ): Promise<T[] | undefined> {
+        return this._walkItems(items, actor, options);
+    }
+
+    /**
+     * Resolves toc path and data for any page path.
+     * Expects what all paths are already loaded in service.
+     */
+    @bounded for(path: RelativePath): Toc {
+        const file = normalizePath(path);
+
+        if (this.isToc(file)) {
+            return this.relations.getNodeData(file).data as Toc;
+        }
+
+        const tocPaths = (this.relations.dependantsOf(file) as NormalizedPath[]).filter(this.isToc);
+        if (!tocPaths.length) {
+            throw new Error('Error while finding toc dir.');
+        }
+
+        if (tocPaths.length === 1) {
+            return this.relations.getNodeData(tocPaths[0]).data as Toc;
+        }
+
+        const fileParts = normalizePath(join(dirname(file), 'toc.yaml')).split('/');
+        const toc = tocPaths.reduce(
+            (result, path) => {
+                const tocParts = path.split('/');
+
+                let index = 0;
+                let score = 0;
+                while (tocParts.length > index && fileParts[index] === tocParts[index]) {
+                    index++;
+                    score++;
+                }
+
+                if (score > result.score) {
+                    return {score, path};
+                }
+
+                return result;
+            },
+            {score: 0, path: null} as {score: number; path: null | NormalizedPath},
+        );
+
+        if (toc.path === null) {
+            throw new Error('Error while finding toc dir.');
+        }
+
+        return this.relations.getNodeData(toc.path).data as Toc;
+    }
+
+    release(path: NormalizedPath) {
+        memoize.release(this._dump, path);
+    }
+
+    @bounded isToc(path: NormalizedPath) {
+        if (!this.relations.hasNode(path)) {
+            return false;
+        }
+
+        const data = this.relations.getNodeData(path);
+
+        return data.type === 'toc' && data.data;
+    }
+
+    @bounded isEntry(path: NormalizedPath) {
+        if (!this.relations.hasNode(path)) {
+            return false;
+        }
+
+        const data = this.relations.getNodeData(path);
+
+        return data.type === 'entry';
+    }
+
+    @bounded isGenerator(path: NormalizedPath) {
+        if (!this.relations.hasNode(path)) {
+            return false;
+        }
+
+        const data = this.relations.getNodeData(path);
+
+        return data.type === 'generator';
+    }
+
+    @memoize('path')
+    private async _dump(file: NormalizedPath, toc: Toc): Promise<VFile<Toc>> {
+        const vfile = new VFile<Toc>(file, copyJson(toc), dump);
+
+        await getHooks(this).Dump.promise(vfile);
+
+        return vfile;
+    }
+
+    private async load(file: NormalizedPath): Promise<Toc | undefined> {
+        // There is no error. We really skip toc processing, if it was processed previously in any way.
+        // For example toc can be processed as include of some other toc.
+        if (this.relations.hasNode(file)) {
+            return (this.relations.getNodeData(file) as GraphTocData).data;
+        }
 
         this.logger.proc(file);
 
         const defer = new Defer<Toc | undefined>();
 
-        this.cache.set(file, defer.promise);
+        this.relations.addNode(file, {type: 'toc', data: defer.promise});
 
         defer.promise.then((result) => {
-            this.cache.set(file, result);
+            if (this.relations.hasNode(file)) {
+                this.relations.setNodeData(file, {type: 'toc', data: result});
+            }
         });
 
         const context: LoaderContext = this.loaderContext(file);
-
         const content = await read(this.run, file);
 
+        content.path = file;
+
         if (this.shouldSkip(content)) {
-            this.cache.delete(file);
             defer.resolve(undefined);
             return undefined;
         }
 
         const toc = (await loader.call(context, content)) as Toc;
 
+        await getHooks(this).Loaded.promise(toc);
+
         // This looks how small optimization, but there was cases when toc is an array...
         // This is not that we expect.
         if (toc.href || toc.items?.length) {
-            await this.walkItems([toc], (item: TocItem | Toc) => {
-                if (own<string, 'href'>(item, 'href') && !isExternalHref(item.href)) {
-                    this._entries.add(normalizePath(join(dirname(path), item.href)));
-                }
-                if (own<string>(item, 'restricted-access')) {
-                    this.run.toc.meta.add(normalizePath(join(dirname(path), item.href)), {
-                        'restricted-access': item['restricted-access'],
-                    });
-                }
+            await this.addEntries(file, toc);
+            await this.restrictAccess(file, toc);
+        }
 
-                return item;
-            });
+        const pdfStartPages = toc?.pdf?.startPages;
+        const pdfEndPages = toc?.pdf?.endPages;
+        const {pdfDebug} = this.options;
+
+        if (pdfStartPages && pdfDebug) {
+            const tocLikeEntries = pdfStartPages.map((page) => ({href: page}));
+
+            // We want to treat pdf start pages as regular entries for puprose of debug
+            this.addEntries(file, {items: tocLikeEntries, path: toc.path} as Toc);
+        }
+
+        if (pdfEndPages && pdfDebug) {
+            const tocLikeEntries = pdfEndPages.map((page) => ({href: page}));
+
+            // We want to treat pdf end pages as regular entries for puprose of debug
+            this.addEntries(file, {items: tocLikeEntries, path: toc.path} as Toc);
         }
 
         defer.resolve(toc);
 
-        await getHooks(this).Resolved.promise(freezeJson(toc), file);
-
         return defer.promise;
     }
 
-    @bounded async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
+    @bounded
+    private async include(path: RelativePath, include: IncludeInfo): Promise<Toc | undefined> {
         const file = normalizePath(path);
 
-        this.processed[file] = true;
+        this.relations.addNode(file);
+        this.relations.setNodeData(file, {type: 'source', data: undefined});
+        this.relations.addNode(include.from);
+        // Don't add dependency for include - this prevents included TOC files from being considered "referenced"
+        // Use only in watch mode
+        if (this.config.watch) {
+            this.relations.addDependency(include.from, file);
+        }
 
         this.logger.proc(file);
 
-        const context: LoaderContext = await this.loaderContext(file, include);
-
+        const context: LoaderContext = this.loaderContext(file, include);
         const content = include.content || (await read(this.run, file, include.from));
 
         if (this.shouldSkip(content)) {
@@ -162,76 +375,78 @@ export class TocService {
             const to = normalizePath(dirname(include.base));
 
             context.vars = this.vars.for(include.base);
-            context.path = context.path.replace(from, to) as RelativePath;
+            context.path = context.path.replace(from, to) as NormalizedPath;
             context.from = include.from;
 
             const files = await this.run.copy(
-                join(this.run.input, from),
-                join(this.run.input, to),
+                normalizePath(join(this.run.input, from)) as AbsolutePath,
+                normalizePath(join(this.run.input, to)) as AbsolutePath,
                 [basename(file), '**/toc.yaml'],
             );
 
-            for (const [from, to] of files) {
-                this.logger.copy(from, to);
-                this.meta.add(relative(this.run.input, to), {
-                    sourcePath: relative(this.run.input, from),
-                });
+            for (const pair of files) {
+                const [from, to] = pair.map((path) =>
+                    normalizePath(relative(this.run.input, path)),
+                );
+                const {sourcePath, vcsPath} = this.meta.get(from);
+                this.meta.add(to, {sourcePath: vcsPath || sourcePath || from});
+                this.logger.copy(pair[0], pair[1]);
             }
         }
 
         const toc = (await loader.call(context, content)) as Toc;
 
-        await getHooks(this).Included.promise(toc, file, include);
+        await getHooks(this).Included.promise(toc, include);
 
         return toc;
-    }
-
-    @bounded
-    @memoize('path')
-    async dump(path: RelativePath): Promise<Toc | undefined> {
-        const file = normalizePath(path);
-        const toc = await this.load(path);
-
-        if (!toc) {
-            return;
-        }
-
-        return await getHooks(this).Dump.promise(copyJson(toc), file);
     }
 
     /**
      * Visits all passed items. Applies actor to each item.
      * Then applies actor to each item in actor result.items.
      * Returns actor results.
+     * DFS
      */
-    async walkItems<T extends WithItems<T>>(
+    private async _walkItems<T extends WithItems<T>>(
         items: T[] | undefined,
-        actor: (item: T) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        actor: (
+            item: T,
+            context: WalkStepContext,
+        ) => Promise<WalkStepResult<T>> | WalkStepResult<T>,
+        options: WalkOptions<T>,
+        context: Hash = {},
     ): Promise<T[] | undefined> {
+        const {accept} = options;
+
         if (!items || !items.length) {
             return items;
         }
 
         const results: T[] = [];
-        const queue = [...items];
-        while (queue.length) {
-            const item = queue.shift() as T;
 
-            const result = await actor(item);
+        for (const item of items) {
+            const itemContext: WalkStepContext = {...context};
+
+            const result = (accept(item) ? await actor(item, itemContext) : item) as T &
+                Record<'items', unknown>;
+
             if (result) {
                 results.push(...([] as T[]).concat(result));
-            }
-        }
 
-        for (const result of results) {
-            if (own(result, 'items')) {
-                // Sometime users defines items as object (one item) instead of array of one item.
-                if (!Array.isArray(result.items) && result.items) {
-                    result.items = ([] as T[]).concat(result.items);
-                }
+                if (own(result, 'items')) {
+                    // Sometime users defines items as object (one item) instead of array of one item.
+                    if (!Array.isArray(result.items) && result.items) {
+                        result.items = ([] as T[]).concat(result.items);
+                    }
 
-                if (result.items?.length) {
-                    result.items = await this.walkItems(result.items, actor);
+                    if (result.items?.length) {
+                        result.items = await this._walkItems(
+                            result.items,
+                            actor,
+                            options,
+                            itemContext,
+                        );
+                    }
                 }
             }
         }
@@ -239,51 +454,55 @@ export class TocService {
         return results;
     }
 
-    set(path: NormalizedPath, toc: Toc) {
-        this.cache.set(path, toc);
-    }
-
-    /**
-     * Resolves toc path and data for any page path.
-     * Expects what all paths are already loaded in service.
-     */
-    for(path: RelativePath): NormalizedPath {
-        path = normalizePath(path);
-
-        const tocPath = normalizePath(join(dirname(path), 'toc.yaml'));
-
-        if (this.cache.has(tocPath as NormalizedPath)) {
-            return tocPath;
-        }
-
-        const nextPath = dirname(path);
-
-        if (path === nextPath) {
-            throw new Error('Error while finding toc dir.');
-        }
-
-        return this.for(nextPath);
-    }
-
-    dir(path: RelativePath): NormalizedPath {
-        const tocPath = this.for(path);
-
-        return normalizePath(dirname(tocPath));
-    }
-
     private shouldSkip(toc: RawToc) {
-        // Should ignore included toc with tech-preview stage.
-        // TODO(major): remove this
-        if (toc && toc.stage === Stage.TECH_PREVIEW) {
-            return true;
-        }
-
         const {ignoreStage} = this.config;
         if (toc.stage && ignoreStage.length && ignoreStage.includes(toc.stage)) {
             return true;
         }
 
         return false;
+    }
+
+    private async addEntries(path: NormalizedPath, toc: Toc) {
+        await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
+            const entryPath = normalizePath(join(dirname(path), item.href));
+            this.relations.addNode(entryPath, {type: 'entry', data: undefined});
+            this.relations.addDependency(toc.path, entryPath);
+
+            return item;
+        });
+    }
+
+    private async restrictAccess(path: NormalizedPath, toc: Toc) {
+        await this.walkItems(
+            [toc as unknown as RawTocItem],
+            (item, context: RestrictedAccessContext) => {
+                if (own<string | string[]>(item, 'restricted-access')) {
+                    let itemAccess = ([] as string[]).concat(item['restricted-access'] || []);
+
+                    const contextAccess: string[][] =
+                        (context['restricted-access'] as string[][]) ?? [];
+                    if (contextAccess.some(isEqualAccess(itemAccess.sort().join(',')))) {
+                        itemAccess = [];
+                    }
+
+                    if (itemAccess.length > 0) {
+                        context['restricted-access'] = [...contextAccess, itemAccess];
+                    }
+                }
+
+                if (context['restricted-access']?.length && isEntryItem(item)) {
+                    const href = normalizePath(join(dirname(path), item.href));
+                    this.meta.add(href, {
+                        'restricted-access': context['restricted-access'],
+                    });
+                }
+
+                return item;
+            },
+        );
+
+        return toc;
     }
 
     private loaderContext(path: NormalizedPath, {from, mode, base}: Partial<IncludeInfo> = {}) {
@@ -295,12 +514,19 @@ export class TocService {
             vars: this.vars.for(path),
             toc: this,
             logger: this.logger,
+            include: this.include,
             settings: {
-                conditions: this.config.template.features.conditions,
+                conditions:
+                    typeof this.config.template.features.conditions === 'string'
+                        ? (this.config.template.features.conditions as 'strict')
+                        : Boolean(this.config.template.features.conditions),
                 substitutions: this.config.template.features.substitutions,
             },
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,
+                removeEmptyItems: this.config.removeEmptyTocItems,
+                skipMissingVars: this.options.skipMissingVars,
+                mode: this.options.mode,
             },
         };
     }
@@ -308,7 +534,8 @@ export class TocService {
 
 async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc> {
     try {
-        return load((await run.read(join(run.input, path))) || '{}') as RawToc;
+        const source = normalizePath(join(run.input, path)) as AbsolutePath;
+        return load((await run.read(source)) || '{}') as RawToc;
     } catch (error) {
         throw new Error(dedent`
             Unable to resolve ${path}${from ? ' from ' + from : ''}.
@@ -316,4 +543,10 @@ async function read(run: Run, path: RelativePath, from?: string): Promise<RawToc
                 ${errorMessage(error)}
         `);
     }
+}
+
+function isEqualAccess(match: string) {
+    return function (access: string[]) {
+        return access.sort().join() === match;
+    };
 }

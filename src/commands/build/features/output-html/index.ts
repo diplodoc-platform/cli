@@ -1,5 +1,5 @@
 import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
-import type {Build} from '~/commands/build';
+import type {Build, EntryData, PageData} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 
@@ -9,22 +9,39 @@ import pmap from 'p-map';
 import {preprocess} from '@diplodoc/client/ssr';
 import {isFileExists} from '@diplodoc/transform/lib/utilsFS';
 
-import {fallbackLang, isExternalHref, normalizePath, own, zip} from '~/core/utils';
+import {Template} from '~/core/template';
+import {
+    fallbackLang,
+    isExternalHref,
+    isMediaLink,
+    normalizePath,
+    own,
+    setExt,
+    zip,
+} from '~/core/utils';
 import {getHooks as getBuildHooks} from '~/commands/build';
 import {getHooks as getTocHooks} from '~/core/toc';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
+import {getHooks as getMetaHooks} from '~/core/meta';
 import {ASSETS_FOLDER} from '~/constants';
 
-import {getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+import {getHooks as getRedirectsHooks} from '../../services/redirects';
+import {getHooks as getEntryHooks} from '../../services/entry';
+
+import {filterBundledExtensionAssets, getBaseMdItPlugins, getCustomMdItPlugins} from './utils';
+
+const tocJS = (path: NormalizedPath) => setExt(path, '.js');
+
+const __Entry__ = Symbol('isEntry');
 
 export class OutputHtml {
     apply(program: Build) {
         getBuildHooks(program)
             .BeforeRun.for('html')
             .tap('Html', async (run) => {
-                getTocHooks(run.toc).Dump.tapPromise('Html', async (toc, path) => {
-                    await run.toc.walkItems([toc], (item: Toc | TocItem) => {
+                getTocHooks(run.toc).Dump.tapPromise('Html', async (vfile) => {
+                    await run.toc.walkItems([vfile.data as Toc], (item: Toc | TocItem) => {
                         if (own(item, 'hidden') && item.hidden) {
                             return undefined;
                         }
@@ -36,22 +53,67 @@ export class OutputHtml {
                             const filename: string = basename(item.href, fileExtension) + '.html';
 
                             item.href = normalizePath(
-                                join(dirname(path), dirname(item.href), filename),
+                                join(dirname(vfile.path), dirname(item.href), filename),
                             );
                         }
 
                         return item;
                     });
+                });
 
-                    return toc;
+                getMetaHooks(run.meta).Dump.tap('Html', (meta) => {
+                    return filterBundledExtensionAssets(meta);
                 });
 
                 // Dump Toc to js file
-                getTocHooks(run.toc).Resolved.tapPromise('Html', async (_toc, path) => {
-                    const file = join(run.output, dirname(path), 'toc.js');
-                    const result = await run.toc.dump(path);
+                getTocHooks(run.toc).Dump.tapPromise(
+                    {name: 'Html', stage: Infinity},
+                    async (vfile) => {
+                        vfile.format(
+                            (data) => `window.__DATA__.data.toc = ${JSON.stringify(data)};`,
+                        );
+                        vfile.path = setExt(vfile.path, 'js');
+                    },
+                );
 
-                    await run.write(file, `window.__DATA__.data.toc = ${JSON.stringify(result)};`);
+                // Add link to dumped toc.js to html template
+                getEntryHooks(run.entry).Page.tap('Html', (template) => {
+                    if (!template.is(__Entry__)) {
+                        return;
+                    }
+
+                    const toc = run.toc.for(template.path);
+
+                    template.addScript(tocJS(toc.path), {position: 'state'});
+                });
+
+                // Transform any entry to final html page
+                getEntryHooks(run.entry).Dump.tapPromise('Html', async (vfile) => {
+                    const toc = await run.toc.dump(vfile.path);
+
+                    const data = getStateData(vfile.data);
+                    const state = await run.entry.state(vfile.path, data);
+                    const template = new Template(vfile.path, state.lang, [__Entry__]);
+                    template.setCspDisabled(Boolean(run.config.disableCsp));
+
+                    const html = await run.entry.page(template, state, toc.data);
+                    vfile.path = setExt(vfile.path, '.html');
+                    vfile.format(() => html);
+                    Object.assign(vfile.info, data);
+                });
+
+                getEntryHooks(run.entry).Dump.tap({name: 'Html', stage: Infinity}, (entry) => {
+                    const maxContentLength = run.config.content.maxHtmlSize;
+                    const contentLength = entry.data.content.data.toString().length;
+
+                    if (contentLength < maxContentLength) {
+                        return;
+                    }
+
+                    run.logger.error(
+                        'YFM012',
+                        `${entry.data.path}: YFM012 / Filesize limit exceeded: ${contentLength} (limit is ${maxContentLength})`,
+                    );
                 });
 
                 // Transform Page Constructor yfm blocks
@@ -80,14 +142,14 @@ export class OutputHtml {
                         const values = zip(
                             keys,
                             await pmap(keys, async (string) => {
-                                const {content, deps, assets} = await run.markdown.analyze(
+                                const {content, deps, assets} = await run.markdown.inspect(
                                     path,
                                     string,
                                     vars,
                                 );
 
                                 return run.transform(path, content, {
-                                    deps: deps.map(({path}) => path),
+                                    deps: deps,
                                     assets,
                                 });
                             }),
@@ -103,35 +165,117 @@ export class OutputHtml {
                     return plugins.concat(getBaseMdItPlugins()).concat(getCustomMdItPlugins());
                 });
 
-                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (leading, path) => {
-                    return run.leading.walkLinks(leading, getHref(run.input, path));
+                getLeadingHooks(run.leading).Dump.tapPromise('Html', async (vfile) => {
+                    vfile.data = await run.leading.walkLinks(
+                        vfile.data,
+                        getHref(run.input, vfile.path),
+                    );
                 });
 
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Html',
-                    async (markdown, path, info) => {
-                        const deps = await run.markdown.deps(path);
-                        const assets = await run.markdown.assets(path);
-                        const [result, env] = await run.transform(path, markdown, {
-                            deps: deps.map(({path}) => path),
-                            assets,
-                        });
+                // Transform markdown to html
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Html', async (vfile) => {
+                    const deps = await run.markdown.deps(vfile.path);
+                    const assets = await run.markdown.assets(vfile.path);
+                    const [result, env] = await run.transform(vfile.path, vfile.data, {
+                        deps,
+                        assets,
+                    });
 
-                        run.meta.addResources(path, env.meta);
+                    run.meta.addResources(vfile.path, env.meta);
 
-                        Object.assign(info, env);
+                    vfile.data = result;
+                    vfile.info = {...vfile.info, ...env};
+                });
 
-                        return result;
-                    },
-                );
+                getRedirectsHooks(run.redirects).Release.tap('Html', () => {
+                    // Do not save redirects.yaml for html mode
+                    return null;
+                });
             });
 
+        // Copy project assets to output
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('Html', async (run) => {
+                // Check asset sizes before copying
+                const copiedAssets = new Set<string>();
+
+                // Get all entries and check their assets
+                const entries = run.toc.entries;
+
+                for (const entry of entries) {
+                    const markdownAssets = await run.markdown.assets(entry);
+
+                    for (const {path, size} of markdownAssets) {
+                        if (!isMediaLink(path)) {
+                            continue;
+                        }
+
+                        if (copiedAssets.has(path)) {
+                            continue;
+                        }
+                        copiedAssets.add(path);
+
+                        if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
+                            run.logger.error(
+                                'YFM013',
+                                `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
+                            );
+                        }
+                    }
+                }
+
+                // TODO: we copy all files. Required to copy only used files.
+                // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
                 await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
+
+                const assetsPath = join(run.input, '_assets');
+                if (run.exists(assetsPath)) {
+                    await run.copy(assetsPath, join(run.output, '_assets'));
+                }
             });
+
+        // Generate redirects
+        getBuildHooks(program)
+            .AfterRun.for('html')
+            .tapPromise('Html', async (run) => {
+                const langRelativePath: RelativePath = `./${run.config.lang}/index.html`;
+                const langPath = join(run.output, langRelativePath);
+                const pagePath = join(run.output, 'index.html');
+
+                // Generate root lang redirect if it doesn't exists
+                // TODO: regenerate redirect if link changed
+                if (!run.exists(pagePath) && run.exists(langPath)) {
+                    const content = await run.redirects.page('./', langRelativePath);
+                    await run.write(pagePath, content, true);
+                }
+
+                // Generate redirect for each record in redirects.files section
+                for (const {from, to} of run.redirects.files) {
+                    const content = await run.redirects.page(from, to);
+                    await run.write(join(run.output, from), content, true);
+                }
+            });
+    }
+}
+
+function getStateData(entry: EntryData): PageData {
+    if (entry.type === 'yaml') {
+        return {
+            leading: true,
+            data: entry.content.data,
+            meta: entry.meta,
+            title: entry.content.data.title || entry.meta.title || '',
+        };
+    } else {
+        return {
+            leading: false,
+            html: entry.content.toString(),
+            meta: entry.meta,
+            headings: entry.info.headings,
+            title: entry.info.title || entry.meta.title || '',
+        };
     }
 }
 
@@ -142,7 +286,7 @@ function getHref(root: AbsolutePath, path: NormalizedPath) {
         }
 
         if (!href.startsWith('/')) {
-            href = join(dirname(path), href);
+            href = normalizePath(join(dirname(path), href));
         }
 
         const filePath = join(root, href);

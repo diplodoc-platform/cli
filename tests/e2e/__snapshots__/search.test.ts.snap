@@ -1,0 +1,56 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Local search > internal > filelist 1`] = `
+"[
+  ".yfm",
+  "index.html",
+  "toc.js"
+]"
+`;
+
+exports[`Local search > internal 1`] = `
+"allowHtml: true
+langs: ['en','ru']
+
+interface:
+  toc-header: false
+  favicon-src: https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico
+
+search:
+  provider: local
+  tolerance: 2
+  confidense: phrased
+  "
+`;
+
+exports[`Local search > internal 2`] = `
+"<!DOCTYPE html>
+<html lang="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Header</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+        <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Content&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Header"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"en","langs":["en","ru"],"viewerInterface":{"toc-header":false,"favicon-src":"https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico","toc":false,"search":true,"feedback":true},"search":{"provider":"local","tolerance":2,"confidense":"phrased","enabled":true,"api":"_search/api.js","link":"_search/en/index.html"}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Local search > internal 3`] = `"window.__DATA__.data.toc = {"href":"index.html","path":"toc.yaml","id":"UUID"};"`;

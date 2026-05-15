@@ -13,15 +13,16 @@ import {dirname, extname, join} from 'node:path';
 import {getHooks as getBaseHooks} from '@diplodoc/cli/lib/program';
 import {getHooks as getTocHooks} from '@diplodoc/cli/lib/toc';
 
-// const AUTOTITLE = '{$T}';
+type Order = 'asc' | 'desc';
+type OrderBy = 'filename' | 'natural';
 
 type Options = IncluderOptions<{
     input?: RelativePath;
     autotitle?: boolean;
-    leadingPage?: {
-        autotitle?: boolean;
-        name?: string;
-    };
+    linkIndex?: boolean;
+    linkIndexAutotitle?: boolean;
+    order?: Order;
+    orderBy?: OrderBy;
 }>;
 
 type Graph = {
@@ -35,8 +36,8 @@ type Run = BaseRun & {
 const EXTENSION = 'GenericIncluder';
 const INCLUDER = 'generic';
 
-// TODO: implement autotitle after md refactoring
-// TODO: implement sort
+const naturalCollator = new Intl.Collator(undefined, {numeric: true});
+
 export class Extension implements IExtension {
     apply(program: BaseProgram) {
         getBaseHooks<Run>(program).BeforeAnyRun.tap(EXTENSION, (run) => {
@@ -77,17 +78,34 @@ function graph(paths: NormalizedPath[]): Graph {
 }
 
 function pageName(key: string, options: Options) {
-    if (key === 'index') {
-        // if (options?.leadingPage?.autotitle) {
-        //     return AUTOTITLE;
-        // }
-
-        // TODO: i18n
-        return (options?.leadingPage?.name ?? 'Overview') as YfmString;
+    if (options.autotitle !== false) {
+        return undefined;
     }
 
-    // return options.autotitle ? AUTOTITLE : key;
     return key as YfmString;
+}
+
+function compareKeys(orderBy: OrderBy): (a: string, b: string) => number {
+    if (orderBy === 'filename') {
+        return (a, b) => {
+            if (a < b) return -1;
+            if (a > b) return 1;
+            return 0;
+        };
+    }
+
+    return naturalCollator.compare;
+}
+
+function sortEntries<T>(entries: [string, T][], options: Options): [string, T][] {
+    if (!options.orderBy) {
+        return entries;
+    }
+
+    const cmp = compareKeys(options.orderBy);
+    const direction = (options.order ?? 'asc') === 'desc' ? -1 : 1;
+
+    return [...entries].sort(([a], [b]) => direction * cmp(a, b));
 }
 
 function fillToc(toc: RawToc, graph: Graph, options: Options) {
@@ -98,10 +116,42 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
             return {name, href: value};
         }
 
-        return {name, items: Object.entries(value).map(item)};
+        const entries = sortEntries(Object.entries(value), options);
+
+        if (options.linkIndex) {
+            const indexEntry = entries.find(([k]) => k === 'index');
+            const childEntries = entries.filter(([k]) => k !== 'index');
+            const indexHref =
+                indexEntry && typeof indexEntry[1] === 'string' ? indexEntry[1] : undefined;
+
+            if (indexHref) {
+                const useIndexHeading =
+                    options.linkIndexAutotitle === true && options.autotitle !== false;
+                const result = {
+                    href: indexHref,
+                    items: childEntries.map(item),
+                };
+
+                if (useIndexHeading) {
+                    return result;
+                }
+
+                return {
+                    name: key as YfmString,
+                    ...result,
+                };
+            }
+
+            return {
+                name: key as YfmString,
+                items: childEntries.map(item),
+            };
+        }
+
+        return {name: key as YfmString, items: entries.map(item)};
     }
 
-    toc.items = Object.entries(graph).map(item);
+    toc.items = sortEntries(Object.entries(graph), options).map(item);
 
     return toc;
 }

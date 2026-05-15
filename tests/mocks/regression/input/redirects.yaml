@@ -1,0 +1,6 @@
+files:
+  - from: 'c.md'
+    to: 'd.md'
+common:
+  - from: './a.md'
+    to: './b.md'

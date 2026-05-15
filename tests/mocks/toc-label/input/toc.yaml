@@ -1,0 +1,10 @@
+title: Toc Label Test
+href: index.md
+label:
+  title: Preview
+  description: This service is in preview
+  theme: info
+
+items:
+  - name: Page 1
+    href: page1.md

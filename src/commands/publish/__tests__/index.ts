@@ -3,7 +3,9 @@ import type {Mock} from 'vitest';
 import type {PublishConfig} from '..';
 
 import {expect, it, vi} from 'vitest';
+
 import {parse} from '~/commands/parser';
+
 import {Publish} from '..';
 import {upload as originalUpload} from '../upload';
 

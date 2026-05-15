@@ -1,0 +1,244 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Restricted access > Nested restricted access > filelist 1`] = `
+"[
+  "plugins/index.md",
+  "project/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Nested restricted access 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+    - manager
+  - - userA
+    - userB
+vcsPath: plugins/index.md
+---
+"
+`;
+
+exports[`Restricted access > Nested restricted access 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userA
+    - userB
+vcsPath: project/index.md
+---
+"
+`;
+
+exports[`Restricted access > Nested restricted access 3`] = `
+"title: Yandex Flavored Markdown
+items:
+  - name: Plugins
+    restricted-access:
+      - admin
+      - manager
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - userA
+          - userB
+  - name: Organizing a YFM project
+    items:
+      - name: Overview
+        href: project/index.md
+        restricted-access:
+          - userA
+          - userB
+path: toc.yaml
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access > filelist 1`] = `
+"[
+  "a1.md",
+  "folder1/a1.md",
+  "folder1/folder2/a1.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Nested toc restricted access 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: a1.md
+---
+This is the /a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userA
+    - userB
+  - - userAtoc2
+    - userBtoc2
+vcsPath: folder1/a1.md
+---
+This is the /folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - userA
+    - userB
+  - - userAtoc3
+    - userBtoc3
+vcsPath: folder1/folder2/a1.md
+---
+This is the /folder1/folder1/a1.md file content.
+"
+`;
+
+exports[`Restricted access > Nested toc restricted access 4`] = `
+"items:
+  - name: A1
+    href: a1.md
+  - name: folder1
+    restricted-access:
+      - userA
+      - userB
+    items:
+      - name: A1
+        href: folder1/a1.md
+        restricted-access:
+          - userAtoc2
+          - userBtoc2
+      - name: folder1
+        items:
+          - name: A1
+            href: folder1/folder2/a1.md
+            restricted-access:
+              - userAtoc3
+              - userBtoc3
+path: toc.yaml
+"
+`;
+
+exports[`Restricted access > Simple restricted access > filelist 1`] = `
+"[
+  "index.md",
+  "plugins/index.md",
+  "plugins/index2.md",
+  "plugins/index3.md",
+  "plugins/index4.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Restricted access > Simple restricted access 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+vcsPath: index.md
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+vcsPath: plugins/index.md
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+  - - admin
+    - user
+vcsPath: plugins/index2.md
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+vcsPath: plugins/index3.md
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+restricted-access:
+  - - admin
+  - - customInFile
+vcsPath: plugins/index4.md
+---
+"
+`;
+
+exports[`Restricted access > Simple restricted access 6`] = `
+"title: Yandex Flavored Markdown
+items:
+  - name: Yandex Flavored Markdown
+    href: index.md
+    restricted-access: admin
+  - name: Plugins
+    items:
+      - name: Overview
+        href: plugins/index.md
+        restricted-access:
+          - admin
+  - name: Plugins 2
+    restricted-access: admin
+    items:
+      - name: Overview 2
+        href: plugins/index2.md
+        restricted-access:
+          - admin
+          - user
+      - name: Overview 3
+        href: plugins/index3.md
+        restricted-access:
+          - admin
+      - name: Overview 4
+        href: plugins/index4.md
+        restricted-access:
+          - admin
+path: toc.yaml
+"
+`;

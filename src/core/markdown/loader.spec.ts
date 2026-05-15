@@ -1,5 +1,7 @@
+import type {Mock} from 'vitest';
 import type {Collect} from './types';
 import type {LoaderContext} from './loader';
+import type * as CoreUtils from '~/core/utils';
 
 import {describe, expect, it, vi} from 'vitest';
 import {dedent} from 'ts-dedent';
@@ -10,6 +12,16 @@ import {Logger} from '~/core/logger';
 import {loader} from './loader';
 
 vi.mock('~/core/logger');
+vi.mock('~/core/utils', async (importOriginal) => {
+    const actual = (await importOriginal()) as typeof CoreUtils;
+    return {
+        ...actual,
+        fs: {
+            ...actual.fs,
+            statSync: vi.fn(() => ({size: 1024})),
+        },
+    };
+});
 
 function bucket() {
     let _value: unknown;
@@ -24,7 +36,12 @@ function bucket() {
 
 function loaderContext(
     raw: string,
-    {vars = {}, options = {}, settings = {}, collects = []}: DeepPartial<LoaderContext> = {},
+    {
+        vars = {},
+        options = {},
+        settings = {},
+        collects = [] as Collect[],
+    }: DeepPartial<LoaderContext> = {},
 ) {
     return {
         path: 'file.md' as NormalizedPath,
@@ -32,7 +49,10 @@ function loaderContext(
         logger: new Logger(),
         emitFile: vi.fn(),
         readFile: vi.fn(),
+        fullPath: (path: RelativePath) => path,
+        input: '/' as AbsolutePath,
         api: {
+            blockCodes: bucket(),
             deps: bucket(),
             assets: bucket(),
             meta: bucket(),
@@ -46,8 +66,10 @@ function loaderContext(
         settings,
         options: {
             disableLiquid: false,
+            mergeContentParts: true,
             ...options,
         },
+        mode: 'build',
     } as LoaderContext;
 }
 
@@ -96,6 +118,41 @@ describe('Markdown loader', () => {
             expect(result).toEqual('Simple text');
         });
 
+        it('should error on duplicated key in frontmatter', async () => {
+            const content = dedent`
+                ---
+                title: Test Document
+                title: Duplicate Key
+                ---
+                Simple text
+            `;
+            const context = loaderContext(content);
+            context.logger.error = Object.assign(vi.fn(), {count: 0});
+
+            await loader.call(context, content);
+
+            expect(context.logger.error).toBeCalledWith(
+                'file.md: 2: YFM017 / invalid front matter format [Reason: "duplicated mapping key"; Line: 2; Key: "title"]',
+            );
+        });
+
+        it('should not error on duplicated vcsPath in frontmatter', async () => {
+            const content = dedent`
+                ---
+                title: Test Document
+                vcsPath: path/one.md
+                vcsPath: path/two.md
+                ---
+                Simple text
+            `;
+            const context = loaderContext(content);
+            context.logger.error = Object.assign(vi.fn(), {count: 0});
+
+            await loader.call(context, content);
+
+            expect(context.logger.error).not.toBeCalled();
+        });
+
         it('should not template frontmatter if disabled', async () => {
             const content = dedent`
                 ---
@@ -112,6 +169,285 @@ describe('Markdown loader', () => {
 
             expect(context.api.meta.set).toBeCalledWith({prop: '{{text}}'});
             expect(result).toEqual('Simple text');
+        });
+    });
+
+    describe('resolveBlockCodes', () => {
+        it('should skip assets in fenced code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect asset in inline code with text', async () => {
+            const content = dedent`
+                Simple text with \`![img](./some.png)\` in the middle
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect asset in multiline definition list', async () => {
+            const content = dedent`
+                Term
+                :   Definition with 
+                
+                    ![img](./some.png)
+                    and more text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks inside multiline definition list', async () => {
+            const content = dedent`
+                Term
+                :   Definition with code:
+                    \`\`\`
+                    ![img](./some.png)
+                    \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with mixed indentation', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                    \`\`\`
+                    ![img](./some2.png)
+                        ![img](./some3.png)
+                    \`\`\`
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with special characters', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                const regex = /[\w]+/g;
+                const str = 'Hello {name}!';
+                console.log(\`Result: \${str}\`);
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle empty code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in fenced code blocks with tildes', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                ~~~
+                ![img](./some2.png)
+                ~~~
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle code blocks with only whitespace', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                    
+                     
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks inside lists', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                - Item 1
+                    \`\`\`
+                    ![img](./some2.png)
+                    \`\`\`
+                - Item 2 
+                  ![img](./some3.png)
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should handle adjacent code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`
+                code block 1
+                \`\`\`
+                \`\`\`
+                code block 2
+                \`\`\`
+                ![img](./some2.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in indented code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                    ![img](./some2.png)
+                    ![img](./some3.png)
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in inline code with double backticks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`![img](./some2.png)\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in code blocks with language specification', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`javascript
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in inline code', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`![img](./some2.png)\`
+                ![img](./some3.png)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should add assets in definition list', async () => {
+            const content = dedent`
+                Title
+                :   Simple text:
+                
+                    ![img](./some1.png)
+
+                    #|
+                    || ![img](./some2.png) | col2
+
+                    ||
+                    |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should add assets in definition list with note', async () => {
+            const content = dedent`
+                {% note warning %}
+                Text warning. 
+
+                ![img](./some1.png)
+
+                \`\`\`shell
+                some text in block
+                ![img](./some2.png)
+                \`\`\`
+                {% endnote %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
         });
     });
 
@@ -230,7 +566,14 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include.md', location: [12, 42], hash: null, search: null},
+                {
+                    path: 'include.md',
+                    link: './include.md',
+                    location: [12, 42],
+                    match: '{% include [](./include.md) %}',
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -250,9 +593,30 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include1.md', location: [12, 43], hash: null, search: null},
-                {path: 'include2.md', location: [45, 99], hash: null, search: null},
-                {path: 'deep/include.md', location: [105, 140], hash: null, search: null},
+                {
+                    path: 'include1.md',
+                    link: './include1.md',
+                    location: [12, 43],
+                    match: '{% include [](./include1.md) %}',
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'include2.md',
+                    link: './include2.md',
+                    location: [45, 99],
+                    match: '{% include [some text (with) braces](./include2.md) %}',
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'deep/include.md',
+                    link: './deep/include.md',
+                    location: [105, 140],
+                    match: '{% include [](./deep/include.md) %}',
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -272,8 +636,22 @@ describe('Markdown loader', () => {
 
             const result = await loader.call(context, content);
             expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include1.md', location: [12, 43], hash: null, search: null},
-                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+                {
+                    path: 'include1.md',
+                    link: './include1.md',
+                    location: [12, 43],
+                    match: '{% include [](./include1.md) %}',
+                    hash: null,
+                    search: null,
+                },
+                {
+                    path: 'include2.md',
+                    link: './include2.md',
+                    location: [45, 99],
+                    match: '{% include [some text (with) braces](./include2.md) %}',
+                    hash: null,
+                    search: null,
+                },
             ]);
             expect(result).toEqual(content);
         });
@@ -313,11 +691,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([
-                'some.png',
-                '_images/auth_3.png',
-                'link.png',
-            ]);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -329,7 +703,8 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png']);
+
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -341,7 +716,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -354,7 +729,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some.png', 'some-big.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -382,7 +757,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith([]);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -396,7 +771,34 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with sized images format options', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png){width=100 height=100}
+                ![img](./some2.png){width=100}
+                ![img](./some3.png){height=100}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with inline svg images', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.svg){inline=true}
+                ![img](./some2.svg){inline=false}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -410,7 +812,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png', 'some2.png', 'some3.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -423,7 +825,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.PNG', 'some2.pnG']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -435,7 +837,7 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['some1.png']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
 
@@ -451,7 +853,224 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.assets.set).toBeCalledWith(['image.jpeg']);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should skip assets in nested code blocks', async () => {
+            const content = dedent`
+                Simple text
+                ![img](./some1.png)
+                \`\`\`\`
+                \`\`\`
+                ![img](./some2.png)
+                \`\`\`
+                ![img](./some3.png)
+                \`\`\`\`
+                ![img](./some4.png)
+            `;
+            const context = loaderContext(content, {});
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0][0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect asset with long fence', async () => {
+            const content = dedent`
+                Simple text
+                \`\`\`\`\`\`\`\`\`
+                ![img](./some.png)
+                \`\`\`\`\`\`\`\`\`
+                Simple text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect asset with language and translate=no directive', async () => {
+            const content = dedent`
+                Simple text
+                \`\`\`javascript translate=no
+                ![img](./some.png)
+                \`\`\`
+                Simple text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect link to anchor', async () => {
+            const content = dedent`
+                Simple text
+                [link](#anchor)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with reference images with title', async () => {
+            const content = dedent`
+                Simple text
+                ![title][code]
+                ![code][]
+
+                [code]: ./some.png
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images with parameters', async () => {
+            const content = dedent`
+                Simple text
+                ![title](./some1.png){width=100 height=200}
+                ![title](./some2.png){width=100}
+                ![title](./some3.png){height=200}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with reference images with parameters', async () => {
+            const content = dedent`
+                Simple text
+                ![title][code]{width=100 height=200}
+                ![code][]{width=100}
+
+                [code]: ./some.png
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect html anchor with download attribute (href first)', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/test.txt" download="Config">Download</a>
+                <a href="_assets/test.docx" download>Download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should detect html anchor with download attribute (download first)', async () => {
+            const content = dedent`
+                Simple text
+                <a download="Config" href="_assets/test.csv">Download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor without download attribute', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/test.txt">Not a download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor with external href and download', async () => {
+            const content = dedent`
+                Simple text
+                <a href="https://example.com/file.txt" download>External</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should not detect html anchor with download but unsupported format', async () => {
+            const content = dedent`
+                Simple text
+                <a href="_assets/archive.zip" download>Download</a>
+                <a href="_assets/report.pdf" download>Download</a>
+                <a href="_assets/data.xlsx" download>Download</a>
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images with title backtick', async () => {
+            const content = dedent`
+                Simple text
+                ![Text link \`backtick\`](./some1.png "Text link title \`backtick\`"){ width="800" }
+
+                ![Text link \`backtick\`](./some2.png "Text link title \`backtick\`"){ width="800" }
+                Text on next row with inline code \`backtick\`.
+
+                ![Text link \`backtick1\`](./some3.png "Text link title \`backtick\`" =800x)
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with images in yfm table after code block', async () => {
+            const content = dedent`
+                #|
+                || **col1** | **col2** | **col3** ||
+                || col1 | 
+                \`\`\`swift 
+                some code
+                \`\`\` | ![](./some.png =120x) ||
+                |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
+            expect(result).toEqual(content);
+        });
+
+        it('should work with popup with % in name or text', async () => {
+            const content = dedent`
+                [link 1](*link1)
+                [link 2%](*link2%)
+
+                [*link1]: 100% text with
+                [*link2%]: some text
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            expect((context.api.assets.set as Mock).mock.calls[0]).toMatchSnapshot();
             expect(result).toEqual(content);
         });
     });
@@ -522,15 +1141,65 @@ describe('Markdown loader', () => {
                 collects: [
                     async function (input: string) {
                         return input + '\nPlugin 1';
-                    },
+                    } as Collect,
                     async function (input: string) {
                         return input + '\nPlugin 2';
-                    },
+                    } as Collect,
                 ],
             });
 
             const result = await loader.call(context, content);
             expect(result).toEqual('Text\nPlugin 1\nPlugin 2');
+        });
+    });
+
+    describe('resolve no-translate directive', () => {
+        it('should remove no-translate directive but leave its content', async () => {
+            const content = dedent`
+                ::: no-translate
+                Should not be
+                translated
+                :::
+            `;
+            const context = loaderContext(content);
+
+            const result = await loader.call(context, content);
+
+            expect(result).toEqual(
+                dedent`
+                    Should not be
+                    translated
+                `,
+            );
+        });
+
+        it('should remove no-translate directive but leave nested directives unchanged', async () => {
+            const content = dedent`
+                ::: no-translate
+                Should not be
+                translated
+                ::: some-other-directive
+                Some other directive
+                :: some-other-inline-directive with text. : item-directive [attr]
+                content
+                :::
+                :::
+            `;
+            const context = loaderContext(content);
+
+            const result = await loader.call(context, content);
+
+            expect(result).toEqual(
+                dedent`
+                    Should not be
+                    translated
+                    ::: some-other-directive
+                    Some other directive
+                    :: some-other-inline-directive with text. : item-directive [attr]
+                    content
+                    :::
+                `,
+            );
         });
     });
 });

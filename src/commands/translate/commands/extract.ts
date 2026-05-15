@@ -1,23 +1,25 @@
 import type {BaseArgs} from '~/core/program';
-import type {ExtractOptions} from '@diplodoc/translation';
+import type {ExtractOptions, JSONObject} from '@diplodoc/translation';
 import type {Locale} from '../utils';
+import type {ConfigDefaults} from '../utils/config';
 
 import {ok} from 'node:assert';
 import {join, resolve} from 'node:path';
 import {pick} from 'lodash';
 import {asyncify, eachLimit} from 'async';
-import liquid from '@diplodoc/transform/lib/liquid';
-import {Xliff} from '@diplodoc/translation/lib/experiment/xliff/xliff';
 
+import {normalizePath} from '~/core/utils';
+import {YFM_CONFIG_FILENAME} from '~/constants';
+import {Command, defined} from '~/core/config';
 import {
     BaseProgram,
     getHooks as getBaseHooks,
     withConfigDefaults,
     withConfigScope,
 } from '~/core/program';
-import {Command, defined} from '~/core/config';
-import {YFM_CONFIG_FILENAME} from '~/constants';
 
+import {Extension as ExtractOpenapiIncluderFakeExtension} from '../extract-openapi';
+import {FilterExtract} from '../features/filter-extract';
 import {options} from '../config';
 import {TranslateLogger} from '../logger';
 import {
@@ -29,11 +31,11 @@ import {
     resolveSchemas,
     resolveSource,
     resolveTargets,
-    resolveVars,
 } from '../utils';
 import {Run} from '../run';
 import {configDefaults} from '../utils/config';
-import {normalizePath} from '~/core/utils';
+
+import {getHooks, withHooks} from './hooks';
 
 const MAX_CONCURRENCY = 50;
 
@@ -43,28 +45,26 @@ export type ExtractArgs = BaseArgs & {
     target?: string | string[];
     include?: string[];
     exclude?: string[];
-    vars?: Hash;
-    useExperimentalParser?: boolean;
+    filter?: boolean;
+    refResolve?: boolean;
 };
 
 export type ExtractConfig = Pick<BaseArgs, 'input' | 'strict' | 'quiet'> & {
-    output: string;
+    output: AbsolutePath;
     source: Locale;
     target: Locale[];
     include: string[];
     exclude: string[];
     files: string[];
     skipped: [string, string][];
-    vars: Hash;
-    useExperimentalParser?: boolean;
     schema?: string;
-};
+    filter?: boolean;
+    refResolve?: boolean;
+} & ConfigDefaults;
 
+@withHooks
 @withConfigScope('translate.extract', {strict: true})
-@withConfigDefaults(() => ({
-    useExperimentalParser: false,
-    ...configDefaults(),
-}))
+@withConfigDefaults(() => configDefaults())
 export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
     readonly name = 'Translate.Extract';
 
@@ -78,11 +78,13 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         options.files,
         options.include,
         options.exclude,
-        options.vars,
         options.config(YFM_CONFIG_FILENAME),
-        options.useExperimentalParser,
         options.schema,
+        options.filter,
+        options.noRefResolve,
     ];
+
+    readonly modules = [new ExtractOpenapiIncluderFakeExtension(), new FilterExtract()];
 
     readonly logger = new TranslateLogger();
 
@@ -92,19 +94,19 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
         super.apply(program);
 
         getBaseHooks(this).Config.tap('Translate.Extract', (config, args) => {
-            const {input, output, quiet, strict} = pick(args, [
+            const {input, output, quiet, strict, filter, refResolve} = pick(args, [
                 'input',
                 'output',
                 'quiet',
                 'strict',
+                'filter',
+                'refResolve',
             ]) as ExtractArgs;
             const source = resolveSource(config, args);
             const target = resolveTargets(config, args);
             const include = defined('include', args, config) || [];
             const exclude = defined('exclude', args, config) || [];
             const files = defined('files', args, config) || [];
-
-            const vars = resolveVars(config, args);
 
             return Object.assign(config, {
                 input,
@@ -116,30 +118,26 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 files,
                 include,
                 exclude,
-                vars,
-                useExperimentalParser: defined('useExperimentalParser', args, config) || false,
+                filter,
+                refResolve,
             });
         });
     }
 
     async action() {
-        const {
-            input,
-            output,
-            source,
-            target: targets,
-            vars,
-            useExperimentalParser,
-            schema,
-        } = this.config;
+        const {input, output, source, target: targets, schema} = this.config;
 
         this.logger.setup(this.config);
 
         this.run = new Run(this.config);
 
+        await getBaseHooks(this).BeforeAnyRun.promise(this.run);
+        await getHooks(this).BeforeRun.promise(this.run);
+
         await this.run.prepareRun();
 
         const [files, skipped] = await this.run.getFiles();
+        const exit = process.exit;
 
         for (const target of targets) {
             ok(source.language && source.locale, 'Invalid source language-locale config');
@@ -150,8 +148,6 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                 target,
                 input,
                 output,
-                vars,
-                useExperimentalParser,
                 schema,
             });
 
@@ -160,10 +156,12 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
             await eachLimit(
                 Array.from(files),
                 MAX_CONCURRENCY,
-                asyncify(async (file: string) => {
+                asyncify(async (file: NormalizedPath) => {
                     try {
                         this.logger.extract(file);
-                        await configuredPipeline(file);
+                        const content = await this.run.getFileContent(file);
+
+                        await configuredPipeline(file, content);
                         this.logger.extracted(file);
                     } catch (error: unknown) {
                         if (error instanceof TranslateError) {
@@ -175,7 +173,7 @@ export class Extract extends BaseProgram<ExtractConfig, ExtractArgs> {
                             this.logger.extractError(file, `${error.message}`);
 
                             if (error.fatal) {
-                                process.exit(1);
+                                exit(1);
                             }
                         } else {
                             this.logger.error(file, error);
@@ -192,19 +190,16 @@ export type PipelineParameters = {
     output: string;
     source: ExtractOptions['source'];
     target: ExtractOptions['target'];
-    vars: Hash;
-    useExperimentalParser?: boolean;
     schema?: ExtractOptions['schema'];
 };
 
 function pipeline(params: PipelineParameters) {
-    const {input, output, source, target, vars, useExperimentalParser, schema} = params;
+    const {input, output, source, target, schema} = params;
     const inputRoot = resolve(input);
     const outputRoot = resolve(output);
 
-    return async (path: string) => {
+    return async (path: string, content: string | JSONObject) => {
         const inputPath = join(inputRoot, path);
-        const content = new FileLoader(inputPath);
         const output = (path: string) => {
             const normalizedPath = normalizePath(path);
             const normalizedInputRoot = normalizePath(inputRoot);
@@ -215,44 +210,24 @@ function pipeline(params: PipelineParameters) {
             return join(outputRoot, targetPath);
         };
 
-        await content.load();
-
-        if (Object.keys(vars).length && content.isString) {
-            content.set(
-                liquid(content.data as string, vars, inputPath, {
-                    conditions: 'strict',
-                    substitutions: false,
-                    cycles: false,
-                }),
-            );
-        }
-
         const {schemas, ajvOptions} = await resolveSchemas({
-            content: content.data,
+            content,
             path,
             customSchemaPath: schema,
         });
-        const {xliff, skeleton, units} = extract(content.data, {
+        const {xliff, skeleton, units} = extract(content, {
             originalFile: path,
             source,
             target,
             schemas,
-            useExperimentalParser,
             ajvOptions,
         });
 
-        let xliffResult = xliff;
-        if (useExperimentalParser && units === undefined) {
-            const expXliff = xliff as unknown as Xliff;
-            xliffResult = expXliff.toString();
-            if (!expXliff.transUnits.length) {
-                throw new EmptyTokensError();
-            }
-        } else if (!units.length) {
+        if (!units.length) {
             throw new EmptyTokensError();
         }
 
-        const xlf = new FileLoader(inputPath).set(xliffResult);
+        const xlf = new FileLoader(inputPath).set(xliff);
         const skl = new FileLoader(inputPath).set(skeleton);
 
         await Promise.all([

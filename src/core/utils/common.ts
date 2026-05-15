@@ -1,7 +1,21 @@
 import {isObject} from 'lodash';
+
 import {bounded} from './decorators';
 
 export const all = Promise.all.bind(Promise);
+
+export const race = Promise.race.bind(Promise);
+
+export function noop() {}
+
+export function get<K extends string>(key: K) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return function <T extends Record<K, any>>(
+        object: T,
+    ): T extends Record<K, infer V> ? V : never {
+        return object[key];
+    };
+}
 
 export function zip<T = unknown>(keys: string[], values: T[]) {
     return keys.reduce((acc, key, index) => {
@@ -22,6 +36,7 @@ export function own<V = unknown, T extends string = string>(
 export function copyJson<T extends object>(
     json: T | undefined,
 ): T extends DeepFrozen<infer R> ? R : T | undefined {
+    // @ts-ignore
     return json ? JSON.parse(JSON.stringify(json)) : json;
 }
 
@@ -80,10 +95,25 @@ export class Defer<T = any> {
     }
 }
 
-export function wait(delay: number) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, delay);
+type CancelAPI = {
+    cancel: () => void;
+    skip: () => void;
+};
+
+export function wait(delay: number, action = () => {}): Promise<void> & CancelAPI {
+    let timeout: NodeJS.Timeout;
+    const promise = new Promise((resolve) => {
+        timeout = setTimeout(resolve, delay);
+    }).then(() => action());
+
+    Object.assign(promise, {
+        cancel: () => clearTimeout(timeout),
+        skip: () => {
+            action = () => {};
+        },
     });
+
+    return promise as Promise<void> & CancelAPI;
 }
 
 export type Bucket<T> = {
@@ -121,5 +151,10 @@ export class Buckets<T> {
     @bounded
     get(key: string): T {
         return this.scope.get(key) as T;
+    }
+
+    @bounded
+    delete(key: string) {
+        this.scope.delete(key);
     }
 }

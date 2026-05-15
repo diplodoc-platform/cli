@@ -1,97 +1,1302 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`Translate command extract yaml scheme files: en/index.yaml.skl 1`] = `
-"blocks:
-  - type: content-layout-block
-    textWidth: l
-    textContent:
-      title: '%%%0%%%'
-      text: |2-
-         %%%1%%%
-         - %%%2%%%
-         - %%%3%%%
-         
-  - type: card-layout-block
-    colSizes:
-      all: 12
-      lg: 4
-      md: 6
-      sm: 12
-      xl: 4
-    indent:
-      bottom: xs
-    title: '%%%4%%%'
-    animated: false
-    children:
-      - type: basic-card
-        title: '%%%5%%%'
-        text: '%%%6%%%'
-        urlTitle: '%%%7%%%'
-        border: shadow
-        controlPosition: content
-        url: management/index
-        target: ''
-        animated: false
+exports[`Translate command > build translated md files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: no-translate.md
+---
+# No-translate directive
+
+## Block directive
+### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
+Should not be translated.
+Can use **markup** inside.
+
+
+::: some-other-directive
+content here
+:::
+content here
+::: some-other-directive
+nested content
+:::
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/index.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > build translated md files and remove no-translate directives 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/index.md
+---
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/getWithPayloadResponse.md
+---
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version."
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/index.md
+---
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+"
+`;
+
+exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
+"title: Test123
+href: index.md
+items:
+  - name: Не переводить
+    href: no-translate.md
+  - name: openapi
+    items:
+      - name: Overview
+        href: openapi/index.md
+      - name: test-controller
+        items:
+          - name: Overview
+            href: openapi/test-controller/index.md
+          - href: openapi/test-controller/getWithPayloadResponse.md
+            name: Simple get operation. тест новой верстки 3
+path: toc.yaml
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives > filelist 1`] = `
+"[
+  "index.md",
+  "no-translate.md",
+  "openapi/index.md",
+  "openapi/test-controller/getWithPayloadResponse.md",
+  "openapi/test-controller/index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+## Index header
+
+adsfasdfasdfasdfasdf
+
+lorem
+
+asdfasdfasdf"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: no-translate.md
+---
+# No-translate directive
+
+## Block directive
+### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
+Should not be translated.
+Can use **markup** inside.
+
+
+::: some-other-directive
+content here
+:::
+content here
+::: some-other-directive
+nested content
+:::
+
+## Leaf directive
+
+## /usr/local/bin/application
+**C:/Program Files/Application/config.ini**
+~/Documents/project/src/main.rs
+
+
+- GET /api/v1/users — get all users
+- POST /api/v1/auth/login — authorization
+- PUT /api/v1/users/{id} — update users data
+
+## Simple case leaf
+Install using command.
+The default port is unless specified. Next sentence.
+Set NODE_ENV=production for production builds.
+
+## Simple case inline
+Install using npm install @company/package command.
+The default port is 8080 unless specified.
+Set NODE_ENV=production for production builds.
+
+## Few inline directives
+Use **GET /api/v1/users** to list users and POST /api/v1/users to create.
+
+## Empty inline directive
+This is text with empty  directive.
+
+
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/index.md
+---
+<!-- markdownlint-disable-file -->
+
+# OpenAPI definition
+
+##version: v0##
+
+## Sections
+
+- [test-controller](test-controller/index.md)
+
+
+## Specification
+
+{% cut "Open API" %}
+
+\`\`\`text translate=no
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "OpenAPI definition",
+        "version": "v0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "paths": {
+        "/test": {
+            "get": {
+                "tags": [
+                    "test-controller"
+                ],
+                "summary": "Simple get operation. тест новой верстки 3",
+                "description": "Defines a simple get skip this operation with no inputs and a complex",
+                "operationId": "getWithPayloadResponse",
+                "responses": {
+                    "200": {
+                        "description": "200!!!!",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "A": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "RecurceTop": {
+                "type": "object",
+                "properties": {
+                    "A": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RecurceMiddle": {
+                "type": "object",
+                "properties": {
+                    "B": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "A": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+\`\`\`
+
+{% endcut %}"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/getWithPayloadResponse.md
+---
+<div class="openapi">
+
+# Simple get operation. тест новой верстки 3
+
+<!-- markdownlint-disable-file -->
+
+Defines a simple get skip this operation with no inputs and a complex
+
+## Request
+
+<div class="openapi__requests">
+
+<div class="openapi__request__wrapper" style="--method: var(--dc-openapi-methods-get);margin-bottom: 12px">
+
+<div class="openapi__request">
+
+GET {.openapi__method}
+\`\`\`text translate=no
+http://localhost:8080/test
+\`\`\`
+
+</div>
+
+Generated server url
+
+</div>
+
+</div>
+
+## Responses
+
+<div class="openapi__response__code__200">
+
+## 200 OK
+
+200!!!!
+
+<div class="openapi-entity">
+
+### Body
+
+{% cut "application/json" %}
+
+\`\`\`json translate=no
+{
+  "A": "example"
+}
+\`\`\`
+
+{% endcut %}
+
+#|
+|| **Name** | **Description** ||
+||
+
+_A_{.json-schema-reset .json-schema-property}
+{.table-cell}|
+**Type**: string
+
+_Example:_{.json-schema-reset .json-schema-example} \`example\`
+{.table-cell}
+||
+|#{.json-schema-properties}
+
+</div>
+
+</div>
+
+</div>
+
+[*Deprecated]: No longer supported, please use an alternative and newer version."
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: openapi/test-controller/index.md
+---
+# test-controller
+
+<!-- markdownlint-disable-file -->
+
+## Endpoints
+
+- [Simple get operation. тест новой верстки 3](getWithPayloadResponse.md)
+"
+`;
+
+exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
+"title: Test123
+href: index.md
+items:
+  - name: Не переводить
+    href: no-translate.md
+  - name: openapi
+    items:
+      - name: Overview
+        href: openapi/index.md
+      - name: test-controller
+        items:
+          - name: Overview
+            href: openapi/test-controller/index.md
+          - href: openapi/test-controller/getWithPayloadResponse.md
+            name: Simple get operation. тест новой верстки 3
+path: toc.yaml
+"
+`;
+
+exports[`Translate command > compose openapi spec files > filelist 1`] = `
+"[
+  "openapi-spec.yaml",
+  "toc.yaml"
+]"
+`;
+
+exports[`Translate command > compose openapi spec files 1`] = `
+"openapi: 3.0.1
+info:
+  title: Перевод 1
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: Перевод 2
+paths:
+  /test:
+    get:
+      tags:
+        - Перевод 3
+      summary: Перевод 4
+      description: Перевод 5
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: Перевод 6
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  A:
+                    type: string
+                    description: |
+                      Перевод 7
+                      - Перевод 8
+                      - Перевод 9
+                      - Перевод 10
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            Перевод 7
+            - Перевод 8
+            - Перевод 9
+            - Перевод 10
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            type: object
+            properties:
+              A:
+                type: string
+                description: |
+                  Перевод 7
+                  - Перевод 8
+                  - Перевод 9
+                  - Перевод 10
+"
+`;
+
+exports[`Translate command > compose openapi spec files 2`] = `
+"items:
+  - name: Перевод 1
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > do not filter files on extract > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/_no-translate/exclude.md.skl",
+  "es/_no-translate/exclude.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index-yfm.md.skl",
+  "es/nested/index-yfm.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/not-in-toc.md.skl",
+  "es/nested/not-in-toc.md.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/nested/use_filtered_above.md.skl",
+  "es/nested/use_filtered_above.md.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/not-in-toc.md.skl",
+  "es/not-in-toc.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Введение
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.
+        <source xml:space="preserve">Test text</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Получать информацию о посещаемости сайта и другие данные.
+        <source xml:space="preserve">inner test text</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Формировать отчеты, в том числе с помощью сегментации и параметризации.
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Виды API
+        <source xml:space="preserve">#### List</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">
-        API управления
+        <source xml:space="preserve">1.</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">
-        Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).
+        <source xml:space="preserve">Item</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve">
-        API управления
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: en/index-direct.yaml.skl 1`] = `
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > do not resolve liquid conditions if vars not specified and send content as is for extract 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > do not translate merged entries with included toc > filelist 1`] = `
+"[
+  "included-toc.md.skl",
+  "included-toc.md.xliff",
+  "index.md.skl",
+  "index.md.xliff",
+  "merged-included-toc-item.md.skl",
+  "merged-included-toc-item.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract openapi spec files > filelist 1`] = `
+"[
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract openapi spec files 1`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    ResolvingCaseChild:
+      description: '%%%9%%%'
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            %%%5%%%
+            - %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: Parent description
+          $ref: '#/components/schemas/ResolvingCaseChild'
+"
+`;
+
+exports[`Translate command > extract openapi spec files 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Статус загрузки:</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Child description</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files 3`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > extract openapi spec files 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option > filelist 1`] = `
+"[
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 1`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    ResolvingCaseChild:
+      description: '%%%5%%%'
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
+            - %%%9%%%
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: '%%%10%%%'
+          $ref: '#/components/schemas/ResolvingCaseChild'
+"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Child description</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Статус загрузки:</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Parent description</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 3`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > extract openapi spec files with --no-ref-resolve option 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 1`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - '%%%2%%%'
+      summary: '%%%3%%%'
+      description: '%%%4%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%5%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    ResolvingCaseChild:
+      description: '%%%10%%%'
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+          description: |
+            %%%6%%%
+            - %%%7%%%
+            - %%%8%%%
+            - %%%9%%%
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+    ResolvingCase:
+      type: object
+      properties:
+        withrefprop:
+          description: Parent description
+          $ref: '#/components/schemas/ResolvingCaseChild'
+"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">test-controller</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Статус загрузки:</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="\`" id="x-2"/> — загрузка завершена.</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="\`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="\`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="\`" id="x-6"/> — загрузка успешно обработана.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Child description</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 3`] = `
+"items:
+  - name: '%%%0%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > extract openapi spec files with custom openapi schema provided 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract yaml scheme files > filelist 1`] = `
+"[
+  "en/index-direct.yaml.skl",
+  "en/index-direct.yaml.xliff",
+  "en/index.yaml.skl",
+  "en/index.yaml.xliff",
+  "en/toc.yaml.skl",
+  "en/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > extract yaml scheme files 1`] = `
 "meta:
   title: '%%%0%%%'
   description: '%%%1%%%'
@@ -219,159 +1424,192 @@ animated: false
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/index-direct.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > extract yaml scheme files 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Справка Сервиса
+        <source xml:space="preserve">Справка Сервиса</source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        В Справке Сервиса собрали всю необходимую информацию.
+        <source xml:space="preserve">В Справке Сервиса собрали всю необходимую информацию.</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Справка
+        <source xml:space="preserve">Справка</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Реклама
+        <source xml:space="preserve">Реклама</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Сервис
+        <source xml:space="preserve">Сервис</source>
       </trans-unit>
       <trans-unit id="5">
-        <source xml:space="preserve">
-        Для специалистов
+        <source xml:space="preserve">Для специалистов</source>
       </trans-unit>
       <trans-unit id="6">
-        <source xml:space="preserve">
-        Для предпринимателей
+        <source xml:space="preserve">Для предпринимателей</source>
       </trans-unit>
       <trans-unit id="7">
-        <source xml:space="preserve">
-        Единая перфоманс-кампания
+        <source xml:space="preserve">Единая перфоманс-кампания</source>
       </trans-unit>
       <trans-unit id="8">
-        <source xml:space="preserve">
-        Комплексно решайте любые перфоманс-задачи в рамках одной кампании
+        <source xml:space="preserve">Комплексно решайте любые перфоманс-задачи в рамках одной кампании</source>
       </trans-unit>
       <trans-unit id="9">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="10">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="11">
-        <source xml:space="preserve">
-        Товарная кампания
+        <source xml:space="preserve">Товарная кампания</source>
       </trans-unit>
       <trans-unit id="12">
-        <source xml:space="preserve">
-        Используйте простой инструмент для продвижения товаров интернете
+        <source xml:space="preserve">Используйте простой инструмент для продвижения товаров интернете</source>
       </trans-unit>
       <trans-unit id="13">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="14">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="15">
-        <source xml:space="preserve">
-        Реклама в Telegram
+        <source xml:space="preserve">Реклама в Telegram</source>
       </trans-unit>
       <trans-unit id="16">
-        <source xml:space="preserve">
-        Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ
+        <source xml:space="preserve">Покажите релевантную рекламу в телеграм-каналах партнеров РСЯ</source>
       </trans-unit>
       <trans-unit id="17">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="18">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
       <trans-unit id="19">
-        <source xml:space="preserve">
-        Часто ищут
+        <source xml:space="preserve">Часто ищут</source>
       </trans-unit>
       <trans-unit id="20">
-        <source xml:space="preserve">
-        Статистика
+        <source xml:space="preserve">Статистика</source>
       </trans-unit>
       <trans-unit id="21">
-        <source xml:space="preserve">
-        Управление фидами
+        <source xml:space="preserve">Управление фидами</source>
       </trans-unit>
       <trans-unit id="22">
-        <source xml:space="preserve">
-        Сервисные функции
+        <source xml:space="preserve">Сервисные функции</source>
       </trans-unit>
       <trans-unit id="23">
-        <source xml:space="preserve">
-        Правила и модерация
+        <source xml:space="preserve">Правила и модерация</source>
       </trans-unit>
       <trans-unit id="24">
-        <source xml:space="preserve">
-        Технологии и сервисы
+        <source xml:space="preserve">Технологии и сервисы</source>
       </trans-unit>
       <trans-unit id="25">
-        <source xml:space="preserve">
-        Поддержка 24/7
+        <source xml:space="preserve">Поддержка 24/7</source>
       </trans-unit>
       <trans-unit id="26">
-        <source xml:space="preserve">
-        Полезные ссылки
+        <source xml:space="preserve">Полезные ссылки</source>
       </trans-unit>
       <trans-unit id="27">
-        <source xml:space="preserve">
-        Глоссарий
+        <source xml:space="preserve">Глоссарий</source>
       </trans-unit>
       <trans-unit id="28">
-        <source xml:space="preserve">
-        Простой старт
+        <source xml:space="preserve">Простой старт</source>
       </trans-unit>
       <trans-unit id="29">
-        <source xml:space="preserve">
-        Минимум ручных настроек: достаточно указать ссылку на сайт
+        <source xml:space="preserve">Минимум ручных настроек: достаточно указать ссылку на сайт</source>
       </trans-unit>
       <trans-unit id="30">
-        <source xml:space="preserve">
-        Подробнее&lt;/&gt;
+        <source xml:space="preserve">Подробнее&lt;/&gt;</source>
       </trans-unit>
       <trans-unit id="31">
-        <source xml:space="preserve">
-        Подробнее
+        <source xml:space="preserve">Подробнее</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: en/toc.yaml.skl 1`] = `
+exports[`Translate command > extract yaml scheme files 3`] = `
+"blocks:
+  - type: content-layout-block
+    textWidth: l
+    textContent:
+      title: '%%%0%%%'
+      text: |2-
+         %%%1%%%
+         - %%%2%%%
+         - %%%3%%%
+         
+  - type: card-layout-block
+    colSizes:
+      all: 12
+      lg: 4
+      md: 6
+      sm: 12
+      xl: 4
+    indent:
+      bottom: xs
+    title: '%%%4%%%'
+    animated: false
+    children:
+      - type: basic-card
+        title: '%%%5%%%'
+        text: '%%%6%%%'
+        urlTitle: '%%%7%%%'
+        border: shadow
+        controlPosition: content
+        url: management/index
+        target: ''
+        animated: false
+"
+`;
+
+exports[`Translate command > extract yaml scheme files 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Введение</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">API сервиса: - Управлять счетчиками, их настройками и правами доступа, не используя веб-интерфейс.</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Получать информацию о посещаемости сайта и другие данные.</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Формировать отчеты, в том числе с помощью сегментации и параметризации.</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Виды API</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">API управления</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Управление счетчиками, целями, фильтрами и другими объектами Сервиса (например, создать счетчик, отредактировать его настройки, создать цель, выдать права доступа).</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">API управления</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > extract yaml scheme files 5`] = `
 "title: '%%%0%%%'
 href: index.yaml
 items:
@@ -394,62 +1632,37 @@ navigation:
 "
 `;
 
-exports[`Translate command extract yaml scheme files: en/toc.yaml.xliff 1`] = `
-<?xml version="1.0"
-      encoding="UTF-8"
-?>
-<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2"
-       version="1.2"
->
-  <file original="file.ext"
-        source-language="ru-RU"
-        target-language="en-US"
-        datatype="markdown"
-  >
+exports[`Translate command > extract yaml scheme files 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
     <header>
       <skeleton>
-        <external-file href="file.skl">
-        </external-file>
+        <external-file href="file.skl"></external-file>
       </skeleton>
     </header>
     <body>
       <trans-unit id="0">
-        <source xml:space="preserve">
-        Заголовок
+        <source xml:space="preserve">Заголовок</source>
       </trans-unit>
       <trans-unit id="1">
-        <source xml:space="preserve">
-        На сайт сервиса
+        <source xml:space="preserve">На сайт сервиса</source>
       </trans-unit>
       <trans-unit id="2">
-        <source xml:space="preserve">
-        Инструменты
+        <source xml:space="preserve">Инструменты</source>
       </trans-unit>
       <trans-unit id="3">
-        <source xml:space="preserve">
-        Пункт меню
+        <source xml:space="preserve">Пункт меню</source>
       </trans-unit>
       <trans-unit id="4">
-        <source xml:space="preserve">
-        Дочерняя страница
+        <source xml:space="preserve">Дочерняя страница</source>
       </trans-unit>
     </body>
   </file>
-</xliff>
+</xliff>"
 `;
 
-exports[`Translate command extract yaml scheme files: filelist 1`] = `
-"[
-  "en/index-direct.yaml.skl",
-  "en/index-direct.yaml.xliff",
-  "en/index.yaml.skl",
-  "en/index.yaml.xliff",
-  "en/toc.yaml.skl",
-  "en/toc.yaml.xliff"
-]"
-`;
-
-exports[`Translate command filter files on extract with extra exclude option: filelist 1`] = `
+exports[`Translate command > filter files on extract > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",
   "es/_includes/test.md.xliff",
@@ -457,22 +1670,59 @@ exports[`Translate command filter files on extract with extra exclude option: fi
   "es/aboba.md.xliff",
   "es/index.md.skl",
   "es/index.md.xliff",
-  "es/nested/index-yfm.md.skl",
-  "es/nested/index-yfm.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
   "es/nested/index.yaml.skl",
   "es/nested/index.yaml.xliff",
   "es/nested/syntax/base.md.skl",
   "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
   "es/nested/syntax/lists.md.skl",
   "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
+  "es/nested/use_filtered_above.md.skl",
+  "es/nested/use_filtered_above.md.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
 `;
 
-exports[`Translate command filter files on extract: filelist 1`] = `
+exports[`Translate command > filter files on extract with extra exclude option > filelist 1`] = `
+"[
+  "es/_includes/test.md.skl",
+  "es/_includes/test.md.xliff",
+  "es/aboba.md.skl",
+  "es/aboba.md.xliff",
+  "es/index.md.skl",
+  "es/index.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
+  "es/nested/index.yaml.skl",
+  "es/nested/index.yaml.xliff",
+  "es/nested/syntax/base.md.skl",
+  "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
+  "es/nested/syntax/lists.md.skl",
+  "es/nested/syntax/lists.md.xliff",
+  "es/nested/toc.yaml.skl",
+  "es/nested/toc.yaml.xliff",
+  "es/nested/use_filtered_above.md.skl",
+  "es/nested/use_filtered_above.md.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/toc.yaml.skl",
+  "es/toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > filter files on extract with extra vars option > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",
   "es/_includes/test.md.xliff",
@@ -482,17 +1732,655 @@ exports[`Translate command filter files on extract: filelist 1`] = `
   "es/aboba.md.xliff",
   "es/index.md.skl",
   "es/index.md.xliff",
-  "es/nested/index-yfm.md.skl",
-  "es/nested/index-yfm.md.xliff",
+  "es/nested/a1.md.skl",
+  "es/nested/a1.md.xliff",
   "es/nested/index.yaml.skl",
   "es/nested/index.yaml.xliff",
   "es/nested/syntax/base.md.skl",
   "es/nested/syntax/base.md.xliff",
+  "es/nested/syntax/index.md.skl",
+  "es/nested/syntax/index.md.xliff",
   "es/nested/syntax/lists.md.skl",
   "es/nested/syntax/lists.md.xliff",
   "es/nested/toc.yaml.skl",
   "es/nested/toc.yaml.xliff",
+  "es/nested/use_filtered_above.md.skl",
+  "es/nested/use_filtered_above.md.xliff",
+  "es/no-var-page.md.skl",
+  "es/no-var-page.md.xliff",
+  "es/to-be-excluded.md.skl",
+  "es/to-be-excluded.md.xliff",
   "es/toc.yaml.skl",
   "es/toc.yaml.xliff"
 ]"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+
+
+
+
+#### %%%1%%%
+
+{% if list contains "item" %}
+
+    %%%2%%%
+
+{% endif %}
+
+#### %%%3%%%
+
+"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > remove falsy liquid conditions structures 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Test text</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">inner test text</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">1.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Item</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > resolve liquid conditions if vars specified, liquid syntax will be deleted 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 1`] = `
+"%%%0%%%
+<!-- [missed file](./missed.md) -->
+{% if prod == true %}%%%1%%%{% endif %}
+
+{% if inner == true %}%%%2%%%{% endif %}
+
+{% if prod == true %}%%%3%%%{% endif %}{% endif %}
+
+{% if prod == true %}
+
+    {% if list contains "item" %}
+
+    %%%4%%%
+
+    {% if item == true %}%%%5%%% %%%6%%% {% endif %}
+
+    %%%7%%%
+
+    {% endif %}
+
+{% endif %}
+
+#### %%%8%%%
+
+{% if list contains "item" %}
+
+    %%%9%%%
+
+{% endif %}
+
+#### %%%10%%%
+
+{% if  prod == true %}
+
+    %%%11%%% {% endif %}
+
+{% endif %}
+"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve"><g ctype="link" equiv-text="[{{text}}](./exists.md)" id="g-1" x-begin="[" x-end="](./exists.md)">existing file</g></source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Test text</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">inner test text</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Test text<x ctype="liquid_Literal" equiv-text="{% if inner == true %}" id="x-1"/>inner test text</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">1.</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Item</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Some text</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Standalone contains condition</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">#### List</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Inline contains condition</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">#### List <x ctype="liquid_Literal" equiv-text="{% if list contains &quot;item&quot; %}" id="x-2"/> sub text</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 3`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: index.md
+"
+`;
+
+exports[`Translate command > save truthy liquid conditions structures 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Conditions</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Example</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > test no-translate directive > filelist 1`] = `
+"[
+  "index.md.skl",
+  "index.md.xliff",
+  "no-translate.md.skl",
+  "no-translate.md.xliff",
+  "openapi-spec.yaml.skl",
+  "openapi-spec.yaml.xliff",
+  "toc.yaml.skl",
+  "toc.yaml.xliff"
+]"
+`;
+
+exports[`Translate command > test no-translate directive 1`] = `
+"## %%%0%%%
+
+::no-translate  [adsfasdfasdfasdfasdf]
+
+%%%1%%%
+
+%%%2%%%"
+`;
+
+exports[`Translate command > test no-translate directive 2`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Index header</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">lorem</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">asdfasdfasdf</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > test no-translate directive 3`] = `
+"# %%%0%%%
+
+## %%%1%%%
+:::no-translate
+### No-translate header
+
+:::html-block
+testsetsets
+:::
+
+::: any-other-directive
+content test
+:::
+
+Should not be translated.
+Can use **markup** inside.
+:::
+
+
+%%%2%%%
+
+## %%%3%%%
+
+::no-translate [## /usr/local/bin/application]
+::no-translate[**C:/Program Files/Application/config.ini**]
+::no-translate [~/Documents/project/src/main.rs]
+
+
+- :no-translate[GET /api/v1/users] %%%4%%%
+- :no-translate[POST /api/v1/auth/login] %%%5%%%
+- :no-translate[PUT /api/v1/users/{id}] %%%6%%%
+
+## %%%7%%%
+%%%8%%%
+:no-translate[The default port is unless specified.] %%%9%%%
+%%%10%%%
+
+## %%%11%%%
+%%%12%%%
+%%%13%%%
+%%%14%%%
+
+## %%%15%%%
+%%%16%%%
+
+## %%%17%%%
+%%%18%%%
+
+
+"
+`;
+
+exports[`Translate command > test no-translate directive 4`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">No-translate directive</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Block directive</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-1"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-2"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-3"/>::: no-translate<x ctype="lb" equiv-text="&amp;#10;" id="x-4"/>content here<x ctype="lb" equiv-text="&amp;#10;" id="x-5"/>::: some-other-directive<x ctype="lb" equiv-text="&amp;#10;" id="x-6"/>nested content<x ctype="lb" equiv-text="&amp;#10;" id="x-7"/>:::<x ctype="lb" equiv-text="&amp;#10;" id="x-8"/>:::</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Leaf directive</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">— get all users</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">— authorization</source>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">— update users data</source>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve">Simple case leaf</source>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve">Install using command.</source>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve">Next sentence.</source>
+      </trans-unit>
+      <trans-unit id="10">
+        <source xml:space="preserve">Set NODE_ENV=production for production builds.</source>
+      </trans-unit>
+      <trans-unit id="11">
+        <source xml:space="preserve">Simple case inline</source>
+      </trans-unit>
+      <trans-unit id="12">
+        <source xml:space="preserve">Install using <x ctype="no_translate_inline" equiv-text=":no-translate[npm install @company/package]" id="x-9"/> command.</source>
+      </trans-unit>
+      <trans-unit id="13">
+        <source xml:space="preserve">The default port is <x ctype="no_translate_inline" equiv-text=":no-translate[8080]" id="x-10"/> unless specified.</source>
+      </trans-unit>
+      <trans-unit id="14">
+        <source xml:space="preserve">Set <x ctype="no_translate_inline" equiv-text=":no-translate[NODE_ENV=production]" id="x-11"/> for production builds.</source>
+      </trans-unit>
+      <trans-unit id="15">
+        <source xml:space="preserve">Few inline directives</source>
+      </trans-unit>
+      <trans-unit id="16">
+        <source xml:space="preserve">Use <x ctype="no_translate_inline" equiv-text=":no-translate[**GET /api/v1/users**]" id="x-12"/> to list users and <x ctype="no_translate_inline" equiv-text=":no-translate[POST /api/v1/users]" id="x-13"/> to create.</source>
+      </trans-unit>
+      <trans-unit id="17">
+        <source xml:space="preserve">Empty inline directive</source>
+      </trans-unit>
+      <trans-unit id="18">
+        <source xml:space="preserve">This is text with empty <x ctype="no_translate_inline" equiv-text=":no-translate[]" id="x-14"/> directive.</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > test no-translate directive 5`] = `
+"openapi: 3.0.1
+info:
+  title: '%%%0%%%'
+  version: v0
+servers:
+  - url: http://localhost:8080
+    description: '%%%1%%%'
+paths:
+  /test:
+    get:
+      tags:
+        - test-controller
+      summary: '%%%2%%%'
+      description: '%%%3%%%'
+      operationId: getWithPayloadResponse
+      responses:
+        '200':
+          description: '%%%4%%%'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurceTop'
+components:
+  schemas:
+    RecurceTop:
+      type: object
+      properties:
+        A:
+          type: string
+    RecurceMiddle:
+      type: object
+      properties:
+        B:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecurceTop'
+"
+`;
+
+exports[`Translate command > test no-translate directive 6`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Defines a simple get <x ctype="no_translate_inline" equiv-text=":no-translate[skip this]" id="x-15"/> operation with no inputs and a complex</source>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">200!!!!</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
+`;
+
+exports[`Translate command > test no-translate directive 7`] = `
+"title: '%%%0%%%'
+href: index.md
+items:
+  - name: '%%%1%%%'
+    href: no-translate.md
+  - name: '%%%2%%%'
+    include:
+      path: openapi
+      includers:
+        - name: openapi
+          input: openapi-spec.yaml
+      mode: link
+"
+`;
+
+exports[`Translate command > test no-translate directive 8`] = `
+"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Test123</source>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Не переводить</source>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">openapi</source>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"
 `;

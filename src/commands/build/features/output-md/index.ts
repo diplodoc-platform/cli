@@ -1,77 +1,269 @@
 import type {Build, Run} from '~/commands/build';
-import type {LeadingPage} from '~/core/leading';
+import type {Command} from '~/core/config';
+import type {EntryGraph, EntryGraphNode} from '~/core/markdown';
+import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
-import {uniq} from 'lodash';
-import {dump} from 'js-yaml';
+import {flow} from 'lodash';
 
-import {getHooks as getBuildHooks} from '~/commands/build';
-import {getHooks as getTocHooks} from '~/core/toc';
-import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {configPath} from '~/core/config';
-import {all, isMediaLink} from '~/core/utils';
+import {configPath, defined} from '~/core/config';
+import {THEME_ASSETS_PATH} from '~/constants';
+import {getHooks as getBuildHooks} from '~/commands/build';
+import {getHooks as getBaseHooks} from '~/core/program';
+import {getHooks as getMetaHooks} from '~/core/meta';
+import {getHooks as getLeadingHooks} from '~/core/leading';
+import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {getCustomCollectPlugins} from './utils';
+import {
+    Scheduler,
+    addMetaFrontmatter,
+    getCustomCollectPlugins,
+    rehashContent,
+    signlink,
+} from './utils';
+import {mergeSvg} from './plugins/merge-svg';
+import {mergeAutotitles} from './plugins/merge-autotitles';
+import {mergeIncludes} from './plugins/merge-includes';
+import {rehashIncludes} from './plugins/resolve-deps';
+import {options} from './config';
+
+export type OutputMdArgs = {
+    hashIncludes: boolean;
+    mergeIncludes: boolean;
+    mergeAutotitles: boolean;
+    mergeSvg: boolean;
+    keepNotVar: boolean;
+    legacyConditions: boolean;
+    mergeIncludesSourceMaps: boolean;
+};
+
+export type OutputMdConfig = {
+    hashIncludes: boolean;
+    mergeIncludes: boolean;
+    mergeAutotitles: boolean;
+    mergeSvg: boolean;
+    disableMetaMaxLineWidth: boolean;
+    mergeIncludesSourceMaps: boolean;
+};
+
+export type PreprocessConfig = {
+    template: {
+        keepNotVar: boolean;
+        legacyConditions: boolean;
+    };
+    preprocess: Partial<OutputMdConfig>;
+};
 
 export class OutputMd {
     apply(program: Build) {
+        getBaseHooks(program).Command.tap('Build.Md', (command: Command) => {
+            command.addOption(options.hashIncludes);
+            command.addOption(options.mergeIncludes);
+            command.addOption(options.mergeAutotitles);
+            command.addOption(options.mergeSvg);
+            command.addOption(options.keepNotVar);
+            command.addOption(options.disableMetaMaxLineWidth);
+            command.addOption(options.legacyConditions);
+            command.addOption(options.mergeIncludesSourceMaps);
+        });
+
+        getBaseHooks(program).Config.tap('Build.Md', (config, args) => {
+            const hashIncludes = defined('hashIncludes', args, config.preprocess || {}, {
+                hashIncludes: true,
+            });
+            const mergeIncludes = defined('mergeIncludes', args, config.preprocess || {}, {
+                mergeIncludes: false,
+            });
+            const mergeAutotitles = defined('mergeAutotitles', args, config.preprocess || {}, {
+                mergeAutotitles: true,
+            });
+            const mergeSvg = defined('mergeSvg', args, config.preprocess || {}, {
+                mergeSvg: true,
+            });
+            const keepNotVar = defined('keepNotVar', args, config || {}, {
+                keepNotVar: false,
+            });
+            const legacyConditions = defined('legacyConditions', args, config || {}, {
+                legacyConditions: false,
+            });
+            const disableMetaMaxLineWidth = defined('disableMetaMaxLineWidth', args, config || {}, {
+                disableMetaMaxLineWidth: false,
+            });
+            const mergeIncludesSourceMaps = defined(
+                'mergeIncludesSourceMaps',
+                args,
+                config.preprocess || {},
+                {
+                    mergeIncludesSourceMaps: true,
+                },
+            );
+            return Object.assign(config, {
+                template: {
+                    ...config.template,
+                    keepNotVar,
+                    legacyConditions,
+                },
+                preprocess: {
+                    hashIncludes,
+                    mergeIncludes,
+                    mergeAutotitles,
+                    mergeSvg,
+                    disableMetaMaxLineWidth,
+                    mergeIncludesSourceMaps,
+                },
+            });
+        });
+
         getBuildHooks(program)
             .BeforeRun.for('md')
             .tap('Build.Md', (run) => {
-                getTocHooks(run.toc).Resolved.tapPromise('Build.Md', async (_toc, path) => {
-                    await run.write(join(run.output, path), dump(await run.toc.dump(path)));
+                const config = run.config.preprocess;
+
+                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (collects) => {
+                    return collects.concat(getCustomCollectPlugins());
                 });
 
-                getMarkdownHooks(run.markdown).Collects.tap('Build.Md', (plugins) => {
-                    return plugins.concat(getCustomCollectPlugins());
+                const copiedIncludes = new Set<string>();
+                const copiedAssets = new Set<string>();
+
+                getMetaHooks(run.meta).Dump.tap('Build.Md', (meta) => {
+                    if (meta.alternate) {
+                        // Expected type missing, to be compatible with old formats
+                        // @ts-ignore
+                        meta.alternate = meta.alternate.map(flow(get('href'), shortLink));
+                    }
+
+                    const hasTheme = run.exists(join(run.output, THEME_ASSETS_PATH));
+                    if (hasTheme) {
+                        meta.theme = THEME_ASSETS_PATH;
+                    }
+
+                    return meta;
                 });
 
+                // Recursively copy transformed markdown deps
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, path) => {
-                        const meta = await run.meta.dump(path);
-                        const dumped = dump(meta).trim();
+                    {name: 'Build.Md', stage: -Infinity},
+                    async (vfile) => {
+                        const processed = new Map();
+                        const titles = new Map();
+                        const svgList = new Map();
 
-                        if (dumped === '{}') {
-                            return markdown;
+                        const config = run.config.preprocess;
+                        const graph = await run.markdown.graph(vfile.path);
+
+                        vfile.data = (await dump(graph)).content;
+
+                        // Preserve per-directive IncludeInfo fields (link, match,
+                        // location) which may differ for same-path deps
+                        // (e.g. same file included with different #hash fragments).
+                        async function dumpDep(dep: EntryGraphNode): Promise<HashedGraphNode> {
+                            const dumped = await dump(dep, true);
+                            return {
+                                ...dumped,
+                                link: dep.link,
+                                match: dep.match,
+                                location: dep.location,
+                            };
                         }
 
-                        return `---\n${dumped}\n---\n${markdown}`;
+                        async function dump(graph: EntryGraph, write = false) {
+                            if (processed.has(graph.path)) {
+                                return processed.get(graph.path);
+                            }
+
+                            const deps: HashedGraphNode[] = await all(graph.deps.map(dumpDep));
+                            const scheduler = new Scheduler([
+                                config.hashIncludes &&
+                                    !config.mergeIncludes &&
+                                    rehashIncludes(run, deps),
+                                config.mergeIncludes &&
+                                    mergeIncludes(
+                                        run,
+                                        deps,
+                                        graph.content,
+                                        config.mergeIncludesSourceMaps,
+                                        !write,
+                                    ),
+                                config.mergeAutotitles &&
+                                    mergeAutotitles(run, titles, graph.assets),
+                                config.mergeSvg && mergeSvg(run, svgList, graph.assets),
+                            ]);
+
+                            await scheduler.schedule(graph.path);
+
+                            const content = await scheduler.process(graph.content);
+
+                            const hash = config.hashIncludes ? rehashContent(content) : '';
+                            const link = signlink(graph.path, hash);
+                            const hashed = {...graph, deps, content, hash};
+
+                            processed.set(graph.path, hashed);
+
+                            if (copiedIncludes.has(link) || !write || config.mergeIncludes) {
+                                return hashed;
+                            }
+                            copiedIncludes.add(link);
+
+                            try {
+                                run.logger.copy(
+                                    join(run.input, graph.path),
+                                    join(run.output, link),
+                                );
+
+                                // Add metadata frontmatter to include files.
+                                // Without this, include files are written without YAML frontmatter,
+                                // which causes non-deterministic output when the same file is both
+                                // a TOC entry and an include in another file. The last writer wins,
+                                // and if the include is written after the entry, metadata is lost.
+                                // By ensuring both paths produce identical output, write order
+                                // becomes irrelevant (see ADR-002: Multithreading Build).
+                                // When these files are used as includes (e.g. md2html), the consumer
+                                // must strip frontmatter before rendering the body (see output-html
+                                // includes plugin).
+                                const vars = run.vars.for(graph.path);
+                                run.meta.addSystemVars(graph.path, vars.__system);
+                                run.meta.addMetadata(graph.path, vars.__metadata);
+
+                                const includeMeta = await run.meta.dump(graph.path);
+                                const lineWidth = config.disableMetaMaxLineWidth
+                                    ? Infinity
+                                    : undefined;
+                                const contentWithMeta = addMetaFrontmatter(
+                                    hashed.content,
+                                    includeMeta,
+                                    lineWidth,
+                                );
+
+                                await run.write(join(run.output, link), contentWithMeta, true);
+                            } catch (error) {
+                                run.logger.warn(`Unable to copy dependency ${graph.path}.`, error);
+                            }
+
+                            return hashed;
+                        }
                     },
                 );
 
-                const copied = new Set();
+                getLeadingHooks(run.leading).Dump.tapPromise('Build.Md', async (vfile) => {
+                    vfile.data.meta = await run.meta.dump(vfile.path);
+                });
 
-                getMarkdownHooks(run.markdown).Dump.tapPromise(
-                    'Build.Md',
-                    async (markdown, file) => {
-                        const deps = uniq((await run.markdown.deps(file)).map(({path}) => path));
-
-                        await all(
-                            deps.map(async (path) => {
-                                if (copied.has(path)) {
-                                    return;
-                                }
-
-                                copied.add(path);
-
-                                await this.copyDependency(run, path, [file]);
-                            }),
-                        );
-
-                        return markdown;
-                    },
-                );
+                getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
+                    const meta = await run.meta.dump(vfile.path);
+                    const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
+                    vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);
+                });
 
                 getLeadingHooks(run.leading).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets<LeadingPage>(run, run.leading),
+                    this.copyAssets(run, run.leading, copiedAssets),
                 );
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     'Build.Md',
-                    this.copyAssets<string>(run, run.markdown),
+                    this.copyAssets(run, run.markdown, copiedAssets),
                 );
             });
 
@@ -85,24 +277,30 @@ export class OutputMd {
             });
     }
 
-    private async copyDependency(run: Run, path: NormalizedPath, from: NormalizedPath[]) {
-        try {
-            run.logger.copy(join(run.input, path), join(run.output, path));
-            const markdown = await run.markdown.load(path, from);
-            await run.write(join(run.output, path), markdown);
-        } catch (error) {
-            run.logger.warn(`Unable to copy dependency ${path}.`, error);
-        }
-    }
-
-    private copyAssets<T>(run: Run, service: Run['leading'] | Run['markdown']) {
-        return async (content: T, file: NormalizedPath): Promise<T> => {
-            const assets = await service.assets(file);
+    private copyAssets(run: Run, service: Run['leading'] | Run['markdown'], cache: Set<string>) {
+        return async (vfile: {path: NormalizedPath}) => {
+            const assets = await service.assets(vfile.path);
 
             await all(
-                assets.map(async (path) => {
+                assets.map(async ({path, size}) => {
                     if (!isMediaLink(path)) {
                         return;
+                    }
+
+                    if (cache.has(path)) {
+                        return;
+                    }
+                    cache.add(path);
+
+                    if (run.toc.isEntry(path)) {
+                        return;
+                    }
+
+                    if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
+                        run.logger.error(
+                            'YFM013',
+                            `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
+                        );
                     }
 
                     try {
@@ -113,8 +311,6 @@ export class OutputMd {
                     }
                 }),
             );
-
-            return content;
         };
     }
 }

@@ -1,6 +1,8 @@
 import type {YandexTranslationConfig} from './providers/yandex';
-import {describe, expect, it} from 'vitest';
-import {runTranslate as run, testConfig} from './__tests__';
+
+import {describe, expect, it, vi} from 'vitest';
+
+import {runTranslate as run, runTranslateExtract as runExtract, testConfig} from './__tests__';
 
 describe('Translate command', () => {
     describe('config', () => {
@@ -319,6 +321,64 @@ describe('Translate command', () => {
             expect.objectContaining({
                 input: expect.stringMatching(/^(\/|[A-Z]:\\).*?/),
                 output: expect.stringMatching(/^(\/|[A-Z]:\\).*?/),
+            }),
+        );
+    });
+
+    it('should register OpenAPI includer during initialization', async () => {
+        const {Extension} = await import('./extract-openapi');
+
+        vi.restoreAllMocks();
+
+        const extensionSpy = vi.spyOn(Extension.prototype, 'apply');
+
+        const translate = await run('-o output --folder 1 --source ru --target en --auth y0_1');
+
+        // @ts-ignore - accessing protected property for testing
+        const modules = translate.modules;
+        const hasOpenApiIncluder = modules.some((module) => module instanceof Extension);
+
+        expect(hasOpenApiIncluder).toBe(true);
+
+        expect(extensionSpy).toHaveBeenCalled();
+    });
+
+    it('should call translate extract with option --filter', async () => {
+        const instance = await runExtract('-o output --source ru --target en --filter');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                filter: true,
+            }),
+        );
+    });
+
+    it('should call translate extract without option --filter', async () => {
+        const instance = await runExtract('-o output --source ru --target en');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                filter: false,
+            }),
+        );
+    });
+
+    it('should call translate extract with option --no-ref-resolve', async () => {
+        const instance = await runExtract('-o output --source ru --target en --no-ref-resolve');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                refResolve: false,
+            }),
+        );
+    });
+
+    it('should call translate extract without option --no-ref-resolve', async () => {
+        const instance = await runExtract('-o output --source ru --target en');
+
+        expect(instance.config).toEqual(
+            expect.objectContaining({
+                refResolve: true,
             }),
         );
     });

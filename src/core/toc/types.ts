@@ -13,34 +13,56 @@ export type TextFilter = {
     text: string;
 } & Filter;
 
+export type RawTocLabel = {
+    title: string;
+    description?: string;
+    theme?: string;
+} & Filter;
+
 export type WithItems<Item> = {
     items?: Item[];
 };
 
 export type RawToc = {
+    path: NormalizedPath;
+    pdf?: {
+        startPages?: string[];
+        endPages?: string[];
+    };
     title?: YfmString | TextFilter[];
-    label?: YfmString | TextFilter[];
+    label?: YfmString | TextFilter[] | RawTocLabel | RawTocLabel[];
     stage?: string;
     href?: YfmString & (RelativePath | URIString);
     navigation?: boolean | YfmString | Navigation;
     items?: RawTocItem[];
 };
 
-// TODO: add precise types
+export type NavigationHeaderItem = Filter & {
+    text?: string;
+    type?: string;
+    url?: string;
+    [key: string]: unknown;
+};
+
 export type Navigation = {
-    logo: object;
-    header: {
-        leftItems?: object;
-        rightItems?: object;
+    logo?: object;
+    header?: {
+        leftItems?: NavigationHeaderItem[];
+        rightItems?: NavigationHeaderItem[];
     };
 };
 
 export type RawTocItem = Filter & {
     hidden?: boolean;
     items?: RawTocItem[];
-} & (RawNamedTocItem | RawIncludeTocItem);
+} & (RawEntryTocItem | RawNamedTocItem | RawIncludeTocItem);
 
-type RawNamedTocItem = {
+export type RawEntryTocItem = {
+    name?: YfmString;
+    href: YfmString & (RelativePath | URIString);
+};
+
+export type RawNamedTocItem = {
     name: YfmString;
     href?: YfmString & (RelativePath | URIString);
 };
@@ -68,28 +90,55 @@ export type IncluderOptions<T extends Hash = Hash> = {
 } & T;
 
 export type IncludeInfo = {
-    from: RelativePath;
+    from: NormalizedPath;
     mode: IncludeMode;
     content?: RawToc;
-    base?: RelativePath | undefined;
+    base?: NormalizedPath | undefined;
 };
 
 export type Toc = {
+    path: NormalizedPath;
+    pdf?: {
+        startPages?: string[];
+        endPages?: string[];
+    };
     id: string;
     title?: string;
-    label?: string;
+    label?: {
+        title: string;
+        description?: string;
+        theme?: string;
+    };
     stage?: string;
     href?: NormalizedPath;
     navigation?: boolean | Navigation;
     items?: TocItem[];
 };
 
-export type TocItem = NamedTocItem & {hidden?: boolean} & {
+export type TocItem = (NamedTocItem | EntryTocItem) & {hidden?: boolean} & {
     id: string;
     items?: TocItem[];
+};
+
+export type EntryTocItem = {
+    name: string;
+    href: NormalizedPath;
+    'restricted-access'?: string[];
+    hidden?: boolean;
 };
 
 export type NamedTocItem = {
     name: string;
     href?: NormalizedPath;
+    'restricted-access'?: string[];
 };
+
+export type GraphTocData = {type: 'toc'; data: Toc | undefined | Promise<Toc | undefined>};
+
+type GraphTocIncludeData = {type: 'source'; data: undefined};
+
+type GraphTocGeneratorData = {type: 'generator'; data: undefined};
+
+type GraphEntryData = {type: 'entry'; data: unknown};
+
+export type GraphData = GraphTocData | GraphTocIncludeData | GraphTocGeneratorData | GraphEntryData;

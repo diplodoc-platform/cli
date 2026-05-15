@@ -7,8 +7,8 @@ definitions:
         items:
           type: string
           translate: md
-  children:    
-    selectCases:  
+  children:
+    selectCases:
       card-layout-block:
         properties:
           title:
@@ -28,3 +28,7 @@ properties:
         translate: md
       noIndex:
         type: boolean
+  when:
+    type:
+      - string
+      - boolean

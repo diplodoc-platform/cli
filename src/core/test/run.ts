@@ -5,6 +5,7 @@ import type {Config} from '~/core/config';
 import {join} from 'node:path';
 import {expect, vi} from 'vitest';
 import {when} from 'vitest-when';
+
 import {Run} from '~/core/run';
 
 export type RunSpy<C extends BaseConfig = BaseConfig> = Run<C> & {
@@ -52,8 +53,8 @@ export function setupRun<C = BaseConfig>(config: DeepPartial<C>): RunSpy<BaseCon
 type Anything = ReturnType<typeof expect.anything>;
 
 type MockData = {
-    glob?: Record<string, NormalizedPath[] | Error>;
-    read?: Record<string, string | Error>;
+    glob?: Record<string, NormalizedPath[] | Error> | Anything;
+    read?: Record<string, string | Error> | Anything;
     write?: Anything;
     remove?: Anything;
 };
@@ -70,7 +71,9 @@ export function mockRun(run: RunSpy, data: MockData) {
     if (data.glob === expect.anything()) {
         when(run.glob).calledWith(expect.anything(), expect.anything()).thenResolve([]);
     } else {
-        for (const [match, result] of Object.entries(data.glob || {})) {
+        for (const [match, result] of Object.entries(
+            (data.glob || {}) as Record<string, NormalizedPath[] | Error>,
+        )) {
             if (result instanceof Error) {
                 when(run.glob).calledWith(match, expect.anything()).thenReject(result);
             } else {
@@ -82,7 +85,9 @@ export function mockRun(run: RunSpy, data: MockData) {
     if (data.read === expect.anything()) {
         when(run.read).calledWith(expect.anything()).thenResolve('');
     } else {
-        for (const [file, result] of Object.entries(data.read || {})) {
+        for (const [file, result] of Object.entries(
+            (data.read || {}) as Record<string, string | Error>,
+        )) {
             if (result instanceof Error) {
                 when(run.read).calledWith(join(run.input, file)).thenReject(result);
             } else {

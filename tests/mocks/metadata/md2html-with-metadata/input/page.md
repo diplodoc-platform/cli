@@ -1,7 +1,16 @@
 ---
+title: Page Title
+description: Some test description
+
+interface:
+  toc: false
+  favicon-src: /favicon.ico
+
 metadata:
   - name: yfm
-    value: builder in page
+    content: builder in page
+  - property: og:title
+    content: Some kind of headline
 ---
 
 Lorem

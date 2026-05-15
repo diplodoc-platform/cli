@@ -21,3 +21,8 @@ coverage
 # tests
 tests/coverage
 tests/node_modules
+
+.history
+/dist
+/cache
+/coverage

@@ -1,6 +1,13 @@
+import type {VFile} from '~/core/utils';
 import type {IncludeInfo, IncluderOptions, RawToc, RawTocItem, Toc} from './types';
 
-import {AsyncParallelHook, AsyncSeriesWaterfallHook, HookMap} from 'tapable';
+import {
+    AsyncParallelHook,
+    AsyncSeriesHook,
+    AsyncSeriesWaterfallHook,
+    HookMap,
+    SyncHook,
+} from 'tapable';
 
 import {generateHooksAccess} from '~/core/utils';
 
@@ -9,7 +16,7 @@ export function hooks(name: string) {
         /**
          * Called before item data processing (but after data interpolation)
          */
-        Item: new AsyncSeriesWaterfallHook<[RawTocItem, RelativePath]>(
+        Item: new AsyncSeriesWaterfallHook<[RawTocItem, NormalizedPath]>(
             ['TocItem', 'TocPath'],
             `${name}.Item`,
         ),
@@ -19,20 +26,19 @@ export function hooks(name: string) {
          */
         Includer: new HookMap(
             (type: string) =>
-                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, RelativePath]>(
-                    ['Toc', 'options', 'TocPath'],
+                new AsyncSeriesWaterfallHook<[RawToc, IncluderOptions, NormalizedPath]>(
+                    ['Toc', 'options', 'from'],
                     `${name}.Includer(${type})`,
                 ),
         ),
-        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>, RelativePath]>(
-            ['Toc', 'TocPath'],
-            `${name}.Resolved`,
-        ),
-        Included: new AsyncParallelHook<[Toc, RelativePath, IncludeInfo]>(
-            ['Toc', 'TocPath', 'IncludeInfo'],
+        Loaded: new AsyncParallelHook<[DeepFrozen<Toc>]>(['Toc'], `${name}.Loaded`),
+        Resolved: new AsyncParallelHook<[DeepFrozen<Toc>]>(['Toc'], `${name}.Resolved`),
+        Included: new AsyncParallelHook<[Toc, IncludeInfo]>(
+            ['Toc', 'IncludeInfo'],
             `${name}.Included`,
         ),
-        Dump: new AsyncSeriesWaterfallHook<[Toc, NormalizedPath]>(['toc', 'path'], `${name}.Dump`),
+        Dump: new AsyncSeriesHook<[VFile<Toc>]>(['vfile'], `${name}.Dump`),
+        Filtered: new SyncHook<[NormalizedPath]>(['path'], `${name}.Filtered`),
     };
 }
 

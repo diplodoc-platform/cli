@@ -1,13 +1,21 @@
-import {join} from 'node:path';
-import {normalizePath} from '~/core/utils';
-import HTMLElement from 'node-html-parser/dist/nodes/html';
-import {dirname} from 'path';
+import type HTMLElement from 'node-html-parser/dist/nodes/html';
+
+import {dirname, join} from 'node:path';
 import {parse} from 'node-html-parser';
-import type {SinglePageResult} from '~/models';
+
+import {normalizePath} from '~/core/utils';
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 
-interface PreprocessSinglePageOptions {
+export const SINGLE_PAGE_FILENAME = 'single-page.html';
+
+export interface SinglePageResult {
+    path: string;
+    content: string;
+    title?: string;
+}
+
+export interface PreprocessSinglePageOptions {
     path: string;
     tocDir: string;
     title?: string;
@@ -17,7 +25,7 @@ function dropExt(path: string) {
     return path.replace(/\.(md|ya?ml|html)$/i, '');
 }
 
-function getAnchorId(tocDir: string, path: string) {
+export function getAnchorId(tocDir: string, path: string) {
     const [pathname, hash] = path.split('#');
     const url = normalizePath(dropExt(pathname)) + (hash ? '#' + hash : '');
 
@@ -36,7 +44,7 @@ function relativeTo(root: string, path: string) {
     return path;
 }
 
-export function getSinglePageUrl(tocDir: string, path: string): NormalizedPath {
+export function getSinglePageUrl(tocDir: string, path: string, pageName: string): NormalizedPath {
     const prefix = normalizePath(tocDir) || '.';
     const suffix = getAnchorId(tocDir, path);
 
@@ -44,7 +52,7 @@ export function getSinglePageUrl(tocDir: string, path: string): NormalizedPath {
         return ('#' + suffix) as NormalizedPath;
     }
 
-    return normalizePath(join(prefix, 'single-page.html#' + suffix));
+    return normalizePath(join(prefix, `${pageName}#` + suffix));
 }
 
 function elements(root: HTMLElement, selector: string): HTMLElement[] {
@@ -88,7 +96,7 @@ export function replaceLinks(root: HTMLElement, options: PreprocessSinglePageOpt
             return;
         }
 
-        node.setAttribute('href', getSinglePageUrl(tocDir, href));
+        node.setAttribute('href', getSinglePageUrl(tocDir, href, SINGLE_PAGE_FILENAME));
     }
 }
 
@@ -108,7 +116,7 @@ function prepareAnchorAttrs(node: HTMLElement, pathname: string, page: string) {
 export function addPagePrefixToAnchors(root: HTMLElement, options: PreprocessSinglePageOptions) {
     const {path, tocDir} = options;
 
-    const url = getSinglePageUrl(tocDir, path);
+    const url = getSinglePageUrl(tocDir, path, SINGLE_PAGE_FILENAME);
     const [pathname, anchor] = url.split('#');
 
     for (const node of elements(root, HEADERS_SELECTOR)) {

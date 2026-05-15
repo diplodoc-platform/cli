@@ -1,62 +1,43 @@
-import type {Run} from '~/core/run';
-import type {Contributor, VcsConnector, VcsMetadata} from './types';
+import type {Run as BaseRun} from '~/core/run';
+import type {TocService} from '~/core/toc';
+import type {MetaService} from '~/core/meta';
+import type {Contributor, SyncData, VcsConnector, VcsMetadata} from './types';
 
-import {join, relative} from 'node:path';
+import {join} from 'node:path';
 
-import {memoize, normalizePath} from '~/core/utils';
+import {all, bounded, memoize, normalizePath} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultVcsConnector} from './connector';
 
 export type VcsServiceConfig = {
-    mtimes: boolean;
-    authors: boolean;
-    contributors: boolean;
+    vcsPath: {enabled: boolean};
+    mtimes: {enabled: boolean};
+    authors: {enabled: boolean; ignore: string[]};
+    contributors: {enabled: boolean; ignore: string[]};
     vcs: {
         enabled: boolean;
-        type: string;
-        /**
-         * Externally accessible base URI for a resource where a particular documentation
-         * source is hosted.
-         *
-         * This configuration parameter is used to directly control the Edit button behaviour
-         * in the Diplodoc documentation viewer(s).
-         *
-         * For example, if the following applies:
-         * - Repo with doc source is hosted on GitHub (say, https://github.com/foo-org/bar),
-         * - Within that particular repo, the directory that is being passed as an `--input`
-         *   parameter to the CLI is located at `docs/`,
-         * - Whenever the Edit button is pressed, you wish to direct your readers to the
-         *   respective document's source on `main` branch
-         *
-         * you should pass `https://github.com/foo-org/bar/tree/main/docs` as a value for this parameter.
-         */
-        remoteBase?: string;
     } & Hash;
 };
 
-type Meta = {
-    author?: string | Contributor;
-    sourcePath?: string;
-    vcsPath?: string;
+type Run = BaseRun<VcsServiceConfig> & {
+    toc: TocService;
+    meta: MetaService;
 };
 
 @withHooks
 export class VcsService implements VcsConnector {
     readonly name = 'Vcs';
 
-    readonly run: Run<VcsServiceConfig>;
+    readonly run: Run;
 
     readonly config: VcsServiceConfig;
 
-    private connector: VcsConnector = new DefaultVcsConnector();
+    private connector: VcsConnector;
 
-    get connected() {
-        return Boolean(this.connector && !(this.connector instanceof DefaultVcsConnector));
-    }
-
-    constructor(run: Run<VcsServiceConfig>) {
+    constructor(run: Run) {
         this.run = run;
+        this.connector = new DefaultVcsConnector(run);
         this.config = run.config;
     }
 
@@ -65,59 +46,71 @@ export class VcsService implements VcsConnector {
             return;
         }
 
-        const type = this.config.vcs.type;
-        if (!type) {
-            return;
-        }
-
-        this.connector = await getHooks(this).VcsConnector.for(type).promise(this.connector);
+        this.connector = await getHooks(this).VcsConnector.promise(this.connector);
     }
 
-    async metadata(path: RelativePath, meta: Meta, deps: NormalizedPath[] = []) {
+    getData() {
+        return this.connector.getData();
+    }
+
+    setData(data: SyncData) {
+        this.connector.setData(data);
+    }
+
+    async metadata(path: RelativePath, deps: NormalizedPath[] = []) {
         const file = normalizePath(path);
-        const addVCSPath = Boolean(this.config.vcs.remoteBase);
+        const meta = this.run.meta.get(file);
 
         const result: VcsMetadata = {};
 
-        // TODO: resolve meta.vcsPath || meta.sourcePath on server side
-        if (addVCSPath) {
-            result.vcsPath = normalizePath(meta.vcsPath || meta.sourcePath || file);
-        }
-
-        if (!this.connected) {
-            return result;
-        }
-
-        const [author, contributors, updatedAt] = await Promise.all([
-            this.config.authors ? this.getAuthor(file, meta?.author) : undefined,
-            this.config.contributors ? this.getContributors(file, deps) : [],
-            this.config.mtimes ? this.getMTime(file, deps) : undefined,
+        const [vcsPath, author, contributors, updatedAt] = await Promise.all([
+            this.config.vcsPath.enabled ? this.realpath(file) : undefined,
+            this.config.authors.enabled ? this.getAuthor(file, meta?.author) : undefined,
+            this.config.contributors.enabled ? this.getContributors(file, deps) : [],
+            this.config.mtimes.enabled ? this.getMTime(file, deps) : undefined,
         ]);
 
-        result.author = author || undefined;
+        result.vcsPath = vcsPath || undefined;
+        if (!(this.connector instanceof DefaultVcsConnector)) {
+            result.author = author || undefined;
+        }
         result.contributors = contributors.length ? contributors : undefined;
         result.updatedAt = updatedAt || undefined;
 
+        Object.assign(result, await this.getResources(file, result));
+
         return result;
+    }
+
+    @memoize()
+    async getBase() {
+        return this.connector.getBase();
     }
 
     async getContributorsByPath(
         path: RelativePath,
         deps: RelativePath[] = [],
     ): Promise<Contributor[]> {
-        return this.connector.getContributorsByPath(this.run.normalize(path), deps);
+        return this.connector.getContributorsByPath(
+            await this.realpath(path),
+            await all(deps.map(this.realpath)),
+        );
     }
 
     async getModifiedTimeByPath(path: RelativePath) {
-        return this.connector.getModifiedTimeByPath(this.run.normalize(path));
+        return this.connector.getModifiedTimeByPath(await this.realpath(path));
     }
 
     async getAuthorByPath(path: RelativePath) {
-        return this.connector.getAuthorByPath(this.run.normalize(path));
+        return this.connector.getAuthorByPath(await this.realpath(path));
     }
 
     async getUserByLogin(author: string) {
         return this.connector.getUserByLogin(author);
+    }
+
+    private async getResources(path: RelativePath, meta: VcsMetadata) {
+        return this.connector.getResourcesByPath?.(path, meta) || {};
     }
 
     private async getAuthor(
@@ -155,9 +148,7 @@ export class VcsService implements VcsConnector {
         const files = [path].concat(deps);
 
         for (const file of files) {
-            const realpath = await this.run.realpath(join(this.run.input, file), false);
-            const path = relative(this.run.originalInput, realpath);
-            const mtime = await this.getModifiedTimeByPath(path);
+            const mtime = await this.getModifiedTimeByPath(file);
 
             if (typeof mtime === 'number') {
                 mtimes.push(mtime);
@@ -169,5 +160,21 @@ export class VcsService implements VcsConnector {
         }
 
         return new Date(Math.max(...mtimes) * 1000).toISOString();
+    }
+
+    @bounded
+    private async realpath(file: RelativePath): Promise<NormalizedPath> {
+        const base = await this.getBase();
+        const meta = this.run.meta.get(file);
+
+        if (meta.vcsPath) {
+            return normalizePath(meta.vcsPath);
+        }
+
+        if (meta.sourcePath) {
+            return normalizePath(meta.sourcePath);
+        }
+
+        return normalizePath(join(base, file));
     }
 }

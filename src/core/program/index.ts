@@ -1,8 +1,9 @@
-import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable} from './types';
+import type {BaseArgs, BaseConfig, ExtensionInfo, ICallable, Report} from './types';
 import type {Command, Config, ExtendedOption} from '~/core/config';
+import type {HookMeta} from '~/core/utils';
 
 import {isAbsolute, resolve} from 'node:path';
-import {once, pick} from 'lodash';
+import {merge, omit, once, pick} from 'lodash';
 
 import {
     resolveConfig,
@@ -10,17 +11,16 @@ import {
     strictScope as strictScopeConfig,
     withConfigUtils,
 } from '~/core/config';
-import {Logger, stats} from '~/core/logger';
+import {Logger} from '~/core/logger';
+import {errorMessage, own} from '~/core/utils';
 
 import {getHooks, withHooks} from './hooks';
-import {HandledError} from './utils';
 import {getConfigDefaults, getConfigScope, withConfigDefaults, withConfigScope} from './decorators';
+import {isProgram, isRelative, requireExtension} from './utils';
 
 export * from './types';
 
 export {getHooks, withConfigDefaults, withConfigScope};
-
-const isRelative = (path: string | undefined) => /^\.{1,2}\//.test(path || '');
 
 const YFM_CONFIG_FILENAME = '.yfm';
 
@@ -28,10 +28,18 @@ type Behavior = {
     isDefaultCommand?: boolean;
 };
 
+type ExtensionConfig = {
+    name: string;
+    options: Hash;
+};
+
 @withHooks
 @withConfigDefaults(() => ({
     strict: false,
     quiet: false,
+    originAsInput: false,
+    copyOnWrite: true,
+    workerMaxOldSpace: 0,
 }))
 /**
  * Program should follow some simple rules:
@@ -55,6 +63,10 @@ export class BaseProgram<
     TConfig extends BaseConfig = BaseConfig,
     TArgs extends BaseArgs = BaseArgs,
 > {
+    static is(program: BaseProgram) {
+        return program instanceof this;
+    }
+
     readonly name: string = 'Base';
 
     readonly command!: Command;
@@ -65,9 +77,15 @@ export class BaseProgram<
 
     readonly options!: ExtendedOption[];
 
+    get report(): Report {
+        return this.parent ? this.parent.report : this._report;
+    }
+
     protected modules: ICallable[] = [];
 
     protected extensions: (string | ExtensionInfo)[] = [];
+
+    private _report: Report = {code: 0};
 
     private parent: BaseProgram | null = null;
 
@@ -88,12 +106,13 @@ export class BaseProgram<
     async init(args: BaseArgs, parent?: BaseProgram) {
         this.logger.setup(args);
 
+        const config = parent?.config || (await this.resolveConfig(args as TArgs));
+        const extensions = await this.resolveExtensions(config.extensions);
+
         // @ts-ignore
-        this['config'] = parent?.config || (await this.hookConfig(args as TArgs));
+        this['config'] = parent?.config || (await this.hookConfig(config, args as TArgs));
 
         this.logger.setup(this['config']);
-
-        const extensions = await this.resolveExtensions(this['config'], args);
 
         this.modules.push(...extensions);
 
@@ -150,7 +169,11 @@ export class BaseProgram<
         } as TArgs;
     }
 
-    private async hookConfig(args: TArgs) {
+    addModule(module: ICallable) {
+        this.modules.push(module);
+    }
+
+    private async resolveConfig(args: TArgs) {
         const defaults = getConfigDefaults(this);
         const {scope, strictScope} = getConfigScope(this);
         const configPath =
@@ -167,75 +190,92 @@ export class BaseProgram<
             fallback: args.config === YFM_CONFIG_FILENAME ? defaults : null,
         });
 
+        config.extensions = this.normalizeExtensions(config as Config<BaseConfig>, args);
+
+        return config;
+    }
+
+    private async hookConfig(config: Config<TConfig>, args: TArgs) {
         await getHooks(this as BaseProgram).RawConfig.promise(config, args);
 
-        Object.assign(config, this.args(args));
+        merge(config, omit(this.args(args), ['extensions']));
 
         return getHooks(this as BaseProgram).Config.promise(config, args);
     }
 
-    private async post() {
-        const stat = stats(this.logger);
-        if (stat.error || (this.config.strict && stat.warn)) {
-            throw new HandledError('There is some processing errors.');
-        }
-    }
-
     private async _action() {
         const args = this.command.optsWithGlobals() as TArgs;
+        const config = await this.resolveConfig(args as TArgs);
 
         // We already parse config in to init method,
         // but there we need to rebuild it,
         // because some extensions may affect config parsing.
         // @ts-ignore
-        this['config'] = await this.hookConfig(args);
+        this['config'] = await this.hookConfig(config, args);
 
-        await this.action(args);
-        await this.post();
+        try {
+            await this.action(args);
+        } catch (error) {
+            // eslint-disable-next-line no-ex-assign
+            error = await getHooks(this as BaseProgram).Error.promise(error);
+
+            if (!error) {
+                return;
+            }
+
+            if (own<HookMeta, 'hook'>(error, 'hook')) {
+                const {service, hook, name} = error.hook;
+                // eslint-disable-next-line no-console
+                console.error(
+                    `Intercept error for ${service}.${hook} hook from ${name} extension.`,
+                );
+            }
+
+            const message = errorMessage(error);
+            if (message) {
+                // eslint-disable-next-line no-console
+                console.error(message);
+            }
+
+            this.report.code = error ? 1 : 0;
+        }
     }
 
-    private async resolveExtensions(config: Config<BaseConfig>, args: BaseArgs) {
-        // args extension paths should be relative to PWD
-        const argsExtensions: ExtensionInfo[] = (args.extensions || []).map((ext) => {
-            const path = isRelative(ext) ? resolve(ext) : ext;
+    private normalizeExtensions(config: Config<BaseConfig>, args: BaseArgs) {
+        const argsExtensions: ExtensionConfig[] = (args.extensions || []).map((ext) => {
+            const name = isRelative(ext) ? resolve(ext) : ext;
             const options = {};
 
-            return {path, options};
+            return {name, options};
         });
 
         // config extension paths should be relative to config
-        const configExtensions: ExtensionInfo[] = [
-            ...this.extensions,
-            ...(config.extensions || []),
-        ].map((ext) => {
-            const extPath = typeof ext === 'string' ? ext : ext.path;
-            const path = isRelative(extPath) ? config.resolve(extPath) : extPath;
-            const options = typeof ext === 'string' ? {} : ext.options || {};
+        const configExtensions: ExtensionConfig[] = (config.extensions || []).map((ext) => {
+            const extPath = typeof ext === 'string' ? ext : ext.name;
+            const name = isRelative(extPath) ? config.resolve(extPath) : extPath;
+            const options = typeof ext === 'string' ? {} : omit(ext, 'path');
 
-            return {path, options};
+            return {name, options};
         });
 
-        const extensions = [...argsExtensions, ...configExtensions];
+        return [...argsExtensions, ...configExtensions];
+    }
 
-        const initialize = async ({
-            path,
-            options,
-        }: {
-            path: string;
-            options: Record<string, unknown>;
-        }) => {
-            const ExtensionModule = require(path);
-            const Extension = ExtensionModule.Extension || ExtensionModule.default;
+    private async resolveExtensions(extensions: ExtensionConfig[]) {
+        const initialize = async ({name, options}: ExtensionConfig) => {
+            try {
+                const ExtensionModule = requireExtension(name);
+                const Extension = ExtensionModule.Extension || ExtensionModule.default;
 
-            return new Extension(options);
+                return new Extension(options);
+            } catch (error) {
+                this.logger.error(
+                    `Failed to load extension from ${name}: ${error instanceof Error ? error.message : String(error)}`,
+                );
+                throw error;
+            }
         };
 
         return Promise.all(extensions.map(initialize));
     }
-}
-
-function isProgram<TConfig extends BaseConfig, TArgs extends BaseArgs>(
-    module: unknown,
-): module is BaseProgram<TConfig, TArgs> {
-    return Boolean(module && typeof (module as BaseProgram).init === 'function');
 }

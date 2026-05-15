@@ -1,0 +1,4 @@
+title: Crawler manifest exclude test
+items:
+  - name: Index
+    href: index.md

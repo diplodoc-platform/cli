@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="en-US" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">OpenAPI definition</source>
+        <target>Перевод 1</target>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Generated server url</source>
+        <target>Перевод 2</target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">test-controller</source>
+        <target>Перевод 3</target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Simple get operation. тест новой верстки 3</source>
+        <target>Перевод 4</target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Defines a simple get operation with no inputs and a complex</source>
+        <target>Перевод 5</target>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">200!!!!</source>
+        <target>Перевод 6</target>
+      </trans-unit>
+      <trans-unit id="6">
+        <source xml:space="preserve">Статус загрузки:</source>
+        <target>Перевод 7</target>
+      </trans-unit>
+      <trans-unit id="7">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="`" id="x-1"/>UPLOADED<x ctype="code_close" equiv-text="`" id="x-2"/> — загрузка завершена.</source>
+        <target>Перевод 8</target>
+      </trans-unit>
+      <trans-unit id="8">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="`" id="x-3"/>IN_PROGRESS<x ctype="code_close" equiv-text="`" id="x-4"/> — загрузка находится в процессе обработки.</source>
+        <target>Перевод 9</target>
+      </trans-unit>
+      <trans-unit id="9">
+        <source xml:space="preserve"><x ctype="code_open" equiv-text="`" id="x-5"/>PROCESSED<x ctype="code_close" equiv-text="`" id="x-6"/> — загрузка успешно обработана.</source>
+        <target>Перевод 10</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

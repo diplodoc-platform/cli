@@ -1,18 +1,17 @@
-import type {BuildConfig} from '.';
+import type {BuildConfig, Langs} from '.';
+import type {AssetInfo, IncludeInfo} from '~/core/markdown';
+import type {Alternate} from '~/core/meta';
+import type {Lang} from '@diplodoc/transform/lib/typings';
 
-import {join, resolve} from 'node:path';
+import {dirname, join, resolve} from 'node:path';
 import {uniq} from 'lodash';
 import transformer from '@diplodoc/transform/lib/md';
 import {yfmlint} from '@diplodoc/yfmlint';
+import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {createIDGeneratorByStrategy} from '@diplodoc/utils';
 
 import {configPath} from '~/core/config';
-import {
-    ASSETS_FOLDER,
-    REDIRECTS_FILENAME,
-    TMP_INPUT_FOLDER,
-    TMP_OUTPUT_FOLDER,
-    YFM_CONFIG_FILENAME,
-} from '~/constants';
+import {ASSETS_FOLDER, YFM_CONFIG_FILENAME} from '~/constants';
 import {Run as BaseRun} from '~/core/run';
 import {VarsService} from '~/core/vars';
 import {MetaService} from '~/core/meta';
@@ -20,15 +19,27 @@ import {TocService} from '~/core/toc';
 import {VcsService} from '~/core/vcs';
 import {LeadingService} from '~/core/leading';
 import {MarkdownService} from '~/core/markdown';
-import {all, bounded, langFromPath, normalizePath, parseHeading, zip} from '~/core/utils';
+import {all, bounded, get, langFromPath, memoize, normalizePath, setExt, zip} from '~/core/utils';
 
+import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
-import {getPublicPath} from '@diplodoc/transform/lib/utilsFS';
+import {EntryService} from './services/entry';
+import {extractIncludedBlocks} from './extract-included';
 
 type TransformOptions = {
-    deps: NormalizedPath[];
-    assets: NormalizedPath[];
+    deps: IncludeInfo[];
+    assets: AssetInfo[];
 };
+
+type Manifest = Hash<{
+    js: string[];
+    css: string[];
+    async: string[];
+}>;
+
+const TMP_INPUT_FOLDER = '.tmp_input';
+
+export type TransformConfig = ReturnType<Run['transformConfig']>;
 
 /**
  * This is transferable context for build command.
@@ -39,8 +50,6 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly input: AbsolutePath;
 
-    readonly originalOutput: AbsolutePath;
-
     readonly output: AbsolutePath;
 
     readonly vars: VarsService;
@@ -49,6 +58,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly toc: TocService;
 
+    readonly entry: EntryService;
+
     readonly vcs: VcsService;
 
     readonly leading: LeadingService;
@@ -56,6 +67,8 @@ export class Run extends BaseRun<BuildConfig> {
     readonly markdown: MarkdownService;
 
     readonly search: SearchService;
+
+    readonly redirects: RedirectsService;
 
     get configPath() {
         return this.config[configPath] || join(this.config.input, YFM_CONFIG_FILENAME);
@@ -69,17 +82,18 @@ export class Run extends BaseRun<BuildConfig> {
         return join(ASSETS_FOLDER);
     }
 
-    get redirectsPath() {
-        return join(this.originalInput, REDIRECTS_FILENAME);
+    get manifest() {
+        return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
     constructor(config: BuildConfig) {
         super(config);
 
-        this.originalInput = config.input;
-        this.originalOutput = config.output;
-        this.input = resolve(config.output, TMP_INPUT_FOLDER);
-        this.output = resolve(config.output, TMP_OUTPUT_FOLDER);
+        this.originalInput = this.realpathSync(config.input);
+        this.output = this.realpathSync(config.output);
+        this.input = config.originAsInput
+            ? this.originalInput
+            : resolve(this.output, TMP_INPUT_FOLDER);
 
         // Sequence is important for scopes.
         // Otherwise logger will replace originalOutput instead of output.
@@ -87,34 +101,55 @@ export class Run extends BaseRun<BuildConfig> {
         this.scopes.set('<input>', this.input);
         this.scopes.set('<output>', this.output);
         this.scopes.set('<origin>', this.originalInput);
-        this.scopes.set('<result>', this.originalOutput);
 
         this.vars = new VarsService(this);
         this.meta = new MetaService(this);
-        this.toc = new TocService(this);
+        this.toc = new TocService(this, {pdfDebug: this.config.pdfDebug});
+        this.entry = new EntryService(this);
         this.vcs = new VcsService(this);
         this.leading = new LeadingService(this);
         this.markdown = new MarkdownService(this);
         this.search = new SearchService(this);
+        this.redirects = new RedirectsService(this);
     }
 
     async transform(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
 
-        const {parse, compile, env} = transformer({
-            ...this.transformConfig(file),
-            files: await remap(deps, this.files),
-            titles: await remap([file].concat(assets), this.titles),
-            assets: await remap(assets, async (path) => {
-                if (path.endsWith('.svg')) {
-                    return this.read(join(this.input, path));
-                } else {
-                    return true;
-                }
-            }),
+        const {
+            content: cleanMarkdown,
+            files: includedFiles,
+            errors,
+        } = extractIncludedBlocks(markdown, file);
+        for (const error of errors) {
+            this.logger.error(error);
+        }
+
+        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
+            if (path?.endsWith('.svg')) {
+                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
+            } else {
+                return true;
+            }
         });
 
-        const tokens = parse(markdown);
+        const depFiles = await remap(deps.map(get('path')), (path) => {
+            const embedded = includedFiles[path];
+            if (typeof embedded === 'string') {
+                return embedded;
+            }
+            return this.files(path, file);
+        });
+
+        const {parse, compile, env} = transformer({
+            ...this.transformConfig(file, assetsRemap),
+            files: {...depFiles, ...includedFiles},
+            titles: await remap(titles, this.titles),
+            assets: assetsRemap,
+        });
+
+        const tokens = parse(cleanMarkdown);
         const result = compile(tokens);
 
         return [result, env] as const;
@@ -122,83 +157,174 @@ export class Run extends BaseRun<BuildConfig> {
 
     async lint(file: NormalizedPath, markdown: string, options: TransformOptions) {
         const {deps, assets} = options;
+
+        const {
+            content: cleanMarkdown,
+            files: includedFiles,
+            errors,
+        } = extractIncludedBlocks(markdown, file);
+        for (const error of errors) {
+            this.logger.error(error);
+        }
+
+        const titles = uniq([file].concat(assets.filter(needAutotitle).map(get('path'))));
+        const assetsRemap = await remap(assets.map(get('path')), async (path) => {
+            if (path?.endsWith('.svg')) {
+                return this.read(normalizePath(join(this.input, path)) as AbsolutePath);
+            } else {
+                return true;
+            }
+        });
+
+        const depFiles = await remap(deps.map(get('path')), (path) => {
+            const embedded = includedFiles[path];
+            if (typeof embedded === 'string') {
+                return embedded;
+            }
+            return this.files(path, file);
+        });
+
         const pluginOptions = {
-            ...this.transformConfig(file),
-            files: await remap(deps, this.files),
-            titles: await remap([file].concat(assets), this.titles),
-            assets: await remap(assets),
+            ...this.transformConfig(file, assetsRemap),
+            files: {...depFiles, ...includedFiles},
+            titles: await remap(titles, this.titles),
+            assets: assetsRemap,
         };
 
-        return yfmlint(markdown, file, {
+        return yfmlint(cleanMarkdown, file, {
             lintConfig: this.config.lint.config,
             pluginOptions,
             plugins: pluginOptions.plugins,
         });
     }
 
-    private transformConfig(path: NormalizedPath) {
+    alternates(file: NormalizedPath) {
+        const langs = this.config.langs;
+        const alternates = this.getAlternateMap();
+        const [lang, base] = extractLang(file, langs);
+
+        if (!lang) {
+            return [];
+        }
+
+        return alternates[base] || [];
+    }
+
+    private transformConfig(path: NormalizedPath, assets: Record<string, unknown>) {
+        const generateID = createIDGeneratorByStrategy(this.config.idGenerator);
+
         return {
-            rootInput: this.originalInput,
             allowHTML: this.config.allowHtml,
             needToSanitizeHtml: this.config.sanitizeHtml,
+            breaks: this.config.breaks,
+            linkify: this.config.linkify,
+            linkifyTlds: this.config.linkifyTlds,
             supportGithubAnchors: Boolean(this.config.supportGithubAnchors),
             plugins: this.markdown.plugins,
             path,
-            lang: langFromPath(path, this.config),
+            lang: langFromPath(path, this.config) as Lang,
             getPublicPath,
             extractTitle: true,
             log: this.logger,
+            entries: this.getEntries(),
+            existsInProject: this.existsInProject,
+            svgInline: {
+                enabled: this.config.content.maxInlineSvgSize !== 0,
+                maxFileSize: this.config.content.maxInlineSvgSize,
+            },
+            multilineTermDefinitions:
+                this.config.content.multilineTermDefinitions ??
+                this.config.multilineTermDefinitions,
+            generateID,
+            rawContent: (path: string): string => {
+                const asset = assets[path];
+                if (typeof asset !== 'string') {
+                    throw new Error('Asset not found');
+                }
+
+                return asset;
+            },
+            calcPath: (root: string, path: string) => normalizePath(join(dirname(root), path)),
+            replaceImageSrc: (_state: unknown, _root: string, file: string) => file,
         };
     }
 
+    @memoize()
+    private getEntries() {
+        return this.toc.entries;
+    }
+
+    @memoize()
+    private getAlternateMap() {
+        const map: Hash<Alternate[]> = {};
+        const langs = this.config.langs;
+        const entries = this.getEntries();
+
+        for (const entry of entries) {
+            const [hreflang, base] = extractLang(entry, langs);
+            const href = setExt(entry, 'html');
+
+            if (hreflang) {
+                map[base] = map[base] || [];
+                map[base].push({href, hreflang});
+            }
+        }
+
+        return map;
+    }
+
     @bounded
-    private async files(path: NormalizedPath) {
-        return this.markdown.load(path);
+    private existsInProject(path: NormalizedPath) {
+        return this.exists(join(this.input, path));
+    }
+
+    @bounded
+    private async files(path: NormalizedPath, from?: NormalizedPath) {
+        return this.markdown.load(path, from);
     }
 
     @bounded
     private async titles(path: NormalizedPath) {
-        if (path.endsWith('/')) {
+        if (path?.endsWith('/')) {
             path = this.exists(join(this.input, path, 'index.yaml'))
                 ? join(path, 'index.yaml')
                 : join(path, 'index.md');
         }
 
-        if (path.match(/\/[^.]+?$/)) {
+        if (path?.match(/\/[^.]+?$/)) {
             path = normalizePath(path + '.md');
         }
 
-        if (!path.endsWith('.md')) {
+        if (path === null || !path?.endsWith('.md')) {
             return {};
         }
 
-        path = normalizePath(path);
+        return this.markdown.titles(path);
+    }
+}
 
-        const titles: Hash<string> = {};
+function extractLang(file: NormalizedPath, langs: Langs) {
+    const [lang, ...rest] = file.split('/');
 
-        try {
-            const headings = await this.markdown.headings(path);
-            const contents = headings.map(({content}) => content);
-
-            for (const content of contents) {
-                const {level, title, anchors} = parseHeading(content);
-
-                if (level === 1 && !titles['#']) {
-                    titles['#'] = title;
-                }
-
-                for (const anchor of anchors) {
-                    titles[anchor] = title;
-                }
-            }
-        } catch (error) {
-            // This is acceptable.
-            // If this is a real file and someone depends on his titles,
-            // then we throw exception in md plugin.
+    const matched = langs.find((l) => {
+        if (typeof l === 'string') {
+            return l === lang;
+        } else if (l && typeof l === 'object' && 'lang' in l) {
+            return l.lang === lang;
         }
 
-        return titles;
+        return false;
+    });
+
+    if (!matched) {
+        return [];
     }
+
+    return [lang, rest.join('/')];
+}
+
+function needAutotitle(asset: AssetInfo) {
+    return asset.autotitle;
 }
 
 async function remap<T>(

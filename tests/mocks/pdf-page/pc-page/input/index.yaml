@@ -1,0 +1,87 @@
+blocks:
+  - type: header-block
+    title: Приложение Яндекс Телемост для мобильных устройств
+    description: |
+      [Яндекс Телемост](https://telemost.yandex.ru/?lang=ru) — это сервис для видеовстреч без ограничений по времени. В Телемосте можно устраивать видеовечеринки, собирать конференции с друзьями и встречаться с семьей. Достаточно просто создать встречу и отправить ссылку участникам.
+      Встречи в Телемосте не ограничены по длительности и могут объединять до 40 участников. Общайтесь в мобильном приложении Яндекс Телемост (для [Android](https://play.google.com/store/apps/details?id=ru.yandex.telemost&hl=ru) и [iOS](https://apps.apple.com/ru/app/яндекс-телемост/id1527737302)).
+  - type: card-layout-block
+    resetPaddings: true
+    children:
+
+      - type: basic-card
+        icon:
+          src: https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/settings.svg
+        text: Как настроить камеру и микрофон, чтобы точно все работало.
+        title: Настройки
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/create-meeting.svg
+        text: Как создать или запланировать встречу и пригласить на нее друзей.
+        title: Создать видеовстречу
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/join-meeting.svg
+        text: Как принять приглашение на встречу.
+        title: Присоединиться к видеовстрече
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/manage-meeting.svg
+        text: Какие действия доступны на экране во время встречи.
+        title: Что можно делать на встрече
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/organizers.svg
+        text: Как управлять участниками — выключать микрофоны, видео и демонстрацию экрана.
+        title: Управление встречей
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/docs/support/telemost/_assets/telemost-index/chat.svg
+        text: Как пользоваться чатом встречи.
+        title: Чат видеовстречи
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+
+      - type: basic-card
+        icon:
+          src:  https://yastatic.net/s3/doc-binary/src/docs/support/telemost/_assets/telemost-index/share-screen.svg
+        text: Как показать свой экран участникам встречи и что может делать зритель.
+        title: Поделиться экраном
+        links:
+          - text: Подробнее
+            url: index2.yaml
+            arrow: true
+            theme: normal
+animated: false

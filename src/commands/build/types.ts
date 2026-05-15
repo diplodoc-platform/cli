@@ -1,42 +1,106 @@
 import type {DocAnalytics} from '@diplodoc/client';
+import type {IDGeneratorStrategy} from '@diplodoc/utils';
+import type {NeuroExpertBase, NeuroExpertConfig} from './features/neuro-expert';
 import type {BaseArgs as ProgramArgs, BaseConfig as ProgramConfig} from '~/core/program';
+import type {VarsService} from '~/core/vars';
 import type {Config} from '~/core/config';
-import type {LeadingPage} from '~/core/leading';
-import type {Meta} from '~/core/meta';
 import type {TemplatingArgs, TemplatingConfig, TemplatingRawConfig} from './features/templating';
 import type {ContributorsArgs, ContributorsConfig} from './features/contributors';
 import type {SinglePageArgs, SinglePageConfig} from './features/singlepage';
+import type {PdfPageArgs} from './features/pdf-page';
+import type {SkipHtmlArgs, SkipHtmlConfig} from './features/skip-html';
 import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
+import type {OutputMdConfig, PreprocessConfig} from './features/output-md';
+import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
+import type {BuildStatsArgs, BuildStatsConfig} from './features/build-stats';
+import type {CrawlerManifestArgs, CrawlerManifestConfig} from './features/crawler-manifest';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
+import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
+import type {ThemerArgs, ThemerConfig} from './features/themer';
+import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
+import type {TransformConfig} from './run';
+import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
+
+export type {SearchProvider, SearchServiceConfig} from './services/search';
+export type {EntryData, PageData} from './services/entry';
+
+export {OutputFormat, TransformConfig};
 
 type BaseArgs = {output: AbsolutePath};
+
+type ExtendedLang = {
+    lang: string;
+    tld?: string;
+    href?: string;
+};
+
+export type Langs = (string | ExtendedLang)[];
+
+export type ContentConfig = {
+    maxInlineSvgSize: number;
+    maxHtmlSize: number;
+    maxAssetSize: number;
+    maxOpenapiIncludeSize: number;
+    multilineTermDefinitions: boolean;
+};
+
+export type {IDGeneratorStrategy};
 
 type BaseConfig = {
     lang: string;
     // TODO(patch): exetend langs list by newly supported langs or change type to string
-    langs: string[];
+    langs: Langs;
     outputFormat: `${OutputFormat}`;
     varsPreset: string;
     vars: Hash;
     allowHtml: boolean;
     sanitizeHtml: boolean;
+    breaks?: boolean;
+    linkify?: boolean;
+    linkifyTlds?: string | string[];
     ignoreStage: string[];
     ignore: string[];
+    rawAddMeta: boolean;
     addSystemMeta: boolean;
+    addResourcesMeta: boolean;
+    addMetadataMeta: boolean;
+    addAlternateMeta: boolean;
     // TODO(minor): we can generate this file all time
     addMapFile: boolean;
-    // TODO(major): can this be solved by `when` prop in toc?
-    removeHiddenTocItems: boolean;
     mergeIncludes: boolean;
     // TODO(major): use as default behavior
     staticContent: boolean;
     // TODO: explicitly handle
     analytics: DocAnalytics;
     supportGithubAnchors?: boolean;
+    interface?: Record<string, boolean>;
+    feedback?: {
+        url?: string;
+    };
+    pdf: Record<string, boolean>;
+    neuroExpert?: NeuroExpertBase;
+    disableCsp?: boolean;
+    pdfDebug: boolean;
+    content: ContentConfig;
+    /**
+     * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
+     * - 'random' (default): uses Math.random() — legacy behavior.
+     * - 'deterministic': uses per-file counters with prefix (e.g. 'term-1').
+     */
+    idGenerator: IDGeneratorStrategy;
+};
+
+export type VcsArgs = {
+    vcs: boolean;
+    vcsToken: string;
+};
+
+export type WorkerArgs = {
+    workerMaxOldSpace: number;
 };
 
 export type BuildArgs = ProgramArgs &
@@ -45,11 +109,22 @@ export type BuildArgs = ProgramArgs &
         TemplatingArgs &
             ContributorsArgs &
             SinglePageArgs &
+            PdfPageArgs &
+            SkipHtmlArgs &
             LintArgs &
+            BuildManifestArgs &
+            BuildStatsArgs &
+            CrawlerManifestArgs &
+            PreprocessConfig &
             ChangelogsArgs &
             SearchArgs &
             LegacyArgs &
-            CustomResourcesArgs
+            CustomResourcesArgs &
+            TocFilteringArgs &
+            VcsArgs &
+            WorkerArgs &
+            WatchArgs &
+            ThemerArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -58,11 +133,18 @@ export type BuildRawConfig = BaseArgs &
     TemplatingRawConfig &
     ContributorsConfig &
     SinglePageConfig &
+    SkipHtmlConfig &
     LintRawConfig &
+    OutputMdConfig &
     ChangelogsConfig &
     SearchRawConfig &
     LegacyRawConfig &
-    CustomResourcesConfig;
+    CustomResourcesConfig &
+    TocFilteringConfig &
+    PreprocessConfig &
+    WatchConfig &
+    ThemerConfig &
+    NeuroExpertConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -71,26 +153,26 @@ export type BuildConfig = Config<
         TemplatingConfig &
         ContributorsConfig &
         SinglePageConfig &
+        SkipHtmlConfig &
         LintConfig &
+        BuildManifestConfig &
+        BuildStatsConfig &
+        CrawlerManifestConfig &
+        OutputMdConfig &
         ChangelogsConfig &
         SearchConfig &
         LegacyConfig &
-        CustomResourcesConfig
+        CustomResourcesConfig &
+        TocFilteringConfig &
+        PreprocessConfig &
+        WatchConfig &
+        ThemerConfig &
+        NeuroExpertConfig &
+        ContentConfig
 >;
 
-export type EntryInfo = {
-    html?: string;
-    data?: LeadingPage;
-    meta?: Meta;
-    title?: string;
-    headings?: any;
-};
-
-export type PositionedEntryInfo = {
-    position: number;
-    html?: string;
-    data?: LeadingPage;
-    meta?: Meta;
-    title?: string;
-    headings?: any;
-};
+export type EntryInfo<Extras extends LeadingData | MarkdownData = LeadingData | MarkdownData> =
+    PageData<Extras> & {
+        entryGraph: EntryService['relations'];
+        varsGraph: VarsService['relations'];
+    };

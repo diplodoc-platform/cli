@@ -1,8 +1,13 @@
+import type Token from 'markdown-it/lib/token';
+import type StateCore from 'markdown-it/lib/rules_core/state_core';
+
+import url from 'url';
 import notes from '@diplodoc/transform/lib/plugins/notes';
 import anchors from '@diplodoc/transform/lib/plugins/anchors';
 import code from '@diplodoc/transform/lib/plugins/code';
 import cut from '@diplodoc/transform/lib/plugins/cut';
 import deflist from '@diplodoc/transform/lib/plugins/deflist';
+import images from '@diplodoc/transform/lib/plugins/images';
 import imsize from '@diplodoc/transform/lib/plugins/imsize';
 import sup from '@diplodoc/transform/lib/plugins/sup';
 import tabs from '@diplodoc/transform/lib/plugins/tabs';
@@ -11,20 +16,37 @@ import monospace from '@diplodoc/transform/lib/plugins/monospace';
 import table from '@diplodoc/transform/lib/plugins/table';
 import term from '@diplodoc/transform/lib/plugins/term';
 import blockAnchor from '@diplodoc/transform/lib/plugins/block-anchor';
+import inlineCode from '@diplodoc/transform/lib/plugins/inline-code';
+import file from '@diplodoc/transform/lib/plugins/file';
 import * as mermaid from '@diplodoc/mermaid-extension';
 import * as latex from '@diplodoc/latex-extension';
 import * as openapi from '@diplodoc/openapi-extension';
+// Use CSR mode: renders empty placeholder + data-content-encoded at build time,
+// runtime uses createRoot (not hydrateRoot) to render from scratch.
+// SSR mode is broken because its HTML passes through browser's HTML parser
+// (via dangerouslySetInnerHTML in the client app), which auto-fixes invalid
+// nested <a> tags from @gravity-ui/page-constructor's ImageCard component,
+// causing React hydration mismatches (#418/#423).
+import * as pageConstructor from '@diplodoc/page-constructor-extension/plugin/csr';
+import {noTranslate} from '@diplodoc/translation';
+
+import {filterTokens} from '~/core/utils';
 
 import includes from './plugins/includes';
+import includesDetect from './plugins/includes-detect';
 import links from './plugins/links';
-import images from './plugins/images';
+import linksAutotitles from './plugins/links-autotitles';
+import linksExternal from './plugins/links-external';
 
 export function getBaseMdItPlugins() {
     return [
         deflist,
         includes,
+        includesDetect,
         cut,
         links,
+        linksAutotitles,
+        linksExternal,
         images,
         notes,
         anchors,
@@ -36,6 +58,8 @@ export function getBaseMdItPlugins() {
         monospace,
         table,
         term,
+        inlineCode,
+        file,
         openapi.transform(),
         mermaid.transform({
             bundle: false,
@@ -48,8 +72,39 @@ export function getBaseMdItPlugins() {
                 style: '_bundle/latex-extension.css',
             },
         }),
+        pageConstructor.transform({
+            bundle: false,
+            runtime: {
+                script: '_bundle/page-constructor-extension.js',
+                style: '_bundle/page-constructor-extension.css',
+            },
+        }),
         blockAnchor,
+        noTranslate({mode: 'render'}),
     ];
+}
+
+/**
+ * Extension plugins (cut, tabs, file, etc.) add `_assets/{name}-extension.{js,css}`
+ * to `env.meta` when they detect their patterns in content. In the CLI's bundled
+ * environment these runtime files don't exist as separate assets — they're part of
+ * the app bundle. With merge-includes, inlined content makes these patterns visible
+ * to the main page transform, producing extra <link>/<script> tags that 404.
+ *
+ * Without merge-includes the issue was masked: the includes plugin spreads `env`,
+ * so meta mutations from nested `md.parse` calls were silently lost.
+ */
+const BUNDLED_EXTENSION_ASSET_RE = /^_assets\/[\w-]+-extension\.(js|css)$/;
+
+export function filterBundledExtensionAssets(meta: {script?: string[]; style?: string[]}) {
+    if (!meta) {
+        return meta;
+    }
+    return {
+        ...meta,
+        script: meta.script?.filter((s) => !BUNDLED_EXTENSION_ASSET_RE.test(s)),
+        style: meta.style?.filter((s) => !BUNDLED_EXTENSION_ASSET_RE.test(s)),
+    };
 }
 
 // TODO(major): Deprecate
@@ -57,7 +112,39 @@ export function getCustomMdItPlugins() {
     try {
         const customPlugins = require(require.resolve('./plugins'));
         return Array.isArray(customPlugins) ? customPlugins : [];
-    } catch (e) {
+    } catch {
         return [];
     }
+}
+
+export function getHrefTokenAttr(token: Token) {
+    const href = token.attrGet('href') || '';
+    try {
+        return decodeURI(href);
+    } catch {}
+
+    return href;
+}
+
+type LinkWalker = (link: Token, href: string, tokens: Token[], index: number) => void;
+
+export function walkLinks(state: StateCore, handler: LinkWalker) {
+    filterTokens(state.tokens, 'inline', (inline) => {
+        const childrenTokens = inline.children || [];
+
+        filterTokens(childrenTokens, 'link_open', (link, {index}) => {
+            const tokenClass = link.attrGet('class');
+            const href = getHrefTokenAttr(link);
+            const {pathname, hash} = url.parse(href);
+
+            /*  Don't process anchor links */
+            const isYfmAnchor = tokenClass ? tokenClass.includes('yfm-anchor') : false;
+
+            if (isYfmAnchor || !(pathname || hash)) {
+                return;
+            }
+
+            handler(link, href, childrenTokens, index);
+        });
+    });
 }

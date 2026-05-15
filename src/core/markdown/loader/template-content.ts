@@ -1,6 +1,6 @@
 import type {LoaderContext} from '../loader';
 
-import {liquidSnippet} from '@diplodoc/liquid';
+import {liquidDocument, liquidSnippet} from '@diplodoc/liquid';
 
 export function templateContent(this: LoaderContext, rawContent: string) {
     const {vars, options} = this;
@@ -10,7 +10,13 @@ export function templateContent(this: LoaderContext, rawContent: string) {
         return rawContent;
     }
 
-    const content = liquidSnippet.call(this, rawContent, vars, this.sourcemap);
+    let content;
+
+    if (this.mode === 'translate') {
+        content = liquidDocument.call(this, rawContent, vars);
+    } else {
+        content = liquidSnippet.call(this, rawContent, vars, this.sourcemap);
+    }
 
     return content;
 }

@@ -1,4 +1,5 @@
 import {bold} from 'chalk';
+
 import {option} from '~/core/config';
 
 const lint = option({

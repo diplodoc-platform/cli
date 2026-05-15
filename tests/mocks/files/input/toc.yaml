@@ -1,0 +1,6 @@
+title: Test123
+href: index.md
+path: toc.yaml
+items:
+  - name: Yaml index
+    href: pc-index.yaml

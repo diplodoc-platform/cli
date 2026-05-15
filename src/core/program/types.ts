@@ -13,17 +13,28 @@ export type BaseArgs = {
     config: AbsolutePath;
     quiet: boolean;
     strict: boolean;
+    jobs: number | true;
+    workerMaxOldSpace: number;
     extensions?: string[];
+    copyOnWrite: boolean;
+    originAsInput: boolean;
 };
 
 export type BaseConfig = {
     input: AbsolutePath;
     quiet?: boolean;
     strict?: boolean;
+    jobs?: number;
+    workerMaxOldSpace?: number;
     extensions?: (string | ExtensionInfo)[];
+    copyOnWrite?: boolean;
+    originAsInput?: boolean;
 };
 
-export type ExtensionInfo = {
-    path: string;
-    options: Hash;
-};
+export type ExtensionInfo<Options extends Hash = Hash> = {
+    name: string;
+} & Options;
+
+export type Report = {
+    code: number;
+} & Hash;

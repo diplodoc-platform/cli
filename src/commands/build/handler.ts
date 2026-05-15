@@ -11,6 +11,7 @@ export async function handler(run: Run) {
 
         await processChangelogs(run);
     } catch (error) {
+        // eslint-disable-next-line no-console
         console.error(error);
         run.logger.error(error);
     }

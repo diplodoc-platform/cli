@@ -1,0 +1,31 @@
+title: Redirects file schema
+type: object
+properties:
+  vcs:
+    oneOf:
+      - type: boolean
+      - $ref: '#/definitions/VcsConfig'
+patternProperties:
+  '^(?!vcs$).+$':
+    type: array
+    items:
+      $ref: '#/definitions/Redirect'
+
+definitions:
+  VcsConfig:
+    type: object
+    required: ['initialCommit']
+    properties:
+      initialCommit:
+        type: string
+    additionalProperties: false
+
+  Redirect:
+    type: object
+    required: ['from', 'to']
+    properties:
+      from:
+        type: string
+      to:
+        type: string
+    additionalProperties: false

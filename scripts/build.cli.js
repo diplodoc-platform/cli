@@ -1,10 +1,13 @@
-const {basename, dirname} = require("node:path");
-const esbuild = require('esbuild');
+const {basename, dirname, join} = require('node:path');
+const {chmod, copyFile, mkdir} = require('node:fs/promises');
+const infra = require('@diplodoc/infra/esbuild');
 const deps = require('./deps');
 const alias = require('./alias');
 const {sync: glob} = require('glob');
 
 const {version, dependencies = {}} = require('../package.json');
+
+require('./assets');
 
 const baseConfig = {
     tsconfig: './tsconfig.json',
@@ -12,26 +15,32 @@ const baseConfig = {
     target: 'node18',
     sourcemap: true,
     bundle: true,
+    logLevel: 'error',
     define: {
-        VERSION: JSON.stringify(version),
+        'global.VERSION': JSON.stringify(version),
+    },
+    alias: {
+        '~@diplodoc/transform/dist/css/yfm.css': '@diplodoc/transform/dist/css/yfm.css',
     },
 };
 
 const externals = new Set();
-const lib = (entry, format) => esbuild.build({
-    ...baseConfig,
-    format,
-    outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
-    entryPoints: [entry],
-    packages: 'external',
-    plugins:[
-        deps(externals),
-        alias({
-            '~/core': ['@diplodoc/cli/lib', true],
-        }),
-    ]
-});
-const build = (entry, outfile, format) => {
+const lib = (entry, format) =>
+    infra.build({
+        ...baseConfig,
+        format,
+        outfile: `lib/${basename(dirname(entry))}/index.${format === 'esm' ? 'mjs' : 'js'}`,
+        entryPoints: [entry],
+        packages: 'external',
+        plugins: [
+            deps(externals),
+            alias({
+                '~/core': ['@diplodoc/cli/lib', true],
+            }),
+        ],
+    });
+const build = async (entry, outfile, format) => {
+    const file = `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`;
     const config = {
         ...baseConfig,
         format,
@@ -46,37 +55,68 @@ const build = (entry, outfile, format) => {
             js: '#!/usr/bin/env node',
         },
         entryPoints: [entry],
-        outfile: `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`,
+        outfile: file,
     };
 
+    // We need these packages into the binary because they are required at runtime
+    const bundledDeps = ['@gravity-ui/uikit-themer', 'chroma-js', '@inquirer/prompts'];
+
     config.external = [
-        ...Object.keys(dependencies),
+        ...Object.keys(dependencies).filter((dep) => !bundledDeps.includes(dep)),
+        '@diplodoc/cli',
         '@diplodoc/cli/lib',
         '@diplodoc/cli/package',
     ];
 
-    return esbuild.build(config);
+    await infra.build(config);
+
+    await chmod(file, '755');
 };
 
-const builds = [
-    ['src/index.ts', 'index'],
+const extension = async (entry, outfile, format) => {
+    const file = `build/${outfile}.${format === 'esm' ? 'mjs' : 'js'}`;
+    const config = {
+        ...baseConfig,
+        format,
+        plugins: [
+            alias({
+                '@diplodoc/cli/lib': ['../lib', true],
+                '@diplodoc/cli$': ['../build', true],
+            }),
+        ],
+        entryPoints: [entry],
+        outfile: file,
+    };
+
+    config.external = ['@diplodoc/cli'];
+
+    await infra.build(config);
+};
+
+const copy = async (from, to) => {
+    await mkdir(dirname(join(__dirname, '../build', to)), {recursive: true});
+    await copyFile(from, join(__dirname, '../build', to));
+};
+
+const builds = [['src/index.ts', 'index']];
+
+const extensions = [
+    ['src/extensions/mdit-plugins/index.ts', 'mdit-plugins'],
+    ['src/extensions/github-vcs/index.ts', 'github-vcs'],
+    ['src/extensions/arcadia-vcs/index.ts', 'arcadia-vcs'],
 ];
 
 const libs = glob('./src/core/*/index.ts', {ignore: ['**/test/*']});
+
+const files = [[require.resolve('@diplodoc/client/manifest'), 'manifest.json']];
 
 Promise.all([
     ...libs.map((entry) => lib(entry, 'esm')),
     ...libs.map((entry) => lib(entry, 'cjs')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'esm')),
     ...builds.map(([entry, outfile]) => build(entry, outfile, 'cjs')),
-    esbuild.build({
-        tsconfig: './tsconfig.json',
-        bundle: true,
-        target: 'ES6',
-        platform: 'browser',
-        outfile: 'build/algolia-api.js',
-        entryPoints: ['src/extensions/algolia/worker.ts'],
-    }),
+    ...extensions.map(([entry, outfile]) => extension(entry, outfile, 'cjs')),
+    ...files.map(([from, to]) => copy(from, to)),
 ]).then(() => {
     for (const dep of externals) {
         if (!dependencies[dep]) {

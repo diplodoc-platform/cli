@@ -1,30 +1,27 @@
-import type {BaseConfig} from '~/core/program';
-import type {Run as BaseRun} from '~/core/run';
-import type {EntryInfo} from '../../types';
+import type {EntryInfo, OutputFormat, Run} from '~/commands/build';
 import type {SearchProvider} from './types';
 
-import {join} from 'node:path';
-import {dedent} from 'ts-dedent';
-import manifest from '@diplodoc/client/manifest';
+import {basename, join} from 'node:path';
+import dedent from 'ts-dedent';
 
 import {bounded, normalizePath} from '~/core/utils';
+import {Template} from '~/core/template';
+import {BUNDLE_FOLDER} from '~/constants';
 
 import {getHooks, withHooks} from './hooks';
 import {DefaultSearchProvider} from './provider';
-import {BUNDLE_FOLDER, RTL_LANGS} from '~/constants';
-import {OutputFormat} from '~/commands/build/config';
 
 const SEARCH_PAGE_DEPTH = 2;
 
+const rebase = (url: string) => join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url);
+
 export type SearchServiceConfig = {
-    outputFormat: OutputFormat;
+    outputFormat: `${OutputFormat}`;
     search: {
         enabled: boolean;
         provider: string;
     } & Hash<unknown>;
 };
-
-type Run = BaseRun<BaseConfig & SearchServiceConfig>;
 
 @withHooks
 export class SearchService implements SearchProvider<RelativePath> {
@@ -72,6 +69,10 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded config(lang: string) {
+        if (!this.enabled) {
+            return undefined;
+        }
+
         return {
             enabled: this.enabled,
             ...this.provider.config(lang),
@@ -97,45 +98,63 @@ export class SearchService implements SearchProvider<RelativePath> {
     }
 
     @bounded async page(lang: string) {
-        const isRTL = RTL_LANGS.includes(lang);
+        const template = new Template(normalizePath(join('_search', lang, 'index.html')), lang);
+        const config = this.run.config;
+        const baseInterface = config.interface;
+        const faviconSrc =
+            (typeof baseInterface?.['favicon-src'] === 'string'
+                ? baseInterface['favicon-src']
+                : '') || '';
 
-        return dedent`
-            <!DOCTYPE html>
-            <html lang="${lang}" dir="${isRTL ? 'rtl' : 'ltr'}">
-                <head>
-                    <meta charset="utf-8" />
-                    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                    <meta name="robots" content="noindex"/>
-                    <title>Search</title>
-                    <style type="text/css">
-                        body {
-                            height: 100vh;
-                        }
-                    </style>
-                    ${manifest.search.css
-                        .filter((file: string) => isRTL === file.includes('.rtl.css'))
-                        .map((url: string) =>
-                            join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url),
-                        )
-                        .map(
-                            (src: string) =>
-                                `<link type="text/css" rel="stylesheet" href="${src}" />`,
-                        )
-                        .join('\n')}
-                </head>
-                <body class="g-root g-root_theme_light">
-                    <div id="root"></div>
-                    ${manifest.search.js
-                        .map((url: string) =>
-                            join('../'.repeat(SEARCH_PAGE_DEPTH), BUNDLE_FOLDER, url),
-                        )
-                        .map(
-                            (src: string) =>
-                                `<script type="application/javascript" src="${src}"></script>`,
-                        )
-                        .join('\n')}
-                </body>
-            </html>
-        `;
+        const state = {
+            lang,
+            ...this.config(lang),
+        };
+
+        const title = lang === 'ru' ? 'Поиск' : 'Search';
+
+        template.setTitle(title);
+        template.setFaviconSrc(faviconSrc);
+        template.addMeta({robots: 'noindex'});
+
+        this.run.manifest.search.css
+            .filter((file: string) => template.isRTL === file.includes('.rtl.css'))
+            .map(rebase)
+            .map(template.addStyle);
+
+        this.run.manifest.search.js.map(rebase).map(template.addScript);
+
+        template.addScript(template.escape(JSON.stringify(state)), {
+            inline: true,
+            position: 'state',
+            attrs: {
+                type: 'application/json',
+                id: 'diplodoc-state',
+            },
+        });
+        template.addScript(
+            dedent`
+                const data = document.querySelector('script#diplodoc-state');
+                window.__DATA__ = {
+                    search: JSON.parse((function ${template.unescape.toString()})(data.innerText)),
+                }
+            `,
+            {
+                inline: true,
+                position: 'state',
+            },
+        );
+
+        const resourcesLink = this.provider.resourcesLink?.(lang);
+
+        if (resourcesLink) {
+            const resourcesLinkBase = basename(resourcesLink);
+
+            template.addScript(resourcesLinkBase);
+        }
+
+        await getHooks(this).Page.promise(template);
+
+        return template.dump();
     }
 }

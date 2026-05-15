@@ -1,38 +1,27 @@
-import { defineConfig } from 'vite'
-import tsconfigPaths from 'vite-tsconfig-paths'
+import {coverageConfigDefaults, defineConfig} from 'vitest/config';
+import tsconfigPaths from 'vite-tsconfig-paths';
 
 export default defineConfig({
-    plugins: [tsconfigPaths({
-        root: './'
-    })],
+    plugins: [
+        tsconfigPaths({
+            root: './',
+        }),
+    ],
     test: {
-        exclude: ['node_modules', 'tests', 'external'],
+        setupFiles: ['./src/test-setup.ts', './src/require.ts'],
+        environment: 'node',
+        include: [
+            'src/**/*.{test,spec}.ts',
+        ],
+        exclude: ['node_modules'],
         coverage: {
-            enabled: true,
+            all: true,
             provider: 'v8',
-            include: [
-                'src/commands',
-                'src/core',
-                'src/extensions',
-            ],
-            exclude: [
-                'assets/**',
-                'tests/**',
-                'coverage/**',
-                'dist/**',
-                '**/[.]**',
-                'packages/*/test?(s)/**',
-                '**/*.d.ts',
-                '**/virtual:*',
-                'cypress/**',
-                'test?(s)/**',
-                'test?(-*).?(c|m)[jt]s?(x)',
-                '**/*{.,-}{test,spec}.?(c|m)[jt]s?(x)',
-                '**/__tests__/**',
-                '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-                '**/vitest.{workspace,projects}.[jt]s?(on)',
-                '**/.{eslint,mocha,prettier}rc.{?(c|m)js,yml}',
-            ]
-        }
+            include: ['src/**'],
+            exclude: ['assets/**', 'tests/**', ...coverageConfigDefaults.exclude],
+            excludeAfterRemap: true,
+            reporter: ['text', 'json', 'html', 'lcov'],
+        },
+        testTimeout: 60000,
     },
-})
+});

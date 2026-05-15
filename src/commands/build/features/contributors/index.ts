@@ -1,59 +1,87 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
 import type {VcsServiceConfig} from '~/core/vcs';
+import type {VFile} from '~/core/utils';
 
 import {uniq} from 'lodash';
 
+import {defined, toggleable} from '~/core/config';
 import {getHooks as getBaseHooks} from '~/core/program';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {getHooks as getMarkdownHooks} from '~/core/markdown';
-import {defined} from '~/core/config';
+import {get} from '~/core/utils';
 
 import {options} from './config';
 
 export type ContributorsArgs = {
-    mtimes?: boolean;
-    authors?: boolean;
-    contributors?: boolean;
-    ignoreAuthorPatterns?: string[];
+    vcsPath?: {enabled: boolean};
+    mtimes?: {enabled: boolean};
+    authors?: {enabled: boolean; ignore: string[]};
+    contributors?: {enabled: boolean; ignore: string[]};
+    ignoreAuthor?: string[];
 };
 
-export type ContributorsConfig = VcsServiceConfig & {
-    ignoreAuthorPatterns: string[];
-};
+export type ContributorsConfig = VcsServiceConfig;
 
 export class Contributors {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('Contributors', (command: Command) => {
+            command.addOption(options.vcsPath);
+            command.addOption(options.mtimes);
+            command.addOption(options.authors);
             command.addOption(options.contributors);
-            command.addOption(options.ignoreAuthorPatterns);
+            command.addOption(options.ignoreAuthor);
         });
 
         getBaseHooks(program).Config.tap('Contributors', (config, args) => {
-            config.vcs = defined('vcs', config) || {enabled: false};
-            config.mtimes = defined('mtimes', args, config) || false;
-            config.authors = defined('authors', args, config) || false;
-            config.contributors = defined('contributors', args, config) || false;
-            config.ignoreAuthorPatterns = defined('ignoreAuthorPatterns', args, config) || [];
+            config.vcsPath = toggleable('vcsPath', args, config);
+            config.mtimes = toggleable('mtimes', args, config);
+            config.authors = toggleable('authors', args, config);
+            config.contributors = toggleable('contributors', args, config);
+
+            if (defined('ignoreAuthor', args)) {
+                config.authors.ignore = args.ignoreAuthor as string[];
+                config.contributors.ignore = args.ignoreAuthor as string[];
+            }
+
+            if (config.authors.ignore && !Array.isArray(config.authors.ignore)) {
+                config.authors.ignore = [].concat(config.authors.ignore);
+            }
+
+            if (config.contributors.ignore && !Array.isArray(config.contributors.ignore)) {
+                config.contributors.ignore = [].concat(config.contributors.ignore);
+            }
 
             return config;
         });
 
         getBaseHooks<Run>(program).BeforeAnyRun.tap('Contributors', (run) => {
-            getLeadingHooks(run.leading).Resolved.tapPromise(
-                'Contributors',
-                async (_content, _meta, path) => {
-                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path)));
+            const addMetadata = async <T extends string | object, P extends {path: NormalizedPath}>(
+                vfile: VFile<T>,
+                rawDeps: P[],
+            ) => {
+                const deps = uniq(rawDeps.map(get('path')));
+                const meta = await run.vcs.metadata(vfile.path, deps);
+
+                run.meta.add(vfile.path, meta);
+                run.meta.addResources(vfile.path, meta);
+            };
+
+            getLeadingHooks(run.leading).Dump.tapPromise(
+                {name: 'Contributors', stage: -1},
+                async (vfile) => {
+                    const rawDeps = await run.leading.deps(vfile.path);
+
+                    await addMetadata(vfile, rawDeps);
                 },
             );
 
-            getMarkdownHooks(run.markdown).Resolved.tapPromise(
-                'Contributors',
-                async (_content, path, from) => {
-                    const rawDeps = await run.markdown.deps(path, from);
-                    const deps = uniq(rawDeps.map(({path}) => path));
+            getMarkdownHooks(run.markdown).Dump.tapPromise(
+                {name: 'Contributors', stage: -1},
+                async (vfile) => {
+                    const rawDeps = await run.markdown.deps(vfile.path);
 
-                    run.meta.add(path, await run.vcs.metadata(path, run.meta.get(path), deps));
+                    await addMetadata(vfile, rawDeps);
                 },
             );
         });

@@ -1,0 +1,16 @@
+.pdf-title-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: grey;
+    padding: 20px;
+    height: 100vh;
+    background-image: url(../__images/mountain.jpg);
+    background-size: cover;
+}
+
+img {
+    width: 100px;
+    height: 100px;
+}

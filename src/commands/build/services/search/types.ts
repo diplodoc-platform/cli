@@ -8,4 +8,6 @@ export interface SearchProvider<TPath extends RelativePath = NormalizedPath> {
     release(): Promise<void>;
 
     config(lang: string): SearchAppConfig | undefined;
+
+    resourcesLink?(lang: string): string;
 }

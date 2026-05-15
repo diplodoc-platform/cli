@@ -2,26 +2,28 @@ import type {Run as BaseRun} from '~/core/run';
 import type {VarsService} from '~/core/vars';
 import type {Meta, MetaService} from '~/core/meta';
 import type {VcsService} from '~/core/vcs';
-
-import type {LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {AssetInfo, GraphInfo, LeadingPage, Plugin, RawLeadingPage} from './types';
+import type {Langs} from '~/commands/build/types';
 import type {LoaderContext} from './loader';
 
-import {join} from 'node:path';
-import {load} from 'js-yaml';
+import {dirname, join} from 'node:path';
+import {dump, load} from 'js-yaml';
 
 import {
     Buckets,
     Defer,
+    Graph,
+    VFile,
+    all,
     bounded,
     fullPath,
     langFromPath,
-    memoize,
     normalizePath,
+    walkLinks,
 } from '~/core/utils';
 
+import {LoaderAPI, loader} from './loader';
 import {getHooks, withHooks} from './hooks';
-import {loader} from './loader';
-import {walkLinks} from './utils';
 
 type Run = BaseRun<LeadingServiceConfig> & {
     vars: VarsService;
@@ -31,9 +33,10 @@ type Run = BaseRun<LeadingServiceConfig> & {
 
 export type LeadingServiceConfig = {
     lang: string;
-    langs: string[];
+    langs: Langs;
     template: {
         enabled: boolean;
+        keepNotVar: boolean;
         features: {
             conditions: boolean;
             substitutions: boolean;
@@ -59,9 +62,9 @@ export class LeadingService {
 
     private pathToMeta = new Buckets<Meta>();
 
-    private pathToDeps = new Buckets<never[]>();
+    private pathToDeps = new Buckets<{path: NormalizedPath}[]>();
 
-    private pathToAssets = new Buckets<Set<NormalizedPath>>();
+    private pathToAssets = new Buckets<AssetInfo[]>();
 
     constructor(run: Run) {
         this.run = run;
@@ -84,11 +87,12 @@ export class LeadingService {
         this.cache[file] = defer.promise;
 
         try {
-            const raw = await this.run.read(join(this.run.input, file));
+            const source = normalizePath(join(this.run.input, file)) as AbsolutePath;
+            const raw = await this.run.read(source);
             const vars = this.run.vars.for(path);
             const yaml = load(raw || '{}') as RawLeadingPage;
 
-            const context = this.loaderContext(file, raw, vars);
+            const context = this.loaderContext(file, raw, vars, this.proxy(file));
             const leading = await loader.call(context, yaml);
 
             const meta = this.pathToMeta.get(file);
@@ -96,9 +100,9 @@ export class LeadingService {
             await getHooks(this).Loaded.promise(leading, meta, file);
 
             this.run.meta.addMetadata(path, vars.__metadata);
-            // TODO: Move to SystemVars feature
+            //  TODO: Move to SystemVars feature
             this.run.meta.addSystemVars(path, vars.__system);
-            this.run.meta.add(file, meta);
+            this.run.meta.add(file, meta, true);
             // leading.meta is filled by plugins, so we can safely add it to resources
             this.run.meta.addResources(file, leading.meta);
 
@@ -113,12 +117,12 @@ export class LeadingService {
         return defer.promise;
     }
 
-    @bounded async dump(path: RelativePath, leading: LeadingPage): Promise<LeadingPage> {
-        const file = normalizePath(path);
+    @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
+        const vfile = new VFile(path, leading || (await this.load(path)), dump);
 
-        leading.meta = await this.run.meta.dump(file);
+        await getHooks(this).Dump.promise(vfile);
 
-        return getHooks(this).Dump.promise(leading, file);
+        return vfile;
     }
 
     @bounded walkLinks(leading: LeadingPage | undefined, walker: (link: string) => string | void) {
@@ -129,21 +133,66 @@ export class LeadingService {
         return walkLinks(leading, walker);
     }
 
-    @memoize('path')
     async deps(path: RelativePath) {
         const file = normalizePath(path);
 
         return this.pathToDeps.get(file);
     }
 
-    @memoize('path')
     async assets(path: RelativePath) {
         const file = normalizePath(path);
 
         return [...this.pathToAssets.get(file)];
     }
 
-    private loaderContext(path: NormalizedPath, _raw: string, vars: Hash): LoaderContext {
+    async relations(path: RelativePath): Promise<Graph<GraphInfo>> {
+        const file = normalizePath(path);
+        const graph = new Graph<GraphInfo>();
+
+        graph.addNode(file, {type: 'entry'});
+
+        await this.load(path);
+        await all(
+            (this.pathToDeps.get(file) || []).map(async (dep) => {
+                graph.consume(await this.relations(dep.path));
+                graph.setNodeData(dep.path, {type: 'source'});
+                graph.addDependency(path, dep.path);
+            }),
+        );
+
+        const meta = this.run.meta.get(path);
+        const resources = ([] as string[]).concat(meta.script || [], meta.style || []);
+        for (const resource of resources) {
+            const file = normalizePath(join(dirname(path), resource));
+            graph.addNode(file);
+            graph.setNodeData(file, {type: 'resource'});
+            graph.addDependency(path, file);
+        }
+
+        return graph;
+    }
+
+    release(path: NormalizedPath) {
+        delete this.cache[path];
+        this.pathToDeps.delete(path);
+        this.pathToMeta.delete(path);
+        this.pathToAssets.delete(path);
+    }
+
+    private proxy(key: string) {
+        return {
+            deps: this.pathToDeps.bind(key),
+            assets: this.pathToAssets.bind(key),
+            meta: this.pathToMeta.bind(key),
+        };
+    }
+
+    private loaderContext(
+        path: NormalizedPath,
+        _raw: string,
+        vars: Hash,
+        api: Partial<LoaderAPI>,
+    ): LoaderContext {
         return {
             path,
             vars,
@@ -157,17 +206,14 @@ export class LeadingService {
             },
             plugins: [...this.plugins],
             logger: this.logger,
-            leading: {
-                setDependencies: this.pathToDeps.set,
-                setAssets: this.pathToAssets.set,
-                setMeta: this.pathToMeta.set,
-            },
+            api: new LoaderAPI(api),
             options: {
                 disableLiquid: !this.run.config.template.enabled,
+                skipMissingVars: false,
             },
             settings: {
-                substitutions: this.config.template.features.conditions,
-                conditions: this.config.template.features.substitutions,
+                substitutions: this.config.template.features.substitutions,
+                conditions: this.config.template.features.conditions,
             },
         };
     }

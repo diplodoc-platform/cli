@@ -2,6 +2,7 @@ import type {BaseArgs} from '~/core/program';
 
 import {Command} from '~/core/config';
 import {YFM_CONFIG_FILENAME} from '~/constants';
+
 import {NAME, options} from './config';
 
 /**
@@ -12,8 +13,12 @@ export const parse = (argv: string[], name = NAME): BaseArgs => {
         .addOption(options.input('./'))
         .addOption(options.strict)
         .addOption(options.quiet)
+        .addOption(options.jobs)
+        .addOption(options.workerMaxOldSpace)
         .addOption(options.config(YFM_CONFIG_FILENAME))
         .addOption(options.extensions)
+        .addOption(options.copyOnWrite)
+        .addOption(options.originAsInput)
         .helpOption(false)
         .allowUnknownOption(true);
 

@@ -1,7 +1,8 @@
 import {describe, expect, it} from 'vitest';
-import {run, runBuild, setupBuild, testConfig as test} from '../../__tests__';
 import {resolve} from 'node:path';
 import {dedent} from 'ts-dedent';
+
+import {run, runBuild, setupBuild, testConfig as test} from '../../__tests__';
 
 describe('Build template feature', () => {
     describe('config', () => {
@@ -230,7 +231,7 @@ describe('Build template feature', () => {
             await runBuild(args('-f', 'html', '--no-template'), build);
 
             expect(run(build).write).not.toHaveBeenCalledWith(
-                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                resolve('/dev/null/output/presets.yaml'),
                 `default:\n  field: value\n`,
             );
         });
@@ -251,8 +252,9 @@ describe('Build template feature', () => {
             await runBuild(args('-f', 'md', '--no-template'), build);
 
             expect(run(build).write).toHaveBeenCalledWith(
-                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                resolve('/dev/null/output/presets.yaml'),
                 `default:\n  field: value\n`,
+                true,
             );
         });
 
@@ -276,8 +278,9 @@ describe('Build template feature', () => {
             await runBuild(args('-f', 'md', '--no-template', '--vars-preset', 'internal'), build);
 
             expect(run(build).write).toHaveBeenCalledWith(
-                resolve('/dev/null/output/.tmp_output/presets.yaml'),
+                resolve('/dev/null/output/presets.yaml'),
                 `default:\n  field: value\ninternal:\n  field: value\n`,
+                true,
             );
         });
     });
