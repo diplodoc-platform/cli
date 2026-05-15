@@ -30,7 +30,6 @@ export class ArcClient {
     async getContributors() {
         const base = await this.getBase();
         const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
-        const handled = new Set<string>();
 
         const result: Record<string, AuthorInfo[]> = {};
 
@@ -39,8 +38,7 @@ export class ArcClient {
             const ignore = this.config.contributors?.ignore || [];
 
             for (const commit of commits) {
-                const skip = shouldBeIgnored(ignore, commit) || handled.has(commit.sha);
-                handled.add(commit.sha);
+                const skip = shouldBeIgnored(ignore, commit);
 
                 followPaths(
                     commit.paths,
