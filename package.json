@@ -149,7 +149,7 @@
     "vitest": "^3.2.1",
     "vitest-when": "^0.6.1",
     "walk-sync": "3.0.0",
-    "@diplodoc/infra": "1.0.0"
+    "@diplodoc/infra": "2.0.1"
   },
   "engines": {
     "node": ">=22.*",
