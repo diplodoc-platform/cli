@@ -64,6 +64,14 @@ export class Legacy {
 
             if (valuable(applyPresets)) {
                 config.template.features.substitutions = applyPresets;
+                // Backwards-compat: the legacy `--no-apply-presets` flag (used
+                // when copying docs from a private repo to a public one) must
+                // also disable {% for %} cycles. Otherwise loops would expand
+                // without value substitution, leaving literal `{{ var }}` text
+                // in the output and breaking YFM tables. See DOCSSUP-3862.
+                if (!applyPresets) {
+                    config.template.features.cycles = false;
+                }
             }
 
             if (valuable(resolveConditions)) {

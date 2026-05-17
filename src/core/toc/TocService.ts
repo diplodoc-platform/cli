@@ -43,6 +43,7 @@ export type TocServiceConfig = {
         features: {
             conditions: boolean | string;
             substitutions: boolean;
+            cycles?: boolean;
         };
         scopes: {
             code: boolean;
@@ -540,6 +541,7 @@ export class TocService {
                         ? (this.config.template.features.conditions as 'strict')
                         : Boolean(this.config.template.features.conditions),
                 substitutions: this.config.template.features.substitutions,
+                cycles: this.config.template.features.cycles ?? true,
             },
             options: {
                 removeHiddenItems: this.config.removeHiddenTocItems,

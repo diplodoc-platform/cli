@@ -32,6 +32,7 @@ type MarkdownServiceConfig = {
         features: {
             substitutions: boolean;
             conditions?: boolean | 'strict';
+            cycles?: boolean;
         };
         scopes: {
             code: boolean;
@@ -456,6 +457,7 @@ export class MarkdownService {
                     typeof this.config.template.features.conditions === 'string'
                         ? (this.config.template.features.conditions as 'strict')
                         : Boolean(this.config.template.features.conditions),
+                cycles: this.config.template.features.cycles ?? true,
                 conditionsInCode: this.config.template.scopes.code,
                 keepNotVar: this.config.template.keepNotVar,
                 legacyConditions: this.config.template.legacyConditions,
