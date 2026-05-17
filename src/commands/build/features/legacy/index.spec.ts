@@ -65,6 +65,10 @@ describe('Build legacy feature', () => {
                 template: {
                     features: {
                         substitutions: false,
+                        // Cycles must follow substitutions: a {% for %} loop
+                        // without {{ var }} substitution would produce broken
+                        // output with literal `{{ ... }}` placeholders.
+                        cycles: false,
                     },
                 },
             });
@@ -72,7 +76,12 @@ describe('Build legacy feature', () => {
             test('should handle new arg', '--no-template-vars', {
                 template: {
                     features: {
+                        // The new `--no-template-vars` flag is independent and
+                        // disables substitutions only. To suppress {% for %}
+                        // cycles use the dedicated `--no-template-cycles` flag
+                        // (or the legacy `--no-apply-presets`, see below).
                         substitutions: false,
+                        cycles: true,
                     },
                 },
             });
@@ -80,7 +89,11 @@ describe('Build legacy feature', () => {
             test('should handle old arg with priority', '--no-apply-presets --template-vars', {
                 template: {
                     features: {
+                        // Legacy `--no-apply-presets` wins over the new flag
+                        // and also disables cycles for backwards compatibility
+                        // with private→public repo copying workflow.
                         substitutions: false,
+                        cycles: false,
                     },
                 },
             });
@@ -95,6 +108,7 @@ describe('Build legacy feature', () => {
                     template: {
                         features: {
                             substitutions: false,
+                            cycles: false,
                         },
                     },
                 },

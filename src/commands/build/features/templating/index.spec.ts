@@ -57,9 +57,37 @@ describe('Build template feature', () => {
                     features: {
                         conditions: false,
                         substitutions: false,
+                        // When templating is disabled we must also disable
+                        // cycles, otherwise {% for %} loops are still expanded
+                        // and produce broken output with literal `{{ var }}`.
+                        cycles: false,
                     },
                 },
             });
+
+            test(
+                'should keep cycles independent of substitutions in config',
+                '',
+                {
+                    template: {
+                        features: {
+                            substitutions: false,
+                        },
+                    },
+                },
+                {
+                    template: {
+                        features: {
+                            // Cycles are an independent feature: disabling
+                            // substitutions via config alone does NOT disable
+                            // cycles. Use `--no-template-cycles` or the legacy
+                            // `--no-apply-presets` to disable cycles.
+                            substitutions: false,
+                            cycles: true,
+                        },
+                    },
+                },
+            );
 
             test(
                 'should handle config',
@@ -204,6 +232,62 @@ describe('Build template feature', () => {
                     template: {
                         features: {
                             conditions: false,
+                        },
+                    },
+                },
+            );
+        });
+
+        describe('templateCycles', () => {
+            test('should handle default', '', {
+                template: {
+                    features: {
+                        cycles: true,
+                    },
+                },
+            });
+
+            test(
+                'should handle arg with priority',
+                '--template-cycles',
+                {
+                    template: {
+                        features: {
+                            cycles: false,
+                        },
+                    },
+                },
+                {
+                    template: {
+                        features: {
+                            cycles: true,
+                        },
+                    },
+                },
+            );
+
+            test('should handle negated arg', '--no-template-cycles', {
+                template: {
+                    features: {
+                        cycles: false,
+                    },
+                },
+            });
+
+            test(
+                'should handle config',
+                '',
+                {
+                    template: {
+                        features: {
+                            cycles: false,
+                        },
+                    },
+                },
+                {
+                    template: {
+                        features: {
+                            cycles: false,
                         },
                     },
                 },

@@ -48,9 +48,25 @@ const templateConditions = option({
     defaultInfo: true,
 });
 
+const templateCycles = option({
+    flags: '--template-cycles',
+    desc: `
+        Toggle processing of {% for %} cycles in Toc and Md files. (Enabled by default)
+
+        Disable this when copying sources from a private repo to a public one
+        (e.g. with ${bold('--no-apply-presets')}) so that {% for %} blocks are
+        preserved verbatim instead of being expanded without value substitution.
+
+        Example:
+          ${green('{% for item in items %}')} ${green('{{ item.name }}')} ${green('{% endfor %}')}
+    `,
+    defaultInfo: true,
+});
+
 export const options = {
     template,
     noTemplate,
     templateVars,
     templateConditions,
+    templateCycles,
 };

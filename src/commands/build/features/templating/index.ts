@@ -18,6 +18,7 @@ export type TemplatingArgs = {
     template?: boolean | 'all' | 'text' | 'code';
     templateVars?: boolean;
     templateConditions?: boolean;
+    templateCycles?: boolean;
 };
 
 export type TemplatingConfig = {
@@ -48,13 +49,15 @@ export class Templating {
                 .addOption(options.template)
                 .addOption(options.noTemplate)
                 .addOption(options.templateVars)
-                .addOption(options.templateConditions);
+                .addOption(options.templateConditions)
+                .addOption(options.templateCycles);
         });
 
         getBaseHooks(program).Config.tap('Templating', (config, args) => {
             const template = defined('template', args);
             const templateVars = defined('templateVars', args);
             const templateConditions = defined('templateConditions', args);
+            const templateCycles = defined('templateCycles', args);
 
             config.template = merge(
                 {
@@ -89,9 +92,14 @@ export class Templating {
                 config.template.features.conditions = templateConditions;
             }
 
+            if (valuable(templateCycles)) {
+                config.template.features.cycles = templateCycles;
+            }
+
             if (!config.template.enabled) {
                 config.template.features.substitutions = false;
                 config.template.features.conditions = false;
+                config.template.features.cycles = false;
             }
 
             return config;
