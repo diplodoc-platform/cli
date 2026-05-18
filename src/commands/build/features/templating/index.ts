@@ -166,7 +166,8 @@ export class Templating {
 
                 // Filter out hidden files and directories
                 const visibleEntries = entries.filter(
-                    (entry: any) => !entry.name.startsWith('.') && entry.name !== 'presets.yaml',
+                    (entry: {name: string}) =>
+                        !entry.name.startsWith('.') && entry.name !== 'presets.yaml',
                 );
 
                 // If directory contains only presets.yaml (no other visible files/directories)

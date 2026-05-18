@@ -104,7 +104,13 @@ function sortBundleTokens(text: string): string {
         const sorted = [...slice].sort((a, b) => {
             const ka = a.match(bundleRe)?.[0] ?? '';
             const kb = b.match(bundleRe)?.[0] ?? '';
-            return ka < kb ? -1 : ka > kb ? 1 : 0;
+            if (ka < kb) {
+                return -1;
+            }
+            if (ka > kb) {
+                return 1;
+            }
+            return 0;
         });
         for (let j = 0; j < sorted.length; j++) {
             lines[start + j] = sorted[j];

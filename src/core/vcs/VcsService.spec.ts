@@ -9,6 +9,7 @@ import {VcsService} from './VcsService';
 import {DefaultVcsConnector} from './connector';
 
 // Mock types for testing
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type MockRun = BaseRun<any> & {
     toc: TocService;
     meta: MetaService;
