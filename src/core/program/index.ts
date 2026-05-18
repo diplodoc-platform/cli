@@ -232,7 +232,7 @@ export class BaseProgram<
             }
 
             const message = errorMessage(error);
-            if (message) {
+            if (message && !(error as {logged?: boolean} | undefined)?.logged) {
                 // eslint-disable-next-line no-console
                 console.error(message);
             }

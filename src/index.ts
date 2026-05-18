@@ -30,8 +30,11 @@ export const run = async (argv: string[]) => {
             program.report.code = program.report.code || 1;
         }
     } catch (error: unknown) {
-        // eslint-disable-next-line no-console
-        console.error(error);
+        if (!(error as {logged?: boolean} | undefined)?.logged) {
+            // eslint-disable-next-line no-console
+            console.error(error);
+        }
+
         program.report.code = 1;
     } finally {
         await threads.terminate(true).catch(noop);
