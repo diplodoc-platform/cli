@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.39.1](https://github.com/diplodoc-platform/cli/compare/v5.39.0...v5.39.1) (2026-05-18)
+
+
+### Bug Fixes
+
+* Add validate toc structure DOCSTOOLS-5856 yandex-cloud/docs[#1088](https://github.com/diplodoc-platform/cli/issues/1088) ([036826a](https://github.com/diplodoc-platform/cli/commit/036826a1772f46b63c67beb2229797775654272c))
+* **deps:** Update @diplodoc/client@5.6.1 ([bdb7299](https://github.com/diplodoc-platform/cli/commit/bdb72997d711069e9ceab2eb65748cf376a702bc))
+* **deps:** Update @diplodoc/client@5.7.0 ([#1941](https://github.com/diplodoc-platform/cli/issues/1941)) ([3f078bf](https://github.com/diplodoc-platform/cli/commit/3f078bf6c81c866c8b5af61a6a25ac621eec75e5))
+* fixed getAuthors ([#1930](https://github.com/diplodoc-platform/cli/issues/1930)) ([3150074](https://github.com/diplodoc-platform/cli/commit/31500747a19808b81fd3f2fcd0cc348978bbc6e7))
+* **tests:** fix flap tests for vcsPath ([8be58d7](https://github.com/diplodoc-platform/cli/commit/8be58d741cb26fe51d99bf1d58d320e3edcab915))
+
 ## [5.39.0](https://github.com/diplodoc-platform/cli/compare/v5.38.1...v5.39.0) (2026-05-13)
 
 
