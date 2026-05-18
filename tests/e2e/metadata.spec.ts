@@ -52,7 +52,10 @@ describe('Allow load custom resources', () => {
             (n) => n.includes('support') && n.endsWith('.md'),
         );
         expect(mdIncludePath).toBeTruthy();
-        const mdContent = readFileSync(mdIncludePath!, 'utf8');
+        if (!mdIncludePath) {
+            throw new Error('mdIncludePath is null');
+        }
+        const mdContent = readFileSync(mdIncludePath, 'utf8');
         expect(mdContent).toMatch(/^---/);
         expect(mdContent).toMatch(/csp:/);
 
@@ -64,7 +67,10 @@ describe('Allow load custom resources', () => {
 
         const htmlPath = findFile(outputPath + '-html', (n) => n === 'page.html');
         expect(htmlPath).toBeTruthy();
-        const html = readFileSync(htmlPath!, 'utf8');
+        if (!htmlPath) {
+            throw new Error('htmlPath is null');
+        }
+        const html = readFileSync(htmlPath, 'utf8');
 
         expect(html).not.toMatch(/style-src:\s*unsafe-inline/);
         expect(html).not.toMatch(/connect-src:\s*uaas\.yandex\.ru/);
