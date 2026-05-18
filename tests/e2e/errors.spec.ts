@@ -49,6 +49,28 @@ describe('Errors', () => {
     });
 
     test(
+        'mocks/errors/invalid-toc-root-array',
+        ({md, html}: TestResult) => {
+            expectErrors(md, [
+                'ERR Invalid TOC format in ru/toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+            ]);
+            expectErrors(html, [
+                'ERR Invalid TOC format in ru/toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+            ]);
+        },
+        ['-j1'],
+    );
+
+    test('mocks/errors/invalid-toc-root-array', ({md, html}: TestResult) => {
+        expectErrors(md, [
+            'ERR Invalid TOC format in ru/toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+        ]);
+        expectErrors(html, [
+            'ERR Invalid TOC format in ru/toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+        ]);
+    });
+
+    test(
         'mocks/errors/max-asset-size',
         ({md, html}: TestResult) => {
             expectErrors(md, [

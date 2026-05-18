@@ -241,6 +241,13 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
             await this.run.toc.walkEntries(
                 toc?.items as EntryTocItem[],
                 async (item: EntryTocItem) => {
+                    if (typeof item.href !== 'string' || !item.href) {
+                        const itemName = typeof item.name === 'string' ? item.name : '<unnamed>';
+                        throw new Error(
+                            `Invalid TOC entry href in ${toc.path}: expected non-empty string, got ${String(item.href)} for item ${itemName}`,
+                        );
+                    }
+
                     if (!item.name || item.name === '{#T}') {
                         const entry = normalizePath(join(dirname(toc.path), item.href));
                         const titles = await this.run.markdown.titles(entry);

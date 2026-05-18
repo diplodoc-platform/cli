@@ -1136,6 +1136,64 @@ describe('toc-loader', () => {
         });
     });
 
+    describe('toc format validation', () => {
+        it('should log and throw for root array toc format', async () => {
+            const content = dedent`
+                - name: Broken root array
+                  href: page.md
+            `;
+            const {run, toc} = setupService({});
+            const loggerError = vi.spyOn(run.logger, 'error');
+
+            mockData(run, content, {}, {}, []);
+
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toMatchObject({
+                message:
+                    'Invalid TOC format in toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+                logged: true,
+            });
+            expect(loggerError).toHaveBeenCalledWith(
+                'Invalid TOC format in toc.yaml: root value must be an object, got array. Wrap items into an object with the items field.',
+            );
+        });
+
+        it('should log and throw for non-object toc format', async () => {
+            const content = 'true';
+            const {run, toc} = setupService({});
+            const loggerError = vi.spyOn(run.logger, 'error');
+
+            mockData(run, content, {}, {}, []);
+
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toMatchObject({
+                message:
+                    'Invalid TOC format in toc.yaml: root value must be an object, got boolean.',
+                logged: true,
+            });
+            expect(loggerError).toHaveBeenCalledWith(
+                'Invalid TOC format in toc.yaml: root value must be an object, got boolean.',
+            );
+        });
+
+        it('should log and throw for invalid toc entry href', async () => {
+            const {run, toc} = setupService({});
+            const loggerError = vi.spyOn(run.logger, 'error');
+            const content = {
+                path: 'toc.yaml' as NormalizedPath,
+                href: false,
+            };
+            await expect(
+                toc.pushAdditionalEntries('toc.yaml' as NormalizedPath, content as never),
+            ).rejects.toMatchObject({
+                message:
+                    'Invalid TOC entry href in toc.yaml: expected non-empty string, got false for item <unnamed>',
+                logged: true,
+            });
+            expect(loggerError).toHaveBeenCalledWith(
+                'Invalid TOC entry href in toc.yaml: expected non-empty string, got false for item <unnamed>',
+            );
+        });
+    });
+
     describe('skipped tocs handling', () => {
         it('should not include skipped tocs in tocs getter', async () => {
             const {run, toc} = setupService({ignoreStage: ['skip']});

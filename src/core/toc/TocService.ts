@@ -307,6 +307,18 @@ export class TocService {
         const context: LoaderContext = this.loaderContext(file);
         const content = await read(this.run, file);
 
+        if (Array.isArray(content)) {
+            throw this.logError(
+                `Invalid TOC format in ${file}: root value must be an object, got array. Wrap items into an object with the items field.`,
+            );
+        }
+
+        if (!content || typeof content !== 'object') {
+            throw this.logError(
+                `Invalid TOC format in ${file}: root value must be an object, got ${typeof content}.`,
+            );
+        }
+
         content.path = file;
 
         if (this.shouldSkip(content)) {
@@ -465,6 +477,13 @@ export class TocService {
 
     private async addEntries(path: NormalizedPath, toc: Toc) {
         await this.walkEntries([toc as unknown as EntryTocItem], (item) => {
+            if (typeof item.href !== 'string' || !item.href) {
+                const itemName = typeof item.name === 'string' ? item.name : '<unnamed>';
+                throw this.logError(
+                    `Invalid TOC entry href in ${toc.path}: expected non-empty string, got ${String(item.href)} for item ${itemName}`,
+                );
+            }
+
             const entryPath = normalizePath(join(dirname(path), item.href));
             this.relations.addNode(entryPath, {type: 'entry', data: undefined});
             this.relations.addDependency(toc.path, entryPath);
@@ -529,6 +548,15 @@ export class TocService {
                 mode: this.options.mode,
             },
         };
+    }
+
+    private logError(message: string) {
+        const error = new Error(message) as Error & {logged?: boolean};
+
+        this.logger.error(error.message);
+        error.logged = true;
+
+        return error;
     }
 }
 
