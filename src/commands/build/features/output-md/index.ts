@@ -236,7 +236,11 @@ export class OutputMd {
                                     lineWidth,
                                 );
 
-                                await run.write(join(run.output, link), contentWithMeta, true);
+                                await run.write(
+                                    join(run.output, link),
+                                    contentWithMeta,
+                                    link !== graph.path,
+                                );
                             } catch (error) {
                                 run.logger.warn(`Unable to copy dependency ${graph.path}.`, error);
                             }
