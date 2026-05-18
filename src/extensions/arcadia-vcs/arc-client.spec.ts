@@ -535,4 +535,140 @@ describe('ArcClient', () => {
         expect(hasBaseScope).toBe(true);
         expect(hasDocsScope).toBe(true);
     });
+
+    it('should include author for files in different scopes from same commit', async () => {
+        const scope1Log = dedent`
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Commit in scope 1
+
+            A   scope1/file.md
+        `;
+
+        const scope2Log = dedent`
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Commit in scope 2
+
+            A   scope2/file.md
+        `;
+
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '--name-status', '.'], expect.anything()).thenResolve({
+            stdout: scope1Log,
+        } as Result);
+        arc(['log', '--name-status', 'docs'], expect.anything()).thenResolve({
+            stdout: scope2Log,
+        } as Result);
+
+        const client = new ArcClient({vcs: {scopes: ['docs']}}, baseDir);
+        const authors = await client.getAuthors();
+
+        expect(authors['scope1/file.md']).toEqual({
+            login: 'author1',
+            commit: 'commit1',
+        });
+        expect(authors['scope2/file.md']).toEqual({
+            login: 'author1',
+            commit: 'commit1',
+        });
+    });
+
+    it('should include contributors for files in different scopes from same commit', async () => {
+        const scope1Log = dedent`
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Commit in scope 1
+
+            M   scope1/file.md
+        `;
+
+        const scope2Log = dedent`
+            commit commit2
+            author: author2
+            date: 2025-01-02T00:00:00Z
+            revision: 2
+
+                Commit in scope 2
+
+            M   scope2/file.md
+
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Same commit in scope 2
+
+            M   scope2/file.md
+        `;
+
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '--name-status', '.'], expect.anything()).thenResolve({
+            stdout: scope1Log,
+        } as Result);
+        arc(['log', '--name-status', 'docs'], expect.anything()).thenResolve({
+            stdout: scope2Log,
+        } as Result);
+
+        const client = new ArcClient({vcs: {scopes: ['docs']}}, baseDir);
+        const contributors = await client.getContributors();
+
+        expect(contributors['scope1/file.md']).toEqual([
+            {
+                login: 'author1',
+                commit: 'commit1',
+            },
+        ]);
+        expect(contributors['scope2/file.md']).toEqual([
+            {
+                login: 'author1',
+                commit: 'commit1',
+            },
+            {
+                login: 'author2',
+                commit: 'commit2',
+            },
+        ]);
+    });
+
+    it('should not duplicate contributors if same commit in multiple scopes', async () => {
+        const sharedLog = dedent`
+            commit commit1
+            author: author1
+            date: 2025-01-01T00:00:00Z
+            revision: 1
+
+                Commit touching shared file
+
+            M   shared/file.md
+        `;
+
+        arc(['root'], expect.anything()).thenResolve({stdout: baseDir} as Result);
+        arc(['log', '--name-status', '.'], expect.anything()).thenResolve({
+            stdout: sharedLog,
+        } as Result);
+        arc(['log', '--name-status', 'docs'], expect.anything()).thenResolve({
+            stdout: sharedLog,
+        } as Result);
+
+        const client = new ArcClient({vcs: {scopes: ['docs']}}, baseDir);
+        const contributors = await client.getContributors();
+
+        expect(contributors['shared/file.md']).toEqual([
+            {
+                login: 'author1',
+                commit: 'commit1',
+            },
+        ]);
+    });
 });

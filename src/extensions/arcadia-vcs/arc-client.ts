@@ -30,7 +30,6 @@ export class ArcClient {
     async getContributors() {
         const base = await this.getBase();
         const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
-        const handled = new Set<string>();
 
         const result: Record<string, AuthorInfo[]> = {};
 
@@ -39,16 +38,16 @@ export class ArcClient {
             const ignore = this.config.contributors?.ignore || [];
 
             for (const commit of commits) {
-                const skip = shouldBeIgnored(ignore, commit) || handled.has(commit.sha);
-                handled.add(commit.sha);
+                const skip = shouldBeIgnored(ignore, commit);
 
                 followPaths(
                     commit.paths,
                     result,
                     (prev) => {
-                        return skip
-                            ? prev
-                            : (prev || []).concat({login: commit.login, commit: commit.sha});
+                        if (skip) return prev;
+                        const existing = prev || [];
+                        if (existing.some((e) => e.login === commit.login)) return existing;
+                        return existing.concat({login: commit.login, commit: commit.sha});
                     },
                     {
                         include: new Set(['A', 'D', 'M', 'R']),
@@ -63,7 +62,6 @@ export class ArcClient {
     async getAuthors(): Promise<Record<string, {login: string; commit: string}>> {
         const base = await this.getBase();
         const scopes = [base, ...(this.config.vcs.scopes || [])].map(normalizePath);
-        const handled = new Set<string>();
 
         const authors: Record<string, {login: string; commit: string}> = {};
 
@@ -73,9 +71,7 @@ export class ArcClient {
             const ignore = this.config.authors?.ignore || [];
 
             for (const commit of commits) {
-                const skip =
-                    shouldBeIgnored(ignore, {login: commit.login}) || handled.has(commit.sha);
-                handled.add(commit.sha);
+                const skip = shouldBeIgnored(ignore, {login: commit.login});
 
                 followPaths(
                     commit.paths,
