@@ -339,6 +339,11 @@ export class Template {
         const base = getDepthPath(getDepth(this.path) - 1);
         const faviconType = getFaviconType(faviconSrc);
 
+        // ts-dedent re-indents every line of a multi-line interpolation,
+        // which corrupts whitespace-significant content (e.g. <pre><code> blocks) inside body
+        // insert body via a placeholder so its newlines stay untouched
+        const BODY = '\x00BODY\x00';
+
         return dedent`
             <!DOCTYPE html>
             <html lang="${lang}" dir="${this.isRTL ? 'rtl' : 'ltr'}">
@@ -357,13 +362,13 @@ export class Template {
                     ${leading(styles).map(style(this.csp)).join('\n')}
                 </head>
                 <body class="${bodyClass.join(' ')}">
-                    ${body.join('\n') || `<div id="root"></div>`}
+                    ${BODY}
                     ${state(scripts).map(script(this.csp)).join('\n')}
                     ${trailing(scripts).map(script(this.csp)).join('\n')}
                     ${trailing(styles).map(style(this.csp)).join('\n')}
                 </body>
             </html>
-        `;
+        `.replace(BODY, () => body.join('\n') || `<div id="root"></div>`);
     }
 }
 
