@@ -1,0 +1,4 @@
+auto_merge: false
+exclude:
+  - path: .github/workflows/release.yml
+    reason: 'Custom release workflow with diplodoc-specific steps'
