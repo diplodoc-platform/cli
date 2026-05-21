@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.39.2](https://github.com/diplodoc-platform/cli/compare/v5.39.1...v5.39.2) (2026-05-21)
+
+
+### Bug Fixes
+
+* add liquid cycles for md2md DOCSTOOLS-5853 ([1080d0a](https://github.com/diplodoc-platform/cli/commit/1080d0a96162a0edcb09d6def0f46137795f9c47))
+* **deps:** Update @diplodoc/client@5.7.1 ([#1942](https://github.com/diplodoc-platform/cli/issues/1942)) ([e926f69](https://github.com/diplodoc-platform/cli/commit/e926f69d953ee1e9c3d268d330d5e9de641a4517))
+
 ## [5.39.1](https://github.com/diplodoc-platform/cli/compare/v5.39.0...v5.39.1) (2026-05-18)
 
 
