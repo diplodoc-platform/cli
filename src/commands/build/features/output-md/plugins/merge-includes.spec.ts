@@ -774,6 +774,36 @@ describe('addIndent', () => {
     it('should not indent empty lines with CRLF', () => {
         expect(addIndent('Line 1\r\n\r\nLine 3', '  ')).toBe('Line 1\r\n\r\n  Line 3');
     });
+
+    // Bug 19: blank lines inside multi-line HTML comments must keep the
+    // surrounding indent so the list/cut/blockquote does not break (markdown-it
+    // ends the HTML block at the first unindented blank line inside a list).
+    it('should indent blank lines inside multi-line HTML comments (type 2)', () => {
+        const content = '<!--\nline 1\n\nline 2\n-->';
+        expect(addIndent(content, '   ')).toBe('<!--\n   line 1\n   \n   line 2\n   -->');
+    });
+
+    it('should indent blank lines inside <style> blocks (type 1)', () => {
+        const content = '<style>\n\n.foo { color: red }\n\n</style>';
+        expect(addIndent(content, '  ')).toBe('<style>\n  \n  .foo { color: red }\n  \n  </style>');
+    });
+
+    it('should NOT indent blank lines after an HTML comment closes', () => {
+        const content = '<!--\ncomment\n-->\n\nparagraph';
+        expect(addIndent(content, '  ')).toBe('<!--\n  comment\n  -->\n\n  paragraph');
+    });
+
+    it('should NOT indent blank lines around a single-line HTML comment', () => {
+        const content = '<!-- short -->\n\nLine after';
+        expect(addIndent(content, '  ')).toBe('<!-- short -->\n\n  Line after');
+    });
+
+    it('should handle multiple multi-line HTML comments with blanks', () => {
+        const content = '<!--\nA\n\nB\n-->\n\n<!--\nC\n\nD\n-->';
+        expect(addIndent(content, '  ')).toBe(
+            '<!--\n  A\n  \n  B\n  -->\n\n  <!--\n  C\n  \n  D\n  -->',
+        );
+    });
 });
 
 describe('extractSection', () => {
@@ -1390,9 +1420,11 @@ describe('prepareInlinedContent', () => {
             undefined,
             '||',
         );
-        expect(result).toBe('Template content here.');
+        // Trailing newline is intentional: it forces the `||` (or `|#`)
+        // separator to a new line so a multi-line inlined HTML block does
+        // not glue onto the table separator (Bug 23 in ADR-006).
+        expect(result).toBe('Template content here.\n');
         expect(result).not.toContain('<!-- source');
-        expect(result).not.toContain('\n');
     });
 
     it('should bare-inline notitle include inside YFM table cell', () => {
@@ -2047,6 +2079,33 @@ describe('mergeIncludes', () => {
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
         expect(result).toContain('[*term]: See [docs](_includes/local.md) for info');
+    });
+
+    // Bug 19: dep with multi-line HTML comments that contain blank lines must
+    // produce content where those blank lines are indented to match the parent
+    // include line.  Otherwise markdown-it (inside list / cut / blockquote)
+    // ends the HTML block at the first unindented blank line and the rest of
+    // the page renders broken (paragraphs leak out, JS-bound widgets fail).
+    it('should preserve list/cut continuity when dep has HTML comment with blank lines', async () => {
+        const include = '{% include [ex](_includes/examples.md) %}';
+        const parentContent = `- list item\n\n   {% cut "title" %}\n\n   ${include}\n\n   {% endcut %}\n\n- next item`;
+        const includeStart = parentContent.indexOf(include);
+        const dep = makeDep({
+            path: '_includes/examples.md' as NormalizedPath,
+            link: '_includes/examples.md',
+            match: include,
+            location: [includeStart, includeStart + include.length],
+            content: '<!--\n#|\n||\nrow1\n||\n\n||\nrow2\n||\n|# -->',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        // The blank line inside the multi-line HTML comment must be indented
+        // to keep it inside the parent list item / cut block.
+        expect(result).toContain('   ||\n   row1\n   ||\n   \n   ||\n   row2');
+        // Final {% endcut %} must still be present and correctly indented.
+        expect(result).toContain('   {% endcut %}');
+        // Trailing list item must follow.
+        expect(result.indexOf('- next item')).toBeGreaterThan(result.indexOf('   {% endcut %}'));
     });
 
     it('should keep {% include %} in term body when resolved content is empty', async () => {
