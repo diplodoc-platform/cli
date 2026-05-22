@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. 100% inline coverage. The `{% included %}` fallback is kept as a safety net. Viewer integration requires no changes. Eighteen bugs were found in real documentation sets and fixed. The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24). Viewer integration requires no changes. Twenty-four bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`). The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -1248,7 +1248,7 @@ All primary stages (0–5) are **complete** and tested:
 - E2E tests: `tests/e2e/merge-includes.spec.ts` (full md2md → md2html cycle)
 - Regression tests: `tests/mocks/regression/` (input/output snapshots)
 - Large-scale runs on real docs: alice, ydb, yt, wiki, travel, etc.
-- 18 bugs found and fixed (see Known Bugs)
+- 22 bugs found and fixed (see Known Bugs)
 
 ## Consequences
 
@@ -1275,7 +1275,23 @@ All primary stages (0–5) are **complete** and tested:
 
 Large-scale testing on real documentation (alice, ydb, yt, wiki, travel, etc.)
 surfaced 10 bugs. Further passes (webmaster, multiline terms, blockquotes, tables) found
-eight more. All fixed (Bugs 1–18 below).
+eight more. Two more were reported on internal LPC / IDM doc sets (HTML comment with blank
+lines inside an indented context; `{% include %}` shown as a code example inside a fenced
+code block). Two more (Bugs 21–22) were regressions of the Bug 20 fix surfaced on Yandex
+Metrica and Yandex Webmaster support docs: Bug 21 was a fence range that touched the
+next line and dropped the first `{% include %}` placed immediately after a closing
+` ``` ` fence; Bug 22 was an unterminated-fence branch that silently extended a malformed
+or deflist-paired opener all the way to EOF, dropping every real include below it.
+Bug 23 was an unrelated YFM-table interaction surfaced on Yandex Metrica
+`pro/price.md`: when an include in a YFM shorthand cell was followed by `||` on the
+same line and the inlined content ended with a closing HTML block tag, a single `|`
+character leaked into the rendered cell because of how the YFM-table plugin and
+`markdown-it.getLines()` interact at the cell boundary. Bug 24 was a related but
+distinct content-shape issue surfaced on Yandex Metrica `general/goal-js-event.md`:
+inlining content containing a `|` character (e.g. an inline-code regex like
+`` `button|buy` ``) into a YFM shorthand cell breaks the cell layout because the
+YFM table parser does not skip pipes inside inline code by default. All fixed
+(Bugs 1–24 below).
 
 ### Bug 1: `<style>` tag stripped when inlining inside lists
 
@@ -1600,6 +1616,400 @@ term with an empty description (valid behavior). The `[*dom]:` line is no longer
 stub, so it does not absorb subsequent content.
 
 **Files**: `merge-includes.ts` (`processTermSectionDeps`)
+
+---
+
+### Bug 19: Blank lines inside multi-line HTML comments break list/cut/blockquote when indented
+
+**Symptom**: With `--merge-includes`, when an include sits inside a list item / `{% cut %}` /
+blockquote (any non-zero indent) and the included file contains a multi-line HTML comment
+`<!-- ... -->` with **blank lines inside the comment**, everything that follows the comment
+on the page rendered broken: the cut closed prematurely, the list ended early, and JS-bound
+widgets after the comment did not initialize. Removing the blank lines from the comment made
+the issue disappear; turning `--merge-includes` off also avoided it. Real-world reproducer:
+`yateam/lpc/ru/common-info/rules.md` ⇒ `_includes/examples.md` (large `<!-- #|…|# -->` comment
+with blank rows between sections).
+
+**Cause**: After inlining, `addIndent()` applied the parent indent to every non-empty line
+but **not** to blank lines (intentional, to avoid trailing whitespace). CommonMark says HTML
+block type 2 (`<!-- … -->`) is closed only by `-->`, but markdown-it’s list-item parser
+treats an unindented blank line inside the HTML block as the boundary of the block: the
+remainder of the comment leaks out of the HTML block, gets parsed as Markdown paragraphs,
+and the surrounding list / cut / blockquote ends earlier than the author intended. Type-1
+blocks (`<style>`, `<script>`, `<pre>`, `<textarea>`) had a fallback (`hasTopLevelHtmlBlock`),
+but type 2 (and types 3–5) had no equivalent guard, so they were inlined as-is.
+
+**Resolution**: `addIndent()` now tracks open/close pairs for CommonMark HTML block types
+**1–5** and indents blank lines that fall **inside** such an open block (using whitespace
+only — no Markdown content is changed). Blank lines outside HTML blocks remain unchanged so
+existing snapshots are unaffected. Open/close pairs:
+
+| Type | Open                                            | Close                |
+| ---- | ----------------------------------------------- | -------------------- |
+| 1    | `<script>` / `<style>` / `<pre>` / `<textarea>` | matching closing tag |
+| 2    | `<!--`                                          | `-->`                |
+| 3    | `<?`                                            | `?>`                 |
+| 4    | `<!XYZ` (declaration)                           | `>`                  |
+| 5    | `<![CDATA[`                                     | `]]>`                |
+
+Single-line blocks (open + close on the same line) do not enter the “inside HTML block”
+state. After the closing pattern is seen, blank lines stop being indented again.
+
+**Files**: `merge-includes.ts` (`addIndent`, `HTML_BLOCK_OPEN_CLOSE`,
+`detectMultilineHtmlBlockOpen`).
+
+**Tests**:
+
+- `merge-includes.spec.ts` (5 unit tests for `addIndent`: type 2 indent, type 1 indent,
+  blank lines after comment closes, single-line comment, multiple multi-line comments;
+  plus 1 `mergeIncludes` integration test verifying list/cut continuity).
+- `tests/e2e/merge-includes.spec.ts` (e2e: `mocks/merge-includes/html-comment-blanks` —
+  full md2md cycle with a list + cut + include whose body has a multi-line comment with
+  blank lines inside).
+
+---
+
+### Bug 20: `{% include %}` inside fenced code blocks (in lists) was expanded as a real include
+
+**Symptom**: A `{% include … %}` directive shown as a **code example** inside a fenced code
+block (e.g. ` ```plaintext ` … ` ``` `) — typical of glossary / syntax docs —
+was treated as a real include by the loader and expanded by `--merge-includes`. The original
+code example disappeared from the output. Real-world reproducer:
+`intranet/idm/internal/concepts/documentation.md` line 25 (a fenced code block at 4-space
+indent under an ordered list item, containing `{% include notitle [glossary](...) %}`).
+
+**Cause**: `resolveDependencies` (`src/core/markdown/loader/resolve-deps.ts`) excluded only
+HTML comments and `{% included %}` ranges from the include scan. There was no
+fenced-code-block exclusion: the existing `INCLUDE_REGEX` matched the directive as if it
+were real markup. The pre-existing `\`{% include` guard handles **inline** code spans
+(`` `{% include … %}` ``) but not fenced blocks.
+
+**Resolution**: Added `findFencedCodeBlockRanges()` to `resolve-deps.ts` (local, regex
+based — no markdown-it parse) and merged its ranges into `exclude` together with comments
+and `{% included %}` ranges. The detector recognizes both ` ``` ` and `~~~` fences,
+allows arbitrary leading indent (so fences nested inside lists, definition lists, tabs, and
+cuts are still detected), respects fence length / character matching for closing fences,
+rejects backtick fences whose info string contains a backtick, and conservatively excludes
+the rest of the file when an opening fence is not closed.
+
+**Indented (4-space) “code blocks” are intentionally NOT excluded.** Many YFM docs author
+include continuations with 4-space indentation under list / definition list / tab / cut
+items. `resolveBlockCodes` (which uses markdown-it parsing) cannot tell those apart from
+real indented code blocks at top level, so reusing its output here would incorrectly drop
+real includes (the existing test `should detect dependencies` covers this scenario).
+
+**Files**: `core/markdown/loader/resolve-deps.ts` (`findFencedCodeBlockRanges`).
+
+**Tests**:
+
+- `loader.spec.ts` — un-skipped `should filter dependencies inside fenced code blocks`,
+  added `should filter dependencies inside fenced code blocks indented in lists` (4-space
+  fence under `1.`), and `should filter dependencies inside tilde-fenced code blocks`.
+- `tests/e2e/merge-includes.spec.ts` (e2e: `mocks/merge-includes/include-in-code-block` —
+  fenced code block under an ordered list item with an `{% include %}` shown as code
+  must remain unchanged after md2md).
+
+---
+
+### Bug 21: Fence range end collided with the `{% include %}` on the very next line (regression of Bug 20)
+
+**Symptom**: After deploying the Bug 20 fix, ~50 production documentation builds (Yandex
+Metrica `support/metrica/common/**/data/get-yclid.md` and similar pages) started reporting
+`Include skipped in (…)` and the **first** `{% include %}` placed **immediately** after a
+closing ` ``` ` fence (no blank line between fence and include) was no longer inlined — its
+directive remained as raw text in the output. Subsequent includes on later lines were
+inlined as expected. Reproducer (real file, abridged):
+
+````
+…
+</script>
+```javascript
+…
+```javascript
+…
+````
+
+{% include [chat-button](_includes/buttons/chat-button.md) %} ← was dropped
+{% include [support-button](…) %} ← was inlined
+
+````
+
+**Cause**: `findFencedCodeBlockRanges()` set the range `end` to `lineStarts[i + 1]` —
+i.e. the **start** of the line after the closing fence. The downstream
+`filterRanges()` helper in `core/markdown/utils.ts` treats touching ranges as
+overlapping (its `contains()` uses non-strict `>=` / `<=` on both endpoints):
+
+```ts
+(exclude[1] >= point[0] && exclude[1] <= point[1])
+````
+
+So a fence range `[2015, 2833]` and an include match `[2833, 2897]` (the include
+starting on the very next line) collided at the boundary `2833`, and the include
+was filtered out of `deps`. The dependency loop’s strict `matchStart >= exStart && matchEnd <= exEnd`
+check did **not** exclude it (because `matchEnd > exEnd`), but the post-loop
+`filterRanges(exclude, includes)` did.
+
+**Resolution**: In `findFencedCodeBlockRanges()`, end the fence range at the **last
+character** of the closing-fence line (`lineStarts[i] + lines[i].length`) instead of at the
+start of the next line. This keeps the range strictly inside the fence and leaves a
+one-character gap (the trailing newline) between the fence range and any directive that
+starts on the following line, so `filterRanges` no longer treats them as overlapping.
+
+The deeper issue — `filterRanges` flagging touching ranges as overlapping — was left
+unchanged on purpose: it would touch every consumer of the helper (comments, terms,
+assets, headings) and risk new regressions in code that intentionally relies on the
+inclusive semantics. Fixing the producer’s end value is a strictly local change.
+
+**Files**: `core/markdown/loader/resolve-deps.ts` (`findFencedCodeBlockRanges` end calc).
+
+**Tests**:
+
+- `loader.spec.ts` — `should keep an include that starts on the line right after a closing fence`
+  (regression: open ` ```javascript `, body, close ` ``` `, then `{% include %}` on the
+  very next line; previously dropped, now in `deps`).
+- `tests/e2e/merge-includes.spec.ts` (e2e: `mocks/merge-includes/include-after-fence` —
+  full md2md cycle with a fenced code block followed immediately by two `{% include %}`
+  directives; both must be inlined in the snapshot).
+
+---
+
+### Bug 22: Unterminated fence opener swallowed every `{% include %}` to EOF
+
+**Symptom**: After Bug 21 was fixed, a second class of pages was reported broken on
+internal docs (Yandex Metrika `support/metrica/common/pt/objects/first-party-params.md`,
+Yandex Webmaster `support/webmaster/common/ru/search-appearance/images-goods.md`, and
+roughly two dozen others): every `{% include %}` placed **after** a malformed or
+deeply-indented fence was silently dropped from `deps` — the directive remained as raw
+text in the merged output. Two distinct triggers, same downstream effect:
+
+1. **Inline-styled fence with content-like info string and no real closer.**
+   Real reproducer (line 51 of `first-party-params.md`):
+
+   ````
+   ```javascript ym(XXXXXX, 'firstPartyParams', {
+        "e-mail": '…',
+        …
+   });```
+   ````
+
+   Per CommonMark a backtick fence opener allows any non-backtick info string, so the
+   first line counts as a valid opener; but the last line ends with `});\`\`\``, which is
+**not** a valid closer (a closing fence must consume the entire line bar leading
+indent and trailing spaces).  Our detector dutifully reported an unterminated fence
+and excluded everything from line 51 to EOF — killing the three real `{% include %}`
+   directives at lines 119/121/123.
+
+2. **Deflist marker on the same line as a fence opener.** Real reproducer in
+   `images-goods.md`:
+
+   ````
+       :   ```          ← real opener (deflist marker + fence on same line)
+           <html>…
+           ```          ← real closer
+           ```          ← next real opener
+           …
+           ```          ← next real closer
+   ````
+
+   `findFencedCodeBlockRanges` is regex-based and trims arbitrary leading whitespace.
+   The line `:   \`\`\``starts with`:`, so the regex does not match — the **real
+opener is missed**.  The detector then mistakes the next ` `` ` line (the real
+closer) for a fresh opener, pairs it with the line after it (real opener of the
+next fence) as a (harmless but wrong) [closer→opener] range, and finally treats
+the last ` `` ` of the second fence as another fresh opener that never gets
+   closed. Same downstream effect: every include after that is excluded to EOF.
+
+**Cause**: `findFencedCodeBlockRanges` had a final branch that, on encountering an
+opener with no matching closer, pushed `[openerLineStart, content.length]` into the
+exclude list. The intent was conservative — “better to incorrectly resolve includes
+that are inside a malformed code block than to leak fence content into deps”. In
+practice the opposite trade-off matters in real docs: malformed fences are common, the
+content after them is real markdown, and dropping every real include below them
+breaks ~50 pages.
+
+**Resolution**: Remove the unterminated-opener branch entirely. When an opener has no
+matching closer, the function now adds **no** range for it — the rest of the file is
+scanned normally for `{% include %}` directives. The worst residual case is an
+include inside a genuinely unclosed code fence being incorrectly merged; in real
+content that scenario is essentially always a malformed file already.
+
+The detector is still regex-based and intentionally simple. A markdown-it-driven
+fence detector (mirroring `resolveBlockCodes`) would handle the deflist case
+precisely, but at the cost of an extra parse on every file the loader sees; we only
+need to make sure no real include is silently dropped, and the conservative “no range
+on unterminated” is sufficient for that.
+
+**Files**: `core/markdown/loader/resolve-deps.ts` (`findFencedCodeBlockRanges` —
+removed the EOF-fallback push, kept the matched-pair logic and the head comment now
+documents the trade-off).
+
+**Tests**:
+
+- `loader.spec.ts` — `should keep includes after an unterminated \`\`\` opener with content-like info string`(case 1:` \`\`\`javascript ym(...{ ` opener, no valid closer, three real includes after).
+- `loader.spec.ts` — `should keep includes when a fence is mis-paired in deeply indented deflist context`
+  (case 2: deflist marker `:   \`\`\``on the same line, two indented fences, includes
+inside and after the deflist body must all land in`deps`).
+- The Bug 20 e2e (`mocks/merge-includes/include-in-code-block`) and the Bug 21 e2e
+  (`mocks/merge-includes/include-after-fence`) continue to pass — proper paired
+  fences still exclude their includes correctly.
+
+---
+
+### Bug 23: stray `|` rendered in YFM shorthand cell when an inlined include ends with an HTML block
+
+**Symptom**: After Bug 22 was fixed, a Yandex Metrica `pro/price.md` page rendered an
+extra literal `|` character at the end of two YFM shorthand table cells:
+
+- Source: `support/metrica/common/en/pro/price.md` — each cell ends with
+  `… {% include [list-button|sub-button] … %}||` and the included files
+  (`list-button.md`, `sub-button.md`) end with a nested
+  `{% include [href-to-button] … %}` whose content is a multi-line `<style>…</style>`
+  HTML block.
+- After merge the produced md (`md-with-merge-includes/en/pro/price.md`) had
+  `</style>||` glued onto a single line as the last line of the cell.
+- The `md-with-merge-includes` HTML output contained `</style>|</td>` (a stray `|`),
+  while the `md-without-merge-includes` HTML — where the include is expanded later
+  by markdown-it’s include plugin — produced clean `</style></td>`.
+
+**Cause**: The bug is in the `markdown-it` ↔ `@diplodoc/transform` table plugin
+interaction, not in the merge plugin per se. Inside a YFM shorthand row the
+table plugin overrides `state.eMarks[end.line] = end.pos` (where `end.pos` is the
+position of the **first** `|` of the closing `||`) before re-tokenizing the cell.
+The `getLines()` helper used by the HTML-block rule reads
+`this.eMarks[line] + 1` — i.e. one extra character past the override — so the
+HTML-block content captures a single trailing `|` whenever its closing tag sits on
+the same line as the `||` row terminator.
+
+The merge-includes plugin cannot fix `markdown-it`/`yfm-table` directly, but it can
+**avoid producing the colliding layout** in the first place. Bug 23 is therefore a
+content-shape bug: the inlined content ended with `</style>` and `getTrailingSuffix`
+re-attached the `||` on the same line because `prepareInlinedContent` returned
+`depContent` exactly as-is for shorthand-table cells.
+
+**Resolution**: When an include is followed by a YFM shorthand separator
+(`||` / `|#`) on the same line and the inlined content is non-empty, ensure the
+inlined content ends with a newline. Concretely, in
+`output-md/plugins/merge-includes.ts:prepareInlinedContent`, the early-return
+branch for `isInsideYfmShorthandTableCell(rawPrefix, trailingSuffix)` now appends a
+`\n` whenever `trailingSuffix` is set and `depContent` does not already end with one.
+The `inlineActor` then splices the inlined content with the original line tail, so
+`||` (or `|#`) lands on its own line. Verified end-to-end via
+`@diplodoc/transform`: `</style>\n||` renders cleanly as `<style>…</style></td>`.
+
+**Files**: `commands/build/features/output-md/plugins/merge-includes.ts`
+(`prepareInlinedContent`).
+
+**Tests**:
+
+- `merge-includes.spec.ts` (unit) — `should bare-inline include followed by YFM
+table separator (trailingSuffix)` updated to assert the trailing newline (single
+  source of truth for the new contract).
+- `tests/e2e/merge-includes.spec.ts` — new test
+  `yfm-table: include ending with HTML block places || on its own line` with mock
+  `mocks/merge-includes/yfm-table-html-block` (button include with nested `<style>`
+  HTML block followed by `||` on the source line; snapshot now shows `</style>` and
+  `||` on separate lines).
+- The pre-existing `yfm-table: include followed by || separator is inlined`
+  snapshot is updated accordingly: simple inline content (a link) is also placed
+  before a `||` on its own line. Both shapes parse identically through
+  `markdown-it`/`yfm-table` (verified by repro), so this is a strict improvement.
+
+---
+
+### Bug 24: `|` inside inlined content split YFM shorthand cells
+
+**Symptom**: After Bug 23 was fixed, Yandex Metrica `general/goal-js-event.md`
+rendered the “regular expression” row of a YFM shorthand table broken in half:
+the cell that should have contained the inline code `` `button|buy` `` was
+split at the `|` character, producing an extra `<td>` for the second half
+(`buy``).` and a stray backtick. In the `md-without-merge-includes` build
+the same source rendered correctly because the table cell still contained
+the `{% include %}` directive (no `|` characters in the cell at parse time)
+and the include was expanded later by the markdown-it includes plugin.
+
+Reproduced minimally with `@diplodoc/transform`:
+
+```md
+#|
+||
+**A**|**B**
+||
+||
+**regular expression**
+|
+{% cut "Example" %}
+
+If you want to track the IDs that contain `button` or `buy`,
+specify the condition: `button|buy`.
+
+{% endcut %}
+||
+|#
+```
+
+Output (truncated):
+`<code>buy</code>, you can specify the condition: \`button</p></div></details></td><td><p>buy\`.</p></td>`— the cell ends mid-content because`|` was treated as a cell separator.
+
+**Cause**: This is a **pre-existing** YFM-table parser behavior, **not**
+something introduced by merge-includes. The parser walks each table region
+character by character looking for `|` (cell separator) and `||` (row
+separator). By default it does **not** skip inline-code spans:
+`opts.table_ignoreSplittersInInlineCode` is `@default false` in
+`@diplodoc/transform/lib/plugins/table` and the CLI does not override it. Any
+bare `|` inside a cell — whether in code, in HTML, in a regex literal, or in
+a math span — is interpreted as a column separator.
+
+In `md-without-merge-includes` mode this was never a problem because the cell
+content stays as `{% include [...] %}` and only contains pipe characters in
+the _resolved_ content, which the table parser never sees. In
+`md-with-merge-includes` mode the resolver inlines that content into the cell
+and the bare `|` reaches the table parser, breaking the layout.
+
+The fix cannot be in `markdown-it`/`yfm-table` (changing the default would be
+a breaking change for every consumer), so it must be in `mergeIncludes`:
+**refuse to inline an include into a YFM shorthand cell when the include’s
+transitive content carries a bare `|`**, and use the `{% included %}` fallback
+instead. The fallback keeps the directive in place inside the cell (no `|`
+in the cell at parse time) and emits the resolved content as `{% included %}`
+at the end of the file, where md2html resolves it normally — matching the
+`md-without-merge-includes` output exactly.
+
+**Resolution**: Two helpers in
+`commands/build/features/output-md/plugins/merge-includes.ts`:
+
+- `isInsideYfmShorthandTable(parentContent, depStart)` — line-by-line scan
+  that balances `#|` openers and `|#` closers above the include’s position;
+  returns `true` while the running depth is positive. Recognises
+  `#|` (with optional `{...}` attribute block on the same line) at line
+  start as the opener and a bare `|#` line as the closer, matching how
+  `@diplodoc/transform` detects YFM shorthand tables.
+- `depTransitiveContentHasPipe(dep)` — DFS over the dep graph
+  (`dep.deps`, deduplicated by `path`) checking `contentWithoutFrontmatter`
+  for any `|` character. Conservative on purpose: false positives only
+  push an include into the fallback path (functionally equivalent at
+  md2html time), false negatives would silently break the cell.
+
+`canInlineInclude` now returns `false` when both helpers return `true`,
+so `addFallbackDep` is invoked for that dep instead of inlining.
+
+**Files**: `commands/build/features/output-md/plugins/merge-includes.ts`
+(`canInlineInclude`, plus the two helpers).
+
+**Tests**:
+
+- `tests/e2e/merge-includes.spec.ts` — new test
+  `yfm-table: include with \`|\` in inline code falls back to {% included %}`with mock`mocks/merge-includes/yfm-table-pipe-in-content`(a`goal-js-event.md`-shaped table where the cell wraps `{% cut %}` around an
+include containing `` `button|buy` ``).  Snapshot confirms the directive
+stays inside the cell and the resolved content is appended as a `{% included (_includes/example.md) %}` block.
+- All earlier yfm-table mocks (`yfm-table`, `yfm-table-html-block`) keep
+  inlining as before — their included content has no `|` characters, so
+  `depTransitiveContentHasPipe` returns `false` and the existing snapshots
+  are unchanged.
+
+**Caveat**: The opposite combination — an include whose content has no `|`
+but which sits inside a YFM cell that itself uses `||` row separators on
+adjacent lines — is unaffected; the YFM table parser sees those `||` at
+expected positions and they are not within the include’s replaced range.
 
 ---
 

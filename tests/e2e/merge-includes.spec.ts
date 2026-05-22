@@ -91,6 +91,30 @@ describe('Merge includes (md2md)', () => {
         await compareDirectories(outputPath);
     });
 
+    test('yfm-table: include ending with HTML block places || on its own line', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/yfm-table-html-block');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('yfm-table: include with `|` in inline code falls back to {% included %}', async () => {
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/merge-includes/yfm-table-pipe-in-content',
+        );
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
     test('html-in-list: include with <style> in list (any indent) uses fallback', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/html-in-list');
 
@@ -120,6 +144,39 @@ describe('Merge includes (md2md)', () => {
             md2md: true,
             md2html: false,
             args: '--no-merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('html-comment-blanks: blank lines inside HTML comments keep list/cut continuity', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/html-comment-blanks');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('include-in-code-block: include shown as code example is NOT expanded', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/include-in-code-block');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('include-after-fence: include placed right after a closing ``` fence is inlined', async () => {
+        const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/include-after-fence');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
         });
         await compareDirectories(outputPath);
     });
