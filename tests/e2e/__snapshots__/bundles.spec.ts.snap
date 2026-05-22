@@ -3,28 +3,6 @@
 exports[`Check bundles > bundles list is correct > filelist 1`] = `
 "[
   ".yfm",
-  "_bundle/app-css",
-  "_bundle/app-js",
-  "_bundle/app-rtl-css",
-  "_bundle/chunk-js",
-  "_bundle/latex-extension.css",
-  "_bundle/latex-extension.js",
-  "_bundle/mermaid-extension.js",
-  "_bundle/page-constructor-extension.css",
-  "_bundle/page-constructor-extension.js",
-  "_bundle/react-js",
-  "_bundle/search-css",
-  "_bundle/search-js",
-  "_bundle/search-rtl-css",
-  "_bundle/vendor-css",
-  "_bundle/vendor-js",
-  "_bundle/vendor-rtl-css",
-  "_search/api.js",
-  "_search/ru/hash-index.js",
-  "_search/ru/hash-registry.js",
-  "_search/ru/hash-resources.js",
-  "_search/ru/index.html",
-  "_search/ru/language.js",
   "index.html",
   "page1.html",
   "page2.html",
@@ -57,16 +35,11 @@ exports[`Check bundles > bundles list is correct 2`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Header | Skip html extension</title>
-        
-        
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta name="availableLangs" content="en,ru">
         <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -81,11 +54,6 @@ exports[`Check bundles > bundles list is correct 2`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js"></script>
-        <script type="application/javascript" defer src="_bundle/react-js"></script>
-        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
-        
     </body>
 </html>"
 `;
@@ -98,15 +66,10 @@ exports[`Check bundles > bundles list is correct 3`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page 1 | Skip html extension</title>
-        
-        
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -121,11 +84,6 @@ exports[`Check bundles > bundles list is correct 3`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js"></script>
-        <script type="application/javascript" defer src="_bundle/react-js"></script>
-        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
-        
     </body>
 </html>"
 `;
@@ -138,15 +96,10 @@ exports[`Check bundles > bundles list is correct 4`] = `
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <base href="./" />
         <title>Page 2 | Skip html extension</title>
-        
-        
         <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
         <meta http-equiv="Content-Security-Policy" content="worker-src 'self';">
         <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
         <link rel="icon" type="image/x-icon" href="https://storage.yandexcloud.net/diplodoc-www-assets/favicon/favicon.ico">
-        
-        <link type="text/css" rel="stylesheet" href="_bundle/app-css"/>
-        <link type="text/css" rel="stylesheet" href="_bundle/vendor-css"/>
     </head>
     <body class="g-root g-root_theme_light">
         <div id="root"></div>
@@ -161,11 +114,6 @@ exports[`Check bundles > bundles list is correct 4`] = `
             window.STATIC_CONTENT = false;
         </script>
         <script type="application/javascript" defer src="toc.js"></script>
-        <script type="application/javascript" defer src="_search/ru/hash-resources.js"></script>
-        <script type="application/javascript" defer src="_bundle/app-js"></script>
-        <script type="application/javascript" defer src="_bundle/react-js"></script>
-        <script type="application/javascript" defer src="_bundle/vendor-js"></script>
-        
     </body>
 </html>"
 `;
