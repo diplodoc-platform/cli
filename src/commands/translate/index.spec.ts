@@ -12,7 +12,7 @@ describe('Translate command', () => {
             test(
                 'should fail on unknown provider',
                 '--provider unknown --folder 1',
-                `error: option '--provider <value>' argument 'unknown' is invalid. Allowed choices are yandex.`,
+                `error: option '--provider <value>' argument 'unknown' is invalid. Allowed choices are yandex, yandexgpt, openai, openrouter, anthropic.`,
             );
 
             test('should handle default', '--folder 1', {
