@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24). Viewer integration requires no changes. Twenty-four bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`). The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Twenty-seven bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`). The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -2010,6 +2010,264 @@ stays inside the cell and the resolved content is appended as a `{% included (_i
 but which sits inside a YFM cell that itself uses `||` row separators on
 adjacent lines — is unaffected; the YFM table parser sees those `||` at
 expected positions and they are not within the include’s replaced range.
+
+---
+
+### Bug 25: ` ``` |` (fence + YFM cell separator on the same line) was rejected as a closer
+
+**Symptom**: Yandex browser-corporate `ru/policy/cookies-allowed-for-urls.md`
+(and the parallel `cookies-blocked-for-urls.md`) emitted an avalanche of
+`ERR Include skipped in (...). Include source for ... not found` errors for
+every reusable include in the **Linux**/**macOS** tabs (`use-url-patterns.md`,
+`asterisk-brackets.md`, `punycode.md`, `settings-via-file.md`,
+`value-example.md` — 9–17 entries per page). The same includes inside the
+**Windows** tab resolved fine.
+
+The structural difference between the working and broken tabs was a single
+line: the broken tabs use the YFM-table idiom of closing a fenced code block
+on the same line as a shorthand cell separator, e.g.
+
+````
+  ```json
+  "CookiesAllowedForUrls": ["URL1"]
+  ``` |
+  - text outside the code block
+````
+
+with another, unrelated ` ``` … ``` ` block further down the cell.
+
+**Cause**: `findFencedCodeBlockRanges` (in
+`core/markdown/loader/resolve-deps.ts`) treats a closing fence strictly per
+CommonMark: the closing run must be followed only by whitespace. The line
+` ``` |` carries `|` after the fence run, so it failed the `after === ''`
+check and was **not** counted as a closer. The opener on the previous
+` ```json ` line therefore stayed open, and the next real ` ``` … ``` ` pair
+in the same tab/cell was paired with the original opener — producing one
+gigantic phantom code range that swallowed every `{% include %}` between
+them. Those includes never reached the dependency graph, so md2html later
+reported them as missing.
+
+The strict `after === ''` rule was correct for Bug 22's deflist case (where
+unclosed openers must not extend to EOF), but it does not match how YFM
+authors close fenced blocks inside shorthand-table cells. CommonMark itself
+would not accept ` ``` |` as a closer either, but the whole construct
+(`#|…|#`) is YFM-specific and the markdown-it pipeline running on the
+final document _does_ render the block correctly: it leaves the fenced
+block closed on that line and treats the trailing `|` as the cell
+boundary.
+
+**Resolution**: Relax the closer detection in `findFencedCodeBlockRanges`
+to also accept `|`, `||`, or `|#` (with optional whitespace) after the
+fence run. The check is intentionally narrow — only the three YFM
+shorthand-table separators are allowed; arbitrary text after the fence
+still fails so we don't accidentally pair a real opener with junk on a
+random line. With the relaxed rule, ` ``` |` is recognised as the
+closer of the surrounding code fence, the next fence pair is detected
+on its own merits, and the includes between them stay in the dep graph.
+
+**Files**: `core/markdown/loader/resolve-deps.ts`
+(`findFencedCodeBlockRanges` — the closer's `after` check now matches
+`/^(?:\|\||\|#|\|)$/` in addition to `''`).
+
+**Tests**:
+
+- `core/markdown/loader.spec.ts` — new
+  `should treat a \`\`\` | line as a valid closer (YFM table cell separator
+  after fence)`. Builds a YFM shorthand cell with a ` `json … ` |`block,
+two`{% include %}`s after it, then another ` `json … ` `block,
+closed by`||`and`|#`. Asserts both includes are in `deps` and the
+  loader returns the source unchanged.
+
+---
+
+### Bug 26: fence runs inside an HTML comment paired across the comment boundary
+
+**Symptom**: Yandex Yateam `datasync/http/ru/dg/concepts/data-structure.md`
+emitted `ERR Include skipped in ...` for every include in the
+**“Запись” / “Поля записи”** sections (`record-id.md`, `collection-id.md`,
+`revision.md`, `fields.md`). The same includes were authored as
+`:   {% include … %}` deflist bodies between two real code blocks — and
+above the deflist the document carried an HTML comment that contained a
+sample fenced code block:
+
+````
+<!-- ```javascript
+// example
+``` -->
+
+#### record_id
+:   {% include [record-id](./_includes/record-id.md) %}
+…
+```javascript
+// real code
+````
+
+`````
+
+**Cause**: `findFencedCodeBlockRanges` walks line by line and is unaware of
+HTML block context. The `<!--` line itself is not a fence (it doesn't start
+with backticks after trim), so the opener on the next line (`” ```javascript ”`)
+was missed. But the comment closer ` ``` --> ` _was_ matched: trimmed it
+becomes ` ```` followed by `-->`, and Bug 22's "no EOF extension" rule made
+us read it as a fresh opener with info string `-->`. The next real
+` ``` ` line later in the document then closed it, producing a code range
+that spanned the deflist with all four includes inside.
+
+The detector cannot reliably "fix" itself with line-by-line heuristics —
+HTML block boundaries depend on the comment context that only a real parser
+tracks. But `resolveDependencies` already gathers HTML comments into
+`this.api.comments.get()` and excludes them from include scanning. The
+same comment ranges should also blind the fence detector: any line whose
+start position lives inside a comment cannot be a fence boundary, since
+markdown-it never sees those lines as a code block (the surrounding HTML
+block consumes them as raw HTML).
+
+**Resolution**: Pass the comment ranges to `findFencedCodeBlockRanges`
+explicitly. Inside the loop a `lineIsExcluded(i)` check skips any line
+whose `[lineStart, lineEnd]` is contained in one of the supplied ranges,
+so fences inside HTML comments neither open nor close real fence ranges.
+The phantom range vanishes, and the deflist includes stay in deps.
+
+**Files**:
+
+- `core/markdown/loader/resolve-deps.ts`:
+  - `findFencedCodeBlockRanges(content, excludeRanges = [])` accepts an
+    optional list of ranges to ignore.
+  - `resolveDependencies` now caches `this.api.comments.get()` once and
+    passes it both to the `exclude` list and to `findFencedCodeBlockRanges`.
+
+**Tests**:
+
+- `core/markdown/loader.spec.ts` — new
+  `should not treat fence runs inside an HTML comment as a real fence`.
+  Builds a doc with `<!-- ```javascript … ``` --> ` followed by two deflist
+  `:   {% include … %}` lines and a real code fence. Asserts that both
+  deflist includes are in `deps` and loader output is unchanged.
+
+**Cross-fix interaction**: Bug 22's "drop unterminated openers" rule
+remains in place; Bug 26 only narrows _which_ lines can open or close a
+fence in the first place. The combination handles all three failure modes
+seen so far: unterminated fences (Bug 22) no longer extend to EOF, real
+fence runs adjacent to YFM cell separators are paired correctly (Bug 25),
+and runs inside HTML comments are ignored entirely (Bug 26).
+
+---
+
+### Bug 27: indent at parent + indent inside include promotes paragraph to indented code block
+
+**Symptom**: Yandex direct-pro
+`en/_includes/fixed-cpm-campaigns/product-yandex-services/requirements-mediaservices/id-requirements-mediaservices/100-180.md`
+authored a normal paragraph at column 2 inside an otherwise un-listed
+section (the surrounding numerals were escaped: `1\.`, `2\.`, `3\.`),
+e.g.
+
+```md
+3\. The banner must stretch to 100% of the screen width…
+
+  Значение ширины баннера `width` задается в процентном формате — 100%.
+
+4\. All elements must have fixed dimensions…
+`````
+
+In `md-without-merge-includes` mode that line renders as a regular
+paragraph: leading 2 ≤ 3 spaces, no container active, CommonMark keeps
+it inline. In `md-with-merge-includes` mode the directive in the parent
+(`requirements-mediaservices.md`) sat at 4-space `rawPrefix`:
+
+```md
+- 100% × 180 banner in the mobile site version.
+
+  {% include [100-180](.../100-180.md) %}
+```
+
+After merge each line of the include picked up that 4-space prefix, so
+the 2-space paragraph became a 6-space line. Inside the surrounding
+tab item `- 100% × 180 banner` (continuation indent = 2), 6 − 2 = 4
+extra columns — exactly the CommonMark threshold for an indented code
+block. The paragraph silently rendered as a code sample in the merged
+output, breaking visual parity with the no-merge baseline.
+
+**Cause**: There is no syntactic conflict here — this is a legitimate
+property of CommonMark indented code blocks. The merge plugin can't
+"normalise" leading whitespace inside includes: doing so would break
+includes that intentionally use indented continuations or
+4-space-indented code blocks. The only safe response is to detect the
+risk and fall back to `{% included %}`, which keeps the directive in
+its original place and emits the dep content as a separate appendix
+block where md2html resolves it normally — matching the no-merge
+output exactly.
+
+**Resolution**: Two helpers in
+`commands/build/features/output-md/plugins/merge-includes.ts`:
+
+- `indentedIncludeRisksParagraphCodeBlock(dep, rawPrefix)` — only fires
+  when `rawPrefix` is whitespace-only and computes
+  `threshold = max(1, 4 - rawPrefix.length)`. When `threshold > 3` the
+  parent prefix alone already provides the merged indent (paragraph
+  stays a paragraph), so the check exits. Otherwise it DFS-walks the
+  dep graph (deduped by `path`) and runs `hasIndentedTopLevelParagraph`
+  on each transitive content.
+- `hasIndentedTopLevelParagraph(content, threshold)` — line-by-line
+  scan with a small container stack:
+  - skips fenced code blocks (any `1–3` spaces of indent inside a fence
+    is irrelevant — markdown-it sees them as code regardless);
+  - skips YFM shorthand tables (`#|…|#`) — table cells are parsed
+    differently and don't acquire the merge prefix in a way that would
+    promote indent to code blocks;
+  - pushes a frame on real CommonMark containers (`-`/`*`/`+` /
+    `\d+.` / `\d+)` list markers, `>` blockquote, `:   ` deflist body)
+    and pops them only after a blank line when the next line's leading
+    drops below the frame's continuation indent;
+  - does NOT push on YFM directives (`{% note %}`, `{% cut %}`,
+    `{% list %}`, etc.) — those don't add continuation indent in source
+    markup, so paragraph lines inside them count as top-level for our
+    check;
+  - flags the first line whose leading is in `[threshold, 3]` while the
+    container stack is empty.
+
+`canInlineInclude` calls the helper after every other inlinability
+check; on `true` the dep is routed through `addFallbackDep`.
+
+**Files**:
+
+- `commands/build/features/output-md/plugins/merge-includes.ts`
+  (`canInlineInclude`, plus `indentedIncludeRisksParagraphCodeBlock` and
+  `hasIndentedTopLevelParagraph`).
+
+**Tests**:
+
+- `commands/build/features/output-md/plugins/merge-includes.spec.ts` —
+  new `describe('indented top-level paragraph in dep content (Bug 27)',
+…)` block under `describe('canInlineInclude', …)` covering:
+  - 4-space parent prefix + 2-space paragraph in dep (rejected);
+  - transitive sub-include carrying the indented paragraph (rejected);
+  - real list with lazy continuation (allowed: stack catches it);
+  - parent prefix 0 (allowed: no merge regression possible);
+  - dep with no leading indent on any paragraph (allowed);
+  - 2-space prefix + 2-space paragraph (rejected);
+  - 2-space prefix + 1-space paragraph (allowed: 2 + 1 < 4);
+  - leading spaces inside a fenced code block (allowed: already code);
+  - leading spaces inside a YFM shorthand cell (allowed: cell-parsed).
+- `tests/e2e/merge-includes.spec.ts` — new e2e
+  `indent-paragraph: include under indent with indented top-level
+paragraph falls back to {% included %}` with mock
+  `mocks/merge-includes/indent-paragraph-in-include`. Snapshot confirms
+  the parent keeps the `{% include %}` directive inside the tab item
+  and the dep content is appended as an `{% included
+(_includes/requirements.md) %}` block at the end of the file.
+
+**Caveats**:
+
+- The check is intentionally conservative: edge cases around lazy
+  continuations after blank lines may produce false positives, which
+  routes those includes through the safe fallback. False negatives
+  (missed regressions) are the only real harm and the structural rules
+  above avoid them in the patterns observed in real docs.
+- An include that is _completely_ at column 0 in source and lives under
+  a parent prefix ≥ 4 won't trip the check (`leading > 0` filter). This
+  matches reality: a directive at `≥ 4`-space `rawPrefix` is normally
+  inside a container whose own continuation indent equals the prefix,
+  so a 0-leading content line aligns with that continuation.
 
 ---
 

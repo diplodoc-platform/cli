@@ -24,7 +24,7 @@ import {INCLUDE_REGEX, filterRanges, findIncludedBlockRanges, findLink} from '..
  * truly is unclosed — which in real docs almost always means malformed
  * markup, not "the rest of the file is a code block".
  */
-function findFencedCodeBlockRanges(content: string): Location[] {
+function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = []): Location[] {
     const ranges: Location[] = [];
     const lines = content.split('\n');
 
@@ -35,11 +35,27 @@ function findFencedCodeBlockRanges(content: string): Location[] {
         pos += lines[i].length + 1;
     }
 
+    // Lines whose start position is contained in any excluded range
+    // (e.g. an HTML comment) must NOT be considered fence boundaries:
+    // the markdown parser never sees them as code blocks (the
+    // surrounding HTML block consumes them as text), so pairing a
+    // fence opener inside such a range with a real fence later in the
+    // document would produce a phantom code range that swallows real
+    // `{% include %}` directives.  See Bug 26.
+    const lineIsExcluded = (line: number): boolean => {
+        const lineStart = lineStarts[line];
+        const lineEnd = lineStart + lines[line].length;
+        return excludeRanges.some(([start, end]) => lineStart >= start && lineEnd <= end);
+    };
+
     let openLine = -1;
     let openChar = '';
     let openLen = 0;
 
     for (let i = 0; i < lines.length; i++) {
+        if (lineIsExcluded(i)) {
+            continue;
+        }
         const trimmed = lines[i].trimStart();
         const fenceMatch = /^(`{3,}|~{3,})/.exec(trimmed);
         if (!fenceMatch) {
@@ -60,9 +76,16 @@ function findFencedCodeBlockRanges(content: string): Location[] {
             openChar = fence[0];
             openLen = fence.length;
         } else if (fence[0] === openChar && fence.length >= openLen) {
-            // Closing fence: same char, length ≥ open, info string empty.
+            // Closing fence: same char, length ≥ open.  CommonMark forbids
+            // any non-whitespace content after the closing run, but in YFM
+            // real-world docs frequently glue a shorthand-table cell
+            // separator (`|`, `||`, `|#`) onto the same line as the closer
+            // (e.g. ` ``` |`).  Treat those as valid closers — otherwise
+            // the next ` ``` ` we see would be paired with this opener
+            // and we'd swallow every `{% include %}` between them.
+            // See Bug 25.
             const after = trimmed.slice(fence.length).trim();
-            if (after === '') {
+            if (after === '' || /^(?:\|\||\|#|\|)$/.test(after)) {
                 const start = lineStarts[openLine];
                 // End at the LAST char of the close-fence line content
                 // (excluding the trailing newline).  `filterRanges`
@@ -113,10 +136,13 @@ export function resolveDependencies(this: LoaderContext, content: string) {
     // include continuations with 4-space indentation inside list / tab / cut
     // structures, which markdown-it would parse as `code_block` only in
     // standalone context.
+    const commentRanges = this.api.comments.get();
     const exclude = [
-        ...this.api.comments.get(),
+        ...commentRanges,
         ...findIncludedBlockRanges(content),
-        ...findFencedCodeBlockRanges(content),
+        // Pass the comment ranges so a fence run that lies inside an HTML
+        // comment is not treated as a code block boundary (see Bug 26).
+        ...findFencedCodeBlockRanges(content, commentRanges),
     ];
 
     const includeRegex = new RegExp(INCLUDE_REGEX.source, INCLUDE_REGEX.flags);
