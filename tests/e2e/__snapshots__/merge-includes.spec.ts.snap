@@ -433,6 +433,71 @@ path: toc.yaml
 "
 `;
 
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+{% list tabs %}
+
+- Mobile banner
+
+
+    {% include [requirements](_includes/requirements.md) %}
+
+    For more details see the requirements page.
+
+{% endlist %}
+
+{% included (_includes/requirements.md) %}
+1/. Format: HTML5.
+
+2/. The banner stretches to fit the screen.
+
+3/. The banner must stretch to 100% of the screen width.
+
+  Width is set as a percentage value: 100%.
+
+4/. Maximum archive size is 75 KB.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 3`] = `
+"title: Merge Includes Indent Paragraph In Include
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
 exports[`Merge includes (md2md) > inline-context: non-standalone includes use fallback > filelist 1`] = `
 "[
   "index.md",

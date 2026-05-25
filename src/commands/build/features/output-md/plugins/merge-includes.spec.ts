@@ -596,6 +596,148 @@ describe('canInlineInclude', () => {
         });
         expect(canInlineInclude(dep, content, false)).toBe(true);
     });
+
+    describe('indented top-level paragraph in dep content (Bug 27)', () => {
+        // After merge, a top-level paragraph with leading spaces in the
+        // include source plus a non-zero indent at the include directive
+        // can sum to >= 4 spaces — markdown-it then renders the line as
+        // an indented code block.  The fix routes such includes through
+        // the `{% included %}` fallback so the rendered output stays
+        // identical to the no-merge baseline.
+
+        const buildParent = (rawPrefixSpaces: number, includeDirective: string) =>
+            ' '.repeat(rawPrefixSpaces) + includeDirective;
+
+        it('should reject when parent indent + 2-space top-level paragraph reaches 4 columns', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1\\. First line.\n\n  Indented paragraph.\n\n2\\. Second line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should reject when transitive sub-include exposes the indented paragraph', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const inner = makeDep({
+                path: '_includes/inner.md' as NormalizedPath,
+                link: '_includes/inner.md',
+                match: '{% include [i](_includes/inner.md) %}',
+                content: 'Top-level intro.\n\n  Indented continuation paragraph.',
+            });
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '{% include [i](_includes/inner.md) %}',
+                deps: [inner],
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should allow when leading spaces sit inside a real list (continuation)', () => {
+            // `1. text\n\n  more` is lazy continuation of a real list item —
+            // CommonMark treats `more` as part of the list item, so merge
+            // can't promote it to an indented code block.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1. First item.\n   Continuation of item one.\n2. Second item.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when parent indent is zero (no merge regression possible)', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = includeDirective;
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [0, parent.length],
+                content: '1\\. First line.\n\n  Indented paragraph.\n\n2\\. Second line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when content has no top-level indent (paragraphs at column 0)', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1\\. First line.\n\n2\\. Second line.\n\n3\\. Third line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should reject when parent indent is 2 spaces and content has 2 leading spaces', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(2, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Top.\n\n  Indented.\n\nBottom.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should allow when parent indent is 2 spaces but content has only 1 leading space', () => {
+            // 2 + 1 = 3 < 4, no code block in merged output.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(2, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Top.\n\n One leading space.\n\nBottom.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when leading spaces sit inside a fenced code block', () => {
+            // Indented code samples inside fenced code blocks already render
+            // as code in source; merge does not change that semantics.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Intro.\n\n```\n  indented sample\n```\n\nOutro.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when leading spaces sit inside a YFM shorthand table cell', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '#|\n||\n  cell with two leading spaces\n||\n|#',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+    });
 });
 
 describe('stripFirstHeading', () => {

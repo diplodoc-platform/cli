@@ -351,6 +351,10 @@ export function canInlineInclude(
         return false;
     }
 
+    if (rawPrefix && indentedIncludeRisksParagraphCodeBlock(dep, rawPrefix)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -413,6 +417,161 @@ function depTransitiveContentHasPipe(dep: HashedGraphNode): boolean {
             stack.push(childDep);
         }
     }
+    return false;
+}
+
+/**
+ * Returns true when inlining `dep` under a whitespace-only `rawPrefix`
+ * would expose a *top-level paragraph* of the include (or any of its
+ * transitive sub-includes) with leading whitespace whose sum with
+ * `rawPrefix.length` reaches the 4-column threshold.  Such a paragraph
+ * renders as an indented code block in the merged document while it was
+ * a regular paragraph in the source — a visual divergence that the user
+ * doesn't want.
+ *
+ * "Top-level" here means: not inside a CommonMark container that carries
+ * its own continuation indent (list item, blockquote, definition list)
+ * and not inside a YFM shorthand table.  Lines inside YFM block
+ * directives (`{% note %}`, `{% cut %}`, `{% list %}`, …) DO count as
+ * top-level — those directives don't add continuation indent in source
+ * markup, so any indent on a line inside them lives at the same column
+ * as the surrounding text.
+ *
+ * The check is intentionally conservative: false positives only push an
+ * include into the `{% included %}` fallback (still 100% functionally
+ * equivalent at md2html time), while false negatives would silently
+ * change the rendered output.
+ */
+function indentedIncludeRisksParagraphCodeBlock(dep: HashedGraphNode, rawPrefix: string): boolean {
+    if (!rawPrefix || !/^[\t ]+$/.test(rawPrefix)) {
+        return false;
+    }
+    const threshold = Math.max(1, 4 - rawPrefix.length);
+    if (threshold > 3) {
+        return false;
+    }
+    const visited = new Set<string>();
+    const stack: HashedGraphNode[] = [dep];
+    while (stack.length > 0) {
+        const current = stack.pop();
+        if (!current || visited.has(current.path)) {
+            continue;
+        }
+        visited.add(current.path);
+        const content = contentWithoutFrontmatter(current.content);
+        if (hasIndentedTopLevelParagraph(content, threshold)) {
+            return true;
+        }
+        for (const childDep of current.deps) {
+            stack.push(childDep);
+        }
+    }
+    return false;
+}
+
+/**
+ * Walks `content` line by line and returns true on the first non-empty
+ * paragraph line that is at "top level" (no list / blockquote / deflist
+ * container active, not inside a fenced code block, not inside a YFM
+ * shorthand table) and whose leading whitespace count is in
+ * `[threshold, 3]`.  Lines with leading >= 4 are already indented code
+ * blocks in the source and would not change semantics on merge; lines
+ * with leading < threshold do not cross the merge threshold either.
+ *
+ * The container tracker is deliberately small: it pushes on real
+ * CommonMark containers (`-` / `*` / `+` / `\d+.` / `\d+)` list markers,
+ * `>` blockquote, `:   ` deflist body) and pops them only after a blank
+ * line when the next line's leading drops below the container's
+ * continuation indent.  YFM directives (`{% … %}`) are NOT pushed: they
+ * don't add continuation indent in source markup.
+ */
+function tryConsumeYfmTableBoundary(
+    trimmed: string,
+    state: {depth: number},
+): 'open' | 'close' | null {
+    if (trimmed === '#|' || /^#\|\s*\{/.test(trimmed)) {
+        state.depth++;
+        return 'open';
+    }
+    if (trimmed === '|#') {
+        state.depth = Math.max(0, state.depth - 1);
+        return 'close';
+    }
+    return null;
+}
+
+function tryConsumeContainer(trimmed: string, leading: number, stack: number[]): boolean {
+    const listMarker = /^([-*+]|\d{1,9}[.)])\s+/.exec(trimmed);
+    if (listMarker) {
+        stack.push(leading + listMarker[0].length);
+        return true;
+    }
+    if (trimmed.startsWith('>')) {
+        stack.push(leading + 2);
+        return true;
+    }
+    const deflist = /^:\s+/.exec(trimmed);
+    if (deflist) {
+        stack.push(leading + deflist[0].length);
+        return true;
+    }
+    return false;
+}
+
+function isStructuralNonParagraph(trimmed: string): boolean {
+    return (
+        /^#{1,6}\s/.test(trimmed) ||
+        /^\[\*[^\]]+\]:/.test(trimmed) ||
+        trimmed.startsWith('{%') ||
+        trimmed.startsWith('|') ||
+        trimmed.startsWith('<')
+    );
+}
+
+function hasIndentedTopLevelParagraph(content: string, threshold: number): boolean {
+    if (threshold <= 0 || threshold > 3) {
+        return false;
+    }
+    const lines = content.split('\n');
+    const fence = newFenceState();
+    const table = {depth: 0};
+    let prevWasBlank = true;
+    const stack: number[] = []; // continuation indent of each open container
+
+    for (const line of lines) {
+        const trimmed = line.trimStart();
+        const leading = line.length - trimmed.length;
+
+        if (trimmed === '') {
+            prevWasBlank = true;
+            continue;
+        }
+
+        if (prevWasBlank) {
+            while (stack.length > 0 && stack[stack.length - 1] > leading) {
+                stack.pop();
+            }
+        }
+        prevWasBlank = false;
+
+        if (processCodeFence(trimmed, fence)) {
+            continue;
+        }
+        if (tryConsumeYfmTableBoundary(trimmed, table) || table.depth > 0) {
+            continue;
+        }
+        if (tryConsumeContainer(trimmed, leading, stack)) {
+            continue;
+        }
+        if (isStructuralNonParagraph(trimmed)) {
+            continue;
+        }
+
+        if (stack.length === 0 && leading > 0 && leading < 4 && leading >= threshold) {
+            return true;
+        }
+    }
+
     return false;
 }
 

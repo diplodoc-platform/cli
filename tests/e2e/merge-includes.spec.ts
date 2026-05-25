@@ -115,6 +115,19 @@ describe('Merge includes (md2md)', () => {
         await compareDirectories(outputPath);
     });
 
+    test('indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %}', async () => {
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/merge-includes/indent-paragraph-in-include',
+        );
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
     test('html-in-list: include with <style> in list (any indent) uses fallback', async () => {
         const {inputPath, outputPath} = getTestPaths('mocks/merge-includes/html-in-list');
 

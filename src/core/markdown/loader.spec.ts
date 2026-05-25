@@ -782,6 +782,77 @@ describe('Markdown loader', () => {
             expect(result).toEqual(content);
         });
 
+        it('should treat a `\`\`\` |` line as a valid closer (YFM table cell separator after fence)', async () => {
+            // Regression for browser-corporate `ru/policy/cookies-allowed-for-urls.md`:
+            // a code fence inside a YFM shorthand cell often ends with the
+            // table separator on the same line as the closer (e.g. ` ``` |`).
+            // CommonMark forbids non-whitespace content after the closer, so
+            // our detector used to refuse to pair this as a closer — and
+            // then later (`\`\`\``) line in the next cell was wrongly
+            // treated as the closer, swallowing all `{% include %}` between.
+            const content = dedent`
+                #|
+                || **Header** | **Content** ||
+                || row1 |
+                \`\`\`json
+                {"a": 1}
+                \`\`\` |
+                paragraph
+
+                {% include [a](./a.md) %}
+                {% include [b](./b.md) %}
+
+                \`\`\`json
+                {"b": 2}
+                \`\`\`
+                ||
+                |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['a.md', 'b.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should not treat fence runs inside an HTML comment as a real fence', async () => {
+            // Regression for yateam `datasync/http/ru/dg/concepts/data-structure.md`:
+            // an HTML comment contains a sample code fence (` ```javascript … ``` `),
+            // and the regex-based detector saw the `\`\`\` -->` line as a
+            // fence opener (info string `-->`).  The next real `\`\`\``
+            // closed it, producing a phantom range that swallowed the
+            // deflist `{% include %}` blocks between them.
+            const content = dedent`
+                Some intro paragraph.
+
+                <!-- \`\`\`javascript
+                code-like
+                \`\`\` -->
+
+                #### record
+                 
+                :   {% include [record](./_includes/record.md) %}
+
+                #### fields
+                 
+                :   {% include [fields](./_includes/fields.md) %}
+
+                \`\`\`javascript
+                actual code
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/record.md',
+                '_includes/fields.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
         it('should keep includes when a fence is mis-paired in deeply indented deflist context', async () => {
             // Regression for webmaster `ru/search-appearance/images-goods.md`:
             // a definition list (`:   ` marker) opens a fence on the SAME
