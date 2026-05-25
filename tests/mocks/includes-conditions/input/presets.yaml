@@ -1,0 +1,2 @@
+default:
+  condition_var: false
