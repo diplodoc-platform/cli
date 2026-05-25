@@ -30,8 +30,8 @@ export function filterTokens(tokens: Token[], type: string, handler: TokenWalker
 
         if (token.type === type) {
             const result = handler(token, {commented, index});
-            if (result?.skip) {
-                index += result?.skip - 1;
+            if (result && typeof result.skip === 'number') {
+                index += result.skip - 1;
             }
         }
     }

@@ -155,7 +155,7 @@ function unfoldIncludes(
 
                 tokens.splice(index, 1);
 
-                return;
+                return {skip: 0};
             }
 
             const [pathname, hash] = includePath.split('#');
