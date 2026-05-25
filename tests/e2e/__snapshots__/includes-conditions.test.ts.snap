@@ -1,0 +1,92 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle > filelist 1`] = `
+"[
+  "includes/first-hash.md",
+  "includes/second-hash.md",
+  "includes/third-hash.md",
+  "index.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle > filelist 2`] = `
+"[
+  "index.html",
+  "toc.js"
+]"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 1`] = `
+"{% note info %}
+
+This is the first include.
+
+{% endnote %}
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 2`] = `
+"
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 3`] = `
+"This is the third include.
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 4`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Test Includes Conditions
+
+{% include [first](includes/first-hash.md) %}
+
+{% include [second](includes/second-hash.md) %}
+
+{% include [third](includes/third-hash.md) %}
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 5`] = `
+"items:
+  - name: Test Includes Conditions
+    href: index.md
+path: toc.yaml
+"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 6`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Test Includes Conditions</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;div class=\\"yfm-note yfm-accent-info\\" note-type=\\"info\\"&gt;&lt;p class=\\"yfm-note-title\\"&gt;Примечание&lt;/p&gt;/n&lt;div class=\\"yfm-note-content\\"&gt;&lt;p&gt;This is the first include.&lt;/p&gt;/n&lt;/div&gt;&lt;/div&gt;&amp;lt; path=\\"includes/third-hash.md\\" keyword=\\"undefined\\"&amp;gt;","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"}],"vcsPath":"index.md"},"headings":[],"title":"Test Includes Conditions"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`Includes with conditions > Consecutive includes with false condition in the middle 7`] = `"window.__DATA__.data.toc = {"items":[{"name":"Test Includes Conditions","href":"index.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
