@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Twenty-seven bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`). The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Twenty-nine bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern). The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -2268,6 +2268,169 @@ paragraph falls back to {% included %}` with mock
   matches reality: a directive at `≥ 4`-space `rawPrefix` is normally
   inside a container whose own continuation indent equals the prefix,
   so a 0-leading content line aligns with that continuation.
+
+---
+
+### Bug 28: end-of-line ` ```|| ` inside a YFM shorthand-table cell is not recognised as a fence closer
+
+**Symptom**: Yateam `alice-dev-guide/concepts/test-integration.md` and
+`test-functional.md`. The shorthand-table cells use a non-canonical
+fence shape — opener ` ``` ` on its own line, closer glued onto the
+last content line together with the cell separator
+(`  platform: 'telegram' ```||`):
+
+```md
+||`app_info` | … |
+```
+
+app_info:
+app_id: 'telegram'
+platform: 'telegram' ```||
+||`device_state` | …
+
+{% include [ins-n-outs](.../ins-n-outs.md) %}
+
+| `device_state:
+   sound_level: 5`||
+
+````
+
+The fence opener on the standalone ` ``` ` line was detected, but the
+closer hidden at the end of `   platform: 'telegram' ```||` was not
+(our scanner only recognised closers at the START of a line). The
+opener stayed open, eventually getting paired with a much later real
+` ``` ` opener — so every `{% include %}` in between landed inside a
+phantom fence range and was reported as `Include skipped`.
+
+**Cause**: `findFencedCodeBlockRanges` in `core/markdown/loader/resolve-deps.ts`
+checks for closers via `^( ``` |~~~)` on the trimmed line. CommonMark
+forbids non-whitespace before a closer, so this is correct in pure CM,
+but YFM authors routinely glue the YFM-table cell separator onto the
+same line as the closing fence. Markdown-it inside a table cell still
+ends the code block on that line; our scanner did not.
+
+**Resolution**: After failing the start-of-line closer check inside an
+open fence, also test the raw line against
+`/( ``` {3,}|~{3,})\s*(?:\|\||\|#|\|)\s*$/`. The regex matches a
+` ``` ` (or ` ~~~ `) run sitting at the END of the line followed by a
+YFM separator (`||`, `|#`, or `|`) and only whitespace before the line
+break. The match must agree with the open fence char + length so a
+` ~~~ ` run never closes a backtick fence.
+
+**Files**:
+
+- `core/markdown/loader/resolve-deps.ts` — `findFencedCodeBlockRanges`
+  (`END_CLOSE_RE` + closer logic restructured into separate
+  start-of-line / end-of-line passes).
+
+**Tests**:
+
+- `core/markdown/loader.spec.ts` — `should treat ``` glued to end of
+  content line with YFM separator as a closer`. Sets up a YFM
+  shorthand table where two cells use the glued-closer pattern around
+  two `{% include %}` directives, and asserts both deps survive.
+
+**Caveats**:
+
+- The end-of-line closer rule is gated behind an active opener
+  (`openLine >= 0`) and behind char/length agreement, so a stray
+  ` ``` || ` inside a real code block cannot conjure a phantom closer.
+- A code block whose content legitimately ends with ` ```|| ` (very
+  rare — would have to be documentation that prints YFM shorthand
+  syntax verbatim) will be closed prematurely. The worst-case
+  consequence is a real `{% include %}` written as code being expanded
+  as an actual include below the false closer; given how unusual the
+  pattern is, this is an acceptable trade.
+
+---
+
+### Bug 29: ` ``` ` glued after a deflist `:` or list-item marker is not recognised as a fence opener
+
+**Symptom**: Two patterns reported in real docs:
+
+1. Yandex Games `dev/rosreestr-games/ru/rosreestr-games-use/rosreestr-games-use.md`
+   — definition-list bodies that hold examples use the canonical YFM
+   form
+   ```md
+
+   :   ```javascript
+       …
+       ```
+````
+
+followed later by a top-level
+
+````md
+{% include [auth](_includes/.../auth.md) %}
+
+```javascript
+…
+```
+````
+
+````
+The deflist opener was missed (line starts with `:`), so the inner
+` ``` ` closer was mistaken for a fresh opener and paired with the
+later top-level ` ```javascript ` — swallowing the include between
+the two top-level fences.
+2. CatBoost-style list pattern (user-reported):
+```md
+- ```
+    per_float_feature_quantization=['0:1024']
+    ```
+
+    {% include [borders](.../feature_borders.md) %}
+
+    The next example is equivalent:
+
+    ```
+    per_float_feature_quantization=['0:border_count=1024']
+    ```
+````
+
+`- ``` ` is a list item that _contains_ a fence opener. Our scanner
+ignored the line because it starts with `-`, then paired the inner
+closer with the next list item's opener, eating the include in the
+middle.
+
+**Cause**: `findFencedCodeBlockRanges` looked for openers via
+`^( ``` |~~~)` on the trimmed line — without considering that
+markdown-it allows a fence opener to sit on the same line as a list
+bullet (`-`/`*`/`+`/`\d+[.)]`), a definition-list body marker (`:` +
+spaces), or a blockquote marker (`>`).
+
+**Resolution**: Add `stripContainerPrefix(s)` and apply it ONLY when
+looking for an opener (`openLine < 0`). The helper strips at most one
+leading list / deflist / blockquote marker so the fence regex can
+match the rest of the line. Closer detection still operates on the
+raw trimmed line, because once we're inside a fenced block,
+markdown-it consumes container markers literally as code content
+(stripping them on the closer pass would let `- ``` ` inside a real
+code block falsely terminate the outer fence).
+
+**Files**:
+
+- `core/markdown/loader/resolve-deps.ts` — `findFencedCodeBlockRanges`
+  (`stripContainerPrefix` + asymmetric opener / closer scan).
+
+**Tests**:
+
+- `core/markdown/loader.spec.ts`:
+  - `should treat ``` glued after a deflist ":" marker as an opener` —
+    the rosreestr-games shape;
+  - `should treat ``` glued after a list-item marker as an opener` —
+    the CatBoost shape (verifies the user-reported snippet).
+
+**Caveats**:
+
+- Deeply nested container prefixes (`> > ``` js`,
+  `1. > ``` js`, …) strip only the outermost layer. The opener will
+  be missed in those rare cases, which can in turn miss a fence range
+  — at worst causing an `{% include %}` written as code to be
+  expanded. Real-world docs don't seem to use these patterns; the
+  symmetric cure (recursive prefix stripping on closers) would re-open
+  the Bug 22 regression where `- ``` ` inside an outer fence is
+  misread as a closer.
 
 ---
 

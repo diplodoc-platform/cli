@@ -782,7 +782,7 @@ describe('Markdown loader', () => {
             expect(result).toEqual(content);
         });
 
-        it('should treat a `\`\`\` |` line as a valid closer (YFM table cell separator after fence)', async () => {
+        it('should treat a ```` |` line as a valid closer (YFM table cell separator after fence)', async () => {
             // Regression for browser-corporate `ru/policy/cookies-allowed-for-urls.md`:
             // a code fence inside a YFM shorthand cell often ends with the
             // table separator on the same line as the closer (e.g. ` ``` |`).
@@ -849,6 +849,112 @@ describe('Markdown loader', () => {
             expect(deps.map((d: {path: string}) => d.path)).toEqual([
                 '_includes/record.md',
                 '_includes/fields.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued to end of content line with YFM separator as a closer', async () => {
+            // Regression for alice-dev-guide `concepts/test-integration.md`:
+            // an YFM shorthand-table cell uses ` ``` ` on its own line as
+            // the opener and `   text ```|| ` (closer at the END of a
+            // content line + cell separator) instead of putting the closer
+            // on its own line.  Our scanner only recognised closers at the
+            // start of a line, so the opener stayed open and the next real
+            // ` ``` ` (in a different cell) was paired with it, swallowing
+            // every `{% include %}` between them.
+            const content = dedent`
+                #|
+                || **Header** | **Cell** ||
+                || row1 |
+                \`\`\`
+                content line 1
+                content line 2 \`\`\`||
+                || row2 cell
+
+                {% include [a](./a.md) %}
+
+                {% include [b](./b.md) %}
+
+                \`\`\`
+                more code
+                final \`\`\`||
+                |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['a.md', 'b.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued after a deflist `:` marker as an opener', async () => {
+            // Regression for rosreestr-games `rosreestr-games-use.md`:
+            // the document uses the canonical YFM deflist body pattern
+            // `:   \`\`\`javascript … \`\`\`` for examples, then later has
+            // an unrelated top-level ` ```javascript … ``` ` block followed
+            // by `{% include %}`.  Our scanner missed the deflist opener
+            // (line starts with `:`), then mistakenly paired the deflist
+            // closer ` ``` ` with the next top-level opener, swallowing
+            // the include between the two top-level fences.
+            const content = dedent`
+                **Example**
+
+                 
+                :   \`\`\`javascript
+                    one();
+                    two();
+                    \`\`\`
+
+                ##### Section heading
+
+                {% include [auth](./_includes/auth.md) %}
+
+                Use the method below:
+
+                \`\`\`javascript
+                example();
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/auth.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued after a list-item marker as an opener', async () => {
+            // User-reported pattern: a list item containing a fenced code
+            // block with the opener on the same line as the bullet
+            // (`- \`\`\``).  Markdown-it parses this as a list item that
+            // *contains* a code fence; our scanner ignored the line
+            // because it starts with `-`, then paired the inner closer
+            // with the outer opener of the next list item, swallowing
+            // every `{% include %}` between the two code blocks.
+            const content = dedent`
+                - \`\`\`
+                    config=['0:1024']
+                    \`\`\`
+
+                    {% include [feature_borders](./_includes/feature_borders.md) %}
+
+                    The next example is equivalent:
+
+                    \`\`\`
+                    config=['0:border_count=1024']
+                    \`\`\`
+
+                - \`\`\`
+                    config=['0:border_count=1024','1:border_count=1024']
+                    \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/feature_borders.md',
             ]);
             expect(result).toEqual(content);
         });
