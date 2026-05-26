@@ -16,8 +16,8 @@ exports[`Build content map for > project with an include and a picture 1`] = `
       "size": 210,
     },
     "logo.svg": {
-      "hash": "sha256-f29472827a6480016c24ac8ed32c9a09b0b0d0a67bc148329821520aaf818d63",
-      "size": 7397,
+      "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
+      "size": 3402,
     },
     "toc.yaml": {
       "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
