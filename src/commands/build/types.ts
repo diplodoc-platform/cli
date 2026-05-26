@@ -13,6 +13,7 @@ import type {LintArgs, LintConfig, LintRawConfig} from './features/linter';
 import type {OutputMdConfig, PreprocessConfig} from './features/output-md';
 import type {BuildManifestArgs, BuildManifestConfig} from './features/build-manifest';
 import type {BuildStatsArgs, BuildStatsConfig} from './features/build-stats';
+import type {BuildContentMapArgs, BuildContentMapConfig} from './features/build-content-map';
 import type {CrawlerManifestArgs, CrawlerManifestConfig} from './features/crawler-manifest';
 import type {ChangelogsArgs, ChangelogsConfig} from './features/changelogs';
 import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search';
@@ -114,6 +115,7 @@ export type BuildArgs = ProgramArgs &
             LintArgs &
             BuildManifestArgs &
             BuildStatsArgs &
+            BuildContentMapArgs &
             CrawlerManifestArgs &
             PreprocessConfig &
             ChangelogsArgs &
@@ -157,6 +159,7 @@ export type BuildConfig = Config<
         LintConfig &
         BuildManifestConfig &
         BuildStatsConfig &
+        BuildContentMapConfig &
         CrawlerManifestConfig &
         OutputMdConfig &
         ChangelogsConfig &
