@@ -110,22 +110,35 @@ export function mapOutputToSource(outputPath: NormalizedPath, run: Run): Normali
     return outputPath;
 }
 
-// Filter is anchored: only matches top-level `yfm-build-*.json` or
-// `yfm-*-meta*.json`. Subdir matches (`ru/yfm-build-manifest.json`) are
-// user content and must be preserved.
-const SERVICE_FILE_RE = /^yfm-(?:build-.+|.+-meta.*)\.json$/;
-
 // `Run` uses `<output>/.tmp_input/` as a scratch directory during build
 // (see core/Run); those files still exist when AfterAnyRun glob's the
 // output, so we filter them out explicitly to keep `contentHashes` free
 // of duplicates of the real output entries.
 const TMP_INPUT_PREFIX = '.tmp_input/';
 
+// Build-artifact filenames at the output root (the artifacts the CLI
+// itself emits). These would pollute `contentHashes` with self-references
+// and, in some cases (crawler-manifest), with non-deterministic bytes.
+const ARTIFACT_FILENAMES = new Set([
+    'yfm-build-manifest.json',
+    'yfm-build-stats.json',
+    'yfm-build-content.json',
+    'crawler-manifest.json',
+    'files.json',
+]);
+
+// Matches the existing `yfm-*-meta.json` family (e.g.
+// `yfm-redirects-meta-file.json`).
+const META_ARTIFACT_RE = /^yfm-.+-meta.*\.json$/;
+
 export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
     if (outputPath.startsWith(TMP_INPUT_PREFIX)) {
         return true;
     }
-    return SERVICE_FILE_RE.test(outputPath);
+    if (ARTIFACT_FILENAMES.has(outputPath)) {
+        return true;
+    }
+    return META_ARTIFACT_RE.test(outputPath);
 }
 
 // pmap insertion order is scheduler-dependent. To guarantee byte-level

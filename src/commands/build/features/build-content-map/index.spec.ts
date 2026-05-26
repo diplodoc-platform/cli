@@ -141,6 +141,14 @@ describe('BuildContentMap', () => {
             );
         });
 
+        it('excludes crawler-manifest.json at the output root', () => {
+            expect(isExcludedServiceFile('crawler-manifest.json' as NormalizedPath)).toBe(true);
+        });
+
+        it('excludes files.json at the output root', () => {
+            expect(isExcludedServiceFile('files.json' as NormalizedPath)).toBe(true);
+        });
+
         it('keeps regular content files', () => {
             expect(isExcludedServiceFile('ru/foo.md' as NormalizedPath)).toBe(false);
             expect(isExcludedServiceFile('ru/img/pic.png' as NormalizedPath)).toBe(false);
@@ -153,6 +161,14 @@ describe('BuildContentMap', () => {
             expect(isExcludedServiceFile('ru/yfm-build-manifest.json' as NormalizedPath)).toBe(
                 false,
             );
+        });
+
+        it('keeps crawler-manifest.json nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/crawler-manifest.json' as NormalizedPath)).toBe(false);
+        });
+
+        it('keeps files.json nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/files.json' as NormalizedPath)).toBe(false);
         });
 
         it('excludes .tmp_input/ scratch paths', () => {
