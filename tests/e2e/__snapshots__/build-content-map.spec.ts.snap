@@ -12,7 +12,7 @@ exports[`Build content map for > project with an include and a picture 1`] = `
       "size": 26,
     },
     "index.md": {
-      "hash": "sha256-5e1a1d75c69d0e8c9d9837dbb5b3f801a9ef163cf695f816798ff96f4906ab7d",
+      "hash": "sha256-e88b8e3be6984d2cd32135bda147c28a5d0c0f203f9b45550bf3a18ff0934a55",
       "size": 210,
     },
     "logo.svg": {
@@ -41,11 +41,11 @@ exports[`Build content map for > project with autotitle links between pages 1`] 
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-76f6cf91f45dd4199b71090de3a5d9deb45ae542e3517154a6691d296b9b336f",
+      "hash": "sha256-e41c4b5a6e0998dbb165e354bff935c921274d66fa8c429ef83f92029c7616c7",
       "size": 152,
     },
     "other.md": {
-      "hash": "sha256-6f396248153b7516fa19f01fe6d7b4cbdcd4b10b8f963d26146c1c78279795fd",
+      "hash": "sha256-b31394894029b49c99ff7ca3e02eabd555d6f37b7f21d7c113d91e0dd1e377d8",
       "size": 130,
     },
     "toc.yaml": {
