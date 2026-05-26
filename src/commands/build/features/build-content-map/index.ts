@@ -17,6 +17,43 @@ export type BuildContentMapConfig = {
     buildContent: boolean;
 };
 
+type PageAssets = Record<string, NormalizedPath[]>;
+
+// Walks `run.entry.relations` and returns, per entry, the sorted list of its
+// direct `resource`-type dependencies (images, videos, svg, etc.). Sources
+// (includes) are deliberately skipped — they propagate to entry hashes
+// through either `mergeIncludes` (inline content) or `hashIncludes`
+// (signlink-renamed filenames in references). Resource deps are the only
+// ones whose changes do NOT propagate through the entry's file content.
+export function collectPageAssets(run: Run): PageAssets {
+    const result: PageAssets = {};
+    const relations = run.entry.relations;
+
+    for (const node of relations.overallOrder()) {
+        const data = relations.getNodeData(node) as {type?: string} | undefined;
+        if (data?.type !== 'entry') {
+            continue;
+        }
+
+        const assets: NormalizedPath[] = [];
+        for (const dep of relations.directDependenciesOf(node)) {
+            const depData = relations.getNodeData(dep) as {type?: string} | undefined;
+            if (depData?.type === 'resource') {
+                assets.push(dep as NormalizedPath);
+            }
+        }
+
+        if (assets.length === 0) {
+            continue;
+        }
+
+        assets.sort();
+        result[node] = assets;
+    }
+
+    return result;
+}
+
 export class BuildContentMap {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildContentMap', (command: Command) => {

@@ -5,9 +5,10 @@ import {describe, expect, it} from 'vitest';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 
+import {setupRun} from '../../__tests__';
 import {Build} from '../..';
 
-import {BuildContentMap} from './index';
+import {BuildContentMap, collectPageAssets} from './index';
 
 describe('BuildContentMap', () => {
     describe('config wiring', () => {
@@ -39,6 +40,40 @@ describe('BuildContentMap', () => {
             const config2 = {} as BuildConfig;
             const result2 = await configTap(config2, {});
             expect(result2.buildContent).toBe(false);
+        });
+    });
+
+    describe('collectPageAssets', () => {
+        it('returns prime-resource deps per entry, ignoring source/missed nodes', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+
+            rel.addNode('ru/index.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/intro.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            rel.addNode('ru/img/icon.svg' as NormalizedPath, {type: 'resource'});
+            rel.addNode('ru/missing.md' as NormalizedPath, {type: 'missed'});
+
+            rel.addDependency('ru/index.md', 'ru/_includes/intro.md');
+            rel.addDependency('ru/index.md', 'ru/img/pic.png');
+            rel.addDependency('ru/index.md', 'ru/img/icon.svg');
+            rel.addDependency('ru/index.md', 'ru/missing.md');
+
+            expect(collectPageAssets(run)).toEqual({
+                'ru/index.md': ['ru/img/icon.svg', 'ru/img/pic.png'],
+            });
+        });
+
+        it('returns empty object when there are no entries', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            expect(collectPageAssets(run)).toEqual({});
+        });
+
+        it('omits entries that have no resource deps', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+            rel.addNode('ru/lone.md' as NormalizedPath, {type: 'entry'});
+            expect(collectPageAssets(run)).toEqual({});
         });
     });
 });
