@@ -22,7 +22,7 @@ export function addMetaFrontmatter(
     meta: Hash,
     lineWidth: number | undefined,
 ): string {
-    const dumped = yamlDump(meta, {lineWidth}).trim();
+    const dumped = yamlDump(meta, {lineWidth, sortKeys: true}).trim();
     if (dumped === '{}') {
         return content;
     }
