@@ -1,0 +1,59 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Build content map for > project with an include and a picture 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "_includes/snippet.md": {
+      "hash": "sha256-25c382135c889a69ff3a79390f978f030364fc2fcec5e7db6e6e441c57791a61",
+      "size": 26,
+    },
+    "index.md": {
+      "hash": "sha256-7d6d59759438a23202114f9131987c3af5d53cd43876afcafdb58de3c4b0a0ea",
+      "size": 189,
+    },
+    "pic.png": {
+      "hash": "sha256-4c4b6a3be1314ab86138bef4314dde022e600960d8689a2c8f8631802d20dab6",
+      "size": 8,
+    },
+    "toc.yaml": {
+      "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
+      "size": 108,
+    },
+  },
+  "pageAssets": {
+    "index.md": [
+      "pic.png",
+    ],
+  },
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with autotitle links between pages 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-76f6cf91f45dd4199b71090de3a5d9deb45ae542e3517154a6691d296b9b336f",
+      "size": 152,
+    },
+    "other.md": {
+      "hash": "sha256-6f396248153b7516fa19f01fe6d7b4cbdcd4b10b8f963d26146c1c78279795fd",
+      "size": 130,
+    },
+    "toc.yaml": {
+      "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",
+      "size": 145,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
