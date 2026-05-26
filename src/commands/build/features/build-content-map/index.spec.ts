@@ -1,7 +1,9 @@
 import type {BuildConfig} from '../..';
+import type {Stats} from 'node:fs';
 import type {FullTap} from 'tapable';
 
-import {describe, expect, it} from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
+import {when} from 'vitest-when';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 
@@ -173,6 +175,99 @@ describe('BuildContentMap', () => {
             const a = hashContent(Buffer.from('a'));
             const b = hashContent(Buffer.from('b'));
             expect(a).not.toBe(b);
+        });
+    });
+
+    describe('snapshot', () => {
+        it('emits a stable JSON shape for a typical md build', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: true,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            when(run.glob)
+                .calledWith('**/*', expect.anything())
+                .thenResolve([
+                    'ru/foo.md',
+                    'ru/_includes/inc-abcdef012345.md',
+                    'ru/img/pic.png',
+                    'yfm-build-manifest.json',
+                    'yfm-build-content.json',
+                ] as NormalizedPath[]);
+
+            const files: Record<string, Buffer> = {
+                'ru/foo.md': Buffer.from('# Foo\n[](_includes/inc-abcdef012345.md)\n'),
+                'ru/_includes/inc-abcdef012345.md': Buffer.from('Inc content\n'),
+                'ru/img/pic.png': Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+                'yfm-build-manifest.json': Buffer.from('{}'),
+                'yfm-build-content.json': Buffer.from('{}'),
+            };
+            vi.spyOn(run.fs, 'readFile').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                const key = Object.keys(files).find((k) => normalized.endsWith(k));
+                if (!key) {
+                    throw new Error(`unexpected readFile: ${normalized}`);
+                }
+                return files[key];
+            }) as unknown as typeof run.fs.readFile);
+            vi.spyOn(run.fs, 'stat').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                const key = Object.keys(files).find((k) => normalized.endsWith(k));
+                return {size: key ? files[key].length : 0} as Stats;
+            }) as unknown as typeof run.fs.stat);
+
+            let writtenJson: string | undefined;
+            vi.spyOn(run, 'write').mockImplementation(async (path, content) => {
+                if (String(path).endsWith('yfm-build-content.json')) {
+                    writtenJson = content;
+                }
+            });
+
+            // Graph: foo.md is an entry that includes inc.md and references pic.png.
+            const rel = run.entry.relations;
+            rel.addNode('ru/foo.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/inc.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            rel.addDependency('ru/foo.md', 'ru/_includes/inc.md');
+            rel.addDependency('ru/foo.md', 'ru/img/pic.png');
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+
+            await after(run);
+
+            expect(writtenJson).toBeDefined();
+            expect(JSON.parse(writtenJson as string)).toMatchSnapshot();
+        });
+
+        it('writes nothing when flag is off', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: false,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            const writeSpy = vi.spyOn(run, 'write').mockResolvedValue();
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+
+            await after(run);
+
+            expect(writeSpy).not.toHaveBeenCalled();
         });
     });
 });

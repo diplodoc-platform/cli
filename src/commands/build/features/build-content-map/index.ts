@@ -2,6 +2,8 @@ import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 
 import {createHash} from 'node:crypto';
+import {join} from 'node:path';
+import pmap from 'p-map';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {valuable} from '~/core/config';
@@ -10,6 +12,18 @@ import {options} from './config';
 
 export const CONTENT_MAP_FILENAME = 'yfm-build-content.json';
 export const SCHEMA_VERSION = 1;
+const HASH_CONCURRENCY = 30;
+
+type ContentHashEntry = {
+    hash: string;
+    size: number;
+};
+
+type BuildContentFormat = {
+    schemaVersion: typeof SCHEMA_VERSION;
+    contentHashes: Record<string, ContentHashEntry>;
+    pageAssets: Record<string, NormalizedPath[]>;
+};
 
 export type BuildContentMapArgs = {
     buildContent: boolean;
@@ -137,7 +151,69 @@ export class BuildContentMap {
             if (!run.config.buildContent) {
                 return;
             }
-            // Implementation arrives in later tasks.
+
+            const pageAssets = collectPageAssets(run);
+            const contentHashes = await hashOutput(run);
+
+            const manifest: BuildContentFormat = {
+                schemaVersion: SCHEMA_VERSION,
+                contentHashes,
+                pageAssets,
+            };
+
+            await run.write(
+                join(run.output, CONTENT_MAP_FILENAME),
+                JSON.stringify(manifest, null, 2),
+                true,
+            );
         });
     }
+}
+
+// Walks the output directory, filters out service files, and concurrently
+// reads + hashes each remaining file. Keys are source-paths so two builds
+// with different signlink suffixes still pair up on the consumer side.
+async function hashOutput(run: Run): Promise<Record<string, ContentHashEntry>> {
+    let files: NormalizedPath[];
+    try {
+        files = await run.glob('**/*', {cwd: run.output});
+    } catch (error) {
+        run.logger.warn(`BuildContentMap: failed to glob output directory: ${error}`);
+        return {};
+    }
+
+    const eligible = files.filter((file) => !isExcludedServiceFile(file));
+    const result: Record<string, ContentHashEntry> = {};
+
+    // pmap with bounded concurrency — without this we'd open every output
+    // file at once and trip EMFILE on large docs.
+    await pmap(
+        eligible,
+        async (file) => {
+            const abs = join(run.output, file);
+            try {
+                // Project's `globals.d.ts` narrows `readFile` to require an
+                // encoding option; cast through unknown to call the underlying
+                // Node API with no options, which returns a Buffer.
+                const readFile = run.fs.readFile as unknown as (
+                    path: AbsolutePath,
+                ) => Promise<Buffer>;
+                const content = await readFile(abs);
+                const stat = await run.fs.stat(abs);
+                const source = mapOutputToSource(file, run);
+                result[source] = {
+                    hash: hashContent(content),
+                    size: stat.size,
+                };
+            } catch (error) {
+                // File may have been removed between glob and read, or
+                // permissions denied — log and skip rather than abort the
+                // whole build artifact.
+                run.logger.warn(`BuildContentMap: failed to hash ${file}: ${error}`);
+            }
+        },
+        {concurrency: HASH_CONCURRENCY},
+    );
+
+    return result;
 }

@@ -1,0 +1,26 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`BuildContentMap > snapshot > emits a stable JSON shape for a typical md build 1`] = `
+{
+  "contentHashes": {
+    "ru/_includes/inc.md": {
+      "hash": "sha256-0886d37f215d395253802d06b747591b176cf4446caac99fb52299820d625bb3",
+      "size": 12,
+    },
+    "ru/foo.md": {
+      "hash": "sha256-34740c8d5079d1dc3fdd46ce3803021e1ab5fb8806c9f5351f04ec8ae2babd7c",
+      "size": 40,
+    },
+    "ru/img/pic.png": {
+      "hash": "sha256-0f4636c78f65d3639ece5a064b5ae753e3408614a14fb18ab4d7540d2c248543",
+      "size": 4,
+    },
+  },
+  "pageAssets": {
+    "ru/foo.md": [
+      "ru/img/pic.png",
+    ],
+  },
+  "schemaVersion": 1,
+}
+`;
