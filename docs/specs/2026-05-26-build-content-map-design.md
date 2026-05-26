@@ -1,51 +1,51 @@
-# Build Content Map — дизайн
+# Build Content Map — design
 
-**Дата:** 2026-05-26
-**Статус:** утверждено к реализации
-**Пакет:** `@diplodoc/cli`
+**Date:** 2026-05-26
+**Status:** approved for implementation
+**Package:** `@diplodoc/cli`
 
-## Цель
+## Goal
 
-Записать в артефакты сборки content-fingerprint каждой выходной страницы и ресурса, по которому offline-инструмент может вычислить точный набор страниц, изменившихся между двумя любыми ревизиями билда.
+Emit a build artifact containing a content fingerprint for every output page and asset, so an offline tool can compute the exact set of pages that changed between any two build revisions.
 
-Основные потребители:
+Primary consumers:
 
-- индексация поиска: переиндексировать только изменённые страницы;
-- рассылка уведомлений авторам/подписчикам об изменении страницы.
+- search reindexing — reindex only changed pages;
+- change notifications — fan out alerts to authors/subscribers when a page changes.
 
-Diff между ревизиями строится **постпроцессом** над двумя файлами манифеста. Сборка не должна знать о других ревизиях и не должна делать incremental build.
+Diff between revisions is computed as a **post-process** over two manifest files. The build itself does not know about other revisions and does not perform incremental builds.
 
-## Не-цели
+## Non-goals
 
-- Incremental build / кеш переиспользования.
-- Root cause analysis ("почему страница изменилась"). Возможное расширение в schema v2.
-- HTML-уровневое сравнение содержимого. Возможное расширение в schema v2.
-- Запись хешей исходников. Возможное расширение в schema v2.
-- Сам diff-инструмент. Он живёт у потребителя.
+- Incremental build / reuse cache.
+- Root cause analysis ("why did this page change?"). Possible extension in schema v2.
+- HTML-level content comparison. Possible extension in schema v2.
+- Source-content hashes. Possible extension in schema v2.
+- The diff tool itself. It lives at the consumer side.
 
-## Контекст
+## Context
 
-CLI собирает документацию в нескольких форматах. `md2md` сохраняет результат в S3, потребитель (поиск, рассыльщик) читает оттуда. Релевантные для дизайна свойства текущего билда:
+The CLI builds documentation in several formats. The `md2md` pass uploads its output to S3, and consumers (search, notifier) read from there. Build properties relevant to this design:
 
-- `mergeIncludes` в `md2md` по умолчанию **выключен** и таким останется ещё около месяца, потом включится.
-- `hashIncludes` в `md2md` по умолчанию **включён**. Это значит, что include-файлы в output получают подпись по содержимому: `inc.md → inc-{12hex}.md` (см. `signlink` в `packages/cli/src/commands/build/features/output-md/utils.ts`), а ссылки в parent-страницах переписываются на это имя.
-- Картинки/видео/svg-ассеты не подвергаются никаким fingerprint-преобразованиям: ссылка `![](pic.png)` остаётся как есть.
-- В проекте уже есть граф зависимостей `run.entry.relations`: для каждой entry он содержит прямые dependencies с типами `entry | source | resource | missed`.
-- Существующий `yfm-build-manifest.json` описывает структуру (toc-mapping, file-trie, redirects, yfm-config) и нужен docs-viewer'у для навигации. К нему не примешиваем content-fingerprint.
+- `mergeIncludes` in `md2md` is **off** by default, and will stay off for about a month before being switched on.
+- `hashIncludes` in `md2md` is **on** by default. Include files in the output get a content-derived signature in their filename: `inc.md → inc-{12hex}.md` (see `signlink` in `packages/cli/src/commands/build/features/output-md/utils.ts`), and references in parent pages are rewritten to that signed name.
+- Image/video/SVG assets get no fingerprint transformation: `![](pic.png)` stays as-is.
+- The project already exposes a dependency graph at `run.entry.relations`: for each entry it holds direct dependencies typed `entry | source | resource | missed`.
+- The existing `yfm-build-manifest.json` describes structure (toc-mapping, file-trie, redirects, yfm-config) and is consumed by docs-viewer for navigation. We do not mix content fingerprints into it.
 
-### Как изменения распространяются по графу
+### How changes propagate through the graph
 
-| Сценарий                                     | Что в финальном `.md` entry-страницы           | Как изменение include видно в diff                                |
-| -------------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------- |
-| `mergeIncludes: true`                        | Контент include встраивается inline            | Через сам контент entry → хеш entry меняется                      |
-| `mergeIncludes: false`, `hashIncludes: true` | Ссылка `[](inc-{12hex}.md)` с подписью include | Через имя файла → ссылка в entry обновляется → хеш entry меняется |
-| Картинка                                     | `![](pic.png)` — не меняется при изменении png | **Не видно** через хеш entry. Нужен явный граф `page → asset`.    |
+| Scenario                                     | What lands in the entry's final `.md`                 | How an include change shows up in the diff                                    |
+| -------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------- |
+| `mergeIncludes: true`                        | Include content embedded inline                       | Through the entry's content → entry hash changes                              |
+| `mergeIncludes: false`, `hashIncludes: true` | Reference `[](inc-{12hex}.md)` with include signature | Through the filename → reference in entry updates → entry hash changes        |
+| Image asset                                  | `![](pic.png)` — does not change when the png changes | **Not visible** through the entry hash. Needs an explicit `page → asset` map. |
 
-Из таблицы следует ключевое архитектурное решение: для покрытия всех живых сценариев достаточно (а) хешировать каждый файл из `run.output`, индексируя по source-path, и (б) записать прямые ассет-зависимости для каждой entry. Граф для includes избыточен в обоих сценариях, актуальных для проекта.
+This table drives the central architectural decision: to cover every live scenario it is enough to (a) hash every file from `run.output`, keyed by source-path, and (b) record direct asset dependencies for each entry. An include graph is redundant in both scenarios that matter for this project.
 
-## Артефакт
+## Artifact
 
-Новый файл рядом с уже существующими `yfm-*`-артефактами:
+A new file alongside the existing `yfm-*` artifacts:
 
 **`yfm-build-content.json`**
 
@@ -63,20 +63,20 @@ CLI собирает документацию в нескольких форма
 }
 ```
 
-Правила:
+Rules:
 
-- **Ключи во всех секциях — source-paths** (стабильны между билдами; output-paths нестабильны из-за signlink).
-- **`contentHashes[source]`** — `sha256` финального файла из `run.output`, отображённого через mapping source → output:
+- **Keys in every section are source-paths** (stable across builds; output-paths are unstable due to signlink).
+- **`contentHashes[source]`** — `sha256` of the final file in `run.output`, located via the source → output mapping:
   - entry/leading: identity (`foo.md → foo.md`);
-  - include при `hashIncludes: true`, `mergeIncludes: false`: через `signlink`;
-  - include при `mergeIncludes: true`: ключа нет — include-файл не пишется в output, его контент уже в entry;
+  - include when `hashIncludes: true`, `mergeIncludes: false`: via `signlink`;
+  - include when `mergeIncludes: true`: key is absent — the include file is not written to output, its content is already in the entry;
   - asset: identity (`pic.png → pic.png`).
-- **`size`** — размер в байтах файла в output. Дешёвый эвристический сигнал для потребителя; не влияет на диффинг.
-- **`hash`** имеет префикс `sha256-` для возможности эволюции алгоритма без поломок.
-- **`pageAssets[source]`** — прямые `resource`-зависимости entry, нормализованные к source-paths. Includes сюда не пишутся.
-- **`schemaVersion: 1`** — для будущей совместимости.
+- **`size`** — byte size of the file in output. A cheap heuristic signal for the consumer; not involved in diffing.
+- **`hash`** carries a `sha256-` prefix so the algorithm can evolve without breaking consumers.
+- **`pageAssets[source]`** — direct `resource`-type dependencies of the entry, normalized to source-paths. Includes are not written here.
+- **`schemaVersion: 1`** — for future compatibility.
 
-## Diff-алгоритм (на стороне потребителя)
+## Diff algorithm (consumer side)
 
 ```
 changed_pages = {
@@ -87,20 +87,20 @@ changed_pages = {
 }
 ```
 
-Плюс отдельно — добавленные и удалённые страницы:
+Plus added/removed pages, computed separately:
 
 ```
 added_pages   = keys(curr.contentHashes) \ keys(prev.contentHashes)
 removed_pages = keys(prev.contentHashes) \ keys(curr.contentHashes)
 ```
 
-Diff-инструмент сам решает, какой фильтр накладывать на типы файлов: для индексации поиска — `.md` и `.yaml`, для CDN-инвалидации — всё.
+The diff tool decides what extension filter to apply: for search indexing — `.md` and `.yaml`; for CDN invalidation — everything.
 
-## Имплементация
+## Implementation
 
-### Где живёт код
+### Where the code lives
 
-Новая фича `build-content-map` по образцу `build-stats`:
+A new feature `build-content-map`, modeled on `build-stats`:
 
 ```
 packages/cli/src/commands/build/features/build-content-map/
@@ -109,114 +109,114 @@ packages/cli/src/commands/build/features/build-content-map/
   └── config.ts
 ```
 
-Регистрируется наряду с `BuildStats`, `BuildManifest` в общем pipeline билда.
+Registered alongside `BuildStats` and `BuildManifest` in the common build pipeline.
 
-### Флаг
+### Flag
 
-`--build-content` (поведение в точности как у `--build-stats`, `--build-manifest`):
+`--build-content` (behaves exactly like `--build-stats` and `--build-manifest`):
 
-- option в `config.ts` через `~/core/config`;
-- `Command` hook добавляет опцию;
-- `Config` hook нормализует `valuable(...)`-проверкой из CLI-аргумента и yfm-config.
+- option declared in `config.ts` via `~/core/config`;
+- `Command` hook adds the option;
+- `Config` hook normalizes via the `valuable(...)` check across CLI argument and yfm-config.
 
-### Хук и пайплайн
+### Hook and pipeline
 
-Используем `AfterAnyRun` (как `BuildStats`), не `AfterRun.for('md')` — артефакт должен работать в любом outputFormat, не только в `md`.
+We use `AfterAnyRun` (like `BuildStats`), not `AfterRun.for('md')` — the artifact must be produced for any outputFormat, not just `md`.
 
-Последовательность внутри `AfterAnyRun`:
+Sequence inside `AfterAnyRun`:
 
-1. Если `run.config.buildContent !== true` — выходим.
-2. Собираем `pageAssets`: проходим `run.entry.relations`, для каждой ноды типа `entry` берём прямые dependencies с `type === 'resource'`. Ключи нормализуем как source-paths.
-3. Глобим `run.output`: `run.glob('**/*', { cwd: run.output })`. Из списка вычитаем служебные файлы по фильтру (см. "Исключения" ниже).
-4. Для каждого output-файла определяем его source-path по правилам секции "Mapping source → output".
-5. Параллельно (`pmap`, concurrency 30 — как `STAT_CONCURRENCY` в `build-stats`) для каждого output-файла:
-   - читаем содержимое через `run.fs.readFile`;
-   - считаем `sha256(content)`, форматируем как `sha256-{hex}`;
-   - читаем `size` через `run.fs.stat`;
-   - пишем в `contentHashes[source]`.
-6. Сериализуем result, пишем `yfm-build-content.json` через `run.write` с overwrite.
+1. If `run.config.buildContent !== true` — return.
+2. Build `pageAssets`: walk `run.entry.relations`, and for each `entry`-type node collect direct dependencies with `type === 'resource'`. Keys normalized to source-paths.
+3. Glob `run.output`: `run.glob('**/*', { cwd: run.output })`. Strip service files via the filter (see "Exclusions" below).
+4. For each output file, resolve its source-path using the rules in "Source → output mapping".
+5. In parallel (`pmap`, concurrency 30 — same as `STAT_CONCURRENCY` in `build-stats`), for each output file:
+   - read content via `run.fs.readFile`;
+   - compute `sha256(content)`, format as `sha256-{hex}`;
+   - read `size` via `run.fs.stat`;
+   - write into `contentHashes[source]`.
+6. Serialize the result and write `yfm-build-content.json` via `run.write` with overwrite.
 
-### Исключения из обхода
+### Exclusions from traversal
 
-Свои собственные служебные файлы билда не должны попадать в `contentHashes`: они шумят при diff и иногда содержат сами хеши других файлов, что даёт рекурсивный шум.
+Our own build sidecar files must not enter `contentHashes`: they add diff noise and can contain hashes of other files, producing recursive noise.
 
-Фильтр — по имени на верхнем уровне output. Конкретный набор уточняем эмпирически (см. "Открытые вопросы"), стартовый список:
+The filter matches against the path's basename at the top level. The exact set is verified empirically (see "Open questions"); the starting list:
 
 - `yfm-build-manifest.json`
 - `yfm-build-stats.json`
 - `yfm-build-content.json`
 - `yfm-redirects-meta-file.json`
-- любые `yfm-*-meta.json`
+- any `yfm-*-meta.json`
 
-### Mapping source → output (детальный алгоритм)
+### Source → output mapping (detailed algorithm)
 
-Тонкое место. План:
+This is the subtle part. The plan:
 
-1. Из `run.entry.relations` собираем три множества source-paths:
-   - `entries`: ноды типа `entry`;
-   - `sources`: ноды типа `source` (include-файлы);
-   - `resources`: ноды типа `resource`.
-2. Для каждого output-файла определяем его source:
-   - если output-path совпадает с одной из нод (`entries ∪ sources ∪ resources`) — identity-mapping (source = output);
-   - иначе пытаемся распарсить `name-{12hex}.{ext}` и проверить, есть ли `name.{ext}` в `sources`. Если есть — это include с signlink, маппим к source;
-   - иначе — файл не присутствует в graph: identity-mapping и логируем `debug` (это нормально для assets, которые prefix-копируются — например ассеты темы). Пропуск делаем только если файл попал под фильтр исключений из предыдущей секции.
-3. Для include с `mergeIncludes: true` соответствующего файла в output нет — в `contentHashes` он отсутствует. Это корректное поведение: его содержимое уже в entry.
+1. From `run.entry.relations`, collect three sets of source-paths:
+   - `entries`: nodes of type `entry`;
+   - `sources`: nodes of type `source` (include files);
+   - `resources`: nodes of type `resource`.
+2. For each output file, resolve its source:
+   - if the output-path matches one of the nodes (`entries ∪ sources ∪ resources`) — identity mapping (source = output);
+   - otherwise try to parse `name-{12hex}.{ext}` and check whether `name.{ext}` exists in `sources`. If yes — this is a signlink-ed include; map to source.
+   - otherwise — the file is not in the graph: identity mapping plus a `debug` log entry (this is expected for prefix-copied assets such as theme assets). Files are only dropped if they hit the exclusions filter from the previous section.
+3. For an include built with `mergeIncludes: true` no corresponding output file exists — it is absent from `contentHashes`. That is the correct behavior: its content is already embedded in the entry.
 
-### Содержимое для хеширования
+### What gets hashed
 
-Используется **сырое содержимое файла в output** (`run.fs.readFile`, без нормализации). Это то, что реально попадает в S3 и читается потребителями. Нормализовать перевод строк или whitespace — не нужно: любая нормализация искажает картину "файл изменился".
+We use the **raw file bytes in output** (`run.fs.readFile`, no normalization). This is what actually lands in S3 and what consumers read. Normalizing line endings or whitespace would be wrong — any normalization would mask "the file changed".
 
-### Конкурентность и ограничения
+### Concurrency and limits
 
-- `pmap` concurrency 30 (как `STAT_CONCURRENCY` в build-stats) — защита от EMFILE на больших проектах.
-- На очень больших output (десятки тысяч файлов) feature добавит секунды к билду из-за чтения файлов. Это приемлемо для CI; для локального dev — `--build-content` не включаем по умолчанию.
+- `pmap` concurrency 30 (same as `STAT_CONCURRENCY` in build-stats) — guards against EMFILE on large projects.
+- On very large outputs (tens of thousands of files) the feature adds seconds to the build because of the extra reads. Acceptable for CI; local dev should not turn `--build-content` on by default.
 
-### Деградация
+### Graceful degradation
 
-- Если `run.entry.relations` пуст или не содержит entry-нод — `pageAssets` пустой, `contentHashes` строится только из glob output. Файл валиден.
-- Если файл из glob не удаётся прочитать или статнуть — логируем warning и пропускаем (как `readOutputSize` в `build-stats`).
-- Сам `yfm-build-content.json` ещё не существует на момент glob, поэтому в список не попадает. Остальные `yfm-*.json` снимаются фильтром из секции "Исключения".
+- If `run.entry.relations` is empty or has no entry nodes — `pageAssets` is empty, `contentHashes` is built from the output glob alone. The artifact is still valid.
+- If a globbed file fails to read or stat — log a warning and skip (same pattern as `readOutputSize` in `build-stats`).
+- `yfm-build-content.json` itself does not exist at glob time, so it never enters the list. Other `yfm-*.json` files are removed by the exclusions filter.
 
-## Тестирование
+## Testing
 
 Unit-spec `index.spec.ts`:
 
-1. Сравниваем два полных билда из одинакового исходника → идентичные `contentHashes` (детерминизм).
-2. Меняем содержимое entry → меняется только её хеш в `contentHashes`.
-3. Меняем содержимое include → хеш include меняется И хеш entry меняется (через signlink); `pageAssets` не меняется.
-4. Меняем содержимое картинки → хеш картинки меняется, хеш entry **не** меняется (ожидаемо), но `pageAssets[entry]` всё ещё содержит этот asset, что позволяет потребителю засчитать entry как изменённую.
-5. Добавляем картинку в entry → `pageAssets[entry]` расширяется.
-6. С `mergeIncludes: true` хеш include-файла отсутствует в `contentHashes`, но хеш entry меняется.
-7. Служебные файлы `yfm-*.json` не появляются в `contentHashes`.
+1. Two full builds from the same source → identical `contentHashes` (determinism).
+2. Mutate an entry's content → only its own hash in `contentHashes` changes.
+3. Mutate an include's content → include hash changes AND entry hash changes (through signlink); `pageAssets` is unchanged.
+4. Mutate an image's content → image hash changes; the entry hash does **not** change (expected), but `pageAssets[entry]` still lists the asset, so the consumer can still mark the entry as changed.
+5. Add an image to an entry → `pageAssets[entry]` grows.
+6. With `mergeIncludes: true`, the include file's hash is absent from `contentHashes`, but the entry hash changes.
+7. Service files (`yfm-*.json`) never appear in `contentHashes`.
 
-E2E на реальной мини-документации в `tests/e2e/`:
+E2E against a real mini-documentation tree under `tests/e2e/`:
 
-- собираем dataset с одной entry, одним include, одной картинкой;
-- проверяем структуру `yfm-build-content.json`;
-- меняем картинку, пересобираем, проверяем что хеш картинки изменился, `pageAssets` стабилен.
+- build a dataset with one entry, one include, one image;
+- assert the structure of `yfm-build-content.json`;
+- mutate the image, rebuild, assert that the image's hash changed and `pageAssets` is stable.
 
-### Детерминизм — задача 0
+### Determinism — task 0
 
-Перед началом написания фичи проверяем экспериментально, что два полных билда одного исходника дают идентичные хеши финальных файлов. Кандидаты на нестабильность:
+Before any implementation work, verify experimentally that two full builds of the same source produce identical hashes for the final output files. Likely sources of non-determinism:
 
-- `addMetaFrontmatter` — порядок полей в YAML frontmatter ([packages/cli/src/commands/build/features/output-md/index.ts:233](packages/cli/src/commands/build/features/output-md/index.ts#L233));
-- timestamp в meta (если есть);
-- `Map`/`Set` обходы без сортировки в плагинах.
+- `addMetaFrontmatter` — YAML frontmatter key order ([packages/cli/src/commands/build/features/output-md/index.ts:233](packages/cli/src/commands/build/features/output-md/index.ts#L233));
+- timestamps in meta (if any);
+- unsorted `Map`/`Set` traversals in plugins.
 
-Если найдётся источник нестабильности — фиксим его (это в любом случае баг для воспроизводимости сборки). Только после этого начинаем реализацию хеширования.
+If we find a source of non-determinism — fix it (this is a reproducibility bug regardless). Only after that do we start implementing hashing.
 
-## Эволюция
+## Evolution
 
-Schema v2 (не сейчас, не часть этого спека, но дизайн закладывает совместимость):
+Schema v2 (not now, not part of this spec, but the design preserves compatibility):
 
-- `sourceHashes: { [src]: { hash, size } }` — хеш исходника, рядом с финальным;
-- `pageIncludes: { [page]: string[] }` — прямые includes для root-cause;
-- `htmlHash: { [page]: string }` — отдельный hash от md2html для индексации поиска без include-обёрток;
-- composite-hash страницы — не нужен на стороне сборки, может вычисляться diff-инструментом.
+- `sourceHashes: { [src]: { hash, size } }` — source-content hash next to the final-content hash;
+- `pageIncludes: { [page]: string[] }` — direct includes per page, for root-cause analysis;
+- `htmlHash: { [page]: string }` — a separate hash derived from md2html for search indexing without the include wrappers;
+- composite per-page hash — not needed on the build side; the diff tool can compute it.
 
-Все будущие поля добавляются как новые ключи в существующий JSON. Старые потребители игнорируют незнакомые поля. `schemaVersion: 2` сигнализирует о наличии новых полей; v1-потребитель продолжит работать.
+All future fields are added as new keys to the existing JSON. Old consumers ignore unknown fields. `schemaVersion: 2` signals new fields are present; v1-only consumers keep working.
 
-## Открытые вопросы (не блокеры реализации)
+## Open questions (not blockers)
 
-1. Какой именно набор `yfm-*.json` исключать из обхода? Будет уточнено по факту просмотра текущих artifact-имён в `run.output`.
-2. Нужна ли отдельная enum-метка `type: page | include | asset` рядом с каждым хешем? Сейчас потребитель определяет по extension и по факту присутствия в `pageAssets`-значениях. Если этого окажется недостаточно — добавляется в v2.
+1. Which exact set of `yfm-*.json` files do we exclude from traversal? To be tightened once we see the actual artifact names in `run.output`.
+2. Do we need an explicit `type: page | include | asset` enum next to each hash? Currently the consumer infers type from extension and from presence in `pageAssets` values. If that turns out to be insufficient, add the enum in v2.
