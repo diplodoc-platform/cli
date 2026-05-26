@@ -16,6 +16,7 @@ import {
     hashContent,
     isExcludedServiceFile,
     mapOutputToSource,
+    normalizeForHash,
 } from './index';
 
 describe('BuildContentMap', () => {
@@ -204,6 +205,101 @@ describe('BuildContentMap', () => {
             const a = hashContent(Buffer.from('a'));
             const b = hashContent(Buffer.from('b'));
             expect(a).not.toBe(b);
+        });
+    });
+
+    describe('normalizeForHash', () => {
+        it('strips updatedAt from .md frontmatter', () => {
+            const withTs = Buffer.from(
+                '---\ntitle: Foo\nupdatedAt: 2026-05-26T10:00:00Z\n---\n\n# Foo\n',
+            );
+            const withoutTs = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(withTs, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withoutTs, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips contributors and author from .md frontmatter', () => {
+            const withContrib = Buffer.from(
+                '---\ntitle: Foo\nauthor:\n  login: x\ncontributors:\n  - login: a\n  - login: b\n---\n\n# Foo\n',
+            );
+            const minimal = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(withContrib, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(minimal, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('preserves .md without frontmatter (no normalization)', () => {
+            const plain = Buffer.from('# No frontmatter here\n');
+            const out = normalizeForHash(plain, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(plain);
+        });
+
+        it('preserves .md with frontmatter that has no volatile fields', () => {
+            const stable = Buffer.from('---\ntitle: Foo\nlangs: [en]\n---\n\n# Foo\n');
+            const out = normalizeForHash(stable, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(stable);
+        });
+
+        it('keeps content-relevant frontmatter (title, description) in the hash', () => {
+            const a = Buffer.from('---\ntitle: A\n---\n\n# A\n');
+            const b = Buffer.from('---\ntitle: B\n---\n\n# A\n');
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('keeps body text in the hash', () => {
+            const a = Buffer.from('---\ntitle: Foo\n---\n\n# Body A\n');
+            const b = Buffer.from('---\ntitle: Foo\n---\n\n# Body B\n');
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips updatedAt from .yaml leading pages under meta:', () => {
+            // Two `.yaml` leading pages that differ only in `updatedAt` under
+            // `meta:` must hash identically once normalized. We compare via
+            // a normalized YAML dump on both sides (the implementation
+            // re-dumps with sorted keys when a volatile field is stripped),
+            // so both inputs flow through that same code path.
+            const withTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2026-05-26T10:00:00Z\n  description: hi\n',
+            );
+            const withDifferentTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2030-01-01T00:00:00Z\n  description: hi\n',
+            );
+            expect(hashContent(normalizeForHash(withTs, 'index.yaml' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withDifferentTs, 'index.yaml' as NormalizedPath)),
+            );
+        });
+
+        it('preserves .yaml without a meta block (no normalization)', () => {
+            // toc.yaml has no `meta:` — should pass through unchanged.
+            const toc = Buffer.from('items:\n  - name: foo\n    href: foo.md\n');
+            const out = normalizeForHash(toc, 'toc.yaml' as NormalizedPath);
+            expect(out).toEqual(toc);
+        });
+
+        it('preserves .yaml with meta block that has no volatile fields', () => {
+            const stable = Buffer.from(
+                'title: Leading\nmeta:\n  description: hi\n  keywords: [a, b]\n',
+            );
+            const out = normalizeForHash(stable, 'index.yaml' as NormalizedPath);
+            expect(out).toEqual(stable);
+        });
+
+        it('returns binary content unchanged', () => {
+            const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+            const out = normalizeForHash(png, 'pic.png' as NormalizedPath);
+            expect(out).toEqual(png);
+        });
+
+        it('falls back to raw bytes on malformed frontmatter', () => {
+            // Opening fence but no closing fence — invalid frontmatter.
+            const broken = Buffer.from('---\ntitle: Foo\nupdatedAt: 2026-05-26\n');
+            const out = normalizeForHash(broken, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(broken);
         });
     });
 

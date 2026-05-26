@@ -3,6 +3,7 @@ import type {Build, Run} from '~/commands/build';
 
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
+import {dump as yamlDump, load as yamlLoad} from 'js-yaml';
 import pmap from 'p-map';
 
 import {getHooks as getBaseHooks} from '~/core/program';
@@ -158,6 +159,111 @@ export function hashContent(content: Buffer): string {
     return 'sha256-' + createHash('sha256').update(content).digest('hex');
 }
 
+const VOLATILE_META_KEYS = ['updatedAt', 'contributors', 'author'] as const;
+const MD_FRONTMATTER_FENCE = '---\n';
+
+// Strip VCS-injected metadata (`updatedAt`, `contributors`, `author`) from
+// the frontmatter of .md files and the `meta:` block of .yaml leading
+// pages before hashing.
+//
+// Why: with `mtimes: true`, `VcsService.metadata` injects an ISO timestamp
+// into every entry's frontmatter. That timestamp is the max over the page
+// AND its include deps, so any commit touching any included file shifts
+// the parent's hash without changing what readers see. We hash a
+// normalized view so the hash reflects content, not VCS metadata churn.
+//
+// Returns the raw input bytes unchanged when there's nothing to strip,
+// so non-md/non-yaml files (and entries without volatile fields) keep
+// their `hash == sha256(file bytes)` property.
+export function normalizeForHash(content: Buffer, path: NormalizedPath): Buffer {
+    if (path.endsWith('.md')) {
+        return normalizeMarkdown(content);
+    }
+    if (path.endsWith('.yaml')) {
+        return normalizeYaml(content);
+    }
+    return content;
+}
+
+function normalizeMarkdown(content: Buffer): Buffer {
+    const text = content.toString('utf8');
+    if (!text.startsWith(MD_FRONTMATTER_FENCE)) {
+        return content;
+    }
+    // Frontmatter ends at the first `\n---\n` after the opening fence.
+    const fenceEnd = text.indexOf('\n' + MD_FRONTMATTER_FENCE, MD_FRONTMATTER_FENCE.length);
+    if (fenceEnd < 0) {
+        return content;
+    }
+    const fmText = text.slice(MD_FRONTMATTER_FENCE.length, fenceEnd);
+    const body = text.slice(fenceEnd + 1 + MD_FRONTMATTER_FENCE.length);
+
+    let parsed: unknown;
+    try {
+        parsed = yamlLoad(fmText);
+    } catch {
+        return content;
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return content;
+    }
+    const fm = parsed as Record<string, unknown>;
+
+    const hasVolatile = VOLATILE_META_KEYS.some((k) => k in fm);
+    if (!hasVolatile) {
+        return content;
+    }
+
+    const stripped = stripVolatile(fm);
+    if (Object.keys(stripped).length === 0) {
+        return Buffer.from(body, 'utf8');
+    }
+    const newFm = yamlDump(stripped, {sortKeys: true});
+    return Buffer.from(MD_FRONTMATTER_FENCE + newFm + MD_FRONTMATTER_FENCE + body, 'utf8');
+}
+
+function normalizeYaml(content: Buffer): Buffer {
+    const text = content.toString('utf8');
+    let parsed: unknown;
+    try {
+        parsed = yamlLoad(text);
+    } catch {
+        return content;
+    }
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+        return content;
+    }
+    const doc = parsed as Record<string, unknown>;
+
+    const meta = doc.meta;
+    if (!meta || typeof meta !== 'object' || Array.isArray(meta)) {
+        return content;
+    }
+    const metaObj = meta as Record<string, unknown>;
+    const hasVolatile = VOLATILE_META_KEYS.some((k) => k in metaObj);
+    if (!hasVolatile) {
+        return content;
+    }
+
+    const stripped = stripVolatile(metaObj);
+    if (Object.keys(stripped).length === 0) {
+        delete doc.meta;
+    } else {
+        doc.meta = stripped;
+    }
+    return Buffer.from(yamlDump(doc, {sortKeys: true}), 'utf8');
+}
+
+function stripVolatile(obj: Record<string, unknown>): Record<string, unknown> {
+    const out: Record<string, unknown> = {};
+    for (const key of Object.keys(obj)) {
+        if (!(VOLATILE_META_KEYS as readonly string[]).includes(key)) {
+            out[key] = obj[key];
+        }
+    }
+    return out;
+}
+
 export class BuildContentMap {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildContentMap', (command: Command) => {
@@ -235,7 +341,7 @@ async function hashOutput(run: Run): Promise<Record<string, ContentHashEntry>> {
                 const stat = await run.fs.stat(abs);
                 const source = mapOutputToSource(file, run);
                 result[source] = {
-                    hash: hashContent(content),
+                    hash: hashContent(normalizeForHash(content as Buffer, file)),
                     size: stat.size,
                 };
             } catch (error) {

@@ -20,7 +20,7 @@ Diff between revisions is computed as a **post-process** over two manifest files
 - Incremental build / reuse cache.
 - Root cause analysis ("why did this page change?"). Possible extension in schema v2.
 - HTML-level content comparison. Possible extension in schema v2.
-- Source-content hashes. Possible extension in schema v2.
+- Source-content hashes. The current hash captures the final post-processing output (signlink, autotitle, vars) which is what readers see. A separate source-content hash would not address the same use cases.
 - The diff tool itself. It lives at the consumer side.
 
 ## Context
@@ -66,11 +66,14 @@ A new file alongside the existing `yfm-*` artifacts:
 Rules:
 
 - **Keys in every section are source-paths** (stable across builds; output-paths are unstable due to signlink).
-- **`contentHashes[source]`** — `sha256` of the final file in `run.output`, located via the source → output mapping:
+- **`contentHashes[source]`** — `sha256` of a **content-stable view** of the final file in `run.output`, located via the source → output mapping:
   - entry/leading: identity (`foo.md → foo.md`);
   - include when `hashIncludes: true`, `mergeIncludes: false`: via `signlink`;
   - include when `mergeIncludes: true`: key is absent — the include file is not written to output, its content is already in the entry;
   - asset: identity (`pic.png → pic.png`).
+
+  The content-stable view strips VCS-injected metadata (`updatedAt`, `contributors`, `author`) from `.md` frontmatter and from `.yaml` leading pages' `meta:` block before hashing. Without this normalization, `mtimes: true` would cause the hash to flip on every commit because `updatedAt` cascades through the include graph (any commit to any included file bumps the parent's mtime). Binary assets and files without volatile metadata pass through unchanged, so for them `hash == sha256(bytes in S3)` still holds.
+
 - **`size`** — byte size of the file in output. A cheap heuristic signal for the consumer; not involved in diffing.
 - **`hash`** carries a `sha256-` prefix so the algorithm can evolve without breaking consumers.
 - **`pageAssets[source]`** — direct `resource`-type dependencies of the entry, normalized to source-paths. Includes are not written here.
@@ -164,7 +167,15 @@ This is the subtle part. The plan:
 
 ### What gets hashed
 
-We use the **raw file bytes in output** (`run.fs.readFile`, no normalization). This is what actually lands in S3 and what consumers read. Normalizing line endings or whitespace would be wrong — any normalization would mask "the file changed".
+We hash a **content-stable view** of each file — for `.md` and `.yaml` files, this is the file bytes with VCS-injected fields (`updatedAt`, `contributors`, `author`) stripped from frontmatter or `meta:` block. For binary assets and files without volatile fields, the raw bytes are hashed unchanged.
+
+The list of stripped keys is explicit:
+
+- `updatedAt` — propagated mtime, cascades through the include graph.
+- `contributors` — order depends on git traversal order; the avatars/urls drift independently of content.
+- `author` — generally stable but tied to git history; stripped for consistency.
+
+The hash answers "did the content readers see change?", not "did the bytes in S3 change?". Title and description in frontmatter still contribute (they're content), but the volatile fields are stripped because their churn does not reflect a real content change.
 
 ### Concurrency and limits
 
@@ -220,3 +231,4 @@ All future fields are added as new keys to the existing JSON. Old consumers igno
 
 1. Which exact set of `yfm-*.json` files do we exclude from traversal? To be tightened once we see the actual artifact names in `run.output`.
 2. Do we need an explicit `type: page | include | asset` enum next to each hash? Currently the consumer infers type from extension and from presence in `pageAssets` values. If that turns out to be insufficient, add the enum in v2.
+3. Should the volatile-keys list (`updatedAt`, `contributors`, `author`) be configurable? Today it's a fixed denylist; if downstream plugins introduce new volatile fields, we'd need to extend it explicitly.
