@@ -1,6 +1,8 @@
 import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 
+import {createHash} from 'node:crypto';
+
 import {getHooks as getBaseHooks} from '~/core/program';
 import {valuable} from '~/core/config';
 
@@ -101,6 +103,12 @@ const SERVICE_FILE_RE = /^yfm-(?:build-.+|.+-meta.*)\.json$/;
 
 export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
     return SERVICE_FILE_RE.test(outputPath);
+}
+
+// Prefixing with the algorithm name lets us migrate to a different hash
+// (e.g. blake3) in a schema v2 without ambiguity for the consumer.
+export function hashContent(content: Buffer): string {
+    return 'sha256-' + createHash('sha256').update(content).digest('hex');
 }
 
 export class BuildContentMap {

@@ -11,6 +11,7 @@ import {Build} from '../..';
 import {
     BuildContentMap,
     collectPageAssets,
+    hashContent,
     isExcludedServiceFile,
     mapOutputToSource,
 } from './index';
@@ -150,6 +151,28 @@ describe('BuildContentMap', () => {
             expect(isExcludedServiceFile('ru/yfm-build-manifest.json' as NormalizedPath)).toBe(
                 false,
             );
+        });
+    });
+
+    describe('hashContent', () => {
+        it('returns `sha256-{hex}` for a buffer', () => {
+            const hash = hashContent(Buffer.from('hello'));
+            // sha256('hello') = 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+            expect(hash).toBe(
+                'sha256-2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+            );
+        });
+
+        it('is deterministic', () => {
+            const a = hashContent(Buffer.from([0x01, 0x02, 0x03]));
+            const b = hashContent(Buffer.from([0x01, 0x02, 0x03]));
+            expect(a).toBe(b);
+        });
+
+        it('differs for differing inputs', () => {
+            const a = hashContent(Buffer.from('a'));
+            const b = hashContent(Buffer.from('b'));
+            expect(a).not.toBe(b);
         });
     });
 });
