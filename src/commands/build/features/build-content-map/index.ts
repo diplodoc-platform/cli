@@ -94,6 +94,15 @@ export function mapOutputToSource(outputPath: NormalizedPath, run: Run): Normali
     return outputPath;
 }
 
+// Filter is anchored: only matches top-level `yfm-build-*.json` or
+// `yfm-*-meta*.json`. Subdir matches (`ru/yfm-build-manifest.json`) are
+// user content and must be preserved.
+const SERVICE_FILE_RE = /^yfm-(?:build-.+|.+-meta.*)\.json$/;
+
+export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
+    return SERVICE_FILE_RE.test(outputPath);
+}
+
 export class BuildContentMap {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildContentMap', (command: Command) => {

@@ -8,7 +8,12 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {setupRun} from '../../__tests__';
 import {Build} from '../..';
 
-import {BuildContentMap, collectPageAssets, mapOutputToSource} from './index';
+import {
+    BuildContentMap,
+    collectPageAssets,
+    isExcludedServiceFile,
+    mapOutputToSource,
+} from './index';
 
 describe('BuildContentMap', () => {
     describe('config wiring', () => {
@@ -117,6 +122,34 @@ describe('BuildContentMap', () => {
         it('returns identity for an output file unknown to the graph', () => {
             const run = makeRun();
             expect(mapOutputToSource('ru/orphan.md' as NormalizedPath, run)).toBe('ru/orphan.md');
+        });
+    });
+
+    describe('isExcludedServiceFile', () => {
+        it('excludes yfm-build-*.json', () => {
+            expect(isExcludedServiceFile('yfm-build-manifest.json' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('yfm-build-stats.json' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('yfm-build-content.json' as NormalizedPath)).toBe(true);
+        });
+
+        it('excludes yfm-*-meta.json', () => {
+            expect(isExcludedServiceFile('yfm-redirects-meta-file.json' as NormalizedPath)).toBe(
+                true,
+            );
+        });
+
+        it('keeps regular content files', () => {
+            expect(isExcludedServiceFile('ru/foo.md' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/img/pic.png' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/_includes/inc-abc123.md' as NormalizedPath)).toBe(
+                false,
+            );
+        });
+
+        it('keeps yfm-build-named files nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/yfm-build-manifest.json' as NormalizedPath)).toBe(
+                false,
+            );
         });
     });
 });
