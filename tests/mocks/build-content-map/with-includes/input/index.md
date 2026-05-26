@@ -2,4 +2,4 @@
 
 {% include [Snippet](_includes/snippet.md) %}
 
-![Picture](pic.png)
+![Diplodoc logo](logo.svg){inline=false}

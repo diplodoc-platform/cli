@@ -12,12 +12,12 @@ exports[`Build content map for > project with an include and a picture 1`] = `
       "size": 26,
     },
     "index.md": {
-      "hash": "sha256-7d6d59759438a23202114f9131987c3af5d53cd43876afcafdb58de3c4b0a0ea",
-      "size": 189,
+      "hash": "sha256-5e1a1d75c69d0e8c9d9837dbb5b3f801a9ef163cf695f816798ff96f4906ab7d",
+      "size": 210,
     },
-    "pic.png": {
-      "hash": "sha256-ee90005f81ce8c405a0df3be57ed162360e36952a784fc48ed6f6e4977f7729f",
-      "size": 29722,
+    "logo.svg": {
+      "hash": "sha256-f29472827a6480016c24ac8ed32c9a09b0b0d0a67bc148329821520aaf818d63",
+      "size": 7397,
     },
     "toc.yaml": {
       "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
@@ -26,7 +26,7 @@ exports[`Build content map for > project with an include and a picture 1`] = `
   },
   "pageAssets": {
     "index.md": [
-      "pic.png",
+      "logo.svg",
     ],
   },
   "schemaVersion": 1,
