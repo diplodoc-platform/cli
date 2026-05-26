@@ -54,6 +54,46 @@ export function collectPageAssets(run: Run): PageAssets {
     return result;
 }
 
+// Matches `signlink` output naming: `name-{12hex}.{ext}` produced by
+// `packages/cli/src/commands/build/features/output-md/utils.ts:94`. The
+// 12-hex suffix is `sha256(content).slice(0, 12)`. Anchored to require both
+// a non-empty name and a non-empty extension so we don't false-match real
+// filenames that happen to contain a 12-char hex segment.
+const SIGNLINK_RE = /^(.+)-([0-9a-f]{12})(\.[^.]+)$/;
+
+// Resolves an output-path back to the stable source-path used as a key in
+// `contentHashes`. Without this, two builds that differ only in include
+// content would have completely different keys (`inc-abc.md` vs `inc-def.md`)
+// and the consumer couldn't pair them up.
+export function mapOutputToSource(outputPath: NormalizedPath, run: Run): NormalizedPath {
+    const relations = run.entry.relations;
+
+    // Identity mapping: the output filename matches a node already in the
+    // graph. Covers entries, leading pages, and resources.
+    if (relations.hasNode(outputPath)) {
+        return outputPath;
+    }
+
+    // Try to reverse signlink: split `name-{12hex}.{ext}` and check whether
+    // `name.{ext}` exists as a `source`-type node in the graph.
+    const match = SIGNLINK_RE.exec(outputPath);
+    if (match) {
+        const [, base, , ext] = match;
+        const candidate = `${base}${ext}` as NormalizedPath;
+        if (relations.hasNode(candidate)) {
+            const data = relations.getNodeData(candidate) as {type?: string} | undefined;
+            if (data?.type === 'source') {
+                return candidate;
+            }
+        }
+    }
+
+    // Unknown file (e.g. theme assets that aren't tracked in entry graph).
+    // Identity mapping keeps the file present in `contentHashes` so the
+    // consumer can still detect its changes.
+    return outputPath;
+}
+
 export class BuildContentMap {
     apply(program: Build) {
         getBaseHooks(program).Command.tap('BuildContentMap', (command: Command) => {

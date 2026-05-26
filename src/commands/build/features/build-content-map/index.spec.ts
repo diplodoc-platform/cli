@@ -8,7 +8,7 @@ import {getHooks as getBaseHooks} from '~/core/program';
 import {setupRun} from '../../__tests__';
 import {Build} from '../..';
 
-import {BuildContentMap, collectPageAssets} from './index';
+import {BuildContentMap, collectPageAssets, mapOutputToSource} from './index';
 
 describe('BuildContentMap', () => {
     describe('config wiring', () => {
@@ -74,6 +74,49 @@ describe('BuildContentMap', () => {
             const rel = run.entry.relations;
             rel.addNode('ru/lone.md' as NormalizedPath, {type: 'entry'});
             expect(collectPageAssets(run)).toEqual({});
+        });
+    });
+
+    describe('mapOutputToSource', () => {
+        function makeRun() {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+            rel.addNode('ru/foo.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/inc.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            return run;
+        }
+
+        it('returns identity for an entry file present in the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/foo.md' as NormalizedPath, run)).toBe('ru/foo.md');
+        });
+
+        it('returns identity for a resource file present in the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/img/pic.png' as NormalizedPath, run)).toBe(
+                'ru/img/pic.png',
+            );
+        });
+
+        it('reverses signlink for an include file (name-{12hex}.md → name.md)', () => {
+            const run = makeRun();
+            expect(
+                mapOutputToSource('ru/_includes/inc-abcdef012345.md' as NormalizedPath, run),
+            ).toBe('ru/_includes/inc.md');
+        });
+
+        it('returns identity when signlink reverse does not resolve to a known source', () => {
+            const run = makeRun();
+            // No source matches `unrelated.md` — fall through to identity.
+            expect(
+                mapOutputToSource('ru/_includes/unrelated-abcdef012345.md' as NormalizedPath, run),
+            ).toBe('ru/_includes/unrelated-abcdef012345.md');
+        });
+
+        it('returns identity for an output file unknown to the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/orphan.md' as NormalizedPath, run)).toBe('ru/orphan.md');
         });
     });
 });
