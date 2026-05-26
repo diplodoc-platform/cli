@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.39.3](https://github.com/diplodoc-platform/cli/compare/v5.39.2...v5.39.3) (2026-05-25)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.7.2 ([154b2e2](https://github.com/diplodoc-platform/cli/commit/154b2e22b3551cd135be3e858597d15743dc35ac))
+* **deps:** Update @diplodoc/translation@1.7.22 ([f8da04a](https://github.com/diplodoc-platform/cli/commit/f8da04a671c05b3ccef41204c29d1ef2f38120e6))
+* empty include content handle ([#1950](https://github.com/diplodoc-platform/cli/issues/1950)) ([96124ba](https://github.com/diplodoc-platform/cli/commit/96124ba142dd6457673c6a7879226aa5f0a848a6))
+
 ## [5.39.2](https://github.com/diplodoc-platform/cli/compare/v5.39.1...v5.39.2) (2026-05-21)
 
 
