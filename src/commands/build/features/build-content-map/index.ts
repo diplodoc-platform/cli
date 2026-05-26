@@ -115,8 +115,28 @@ export function mapOutputToSource(outputPath: NormalizedPath, run: Run): Normali
 // user content and must be preserved.
 const SERVICE_FILE_RE = /^yfm-(?:build-.+|.+-meta.*)\.json$/;
 
+// `Run` uses `<output>/.tmp_input/` as a scratch directory during build
+// (see core/Run); those files still exist when AfterAnyRun glob's the
+// output, so we filter them out explicitly to keep `contentHashes` free
+// of duplicates of the real output entries.
+const TMP_INPUT_PREFIX = '.tmp_input/';
+
 export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
+    if (outputPath.startsWith(TMP_INPUT_PREFIX)) {
+        return true;
+    }
     return SERVICE_FILE_RE.test(outputPath);
+}
+
+// pmap insertion order is scheduler-dependent. To guarantee byte-level
+// determinism in the emitted JSON, we rebuild each top-level dictionary
+// with keys in alphabetical insertion order before serializing.
+function sortKeys<V>(obj: Record<string, V>): Record<string, V> {
+    const result: Record<string, V> = {};
+    for (const key of Object.keys(obj).sort()) {
+        result[key] = obj[key];
+    }
+    return result;
 }
 
 // Prefixing with the algorithm name lets us migrate to a different hash
@@ -152,8 +172,8 @@ export class BuildContentMap {
                 return;
             }
 
-            const pageAssets = collectPageAssets(run);
-            const contentHashes = await hashOutput(run);
+            const pageAssets = sortKeys(collectPageAssets(run));
+            const contentHashes = sortKeys(await hashOutput(run));
 
             const manifest: BuildContentFormat = {
                 schemaVersion: SCHEMA_VERSION,

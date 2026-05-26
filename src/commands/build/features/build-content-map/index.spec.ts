@@ -154,6 +154,19 @@ describe('BuildContentMap', () => {
                 false,
             );
         });
+
+        it('excludes .tmp_input/ scratch paths', () => {
+            expect(isExcludedServiceFile('.tmp_input/ru/foo.md' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('.tmp_input/.yfm' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('.tmp_input/ru/_includes/inc.md' as NormalizedPath)).toBe(
+                true,
+            );
+        });
+
+        it('keeps user content that contains tmp_input in its name', () => {
+            expect(isExcludedServiceFile('ru/.tmp_input.md' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/foo/.tmp_input/bar.md' as NormalizedPath)).toBe(false);
+        });
     });
 
     describe('hashContent', () => {
@@ -245,6 +258,62 @@ describe('BuildContentMap', () => {
 
             expect(writtenJson).toBeDefined();
             expect(JSON.parse(writtenJson as string)).toMatchSnapshot();
+        });
+
+        it('serializes contentHashes and pageAssets with sorted keys', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: true,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            // Glob returns paths in a deliberately unsorted order. Result should
+            // still serialize alphabetically.
+            when(run.glob)
+                .calledWith('**/*', expect.anything())
+                .thenResolve(['ru/zeta.md', 'ru/alpha.md', 'ru/mu.md'] as NormalizedPath[]);
+
+            const buf = (s: string) => Buffer.from(s);
+            vi.spyOn(run.fs, 'readFile').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                if (normalized.endsWith('zeta.md')) return buf('z');
+                if (normalized.endsWith('alpha.md')) return buf('a');
+                if (normalized.endsWith('mu.md')) return buf('m');
+                throw new Error(`unexpected: ${normalized}`);
+            }) as unknown as typeof run.fs.readFile);
+            vi.spyOn(run.fs, 'stat').mockImplementation(
+                (async () => ({size: 1}) as Stats) as unknown as typeof run.fs.stat,
+            );
+
+            let writtenJson: string | undefined;
+            vi.spyOn(run, 'write').mockImplementation(async (path, content) => {
+                if (String(path).endsWith('yfm-build-content.json')) {
+                    writtenJson = content;
+                }
+            });
+
+            // Add the three entries in non-alphabetical order in the graph too.
+            const rel = run.entry.relations;
+            rel.addNode('ru/zeta.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/alpha.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/mu.md' as NormalizedPath, {type: 'entry'});
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+            await after(run);
+
+            // Check that the keys in the serialized JSON appear in sorted order.
+            const keys = Array.from(
+                (writtenJson as string).matchAll(/"(ru\/[a-z]+\.md)":/g),
+                (m) => m[1],
+            );
+            expect(keys).toEqual(['ru/alpha.md', 'ru/mu.md', 'ru/zeta.md']);
         });
 
         it('writes nothing when flag is off', async () => {
