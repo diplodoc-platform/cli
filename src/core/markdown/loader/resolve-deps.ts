@@ -52,14 +52,30 @@ function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = 
     let openChar = '';
     let openLen = 0;
 
-    // Strip a leading list / deflist / blockquote marker from a *trimmed*
+    // Strip a leading list-item or definition-list marker from a *trimmed*
     // line so we can recognise a fence opener that lives on the same line
-    // as a list bullet (`- ```js`), a definition-list body (`:   ```js`),
-    // or a blockquote prefix (`> ```js`).  Markdown-it parses such lines
-    // as a list item / deflist body / blockquote *containing* a code fence
-    // opener; if we don't strip the prefix we'll miss the opener and pair
-    // the real closer ` ``` ` with whatever fence we see next, swallowing
-    // every `{% include %}` in between.  See Bug 29.
+    // as a list bullet (`- ```js`) or a definition-list body
+    // (`:   ```js`).  Markdown-it parses such lines as a list item /
+    // deflist body *containing* a code fence opener; if we don't strip
+    // the prefix we'll miss the opener and pair the real closer ` ``` `
+    // with whatever fence we see next, swallowing every `{% include %}`
+    // in between.  See Bug 29.
+    //
+    // CommonMark / markdown-it indent rules for these containers mean
+    // the matching closer is rendered as ` ``` ` at the continuation
+    // indent (i.e. WITHOUT the bullet / `:` marker).  Our closer scan
+    // therefore correctly finds it without any prefix stripping — the
+    // stripping here is asymmetric on purpose.
+    //
+    // Blockquote (`> `) is intentionally NOT stripped: a blockquote-
+    // wrapped fenced code block carries `> ` on BOTH the opener and the
+    // closer line.  Symmetric stripping would also misinterpret stray
+    // `> ``` ` text inside a real code block, while one-sided stripping
+    // (opener only) leaves a phantom open fence that swallows every
+    // subsequent `{% include %}` until the next top-level ``` shows up.
+    // The cost of ignoring blockquote fences is one rare edge case
+    // (`{% include %}` shown as code inside a blockquoted fence),
+    // which has not been observed in any real doc set.  See Bug 30.
     const stripContainerPrefix = (s: string): string => {
         const list = /^(?:[-*+]|\d{1,9}[.)])\s+/.exec(s);
         if (list) {
@@ -68,10 +84,6 @@ function findFencedCodeBlockRanges(content: string, excludeRanges: Location[] = 
         const deflist = /^:\s+/.exec(s);
         if (deflist) {
             return s.slice(deflist[0].length);
-        }
-        const blockquote = /^>\s+/.exec(s);
-        if (blockquote) {
-            return s.slice(blockquote[0].length);
         }
         return s;
     };
