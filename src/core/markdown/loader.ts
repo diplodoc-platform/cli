@@ -23,6 +23,8 @@ export enum TransformMode {
     Md = 'md',
 }
 
+const MAX_LINE_LENGTH = 30000;
+
 export class LoaderAPI {
     blockCodes: Bucket<Location[]>;
     comments: Bucket<Location[]>;
@@ -63,6 +65,15 @@ export type LoaderContext = LiquidContext & {
 };
 
 export async function loader(this: LoaderContext, content: string) {
+    const lines = content.split('\n');
+    for (let i = 0; i < lines.length; i++) {
+        if (lines[i].length > MAX_LINE_LENGTH) {
+            this.logger.error(
+                `${this.path}: ${i + 1}: YFM018 / Line is too long (${lines[i].length} chars, limit is ${MAX_LINE_LENGTH})`,
+            );
+        }
+    }
+
     content = mangleFrontMatter.call(this, content);
     content = resolveNoTranslate.call(this, content);
     content = templateContent.call(this, content);
