@@ -924,6 +924,167 @@ describe('Markdown loader', () => {
             expect(result).toEqual(content);
         });
 
+        it('should NOT treat ``` opener glued to a blockquote `>` marker as a fence opener', async () => {
+            // Regression for Bug 30 — five real-world docs (tracker
+            // create-filter.md, forms send-request.md, webmaster
+            // host-verification-get.md, xml response.md, sky-list
+            // response-format.md).  Inside a blockquote, both the opener
+            // ` > \`\`\`` and the closer ` > \`\`\` ` carry the `>`
+            // marker.  If we strip `>` only for opener detection, the
+            // matching ` > \`\`\` ` closer no longer matches (still
+            // starts with `>` after trimStart) and the first downstream
+            // top-level ` ``` ` would close a long phantom fence range
+            // that swallows every `{% include %}` in between.
+            //
+            // Markdown-it would parse the inner fence correctly, but
+            // ignoring blockquote-fences entirely is strictly safer for
+            // our purpose (the only cost is an `{% include %}` shown as
+            // code inside a blockquoted fence — never observed in real
+            // docs).
+            const content = dedent`
+                Some intro.
+
+                > \`\`\`json
+                > POST /v1/items HTTP/1.1
+                > Host: example.com
+                > \`\`\`
+
+                > \`\`\`json
+                > GET /v1/items HTTP/1.1
+                > \`\`\`
+
+                {% include [response](./_includes/response.md) %}
+
+                \`\`\`json
+                {"ok": true}
+                \`\`\`
+
+                Trailing text.
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/response.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should NOT treat ``` opener glued to a blockquote with extra indent (`>   ` + ```)', async () => {
+            // Regression for Bug 30 specifically on forms send-request.md
+            // and webmaster host-verification-get.md, where the
+            // blockquote-wrapped fence sits inside a tab-list and uses
+            // `>   ` (blockquote + 3 spaces) on the opener and closer.
+            const content = dedent`
+                > Example:
+                >
+                >* **URL** — \`api/v3/entities\`.
+                >
+                >   \`\`\`json
+                >
+                >       {
+                >           "name": "x"
+                >       }
+                >    \`\`\`
+                >
+
+                ## Section
+
+                {% include notitle [errors](_includes/errors.md) %}
+
+                Next paragraph.
+
+                \`\`\`json
+                {"y": 1}
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/errors.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep all includes between two blockquote-wrapped fences and a later top-level fence', async () => {
+            // Regression for Bug 30 — webmaster
+            // host-verification-get.md case with 4 includes between the
+            // blockquote-fences and the next top-level ``` (Response
+            // codes example).  Without the fix the first ` > \`\`\` `
+            // opener stayed unterminated and the next ``` swallowed all
+            // four includes.
+            const content = dedent`
+                # Title
+
+                > \`\`\`javascript
+                > {
+                >   "verification_uin": "abc"
+                > }
+                > \`\`\`
+                >
+                > \`\`\`xml
+                > <Data></Data>
+                > \`\`\`
+
+                {% include [a](../_includes/a.md) %}
+
+                {% include [b](../_includes/b.md) %}
+
+                {% include [c](../_includes/c.md) %}
+
+                {% include [d](../_includes/d.md) %}
+
+                \`\`\`no-highlight
+                example
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '../_includes/a.md',
+                '../_includes/b.md',
+                '../_includes/c.md',
+                '../_includes/d.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep two adjacent blockquote-wrapped includes around a blockquote-wrapped fence', async () => {
+            // Regression for Bug 30 — sky-list response-format pattern
+            // from the user: ` > {% include %} ` ... ` > \`\`\` ` ...
+            // ` > \`\`\` ` ... ` > {% include %} `.  Without the fix the
+            // opening ` > \`\`\` ` was caught by the (incorrect)
+            // blockquote-opener stripping, the closer ` > \`\`\` ` was
+            // missed, and the second include later in the document was
+            // pulled into a phantom fence range.
+            const content = dedent`
+                > {% include [cmd](_includes/sky-list/id-response-format/the-following-command.md) %}
+                >
+                >
+                > \`\`\`
+                > sky ping G@ws40-055 G@ws40-004
+                > \`\`\`
+                >
+                > {% include [ans](_includes/sky-list/id-response-format/the-following-answer.md) %}
+
+                Trailing paragraph.
+
+                \`\`\`
+                code
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/sky-list/id-response-format/the-following-command.md',
+                '_includes/sky-list/id-response-format/the-following-answer.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
         it('should treat ``` glued after a list-item marker as an opener', async () => {
             // User-reported pattern: a list item containing a fenced code
             // block with the opener on the same line as the bullet

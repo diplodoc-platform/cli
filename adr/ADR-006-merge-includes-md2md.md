@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Twenty-nine bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern). The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Thirty bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern; Bug 30 is a regression introduced by the Bug 29 patch: it stripped a blockquote `>` prefix only on the opener side and not on the closer side, leaving phantom fence ranges across blockquote-wrapped code blocks — surfaced on Tracker `create-filter.md`, Forms `send-request.md`, Webmaster `host-verification-get.md`, XML `response.md` and the user-reported sky-list blockquote-include pattern). The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -2396,17 +2396,24 @@ middle.
 **Cause**: `findFencedCodeBlockRanges` looked for openers via
 `^( ``` |~~~)` on the trimmed line — without considering that
 markdown-it allows a fence opener to sit on the same line as a list
-bullet (`-`/`*`/`+`/`\d+[.)]`), a definition-list body marker (`:` +
-spaces), or a blockquote marker (`>`).
+bullet (`-`/`*`/`+`/`\d+[.)]`) or a definition-list body marker
+(`:` + spaces). These container kinds are **asymmetric**: the matching
+closer ` ``` ` is rendered at the continuation indent (no bullet, no
+`:`), so the strip is safe to apply only on the opener side.
+
+(Blockquote `>` is structurally _symmetric_ — the closer line also
+carries `>`. An earlier draft of this fix included `>` in the
+container-prefix list; that introduced Bug 30 and was reverted. See
+Bug 30 for the full asymmetry analysis.)
 
 **Resolution**: Add `stripContainerPrefix(s)` and apply it ONLY when
 looking for an opener (`openLine < 0`). The helper strips at most one
-leading list / deflist / blockquote marker so the fence regex can
-match the rest of the line. Closer detection still operates on the
-raw trimmed line, because once we're inside a fenced block,
-markdown-it consumes container markers literally as code content
-(stripping them on the closer pass would let `- ``` ` inside a real
-code block falsely terminate the outer fence).
+leading list / deflist marker so the fence regex can match the rest of
+the line. Closer detection still operates on the raw trimmed line,
+because once we're inside a fenced block, markdown-it consumes
+container markers literally as code content (stripping them on the
+closer pass would let `- ``` ` inside a real code block falsely
+terminate the outer fence).
 
 **Files**:
 
@@ -2423,14 +2430,153 @@ code block falsely terminate the outer fence).
 
 **Caveats**:
 
-- Deeply nested container prefixes (`> > ``` js`,
-  `1. > ``` js`, …) strip only the outermost layer. The opener will
-  be missed in those rare cases, which can in turn miss a fence range
-  — at worst causing an `{% include %}` written as code to be
-  expanded. Real-world docs don't seem to use these patterns; the
-  symmetric cure (recursive prefix stripping on closers) would re-open
-  the Bug 22 regression where `- ``` ` inside an outer fence is
-  misread as a closer.
+- Only one layer of container prefix is stripped. Deeper nesting
+  (`1. - ``` `, etc.) would miss the opener, which is harmless — the
+  worst-case outcome is missing a fence range, i.e. an `{% include %}`
+  written as code inside that deeply nested fence could be expanded as
+  a real include. Real docs do not seem to use such patterns.
+- Blockquote (`>`) is intentionally excluded from this stripping — see
+  Bug 30 for the reasoning.
+
+---
+
+### Bug 30: blockquote-wrapped fence created phantom ranges and swallowed real includes (regression of Bug 29)
+
+**Symptom**: Five real-world docs lost include directives entirely (the
+loader stopped recognising them as includes — they were emitted to the
+HTML stage as-is and reported as `Include skipped in …`):
+
+1. Tracker `support/tracker/common/ru/api-ref/filters/create-filter.md`
+   line 142.
+2. Forms `support/forms/common/ru/send-request.md` line 182.
+3. Webmaster `dev/webmaster/en/reference/host-verification-get.md`
+   lines 90, 93, 96, 99 (four includes).
+4. XML `dev/xml/ru/concepts/response.md` line 224.
+5. User-reported pattern (sky-list):
+   ````md
+   > {% include [cmd](_includes/…/the-following-command.md) %}
+   >
+   > ```
+   > sky ping G@ws40-055 G@ws40-004
+   > ```
+   >
+   > {% include [ans](_includes/…/the-following-answer.md) %}
+   ````
+
+In every case the document contained a fenced code block inside a
+blockquote (e.g. ` > \`\`\`json … > \`\`\` `) followed later by a
+top-level fence (` \`\`\`json … \`\`\` `).
+
+**Cause**: The Bug 29 patch added `>` to `stripContainerPrefix` so that
+` > \`\`\`json ` would be recognised as a fence opener. But the patch
+applied the strip ONLY in the opener branch (`openLine < 0`), reasoning
+that closer detection should not strip prefixes (to avoid the Bug 22
+class of regressions where ` - \`\`\` ` text inside an outer code block
+is mistaken for a closer).
+
+That reasoning is correct for list-item and definition-list openers,
+which are **asymmetric** (closer is rendered as ` \`\`\` `at the
+continuation indent — no bullet, no`:`marker). It is wrong for
+blockquote: a fence inside a blockquote is **symmetric** — markdown-it
+parses every line of the blockquote as having a`> `prefix, so both
+the opener`> \`\`\``and the closer`> \`\`\`` carry it.
+
+The one-sided strip therefore detected the blockquote-fence opener,
+then never matched its real closer (still starts with `>` after
+`trimStart`). The fence stayed open until the next downstream
+top-level ` \`\`\` `showed up — which then closed a phantom range
+that contained every`{% include %}` directive between them.
+
+**Resolution**: Remove `>\s+` from `stripContainerPrefix`. Document
+the asymmetry explicitly. We accept that blockquote-wrapped fenced
+code blocks are no longer detected by the scanner (the opener `> \`\`\``just looks like blockquote text, the closer too). The only cost is
+that an`{% include %}` directive shown as code **inside** a
+blockquote-wrapped fenced code block would be wrongly expanded as a
+real include — a pattern that has not been observed in any real doc
+set we audited.
+
+Symmetric `>` stripping (on both opener and closer) was considered
+and rejected:
+
+- It re-introduces a Bug 22-style risk: a ` > \`\`\` ` line that
+  happens to live as text content inside an outer fenced code block
+  would be mistaken for a closer and terminate the outer fence
+  prematurely.
+- Nested blockquotes (` > > \`\`\` `) would need recursive stripping —
+  more code, more edge cases.
+- Removing the strip simply restores the pre-Bug-29 behaviour for
+  blockquote-fences (i.e. they are invisible to our scanner). This is
+  the _minimum_ code change consistent with the principle "false
+  negatives (fence not detected, harmless in 99% of docs) are
+  preferable to false positives (phantom range swallows real
+  includes)".
+
+**Files**:
+
+- `core/markdown/loader/resolve-deps.ts` — `stripContainerPrefix` no
+  longer matches `^>\s+`. Comment block updated to record the
+  asymmetry argument so future contributors don't re-add it.
+
+**Tests**:
+
+- `core/markdown/loader.spec.ts` — four new tests under the existing
+  `describe(' ``` fence detection inside markdown', …)` block:
+  - `should NOT treat ``` opener glued to a blockquote ">" marker as
+a fence opener` — minimal repro (two blockquote-fences plus a
+    later top-level fence around an `{% include %}`).
+  - `should NOT treat ``` opener glued to a blockquote with extra
+indent (">   " + ```)` — forms send-request.md shape with
+    `>   ```json … >    ``` ` and a top-level fence after the
+    include.
+  - `should keep all includes between two blockquote-wrapped fences
+and a later top-level fence` — webmaster host-verification-get.md
+    shape (four adjacent top-level includes between blockquote-fences
+    and a later top-level fence).
+  - `should keep two adjacent blockquote-wrapped includes around a
+blockquote-wrapped fence` — user-reported sky-list pattern.
+
+**Caveats**:
+
+- An `{% include %}` written as code inside a blockquote-wrapped
+  fenced code block will be wrongly expanded. Mitigation: documentation
+  that needs to show an include literally inside a blockquote can
+  either drop the blockquote wrapper, escape the directive
+  (`{% raw %}{% include %}{% endraw %}`), or wrap the example in a
+  top-level fence — all three are already idiomatic for showing YFM
+  syntax verbatim.
+- The Bug 29 fix for list (`- \`\`\``) and deflist (`: \`\`\``)
+  openers remains in place — those markers are structurally asymmetric
+  (no marker on the closer), so the one-sided strip is correct there.
+
+---
+
+### Stability retrospective (Bugs 19–30)
+
+The fixes accumulated in this ADR for `findFencedCodeBlockRanges` (the
+single source of truth for "does an `{% include %}` lie inside a
+code block?") have been re-evaluated against the realised regressions:
+
+| Bug | Type                                                       | Asymmetry                               | Safe?                                                  |
+| --- | ---------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------ |
+| 25  | YFM closer ` ```\|` / ` ```\|\|` / ` ```\|#` at line start | YFM-only suffix                         | yes (gated by an active opener and char/length match)  |
+| 26  | HTML comment ranges excluded from fence scan               | n/a                                     | yes (the markdown parser also ignores comment content) |
+| 28  | YFM closer ` ```\|\|` at end of content line               | YFM-only suffix                         | yes (same gating as Bug 25)                            |
+| 29  | List / deflist opener strip (`-`, `*`, `+`, `\d+.`, `:`)   | asymmetric (closer has no marker)       | yes                                                    |
+| 29  | Blockquote opener strip (`>`)                              | **symmetric** (closer also carries `>`) | **NO — reverted in Bug 30**                            |
+
+The lesson is the asymmetry test: a container that prefixes only the
+opener line (list / deflist) is safe to strip one-sided; a container
+that prefixes every line of its body (blockquote) is not. Future
+container-prefix additions must pass this test before being shipped.
+
+A separate, structural lesson (recorded for the merge-includes
+inlinability rules — see `canInlineInclude` and the surrounding bug
+list, especially Bugs 24, 27): when the source ambiguity is between
+"inline cleanly" and "anything could happen on the boundary", the
+default should be the `{% included %}` fallback. Adding code to detect
+new safe-to-inline patterns trades stability for fewer appendix blocks
+in the output, which is usually a bad trade — appendices are
+viewer-rendered identically to inline content and cost nothing.
 
 ---
 
