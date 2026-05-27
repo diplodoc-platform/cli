@@ -57,13 +57,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -262,13 +274,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -1025,13 +1049,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -1691,13 +1727,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -1858,13 +1906,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -2878,13 +2938,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -5911,13 +5983,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -8674,13 +8758,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -11809,13 +11905,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -11916,13 +12024,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -15172,13 +15292,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -17969,13 +18101,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -18140,13 +18284,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -19330,13 +19486,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -19495,13 +19663,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
@@ -20702,13 +20882,25 @@ definitions:
                 type: string
                 translate: md
           visible:
-            type: string
-            enum:
-              - sm
-              - md
-              - lg
-              - xl
-              - all
+            oneOf:
+              - type: string
+                enum:
+                  - sm
+                  - md
+                  - lg
+                  - xl
+                  - all
+              - type: object
+                properties:
+                  sm:
+                    type: boolean
+                  md:
+                    type: boolean
+                  lg:
+                    type: boolean
+                  xl:
+                    type: boolean
+                additionalProperties: false
           resetPaddings:
             type: boolean
           context:
