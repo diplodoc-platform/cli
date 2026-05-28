@@ -78,8 +78,8 @@
   "dependencies": {
     "@diplodoc/client": "^5.7.5",
     "@diplodoc/liquid": "^1.5.2",
-    "@diplodoc/transform": "^4.75.1",
-    "@diplodoc/translation": "^1.7.22",
+    "@diplodoc/transform": "^4.75.4",
+    "@diplodoc/translation": "^1.7.24",
     "@diplodoc/utils": "^2.2.3",
     "@gravity-ui/uikit-themer": "^1.7.0",
     "@inquirer/prompts": "^8.3.2",
