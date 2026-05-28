@@ -1,0 +1,9 @@
+title: Build content map - autotitle chain
+href: a.md
+items:
+  - name: A
+    href: a.md
+  - name: B
+    href: b.md
+  - name: C
+    href: c.md

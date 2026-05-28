@@ -1,0 +1,7 @@
+title: Build content map - autotitle target with include
+href: a.md
+items:
+  - name: A
+    href: a.md
+  - name: B
+    href: b.md

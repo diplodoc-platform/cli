@@ -1,5 +1,221 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
+exports[`Build content map for > autotitle chain (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "a.md": {
+      "hash": "sha256-96a36dbf19f9ee0f55911676885efb2ee68c54362c86a12740f6611484e88754",
+      "size": 151,
+    },
+    "b.md": {
+      "hash": "sha256-83260e2b8413c136784c1258dc14ff157f744b7da1a2e5d459b0dd3c35e6e723",
+      "size": 155,
+    },
+    "c.md": {
+      "hash": "sha256-3ad31d67c1dcdc9f07465ab51a149593e4b4cd8c894a8cbc9cf08288ba0754af",
+      "size": 142,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
+      "size": 157,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle chain (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "a.md": {
+      "hash": "sha256-96a36dbf19f9ee0f55911676885efb2ee68c54362c86a12740f6611484e88754",
+      "size": 151,
+    },
+    "b.md": {
+      "hash": "sha256-83260e2b8413c136784c1258dc14ff157f744b7da1a2e5d459b0dd3c35e6e723",
+      "size": 155,
+    },
+    "c.md": {
+      "hash": "sha256-3ad31d67c1dcdc9f07465ab51a149593e4b4cd8c894a8cbc9cf08288ba0754af",
+      "size": 142,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
+      "size": 157,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle target with include (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "_includes/snippet.md": {
+      "hash": "sha256-15e5534f3fd87d3799fc5ba720332adc871dc63ac87c27ab1baf6b083d5b5812",
+      "size": 57,
+    },
+    "a.md": {
+      "hash": "sha256-da11068e0e49a8e1668cada75756be1c2a62a80b5f853bb9ddcae3bffae2f6be",
+      "size": 157,
+    },
+    "b.md": {
+      "hash": "sha256-132f4e53f1e27c5205fa284b8d664c18df4dc8a5334c5cbae2f51845c3a55984",
+      "size": 166,
+    },
+    "toc.yaml": {
+      "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
+      "size": 144,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle target with include (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "a.md": {
+      "hash": "sha256-da11068e0e49a8e1668cada75756be1c2a62a80b5f853bb9ddcae3bffae2f6be",
+      "size": 157,
+    },
+    "b.md": {
+      "hash": "sha256-a97c747df49587b23203a07f429d9df17c7506da45ef4e95208b692a160e295a",
+      "size": 244,
+    },
+    "toc.yaml": {
+      "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
+      "size": 144,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > diamond includes (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "_includes/branch-a.md": {
+      "hash": "sha256-3314f60ae1fcaaccab27d5075d5a8ad01bb5d139cc37f4240304d83a9ce88ace",
+      "size": 101,
+    },
+    "_includes/branch-b.md": {
+      "hash": "sha256-0d5505b5775980c435e7cb35b0452089980640ff5bc0878a45db8b23901099dd",
+      "size": 102,
+    },
+    "_includes/shared.md": {
+      "hash": "sha256-42e099cba25de4c74b858b07c83d4feb6565738d4e21ad3e7208f6e35048931d",
+      "size": 55,
+    },
+    "index.md": {
+      "hash": "sha256-459ef1b763f4b5678d96b76080db18207ecccfb553bf38c48dc560bcbef59f2c",
+      "size": 276,
+    },
+    "toc.yaml": {
+      "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
+      "size": 116,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > diamond includes (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "index.md": {
+      "hash": "sha256-bbe532f3c545c42bdf6e0323c434d97fe149e6988e4060e21025392f4a12b22c",
+      "size": 626,
+    },
+    "toc.yaml": {
+      "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
+      "size": 116,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > nested includes (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "_includes/level1.md": {
+      "hash": "sha256-8720c7deb66b06273ae8fb303accf2a399e622b647e222cbb0dc12c74cdb0df7",
+      "size": 121,
+    },
+    "_includes/level2.md": {
+      "hash": "sha256-2ce37af4320216777549f95a5e533efb4486802619b4916aae31764ba98f3339",
+      "size": 62,
+    },
+    "index.md": {
+      "hash": "sha256-d1827f99e7a4a76bd0463a2a76e6fdc483be3f9f5939fe31edea3186ce70e644",
+      "size": 231,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
+      "size": 115,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
+      "size": 12,
+    },
+    "index.md": {
+      "hash": "sha256-59a70d37d52d364c670db6e198a29701624294fb2f4138eb161e45f551fc00a4",
+      "size": 488,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
+      "size": 115,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
 exports[`Build content map for > project with an include and a picture 1`] = `
 {
   "contentHashes": {
