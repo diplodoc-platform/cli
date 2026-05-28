@@ -1,5 +1,15 @@
 # Changelog
 
+## [5.39.6](https://github.com/diplodoc-platform/cli/compare/v5.39.5...v5.39.6) (2026-05-28)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/client@5.7.5 ([#1963](https://github.com/diplodoc-platform/cli/issues/1963)) ([350652d](https://github.com/diplodoc-platform/cli/commit/350652dea6c2dec992267d9a10cc07ac73aa5423))
+* **deps:** Update @diplodoc/liquid@1.5.2 ([#1962](https://github.com/diplodoc-platform/cli/issues/1962)) ([6664653](https://github.com/diplodoc-platform/cli/commit/666465337ddf4a9ff60302d954d4ce0da951bd2b))
+* **deps:** Update @diplodoc/transform@4.75.4, @diplodoc/translation@1.7.24 ([#1964](https://github.com/diplodoc-platform/cli/issues/1964)) ([99f5f8c](https://github.com/diplodoc-platform/cli/commit/99f5f8c2988dff747acc1bf1c0c7eb9de1924795))
+* **deps:** Update @diplodoc/utils@2.2.3 ([#1960](https://github.com/diplodoc-platform/cli/issues/1960)) ([2bf1d77](https://github.com/diplodoc-platform/cli/commit/2bf1d77a1585640d852937dc63e826f07609045f))
+
 ## [5.39.5](https://github.com/diplodoc-platform/cli/compare/v5.39.4...v5.39.5) (2026-05-28)
 
 
