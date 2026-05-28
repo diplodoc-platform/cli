@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.39.5](https://github.com/diplodoc-platform/cli/compare/v5.39.4...v5.39.5) (2026-05-28)
+
+
+### Bug Fixes
+
+* **deps:** updated node to 24 ([#1957](https://github.com/diplodoc-platform/cli/issues/1957)) ([cf937da](https://github.com/diplodoc-platform/cli/commit/cf937da656f82b171bc27c1f0d6d1479b8f4fbc7))
+
 ## [5.39.4](https://github.com/diplodoc-platform/cli/compare/v5.39.3...v5.39.4) (2026-05-27)
 
 
