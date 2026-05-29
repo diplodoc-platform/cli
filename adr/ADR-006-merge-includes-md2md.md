@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Thirty bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern; Bug 30 is a regression introduced by the Bug 29 patch: it stripped a blockquote `>` prefix only on the opener side and not on the closer side, leaving phantom fence ranges across blockquote-wrapped code blocks — surfaced on Tracker `create-filter.md`, Forms `send-request.md`, Webmaster `host-verification-get.md`, XML `response.md` and the user-reported sky-list blockquote-include pattern). The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Thirty-three bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern; Bug 30 is a regression introduced by the Bug 29 patch: it stripped a blockquote `>` prefix only on the opener side and not on the closer side, leaving phantom fence ranges across blockquote-wrapped code blocks — surfaced on Tracker `create-filter.md`, Forms `send-request.md`, Webmaster `host-verification-get.md`, XML `response.md` and the user-reported sky-list blockquote-include pattern; Bug 31 is a structural fragility outside `findFencedCodeBlockRanges`: `filterTokens` treated `{skip: 0}` as falsy and walked past the token that had just shifted into the visited index, plus `stripFirstHeading` had a defensive fallback that re-introduced the heading when `notitle` would otherwise yield empty content — together these caused 627 alice HTML files to render a literal `< path="…" keyword="…">` placeholder for the include immediately following a notitle-on-heading-only-section / locale-pruned-by-liquid include; Bug 32 is a non-Unicode anchor regex: `[\w-]+` (ASCII-only `\w`) failed to match a cyrillic-containing anchor `#YNDX-00540-с-Matter`, so `extractSection` returned the whole `popups.md` file instead of one section — surfaced on alice `socket/how-use.md`; Bug 33 is a `#hash` section-boundary divergence: `output-html`'s `cutHeading` used `>=` (ended a section at any same-or-shallower heading) instead of the `===` "same level only" rule used by the viewer's `findBlockTokens` and merge-includes, so a nested include expanding to a shallower heading inside a `notitle` section collapsed it to nothing — surfaced on alice `uz/smart-home/.../unruly.md`). The only deferred item is Stage 6 (frontmatter merging).**
 
 ## Context
 
@@ -2550,7 +2550,105 @@ blockquote-wrapped fence` — user-reported sky-list pattern.
 
 ---
 
-### Stability retrospective (Bugs 19–30)
+### Bug 31: empty-resolving include silently drops the next sibling include (different root cause, separate from the fence scanner)
+
+**Symptom**: In static `html-without-merge-includes` builds (`md2md` → `md2html` on the merged tree), some pages rendered a literal, JSON-escaped placeholder right where an include should have appeared:
+
+```
+< path="../../_includes/reusables/neuroexpert-button.md" keyword="notitle">
+```
+
+In the alice doc set this affected **627 HTML files**. The list of "broken" include source files was tiny (three files: `neuroexpert-button.md`, `mini-toc.md`, `border-none.md`) and all three contained only an HTML / CSS block with no markdown — the property that made them stand out was actually that their _preceding_ include resolved to zero tokens.
+
+**Two failure modes that produce an empty include token stream**:
+
+1. `{% include notitle [x](file.md#anchor) %}` where the section under `#anchor` is just the heading line (no body). `cutTokens` returns the three heading tokens, `stripTitleTokens` removes them, the result is `[]`. Surfaced on `ru/ambient-lamp/_includes/reusables.md#quick-notifications`.
+2. A non-notitle include whose body is entirely wrapped in `{% if locale == … %}` blocks none of which match the current locale. After liquid expansion the file body is whitespace, `md.parse` returns `[]`. Surfaced on `uz/station/_includes/reusables/id-feedback/feedback-plus_chat.md` (only `ru`/`en`/`ar` branches; locale `uz` evaluates to empty).
+
+**Root cause (a)**: [`src/core/utils/markdown.ts:filterTokens`](../src/core/utils/markdown.ts) advanced the index after a handler's `splice(index, 1, …)` by `index += skip - 1` only when `skip` was truthy. For `skip === 0` (handler removed the visited token, replacing it with zero tokens) the correction was suppressed by `if (result?.skip)`, and the outer `for`-loop's `index++` walked **past** the token that had just shifted into `tokens[index]`. If the shifted-in token was another `include`, the [`includes`](../src/commands/build/features/output-html/plugins/includes.ts) plugin never visited it — the synthetic include token (created by [`includes-detect`](../src/commands/build/features/output-html/plugins/includes-detect.ts) with empty `tag = ''`) survived into the render phase and markdown-it's default `renderToken` rendered it as `< path="…" keyword="…">`.
+
+**Fix (a)**: check `typeof result?.skip === 'number'` so that `{skip: 0}` is honoured. The semantics are now: `skip` is the number of replacement tokens; the outer `++` is correctly compensated for `0`, `1`, and any `N`.
+
+**Root cause (b) — md→md asymmetry**: [`stripFirstHeading`](../src/commands/build/features/output-md/plugins/merge-includes.ts) (used by `mergeIncludes`) had a defensive fallback that returned the **original** content (heading included) when stripping the heading would leave a whitespace-only result. The intent was to avoid a "vanishing include" in the merged markdown, but the effect was: a `{% include notitle %}` on a section whose only line was the heading produced `# Heading` in `md2md` and produced **nothing** in `md2html`. The two paths must agree.
+
+**Fix (b)**: removed the fallback. `stripFirstHeading('# Only Heading')` now returns `''`, matching `stripTitleTokens([heading_open, inline, heading_close]) → []`. The author wrote `notitle`; the directive wins.
+
+**Regression coverage**:
+
+- [`src/core/utils/markdown.spec.ts`](../src/core/utils/markdown.spec.ts) — direct unit tests on `filterTokens` for `skip = 0`, chained zero-splices, and mixed skip values.
+- [`src/commands/build/features/output-html/plugins/includes.spec.ts`](../src/commands/build/features/output-html/plugins/includes.spec.ts) — three end-to-end cases reproducing the alice failure modes (notitle + empty section; empty file body; middle-of-three includes empty).
+- [`src/commands/build/features/output-md/plugins/merge-includes.spec.ts`](../src/commands/build/features/output-md/plugins/merge-includes.spec.ts) — `stripFirstHeading` now returns empty for `# Only Heading` and for `#### Heading {#anchor}`.
+- End-to-end check on the alice doc set: 627 → **0** files containing `&amp;lt; path=` placeholders after the fix.
+
+**Why the viewer was never affected**: the viewer uses [`@diplodoc/transform/lib/plugins/includes`](../../transform/src/transform/plugins/includes/index.ts), which is hand-written with `while (i < tokens.length) { … i += includedTokens.length; }`. When `includedTokens.length === 0`, `i` stays put and the next token is processed naturally. Plus, on resolution failure that plugin leaves the **original `{% include %}` text** (not a synthetic token with empty tag), so there is no path that produces malformed HTML.
+
+**Lesson**: the previous Bugs 19–30 retrospective focused on `findFencedCodeBlockRanges`; this one was elsewhere entirely. The Bug 31 family was a structural fragility in `filterTokens` (treating `skip === 0` as "no correction needed"), invisible until a handler that actually returns it and a downstream handler that depends on iteration order both showed up — exactly the case for the pair (`includes-detect` → `includes`).
+
+---
+
+### Bug 32: non-ASCII (cyrillic) anchor id makes `extractSection` return the whole file
+
+**Symptom**: A `{% include notitle [x](file.md#anchor) %}` (here inside a term definition) whose `#anchor` contains a cyrillic character inlined the **entire** `popups.md` file instead of the one target section. Surfaced on alice `ru/socket/how-use.md`: the term `[*YNDX-00540-с-Matter]: {% include notitle [...](_includes/popups.md#YNDX-00540-с-Matter) %}` pulled in every popup section (`#socket-model`, `#QR-code`, `#indicator`, `#location-access`, `#frequency-2-4GHz`, …), adding ~70 lines of stray content and a phantom menu entry. The anchor uses a cyrillic `с` in `YNDX-00540-с-Matter`.
+
+**Root cause**: [`merge-includes.ts`](../src/commands/build/features/output-md/plugins/merge-includes.ts) parsed heading anchors with `CUSTOM_ANCHOR_RE = /\{\s*#([\w-]+)\s*\}/`. `\w` in JavaScript is ASCII-only (`[A-Za-z0-9_]`), so `[\w-]+` stopped at the cyrillic `с`, the trailing `\s*\}` then failed, and the whole regex returned `null`. `parseHeading` fell back to `slugify` and produced `yndx-00540-s-matter` (transliterated, lower-cased), which never equals the link hash `YNDX-00540-с-Matter`. With no heading matching, `extractSection` hit its `ctx.start >= 0 ? … : content` guard and returned the **entire file**. `notitle` then stripped only the first heading, leaking the rest.
+
+**Fix**: made the anchor classes Unicode-aware: `CUSTOM_ANCHOR_RE = /\{\s*#([\p{L}\p{N}_-]+)\s*\}/u` and a global twin `CUSTOM_ANCHOR_GLOBAL_RE` for the `slugify` pre-strip in `parseHeading`. This matches how the viewer's `markdown-it-attrs` parses ids (which is why the viewer rendered the section correctly all along).
+
+**Regression coverage**:
+
+- [`merge-includes.spec.ts`](../src/commands/build/features/output-md/plugins/merge-includes.spec.ts) — `extractSection` returns only the cyrillic-anchored section (mid-file and at-EOF cases).
+- End-to-end: `ru/socket/how-use.md` md2md output shrank from 264 → 192 lines; the term def now resolves to just `![Matter-розетка](…)` and no popup sections leak.
+
+**Lesson**: any regex that classifies "identifier characters" against user-authored anchors must be Unicode-aware. The md2md text-level parser must mirror the token-level (`markdown-it-attrs`) id rules, or the two paths silently diverge — and the failure mode (return the whole file) is maximally noisy.
+
+---
+
+### Bug 33: `cutHeading` ended a `#hash` section at a shallower heading, dropping `notitle` includes
+
+**Symptom**: A `{% include notitle [x](file.md#section) %}` whose target section contained a **nested** include resolved to nothing in `html-without-merge-includes` (and on the viewer, per the report), while `with-merge-includes` rendered it correctly. Surfaced on alice `uz/smart-home/third-party/troubleshooting/unruly.md`: line 3 includes `_includes/reusables.md#quick-notifications`, whose section is `#### {#quick-notifications}` (h4) followed by a nested `{% include [telegram](…telegram.md#floating-button) %}`. The telegram include expands to `### {#floating-button}` (h3) + a button div.
+
+**Root cause**: [`output-html/plugins/includes.ts:cutHeading`](../src/commands/build/features/output-html/plugins/includes.ts) terminated the section at the next heading of the same **or shallower** level: `level >= Number(token.tag.slice(1))`. The nested telegram include, expanded **before** `cutTokens` ran, introduced an `h3` inside the `h4` section. `4 >= 3` matched, so the section was cut down to just the `h4` heading; `notitle` then stripped that heading, leaving zero tokens. This diverged from both reference implementations, which end a section only at the **same** level:
+
+- viewer: [`@diplodoc/transform` `findBlockTokens`](../../transform/src/transform/utils.ts) — `token.tag === startToken.tag`.
+- md2md: [`merge-includes.ts` `processHeadingForSection`](../src/commands/build/features/output-md/plugins/merge-includes.ts) — `heading.level === ctx.level`.
+
+**Fix**: changed the `cutHeading` boundary check from `>=` to `===` (same level only), bringing `output-html` in line with the viewer and merge-includes. A nested include's shallower heading no longer prematurely ends the parent section.
+
+**Regression coverage**:
+
+- [`includes.spec.ts`](../src/commands/build/features/output-html/plugins/includes.spec.ts) — a `notitle` include of an `#### {#section}` whose body is a nested include expanding to `### {#inner}` + content keeps the inner content (asserts `telegram-btn` present, no `< path=` placeholder). The test wires `markdown-it-attrs` and registers plugins in production order (`includes` before `includesDetect`) so `{#id}` becomes a real id and the ruler order is `[includes_detect, includes, curly_attributes]`.
+- End-to-end: alice mode-mismatch count dropped 1079 → 1042 after the fix; `unruly.html` now contains the telegram button.
+
+**Lesson**: `#hash` section boundaries must be defined identically across all three paths (viewer token-cut, md2md text-cut, md2html token-cut). The "same level only" rule is the contract; `output-html` was the lone `>=` outlier. Also note section boundaries are computed **after** nested includes expand in the token paths — so an included heading participates in boundary detection, which is exactly why the level rule must match the viewer's.
+
+---
+
+### Bug 34: include file's `vcsPath` frontmatter was non-deterministic under parallel builds (-j2)
+
+**Symptom**: E2E snapshots flaked on the `vcsPath` field of include files written by `output-md`. `tests/e2e/regression.test.ts` (`internal`) and `tests/e2e/includes.test.ts` intermittently showed `vcsPath: includes/fragments.md` (and similar) present in some runs and missing in others. The flake only reproduced under the full `vitest` suite / parallel scheduling, never in single direct builds. My Bug 33 (`cutHeading`) and merge-includes timing changes did not cause it — they shifted task ordering enough to expose a pre-existing latent race.
+
+**Root cause**: `vcsPath` is populated into `run.meta` by the `Contributors` markdown `Dump` hook (`features/contributors`, stage `-1`), which runs **per TOC entry** and calls `run.vcs.metadata(path)`. The `output-md` recursive include dump (`features/output-md/index.ts`, `Build.Md` hook at stage `-Infinity`) writes the include file's YAML frontmatter via `run.meta.dump(graph.path)`. When the same file is both a TOC entry and an include dependency of another entry, the two run concurrently across entries: if the include dump reads `meta` before that file's own entry `Contributors` hook populated `vcsPath`, the frontmatter is written without it. Last-writer-wins on the file, so the result depended on scheduling order (documented latent race; see the comment block above `run.meta.dump` and ADR-002).
+
+**Fix**: in the include-dump branch of `output-md`, when the include file is itself a TOC entry (`run.toc.isEntry(graph.path)`), resolve its VCS metadata explicitly before dumping:
+
+```ts
+if (run.toc.isEntry(graph.path)) {
+  const vcsMeta = await run.vcs.metadata(graph.path, graph.deps.map(get('path')));
+  run.meta.add(graph.path, vcsMeta);
+  run.meta.addResources(graph.path, vcsMeta);
+}
+const includeMeta = await run.meta.dump(graph.path);
+```
+
+`vcs.metadata` is idempotent — config-gated, deterministic `realpath`, and `getContributors`/`getMTime` memoized by path — so resolving it here yields the same result regardless of whether the entry hook already ran, making write order irrelevant. The `isEntry` gate is essential: pure includes (e.g. `_includes/*.md` that are never TOC entries) must **not** gain a `vcsPath` frontmatter, otherwise their output diverges from the no-frontmatter contract (caught by `merge-includes.spec.ts` "without flag" and `preprocess.test.ts`).
+
+**Regression coverage**: full `tests/e2e` suite run 3× consecutively with zero flake; `regression` + `includes` run 3× green. Snapshots updated to reflect deterministic `vcsPath` presence on entry-include files (e.g. `toc-include.md`, `includes/fragments.md`).
+
+**Lesson**: when a file participates in two concurrent processing paths (entry vs include dependency) that both feed the same `run.meta`, the consumer that writes output must not depend on the other path having populated metadata first. Make the write path self-sufficient (resolve the deterministic metadata it needs), but gate it on the same condition the producing path uses (`isEntry`) so non-entries keep their original shape.
+
+---
+
+### Stability retrospective (Bugs 19–34)
 
 The fixes accumulated in this ADR for `findFencedCodeBlockRanges` (the
 single source of truth for "does an `{% include %}` lie inside a

@@ -766,9 +766,20 @@ describe('stripFirstHeading', () => {
         expect(stripFirstHeading(content)).toBe('Not a heading\n\n# Heading\n\nBody.');
     });
 
-    it('should keep the heading when stripping would leave only whitespace', () => {
+    it('returns empty content when the only line is the heading (notitle wins)', () => {
+        // `{% include notitle %}` on a section that is only a heading line
+        // must yield empty content, matching the md→html path.  The old
+        // implementation fell back to keeping the heading, which made
+        // md→md and md→html diverge.
         const content = '# Only Heading';
-        expect(stripFirstHeading(content)).toBe('# Only Heading');
+        expect(stripFirstHeading(content)).toBe('');
+    });
+
+    it('returns empty content for #hash + notitle on a heading-only section', () => {
+        // After extractSection by `#quick-notifications`, the body is a
+        // single heading line.  notitle strips it, the section is empty.
+        const content = '#### Heading {#quick-notifications}';
+        expect(stripFirstHeading(content)).toBe('');
     });
 
     it('should handle h6 heading', () => {
@@ -991,6 +1002,34 @@ describe('extractSection', () => {
     it('should handle heading with trailing anchor attributes', () => {
         const content = '## Setup {#setup}\n\nSetup text.\n\n## Usage';
         expect(extractSection(content, 'setup')).toBe('## Setup {#setup}\n\nSetup text.');
+    });
+
+    it('extracts a section whose anchor contains non-ASCII (cyrillic) characters (Bug 32)', () => {
+        // `\w` is ASCII-only, so the old `[\w-]+` anchor regex failed to
+        // match `{#YNDX-00540-с-Matter}` (cyrillic `с`), extractSection
+        // returned the whole file and notitle stripping leaked the rest of
+        // popups.md into the page.  Surfaced on alice socket/how-use.md.
+        const content = [
+            '#### {#socket}',
+            '',
+            '![socket](a.png)',
+            '',
+            '#### {#YNDX-00540-с-Matter}',
+            '',
+            '![matter](b.png)',
+            '',
+            '#### {#location-access}',
+            '',
+            'tail.',
+        ].join('\n');
+        expect(extractSection(content, 'YNDX-00540-с-Matter')).toBe(
+            '#### {#YNDX-00540-с-Matter}\n\n![matter](b.png)',
+        );
+    });
+
+    it('does not leak the whole file for a cyrillic anchor at EOF', () => {
+        const content = ['#### {#первый}', '', 'one.', '', '#### {#второй}', '', 'two.'].join('\n');
+        expect(extractSection(content, 'второй')).toBe('#### {#второй}\n\ntwo.');
     });
 
     it('should skip headings inside fenced code blocks', () => {

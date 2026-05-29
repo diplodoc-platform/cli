@@ -21,7 +21,14 @@ const TERM_DEF_RE = /^(?:>\s*)*\s*\[\*[^[\]]+\]:/m;
 // non-whitespace text after the include directive is one of these separators.
 const YFM_TABLE_SEP_RE = /^\|\||^\|#/;
 const HEADING_FULL_RE = /^(#{1,6})\s+([^\n]+)$/; // NOSONAR — simplified to avoid ReDoS
-const CUSTOM_ANCHOR_RE = /\{\s*#([\w-]+)\s*\}/;
+// Anchor ids may contain non-ASCII letters (e.g. cyrillic): YFM authors
+// write `{#YNDX-00540-с-Matter}` and reference it as `file.md#YNDX-00540-с-Matter`.
+// `\w` is ASCII-only in JS, so the previous `[\w-]+` truncated such ids and
+// `extractSection` failed to match the heading — falling back to returning
+// the *whole* file.  Use a Unicode-aware class (letters / numbers / `_` / `-`),
+// matching how markdown-it-attrs (the viewer's source of truth) parses ids.
+const CUSTOM_ANCHOR_RE = /\{\s*#([\p{L}\p{N}_-]+)\s*\}/u;
+const CUSTOM_ANCHOR_GLOBAL_RE = /\{\s*#[\p{L}\p{N}_-]+\s*\}/gu;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
@@ -578,6 +585,13 @@ function hasIndentedTopLevelParagraph(content: string, threshold: number): boole
 /**
  * Strips the first heading from markdown content (for `notitle` includes).
  * Also removes the trailing empty line after the heading if present.
+ *
+ * If the result is empty (e.g. `#hash` + `notitle` on a section that is
+ * only a heading line, like a single `#### {#id}` block) we deliberately
+ * return empty content: the author wrote `notitle`, asking for the title
+ * to be removed.  Returning the original heading as a fallback would
+ * silently contradict the directive and produce different output from
+ * the md→html path (which also yields empty content in that case).
  */
 export function stripFirstHeading(content: string): string {
     const lines = content.split('\n');
@@ -595,10 +609,7 @@ export function stripFirstHeading(content: string): string {
         }
         break;
     }
-    const result = lines.join('\n');
-    // `#hash` + `notitle` on a section that is only a heading line would
-    // otherwise yield an empty include (e.g. a single `#### {#id}` block).
-    return result.trim() === '' ? content : result;
+    return lines.join('\n');
 }
 
 /**
@@ -731,7 +742,7 @@ function parseHeading(trimmed: string): {level: number; anchor: string} | null {
     const custom = CUSTOM_ANCHOR_RE.exec(text);
     const anchor = custom
         ? custom[1]
-        : slugify(text.replace(/\{\s*#[\w-]+\s*\}/g, '').trim(), {
+        : slugify(text.replace(CUSTOM_ANCHOR_GLOBAL_RE, '').trim(), {
               lower: true,
               remove: SLUG_REMOVE_RE,
           }); // NOSONAR — regex with /g is intentional
