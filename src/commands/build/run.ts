@@ -25,6 +25,7 @@ import {RedirectsService} from './services/redirects';
 import {SearchService} from './services/search';
 import {EntryService} from './services/entry';
 import {extractIncludedBlocks} from './extract-included';
+import {HIGHLIGHT_STYLES_ROOT} from './features/themer/constants';
 
 type TransformOptions = {
     deps: IncludeInfo[];
@@ -86,6 +87,10 @@ export class Run extends BaseRun<BuildConfig> {
         return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
+    get highlightStylesPath() {
+        return this.realpathSync(HIGHLIGHT_STYLES_ROOT as AbsolutePath);
+    }
+
     constructor(config: BuildConfig) {
         super(config);
 
@@ -101,6 +106,7 @@ export class Run extends BaseRun<BuildConfig> {
         this.scopes.set('<input>', this.input);
         this.scopes.set('<output>', this.output);
         this.scopes.set('<origin>', this.originalInput);
+        this.scopes.set('<highlight-styles>', this.highlightStylesPath);
 
         this.vars = new VarsService(this);
         this.meta = new MetaService(this);

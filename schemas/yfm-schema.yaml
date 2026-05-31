@@ -293,6 +293,22 @@ properties:
       Override the base brand color or disable theming.
       null disables theme.yaml processing.
 
+  # ── Code highlight theme ───────────────────────────────────────────────
+  codeHighlightTheme:
+    type: object
+    properties:
+      light:
+        type: string
+        description: Highlight.js theme for light UI theme.
+      dark:
+        type: string
+        description: Highlight.js theme for dark UI theme.
+    additionalProperties: false
+    description: >
+      Code highlighting themes for light and dark UI variants.
+      Use any theme name from highlight.js/styles without .css extension.
+      Use "diplodoc" to keep the built-in Diplodoc code highlighting style.
+
   # ── Search ─────────────────────────────────────────────────────────
   search:
     oneOf:
