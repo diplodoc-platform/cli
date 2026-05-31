@@ -1,0 +1,7 @@
+﻿light:
+  code: '#111111'
+  code-background: '#ffeeaa'
+
+dark:
+  code: '#eeeeee'
+  code-background: '#221144'
