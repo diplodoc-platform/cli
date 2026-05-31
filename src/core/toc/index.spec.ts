@@ -256,7 +256,8 @@ describe('toc-loader', () => {
         test(
             dedent`
                 items:
-                  - href: "{{file}}"
+                  - name: Item with href
+                    href: "{{file}}"
             `,
             {},
             {file: './file.md'},
@@ -407,7 +408,8 @@ describe('toc-loader', () => {
             test(
                 dedent`
                     items:
-                      - include:
+                      - name: Outer Item
+                        include:
                           path: _includes/core/i-toc.yaml
                           mode: link
                 `,
@@ -484,10 +486,12 @@ describe('toc-loader', () => {
                         items:
                           - name: Inner Merge Item 1
                             href: merge-item-1.md
-                          - include:
+                          - name: Deep Merge Include
+                            include:
                               path: ../deep-merge/i-toc.yaml
                               mode: merge
-                          - include:
+                          - name: Sub Include
+                            include:
                               path: ./sub/toc.yaml
                               mode: merge
                     `,
@@ -513,7 +517,8 @@ describe('toc-loader', () => {
                     dedent`
                     items:
                       - name: Common item
-                      - include:
+                      - name: Include Entry
+                        include:
                           path: _includes/core/i-toc.yaml
                           mode: link
                           includers:
@@ -536,7 +541,8 @@ describe('toc-loader', () => {
             const content = dedent`
                 items:
                   - name: Common item
-                  - include:
+                  - name: Include Entry
+                    include:
                       path: _includes/core/i-toc.yaml
                       mode: link
                       includers:
@@ -572,7 +578,8 @@ describe('toc-loader', () => {
             const content = dedent`
                 items:
                   - name: Common item
-                  - include:
+                  - name: Include Entry
+                    include:
                       path: _includes/core
                       mode: link
                       includers:
@@ -609,7 +616,8 @@ describe('toc-loader', () => {
             const content = dedent`
                 items:
                   - name: Common item
-                  - include:
+                  - name: Include Entry
+                    include:
                       path: _includes/core
                       mode: link
                       includers:
@@ -646,7 +654,8 @@ describe('toc-loader', () => {
             const content = dedent`
                 items:
                   - name: Common item
-                  - include:
+                  - name: Include Entry
+                    include:
                       path: _includes/core
                       mode: link
                       includers:
@@ -1174,6 +1183,46 @@ describe('toc-loader', () => {
             );
         });
 
+        it('should log and throw for toc item missing name key', async () => {
+            const content = dedent`
+                items:
+                  - href: page.md
+            `;
+            const {run, toc} = setupService({});
+            const loggerError = vi.spyOn(run.logger, 'error');
+
+            mockData(run, content, {}, {}, []);
+
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toMatchObject({
+                message:
+                    "Invalid toc structure in toc.yaml: 1 toc item(s) missing required 'name' key",
+            });
+            expect(loggerError).toHaveBeenCalledWith(
+                "Invalid toc structure in toc.yaml at items[0]: missing required 'name' key",
+            );
+        });
+
+        it('should log and throw for nested toc item missing name key', async () => {
+            const content = dedent`
+                items:
+                  - name: Parent
+                    items:
+                      - href: child.md
+            `;
+            const {run, toc} = setupService({});
+            const loggerError = vi.spyOn(run.logger, 'error');
+
+            mockData(run, content, {}, {}, []);
+
+            await expect(toc.init(['toc.yaml'] as NormalizedPath[])).rejects.toMatchObject({
+                message:
+                    "Invalid toc structure in toc.yaml: 1 toc item(s) missing required 'name' key",
+            });
+            expect(loggerError).toHaveBeenCalledWith(
+                "Invalid toc structure in toc.yaml at items[0].items[0]: missing required 'name' key",
+            );
+        });
+
         it('should log and throw for invalid toc entry href', async () => {
             const {run, toc} = setupService({});
             const loggerError = vi.spyOn(run.logger, 'error');
@@ -1330,7 +1379,8 @@ describe('entries filtering logic', () => {
                 items:
                   - name: Root Item
                     href: root-page.md
-                  - include:
+                  - name: Sub TOC Include
+                    include:
                       path: sub/toc.yaml
                       mode: link
             `);
@@ -1419,7 +1469,8 @@ describe('entries filtering logic', () => {
             .thenResolve(dedent`
                 title: Root TOC
                 items:
-                  - include:
+                  - name: Level 1 Include
+                    include:
                       path: level1/toc.yaml
                       mode: link
             `);
@@ -1431,7 +1482,8 @@ describe('entries filtering logic', () => {
                 items:
                   - name: Level 1 Item
                     href: level1-page.md
-                  - include:
+                  - name: Level 2 Include
+                    include:
                       path: level2/toc.yaml
                       mode: link
             `);
@@ -1495,7 +1547,8 @@ describe('include dependency handling', () => {
         when(run.read).calledWith(normalizePath(join(run.input, './toc.yaml')) as AbsolutePath)
             .thenResolve(dedent`
                 items:
-                  - include:
+                  - name: Include Entry
+                    include:
                       path: included/toc.yaml
                       mode: link
             `);
