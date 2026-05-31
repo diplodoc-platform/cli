@@ -19,7 +19,7 @@ import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search'
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
-import type {CodeHighlightThemeConfig, ThemerArgs, ThemerConfig} from './features/themer';
+import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/themer';
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
@@ -91,7 +91,7 @@ type BaseConfig = {
      * - 'random' (default): uses Math.random() — legacy behavior.
      * - 'deterministic': uses per-file counters with prefix (e.g. 'term-1').
      */
-    syntaxHighlight?: CodeHighlightThemeConfig | null;
+    codeHighlight?: CodeHighlightConfig | null;
     idGenerator: IDGeneratorStrategy;
 };
 

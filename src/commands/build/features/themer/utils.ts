@@ -8,7 +8,7 @@ import {type GravityTheme, generateCSS, parseCSS, updateBaseColor} from '@gravit
 import {load as loadYaml} from 'js-yaml';
 import chroma from 'chroma-js';
 
-import {generateCodeHighlightThemeCss} from './code-highlight-theme';
+import {generateCodeHighlightCss} from './code-highlight';
 import {
     ALL_COLORS,
     APP_CSS_PREFIX,
@@ -168,18 +168,18 @@ async function validateConfig(run: Run, config: ThemeConfig): Promise<void> {
 export async function generateThemeCss(run: Run) {
     const themeFlagValue = run.config.theme;
     const config = await loadThemeConfig(run);
-    const syntaxHighlightCss = await generateCodeHighlightThemeCss(run, config);
+    const codeHighlightCss = await generateCodeHighlightCss(run, config);
 
     const shouldGenerateTheme = Boolean(themeFlagValue) || Object.keys(config).length;
     if (!shouldGenerateTheme) {
-        return syntaxHighlightCss || null;
+        return codeHighlightCss || null;
     }
 
     await validateConfig(run, config);
 
     const baseTheme = await loadBaseCss(run);
     if (!baseTheme) {
-        return syntaxHighlightCss || null;
+        return codeHighlightCss || null;
     }
 
     const {theme, yfmCssVars, dcCssVars} = processColors(run, baseTheme, config, themeFlagValue);
@@ -188,5 +188,5 @@ export async function generateThemeCss(run: Run) {
     const yfmCss = generateAdditionalCss(yfmCssVars, '.yfm ');
     const dcCss = generateAdditionalCss(dcCssVars);
 
-    return joinCss(themeCss, yfmCss, dcCss, syntaxHighlightCss);
+    return joinCss(themeCss, yfmCss, dcCss, codeHighlightCss);
 }

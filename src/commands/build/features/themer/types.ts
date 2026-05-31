@@ -4,14 +4,14 @@ export type ThemerArgs = {
     theme?: string;
 };
 
-export type CodeHighlightThemeConfig = {
+export type CodeHighlightConfig = {
     light?: string;
     dark?: string;
 };
 
 export type ThemerConfig = {
     theme?: string | null;
-    syntaxHighlight?: CodeHighlightThemeConfig | null;
+    codeHighlight?: CodeHighlightConfig | null;
 };
 
 export type ColorVariant = 'light' | 'dark';

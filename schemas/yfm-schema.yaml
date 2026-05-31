@@ -293,8 +293,8 @@ properties:
       Override the base brand color or disable theming.
       null disables theme.yaml processing.
 
-  # ── Code highlight theme ───────────────────────────────────────────────
-  codeHighlightTheme:
+  # ── Code highlight ───────────────────────────────────────────────
+  codeHighlight:
     type: object
     properties:
       light:
