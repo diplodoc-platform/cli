@@ -227,6 +227,28 @@ Schema v2 (not now, not part of this spec, but the design preserves compatibilit
 
 All future fields are added as new keys to the existing JSON. Old consumers ignore unknown fields. `schemaVersion: 2` signals new fields are present; v1-only consumers keep working.
 
+## Known limitations
+
+Three quirks where `contentHashes` can drift or be noisy independently of user-doc content changes. None block the primary use cases (search reindex, change notifications), but they're documented so they're not rediscovered as bugs.
+
+### `_bundle/*` filenames change on CLI upgrade
+
+The `output-html` pipeline copies CLI-bundled JS/CSS chunks (e.g. `_bundle/app-{hash}.js`, `_bundle/vendor-{hash}.css`). The `{hash}` is baked into the bundle filename by the CLI's own build. Upgrading `@diplodoc/cli` shifts every bundle hash → bundle keys appear and disappear in `contentHashes` even though no user content changed. Consumers diffing changes should filter out keys starting with `_bundle/`.
+
+### `_search/*` filenames embed `performance.timeOrigin`
+
+When `search.provider: local` and `search.enabled`, `LocalSearchProvider` writes its resources at `_search/<lang>/{timeOrigin}-resources.js`, where `{timeOrigin}` is the build start time in ms ([packages/cli/src/extensions/local-search/provider.ts:34](packages/cli/src/extensions/local-search/provider.ts#L34)). Every build → new filename → new key in `contentHashes`. The proper fix belongs in `local-search` (derive the suffix from content rather than wall-clock); content-map only reflects what's on disk. Consumers should filter `_search/` or accept the churn.
+
+### `mergeSvg` (default) double-counts SVG changes
+
+With `mergeSvg: true` (the default), an SVG referenced as `![](logo.svg)` is inlined into the entry's body **and** the standalone `.svg` file is kept in output. A change to the SVG flips three signals at once:
+
+- the entry's hash (inlined bytes changed in the body);
+- the standalone `.svg`'s hash in `contentHashes`;
+- `pageAssets[entry]` still lists the asset, so consumers using "rehash page if any pageAsset changed" pick up the page a second time.
+
+Workaround for fixtures and projects that want clean asset semantics: reference SVGs with `{inline=false}` (as our `with-includes` fixture does), which skips inlining and keeps a single source of truth on disk. The long-term fix is either dropping the SVG from output after inlining or omitting inlined-SVG paths from `pageAssets`; either is out of scope here.
+
 ## Open questions (not blockers)
 
 1. Which exact set of `yfm-*.json` files do we exclude from traversal? To be tightened once we see the actual artifact names in `run.output`.
