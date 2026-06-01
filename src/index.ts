@@ -68,6 +68,7 @@ if (isMainThread && require.main === module) {
                     `),
             );
         }
+        console.log('test');
 
         process.exit(report.code);
     })();
