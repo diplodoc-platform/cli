@@ -86,12 +86,12 @@ type BaseConfig = {
     disableCsp?: boolean;
     pdfDebug: boolean;
     content: ContentConfig;
+    codeHighlight?: CodeHighlightConfig | null;
     /**
      * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
      * - 'random' (default): uses Math.random() — legacy behavior.
      * - 'deterministic': uses per-file counters with prefix (e.g. 'term-1').
      */
-    codeHighlight?: CodeHighlightConfig | null;
     idGenerator: IDGeneratorStrategy;
 };
 
