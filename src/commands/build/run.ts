@@ -53,6 +53,8 @@ export class Run extends BaseRun<BuildConfig> {
 
     readonly output: AbsolutePath;
 
+    readonly highlightStylesPath: AbsolutePath;
+
     readonly vars: VarsService;
 
     readonly meta: MetaService;
@@ -87,15 +89,12 @@ export class Run extends BaseRun<BuildConfig> {
         return require(join(__dirname, 'manifest.json')) as Manifest;
     }
 
-    get highlightStylesPath() {
-        return this.realpathSync(HIGHLIGHT_STYLES_ROOT as AbsolutePath);
-    }
-
     constructor(config: BuildConfig) {
         super(config);
 
         this.originalInput = this.realpathSync(config.input);
         this.output = this.realpathSync(config.output);
+        this.highlightStylesPath = this.realpathSync(HIGHLIGHT_STYLES_ROOT as AbsolutePath);
         this.input = config.originAsInput
             ? this.originalInput
             : resolve(this.output, TMP_INPUT_FOLDER);
