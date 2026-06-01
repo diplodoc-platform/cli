@@ -118,9 +118,7 @@ export class LeadingService {
     }
 
     @bounded async dump(path: RelativePath, leading?: LeadingPage): Promise<VFile<LeadingPage>> {
-        const vfile = new VFile(path, leading || (await this.load(path)), (data) =>
-            dump(data, {sortKeys: true}),
-        );
+        const vfile = new VFile(path, leading || (await this.load(path)), dump);
 
         await getHooks(this).Dump.promise(vfile);
 
