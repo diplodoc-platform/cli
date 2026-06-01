@@ -295,7 +295,9 @@ properties:
 
   # ── Code highlight ───────────────────────────────────────────────
   codeHighlight:
-    type: object
+    type:
+      - object
+      - 'null'
     properties:
       light:
         type: string
