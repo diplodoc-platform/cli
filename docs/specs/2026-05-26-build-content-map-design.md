@@ -174,6 +174,7 @@ The list of stripped keys is explicit:
 - `updatedAt` — propagated mtime, cascades through the include graph.
 - `contributors` — order depends on git traversal order; the avatars/urls drift independently of content.
 - `author` — generally stable but tied to git history; stripped for consistency.
+- `metadata` array items where `name === 'generator'` — the CLI's package.json version baked into every entry's frontmatter; flips on every release without any content change.
 
 The hash answers "did the content readers see change?", not "did the bytes in S3 change?". Title and description in frontmatter still contribute (they're content), but the volatile fields are stripped because their churn does not reflect a real content change.
 

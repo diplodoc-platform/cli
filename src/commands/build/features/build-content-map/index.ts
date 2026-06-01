@@ -160,17 +160,25 @@ export function hashContent(content: Buffer): string {
 }
 
 const VOLATILE_META_KEYS = ['updatedAt', 'contributors', 'author'] as const;
+// Names of items inside the `metadata: [...]` array (where each item has
+// shape `{name, content}`) that are CLI build-time noise rather than
+// authored content. The `generator` item is the CLI's package.json
+// version baked into every entry's frontmatter — it flips on every
+// release without any user-doc change.
+const VOLATILE_METADATA_ITEM_NAMES = new Set(['generator']);
 const MD_FRONTMATTER_FENCE = '---\n';
 
-// Strip VCS-injected metadata (`updatedAt`, `contributors`, `author`) from
-// the frontmatter of .md files and the `meta:` block of .yaml leading
-// pages before hashing.
+// Strip VCS-injected metadata (`updatedAt`, `contributors`, `author`) and
+// CLI-injected `metadata.generator` from the frontmatter of .md files and
+// the `meta:` block of .yaml leading pages before hashing.
 //
 // Why: with `mtimes: true`, `VcsService.metadata` injects an ISO timestamp
 // into every entry's frontmatter. That timestamp is the max over the page
 // AND its include deps, so any commit touching any included file shifts
-// the parent's hash without changing what readers see. We hash a
-// normalized view so the hash reflects content, not VCS metadata churn.
+// the parent's hash without changing what readers see. Likewise the CLI
+// bakes its own version into every entry as `metadata.generator`, which
+// flips on every release. We hash a normalized view so the hash reflects
+// content, not build-time noise.
 //
 // Returns the raw input bytes unchanged when there's nothing to strip,
 // so non-md/non-yaml files (and entries without volatile fields) keep
@@ -183,6 +191,25 @@ export function normalizeForHash(content: Buffer, path: NormalizedPath): Buffer 
         return normalizeYaml(content);
     }
     return content;
+}
+
+function isVolatileMetadataItem(item: unknown): boolean {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+        return false;
+    }
+    const name = (item as Record<string, unknown>).name;
+    return typeof name === 'string' && VOLATILE_METADATA_ITEM_NAMES.has(name);
+}
+
+function hasVolatile(obj: Record<string, unknown>): boolean {
+    if (VOLATILE_META_KEYS.some((k) => k in obj)) {
+        return true;
+    }
+    const metadata = obj.metadata;
+    if (Array.isArray(metadata) && metadata.some(isVolatileMetadataItem)) {
+        return true;
+    }
+    return false;
 }
 
 function normalizeMarkdown(content: Buffer): Buffer {
@@ -209,8 +236,7 @@ function normalizeMarkdown(content: Buffer): Buffer {
     }
     const fm = parsed as Record<string, unknown>;
 
-    const hasVolatile = VOLATILE_META_KEYS.some((k) => k in fm);
-    if (!hasVolatile) {
+    if (!hasVolatile(fm)) {
         return content;
     }
 
@@ -240,8 +266,7 @@ function normalizeYaml(content: Buffer): Buffer {
         return content;
     }
     const metaObj = meta as Record<string, unknown>;
-    const hasVolatile = VOLATILE_META_KEYS.some((k) => k in metaObj);
-    if (!hasVolatile) {
+    if (!hasVolatile(metaObj)) {
         return content;
     }
 
@@ -257,9 +282,17 @@ function normalizeYaml(content: Buffer): Buffer {
 function stripVolatile(obj: Record<string, unknown>): Record<string, unknown> {
     const out: Record<string, unknown> = {};
     for (const key of Object.keys(obj)) {
-        if (!(VOLATILE_META_KEYS as readonly string[]).includes(key)) {
-            out[key] = obj[key];
+        if ((VOLATILE_META_KEYS as readonly string[]).includes(key)) {
+            continue;
         }
+        if (key === 'metadata' && Array.isArray(obj[key])) {
+            const items = (obj[key] as unknown[]).filter((i) => !isVolatileMetadataItem(i));
+            if (items.length > 0) {
+                out[key] = items;
+            }
+            continue;
+        }
+        out[key] = obj[key];
     }
     return out;
 }

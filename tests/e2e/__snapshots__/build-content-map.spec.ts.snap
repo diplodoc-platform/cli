@@ -8,15 +8,15 @@ exports[`Build content map for > autotitle chain (hashIncludes default, mergeInc
       "size": 12,
     },
     "a.md": {
-      "hash": "sha256-96a36dbf19f9ee0f55911676885efb2ee68c54362c86a12740f6611484e88754",
+      "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
       "size": 151,
     },
     "b.md": {
-      "hash": "sha256-83260e2b8413c136784c1258dc14ff157f744b7da1a2e5d459b0dd3c35e6e723",
+      "hash": "sha256-6c43dbe0f71cd0f9a8c596be5b57e4b0f87acbfa70e064c1851f1e52fa9dc962",
       "size": 155,
     },
     "c.md": {
-      "hash": "sha256-3ad31d67c1dcdc9f07465ab51a149593e4b4cd8c894a8cbc9cf08288ba0754af",
+      "hash": "sha256-dd5586a9c7e73c90600c4af09e51aee7a953f388812c7d1d4cf847aa528fde9c",
       "size": 142,
     },
     "toc.yaml": {
@@ -37,15 +37,15 @@ exports[`Build content map for > autotitle chain (mergeIncludes on) 1`] = `
       "size": 12,
     },
     "a.md": {
-      "hash": "sha256-96a36dbf19f9ee0f55911676885efb2ee68c54362c86a12740f6611484e88754",
+      "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
       "size": 151,
     },
     "b.md": {
-      "hash": "sha256-83260e2b8413c136784c1258dc14ff157f744b7da1a2e5d459b0dd3c35e6e723",
+      "hash": "sha256-6c43dbe0f71cd0f9a8c596be5b57e4b0f87acbfa70e064c1851f1e52fa9dc962",
       "size": 155,
     },
     "c.md": {
-      "hash": "sha256-3ad31d67c1dcdc9f07465ab51a149593e4b4cd8c894a8cbc9cf08288ba0754af",
+      "hash": "sha256-dd5586a9c7e73c90600c4af09e51aee7a953f388812c7d1d4cf847aa528fde9c",
       "size": 142,
     },
     "toc.yaml": {
@@ -70,11 +70,11 @@ exports[`Build content map for > autotitle target with include (hashIncludes def
       "size": 57,
     },
     "a.md": {
-      "hash": "sha256-da11068e0e49a8e1668cada75756be1c2a62a80b5f853bb9ddcae3bffae2f6be",
+      "hash": "sha256-a3306e3527c16dd26e0080fd3b6a20a8149bbe200dd27f19a9f8661ba79a2b23",
       "size": 157,
     },
     "b.md": {
-      "hash": "sha256-132f4e53f1e27c5205fa284b8d664c18df4dc8a5334c5cbae2f51845c3a55984",
+      "hash": "sha256-e725d8b1a33dc089e05b34501b611bc56533e48c96d8713ac08f87bc087bb556",
       "size": 166,
     },
     "toc.yaml": {
@@ -95,12 +95,12 @@ exports[`Build content map for > autotitle target with include (mergeIncludes on
       "size": 12,
     },
     "a.md": {
-      "hash": "sha256-da11068e0e49a8e1668cada75756be1c2a62a80b5f853bb9ddcae3bffae2f6be",
+      "hash": "sha256-a3306e3527c16dd26e0080fd3b6a20a8149bbe200dd27f19a9f8661ba79a2b23",
       "size": 157,
     },
     "b.md": {
-      "hash": "sha256-a97c747df49587b23203a07f429d9df17c7506da45ef4e95208b692a160e295a",
-      "size": 244,
+      "hash": "sha256-a5ad363d0d18d412cd83964d8fe8716f848e6114af59a6b555aecd6595e587f0",
+      "size": 243,
     },
     "toc.yaml": {
       "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
@@ -132,7 +132,7 @@ exports[`Build content map for > diamond includes (hashIncludes default, mergeIn
       "size": 55,
     },
     "index.md": {
-      "hash": "sha256-459ef1b763f4b5678d96b76080db18207ecccfb553bf38c48dc560bcbef59f2c",
+      "hash": "sha256-e784a8386482ca8274a2599533262d0e1a491e13bc0568a6b23ec317f157f9df",
       "size": 276,
     },
     "toc.yaml": {
@@ -153,8 +153,8 @@ exports[`Build content map for > diamond includes (mergeIncludes on) 1`] = `
       "size": 12,
     },
     "index.md": {
-      "hash": "sha256-bbe532f3c545c42bdf6e0323c434d97fe149e6988e4060e21025392f4a12b22c",
-      "size": 626,
+      "hash": "sha256-4a0b4cf64adc48609b3b0448e59bcfca847ca43e96a857673b838b95bfb3b79e",
+      "size": 689,
     },
     "toc.yaml": {
       "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
@@ -182,7 +182,7 @@ exports[`Build content map for > nested includes (hashIncludes default, mergeInc
       "size": 62,
     },
     "index.md": {
-      "hash": "sha256-d1827f99e7a4a76bd0463a2a76e6fdc483be3f9f5939fe31edea3186ce70e644",
+      "hash": "sha256-4ec9eb564530dbdb672c762da78022806922a4ef103956e9256c208fa3ebcc7c",
       "size": 231,
     },
     "toc.yaml": {
@@ -203,8 +203,8 @@ exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
       "size": 12,
     },
     "index.md": {
-      "hash": "sha256-59a70d37d52d364c670db6e198a29701624294fb2f4138eb161e45f551fc00a4",
-      "size": 488,
+      "hash": "sha256-82cbe26702322efab28c5788884abd20224d7ab559baac612457d3e61b30f4c1",
+      "size": 464,
     },
     "toc.yaml": {
       "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
@@ -228,7 +228,7 @@ exports[`Build content map for > project with an include and a picture 1`] = `
       "size": 26,
     },
     "index.md": {
-      "hash": "sha256-e88b8e3be6984d2cd32135bda147c28a5d0c0f203f9b45550bf3a18ff0934a55",
+      "hash": "sha256-aea78fb06925f83bf37d1af249c7a556988f2aa32adceaa42befd401de01e037",
       "size": 210,
     },
     "logo.svg": {
@@ -257,11 +257,11 @@ exports[`Build content map for > project with autotitle links between pages 1`] 
       "size": 0,
     },
     "index.md": {
-      "hash": "sha256-e41c4b5a6e0998dbb165e354bff935c921274d66fa8c429ef83f92029c7616c7",
+      "hash": "sha256-7b81e86e1bcce905ef6d2cbf5af9421f1e3e6cd7a4f477e371498b30c07a859d",
       "size": 152,
     },
     "other.md": {
-      "hash": "sha256-b31394894029b49c99ff7ca3e02eabd555d6f37b7f21d7c113d91e0dd1e377d8",
+      "hash": "sha256-4807c9359ddc98c38441d32aaabeaa22218027ef69bc1d6118c4c006c8c25b36",
       "size": 130,
     },
     "toc.yaml": {

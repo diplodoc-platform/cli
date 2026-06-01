@@ -301,6 +301,57 @@ describe('BuildContentMap', () => {
             const out = normalizeForHash(broken, 'foo.md' as NormalizedPath);
             expect(out).toEqual(broken);
         });
+
+        it('strips generator item from .md frontmatter metadata array', () => {
+            // `withoutGen` is written in the canonical (sortKeys=true) key
+            // order that `normalizeForHash` emits after stripping. That way
+            // even though `withoutGen` itself has no volatile fields (and
+            // thus passes through as raw bytes), its bytes still match the
+            // normalized form of `withGen`.
+            const withGen = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\n  - content: keywords here\n    name: keywords\n---\n\n# Foo\n',
+            );
+            const withoutGen = Buffer.from(
+                '---\nmetadata:\n  - content: keywords here\n    name: keywords\ntitle: Foo\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(withGen, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withoutGen, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips metadata block entirely when generator is the only item', () => {
+            const onlyGen = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\n---\n\n# Foo\n',
+            );
+            const noMetadata = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(onlyGen, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(noMetadata, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('hash is invariant to CLI version bumps in generator', () => {
+            const v529 = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.29.0\n    name: generator\nvcsPath: foo.md\n---\n\n# Foo\n',
+            );
+            const v539 = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\nvcsPath: foo.md\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(v529, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(v539, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('preserves non-volatile metadata items', () => {
+            const a = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: kw-a\n    name: keywords\n---\n\n# Foo\n',
+            );
+            const b = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: kw-b\n    name: keywords\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
     });
 
     describe('snapshot', () => {
