@@ -274,6 +274,21 @@ describe('BuildContentMap', () => {
             );
         });
 
+        it('strips updatedAt from .yml leading pages under meta: (same path as .yaml)', () => {
+            // The dispatch in `normalizeForHash` treats `.yml` and `.yaml`
+            // identically — the rest of the project does too (see
+            // `crawler-manifest/utils.ts`).
+            const withTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2026-05-26T10:00:00Z\n  description: hi\n',
+            );
+            const withDifferentTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2030-01-01T00:00:00Z\n  description: hi\n',
+            );
+            expect(hashContent(normalizeForHash(withTs, 'index.yml' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withDifferentTs, 'index.yml' as NormalizedPath)),
+            );
+        });
+
         it('preserves .yaml without a meta block (no normalization)', () => {
             // toc.yaml has no `meta:` — should pass through unchanged.
             const toc = Buffer.from('items:\n  - name: foo\n    href: foo.md\n');

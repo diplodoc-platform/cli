@@ -3,6 +3,7 @@ import type {Build, Run} from '~/commands/build';
 
 import {createHash} from 'node:crypto';
 import {join} from 'node:path';
+import {extractFrontMatter} from '@diplodoc/liquid';
 import {dump as yamlDump, load as yamlLoad} from 'js-yaml';
 import pmap from 'p-map';
 
@@ -166,7 +167,6 @@ const VOLATILE_META_KEYS = ['updatedAt', 'contributors', 'author'] as const;
 // version baked into every entry's frontmatter — it flips on every
 // release without any user-doc change.
 const VOLATILE_METADATA_ITEM_NAMES = new Set(['generator']);
-const MD_FRONTMATTER_FENCE = '---\n';
 
 // Strip VCS-injected metadata (`updatedAt`, `contributors`, `author`) and
 // CLI-injected `metadata.generator` from the frontmatter of .md files and
@@ -187,7 +187,7 @@ export function normalizeForHash(content: Buffer, path: NormalizedPath): Buffer 
     if (path.endsWith('.md')) {
         return normalizeMarkdown(content);
     }
-    if (path.endsWith('.yaml')) {
+    if (path.endsWith('.yaml') || path.endsWith('.yml')) {
         return normalizeYaml(content);
     }
     return content;
@@ -214,38 +214,43 @@ function hasVolatile(obj: Record<string, unknown>): boolean {
 
 function normalizeMarkdown(content: Buffer): Buffer {
     const text = content.toString('utf8');
-    if (!text.startsWith(MD_FRONTMATTER_FENCE)) {
-        return content;
-    }
-    // Frontmatter ends at the first `\n---\n` after the opening fence.
-    const fenceEnd = text.indexOf('\n' + MD_FRONTMATTER_FENCE, MD_FRONTMATTER_FENCE.length);
-    if (fenceEnd < 0) {
-        return content;
-    }
-    const fmText = text.slice(MD_FRONTMATTER_FENCE.length, fenceEnd);
-    const body = text.slice(fenceEnd + 1 + MD_FRONTMATTER_FENCE.length);
 
-    let parsed: unknown;
+    let fm: unknown;
+    let body: string;
+    let rawFrontmatter: string;
     try {
-        parsed = yamlLoad(fmText);
+        const [parsed, stripped, raw] = extractFrontMatter(text);
+        fm = parsed;
+        body = stripped;
+        rawFrontmatter = raw;
     } catch {
-        return content;
-    }
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-        return content;
-    }
-    const fm = parsed as Record<string, unknown>;
-
-    if (!hasVolatile(fm)) {
+        // Malformed YAML inside the fences — hash the raw bytes.
         return content;
     }
 
-    const stripped = stripVolatile(fm);
-    if (Object.keys(stripped).length === 0) {
+    // `extractFrontMatter` returns an empty string for `rawFrontmatter`
+    // when the file has no frontmatter fences at all (or when fences are
+    // unbalanced and don't match its regex). In both cases there's
+    // nothing to normalize — return raw bytes.
+    if (!rawFrontmatter) {
+        return content;
+    }
+
+    if (!fm || typeof fm !== 'object' || Array.isArray(fm)) {
+        return content;
+    }
+    const fmObj = fm as Record<string, unknown>;
+
+    if (!hasVolatile(fmObj)) {
+        return content;
+    }
+
+    const strippedFm = stripVolatile(fmObj);
+    if (Object.keys(strippedFm).length === 0) {
         return Buffer.from(body, 'utf8');
     }
-    const newFm = yamlDump(stripped, {sortKeys: true});
-    return Buffer.from(MD_FRONTMATTER_FENCE + newFm + MD_FRONTMATTER_FENCE + body, 'utf8');
+    const newFm = yamlDump(strippedFm, {sortKeys: true});
+    return Buffer.from('---\n' + newFm + '---\n' + body, 'utf8');
 }
 
 function normalizeYaml(content: Buffer): Buffer {
