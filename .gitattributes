@@ -17,8 +17,6 @@
 *.scss text eol=lf
 *.html text eol=lf
 *.sh text eol=lf
-.yfm text eol=lf
-.yfmlint text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 *.png binary
