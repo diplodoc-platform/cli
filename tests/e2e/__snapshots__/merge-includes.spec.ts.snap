@@ -166,6 +166,90 @@ path: toc.yaml
 "
 `;
 
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main
+
+Intro paragraph.
+
+- Item one with cut
+
+   {% cut "Examples" %}
+
+   <!-- source: _includes/examples.md -->
+   - [Real link one](https://example.com/one)
+
+   - [Real link two](https://example.com/two)
+
+   <!--
+   #|
+   ||
+   **Header A**
+    |
+   **Header B**
+   ||
+   
+   ||
+   Body cell A1
+   
+   with blank lines inside the comment
+   
+   |
+   Body cell B1
+   ||
+   
+   ||
+   Body cell A2
+   |
+   Body cell B2
+   ||
+   |# -->
+   <!-- endsource: _includes/examples.md -->
+
+   {% endcut %}
+
+- Item two
+
+After list paragraph that must still render.
+"
+`;
+
+exports[`Merge includes (md2md) > html-comment-blanks: blank lines inside HTML comments keep list/cut continuity 3`] = `
+"title: Merge Includes HTML Comment Blanks
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
 exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback > filelist 1`] = `
 "[
   "index.md",
@@ -220,6 +304,192 @@ Content after list.
 
 exports[`Merge includes (md2md) > html-in-list: include with <style> in list (any indent) uses fallback 3`] = `
 "title: Merge Includes HTML in List
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main
+
+Some intro text.
+
+\`\`\`javascript
+<script type="text/javascript">
+function setCookie(name, value){
+    document.cookie = name + "=" + value + ";path=/";
+}
+</script>
+\`\`\`
+<!-- source: _includes/chat-button.md -->
+[Написать в чат](https://example.com/chat){.button}
+<!-- endsource: _includes/chat-button.md -->
+
+<!-- source: _includes/footer.md -->
+Footer text.
+<!-- endsource: _includes/footer.md -->
+"
+`;
+
+exports[`Merge includes (md2md) > include-after-fence: include placed right after a closing \`\`\` fence is inlined 3`] = `
+"title: Include After Fence
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main
+
+Real include below — should be inlined:
+
+<!-- source: _includes/glossary.md -->
+[*glossary]: Glossary section
+<!-- endsource: _includes/glossary.md -->
+
+Steps:
+
+1. Open the resource file.
+1. Insert the include directive into the file:
+
+    \`\`\`plaintext
+    {% include notitle [glossary](_includes/glossary.md) %}
+    [*glossary]: Magic line
+    \`\`\`
+
+1. Use the keys from glossary.
+
+End of page.
+"
+`;
+
+exports[`Merge includes (md2md) > include-in-code-block: include shown as code example is NOT expanded 3`] = `
+"title: Include In Code Block
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+{% list tabs %}
+
+- Mobile banner
+
+
+    {% include [requirements](_includes/requirements.md) %}
+
+    For more details see the requirements page.
+
+{% endlist %}
+
+{% included (_includes/requirements.md) %}
+1/. Format: HTML5.
+
+2/. The banner stretches to fit the screen.
+
+3/. The banner must stretch to 100% of the screen width.
+
+  Width is set as a percentage value: 100%.
+
+4/. Maximum archive size is 75 KB.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > indent-paragraph: include under indent with indented top-level paragraph falls back to {% included %} 3`] = `
+"title: Merge Includes Indent Paragraph In Include
 href: index.md
 items:
   - name: Main
@@ -605,6 +875,67 @@ path: toc.yaml
 "
 `;
 
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+#|
+|| **Option** | **Details** ||
+|| Option A |
+Some description of option A.
+
+[Subscribe](https://example.com/subscribe){.button}
+
+<style>
+a.button {
+  color: black;
+  background: yellow;
+}
+</style>
+||
+|| Option B | Plain text cell. ||
+|#
+
+Content after table.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include ending with HTML block places || on its own line 3`] = `
+"title: Merge Includes YFM Table HTML Block
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
 exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined > filelist 1`] = `
 "[
   "index.md",
@@ -640,7 +971,8 @@ vcsPath: main.md
 || Option A |
 Some description of option A.
 
-Buy now at [our store](https://example.com/store).||
+Buy now at [our store](https://example.com/store).
+||
 || Option B | Plain text cell. ||
 |#
 
@@ -650,6 +982,73 @@ Content after table.
 
 exports[`Merge includes (md2md) > yfm-table: include followed by || separator is inlined 3`] = `
 "title: Merge Includes YFM Table
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+---
+# Main Document
+
+#|
+||
+**Criterion**
+|
+**Description**
+||
+||
+**regular expression**
+|
+This is used for tracking goal identifiers that match a pattern.
+
+{% cut "Example" %}
+
+{% include [example](_includes/example.md) %}
+
+{% endcut %}
+||
+|#
+
+Content after table.
+
+{% included (_includes/example.md) %}
+If you want to track clicking a particular button with the ID that contains \`button\` or \`buy\`, you can specify the following condition: \`button|buy\`.
+
+{% endincluded %}"
+`;
+
+exports[`Merge includes (md2md) > yfm-table: include with \`|\` in inline code falls back to {% included %} 3`] = `
+"title: Merge Includes YFM Table Pipe In Content
 href: index.md
 items:
   - name: Main

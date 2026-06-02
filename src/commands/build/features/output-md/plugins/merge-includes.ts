@@ -21,7 +21,14 @@ const TERM_DEF_RE = /^(?:>\s*)*\s*\[\*[^[\]]+\]:/m;
 // non-whitespace text after the include directive is one of these separators.
 const YFM_TABLE_SEP_RE = /^\|\||^\|#/;
 const HEADING_FULL_RE = /^(#{1,6})\s+([^\n]+)$/; // NOSONAR — simplified to avoid ReDoS
-const CUSTOM_ANCHOR_RE = /\{\s*#([\w-]+)\s*\}/;
+// Anchor ids may contain non-ASCII letters (e.g. cyrillic): YFM authors
+// write `{#YNDX-00540-с-Matter}` and reference it as `file.md#YNDX-00540-с-Matter`.
+// `\w` is ASCII-only in JS, so the previous `[\w-]+` truncated such ids and
+// `extractSection` failed to match the heading — falling back to returning
+// the *whole* file.  Use a Unicode-aware class (letters / numbers / `_` / `-`),
+// matching how markdown-it-attrs (the viewer's source of truth) parses ids.
+const CUSTOM_ANCHOR_RE = /\{\s*#([\p{L}\p{N}_-]+)\s*\}/u;
+const CUSTOM_ANCHOR_GLOBAL_RE = /\{\s*#[\p{L}\p{N}_-]+\s*\}/gu;
 const SLUG_REMOVE_RE = /[^\w\s$\-,;=/]+/g;
 const TERM_DEF_LINE_RE = /^(?:>\s*)*\s*\[\*([^[\]]+)\]:/;
 // CommonMark HTML block type 1 opening tags: <script>, <pre>, <style>, <textarea>
@@ -344,12 +351,247 @@ export function canInlineInclude(
         return false;
     }
 
+    if (
+        isInsideYfmShorthandTable(parentContent, dep.location[0]) &&
+        depTransitiveContentHasPipe(dep)
+    ) {
+        return false;
+    }
+
+    if (rawPrefix && indentedIncludeRisksParagraphCodeBlock(dep, rawPrefix)) {
+        return false;
+    }
+
     return true;
+}
+
+/**
+ * Returns true when the include directive at `depStart` lies inside an
+ * unclosed YFM shorthand table (`#| ... |#`).  Scans the parent content
+ * line by line, balancing block-level openers (`#|`) and closers (`|#`).
+ *
+ * Inside such a table, `|` characters that appear in the inlined content
+ * are interpreted by the table parser as cell separators (the parser does
+ * NOT skip inline-code spans by default — `table_ignoreSplittersInInlineCode`
+ * is `false` by default in `@diplodoc/transform`).  We therefore must
+ * refuse to inline any include whose content carries a bare `|`.
+ */
+function isInsideYfmShorthandTable(parentContent: string, depStart: number): boolean {
+    const before = parentContent.slice(0, depStart);
+    let depth = 0;
+    let lineStart = 0;
+    for (let i = 0; i <= before.length; i++) {
+        if (i === before.length || before.charCodeAt(i) === 0x0a /* \n */) {
+            const line = before.slice(lineStart, i).trim();
+            if (line === '#|' || /^#\|\s*\{/.test(line) /* `#|{...}` with attrs */) {
+                depth++;
+            } else if (line === '|#') {
+                depth = Math.max(0, depth - 1);
+            }
+            lineStart = i + 1;
+        }
+    }
+    return depth > 0;
+}
+
+/**
+ * Returns true when the dep content (or any transitive nested include
+ * content) contains a bare `|` character.  We treat ANY pipe character as
+ * problematic because, inside a YFM shorthand cell, the table parser uses
+ * single `|` as a cell separator regardless of context (inline code, HTML
+ * attribute value, regex literal in code, …) when its inline-code
+ * skipping option is off (which is the default).
+ *
+ * The check is intentionally conservative — false positives only push a
+ * given include into the `{% included %}` fallback path (still 100%
+ * functionally equivalent at md2html time), while false negatives would
+ * silently break the cell layout.
+ */
+function depTransitiveContentHasPipe(dep: HashedGraphNode): boolean {
+    const stack: HashedGraphNode[] = [dep];
+    const visited = new Set<string>();
+    while (stack.length > 0) {
+        const current = stack.pop();
+        if (!current || visited.has(current.path)) {
+            continue;
+        }
+        visited.add(current.path);
+        const content = contentWithoutFrontmatter(current.content);
+        if (content.indexOf('|') >= 0) {
+            return true;
+        }
+        for (const childDep of current.deps) {
+            stack.push(childDep);
+        }
+    }
+    return false;
+}
+
+/**
+ * Returns true when inlining `dep` under a whitespace-only `rawPrefix`
+ * would expose a *top-level paragraph* of the include (or any of its
+ * transitive sub-includes) with leading whitespace whose sum with
+ * `rawPrefix.length` reaches the 4-column threshold.  Such a paragraph
+ * renders as an indented code block in the merged document while it was
+ * a regular paragraph in the source — a visual divergence that the user
+ * doesn't want.
+ *
+ * "Top-level" here means: not inside a CommonMark container that carries
+ * its own continuation indent (list item, blockquote, definition list)
+ * and not inside a YFM shorthand table.  Lines inside YFM block
+ * directives (`{% note %}`, `{% cut %}`, `{% list %}`, …) DO count as
+ * top-level — those directives don't add continuation indent in source
+ * markup, so any indent on a line inside them lives at the same column
+ * as the surrounding text.
+ *
+ * The check is intentionally conservative: false positives only push an
+ * include into the `{% included %}` fallback (still 100% functionally
+ * equivalent at md2html time), while false negatives would silently
+ * change the rendered output.
+ */
+function indentedIncludeRisksParagraphCodeBlock(dep: HashedGraphNode, rawPrefix: string): boolean {
+    if (!rawPrefix || !/^[\t ]+$/.test(rawPrefix)) {
+        return false;
+    }
+    const threshold = Math.max(1, 4 - rawPrefix.length);
+    if (threshold > 3) {
+        return false;
+    }
+    const visited = new Set<string>();
+    const stack: HashedGraphNode[] = [dep];
+    while (stack.length > 0) {
+        const current = stack.pop();
+        if (!current || visited.has(current.path)) {
+            continue;
+        }
+        visited.add(current.path);
+        const content = contentWithoutFrontmatter(current.content);
+        if (hasIndentedTopLevelParagraph(content, threshold)) {
+            return true;
+        }
+        for (const childDep of current.deps) {
+            stack.push(childDep);
+        }
+    }
+    return false;
+}
+
+/**
+ * Walks `content` line by line and returns true on the first non-empty
+ * paragraph line that is at "top level" (no list / blockquote / deflist
+ * container active, not inside a fenced code block, not inside a YFM
+ * shorthand table) and whose leading whitespace count is in
+ * `[threshold, 3]`.  Lines with leading >= 4 are already indented code
+ * blocks in the source and would not change semantics on merge; lines
+ * with leading < threshold do not cross the merge threshold either.
+ *
+ * The container tracker is deliberately small: it pushes on real
+ * CommonMark containers (`-` / `*` / `+` / `\d+.` / `\d+)` list markers,
+ * `>` blockquote, `:   ` deflist body) and pops them only after a blank
+ * line when the next line's leading drops below the container's
+ * continuation indent.  YFM directives (`{% … %}`) are NOT pushed: they
+ * don't add continuation indent in source markup.
+ */
+function tryConsumeYfmTableBoundary(
+    trimmed: string,
+    state: {depth: number},
+): 'open' | 'close' | null {
+    if (trimmed === '#|' || /^#\|\s*\{/.test(trimmed)) {
+        state.depth++;
+        return 'open';
+    }
+    if (trimmed === '|#') {
+        state.depth = Math.max(0, state.depth - 1);
+        return 'close';
+    }
+    return null;
+}
+
+function tryConsumeContainer(trimmed: string, leading: number, stack: number[]): boolean {
+    const listMarker = /^([-*+]|\d{1,9}[.)])\s+/.exec(trimmed);
+    if (listMarker) {
+        stack.push(leading + listMarker[0].length);
+        return true;
+    }
+    if (trimmed.startsWith('>')) {
+        stack.push(leading + 2);
+        return true;
+    }
+    const deflist = /^:\s+/.exec(trimmed);
+    if (deflist) {
+        stack.push(leading + deflist[0].length);
+        return true;
+    }
+    return false;
+}
+
+function isStructuralNonParagraph(trimmed: string): boolean {
+    return (
+        /^#{1,6}\s/.test(trimmed) ||
+        /^\[\*[^\]]+\]:/.test(trimmed) ||
+        trimmed.startsWith('{%') ||
+        trimmed.startsWith('|') ||
+        trimmed.startsWith('<')
+    );
+}
+
+function hasIndentedTopLevelParagraph(content: string, threshold: number): boolean {
+    if (threshold <= 0 || threshold > 3) {
+        return false;
+    }
+    const lines = content.split('\n');
+    const fence = newFenceState();
+    const table = {depth: 0};
+    let prevWasBlank = true;
+    const stack: number[] = []; // continuation indent of each open container
+
+    for (const line of lines) {
+        const trimmed = line.trimStart();
+        const leading = line.length - trimmed.length;
+
+        if (trimmed === '') {
+            prevWasBlank = true;
+            continue;
+        }
+
+        if (prevWasBlank) {
+            while (stack.length > 0 && stack[stack.length - 1] > leading) {
+                stack.pop();
+            }
+        }
+        prevWasBlank = false;
+
+        if (processCodeFence(trimmed, fence)) {
+            continue;
+        }
+        if (tryConsumeYfmTableBoundary(trimmed, table) || table.depth > 0) {
+            continue;
+        }
+        if (tryConsumeContainer(trimmed, leading, stack)) {
+            continue;
+        }
+        if (isStructuralNonParagraph(trimmed)) {
+            continue;
+        }
+
+        if (stack.length === 0 && leading > 0 && leading < 4 && leading >= threshold) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 /**
  * Strips the first heading from markdown content (for `notitle` includes).
  * Also removes the trailing empty line after the heading if present.
+ *
+ * If the result is empty (e.g. `#hash` + `notitle` on a section that is
+ * only a heading line, like a single `#### {#id}` block) we deliberately
+ * return empty content: the author wrote `notitle`, asking for the title
+ * to be removed.  Returning the original heading as a fallback would
+ * silently contradict the directive and produce different output from
+ * the md→html path (which also yields empty content in that case).
  */
 export function stripFirstHeading(content: string): string {
     const lines = content.split('\n');
@@ -367,15 +609,58 @@ export function stripFirstHeading(content: string): string {
         }
         break;
     }
-    const result = lines.join('\n');
-    // `#hash` + `notitle` on a section that is only a heading line would
-    // otherwise yield an empty include (e.g. a single `#### {#id}` block).
-    return result.trim() === '' ? content : result;
+    return lines.join('\n');
+}
+
+/**
+ * CommonMark HTML block opener / closer patterns for types 1–5 — these
+ * blocks are NOT interrupted by blank lines, so when the include is
+ * indented (list/cut/blockquote context) blank lines inside such blocks
+ * must receive the same indentation, otherwise markdown-it parses the
+ * unindented blank line as the end of the HTML block (and the whole
+ * list/cut after that blank line falls apart).
+ *
+ * - type 1: <script>, <pre>, <style>, <textarea> — closed by closing tag.
+ * - type 2: HTML comment <!-- ... --> — closed by `-->`.
+ * - type 3: processing instruction <? ... ?> — closed by `?>`.
+ * - type 4: declaration <! ... > — closed by `>`.
+ * - type 5: CDATA <![CDATA[ ... ]]> — closed by `]]>`.
+ */
+const HTML_BLOCK_OPEN_CLOSE: ReadonlyArray<{open: RegExp; close: RegExp}> = [
+    {open: /^<(script|pre|style|textarea)(?:\s|>|$)/i, close: /<\/(script|pre|style|textarea)>/i},
+    {open: /^<!--/, close: /-->/},
+    {open: /^<\?/, close: /\?>/},
+    {open: /^<![A-Z]/, close: />/},
+    {open: /^<!\[CDATA\[/, close: /]]>/},
+];
+
+/**
+ * Returns the closing pattern when the line opens an HTML block of types
+ * 1–5 that is NOT closed on the same line.  Returns null when the line
+ * does not open such a block (or opens AND closes one inline).
+ */
+function detectMultilineHtmlBlockOpen(line: string): RegExp | null {
+    const trimmed = line.trimStart();
+    for (const {open, close} of HTML_BLOCK_OPEN_CLOSE) {
+        if (open.test(trimmed)) {
+            return close.test(trimmed) ? null : close;
+        }
+    }
+    return null;
 }
 
 /**
  * Adds indentation to all lines of content except the first line (which
- * is already preceded by indent in the parent) and empty lines.
+ * is already preceded by indent in the parent).
+ *
+ * Empty lines are normally NOT indented to avoid trailing whitespace,
+ * EXCEPT when they fall inside a CommonMark HTML block of types 1–5
+ * (e.g. multi-line `<!-- ... -->` comments).  Such blocks are not
+ * interrupted by blank lines per spec, but markdown-it’s list-item
+ * parser treats an unindented blank line as the boundary of the HTML
+ * block and breaks the surrounding list / cut / blockquote.  Indenting
+ * the blank line keeps the HTML block continuous and the parent
+ * structure intact.
  *
  * Preserves original line endings (\r\n, \r, \n) for cross-platform support.
  */
@@ -387,11 +672,25 @@ export function addIndent(content: string, indent: string): string {
     const parts = content.split(/(\r\n|\r|\n)/);
     let isFirstTextLine = true;
     const result: string[] = [];
+    let htmlBlockClose: RegExp | null = null;
 
     for (const part of parts) {
         if (part === '\r\n' || part === '\n' || part === '\r') {
             result.push(part);
             continue;
+        }
+
+        if (part === '') {
+            result.push(htmlBlockClose ? indent : part);
+            continue;
+        }
+
+        if (htmlBlockClose) {
+            if (htmlBlockClose.test(part)) {
+                htmlBlockClose = null;
+            }
+        } else {
+            htmlBlockClose = detectMultilineHtmlBlockOpen(part);
         }
 
         if (isFirstTextLine) {
@@ -400,7 +699,7 @@ export function addIndent(content: string, indent: string): string {
             continue;
         }
 
-        result.push(part ? indent + part : part);
+        result.push(indent + part);
     }
 
     return result.join('');
@@ -443,7 +742,7 @@ function parseHeading(trimmed: string): {level: number; anchor: string} | null {
     const custom = CUSTOM_ANCHOR_RE.exec(text);
     const anchor = custom
         ? custom[1]
-        : slugify(text.replace(/\{\s*#[\w-]+\s*\}/g, '').trim(), {
+        : slugify(text.replace(CUSTOM_ANCHOR_GLOBAL_RE, '').trim(), {
               lower: true,
               remove: SLUG_REMOVE_RE,
           }); // NOSONAR — regex with /g is intentional
@@ -721,6 +1020,17 @@ export function prepareInlinedContent(
     const rawPrefix = parentContent.slice(lineStart, dep.location[0]);
 
     if (isInsideYfmShorthandTableCell(rawPrefix, trailingSuffix)) {
+        // When the include is followed by a YFM shorthand table separator
+        // (`||` / `|#`) on the same line, ensure the inlined content ends with
+        // a newline so the separator stays on its own line.  Otherwise, if the
+        // last line of the inlined content closes a CommonMark HTML block
+        // (e.g. `</style>`), the line containing `</style>||` is consumed as
+        // HTML block content; markdown-it `getLines()` then leaks one `|`
+        // into the cell because of its `eMarks[line] + 1` boundary, and the
+        // cell renders with a stray `|` character (Bug 23).
+        if (trailingSuffix && depContent && !depContent.endsWith('\n')) {
+            return depContent + '\n';
+        }
         return depContent;
     }
 

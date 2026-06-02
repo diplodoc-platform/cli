@@ -596,6 +596,148 @@ describe('canInlineInclude', () => {
         });
         expect(canInlineInclude(dep, content, false)).toBe(true);
     });
+
+    describe('indented top-level paragraph in dep content (Bug 27)', () => {
+        // After merge, a top-level paragraph with leading spaces in the
+        // include source plus a non-zero indent at the include directive
+        // can sum to >= 4 spaces — markdown-it then renders the line as
+        // an indented code block.  The fix routes such includes through
+        // the `{% included %}` fallback so the rendered output stays
+        // identical to the no-merge baseline.
+
+        const buildParent = (rawPrefixSpaces: number, includeDirective: string) =>
+            ' '.repeat(rawPrefixSpaces) + includeDirective;
+
+        it('should reject when parent indent + 2-space top-level paragraph reaches 4 columns', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1\\. First line.\n\n  Indented paragraph.\n\n2\\. Second line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should reject when transitive sub-include exposes the indented paragraph', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const inner = makeDep({
+                path: '_includes/inner.md' as NormalizedPath,
+                link: '_includes/inner.md',
+                match: '{% include [i](_includes/inner.md) %}',
+                content: 'Top-level intro.\n\n  Indented continuation paragraph.',
+            });
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '{% include [i](_includes/inner.md) %}',
+                deps: [inner],
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should allow when leading spaces sit inside a real list (continuation)', () => {
+            // `1. text\n\n  more` is lazy continuation of a real list item —
+            // CommonMark treats `more` as part of the list item, so merge
+            // can't promote it to an indented code block.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1. First item.\n   Continuation of item one.\n2. Second item.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when parent indent is zero (no merge regression possible)', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = includeDirective;
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [0, parent.length],
+                content: '1\\. First line.\n\n  Indented paragraph.\n\n2\\. Second line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when content has no top-level indent (paragraphs at column 0)', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '1\\. First line.\n\n2\\. Second line.\n\n3\\. Third line.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should reject when parent indent is 2 spaces and content has 2 leading spaces', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(2, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Top.\n\n  Indented.\n\nBottom.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(false);
+        });
+
+        it('should allow when parent indent is 2 spaces but content has only 1 leading space', () => {
+            // 2 + 1 = 3 < 4, no code block in merged output.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(2, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Top.\n\n One leading space.\n\nBottom.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when leading spaces sit inside a fenced code block', () => {
+            // Indented code samples inside fenced code blocks already render
+            // as code in source; merge does not change that semantics.
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: 'Intro.\n\n```\n  indented sample\n```\n\nOutro.',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+
+        it('should allow when leading spaces sit inside a YFM shorthand table cell', () => {
+            const includeDirective = '{% include [x](_includes/x.md) %}';
+            const parent = buildParent(4, includeDirective);
+            const dep = makeDep({
+                path: '_includes/x.md' as NormalizedPath,
+                link: '_includes/x.md',
+                match: includeDirective,
+                location: [parent.indexOf(includeDirective), parent.length],
+                content: '#|\n||\n  cell with two leading spaces\n||\n|#',
+            });
+            expect(canInlineInclude(dep, parent)).toBe(true);
+        });
+    });
 });
 
 describe('stripFirstHeading', () => {
@@ -624,9 +766,20 @@ describe('stripFirstHeading', () => {
         expect(stripFirstHeading(content)).toBe('Not a heading\n\n# Heading\n\nBody.');
     });
 
-    it('should keep the heading when stripping would leave only whitespace', () => {
+    it('returns empty content when the only line is the heading (notitle wins)', () => {
+        // `{% include notitle %}` on a section that is only a heading line
+        // must yield empty content, matching the md→html path.  The old
+        // implementation fell back to keeping the heading, which made
+        // md→md and md→html diverge.
         const content = '# Only Heading';
-        expect(stripFirstHeading(content)).toBe('# Only Heading');
+        expect(stripFirstHeading(content)).toBe('');
+    });
+
+    it('returns empty content for #hash + notitle on a heading-only section', () => {
+        // After extractSection by `#quick-notifications`, the body is a
+        // single heading line.  notitle strips it, the section is empty.
+        const content = '#### Heading {#quick-notifications}';
+        expect(stripFirstHeading(content)).toBe('');
     });
 
     it('should handle h6 heading', () => {
@@ -774,6 +927,36 @@ describe('addIndent', () => {
     it('should not indent empty lines with CRLF', () => {
         expect(addIndent('Line 1\r\n\r\nLine 3', '  ')).toBe('Line 1\r\n\r\n  Line 3');
     });
+
+    // Bug 19: blank lines inside multi-line HTML comments must keep the
+    // surrounding indent so the list/cut/blockquote does not break (markdown-it
+    // ends the HTML block at the first unindented blank line inside a list).
+    it('should indent blank lines inside multi-line HTML comments (type 2)', () => {
+        const content = '<!--\nline 1\n\nline 2\n-->';
+        expect(addIndent(content, '   ')).toBe('<!--\n   line 1\n   \n   line 2\n   -->');
+    });
+
+    it('should indent blank lines inside <style> blocks (type 1)', () => {
+        const content = '<style>\n\n.foo { color: red }\n\n</style>';
+        expect(addIndent(content, '  ')).toBe('<style>\n  \n  .foo { color: red }\n  \n  </style>');
+    });
+
+    it('should NOT indent blank lines after an HTML comment closes', () => {
+        const content = '<!--\ncomment\n-->\n\nparagraph';
+        expect(addIndent(content, '  ')).toBe('<!--\n  comment\n  -->\n\n  paragraph');
+    });
+
+    it('should NOT indent blank lines around a single-line HTML comment', () => {
+        const content = '<!-- short -->\n\nLine after';
+        expect(addIndent(content, '  ')).toBe('<!-- short -->\n\n  Line after');
+    });
+
+    it('should handle multiple multi-line HTML comments with blanks', () => {
+        const content = '<!--\nA\n\nB\n-->\n\n<!--\nC\n\nD\n-->';
+        expect(addIndent(content, '  ')).toBe(
+            '<!--\n  A\n  \n  B\n  -->\n\n  <!--\n  C\n  \n  D\n  -->',
+        );
+    });
 });
 
 describe('extractSection', () => {
@@ -819,6 +1002,34 @@ describe('extractSection', () => {
     it('should handle heading with trailing anchor attributes', () => {
         const content = '## Setup {#setup}\n\nSetup text.\n\n## Usage';
         expect(extractSection(content, 'setup')).toBe('## Setup {#setup}\n\nSetup text.');
+    });
+
+    it('extracts a section whose anchor contains non-ASCII (cyrillic) characters (Bug 32)', () => {
+        // `\w` is ASCII-only, so the old `[\w-]+` anchor regex failed to
+        // match `{#YNDX-00540-с-Matter}` (cyrillic `с`), extractSection
+        // returned the whole file and notitle stripping leaked the rest of
+        // popups.md into the page.  Surfaced on alice socket/how-use.md.
+        const content = [
+            '#### {#socket}',
+            '',
+            '![socket](a.png)',
+            '',
+            '#### {#YNDX-00540-с-Matter}',
+            '',
+            '![matter](b.png)',
+            '',
+            '#### {#location-access}',
+            '',
+            'tail.',
+        ].join('\n');
+        expect(extractSection(content, 'YNDX-00540-с-Matter')).toBe(
+            '#### {#YNDX-00540-с-Matter}\n\n![matter](b.png)',
+        );
+    });
+
+    it('does not leak the whole file for a cyrillic anchor at EOF', () => {
+        const content = ['#### {#первый}', '', 'one.', '', '#### {#второй}', '', 'two.'].join('\n');
+        expect(extractSection(content, 'второй')).toBe('#### {#второй}\n\ntwo.');
     });
 
     it('should skip headings inside fenced code blocks', () => {
@@ -1390,9 +1601,11 @@ describe('prepareInlinedContent', () => {
             undefined,
             '||',
         );
-        expect(result).toBe('Template content here.');
+        // Trailing newline is intentional: it forces the `||` (or `|#`)
+        // separator to a new line so a multi-line inlined HTML block does
+        // not glue onto the table separator (Bug 23 in ADR-006).
+        expect(result).toBe('Template content here.\n');
         expect(result).not.toContain('<!-- source');
-        expect(result).not.toContain('\n');
     });
 
     it('should bare-inline notitle include inside YFM table cell', () => {
@@ -2047,6 +2260,33 @@ describe('mergeIncludes', () => {
         });
         const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
         expect(result).toContain('[*term]: See [docs](_includes/local.md) for info');
+    });
+
+    // Bug 19: dep with multi-line HTML comments that contain blank lines must
+    // produce content where those blank lines are indented to match the parent
+    // include line.  Otherwise markdown-it (inside list / cut / blockquote)
+    // ends the HTML block at the first unindented blank line and the rest of
+    // the page renders broken (paragraphs leak out, JS-bound widgets fail).
+    it('should preserve list/cut continuity when dep has HTML comment with blank lines', async () => {
+        const include = '{% include [ex](_includes/examples.md) %}';
+        const parentContent = `- list item\n\n   {% cut "title" %}\n\n   ${include}\n\n   {% endcut %}\n\n- next item`;
+        const includeStart = parentContent.indexOf(include);
+        const dep = makeDep({
+            path: '_includes/examples.md' as NormalizedPath,
+            link: '_includes/examples.md',
+            match: include,
+            location: [includeStart, includeStart + include.length],
+            content: '<!--\n#|\n||\nrow1\n||\n\n||\nrow2\n||\n|# -->',
+            deps: [],
+        });
+        const result = await runMerge([dep], parentContent, 'main.md' as NormalizedPath);
+        // The blank line inside the multi-line HTML comment must be indented
+        // to keep it inside the parent list item / cut block.
+        expect(result).toContain('   ||\n   row1\n   ||\n   \n   ||\n   row2');
+        // Final {% endcut %} must still be present and correctly indented.
+        expect(result).toContain('   {% endcut %}');
+        // Trailing list item must follow.
+        expect(result.indexOf('- next item')).toBeGreaterThan(result.indexOf('   {% endcut %}'));
     });
 
     it('should keep {% include %} in term body when resolved content is empty', async () => {

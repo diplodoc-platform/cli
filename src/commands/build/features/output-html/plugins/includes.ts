@@ -219,9 +219,19 @@ function unfoldIncludes(
                 includedTokens = stripTitleTokens(includedTokens);
             }
 
-            if (cached) {
-                includedTokens = includedTokens.map((token) => copyToken(state, token));
-            }
+            // Always deep-copy the tokens before they enter the stream.  The
+            // cached token tree is the canonical parse result and MUST stay
+            // pristine: once tokens are spliced into the parent stream they are
+            // mutated in place by later core rules (`curly_attributes`) and by
+            // `tagTokensWithSource` below.  Previously we only copied on a cache
+            // *hit*, so the first (cache-miss) consumer leaked the original
+            // tokens into the stream and corrupted the cache for every
+            // subsequent include of the same file.  Under `-j2` the order in
+            // which files seed/mutate the shared cache is non-deterministic,
+            // which produced flaky output (e.g. a `#hash` section randomly
+            // losing or keeping a sibling heading).  Copying unconditionally
+            // keeps the cache canonical and the output deterministic.
+            includedTokens = includedTokens.map((token) => copyToken(state, token));
 
             tagTokensWithSource(includedTokens, includeFullPath, currentChain);
 
@@ -291,7 +301,16 @@ function cutHeading(tokens: Token[], start: number) {
     for (let index = start + 1; index < tokens.length; index++) {
         const token = tokens[index];
 
-        if (token.type === 'heading_open' && level >= Number(token.tag.slice(1))) {
+        // Section ends only at the next heading of the SAME level — this
+        // matches `findBlockTokens` in @diplodoc/transform (the viewer's
+        // source of truth) and `processHeadingForSection` in merge-includes.
+        // Using `>=` here was a divergence: a nested include expanded inside
+        // the section can introduce a shallower heading (e.g. an `### {#x}`
+        // from an included file inside an `#### {#section}` block).  With
+        // `>=` that shallower heading wrongly terminated the section, so a
+        // `notitle` include collapsed to nothing.  Surfaced on alice
+        // uz/smart-home/.../unruly.md (#quick-notifications → telegram).
+        if (token.type === 'heading_open' && level === Number(token.tag.slice(1))) {
             return tokens.slice(start, index);
         }
     }
