@@ -23,18 +23,33 @@ const buildContentTestTemplate = (testTitle: string, testRootPath: string, extra
 
 describe('Build content map for', () => {
     buildContentTestTemplate(
-        'project with an include and a picture',
+        'project with an include and a picture (mergeIncludes off)',
         'mocks/build-content-map/with-includes',
+        '--no-merge-includes',
     );
 
     buildContentTestTemplate(
-        'project with autotitle links between pages',
+        'project with an include and a picture (mergeIncludes on)',
+        'mocks/build-content-map/with-includes',
+        '--merge-includes',
+    );
+
+    buildContentTestTemplate(
+        'project with autotitle links between pages (mergeIncludes off)',
         'mocks/build-content-map/with-autotitles',
+        '--no-merge-includes',
+    );
+
+    buildContentTestTemplate(
+        'project with autotitle links between pages (mergeIncludes on)',
+        'mocks/build-content-map/with-autotitles',
+        '--merge-includes',
     );
 
     buildContentTestTemplate(
         'nested includes (hashIncludes default, mergeIncludes off)',
         'mocks/build-content-map/nested-includes',
+        '--no-merge-includes',
     );
 
     buildContentTestTemplate(
@@ -46,6 +61,7 @@ describe('Build content map for', () => {
     buildContentTestTemplate(
         'diamond includes (hashIncludes default, mergeIncludes off)',
         'mocks/build-content-map/diamond-includes',
+        '--no-merge-includes',
     );
 
     buildContentTestTemplate(
@@ -57,6 +73,7 @@ describe('Build content map for', () => {
     buildContentTestTemplate(
         'autotitle chain (hashIncludes default, mergeIncludes off)',
         'mocks/build-content-map/autotitle-chain',
+        '--no-merge-includes',
     );
 
     buildContentTestTemplate(
@@ -68,6 +85,7 @@ describe('Build content map for', () => {
     buildContentTestTemplate(
         'autotitle target with include (hashIncludes default, mergeIncludes off)',
         'mocks/build-content-map/autotitle-target-with-include',
+        '--no-merge-includes',
     );
 
     buildContentTestTemplate(
@@ -102,12 +120,12 @@ describe('Build content map propagation', () => {
         await TestAdapter.testBuildPass(inputBefore, before, {
             md2md: true,
             md2html: false,
-            args: '--build-content',
+            args: '--build-content --no-merge-includes',
         });
         await TestAdapter.testBuildPass(inputAfter, after, {
             md2md: true,
             md2html: false,
-            args: '--build-content',
+            args: '--build-content --no-merge-includes',
         });
 
         const beforeManifest = JSON.parse(

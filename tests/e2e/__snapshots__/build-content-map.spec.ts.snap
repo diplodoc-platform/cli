@@ -4,8 +4,8 @@ exports[`Build content map for > autotitle chain (hashIncludes default, mergeInc
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "a.md": {
       "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
@@ -33,8 +33,8 @@ exports[`Build content map for > autotitle chain (mergeIncludes on) 1`] = `
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "a.md": {
       "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
@@ -62,8 +62,8 @@ exports[`Build content map for > autotitle target with include (hashIncludes def
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "_includes/snippet.md": {
       "hash": "sha256-15e5534f3fd87d3799fc5ba720332adc871dc63ac87c27ab1baf6b083d5b5812",
@@ -91,8 +91,8 @@ exports[`Build content map for > autotitle target with include (mergeIncludes on
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "a.md": {
       "hash": "sha256-a3306e3527c16dd26e0080fd3b6a20a8149bbe200dd27f19a9f8661ba79a2b23",
@@ -116,8 +116,8 @@ exports[`Build content map for > diamond includes (hashIncludes default, mergeIn
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "_includes/branch-a.md": {
       "hash": "sha256-3314f60ae1fcaaccab27d5075d5a8ad01bb5d139cc37f4240304d83a9ce88ace",
@@ -149,8 +149,8 @@ exports[`Build content map for > diamond includes (mergeIncludes on) 1`] = `
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "index.md": {
       "hash": "sha256-4a0b4cf64adc48609b3b0448e59bcfca847ca43e96a857673b838b95bfb3b79e",
@@ -170,8 +170,8 @@ exports[`Build content map for > nested includes (hashIncludes default, mergeInc
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "_includes/level1.md": {
       "hash": "sha256-8720c7deb66b06273ae8fb303accf2a399e622b647e222cbb0dc12c74cdb0df7",
@@ -199,8 +199,8 @@ exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
 {
   "contentHashes": {
     ".yfm": {
-      "hash": "sha256-01bf06259f474a707c2e3bb03f5aa8c480c5269e644f57a94940834d2705c9d8",
-      "size": 12,
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
     },
     "index.md": {
       "hash": "sha256-82cbe26702322efab28c5788884abd20224d7ab559baac612457d3e61b30f4c1",
@@ -216,7 +216,7 @@ exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
 }
 `;
 
-exports[`Build content map for > project with an include and a picture 1`] = `
+exports[`Build content map for > project with an include and a picture (mergeIncludes off) 1`] = `
 {
   "contentHashes": {
     ".yfm": {
@@ -249,7 +249,61 @@ exports[`Build content map for > project with an include and a picture 1`] = `
 }
 `;
 
-exports[`Build content map for > project with autotitle links between pages 1`] = `
+exports[`Build content map for > project with an include and a picture (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-7ecfc045bc85006edf4898acb85d62adc33473b7bdd5cdcb9678a46066b547dc",
+      "size": 256,
+    },
+    "logo.svg": {
+      "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
+      "size": 3402,
+    },
+    "toc.yaml": {
+      "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
+      "size": 108,
+    },
+  },
+  "pageAssets": {
+    "index.md": [
+      "logo.svg",
+    ],
+  },
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with autotitle links between pages (mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-7b81e86e1bcce905ef6d2cbf5af9421f1e3e6cd7a4f477e371498b30c07a859d",
+      "size": 152,
+    },
+    "other.md": {
+      "hash": "sha256-4807c9359ddc98c38441d32aaabeaa22218027ef69bc1d6118c4c006c8c25b36",
+      "size": 130,
+    },
+    "toc.yaml": {
+      "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",
+      "size": 145,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with autotitle links between pages (mergeIncludes on) 1`] = `
 {
   "contentHashes": {
     ".yfm": {
