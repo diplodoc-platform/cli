@@ -226,6 +226,26 @@ export class OutputMd {
                                 run.meta.addSystemVars(graph.path, vars.__system);
                                 run.meta.addMetadata(graph.path, vars.__metadata);
 
+                                // When the include file is also a TOC entry, resolve its VCS
+                                // metadata (vcsPath, contributors, ...) here instead of relying
+                                // on the entry's markdown Dump hook having run first. The same
+                                // file may be processed as both a TOC entry and an include
+                                // dependency concurrently (-j2); without this, the include dump
+                                // could read `meta` before the entry hook populated `vcsPath`,
+                                // producing non-deterministic frontmatter. `vcs.metadata` is
+                                // idempotent (memoized, config gated, deterministic realpath),
+                                // so resolving it here makes the include dump self-sufficient
+                                // and write order irrelevant. Pure includes (not TOC entries)
+                                // are skipped so their output keeps matching the entry path.
+                                if (run.toc.isEntry(graph.path)) {
+                                    const vcsMeta = await run.vcs.metadata(
+                                        graph.path,
+                                        graph.deps.map(get('path')),
+                                    );
+                                    run.meta.add(graph.path, vcsMeta);
+                                    run.meta.addResources(graph.path, vcsMeta);
+                                }
+
                                 const includeMeta = await run.meta.dump(graph.path);
                                 const lineWidth = config.disableMetaMaxLineWidth
                                     ? Infinity

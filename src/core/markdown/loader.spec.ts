@@ -656,7 +656,7 @@ describe('Markdown loader', () => {
             expect(result).toEqual(content);
         });
 
-        it.skip('should filter in code dependencies', async () => {
+        it('should filter dependencies inside fenced code blocks', async () => {
             const content = dedent`
                 Simple text
                 {% include [](./include1.md) %}
@@ -672,10 +672,484 @@ describe('Markdown loader', () => {
             const context = loaderContext(content, {});
 
             const result = await loader.call(context, content);
-            expect(context.api.deps.set).toBeCalledWith([
-                {path: 'include1.md', location: [12, 43], hash: null, search: null},
-                {path: 'include2.md', location: [45, 99], hash: null, search: null},
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps).toHaveLength(2);
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['include1.md', 'include2.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should filter dependencies inside fenced code blocks indented in lists', async () => {
+            // Real-world scenario from intranet/idm/internal/concepts/documentation.md:
+            // a `{% include %}` shown as a code example inside an ordered list
+            // (the fence itself is indented by 4 spaces under `1.`) must NOT
+            // be treated as a real dependency.
+            const content = dedent`
+                Simple text
+                {% include [](./include1.md) %}
+
+                1. Step one:
+
+                    \`\`\`plaintext
+                    {% include [](./inside-fence.md) %}
+                    [*glossary]: text
+                    \`\`\`
+
+                {% include [](./include2.md) %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['include1.md', 'include2.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should filter dependencies inside tilde-fenced code blocks', async () => {
+            const content = dedent`
+                {% include [](./real.md) %}
+
+                ~~~yaml
+                {% include [](./fake.md) %}
+                ~~~
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['real.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep an include that starts on the line right after a closing fence', async () => {
+            // Regression for the "Include skipped in" failure observed on
+            // ~50 real metrika pages: an `{% include %}` placed immediately
+            // after a closing ``` fence (no blank line in between) used to
+            // be dropped because the fence range ended exactly at the
+            // start of the include line and `filterRanges` treats touching
+            // ranges as overlapping.
+            const content = dedent`
+                Pre text
+
+                \`\`\`javascript
+                <script>console.log(1)</script>
+                \`\`\`
+                {% include [chat-button](./chat.md) %}
+
+                {% include [next](./next.md) %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['chat.md', 'next.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep includes after an unterminated ``` opener with content-like info string', async () => {
+            // Regression for metrika `pt/objects/first-party-params.md`:
+            // an inline-styled fence written as ` \`\`\`javascript foo({...} ` that is
+            // never closed (the line ends with `})\`\`\``, which is NOT a valid
+            // CommonMark closer because text precedes the backticks) used to
+            // extend a fence range to EOF and silently drop every real
+            // `{% include %}` after it.  Now an unterminated opener is
+            // discarded and includes after it are preserved.
+            const content = dedent`
+                # Title
+
+                \`\`\`javascript
+                ym(XXX, 'init');
+                \`\`\`
+
+                \`\`\`javascript ym(XXX, 'firstPartyParams', {
+                    "e-mail": 'a@b.com',
+                });\`\`\`
+
+                {% include [chat-button](./chat.md) %}
+
+                {% include [support-button](./support.md) %}
+
+                {% include [footer-links](./footer.md) %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                'chat.md',
+                'support.md',
+                'footer.md',
             ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat a ```` |` line as a valid closer (YFM table cell separator after fence)', async () => {
+            // Regression for browser-corporate `ru/policy/cookies-allowed-for-urls.md`:
+            // a code fence inside a YFM shorthand cell often ends with the
+            // table separator on the same line as the closer (e.g. ` ``` |`).
+            // CommonMark forbids non-whitespace content after the closer, so
+            // our detector used to refuse to pair this as a closer — and
+            // then later (`\`\`\``) line in the next cell was wrongly
+            // treated as the closer, swallowing all `{% include %}` between.
+            const content = dedent`
+                #|
+                || **Header** | **Content** ||
+                || row1 |
+                \`\`\`json
+                {"a": 1}
+                \`\`\` |
+                paragraph
+
+                {% include [a](./a.md) %}
+                {% include [b](./b.md) %}
+
+                \`\`\`json
+                {"b": 2}
+                \`\`\`
+                ||
+                |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['a.md', 'b.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should not treat fence runs inside an HTML comment as a real fence', async () => {
+            // Regression for yateam `datasync/http/ru/dg/concepts/data-structure.md`:
+            // an HTML comment contains a sample code fence (` ```javascript … ``` `),
+            // and the regex-based detector saw the `\`\`\` -->` line as a
+            // fence opener (info string `-->`).  The next real `\`\`\``
+            // closed it, producing a phantom range that swallowed the
+            // deflist `{% include %}` blocks between them.
+            const content = dedent`
+                Some intro paragraph.
+
+                <!-- \`\`\`javascript
+                code-like
+                \`\`\` -->
+
+                #### record
+                 
+                :   {% include [record](./_includes/record.md) %}
+
+                #### fields
+                 
+                :   {% include [fields](./_includes/fields.md) %}
+
+                \`\`\`javascript
+                actual code
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/record.md',
+                '_includes/fields.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued to end of content line with YFM separator as a closer', async () => {
+            // Regression for alice-dev-guide `concepts/test-integration.md`:
+            // an YFM shorthand-table cell uses ` ``` ` on its own line as
+            // the opener and `   text ```|| ` (closer at the END of a
+            // content line + cell separator) instead of putting the closer
+            // on its own line.  Our scanner only recognised closers at the
+            // start of a line, so the opener stayed open and the next real
+            // ` ``` ` (in a different cell) was paired with it, swallowing
+            // every `{% include %}` between them.
+            const content = dedent`
+                #|
+                || **Header** | **Cell** ||
+                || row1 |
+                \`\`\`
+                content line 1
+                content line 2 \`\`\`||
+                || row2 cell
+
+                {% include [a](./a.md) %}
+
+                {% include [b](./b.md) %}
+
+                \`\`\`
+                more code
+                final \`\`\`||
+                |#
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['a.md', 'b.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued after a deflist `:` marker as an opener', async () => {
+            // Regression for rosreestr-games `rosreestr-games-use.md`:
+            // the document uses the canonical YFM deflist body pattern
+            // `:   \`\`\`javascript … \`\`\`` for examples, then later has
+            // an unrelated top-level ` ```javascript … ``` ` block followed
+            // by `{% include %}`.  Our scanner missed the deflist opener
+            // (line starts with `:`), then mistakenly paired the deflist
+            // closer ` ``` ` with the next top-level opener, swallowing
+            // the include between the two top-level fences.
+            const content = dedent`
+                **Example**
+
+                 
+                :   \`\`\`javascript
+                    one();
+                    two();
+                    \`\`\`
+
+                ##### Section heading
+
+                {% include [auth](./_includes/auth.md) %}
+
+                Use the method below:
+
+                \`\`\`javascript
+                example();
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/auth.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should NOT treat ``` opener glued to a blockquote `>` marker as a fence opener', async () => {
+            // Regression for Bug 30 — five real-world docs (tracker
+            // create-filter.md, forms send-request.md, webmaster
+            // host-verification-get.md, xml response.md, sky-list
+            // response-format.md).  Inside a blockquote, both the opener
+            // ` > \`\`\`` and the closer ` > \`\`\` ` carry the `>`
+            // marker.  If we strip `>` only for opener detection, the
+            // matching ` > \`\`\` ` closer no longer matches (still
+            // starts with `>` after trimStart) and the first downstream
+            // top-level ` ``` ` would close a long phantom fence range
+            // that swallows every `{% include %}` in between.
+            //
+            // Markdown-it would parse the inner fence correctly, but
+            // ignoring blockquote-fences entirely is strictly safer for
+            // our purpose (the only cost is an `{% include %}` shown as
+            // code inside a blockquoted fence — never observed in real
+            // docs).
+            const content = dedent`
+                Some intro.
+
+                > \`\`\`json
+                > POST /v1/items HTTP/1.1
+                > Host: example.com
+                > \`\`\`
+
+                > \`\`\`json
+                > GET /v1/items HTTP/1.1
+                > \`\`\`
+
+                {% include [response](./_includes/response.md) %}
+
+                \`\`\`json
+                {"ok": true}
+                \`\`\`
+
+                Trailing text.
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/response.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should NOT treat ``` opener glued to a blockquote with extra indent (`>   ` + ```)', async () => {
+            // Regression for Bug 30 specifically on forms send-request.md
+            // and webmaster host-verification-get.md, where the
+            // blockquote-wrapped fence sits inside a tab-list and uses
+            // `>   ` (blockquote + 3 spaces) on the opener and closer.
+            const content = dedent`
+                > Example:
+                >
+                >* **URL** — \`api/v3/entities\`.
+                >
+                >   \`\`\`json
+                >
+                >       {
+                >           "name": "x"
+                >       }
+                >    \`\`\`
+                >
+
+                ## Section
+
+                {% include notitle [errors](_includes/errors.md) %}
+
+                Next paragraph.
+
+                \`\`\`json
+                {"y": 1}
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['_includes/errors.md']);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep all includes between two blockquote-wrapped fences and a later top-level fence', async () => {
+            // Regression for Bug 30 — webmaster
+            // host-verification-get.md case with 4 includes between the
+            // blockquote-fences and the next top-level ``` (Response
+            // codes example).  Without the fix the first ` > \`\`\` `
+            // opener stayed unterminated and the next ``` swallowed all
+            // four includes.
+            const content = dedent`
+                # Title
+
+                > \`\`\`javascript
+                > {
+                >   "verification_uin": "abc"
+                > }
+                > \`\`\`
+                >
+                > \`\`\`xml
+                > <Data></Data>
+                > \`\`\`
+
+                {% include [a](../_includes/a.md) %}
+
+                {% include [b](../_includes/b.md) %}
+
+                {% include [c](../_includes/c.md) %}
+
+                {% include [d](../_includes/d.md) %}
+
+                \`\`\`no-highlight
+                example
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '../_includes/a.md',
+                '../_includes/b.md',
+                '../_includes/c.md',
+                '../_includes/d.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep two adjacent blockquote-wrapped includes around a blockquote-wrapped fence', async () => {
+            // Regression for Bug 30 — sky-list response-format pattern
+            // from the user: ` > {% include %} ` ... ` > \`\`\` ` ...
+            // ` > \`\`\` ` ... ` > {% include %} `.  Without the fix the
+            // opening ` > \`\`\` ` was caught by the (incorrect)
+            // blockquote-opener stripping, the closer ` > \`\`\` ` was
+            // missed, and the second include later in the document was
+            // pulled into a phantom fence range.
+            const content = dedent`
+                > {% include [cmd](_includes/sky-list/id-response-format/the-following-command.md) %}
+                >
+                >
+                > \`\`\`
+                > sky ping G@ws40-055 G@ws40-004
+                > \`\`\`
+                >
+                > {% include [ans](_includes/sky-list/id-response-format/the-following-answer.md) %}
+
+                Trailing paragraph.
+
+                \`\`\`
+                code
+                \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/sky-list/id-response-format/the-following-command.md',
+                '_includes/sky-list/id-response-format/the-following-answer.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should treat ``` glued after a list-item marker as an opener', async () => {
+            // User-reported pattern: a list item containing a fenced code
+            // block with the opener on the same line as the bullet
+            // (`- \`\`\``).  Markdown-it parses this as a list item that
+            // *contains* a code fence; our scanner ignored the line
+            // because it starts with `-`, then paired the inner closer
+            // with the outer opener of the next list item, swallowing
+            // every `{% include %}` between the two code blocks.
+            const content = dedent`
+                - \`\`\`
+                    config=['0:1024']
+                    \`\`\`
+
+                    {% include [feature_borders](./_includes/feature_borders.md) %}
+
+                    The next example is equivalent:
+
+                    \`\`\`
+                    config=['0:border_count=1024']
+                    \`\`\`
+
+                - \`\`\`
+                    config=['0:border_count=1024','1:border_count=1024']
+                    \`\`\`
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual([
+                '_includes/feature_borders.md',
+            ]);
+            expect(result).toEqual(content);
+        });
+
+        it('should keep includes when a fence is mis-paired in deeply indented deflist context', async () => {
+            // Regression for webmaster `ru/search-appearance/images-goods.md`:
+            // a definition list (`:   ` marker) opens a fence on the SAME
+            // line as the marker.  Our regex-based detector cannot pair
+            // that opener (the line starts with `:`, not a backtick), so
+            // the real closer was treated as a fresh opener and the next
+            // fence cycle ended up "unterminated", extending to EOF and
+            // dropping every include below it.  Dropping the unterminated
+            // branch keeps those includes in deps.
+            const content = dedent`
+                **Heading**
+
+                 
+                :   \`\`\`
+                    <html>code</html>
+                    \`\`\`
+
+                    \`\`\`
+                    more code
+                    \`\`\`
+
+                    {% include [validate](./validate.md) %}
+
+                {% include [footer](./footer.md) %}
+            `;
+            const context = loaderContext(content, {});
+
+            const result = await loader.call(context, content);
+            const deps = (context.api.deps.set as Mock).mock.calls[0][0];
+            expect(deps.map((d: {path: string}) => d.path)).toEqual(['validate.md', 'footer.md']);
             expect(result).toEqual(content);
         });
     });
