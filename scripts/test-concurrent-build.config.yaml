@@ -1,0 +1,43 @@
+# Configuration for test-concurrent-build.mjs
+#
+# Run:
+#   node packages/cli/scripts/test-concurrent-build.mjs
+#   node packages/cli/scripts/test-concurrent-build.mjs --config path/to/other.yaml
+#
+# The script builds a reference output with a single thread, then repeatedly
+# rebuilds the same input with different `--jobs` values and compares the
+# resulting markdown against the reference to detect non-deterministic output.
+
+# Paths support ~ (home directory), $VAR and ${VAR} environment-variable expansion.
+inputDir: ~/Projects/test/in/test_doc
+outputBase: ~/Projects/test/concurrent-out
+
+# How many times each thread count is tested.
+testRuns: 3
+
+# Thread counts (`--jobs N`) to test. `1` means no `--jobs` flag is passed.
+threadCounts:
+  - 2
+
+# Number of tests to run in parallel (set > 1 to max out CPU).
+parallelTests: 1
+
+# Set to true to see full build logs from the CLI.
+verboseLogs: false
+
+# Set to false to show only the first mismatch per run.
+showAllMismatches: true
+
+# Save markdown report under outputBase.
+saveReport: true
+
+# Build args appended to every build invocation.
+buildArgs:
+  - --output-format
+  - md
+  - --ignore
+  - '**/node_modules/**'
+  - --no-vcs
+  - --no-add-alternate-meta
+  - --no-merge-svg
+  - --no-hash-includes
