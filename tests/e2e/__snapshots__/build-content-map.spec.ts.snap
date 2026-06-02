@@ -1,0 +1,329 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Build content map for > autotitle chain (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "a.md": {
+      "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
+      "size": 151,
+    },
+    "b.md": {
+      "hash": "sha256-6c43dbe0f71cd0f9a8c596be5b57e4b0f87acbfa70e064c1851f1e52fa9dc962",
+      "size": 155,
+    },
+    "c.md": {
+      "hash": "sha256-dd5586a9c7e73c90600c4af09e51aee7a953f388812c7d1d4cf847aa528fde9c",
+      "size": 142,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
+      "size": 157,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle chain (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "a.md": {
+      "hash": "sha256-ded797685220c60b5b4e4b625b57593625cd23a2769b740c8c04cfe96e56c207",
+      "size": 151,
+    },
+    "b.md": {
+      "hash": "sha256-6c43dbe0f71cd0f9a8c596be5b57e4b0f87acbfa70e064c1851f1e52fa9dc962",
+      "size": 155,
+    },
+    "c.md": {
+      "hash": "sha256-dd5586a9c7e73c90600c4af09e51aee7a953f388812c7d1d4cf847aa528fde9c",
+      "size": 142,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8bf60b589e4bb972e7b9ca9d924f6f8911f9d41e268bf710f0d5197246b576fd",
+      "size": 157,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle target with include (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "_includes/snippet.md": {
+      "hash": "sha256-15e5534f3fd87d3799fc5ba720332adc871dc63ac87c27ab1baf6b083d5b5812",
+      "size": 57,
+    },
+    "a.md": {
+      "hash": "sha256-a3306e3527c16dd26e0080fd3b6a20a8149bbe200dd27f19a9f8661ba79a2b23",
+      "size": 157,
+    },
+    "b.md": {
+      "hash": "sha256-e725d8b1a33dc089e05b34501b611bc56533e48c96d8713ac08f87bc087bb556",
+      "size": 166,
+    },
+    "toc.yaml": {
+      "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
+      "size": 144,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > autotitle target with include (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "a.md": {
+      "hash": "sha256-a3306e3527c16dd26e0080fd3b6a20a8149bbe200dd27f19a9f8661ba79a2b23",
+      "size": 157,
+    },
+    "b.md": {
+      "hash": "sha256-a5ad363d0d18d412cd83964d8fe8716f848e6114af59a6b555aecd6595e587f0",
+      "size": 243,
+    },
+    "toc.yaml": {
+      "hash": "sha256-f0e5f8342a96da110f1a0c3dc468ce8bf536d9971b7f6268b7afc6327ba2d163",
+      "size": 144,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > diamond includes (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "_includes/branch-a.md": {
+      "hash": "sha256-3314f60ae1fcaaccab27d5075d5a8ad01bb5d139cc37f4240304d83a9ce88ace",
+      "size": 101,
+    },
+    "_includes/branch-b.md": {
+      "hash": "sha256-0d5505b5775980c435e7cb35b0452089980640ff5bc0878a45db8b23901099dd",
+      "size": 102,
+    },
+    "_includes/shared.md": {
+      "hash": "sha256-42e099cba25de4c74b858b07c83d4feb6565738d4e21ad3e7208f6e35048931d",
+      "size": 55,
+    },
+    "index.md": {
+      "hash": "sha256-e784a8386482ca8274a2599533262d0e1a491e13bc0568a6b23ec317f157f9df",
+      "size": 276,
+    },
+    "toc.yaml": {
+      "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
+      "size": 116,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > diamond includes (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-4a0b4cf64adc48609b3b0448e59bcfca847ca43e96a857673b838b95bfb3b79e",
+      "size": 689,
+    },
+    "toc.yaml": {
+      "hash": "sha256-5309b6c21d914169deeb265ac1988546c6c0ab47d100b89c4083efb3f711f872",
+      "size": 116,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > nested includes (hashIncludes default, mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "_includes/level1.md": {
+      "hash": "sha256-8720c7deb66b06273ae8fb303accf2a399e622b647e222cbb0dc12c74cdb0df7",
+      "size": 121,
+    },
+    "_includes/level2.md": {
+      "hash": "sha256-2ce37af4320216777549f95a5e533efb4486802619b4916aae31764ba98f3339",
+      "size": 62,
+    },
+    "index.md": {
+      "hash": "sha256-4ec9eb564530dbdb672c762da78022806922a4ef103956e9256c208fa3ebcc7c",
+      "size": 231,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
+      "size": 115,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > nested includes (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-82cbe26702322efab28c5788884abd20224d7ab559baac612457d3e61b30f4c1",
+      "size": 464,
+    },
+    "toc.yaml": {
+      "hash": "sha256-8044d42eecbbbfbf108ef785d04d322e72b2381cea30243cf3accc2ccf469f89",
+      "size": 115,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with an include and a picture (mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "_includes/snippet.md": {
+      "hash": "sha256-25c382135c889a69ff3a79390f978f030364fc2fcec5e7db6e6e441c57791a61",
+      "size": 26,
+    },
+    "index.md": {
+      "hash": "sha256-aea78fb06925f83bf37d1af249c7a556988f2aa32adceaa42befd401de01e037",
+      "size": 210,
+    },
+    "logo.svg": {
+      "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
+      "size": 3402,
+    },
+    "toc.yaml": {
+      "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
+      "size": 108,
+    },
+  },
+  "pageAssets": {
+    "index.md": [
+      "logo.svg",
+    ],
+  },
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with an include and a picture (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-7ecfc045bc85006edf4898acb85d62adc33473b7bdd5cdcb9678a46066b547dc",
+      "size": 256,
+    },
+    "logo.svg": {
+      "hash": "sha256-d13530939abcb6584d6b07c97ded2d9fc6d5751ef4c0262afe36cee3fad0d51c",
+      "size": 3402,
+    },
+    "toc.yaml": {
+      "hash": "sha256-08e2907230e064c5ce52e5859d5a3780ed84c41756f921f896a88033a40e0ae9",
+      "size": 108,
+    },
+  },
+  "pageAssets": {
+    "index.md": [
+      "logo.svg",
+    ],
+  },
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with autotitle links between pages (mergeIncludes off) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-7b81e86e1bcce905ef6d2cbf5af9421f1e3e6cd7a4f477e371498b30c07a859d",
+      "size": 152,
+    },
+    "other.md": {
+      "hash": "sha256-4807c9359ddc98c38441d32aaabeaa22218027ef69bc1d6118c4c006c8c25b36",
+      "size": 130,
+    },
+    "toc.yaml": {
+      "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",
+      "size": 145,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;
+
+exports[`Build content map for > project with autotitle links between pages (mergeIncludes on) 1`] = `
+{
+  "contentHashes": {
+    ".yfm": {
+      "hash": "sha256-e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0,
+    },
+    "index.md": {
+      "hash": "sha256-7b81e86e1bcce905ef6d2cbf5af9421f1e3e6cd7a4f477e371498b30c07a859d",
+      "size": 152,
+    },
+    "other.md": {
+      "hash": "sha256-4807c9359ddc98c38441d32aaabeaa22218027ef69bc1d6118c4c006c8c25b36",
+      "size": 130,
+    },
+    "toc.yaml": {
+      "hash": "sha256-1455d101a04ae60d37e5ace467d36e4c650e481d90f22ce46cd7b637c33cf541",
+      "size": 145,
+    },
+  },
+  "pageAssets": {},
+  "schemaVersion": 1,
+}
+`;

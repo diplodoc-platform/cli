@@ -1,0 +1,520 @@
+import type {BuildConfig} from '../..';
+import type {Stats} from 'node:fs';
+import type {FullTap} from 'tapable';
+
+import {describe, expect, it, vi} from 'vitest';
+import {when} from 'vitest-when';
+
+import {getHooks as getBaseHooks} from '~/core/program';
+
+import {setupRun} from '../../__tests__';
+import {Build} from '../..';
+
+import {
+    BuildContentMap,
+    collectPageAssets,
+    hashContent,
+    isExcludedServiceFile,
+    mapOutputToSource,
+    normalizeForHash,
+} from './index';
+
+describe('BuildContentMap', () => {
+    describe('config wiring', () => {
+        it('exposes --build-content option and normalizes config flag', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+
+            const commandTap = tapByName(getBaseHooks(build).Command.taps, 'BuildContentMap');
+            const configTap = tapByName(getBaseHooks(build).Config.taps, 'BuildContentMap');
+
+            // Command tap should add an option without throwing.
+            const seenOptions: unknown[] = [];
+            const fakeCommand = {addOption: (o: unknown) => seenOptions.push(o)};
+            commandTap(fakeCommand);
+            expect(seenOptions).toHaveLength(1);
+
+            // Config tap should set buildContent=true when arg=true.
+            const config = {} as BuildConfig;
+            const result = await configTap(config, {buildContent: true});
+            expect(result.buildContent).toBe(true);
+
+            // And false when nothing is set.
+            const config2 = {} as BuildConfig;
+            const result2 = await configTap(config2, {});
+            expect(result2.buildContent).toBe(false);
+        });
+    });
+
+    describe('collectPageAssets', () => {
+        it('returns prime-resource deps per entry, ignoring source/missed nodes', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+
+            rel.addNode('ru/index.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/intro.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            rel.addNode('ru/img/icon.svg' as NormalizedPath, {type: 'resource'});
+            rel.addNode('ru/missing.md' as NormalizedPath, {type: 'missed'});
+
+            rel.addDependency('ru/index.md', 'ru/_includes/intro.md');
+            rel.addDependency('ru/index.md', 'ru/img/pic.png');
+            rel.addDependency('ru/index.md', 'ru/img/icon.svg');
+            rel.addDependency('ru/index.md', 'ru/missing.md');
+
+            expect(collectPageAssets(run)).toEqual({
+                'ru/index.md': ['ru/img/icon.svg', 'ru/img/pic.png'],
+            });
+        });
+
+        it('returns empty object when there are no entries', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            expect(collectPageAssets(run)).toEqual({});
+        });
+
+        it('omits entries that have no resource deps', () => {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+            rel.addNode('ru/lone.md' as NormalizedPath, {type: 'entry'});
+            expect(collectPageAssets(run)).toEqual({});
+        });
+    });
+
+    describe('mapOutputToSource', () => {
+        function makeRun() {
+            const run = setupRun({} as unknown as BuildConfig);
+            const rel = run.entry.relations;
+            rel.addNode('ru/foo.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/inc.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            return run;
+        }
+
+        it('returns identity for an entry file present in the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/foo.md' as NormalizedPath, run)).toBe('ru/foo.md');
+        });
+
+        it('returns identity for a resource file present in the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/img/pic.png' as NormalizedPath, run)).toBe(
+                'ru/img/pic.png',
+            );
+        });
+
+        it('reverses signlink for an include file (name-{12hex}.md → name.md)', () => {
+            const run = makeRun();
+            expect(
+                mapOutputToSource('ru/_includes/inc-abcdef012345.md' as NormalizedPath, run),
+            ).toBe('ru/_includes/inc.md');
+        });
+
+        it('returns identity when signlink reverse does not resolve to a known source', () => {
+            const run = makeRun();
+            // No source matches `unrelated.md` — fall through to identity.
+            expect(
+                mapOutputToSource('ru/_includes/unrelated-abcdef012345.md' as NormalizedPath, run),
+            ).toBe('ru/_includes/unrelated-abcdef012345.md');
+        });
+
+        it('returns identity for an output file unknown to the graph', () => {
+            const run = makeRun();
+            expect(mapOutputToSource('ru/orphan.md' as NormalizedPath, run)).toBe('ru/orphan.md');
+        });
+    });
+
+    describe('isExcludedServiceFile', () => {
+        it('excludes yfm-build-*.json', () => {
+            expect(isExcludedServiceFile('yfm-build-manifest.json' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('yfm-build-stats.json' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('yfm-build-content.json' as NormalizedPath)).toBe(true);
+        });
+
+        it('excludes yfm-*-meta.json', () => {
+            expect(isExcludedServiceFile('yfm-redirects-meta-file.json' as NormalizedPath)).toBe(
+                true,
+            );
+        });
+
+        it('excludes crawler-manifest.json at the output root', () => {
+            expect(isExcludedServiceFile('crawler-manifest.json' as NormalizedPath)).toBe(true);
+        });
+
+        it('excludes files.json at the output root', () => {
+            expect(isExcludedServiceFile('files.json' as NormalizedPath)).toBe(true);
+        });
+
+        it('keeps regular content files', () => {
+            expect(isExcludedServiceFile('ru/foo.md' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/img/pic.png' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/_includes/inc-abc123.md' as NormalizedPath)).toBe(
+                false,
+            );
+        });
+
+        it('keeps yfm-build-named files nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/yfm-build-manifest.json' as NormalizedPath)).toBe(
+                false,
+            );
+        });
+
+        it('keeps crawler-manifest.json nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/crawler-manifest.json' as NormalizedPath)).toBe(false);
+        });
+
+        it('keeps files.json nested in subdirectories (filter is top-level only)', () => {
+            expect(isExcludedServiceFile('ru/files.json' as NormalizedPath)).toBe(false);
+        });
+
+        it('excludes .tmp_input/ scratch paths', () => {
+            expect(isExcludedServiceFile('.tmp_input/ru/foo.md' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('.tmp_input/.yfm' as NormalizedPath)).toBe(true);
+            expect(isExcludedServiceFile('.tmp_input/ru/_includes/inc.md' as NormalizedPath)).toBe(
+                true,
+            );
+        });
+
+        it('keeps user content that contains tmp_input in its name', () => {
+            expect(isExcludedServiceFile('ru/.tmp_input.md' as NormalizedPath)).toBe(false);
+            expect(isExcludedServiceFile('ru/foo/.tmp_input/bar.md' as NormalizedPath)).toBe(false);
+        });
+    });
+
+    describe('hashContent', () => {
+        it('returns `sha256-{hex}` for a buffer', () => {
+            const hash = hashContent(Buffer.from('hello'));
+            // sha256('hello') = 2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824
+            expect(hash).toBe(
+                'sha256-2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824',
+            );
+        });
+
+        it('is deterministic', () => {
+            const a = hashContent(Buffer.from([0x01, 0x02, 0x03]));
+            const b = hashContent(Buffer.from([0x01, 0x02, 0x03]));
+            expect(a).toBe(b);
+        });
+
+        it('differs for differing inputs', () => {
+            const a = hashContent(Buffer.from('a'));
+            const b = hashContent(Buffer.from('b'));
+            expect(a).not.toBe(b);
+        });
+    });
+
+    describe('normalizeForHash', () => {
+        it('strips updatedAt from .md frontmatter', () => {
+            const withTs = Buffer.from(
+                '---\ntitle: Foo\nupdatedAt: 2026-05-26T10:00:00Z\n---\n\n# Foo\n',
+            );
+            const withoutTs = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(withTs, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withoutTs, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips contributors and author from .md frontmatter', () => {
+            const withContrib = Buffer.from(
+                '---\ntitle: Foo\nauthor:\n  login: x\ncontributors:\n  - login: a\n  - login: b\n---\n\n# Foo\n',
+            );
+            const minimal = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(withContrib, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(minimal, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('preserves .md without frontmatter (no normalization)', () => {
+            const plain = Buffer.from('# No frontmatter here\n');
+            const out = normalizeForHash(plain, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(plain);
+        });
+
+        it('preserves .md with frontmatter that has no volatile fields', () => {
+            const stable = Buffer.from('---\ntitle: Foo\nlangs: [en]\n---\n\n# Foo\n');
+            const out = normalizeForHash(stable, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(stable);
+        });
+
+        it('keeps content-relevant frontmatter (title, description) in the hash', () => {
+            const a = Buffer.from('---\ntitle: A\n---\n\n# A\n');
+            const b = Buffer.from('---\ntitle: B\n---\n\n# A\n');
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('keeps body text in the hash', () => {
+            const a = Buffer.from('---\ntitle: Foo\n---\n\n# Body A\n');
+            const b = Buffer.from('---\ntitle: Foo\n---\n\n# Body B\n');
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips updatedAt from .yaml leading pages under meta:', () => {
+            // Two `.yaml` leading pages that differ only in `updatedAt` under
+            // `meta:` must hash identically once normalized. We compare via
+            // a normalized YAML dump on both sides (the implementation
+            // re-dumps with sorted keys when a volatile field is stripped),
+            // so both inputs flow through that same code path.
+            const withTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2026-05-26T10:00:00Z\n  description: hi\n',
+            );
+            const withDifferentTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2030-01-01T00:00:00Z\n  description: hi\n',
+            );
+            expect(hashContent(normalizeForHash(withTs, 'index.yaml' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withDifferentTs, 'index.yaml' as NormalizedPath)),
+            );
+        });
+
+        it('strips updatedAt from .yml leading pages under meta: (same path as .yaml)', () => {
+            // The dispatch in `normalizeForHash` treats `.yml` and `.yaml`
+            // identically — the rest of the project does too (see
+            // `crawler-manifest/utils.ts`).
+            const withTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2026-05-26T10:00:00Z\n  description: hi\n',
+            );
+            const withDifferentTs = Buffer.from(
+                'title: Leading\nmeta:\n  updatedAt: 2030-01-01T00:00:00Z\n  description: hi\n',
+            );
+            expect(hashContent(normalizeForHash(withTs, 'index.yml' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withDifferentTs, 'index.yml' as NormalizedPath)),
+            );
+        });
+
+        it('preserves .yaml without a meta block (no normalization)', () => {
+            // toc.yaml has no `meta:` — should pass through unchanged.
+            const toc = Buffer.from('items:\n  - name: foo\n    href: foo.md\n');
+            const out = normalizeForHash(toc, 'toc.yaml' as NormalizedPath);
+            expect(out).toEqual(toc);
+        });
+
+        it('preserves .yaml with meta block that has no volatile fields', () => {
+            const stable = Buffer.from(
+                'title: Leading\nmeta:\n  description: hi\n  keywords: [a, b]\n',
+            );
+            const out = normalizeForHash(stable, 'index.yaml' as NormalizedPath);
+            expect(out).toEqual(stable);
+        });
+
+        it('returns binary content unchanged', () => {
+            const png = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+            const out = normalizeForHash(png, 'pic.png' as NormalizedPath);
+            expect(out).toEqual(png);
+        });
+
+        it('falls back to raw bytes on malformed frontmatter', () => {
+            // Opening fence but no closing fence — invalid frontmatter.
+            const broken = Buffer.from('---\ntitle: Foo\nupdatedAt: 2026-05-26\n');
+            const out = normalizeForHash(broken, 'foo.md' as NormalizedPath);
+            expect(out).toEqual(broken);
+        });
+
+        it('strips generator item from .md frontmatter metadata array', () => {
+            // `withoutGen` is written in the canonical (sortKeys=true) key
+            // order that `normalizeForHash` emits after stripping. That way
+            // even though `withoutGen` itself has no volatile fields (and
+            // thus passes through as raw bytes), its bytes still match the
+            // normalized form of `withGen`.
+            const withGen = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\n  - content: keywords here\n    name: keywords\n---\n\n# Foo\n',
+            );
+            const withoutGen = Buffer.from(
+                '---\nmetadata:\n  - content: keywords here\n    name: keywords\ntitle: Foo\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(withGen, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(withoutGen, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('strips metadata block entirely when generator is the only item', () => {
+            const onlyGen = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\n---\n\n# Foo\n',
+            );
+            const noMetadata = Buffer.from('---\ntitle: Foo\n---\n\n# Foo\n');
+            expect(hashContent(normalizeForHash(onlyGen, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(noMetadata, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('hash is invariant to CLI version bumps in generator', () => {
+            const v529 = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.29.0\n    name: generator\nvcsPath: foo.md\n---\n\n# Foo\n',
+            );
+            const v539 = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: Diplodoc Platform v5.39.2\n    name: generator\nvcsPath: foo.md\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(v529, 'foo.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(v539, 'foo.md' as NormalizedPath)),
+            );
+        });
+
+        it('preserves non-volatile metadata items', () => {
+            const a = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: kw-a\n    name: keywords\n---\n\n# Foo\n',
+            );
+            const b = Buffer.from(
+                '---\ntitle: Foo\nmetadata:\n  - content: kw-b\n    name: keywords\n---\n\n# Foo\n',
+            );
+            expect(hashContent(normalizeForHash(a, 'foo.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'foo.md' as NormalizedPath)),
+            );
+        });
+    });
+
+    describe('snapshot', () => {
+        it('emits a stable JSON shape for a typical md build', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: true,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            when(run.glob)
+                .calledWith('**/*', expect.anything())
+                .thenResolve([
+                    'ru/foo.md',
+                    'ru/_includes/inc-abcdef012345.md',
+                    'ru/img/pic.png',
+                    'yfm-build-manifest.json',
+                    'yfm-build-content.json',
+                ] as NormalizedPath[]);
+
+            const files: Record<string, Buffer> = {
+                'ru/foo.md': Buffer.from('# Foo\n[](_includes/inc-abcdef012345.md)\n'),
+                'ru/_includes/inc-abcdef012345.md': Buffer.from('Inc content\n'),
+                'ru/img/pic.png': Buffer.from([0x89, 0x50, 0x4e, 0x47]),
+                'yfm-build-manifest.json': Buffer.from('{}'),
+                'yfm-build-content.json': Buffer.from('{}'),
+            };
+            vi.spyOn(run.fs, 'readFile').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                const key = Object.keys(files).find((k) => normalized.endsWith(k));
+                if (!key) {
+                    throw new Error(`unexpected readFile: ${normalized}`);
+                }
+                return files[key];
+            }) as unknown as typeof run.fs.readFile);
+            vi.spyOn(run.fs, 'stat').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                const key = Object.keys(files).find((k) => normalized.endsWith(k));
+                return {size: key ? files[key].length : 0} as Stats;
+            }) as unknown as typeof run.fs.stat);
+
+            let writtenJson: string | undefined;
+            vi.spyOn(run, 'write').mockImplementation(async (path, content) => {
+                if (String(path).endsWith('yfm-build-content.json')) {
+                    writtenJson = content;
+                }
+            });
+
+            // Graph: foo.md is an entry that includes inc.md and references pic.png.
+            const rel = run.entry.relations;
+            rel.addNode('ru/foo.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/_includes/inc.md' as NormalizedPath, {type: 'source'});
+            rel.addNode('ru/img/pic.png' as NormalizedPath, {type: 'resource'});
+            rel.addDependency('ru/foo.md', 'ru/_includes/inc.md');
+            rel.addDependency('ru/foo.md', 'ru/img/pic.png');
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+
+            await after(run);
+
+            expect(writtenJson).toBeDefined();
+            expect(JSON.parse(writtenJson as string)).toMatchSnapshot();
+        });
+
+        it('serializes contentHashes and pageAssets with sorted keys', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: true,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            // Glob returns paths in a deliberately unsorted order. Result should
+            // still serialize alphabetically.
+            when(run.glob)
+                .calledWith('**/*', expect.anything())
+                .thenResolve(['ru/zeta.md', 'ru/alpha.md', 'ru/mu.md'] as NormalizedPath[]);
+
+            const buf = (s: string) => Buffer.from(s);
+            vi.spyOn(run.fs, 'readFile').mockImplementation((async (path: string) => {
+                const normalized = String(path).replace(/\\/g, '/');
+                if (normalized.endsWith('zeta.md')) return buf('z');
+                if (normalized.endsWith('alpha.md')) return buf('a');
+                if (normalized.endsWith('mu.md')) return buf('m');
+                throw new Error(`unexpected: ${normalized}`);
+            }) as unknown as typeof run.fs.readFile);
+            vi.spyOn(run.fs, 'stat').mockImplementation(
+                (async () => ({size: 1}) as Stats) as unknown as typeof run.fs.stat,
+            );
+
+            let writtenJson: string | undefined;
+            vi.spyOn(run, 'write').mockImplementation(async (path, content) => {
+                if (String(path).endsWith('yfm-build-content.json')) {
+                    writtenJson = content;
+                }
+            });
+
+            // Add the three entries in non-alphabetical order in the graph too.
+            const rel = run.entry.relations;
+            rel.addNode('ru/zeta.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/alpha.md' as NormalizedPath, {type: 'entry'});
+            rel.addNode('ru/mu.md' as NormalizedPath, {type: 'entry'});
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+            await after(run);
+
+            // Check that the keys in the serialized JSON appear in sorted order.
+            const keys = Array.from(
+                (writtenJson as string).matchAll(/"(ru\/[a-z]+\.md)":/g),
+                (m) => m[1],
+            );
+            expect(keys).toEqual(['ru/alpha.md', 'ru/mu.md', 'ru/zeta.md']);
+        });
+
+        it('writes nothing when flag is off', async () => {
+            const build = new Build();
+            new BuildContentMap().apply(build);
+
+            const run = setupRun({
+                buildContent: false,
+                outputFormat: 'md',
+            } as unknown as BuildConfig);
+
+            const writeSpy = vi.spyOn(run, 'write').mockResolvedValue();
+
+            const tapByName = (taps: FullTap[], name: string) => {
+                const tap = taps.find((t) => t.name === name);
+                if (!tap) throw new Error(`tap ${name} not registered`);
+                return tap.fn;
+            };
+            const after = tapByName(getBaseHooks(build).AfterAnyRun.taps, 'BuildContentMap');
+
+            await after(run);
+
+            expect(writeSpy).not.toHaveBeenCalled();
+        });
+    });
+});

@@ -1,0 +1,7 @@
+title: Build content map - autotitles
+href: index.md
+items:
+  - name: Index
+    href: index.md
+  - name: Other
+    href: other.md
