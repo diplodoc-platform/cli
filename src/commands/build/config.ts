@@ -244,7 +244,7 @@ const multilineTermDefinitions = option({
         Example:
             {{PROGRAM}} build -i . -o ../build --multiline-term-definitions
     `,
-    default: false,
+    default: true,
 });
 
 const idGenerator = option({

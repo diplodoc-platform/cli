@@ -5,7 +5,6 @@ exports[`Pdf generation with md2md phase, only files structure > Generates md2md
   ".yfm",
   "__assets/start-page.css",
   "__images/mountain.jpg",
-  "__includes/include1-hash.md",
   "index.md",
   "page1.md",
   "page2.md",
