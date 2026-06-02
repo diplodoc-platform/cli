@@ -1,5 +1,16 @@
 # Changelog
 
+## [5.39.8](https://github.com/diplodoc-platform/cli/compare/v5.39.7...v5.39.8) (2026-06-02)
+
+
+### Bug Fixes
+
+* bugs 19-23 for mergeIncludes ([66e5b1e](https://github.com/diplodoc-platform/cli/commit/66e5b1eaec66cd2afa0dc2abcd9ae2ce01f3e14d))
+* bugs 28-29 ([c2173cd](https://github.com/diplodoc-platform/cli/commit/c2173cdd182e571945bd072df87a78a7387c6368))
+* bugs 31-33 ([df787cf](https://github.com/diplodoc-platform/cli/commit/df787cfd7953d847c2ecf203c0fd0cdcbfdd7dd5))
+* regression bug 29 ([0692761](https://github.com/diplodoc-platform/cli/commit/06927614bc1853dea4454540932c9b1f57f4b41d))
+* stop merge includes with indent out and in ([fc0b1ee](https://github.com/diplodoc-platform/cli/commit/fc0b1ee1f65f628192a40f5deab70c5967ce9d90))
+
 ## [5.39.7](https://github.com/diplodoc-platform/cli/compare/v5.39.6...v5.39.7) (2026-06-02)
 
 
