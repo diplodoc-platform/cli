@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.41.0](https://github.com/diplodoc-platform/cli/compare/v5.40.0...v5.41.0) (2026-06-02)
+
+
+### Features
+
+* **build-content-map:** content-fingerprint manifest for cross-build diff ([#1951](https://github.com/diplodoc-platform/cli/issues/1951)) ([b965e91](https://github.com/diplodoc-platform/cli/commit/b965e912563e5fe9969ae376fbf57215e08f034c))
+
 ## [5.40.0](https://github.com/diplodoc-platform/cli/compare/v5.39.8...v5.40.0) (2026-06-02)
 
 
