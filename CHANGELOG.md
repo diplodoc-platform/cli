@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.40.0](https://github.com/diplodoc-platform/cli/compare/v5.39.8...v5.40.0) (2026-06-02)
+
+
+### Features
+
+* enable merge includes ([fb2a582](https://github.com/diplodoc-platform/cli/commit/fb2a582243ca7c3f0c1c0239c06ac3cabd54a2a0))
+
 ## [5.39.8](https://github.com/diplodoc-platform/cli/compare/v5.39.7...v5.39.8) (2026-06-02)
 
 
