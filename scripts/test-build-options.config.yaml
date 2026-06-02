@@ -1,0 +1,59 @@
+# Configuration for test-build-options.mjs
+#
+# Run:
+#   node packages/cli/scripts/test-build-options.mjs
+#   node packages/cli/scripts/test-build-options.mjs --config path/to/other.yaml
+#
+# Modes describe build pipelines:
+#   - md_args (optional): if present — first builds md2md with `-f md` and these args,
+#                         then md2html from the md-output using html_args.
+#                         if omitted — skips md2md and builds html directly from project input.
+#   - html_args (optional): args for md2html step. If omitted, defaults to [] (or md_args
+#                           when html_args is null and md_args is provided — set explicitly to avoid surprises).
+
+# Paths support ~ (home directory), $VAR and ${VAR} environment-variable expansion.
+inputBase: ~/Projects/test/in
+outputBase: ~/Projects/test/out
+
+# Global build args appended to every build invocation (both md2md and md2html)
+commonArgs:
+  - --ignore
+  - '**/node_modules/**'
+  - --no-vcs
+  - --no-merge-svg
+  - --no-hash-includes
+  - --max-inline-svg-size=0
+  - --id-generator=constant
+
+# Open Meld automatically when there are deltas/errors (per-project, in a separate window).
+openMeld: false
+
+# Save markdown report under outputBase
+saveReport: true
+
+modes:
+  - name: with-merge-includes
+    md_args:
+      - --merge-includes
+      - --multiline-term-definitions
+      - --no-merge-includes-source-maps
+    html_args:
+      - --merge-includes
+      - --multiline-term-definitions
+      - --no-merge-includes-source-maps
+
+  - name: without-merge-includes
+    md_args:
+      - --no-merge-includes
+
+    html_args:
+      - --no-merge-includes
+
+  # Example: direct md2html, no md2md intermediate step.
+  # - name: direct-html
+  #   html_args:
+  #     - --max-inline-svg-size=0
+  #     - --id-generator=constant
+
+projects:
+  - test_doc
