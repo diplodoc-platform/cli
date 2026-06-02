@@ -65,7 +65,7 @@ export function collectPageAssets(run: Run): PageAssets {
             continue;
         }
 
-        assets.sort();
+        assets.sort(byCodepoint);
         result[node] = assets;
     }
 
@@ -147,12 +147,23 @@ export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
 // determinism in the emitted JSON, we rebuild each top-level dictionary
 // with keys in alphabetical insertion order before serializing.
 function sortKeys<V>(obj: Record<string, V>): Record<string, V> {
-    const sortedKeys = Object.keys(obj).sort();
+    const sortedKeys = Object.keys(obj).sort(byCodepoint);
     const result: Record<string, V> = {};
     for (const key of sortedKeys) {
         result[key] = obj[key];
     }
     return result;
+}
+
+// Locale-agnostic string comparator. Equivalent to the default `.sort()`
+// for strings (UTF-16 codepoint order), but explicit so the intent is
+// readable and platform/locale-independent for cross-machine determinism.
+// `localeCompare` would defeat the purpose: different locales yield
+// different orders, flipping the content-hash on different runners.
+function byCodepoint(a: string, b: string): number {
+    if (a < b) return -1;
+    if (a > b) return 1;
+    return 0;
 }
 
 // Prefixing with the algorithm name lets us migrate to a different hash
@@ -380,7 +391,7 @@ async function hashOutput(run: Run): Promise<Record<string, ContentHashEntry>> {
                 const stat = await run.fs.stat(abs);
                 const source = mapOutputToSource(file, run);
                 result[source] = {
-                    hash: hashContent(normalizeForHash(content as Buffer, file)),
+                    hash: hashContent(normalizeForHash(content, file)),
                     size: stat.size,
                 };
             } catch (error) {
