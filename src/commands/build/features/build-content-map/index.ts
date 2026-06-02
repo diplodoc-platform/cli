@@ -147,8 +147,9 @@ export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
 // determinism in the emitted JSON, we rebuild each top-level dictionary
 // with keys in alphabetical insertion order before serializing.
 function sortKeys<V>(obj: Record<string, V>): Record<string, V> {
+    const sortedKeys = Object.keys(obj).sort();
     const result: Record<string, V> = {};
-    for (const key of Object.keys(obj).sort()) {
+    for (const key of sortedKeys) {
         result[key] = obj[key];
     }
     return result;
