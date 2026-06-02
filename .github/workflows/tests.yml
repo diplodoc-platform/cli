@@ -37,9 +37,28 @@ jobs:
           cache: 'npm'
 
       - name: Install latest npm (>= 11.5.1)
-        run: |
-          [ "$(printf '%s\n' "11.5.1" "$(npm -v)" | sort -V | head -n1)" = "11.5.1" ] || npm install -g npm@11.5.1
         shell: bash
+        run: |
+          REQUIRED=11.5.1
+          if [ "$(printf '%s\n' "$REQUIRED" "$(npm -v)" | sort -V | head -n1)" = "$REQUIRED" ]; then
+            echo "npm $(npm -v) is up-to-date (>= $REQUIRED)"
+            exit 0
+          fi
+          # Use a user-writable prefix so this works in PRs from forks where
+          # the default global prefix may be read-only. Prepend its bin dir to
+          # PATH via $GITHUB_PATH so subsequent steps pick up the new npm.
+          NPM_PREFIX="$RUNNER_TEMP/npm-global"
+          mkdir -p "$NPM_PREFIX"
+          npm install --prefix "$NPM_PREFIX" -g "npm@$REQUIRED"
+          # On Linux/macOS npm puts binaries into $prefix/bin, on Windows
+          # directly into $prefix (as npm.cmd). Pick whichever exists.
+          if [ -x "$NPM_PREFIX/bin/npm" ] || [ -x "$NPM_PREFIX/bin/npm.cmd" ]; then
+            NPM_BIN_DIR="$NPM_PREFIX/bin"
+          else
+            NPM_BIN_DIR="$NPM_PREFIX"
+          fi
+          echo "$NPM_BIN_DIR" >> "$GITHUB_PATH"
+          "$NPM_BIN_DIR"/npm -v 2>/dev/null || "$NPM_BIN_DIR"/npm.cmd -v
 
       - name: Install dependencies
         run: npm ci
