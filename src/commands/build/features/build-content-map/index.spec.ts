@@ -21,34 +21,64 @@ import {
 
 describe('BuildContentMap', () => {
     describe('config wiring', () => {
-        it('exposes --build-content option and normalizes config flag', async () => {
+        const tapByName = (taps: FullTap[], name: string) => {
+            const tap = taps.find((t) => t.name === name);
+            if (!tap) throw new Error(`tap ${name} not registered`);
+            return tap.fn;
+        };
+
+        const setupConfigTap = () => {
             const build = new Build();
             new BuildContentMap().apply(build);
-
-            const tapByName = (taps: FullTap[], name: string) => {
-                const tap = taps.find((t) => t.name === name);
-                if (!tap) throw new Error(`tap ${name} not registered`);
-                return tap.fn;
+            return {
+                build,
+                configTap: tapByName(getBaseHooks(build).Config.taps, 'BuildContentMap'),
             };
+        };
 
+        it('exposes --build-content option', () => {
+            const {build} = setupConfigTap();
             const commandTap = tapByName(getBaseHooks(build).Command.taps, 'BuildContentMap');
-            const configTap = tapByName(getBaseHooks(build).Config.taps, 'BuildContentMap');
 
-            // Command tap should add an option without throwing.
             const seenOptions: unknown[] = [];
             const fakeCommand = {addOption: (o: unknown) => seenOptions.push(o)};
             commandTap(fakeCommand);
             expect(seenOptions).toHaveLength(1);
+        });
 
-            // Config tap should set buildContent=true when arg=true.
-            const config = {} as BuildConfig;
+        it('arg=true forces buildContent=true (html default would be off)', async () => {
+            const {configTap} = setupConfigTap();
+            const config = {outputFormat: 'html'} as BuildConfig;
             const result = await configTap(config, {buildContent: true});
             expect(result.buildContent).toBe(true);
+        });
 
-            // And false when nothing is set.
-            const config2 = {} as BuildConfig;
-            const result2 = await configTap(config2, {});
-            expect(result2.buildContent).toBe(false);
+        it('defaults to false for html when nothing is set', async () => {
+            const {configTap} = setupConfigTap();
+            const config = {outputFormat: 'html'} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildContent).toBe(false);
+        });
+
+        it('defaults to true for md when nothing is set', async () => {
+            const {configTap} = setupConfigTap();
+            const config = {outputFormat: 'md'} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildContent).toBe(true);
+        });
+
+        it('arg=false overrides the md default (opt-out via --no-build-content)', async () => {
+            const {configTap} = setupConfigTap();
+            const config = {outputFormat: 'md'} as BuildConfig;
+            const result = await configTap(config, {buildContent: false});
+            expect(result.buildContent).toBe(false);
+        });
+
+        it('config=false overrides the md default (opt-out via yfm config)', async () => {
+            const {configTap} = setupConfigTap();
+            const config = {outputFormat: 'md', buildContent: false} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildContent).toBe(false);
         });
     });
 

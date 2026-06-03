@@ -9,6 +9,7 @@ import pmap from 'p-map';
 
 import {getHooks as getBaseHooks} from '~/core/program';
 import {valuable} from '~/core/config';
+import {OutputFormat} from '~/commands/build/config';
 
 import {options} from './config';
 
@@ -321,7 +322,12 @@ export class BuildContentMap {
         });
 
         getBaseHooks(program).Config.tapPromise('BuildContentMap', async (config, args) => {
-            let buildContent = false;
+            // Default to on for md2md builds: the content map is consumed by
+            // post-build tooling (search reindex, change notifications) that
+            // diffs the md output uploaded from this format. For html builds
+            // it stays off — there's no comparable consumer there yet. Users
+            // can flip either side via `--no-build-content` / `buildContent: false`.
+            let buildContent = config.outputFormat === OutputFormat.md;
 
             if (valuable(config.buildContent)) {
                 buildContent = Boolean(config.buildContent);

@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.42.0](https://github.com/diplodoc-platform/cli/compare/v5.41.0...v5.42.0) (2026-06-03)
+
+
+### Features
+
+* **build:** enable build-stats and build-content by default for md2md ([#1976](https://github.com/diplodoc-platform/cli/issues/1976)) ([029b4b5](https://github.com/diplodoc-platform/cli/commit/029b4b5d25ba6b7665e817fd93cc40dd8cc5992d))
+
+## [5.41.0](https://github.com/diplodoc-platform/cli/compare/v5.40.0...v5.41.0) (2026-06-02)
+
+
+### Features
+
+* **build-content-map:** content-fingerprint manifest for cross-build diff ([#1951](https://github.com/diplodoc-platform/cli/issues/1951)) ([b965e91](https://github.com/diplodoc-platform/cli/commit/b965e912563e5fe9969ae376fbf57215e08f034c))
+
 ## [5.40.0](https://github.com/diplodoc-platform/cli/compare/v5.39.8...v5.40.0) (2026-06-02)
 
 
