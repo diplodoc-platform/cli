@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.42.0](https://github.com/diplodoc-platform/cli/compare/v5.41.0...v5.42.0) (2026-06-03)
+
+
+### Features
+
+* **build:** enable build-stats and build-content by default for md2md ([#1976](https://github.com/diplodoc-platform/cli/issues/1976)) ([029b4b5](https://github.com/diplodoc-platform/cli/commit/029b4b5d25ba6b7665e817fd93cc40dd8cc5992d))
+
 ## [5.41.0](https://github.com/diplodoc-platform/cli/compare/v5.40.0...v5.41.0) (2026-06-02)
 
 
