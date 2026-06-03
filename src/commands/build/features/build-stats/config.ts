@@ -9,6 +9,9 @@ const buildStats = option({
         Output a build stats file (${bold('yfm-build-stats.json')}) with timing,
         environment info and counters. Intended for diagnostics, CI dashboards
         and regression detection.
+
+        Enabled by default for ${bold('--output-format=md')} builds; disabled
+        otherwise. Use ${bold('--no-build-stats')} to opt out.
     `,
 });
 

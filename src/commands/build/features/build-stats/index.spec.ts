@@ -15,6 +15,55 @@ import {Build} from '../..';
 import {BuildStats, collectFeatures} from './index';
 
 describe('BuildStats', () => {
+    describe('config wiring', () => {
+        const tapByName = (taps: FullTap[], name: string) => {
+            const tap = taps.find((t) => t.name === name);
+            if (!tap) throw new Error(`tap ${name} not registered`);
+            return tap.fn;
+        };
+
+        const setupConfigTap = () => {
+            const build = new Build();
+            new BuildStats().apply(build);
+            return tapByName(getBaseHooks(build).Config.taps, 'BuildStats');
+        };
+
+        it('defaults to false for html when nothing is set', async () => {
+            const configTap = setupConfigTap();
+            const config = {outputFormat: 'html'} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildStats).toBe(false);
+        });
+
+        it('defaults to true for md when nothing is set', async () => {
+            const configTap = setupConfigTap();
+            const config = {outputFormat: 'md'} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildStats).toBe(true);
+        });
+
+        it('arg=true forces buildStats=true (html default would be off)', async () => {
+            const configTap = setupConfigTap();
+            const config = {outputFormat: 'html'} as BuildConfig;
+            const result = await configTap(config, {buildStats: true});
+            expect(result.buildStats).toBe(true);
+        });
+
+        it('arg=false overrides the md default (opt-out via --no-build-stats)', async () => {
+            const configTap = setupConfigTap();
+            const config = {outputFormat: 'md'} as BuildConfig;
+            const result = await configTap(config, {buildStats: false});
+            expect(result.buildStats).toBe(false);
+        });
+
+        it('config=false overrides the md default (opt-out via yfm config)', async () => {
+            const configTap = setupConfigTap();
+            const config = {outputFormat: 'md', buildStats: false} as BuildConfig;
+            const result = await configTap(config, {});
+            expect(result.buildStats).toBe(false);
+        });
+    });
+
     describe('collectFeatures', () => {
         it('returns config keys with literal `true`, sorted, ignoring truthy non-`true` values', () => {
             const features = collectFeatures({

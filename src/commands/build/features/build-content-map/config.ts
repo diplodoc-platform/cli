@@ -10,6 +10,9 @@ const buildContent = option({
         per-file sha256 hashes and page→asset dependencies. Used by downstream tools
         to compute the set of pages changed between any two build revisions
         (search reindexing, change notifications).
+
+        Enabled by default for ${bold('--output-format=md')} builds; disabled
+        otherwise. Use ${bold('--no-build-content')} to opt out.
     `,
 });
 
