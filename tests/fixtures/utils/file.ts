@@ -12,6 +12,15 @@ import {bundleless, hashless, platformless} from './test';
 
 const SYSTEM_DIRS = ['_bundle/', '_search/'];
 
+// CLI-emitted build artifacts that aren't part of user content. Build-stats
+// and build-content default to on for md2md, so every md2md fixture would
+// otherwise need to list these in its snapshot.
+const SYSTEM_ARTIFACTS = [
+    'yfm-build-manifest.json',
+    'yfm-build-stats.json',
+    'yfm-build-content.json',
+];
+
 export function getFileContent(filePath: string) {
     return platformless(bundleless(readFileSync(filePath, 'utf8')));
 }
@@ -78,7 +87,9 @@ export async function compareDirectories(
     if (checkBundle) {
         filesForSnapshot = filesFromOutput;
     } else {
-        filesForSnapshot = filesFromOutput.filter((file) => uselessFile(file, SYSTEM_DIRS));
+        filesForSnapshot = filesFromOutput.filter((file) =>
+            uselessFile(file, [...SYSTEM_DIRS, ...SYSTEM_ARTIFACTS]),
+        );
     }
 
     // Here we sort the order of the included files after all processing
@@ -93,7 +104,7 @@ export async function compareDirectories(
 
     if (!ignoreFileContent) {
         filesFromOutput
-            .filter((file) => uselessFile(file, ['_assets/', ...SYSTEM_DIRS]))
+            .filter((file) => uselessFile(file, ['_assets/', ...SYSTEM_DIRS, ...SYSTEM_ARTIFACTS]))
             .forEach((filePath) => {
                 let content = getFileContent(resolve(outputPath, filePath));
 
