@@ -11,6 +11,7 @@ import {valuable} from '~/core/config';
 import {VERSION} from '~/constants';
 import {getHooks as getLoggerHooks, stats as loggerStats} from '~/core/logger';
 import {langFromPath} from '~/core/utils';
+import {OutputFormat} from '~/commands/build/config';
 
 import {options} from './config';
 
@@ -134,7 +135,13 @@ export class BuildStats {
         });
 
         getBaseHooks(program).Config.tapPromise('BuildStats', async (config, args) => {
-            let buildStats = false;
+            // Default to on for md2md builds: CI pipelines for md→md
+            // benefit from the artifact (regression tracking, asset accounting),
+            // and the read overhead is dominated by the build itself in this
+            // mode. For html builds it stays off — local dev shouldn't pay the
+            // extra fs walk by default. Users can flip either side via
+            // `--no-build-stats` / `buildStats: false`.
+            let buildStats = config.outputFormat === OutputFormat.md;
 
             if (valuable(config.buildStats)) {
                 buildStats = Boolean(config.buildStats);
