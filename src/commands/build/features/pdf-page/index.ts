@@ -22,6 +22,7 @@ import {
     isEntryHidden,
     joinPdfPageResults,
     replacePCNestedLinks,
+    ssrPageConstructorBlocks,
 } from './utils';
 import {copyPdfIconAsset} from './copy-pdf-icon-asset';
 import {options} from './config';
@@ -336,18 +337,4 @@ export class PdfPage {
                 }
             });
     }
-}
-
-const PC_CSR_RE =
-    /<div class="yfm-page-constructor" data-content-encoded="([^"]+)" data-rendered="false"><\/div>/g;
-
-function ssrPageConstructorBlocks(html: string): string {
-    return html.replace(PC_CSR_RE, (_match, encoded) => {
-        try {
-            const content = JSON.parse(decodeURIComponent(encoded)) as PageContent;
-            return createServerPageConstructorContent(content);
-        } catch {
-            return _match;
-        }
-    });
 }

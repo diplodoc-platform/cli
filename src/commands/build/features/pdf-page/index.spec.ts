@@ -3,7 +3,8 @@ import type HTMLElement from 'node-html-parser/dist/nodes/html';
 import type {PdfPageResult, PreprocessPdfOptions} from './utils';
 
 import parse from 'node-html-parser';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {createServerPageConstructorContent} from '@diplodoc/page-constructor-extension/renderer';
 
 import {
     addMainTitle,
@@ -17,6 +18,7 @@ import {
     prepareAnchorAttrs,
     removePdfHiddenElements,
     replacePdfLink,
+    ssrPageConstructorBlocks,
     tryFixFirstPageHeader,
 } from './utils';
 
@@ -516,6 +518,65 @@ describe('PDF Page Utils', () => {
 
             const content = root.textContent.trim().replace(/\s+/g, ' ');
             expect(content).toBe('Visible content More visible content');
+        });
+    });
+
+    describe('ssrPageConstructorBlocks', () => {
+        const encoded = encodeURIComponent(
+            JSON.stringify({blocks: [{type: 'header-block', title: 'Test'}]}),
+        );
+        const csrDiv = `<div class="yfm-page-constructor" data-content-encoded="${encoded}" data-rendered="false"></div>`;
+        const ssrOutput =
+            '<div class="yfm-page-constructor" data-hydrated="false"><p>SSR</p></div>';
+
+        beforeEach(() => {
+            vi.mocked(createServerPageConstructorContent).mockClear();
+            vi.mocked(createServerPageConstructorContent).mockReturnValue(ssrOutput);
+        });
+
+        afterEach(() => {
+            vi.mocked(createServerPageConstructorContent).mockReset();
+        });
+
+        it('should replace CSR placeholder with SSR output', () => {
+            const html = `<div><p>Before</p>${csrDiv}<p>After</p></div>`;
+            const result = ssrPageConstructorBlocks(html);
+
+            expect(result).toContain('<p>SSR</p>');
+            expect(result).not.toContain('data-rendered="false"');
+        });
+
+        it('should replace multiple CSR placeholders', () => {
+            const html = `<div>${csrDiv}<p>Middle</p>${csrDiv}</div>`;
+            const result = ssrPageConstructorBlocks(html);
+
+            expect(result.match(/<p>SSR<\/p>/g)).toHaveLength(2);
+            expect(result).not.toContain('data-rendered="false"');
+        });
+
+        it('should leave html unchanged when there are no CSR placeholders', () => {
+            const html = '<div><p>No page-constructor here</p></div>';
+            const result = ssrPageConstructorBlocks(html);
+
+            expect(result).toBe(html);
+            expect(createServerPageConstructorContent).not.toHaveBeenCalled();
+        });
+
+        it('should skip blocks with invalid encoded content and leave them as-is', () => {
+            const badDiv = `<div class="yfm-page-constructor" data-content-encoded="%%%INVALID%%%" data-rendered="false"></div>`;
+            const html = `<div>${badDiv}</div>`;
+            const result = ssrPageConstructorBlocks(html);
+
+            expect(result).toContain('data-rendered="false"');
+            expect(createServerPageConstructorContent).not.toHaveBeenCalled();
+        });
+
+        it('should call createServerPageConstructorContent with decoded content', () => {
+            const content = {blocks: [{type: 'header-block', title: 'Hello'}]};
+            const div = `<div class="yfm-page-constructor" data-content-encoded="${encodeURIComponent(JSON.stringify(content))}" data-rendered="false"></div>`;
+            ssrPageConstructorBlocks(`<div>${div}</div>`);
+
+            expect(createServerPageConstructorContent).toHaveBeenCalledWith(content);
         });
     });
 
