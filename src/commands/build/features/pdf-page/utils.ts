@@ -1,9 +1,13 @@
 import type {Toc, TocItem} from '~/core/toc';
 import type {AssetInfo} from '~/core/markdown/types';
 import type HTMLElement from 'node-html-parser/dist/nodes/html';
+import type {PageContent} from '@diplodoc/page-constructor-extension';
 
 import {dirname, join} from 'node:path';
 import parse from 'node-html-parser';
+import {createServerPageConstructorContent} from '@diplodoc/page-constructor-extension/renderer';
+
+import {isExternalHref, normalizePath} from '~/core/utils';
 
 const HEADERS_SELECTOR = 'h1, h2, h3, h4, h5, h6';
 const SELECTORS_TO_REMOVE_IN_PDF = ['.inline_code_tooltip', '[data-pdf-hidden="true"]'];
@@ -15,14 +19,6 @@ export interface PreprocessPdfOptions {
     tocDir: string;
     title?: string;
 }
-
-export interface PdfPageResult {
-    path: string;
-    content: string;
-    title?: string;
-}
-
-import {isExternalHref, normalizePath} from '~/core/utils';
 
 export interface PdfPageResult {
     path: string;
@@ -315,4 +311,29 @@ export function prepareAnchorAttrs(node: HTMLElement, pathname: string, page: st
             node.setAttribute(name, `${page}_${value}`);
         }
     }
+}
+
+export function ssrPageConstructorBlocks(html: string): string {
+    const root = parse(html);
+
+    const nodes = root.querySelectorAll(
+        'div.yfm-page-constructor[data-content-encoded][data-rendered="false"]',
+    );
+
+    for (const node of nodes) {
+        const encoded = node.attributes['data-content-encoded'];
+
+        if (!encoded) {
+            continue;
+        }
+
+        try {
+            const content = JSON.parse(decodeURIComponent(encoded)) as PageContent;
+            const rendered = createServerPageConstructorContent(content);
+
+            node.replaceWith(rendered);
+        } catch {}
+    }
+
+    return root.toString();
 }

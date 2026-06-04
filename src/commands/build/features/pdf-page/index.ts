@@ -22,6 +22,7 @@ import {
     isEntryHidden,
     joinPdfPageResults,
     replacePCNestedLinks,
+    ssrPageConstructorBlocks,
 } from './utils';
 import {copyPdfIconAsset} from './copy-pdf-icon-asset';
 import {options} from './config';
@@ -82,7 +83,7 @@ export class PdfPage {
                 results[entry] = results[entry] || [];
                 results[entry] = {
                     path: entry,
-                    content: info.html,
+                    content: ssrPageConstructorBlocks(info.html),
                     title: info.title || '',
                 };
             });
