@@ -647,7 +647,7 @@ plain https://plain.example.com text
             });
         });
 
-        it('docs-viewer overrides root field by field', () => {
+        it('root config takes priority over docs-viewer when both are set', () => {
             const result = crawlerNotifications({
                 crawler: {
                     notifications: {
@@ -667,13 +667,13 @@ plain https://plain.example.com text
             });
 
             expect(result).toEqual({
-                receivers: ['viewer-user'],
-                interval: 'daily',
+                receivers: ['root-user'],
+                interval: 'monthly',
                 channels: ['messenger'],
             });
         });
 
-        it('uses root receivers when docs-viewer has none', () => {
+        it('uses root config entirely, docs-viewer interval is ignored', () => {
             const result = crawlerNotifications({
                 crawler: {notifications: {receivers: ['root-user']}},
                 'docs-viewer': {crawler: {notifications: {interval: 'daily'} as never}},
@@ -681,7 +681,7 @@ plain https://plain.example.com text
 
             expect(result).toEqual({
                 receivers: ['root-user'],
-                interval: 'daily',
+                interval: 'weekly',
                 channels: ['email'],
             });
         });

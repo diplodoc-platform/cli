@@ -206,16 +206,16 @@ export function collectCrawlerExcludes(config: CrawlerConfig): {
 }
 
 export function crawlerNotifications(config: CrawlerConfig): CrawlerNotifications | undefined {
-    const root = config.crawler?.notifications;
-    const viewer = config['docs-viewer']?.crawler?.notifications;
+    const notifications =
+        config.crawler?.notifications || config['docs-viewer']?.crawler?.notifications;
 
-    if (!root && !viewer) {
+    if (!notifications) {
         return undefined;
     }
 
-    const channels = viewer?.channels ?? root?.channels;
-    const interval = viewer?.interval ?? root?.interval;
-    const receivers = viewer?.receivers ?? root?.receivers;
+    const channels = notifications.channels;
+    const interval = notifications.interval;
+    const receivers = notifications.receivers;
 
     if (!receivers || receivers.length === 0) {
         return undefined;
