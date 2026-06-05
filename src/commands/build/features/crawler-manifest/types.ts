@@ -3,12 +3,20 @@ type CrawlerExclude = {
     regexp?: unknown;
 };
 
-export type CrawlerExcludeConfig = {
+export type CrawlerNotifications = {
+    channels?: string[];
+    interval?: 'daily' | 'weekly' | 'monthly';
+    receivers: string[];
+};
+
+export type CrawlerConfig = {
     crawler?: {
+        notifications?: CrawlerNotifications;
         exclude?: CrawlerExclude;
     };
     'docs-viewer'?: {
         crawler?: {
+            notifications?: CrawlerNotifications;
             exclude?: CrawlerExclude;
         };
     };

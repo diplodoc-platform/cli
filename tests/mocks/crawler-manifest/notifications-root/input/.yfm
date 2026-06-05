@@ -1,0 +1,9 @@
+crawlerManifest: true
+
+crawler:
+  notifications:
+    interval: daily
+    channels: ['email', 'messenger']
+    receivers:
+      - user1
+      - user2

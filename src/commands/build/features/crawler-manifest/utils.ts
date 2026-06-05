@@ -1,6 +1,6 @@
 import type Token from 'markdown-it/lib/token';
 import type {Run} from '~/commands/build';
-import type {CrawlerExcludeConfig} from './types';
+import type {CrawlerConfig, CrawlerNotifications} from './types';
 
 import {dirname, join} from 'node:path';
 import {load as yamlLoad} from 'js-yaml';
@@ -183,7 +183,7 @@ export function parseRegexps(patterns: unknown[]): RegExp[] {
     return result;
 }
 
-export function collectCrawlerExcludes(config: CrawlerExcludeConfig): {
+export function collectCrawlerExcludes(config: CrawlerConfig): {
     urls: string[];
     regexps: RegExp[];
 } {
@@ -202,5 +202,28 @@ export function collectCrawlerExcludes(config: CrawlerExcludeConfig): {
     return {
         urls,
         regexps: parseRegexps(regexpPatterns),
+    };
+}
+
+export function crawlerNotifications(config: CrawlerConfig): CrawlerNotifications | undefined {
+    const notifications =
+        config.crawler?.notifications || config['docs-viewer']?.crawler?.notifications;
+
+    if (!notifications) {
+        return undefined;
+    }
+
+    const channels = notifications.channels;
+    const interval = notifications.interval;
+    const receivers = notifications.receivers;
+
+    if (!receivers || receivers.length === 0) {
+        return undefined;
+    }
+
+    return {
+        channels: channels && channels.length > 0 ? channels : ['email'],
+        interval: interval ?? 'weekly',
+        receivers,
     };
 }
