@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.42.1](https://github.com/diplodoc-platform/cli/compare/v5.42.0...v5.42.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* fixed pc in md files in pdf ([#1979](https://github.com/diplodoc-platform/cli/issues/1979)) ([d179d34](https://github.com/diplodoc-platform/cli/commit/d179d34f256b42e5136255d9d32a07b62a165c4c))
+
 ## [5.42.0](https://github.com/diplodoc-platform/cli/compare/v5.41.0...v5.42.0) (2026-06-03)
 
 
