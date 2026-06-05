@@ -107,7 +107,15 @@ export class BuildManifest {
     }
 
     private buildFileTrie(run: Run): FileTrieEntryPoint {
-        const fileTrie: FileTrie = {};
+        // Trie levels are used as string->node maps. They MUST be prototype-less,
+        // otherwise path segments that collide with `Object.prototype` members
+        // (e.g. `constructor`, `toString`, `valueOf`, `hasOwnProperty`, `__proto__`)
+        // resolve to inherited values instead of `undefined`. In particular a
+        // `constructor` segment would resolve to the native `Object` function, which
+        // `JSON.stringify` silently drops, making the whole subtree disappear from the manifest.
+        const createTrie = (): FileTrie => Object.create(null);
+
+        const fileTrie: FileTrie = createTrie();
         const reverseTocMapping: Record<string, string> = Object.fromEntries(
             run.toc.tocs
                 .map(({path}) => path)
@@ -144,7 +152,7 @@ export class BuildManifest {
             dirs.forEach((dir) => {
                 const maybeExisting = lastHead[dir];
                 const trieNode = maybeExisting ?? {};
-                const newChildren = trieNode.children ?? {};
+                const newChildren = trieNode.children ?? createTrie();
                 lastHead[dir] = trieNode;
 
                 trieNode.children = newChildren;
