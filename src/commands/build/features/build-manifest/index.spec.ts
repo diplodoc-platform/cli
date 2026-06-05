@@ -52,4 +52,55 @@ describe('Build manifest feature', () => {
             expect(shouldReplace).toBe(false);
         });
     });
+
+    describe('buildFileTrie method', () => {
+        const createRun = (entries: string[]) =>
+            ({
+                toc: {
+                    tocs: [{path: 'toc.yaml'}],
+                    entries,
+                    for: () => ({path: 'toc.yaml'}),
+                },
+                logger: {warn: () => {}},
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            }) as any;
+
+        const buildTrie = (entries: string[]) => {
+            const buildManifest = new BuildManifest();
+            // @ts-ignore - accessing private method for testing
+            return buildManifest.buildFileTrie(createRun(entries));
+        };
+
+        it('should keep path segments that collide with Object.prototype members', () => {
+            const {trie} = buildTrie([
+                'lab/constructor/restrictions.md',
+                'lab/constructor/conditions/yt-table.md',
+                'lab/segments.md',
+            ]);
+
+            expect(trie.lab?.children?.['constructor']?.children?.restrictions?.file).toEqual({
+                ext: '.md',
+                toc: 't0',
+            });
+            expect(
+                trie.lab?.children?.['constructor']?.children?.conditions?.children?.['yt-table']
+                    ?.file,
+            ).toEqual({ext: '.md', toc: 't0'});
+        });
+
+        it('should not lose Object.prototype-like segments after JSON serialization', () => {
+            const dangerousSegments = ['constructor', 'toString', 'valueOf', 'hasOwnProperty'];
+            const entries = dangerousSegments.map((segment) => `lab/${segment}/page.md`);
+
+            const {trie} = buildTrie(entries);
+            const roundTripped = JSON.parse(JSON.stringify({trie})).trie;
+
+            for (const segment of dangerousSegments) {
+                expect(
+                    roundTripped.lab?.children?.[segment]?.children?.page?.file,
+                    `segment "${segment}" must survive JSON.stringify`,
+                ).toEqual({ext: '.md', toc: 't0'});
+            }
+        });
+    });
 });
