@@ -53,7 +53,7 @@ describe('Crawler manifest', () => {
         const manifestContent = await readFile(join(outputPath, 'crawler-manifest.json'), 'utf-8');
         const manifest = JSON.parse(manifestContent);
 
-        expect(manifest['index.md']).toContain('https://config.example.com');
+        expect(manifest.links['index.md']).toContain('https://config.example.com');
     });
 
     test('excludes urls by exact match and regexp from docs-viewer.crawler.exclude', async () => {
@@ -67,9 +67,11 @@ describe('Crawler manifest', () => {
         const manifestContent = await readFile(join(outputPath, 'crawler-manifest.json'), 'utf-8');
         const manifest = JSON.parse(manifestContent);
 
-        expect(manifest['index.md']).toContain('https://kept.example.com');
-        expect(manifest['index.md']).not.toContain('https://excluded-exact.example.com');
-        expect(manifest['index.md']).not.toContain('https://excluded-regexp.example.com/some/path');
+        expect(manifest.links['index.md']).toContain('https://kept.example.com');
+        expect(manifest.links['index.md']).not.toContain('https://excluded-exact.example.com');
+        expect(manifest.links['index.md']).not.toContain(
+            'https://excluded-regexp.example.com/some/path',
+        );
     });
 
     test('includes notifications from root crawler config with defaults applied', async () => {

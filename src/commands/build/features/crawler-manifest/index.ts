@@ -125,7 +125,7 @@ export class CrawlerManifest {
 
                 const links = Object.fromEntries(this.links);
                 const notifications = crawlerNotifications(run.config as CrawlerConfig);
-                const manifest: Record<string, unknown> = {...links};
+                const manifest: Record<string, unknown> = {links};
 
                 if (notifications) {
                     manifest['notifications'] = notifications;
