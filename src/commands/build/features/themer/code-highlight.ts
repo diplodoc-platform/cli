@@ -46,6 +46,13 @@ function scopeCss(css: string, scope: string): string {
     const root = postcss.parse(css);
 
     root.walkRules((rule) => {
+        const parent = rule.parent;
+
+        // Fix pass @keyframes
+        if (parent?.type === 'atrule' && /keyframes$/i.test((parent as postcss.AtRule).name)) {
+            return;
+        }
+
         if (rule.selectors?.length) {
             rule.selectors = rule.selectors.map((selector) => `${scope} ${selector}`);
         }
