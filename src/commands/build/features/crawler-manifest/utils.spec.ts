@@ -6,6 +6,7 @@ import {
     collectCrawlerExcludes,
     collectExternalLinksFromYaml,
     collectLinks,
+    crawlerNotifications,
     extractExternalLinks,
     extractIncludePaths,
     parseRegexps,
@@ -578,6 +579,120 @@ plain https://plain.example.com text
 
             expect(result.urls).toEqual([]);
             expect(result.regexps).toEqual([]);
+        });
+    });
+
+    describe('crawlerNotifications', () => {
+        it('returns undefined when no notifications config', () => {
+            expect(crawlerNotifications({})).toBeUndefined();
+        });
+
+        it('returns undefined when notifications config has no receivers', () => {
+            expect(
+                crawlerNotifications({
+                    crawler: {notifications: {interval: 'daily'} as never},
+                }),
+            ).toBeUndefined();
+        });
+
+        it('returns undefined when receivers is empty array', () => {
+            expect(
+                crawlerNotifications({
+                    crawler: {notifications: {receivers: []}},
+                }),
+            ).toBeUndefined();
+        });
+
+        it('applies default interval and channels from root config', () => {
+            const result = crawlerNotifications({
+                crawler: {notifications: {receivers: ['user1']}},
+            });
+
+            expect(result).toEqual({
+                receivers: ['user1'],
+                interval: 'weekly',
+                channels: ['email'],
+            });
+        });
+
+        it('preserves explicit interval and channels from root config', () => {
+            const result = crawlerNotifications({
+                crawler: {
+                    notifications: {
+                        receivers: ['user1'],
+                        interval: 'monthly',
+                        channels: ['email', 'messenger'],
+                    },
+                },
+            });
+
+            expect(result).toEqual({
+                receivers: ['user1'],
+                interval: 'monthly',
+                channels: ['email', 'messenger'],
+            });
+        });
+
+        it('reads notifications from docs-viewer config', () => {
+            const result = crawlerNotifications({
+                'docs-viewer': {
+                    crawler: {notifications: {receivers: ['user2'], interval: 'daily'}},
+                },
+            });
+
+            expect(result).toEqual({
+                receivers: ['user2'],
+                interval: 'daily',
+                channels: ['email'],
+            });
+        });
+
+        it('root config takes priority over docs-viewer when both are set', () => {
+            const result = crawlerNotifications({
+                crawler: {
+                    notifications: {
+                        receivers: ['root-user'],
+                        interval: 'monthly',
+                        channels: ['messenger'],
+                    },
+                },
+                'docs-viewer': {
+                    crawler: {
+                        notifications: {
+                            receivers: ['viewer-user'],
+                            interval: 'daily',
+                        },
+                    },
+                },
+            });
+
+            expect(result).toEqual({
+                receivers: ['root-user'],
+                interval: 'monthly',
+                channels: ['messenger'],
+            });
+        });
+
+        it('uses root config entirely, docs-viewer interval is ignored', () => {
+            const result = crawlerNotifications({
+                crawler: {notifications: {receivers: ['root-user']}},
+                'docs-viewer': {crawler: {notifications: {interval: 'daily'} as never}},
+            });
+
+            expect(result).toEqual({
+                receivers: ['root-user'],
+                interval: 'weekly',
+                channels: ['email'],
+            });
+        });
+
+        it('returns undefined when both configs present but neither has receivers', () => {
+            expect(
+                crawlerNotifications({
+                    crawler: {notifications: {interval: 'daily'} as never},
+                    'docs-viewer': {crawler: {notifications: {interval: 'weekly'} as never}},
+                }),
+            ).toBeUndefined();
         });
     });
 });

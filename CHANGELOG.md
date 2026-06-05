@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.43.0](https://github.com/diplodoc-platform/cli/compare/v5.42.2...v5.43.0) (2026-06-05)
+
+
+### Features
+
+* added notifications in crawler manifest ([#1984](https://github.com/diplodoc-platform/cli/issues/1984)) ([dd64f96](https://github.com/diplodoc-platform/cli/commit/dd64f9674b71d4351820a622a7d71c18e3ae6f81))
+
 ## [5.42.2](https://github.com/diplodoc-platform/cli/compare/v5.42.1...v5.42.2) (2026-06-05)
 
 
