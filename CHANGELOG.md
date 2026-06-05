@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.42.2](https://github.com/diplodoc-platform/cli/compare/v5.42.1...v5.42.2) (2026-06-05)
+
+
+### Bug Fixes
+
+* dir "constructor" not in build manifest ([e1501d3](https://github.com/diplodoc-platform/cli/commit/e1501d348995595b28b023cfd7702233de9aae97))
+
 ## [5.42.1](https://github.com/diplodoc-platform/cli/compare/v5.42.0...v5.42.1) (2026-06-04)
 
 
