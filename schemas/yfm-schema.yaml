@@ -546,10 +546,57 @@ properties:
     type: boolean
     deprecated: Use sanitizeHtml instead.
 
+  crawler:
+    type: object
+    properties:
+      notifications:
+        $ref: '#/definitions/CrawlerNotificationsConfig'
+      exclude:
+        type: object
+        properties:
+          url:
+            type: array
+            items:
+              type: string
+            description: Exact external URLs to exclude from crawler-manifest.json.
+          regexp:
+            type: array
+            items:
+              type: string
+            description: >
+              Regular expression patterns (JS /pattern/flags syntax) matching
+              external URLs to exclude from crawler-manifest.json.
+        additionalProperties: false
+    additionalProperties: false
+    description: Crawler-manifest settings.
+
 additionalProperties: false
 
 # ─── Definitions ──────────────────────────────────────────────────────
 definitions:
+  CrawlerNotificationsConfig:
+    type: object
+    required: ['receivers']
+    properties:
+      channels:
+        type: array
+        items:
+          type: string
+          enum: ['email', 'messenger']
+        description: "Notification channels. Default: ['email']."
+      interval:
+        type: string
+        enum: ['daily', 'weekly', 'monthly']
+        description: 'How often to send notifications. Default: weekly.'
+      receivers:
+        type: array
+        items:
+          type: string
+        minItems: 1
+        description: List of recipients (usernames). Required.
+    additionalProperties: false
+    description: Crawler broken-link notification settings.
+
   LangItem:
     oneOf:
       - type: string
@@ -974,6 +1021,8 @@ definitions:
       crawler:
         type: object
         properties:
+          notifications:
+            $ref: '#/definitions/CrawlerNotificationsConfig'
           exclude:
             type: object
             properties:

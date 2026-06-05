@@ -1,0 +1,8 @@
+crawlerManifest: true
+
+docs-viewer:
+  crawler:
+    notifications:
+      interval: weekly
+      receivers:
+        - user3
