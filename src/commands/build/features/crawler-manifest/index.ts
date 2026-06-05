@@ -1,7 +1,7 @@
 import type {Command} from '~/core/config';
 import type {Build, Run} from '~/commands/build';
 import type {Toc} from '~/core/toc';
-import type {CrawlerExcludeConfig} from './types';
+import type {CrawlerConfig} from './types';
 
 import {join} from 'node:path';
 
@@ -12,7 +12,7 @@ import {isExternalHref, walkLinks} from '~/core/utils';
 import {valuable} from '~/core/config';
 
 import {options} from './config';
-import {collectCrawlerExcludes, collectLinks} from './utils';
+import {collectCrawlerExcludes, collectLinks, crawlerNotifications} from './utils';
 
 export type CrawlerManifestArgs = {
     crawlerManifest: boolean;
@@ -47,7 +47,7 @@ export class CrawlerManifest {
 
             config.crawlerManifest = crawlerManifest;
 
-            const {urls, regexps} = collectCrawlerExcludes(config as CrawlerExcludeConfig);
+            const {urls, regexps} = collectCrawlerExcludes(config as CrawlerConfig);
 
             this.excludeUrls = new Set(urls);
             this.excludeRegexps = regexps;
@@ -123,7 +123,13 @@ export class CrawlerManifest {
                     return;
                 }
 
-                const manifest = Object.fromEntries(this.links);
+                const links = Object.fromEntries(this.links);
+                const notifications = crawlerNotifications(run.config as CrawlerConfig);
+                const manifest: Record<string, unknown> = {...links};
+
+                if (notifications) {
+                    manifest['notifications'] = notifications;
+                }
 
                 await run.write(
                     join(run.output, MANIFEST_FILENAME),
