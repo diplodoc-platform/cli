@@ -491,14 +491,18 @@ exports[`Preprocess > HashIncludes=true,Autotitles=false 15`] = `
     href: 1.md
   - name: Md item named without extension
     href: 1.md
-  - name: Included Item
-    href: included-item.md
-  - name: Named include (items is Object here - this is not an error)
+  - name: Included
     items:
-      - name: Item 1
-        href: sub/folder/item-1.md
+      - name: Included Item
+        href: included-item.md
+  - name: Included
+    items:
+      - name: Named include (items is Object here - this is not an error)
+        items:
+          - name: Item 1
+            href: sub/folder/item-1.md
   - href: mermaid.md
-    name: Mermaid usage
+    name: Item
   - name: Latex usage
     href: latex.md
   - name: Images
@@ -1010,14 +1014,18 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true 15`] = `
     href: 1.md
   - name: Md item named without extension
     href: 1.md
-  - name: Included Item
-    href: included-item.md
-  - name: Named include (items is Object here - this is not an error)
+  - name: Included
     items:
-      - name: Item 1
-        href: sub/folder/item-1.md
+      - name: Included Item
+        href: included-item.md
+  - name: Included
+    items:
+      - name: Named include (items is Object here - this is not an error)
+        items:
+          - name: Item 1
+            href: sub/folder/item-1.md
   - href: mermaid.md
-    name: Mermaid usage
+    name: Item
   - name: Latex usage
     href: latex.md
   - name: Images
@@ -1529,14 +1537,18 @@ exports[`Preprocess > HashIncludes=true,Autotitles=true,Svg=true 15`] = `
     href: 1.md
   - name: Md item named without extension
     href: 1.md
-  - name: Included Item
-    href: included-item.md
-  - name: Named include (items is Object here - this is not an error)
+  - name: Included
     items:
-      - name: Item 1
-        href: sub/folder/item-1.md
+      - name: Included Item
+        href: included-item.md
+  - name: Included
+    items:
+      - name: Named include (items is Object here - this is not an error)
+        items:
+          - name: Item 1
+            href: sub/folder/item-1.md
   - href: mermaid.md
-    name: Mermaid usage
+    name: Item
   - name: Latex usage
     href: latex.md
   - name: Images

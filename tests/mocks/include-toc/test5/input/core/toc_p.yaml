@@ -1,5 +1,6 @@
 items:
   - name: core/toc_p/item
-  - include:
+  - name: Include Item
+    include:
       mode: link
       path: toc_i.yaml

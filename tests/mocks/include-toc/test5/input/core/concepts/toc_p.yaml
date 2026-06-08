@@ -1,3 +1,4 @@
 items:
-  - include: { mode: link, path: toc_i.yaml }
+  - name: Include Item
+    include: { mode: link, path: toc_i.yaml }
   - name: core/concepts/toc_p/item
