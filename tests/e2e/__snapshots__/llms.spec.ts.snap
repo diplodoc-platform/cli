@@ -1,0 +1,257 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html > filelist 1`] = `
+"[
+  ".yfm",
+  "api.md",
+  "index.md",
+  "llms-full.txt",
+  "llms.txt",
+  "start.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html > filelist 2`] = `
+"[
+  ".yfm",
+  "api.html",
+  "index.html",
+  "llms-full.txt",
+  "llms.txt",
+  "start.html",
+  "toc.js"
+]"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 1`] = `
+"allowHtml: true
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+description: Full reference of the public HTTP endpoints.
+vcsPath: api.md
+---
+
+# API Reference
+
+## GET /things
+
+Returns the list of things.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 3`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+title: Overview
+description: What this product is and how to get started.
+vcsPath: index.md
+---
+
+# Overview
+
+Welcome to **My Product** — the documentation home page.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 4`] = `
+"# My Product
+
+# Overview
+
+Welcome to **My Product** — the documentation home page.
+
+# Getting Started
+
+Run the installer and create your first project.
+
+## Requirements
+
+- Node.js 18+
+- 2 GB RAM
+
+# API Reference
+
+## GET /things
+
+Returns the list of things.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 5`] = `
+"# My Product
+
+- [Overview](index.md): What this product is and how to get started.
+- [Getting Started](start.md): Install the product and build your first project.
+- [API Reference](api.md): Full reference of the public HTTP endpoints.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 6`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+description: Install the product and build your first project.
+vcsPath: start.md
+---
+
+# Getting Started
+
+Run the installer and create your first project.
+
+<!-- source: _includes/requirements.md -->
+## Requirements
+
+- Node.js 18+
+- 2 GB RAM
+<!-- endsource: _includes/requirements.md -->
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 7`] = `
+"title: My Product
+href: index.md
+items:
+  - name: Getting Started
+    href: start.md
+  - name: API Reference
+    href: api.md
+path: toc.yaml
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 8`] = `
+"allowHtml: true
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 9`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>API Reference | My Product</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Full reference of the public HTTP endpoints.">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;h2 id=\\"get-/things\\"&gt;&lt;a href=\\"api.html#get-/things\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;GET /things&lt;/span&gt;&lt;/a&gt;GET /things&lt;/h2&gt;/n&lt;p&gt;Returns the list of things.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Full reference of the public HTTP endpoints."}],"description":"Full reference of the public HTTP endpoints.","vcsPath":"api.md"},"headings":[{"title":"GET /things","href":"api.html#get-/things","level":2}],"title":"API Reference"},"router":{"pathname":"api","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 10`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Overview | My Product</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="What this product is and how to get started.">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Welcome to &lt;strong&gt;My Product&lt;/strong&gt; — the documentation home page.&lt;/p&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"What this product is and how to get started."}],"title":"Overview","description":"What this product is and how to get started.","vcsPath":"index.md"},"headings":[],"title":"Overview"},"router":{"pathname":"index","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 11`] = `
+"# My Product
+
+# Overview
+
+Welcome to **My Product** — the documentation home page.
+
+# Getting Started
+
+Run the installer and create your first project.
+
+## Requirements
+
+- Node.js 18+
+- 2 GB RAM
+
+# API Reference
+
+## GET /things
+
+Returns the list of things.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 12`] = `
+"# My Product
+
+- [Overview](index.html): What this product is and how to get started.
+- [Getting Started](start.html): Install the product and build your first project.
+- [API Reference](api.html): Full reference of the public HTTP endpoints.
+"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 13`] = `
+"<!DOCTYPE html>
+<html lang="ru" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <base href="./" />
+        <title>Getting Started | My Product</title>
+        <meta name="generator" content="Diplodoc Platform vDIPLODOC-VERSION">
+        <meta name="description" content="Install the product and build your first project.">
+        <style type="text/css">html, body {min-height:100vh; height:100vh;}</style>
+    </head>
+    <body class="g-root g-root_theme_light">
+        <div id="root"></div>
+        <script type="application/json" id="diplodoc-state">
+            {"data":{"leading":false,"html":"&lt;p&gt;Run the installer and create your first project.&lt;/p&gt;/n&lt;h2 id=\\"requirements\\"&gt;&lt;a href=\\"start.html#requirements\\" class=\\"yfm-anchor yfm-clipboard-anchor\\" aria-hidden=\\"true\\"&gt;&lt;span class=\\"visually-hidden\\" data-no-index=\\"true\\"&gt;Requirements&lt;/span&gt;&lt;/a&gt;Requirements&lt;/h2&gt;/n&lt;ul&gt;/n&lt;li&gt;Node.js 18+&lt;/li&gt;/n&lt;li&gt;2 GB RAM&lt;/li&gt;/n&lt;/ul&gt;/n","meta":{"metadata":[{"name":"generator","content":"Diplodoc Platform vDIPLODOC-VERSION"},{"name":"description","content":"Install the product and build your first project."}],"description":"Install the product and build your first project.","vcsPath":"start.md"},"headings":[{"title":"Requirements","href":"start.html#requirements","level":2}],"title":"Getting Started"},"router":{"pathname":"start","depth":1,"base":"./"},"lang":"ru","langs":["ru"],"viewerInterface":{"toc":true,"search":true,"feedback":true}}
+        </script>
+        <script type="application/javascript">
+            const data = document.querySelector('script#diplodoc-state');
+            window.__DATA__ = JSON.parse((function unescape(string) {
+                return string.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&amp;/g, "&");
+              })(data.innerText));
+            window.STATIC_CONTENT = false;
+        </script>
+        <script type="application/javascript" defer src="toc.js"></script>
+    </body>
+</html>"
+`;
+
+exports[`llms.txt > generates llms.txt and llms-full.txt for md and html 14`] = `"window.__DATA__.data.toc = {"title":"My Product","href":"index.html","items":[{"name":"Getting Started","href":"start.html","id":"UUID"},{"name":"API Reference","href":"api.html","id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
