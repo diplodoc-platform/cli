@@ -35,12 +35,6 @@ path: active/toc.yaml
 `;
 
 exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 5`] = `
-"default:
-  empty_var: empty_value
-"
-`;
-
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 6`] = `
 "---
 metadata:
   - name: generator
@@ -54,13 +48,13 @@ This is the main page content.
 Root variable: {{root_var}}"
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 7`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 6`] = `
 "default:
   root_var: root_value
 "
 `;
 
-exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 8`] = `
+exports[`Cleanup empty directories with stage filtering > should cleanup directories that contain only presets.yaml when TOC is ignored by stage 7`] = `
 "title: Test Documentation
 href: index.md
 items:
