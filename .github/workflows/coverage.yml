@@ -29,38 +29,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Node.js and install dependencies
+        uses: diplodoc-platform/setup-node-action@v1
         with:
-          node-version: ${{ vars.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install latest npm (>= 11.5.1)
-        shell: bash
-        run: |
-          REQUIRED=11.5.1
-          if [ "$(printf '%s\n' "$REQUIRED" "$(npm -v)" | sort -V | head -n1)" = "$REQUIRED" ]; then
-            echo "npm $(npm -v) is up-to-date (>= $REQUIRED)"
-            exit 0
-          fi
-          # Use a user-writable prefix so this works in PRs from forks where
-          # the default global prefix may be read-only. Prepend its bin dir to
-          # PATH via $GITHUB_PATH so subsequent steps pick up the new npm.
-          NPM_PREFIX="$RUNNER_TEMP/npm-global"
-          mkdir -p "$NPM_PREFIX"
-          npm install --prefix "$NPM_PREFIX" -g "npm@$REQUIRED"
-          # On Linux/macOS npm puts binaries into $prefix/bin, on Windows
-          # directly into $prefix (as npm.cmd). Pick whichever exists.
-          if [ -x "$NPM_PREFIX/bin/npm" ] || [ -x "$NPM_PREFIX/bin/npm.cmd" ]; then
-            NPM_BIN_DIR="$NPM_PREFIX/bin"
-          else
-            NPM_BIN_DIR="$NPM_PREFIX"
-          fi
-          echo "$NPM_BIN_DIR" >> "$GITHUB_PATH"
-          "$NPM_BIN_DIR"/npm -v 2>/dev/null || "$NPM_BIN_DIR"/npm.cmd -v
-
-      - name: Install dependencies
-        run: npm ci
+          node-version: ${{ vars.NODE_VERSION || '24' }}
 
       - name: Run tests with coverage
         id: coverage-run
@@ -81,8 +53,15 @@ jobs:
           path: coverage/
           retention-days: 7
 
+      # Secrets aren't exposed to workflows triggered by pull_request from a fork,
+      # so SONAR_TOKEN is empty and SonarCloud responds with "Project not found".
+      # Skip the scan in that case — coverage artifact is still uploaded above.
       - name: SonarCloud Scan
-        if: success() && steps.coverage-run.outputs.ran == 'true'
+        if: |
+          success() &&
+          steps.coverage-run.outputs.ran == 'true' &&
+          (github.event_name != 'pull_request' ||
+           github.event.pull_request.head.repo.full_name == github.repository)
         uses: SonarSource/sonarqube-scan-action@v7.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
