@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.43.3](https://github.com/diplodoc-platform/cli/compare/v5.43.2...v5.43.3) (2026-06-11)
+
+
+### Bug Fixes
+
+* **assets:** move asset size validation to markdown hook and optimize… ([#1994](https://github.com/diplodoc-platform/cli/issues/1994)) ([932c3b5](https://github.com/diplodoc-platform/cli/commit/932c3b58ecdab8a71c11b34d15ec9bbd906deeae))
+* fixed init ([#1996](https://github.com/diplodoc-platform/cli/issues/1996)) ([f2f8a94](https://github.com/diplodoc-platform/cli/commit/f2f8a94b97e0034e76d19bf74d0a715f1e40c904))
+* **templating:** cleanup empty directories ([#1991](https://github.com/diplodoc-platform/cli/issues/1991)) ([ea826ea](https://github.com/diplodoc-platform/cli/commit/ea826eac32b8dd92464785f36ed12fdb191dcf62))
+
 ## [5.43.2](https://github.com/diplodoc-platform/cli/compare/v5.43.1...v5.43.2) (2026-06-10)
 
 
