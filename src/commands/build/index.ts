@@ -48,6 +48,7 @@ import {TocFiltering} from './features/toc-filtering';
 import {NeuroExpert} from './features/neuro-expert';
 import {Themer} from './features/themer';
 import {Analytics} from './features/analytics';
+import {Llms} from './features/llms';
 
 export type * from './types';
 
@@ -133,6 +134,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
 
     readonly analytics = new Analytics();
 
+    readonly llms = new Llms();
+
     readonly options = [
         options.input('./'),
         options.output({required: true}),
@@ -190,6 +193,7 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         this.skipHtml,
         this.neuroExpert,
         this.analytics,
+        this.llms,
         new GenericIncluderExtension(),
         new OpenapiIncluderExtension(),
         new LocalSearchExtension(),
