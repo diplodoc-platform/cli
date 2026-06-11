@@ -102,7 +102,7 @@ function buildSingleLangFiles(
 ): Record<string, string> {
     const minimalFiles = {
         [join(output, '.yfm')]: yfmConfig([lang], lang, template),
-        [join(output, 'toc.yaml')]: tocYaml(projectName, header),
+        [join(output, 'toc.yaml')]: tocYaml(projectName, header, template),
         [join(output, 'index.md')]: indexMd(),
     };
 
@@ -134,7 +134,7 @@ function buildMultilangFiles(
     }
 
     for (const lang of langs) {
-        files[join(output, lang, 'toc.yaml')] = tocYaml(projectName, header);
+        files[join(output, lang, 'toc.yaml')] = tocYaml(projectName, header, template);
         files[join(output, lang, 'index.md')] = indexMd();
 
         if (template === 'full') {
