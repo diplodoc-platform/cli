@@ -194,6 +194,72 @@ describe('Build themer feature', () => {
     it.each([
         ['md2md', true, false],
         ['md2html', false, true],
+    ])('generates theme.css from codeHighlight only (%s)', async (_, md2md, md2html) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test6');
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md,
+            md2html,
+        });
+
+        const cssPath = join(outputPath, '_assets', 'style', 'theme.css');
+        const css = await readFile(cssPath, 'utf8');
+
+        expect(existsSync(join(inputPath, 'theme.yaml'))).toBe(false);
+        expect(css).toContain('.g-root_theme_light .dc-doc-page .yfm .hljs');
+        expect(css).toContain('.g-root_theme_dark .dc-doc-page .yfm .hljs');
+        expect(css).toContain('.g-root_theme_light .dc-doc-page .yfm .hljs-keyword');
+        expect(css).toContain('.g-root_theme_dark .dc-doc-page .yfm .hljs-keyword');
+    });
+
+    it.each([
+        ['md2md', true, false],
+        ['md2html', false, true],
+    ])(
+        'generates theme.css from codeHighlight with theme.yaml overrides (%s)',
+        async (_, md2md, md2html) => {
+            const {inputPath, outputPath} = getTestPaths('mocks/themer/test7');
+
+            await TestAdapter.testBuildPass(inputPath, outputPath, {
+                md2md,
+                md2html,
+            });
+
+            const cssPath = join(outputPath, '_assets', 'style', 'theme.css');
+            const css = await readFile(cssPath, 'utf8');
+
+            expect(css).toContain('.g-root_theme_light .dc-doc-page .yfm .hljs');
+            expect(css).toContain('.g-root_theme_dark .dc-doc-page .yfm .hljs');
+
+            expect(css).toContain('--yfm-color-code: #111111;');
+            expect(css).toContain('--yfm-color-code-background: #ffeeaa;');
+            expect(css).toContain('--yfm-color-code: #eeeeee;');
+            expect(css).toContain('--yfm-color-code-background: #221144;');
+
+            expect(css).toContain('color: var(--yfm-color-code);');
+            expect(css).toContain('background: var(--yfm-color-code-background);');
+        },
+    );
+
+    it.each([
+        ['md2md', 'md'],
+        ['md2html', 'html'],
+    ])('includes error for unknown code highlight theme (%s)', async (_, format) => {
+        const {inputPath, outputPath} = getTestPaths('mocks/themer/test8');
+
+        const report = await TestAdapter.build.run(inputPath, outputPath, ['-f', format]);
+
+        expect(report.code).toBe(1);
+        expect(
+            report.errors.includes(
+                'ERR Failed to generate theme: Error: Unknown highlight.js theme: "unknown-highlight-theme"',
+            ),
+        ).toBe(true);
+    });
+
+    it.each([
+        ['md2md', true, false],
+        ['md2html', false, true],
     ])('flag overrides theme from .yfm (%s)', async (_, md2md, md2html) => {
         const {inputPath, outputPath} = getTestPaths('mocks/themer/test5');
 

@@ -4,6 +4,8 @@ import {dirname} from 'node:path';
 
 export const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 
+export const HIGHLIGHT_STYLES_ROOT = dirname(require.resolve('highlight.js/styles/github.css'));
+
 export const THEME_CONFIG_FILENAME = 'theme.yaml';
 
 export const BASE_BRAND = 'base-brand';
