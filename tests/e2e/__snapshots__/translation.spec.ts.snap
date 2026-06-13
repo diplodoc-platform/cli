@@ -1615,6 +1615,7 @@ href: index.yaml
 items:
   - name: '%%%4%%%'
   - href: index-direct.yaml
+    name: '%%%5%%%'
 navigation:
   header:
     leftItems:
@@ -1656,6 +1657,9 @@ exports[`Translate command > extract yaml scheme files 6`] = `
       </trans-unit>
       <trans-unit id="4">
         <source xml:space="preserve">Дочерняя страница</source>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Item</source>
       </trans-unit>
     </body>
   </file>

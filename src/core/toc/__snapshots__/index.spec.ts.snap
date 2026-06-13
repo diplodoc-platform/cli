@@ -3,6 +3,8 @@
 exports[`toc-loader > includers > should fix include path 1`] = `
 "items:
   - name: Common item
+  - name: Include Entry
+    items: []
 path: toc.yaml
 "
 `;
@@ -10,6 +12,8 @@ path: toc.yaml
 exports[`toc-loader > includers > should handle registered includer 1`] = `
 "items:
   - name: Common item
+  - name: Include Entry
+    items: []
 path: toc.yaml
 "
 `;
@@ -17,7 +21,9 @@ path: toc.yaml
 exports[`toc-loader > includers > should merge includer toc to parent 1`] = `
 "items:
   - name: Common item
-  - name: Includer item 1
+  - name: Include Entry
+    items:
+      - name: Includer item 1
 path: toc.yaml
 "
 `;
@@ -25,6 +31,8 @@ path: toc.yaml
 exports[`toc-loader > includers > should pass extra params to includer 1`] = `
 "items:
   - name: Common item
+  - name: Include Entry
+    items: []
 path: toc.yaml
 "
 `;
@@ -53,17 +61,23 @@ exports[`toc-loader > includes > should merge deep includes in merge mode 1`] = 
         items:
           - name: Inner Merge Item 1
             href: _includes/core/merge-item-1.md
-          - name: Inner Deep Merge Item 1
-            href: _includes/core/deep-merge-item-1.md
-          - name: Inner Sub Item 1
-            href: _includes/core/sub-item-1.md
+          - name: Deep Merge Include
+            items:
+              - name: Inner Deep Merge Item 1
+                href: _includes/core/deep-merge-item-1.md
+          - name: Sub Include
+            items:
+              - name: Inner Sub Item 1
+                href: _includes/core/sub-item-1.md
 path: toc.yaml
 "
 `;
 
 exports[`toc-loader > includes > should merge includes in flat link mode 1`] = `
 "items:
-  - name: Inner Item 1
+  - name: Outer Item
+    items:
+      - name: Inner Item 1
 path: toc.yaml
 "
 `;
@@ -473,7 +487,8 @@ path: toc.yaml
 
 exports[`toc-loader > should interpolate item href 1`] = `
 "items:
-  - href: file.md
+  - name: Item with href
+    href: file.md
 path: toc.yaml
 "
 `;

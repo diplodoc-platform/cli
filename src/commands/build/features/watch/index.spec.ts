@@ -329,14 +329,16 @@ describe('Build watch feature', () => {
                 './toc-i.yaml',
                 dedent`
                     items:
-                      - href: index.md
+                      - name: Item
+                        href: index.md
                 `,
             );
             await create(
                 './toc.yaml',
                 dedent`
                     items:
-                      - include:
+                      - name: Item
+                        include:
                           path: toc-i.yaml
                           mode: link
                 `,
@@ -354,8 +356,10 @@ describe('Build watch feature', () => {
                 './toc-i.yaml',
                 dedent`
                     items:
-                      - href: index.md
-                      - href: about.md
+                      - name: Item
+                        href: index.md
+                      - name: Item
+                        href: about.md
                 `,
             );
 
@@ -371,7 +375,8 @@ describe('Build watch feature', () => {
                 './toc-i.yaml',
                 dedent`
                     items:
-                      - href: index.md
+                      - name: Item
+                        href: index.md
                 `,
             );
 
@@ -410,14 +415,16 @@ describe('Build watch feature', () => {
                 './openapi-spec.yaml',
                 dedent`
                     items:
-                      - href: methodA.md
+                      - name: Item
+                        href: methodA.md
                 `,
             );
             await create(
                 './toc.yaml',
                 dedent`
                     items:
-                      - include:
+                      - name: Item
+                        include:
                           path: openapi
                           includers:
                             - name: mock-openapi
@@ -437,8 +444,10 @@ describe('Build watch feature', () => {
                 './openapi-spec.yaml',
                 dedent`
                     items:
-                      - href: methodA.md
-                      - href: methodB.md
+                      - name: Item
+                        href: methodA.md
+                      - name: Item
+                        href: methodB.md
                 `,
             );
 
@@ -454,7 +463,8 @@ describe('Build watch feature', () => {
                 './openapi-spec.yaml',
                 dedent`
                     items:
-                      - href: methodB.md
+                      - name: Item
+                        href: methodB.md
                 `,
             );
 
@@ -481,15 +491,18 @@ describe('Build watch feature', () => {
                 './inner/toc.yaml',
                 dedent`
                     items:
-                      - href: index.md
+                      - name: Item
+                        href: index.md
                 `,
             );
             await create(
                 './toc.yaml',
                 dedent`
                     items:
-                      - href: about.md
-                      - include:
+                      - name: Item
+                        href: about.md
+                      - name: Item
+                        include:
                           path: inner/toc.yaml
                           mode: link
                 `,
@@ -527,8 +540,10 @@ describe('Build watch feature', () => {
                 './toc.yaml',
                 dedent`
                     items:
-                      - href: index.md
-                      - href: about.md
+                      - name: Item
+                        href: index.md
+                      - name: Item
+                        href: about.md
                 `,
             );
 
@@ -565,15 +580,18 @@ describe('Build watch feature', () => {
                 './inner/toc.yaml',
                 dedent`
                     items:
-                      - href: about.md
+                      - name: Item
+                        href: about.md
                 `,
             );
             await create(
                 './toc.yaml',
                 dedent`
                     items:
-                      - href: index.md
-                      - include: {mode: 'link', path: './inner/toc.yaml'}
+                      - name: Item
+                        href: index.md
+                      - name: Item
+                        include: {mode: 'link', path: './inner/toc.yaml'}
                 `,
             );
 

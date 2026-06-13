@@ -77,11 +77,7 @@ function graph(paths: NormalizedPath[]): Graph {
     return graph;
 }
 
-function pageName(key: string, options: Options) {
-    if (options.autotitle !== false) {
-        return undefined;
-    }
-
+function pageName(key: string, _options: Options) {
     return key as YfmString;
 }
 
@@ -128,6 +124,7 @@ function fillToc(toc: RawToc, graph: Graph, options: Options) {
                 const useIndexHeading =
                     options.linkIndexAutotitle === true && options.autotitle !== false;
                 const result = {
+                    name: key as YfmString,
                     href: indexHref,
                     items: childEntries.map(item),
                 };
