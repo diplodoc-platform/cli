@@ -590,60 +590,69 @@ plain https://plain.example.com text
         it('returns undefined when notifications config has no receivers', () => {
             expect(
                 crawlerNotifications({
-                    crawler: {notifications: {interval: 'daily'} as never},
+                    crawler: {notifications: {interval: 'daily'}},
                 }),
             ).toBeUndefined();
         });
 
-        it('returns undefined when receivers is empty array', () => {
+        it('returns undefined when receiver lists are empty arrays', () => {
             expect(
                 crawlerNotifications({
-                    crawler: {notifications: {receivers: []}},
+                    crawler: {notifications: {emailReceivers: [], messengerReceivers: []}},
                 }),
             ).toBeUndefined();
         });
 
-        it('applies default interval and channels from root config', () => {
+        it('applies default interval with email receivers from root config', () => {
             const result = crawlerNotifications({
-                crawler: {notifications: {receivers: ['user1']}},
+                crawler: {notifications: {emailReceivers: ['user1']}},
             });
 
             expect(result).toEqual({
-                receivers: ['user1'],
                 interval: 'weekly',
-                channels: ['email'],
+                emailReceivers: ['user1'],
             });
         });
 
-        it('preserves explicit interval and channels from root config', () => {
+        it('includes only messenger receivers when email is absent', () => {
+            const result = crawlerNotifications({
+                crawler: {notifications: {messengerReceivers: ['user1', '123456']}},
+            });
+
+            expect(result).toEqual({
+                interval: 'weekly',
+                messengerReceivers: ['user1', '123456'],
+            });
+        });
+
+        it('preserves explicit interval and both receiver lists from root config', () => {
             const result = crawlerNotifications({
                 crawler: {
                     notifications: {
-                        receivers: ['user1'],
                         interval: 'monthly',
-                        channels: ['email', 'messenger'],
+                        emailReceivers: ['user1'],
+                        messengerReceivers: ['user2'],
                     },
                 },
             });
 
             expect(result).toEqual({
-                receivers: ['user1'],
                 interval: 'monthly',
-                channels: ['email', 'messenger'],
+                emailReceivers: ['user1'],
+                messengerReceivers: ['user2'],
             });
         });
 
         it('reads notifications from docs-viewer config', () => {
             const result = crawlerNotifications({
                 'docs-viewer': {
-                    crawler: {notifications: {receivers: ['user2'], interval: 'daily'}},
+                    crawler: {notifications: {emailReceivers: ['user2'], interval: 'daily'}},
                 },
             });
 
             expect(result).toEqual({
-                receivers: ['user2'],
                 interval: 'daily',
-                channels: ['email'],
+                emailReceivers: ['user2'],
             });
         });
 
@@ -651,15 +660,14 @@ plain https://plain.example.com text
             const result = crawlerNotifications({
                 crawler: {
                     notifications: {
-                        receivers: ['root-user'],
                         interval: 'monthly',
-                        channels: ['messenger'],
+                        messengerReceivers: ['root-user'],
                     },
                 },
                 'docs-viewer': {
                     crawler: {
                         notifications: {
-                            receivers: ['viewer-user'],
+                            emailReceivers: ['viewer-user'],
                             interval: 'daily',
                         },
                     },
@@ -667,30 +675,28 @@ plain https://plain.example.com text
             });
 
             expect(result).toEqual({
-                receivers: ['root-user'],
                 interval: 'monthly',
-                channels: ['messenger'],
+                messengerReceivers: ['root-user'],
             });
         });
 
         it('uses root config entirely, docs-viewer interval is ignored', () => {
             const result = crawlerNotifications({
-                crawler: {notifications: {receivers: ['root-user']}},
-                'docs-viewer': {crawler: {notifications: {interval: 'daily'} as never}},
+                crawler: {notifications: {emailReceivers: ['root-user']}},
+                'docs-viewer': {crawler: {notifications: {interval: 'daily'}}},
             });
 
             expect(result).toEqual({
-                receivers: ['root-user'],
                 interval: 'weekly',
-                channels: ['email'],
+                emailReceivers: ['root-user'],
             });
         });
 
         it('returns undefined when both configs present but neither has receivers', () => {
             expect(
                 crawlerNotifications({
-                    crawler: {notifications: {interval: 'daily'} as never},
-                    'docs-viewer': {crawler: {notifications: {interval: 'weekly'} as never}},
+                    crawler: {notifications: {interval: 'daily'}},
+                    'docs-viewer': {crawler: {notifications: {interval: 'weekly'}}},
                 }),
             ).toBeUndefined();
         });

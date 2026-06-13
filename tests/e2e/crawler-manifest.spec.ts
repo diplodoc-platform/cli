@@ -86,13 +86,13 @@ describe('Crawler manifest', () => {
         const manifest = JSON.parse(manifestContent);
 
         expect(manifest.notifications).toEqual({
-            channels: ['email', 'messenger'],
             interval: 'daily',
-            receivers: ['user1', 'user2'],
+            emailReceivers: ['user1', 'user2'],
+            messengerReceivers: ['user1', 'user2'],
         });
     });
 
-    test('includes notifications from docs-viewer.crawler config with default channel', async () => {
+    test('includes notifications from docs-viewer.crawler config with default interval', async () => {
         const {inputPath, outputPath} = getTestPaths(
             'mocks/crawler-manifest/notifications-docs-viewer',
         );
@@ -106,9 +106,8 @@ describe('Crawler manifest', () => {
         const manifest = JSON.parse(manifestContent);
 
         expect(manifest.notifications).toEqual({
-            channels: ['email'],
             interval: 'weekly',
-            receivers: ['user3'],
+            emailReceivers: ['user3'],
         });
     });
 

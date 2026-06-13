@@ -4,5 +4,5 @@ docs-viewer:
   crawler:
     notifications:
       interval: weekly
-      receivers:
+      emailReceivers:
         - user3
