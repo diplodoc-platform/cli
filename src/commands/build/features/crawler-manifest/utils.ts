@@ -213,17 +213,28 @@ export function crawlerNotifications(config: CrawlerConfig): CrawlerNotification
         return undefined;
     }
 
-    const channels = notifications.channels;
     const interval = notifications.interval;
-    const receivers = notifications.receivers;
+    const emailReceivers = notifications.emailReceivers;
+    const messengerReceivers = notifications.messengerReceivers;
 
-    if (!receivers || receivers.length === 0) {
+    const hasEmail = Array.isArray(emailReceivers) && emailReceivers.length > 0;
+    const hasMessenger = Array.isArray(messengerReceivers) && messengerReceivers.length > 0;
+
+    if (!hasEmail && !hasMessenger) {
         return undefined;
     }
 
-    return {
-        channels: channels && channels.length > 0 ? channels : ['email'],
+    const result: CrawlerNotifications = {
         interval: interval ?? 'weekly',
-        receivers,
     };
+
+    if (hasEmail) {
+        result.emailReceivers = emailReceivers;
+    }
+
+    if (hasMessenger) {
+        result.messengerReceivers = messengerReceivers;
+    }
+
+    return result;
 }

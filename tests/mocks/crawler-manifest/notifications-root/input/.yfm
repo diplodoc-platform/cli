@@ -3,7 +3,9 @@ crawlerManifest: true
 crawler:
   notifications:
     interval: daily
-    channels: ['email', 'messenger']
-    receivers:
+    emailReceivers:
+      - user1
+      - user2
+    messengerReceivers:
       - user1
       - user2
