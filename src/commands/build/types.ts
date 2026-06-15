@@ -22,6 +22,7 @@ import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
 import type {ThemerArgs, ThemerConfig} from './features/themer';
 import type {WatchArgs, WatchConfig} from './features/watch';
+import type {LlmsArgs, LlmsConfig} from './features/llms';
 import type {OutputFormat} from './config';
 import type {TransformConfig} from './run';
 import type {EntryService, LeadingData, MarkdownData, PageData} from './services/entry';
@@ -126,7 +127,8 @@ export type BuildArgs = ProgramArgs &
             VcsArgs &
             WorkerArgs &
             WatchArgs &
-            ThemerArgs
+            ThemerArgs &
+            LlmsArgs
     >;
 
 export type BuildRawConfig = BaseArgs &
@@ -146,7 +148,8 @@ export type BuildRawConfig = BaseArgs &
     PreprocessConfig &
     WatchConfig &
     ThemerConfig &
-    NeuroExpertConfig;
+    NeuroExpertConfig &
+    LlmsConfig;
 
 export type BuildConfig = Config<
     BaseArgs &
@@ -171,6 +174,7 @@ export type BuildConfig = Config<
         WatchConfig &
         ThemerConfig &
         NeuroExpertConfig &
+        LlmsConfig &
         ContentConfig
 >;
 
