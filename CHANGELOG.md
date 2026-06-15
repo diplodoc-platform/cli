@@ -1,5 +1,18 @@
 # Changelog
 
+## [5.44.0](https://github.com/diplodoc-platform/cli/compare/v5.43.3...v5.44.0) (2026-06-15)
+
+
+### Features
+
+* **build:** generate llms.txt and llms-full.txt ([#1986](https://github.com/diplodoc-platform/cli/issues/1986)) ([2492619](https://github.com/diplodoc-platform/cli/commit/24926191472a8afb0592e38a92a53ee82e800f23))
+
+
+### Bug Fixes
+
+* fixed crawler manifest ([#1998](https://github.com/diplodoc-platform/cli/issues/1998)) ([6f28ef9](https://github.com/diplodoc-platform/cli/commit/6f28ef9ef9cae9b44f843699c76bc10cdcba9e18))
+* vcs path ([#1971](https://github.com/diplodoc-platform/cli/issues/1971)) ([bfd0755](https://github.com/diplodoc-platform/cli/commit/bfd0755529e6501135ff2a931e59b8543f311ff0))
+
 ## [5.43.3](https://github.com/diplodoc-platform/cli/compare/v5.43.2...v5.43.3) (2026-06-11)
 
 
