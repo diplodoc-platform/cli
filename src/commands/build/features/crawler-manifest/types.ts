@@ -4,9 +4,9 @@ type CrawlerExclude = {
 };
 
 export type CrawlerNotifications = {
-    channels?: string[];
     interval?: 'daily' | 'weekly' | 'monthly';
-    receivers: string[];
+    emailReceivers?: string[];
+    messengerReceivers?: string[];
 };
 
 export type CrawlerConfig = {
