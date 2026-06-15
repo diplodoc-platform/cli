@@ -4,7 +4,7 @@ import {relative} from 'node:path';
 import simpleGit from 'simple-git';
 import {minimatch} from 'minimatch';
 
-import {normalizePath as _normalizePath} from '@diplodoc/cli/lib/utils';
+import {normalizePath} from '@diplodoc/cli/lib/utils';
 
 type AuthorInfo = {
     email: string;
@@ -59,7 +59,7 @@ export class GitClient {
      */
     async getBase(baseDir: AbsolutePath) {
         const root = await simpleGit({baseDir}).raw('rev-parse', '--show-toplevel');
-        return _normalizePath(relative(root.trim(), this.root)) || ('.' as NormalizedPath);
+        return normalizePath(relative(root.trim(), this.root)) || ('.' as NormalizedPath);
     }
 
     async getContributors(baseDir: AbsolutePath) {
@@ -161,16 +161,6 @@ type ShouldAuthorBeIgnoredArgs = {
     name?: string;
 };
 
-function normalizePath(path: RelativePath, base: NormalizedPath) {
-    const result = _normalizePath(path);
-
-    if (result.startsWith(base)) {
-        return relative(base, path);
-    }
-
-    return result;
-}
-
 function followPaths<T>(
     lines: string[],
     map: Hash<T>,
@@ -179,14 +169,14 @@ function followPaths<T>(
 ) {
     for (const line of lines) {
         const [status, rawFrom, rawTo] = line.trim().split(/\t/);
-        const from = normalizePath((rawFrom || '') as RelativePath, base);
-        const to = normalizePath((rawTo || '') as RelativePath, base);
+        const from = normalizePath((rawFrom || '') as RelativePath);
+        const to = rawTo ? normalizePath(rawTo as RelativePath) : '';
 
-        if (!isUsefullPath(rawFrom) || (rawTo && !isUsefullPath(rawTo))) {
+        if (!isUsefullPath(from) || (to && !isUsefullPath(to))) {
             continue;
         }
 
-        if (!isProjectPath(rawFrom, base) || (rawTo && !isProjectPath(rawTo, base))) {
+        if (!isProjectPath(from, base) || (to && !isProjectPath(to, base))) {
             continue;
         }
 
@@ -240,7 +230,7 @@ function isUsefullPath(path: string) {
 }
 
 function isProjectPath(path: string, base: string) {
-    return base === '.' || path.startsWith(base);
+    return base === '.' || path === base || path.startsWith(`${base}/`);
 }
 
 async function safe(call: Promise<unknown> | undefined) {
