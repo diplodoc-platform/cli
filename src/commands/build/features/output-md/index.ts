@@ -1,7 +1,5 @@
 import type {Build, Run} from '~/commands/build';
 import type {Command} from '~/core/config';
-import type {EntryGraph, EntryGraphNode} from '~/core/markdown';
-import type {HashedGraphNode} from './utils';
 
 import {join} from 'node:path';
 import {flow} from 'lodash';
@@ -15,17 +13,8 @@ import {getHooks as getMetaHooks} from '~/core/meta';
 import {getHooks as getLeadingHooks} from '~/core/leading';
 import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
-import {
-    Scheduler,
-    addMetaFrontmatter,
-    getCustomCollectPlugins,
-    rehashContent,
-    signlink,
-} from './utils';
-import {mergeSvg} from './plugins/merge-svg';
-import {mergeAutotitles} from './plugins/merge-autotitles';
-import {mergeIncludes} from './plugins/merge-includes';
-import {rehashIncludes} from './plugins/resolve-deps';
+import {addMetaFrontmatter, getCustomCollectPlugins} from './utils';
+import {MarkdownCollector} from './collect';
 import {options} from './config';
 
 export type OutputMdArgs = {
@@ -142,131 +131,18 @@ export class OutputMd {
                     return meta;
                 });
 
-                // Recursively copy transformed markdown deps
+                // Recursively merge transformed markdown deps into a
+                // self-contained document (see MarkdownCollector).
                 getMarkdownHooks(run.markdown).Dump.tapPromise(
                     {name: 'Build.Md', stage: -Infinity},
                     async (vfile) => {
-                        const processed = new Map();
-                        const titles = new Map();
-                        const svgList = new Map();
+                        const collector = new MarkdownCollector(
+                            run,
+                            run.config.preprocess,
+                            copiedIncludes,
+                        );
 
-                        const config = run.config.preprocess;
-                        const graph = await run.markdown.graph(vfile.path);
-
-                        vfile.data = (await dump(graph)).content;
-
-                        // Preserve per-directive IncludeInfo fields (link, match,
-                        // location) which may differ for same-path deps
-                        // (e.g. same file included with different #hash fragments).
-                        async function dumpDep(dep: EntryGraphNode): Promise<HashedGraphNode> {
-                            const dumped = await dump(dep, true);
-                            return {
-                                ...dumped,
-                                link: dep.link,
-                                match: dep.match,
-                                location: dep.location,
-                            };
-                        }
-
-                        async function dump(graph: EntryGraph, write = false) {
-                            if (processed.has(graph.path)) {
-                                return processed.get(graph.path);
-                            }
-
-                            const deps: HashedGraphNode[] = await all(graph.deps.map(dumpDep));
-                            const scheduler = new Scheduler([
-                                config.hashIncludes &&
-                                    !config.mergeIncludes &&
-                                    rehashIncludes(run, deps),
-                                config.mergeIncludes &&
-                                    mergeIncludes(
-                                        run,
-                                        deps,
-                                        graph.content,
-                                        config.mergeIncludesSourceMaps,
-                                        !write,
-                                    ),
-                                config.mergeAutotitles &&
-                                    mergeAutotitles(run, titles, graph.assets),
-                                config.mergeSvg && mergeSvg(run, svgList, graph.assets),
-                            ]);
-
-                            await scheduler.schedule(graph.path);
-
-                            const content = await scheduler.process(graph.content);
-
-                            const hash = config.hashIncludes ? rehashContent(content) : '';
-                            const link = signlink(graph.path, hash);
-                            const hashed = {...graph, deps, content, hash};
-
-                            processed.set(graph.path, hashed);
-
-                            if (copiedIncludes.has(link) || !write || config.mergeIncludes) {
-                                return hashed;
-                            }
-                            copiedIncludes.add(link);
-
-                            try {
-                                run.logger.copy(
-                                    join(run.input, graph.path),
-                                    join(run.output, link),
-                                );
-
-                                // Add metadata frontmatter to include files.
-                                // Without this, include files are written without YAML frontmatter,
-                                // which causes non-deterministic output when the same file is both
-                                // a TOC entry and an include in another file. The last writer wins,
-                                // and if the include is written after the entry, metadata is lost.
-                                // By ensuring both paths produce identical output, write order
-                                // becomes irrelevant (see ADR-002: Multithreading Build).
-                                // When these files are used as includes (e.g. md2html), the consumer
-                                // must strip frontmatter before rendering the body (see output-html
-                                // includes plugin).
-                                const vars = run.vars.for(graph.path);
-                                run.meta.addSystemVars(graph.path, vars.__system);
-                                run.meta.addMetadata(graph.path, vars.__metadata);
-
-                                // When the include file is also a TOC entry, resolve its VCS
-                                // metadata (vcsPath, contributors, ...) here instead of relying
-                                // on the entry's markdown Dump hook having run first. The same
-                                // file may be processed as both a TOC entry and an include
-                                // dependency concurrently (-j2); without this, the include dump
-                                // could read `meta` before the entry hook populated `vcsPath`,
-                                // producing non-deterministic frontmatter. `vcs.metadata` is
-                                // idempotent (memoized, config gated, deterministic realpath),
-                                // so resolving it here makes the include dump self-sufficient
-                                // and write order irrelevant. Pure includes (not TOC entries)
-                                // are skipped so their output keeps matching the entry path.
-                                if (run.toc.isEntry(graph.path)) {
-                                    const vcsMeta = await run.vcs.metadata(
-                                        graph.path,
-                                        graph.deps.map(get('path')),
-                                    );
-                                    run.meta.add(graph.path, vcsMeta);
-                                    run.meta.addResources(graph.path, vcsMeta);
-                                }
-
-                                const includeMeta = await run.meta.dump(graph.path);
-                                const lineWidth = config.disableMetaMaxLineWidth
-                                    ? Infinity
-                                    : undefined;
-                                const contentWithMeta = addMetaFrontmatter(
-                                    hashed.content,
-                                    includeMeta,
-                                    lineWidth,
-                                );
-
-                                await run.write(
-                                    join(run.output, link),
-                                    contentWithMeta,
-                                    link !== graph.path,
-                                );
-                            } catch (error) {
-                                run.logger.warn(`Unable to copy dependency ${graph.path}.`, error);
-                            }
-
-                            return hashed;
-                        }
+                        vfile.data = await collector.collect(vfile.path);
                     },
                 );
 

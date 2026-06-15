@@ -19,6 +19,14 @@ describe('GitClient', () => {
 
     const baseDir = '/test';
     const raw = vi.fn();
+    const mtimesArgs = [
+        'log',
+        '--reverse',
+        '--before=now',
+        '--diff-filter=ADMR',
+        '--pretty=format:%ct',
+        '--name-status',
+    ];
 
     beforeEach(() => {
         when(simpleGit)
@@ -33,17 +41,8 @@ describe('GitClient', () => {
     });
 
     it('should fill mtimes', async () => {
-        const args = [
-            'log',
-            '--reverse',
-            '--before=now',
-            '--diff-filter=ADMR',
-            '--pretty=format:%ct',
-            '--name-status',
-        ];
-
         when(raw)
-            .calledWith(...args)
+            .calledWith(...mtimesArgs)
             .thenResolve(mtimes);
 
         git = new GitClient({vcs: {initialCommit: ''}}, '/');
@@ -415,6 +414,64 @@ describe('GitClient', () => {
                 },
             ],
         });
+    });
+
+    it.each([
+        {
+            name: 'project at git root',
+            root: '/repo',
+            log: ['100', 'A\tpages\\page.md'].join('\n'),
+            expected: {'pages/page.md': 100},
+        },
+        {
+            name: 'project in docs directory',
+            root: '/repo/docs',
+            log: [
+                '100',
+                'A\tdocs\\pages\\page.md',
+                'A\tdocs\\toc.yaml',
+                'A\tdocs\\assets\\image.png',
+                'A\tdocs2/pages/skipped.md',
+                'A\tREADME.md',
+            ].join('\n'),
+            expected: {
+                'docs/pages/page.md': 100,
+                'docs/toc.yaml': 100,
+            },
+        },
+        {
+            name: 'renamed file in nested project',
+            root: '/repo/docs',
+            log: [
+                '100',
+                'A\tdocs\\pages\\old.md',
+                '',
+                '200',
+                'R\tdocs\\pages\\old.md\tdocs\\pages\\renamed.md',
+            ].join('\n'),
+            expected: {'docs/pages/renamed.md': 200},
+        },
+        {
+            name: 'deleted file in nested project',
+            root: '/repo/docs',
+            log: [
+                '100',
+                'A\tdocs\\pages\\deleted.md',
+                '',
+                '200',
+                'D\tdocs\\pages\\deleted.md',
+            ].join('\n'),
+            expected: {},
+        },
+    ])('should normalize git log paths without stripping project base: $name', async (testCase) => {
+        when(raw).calledWith('rev-parse', '--show-toplevel').thenResolve('/repo\n');
+        when(raw)
+            .calledWith(...mtimesArgs)
+            .thenResolve(testCase.log);
+
+        git = new GitClient({vcs: {initialCommit: ''}}, testCase.root as AbsolutePath);
+
+        await expect(git.getMTimes(baseDir)).resolves.toEqual(testCase.expected);
     });
 
     it('should fork to isolated worktree and cleanup', async () => {

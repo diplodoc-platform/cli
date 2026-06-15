@@ -165,10 +165,14 @@ export class Templating {
             // Get all presets.yaml files that were copied using glob
             const presetsFiles = await run.glob('**/presets.yaml', {
                 cwd: run.output,
+                ignore: ['**/.*/**'],
             });
 
+            presetsFiles.sort((a, b) => b.length - a.length);
+
             // For each presets.yaml file, check if its directory contains only this file
-            for (const presetsPath of presetsFiles) {
+            for (const presetsRelPath of presetsFiles) {
+                const presetsPath = join(run.output, presetsRelPath);
                 const dir = dirname(presetsPath);
                 const entries = await run.fs.readdir(dir, {withFileTypes: true});
 

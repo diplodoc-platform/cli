@@ -176,6 +176,20 @@ export class OutputHtml {
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Html', async (vfile) => {
                     const deps = await run.markdown.deps(vfile.path);
                     const assets = await run.markdown.assets(vfile.path);
+
+                    for (const {path, size} of assets) {
+                        if (!isMediaLink(path)) {
+                            continue;
+                        }
+
+                        if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
+                            run.logger.error(
+                                'YFM013',
+                                `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
+                            );
+                        }
+                    }
+
                     const [result, env] = await run.transform(vfile.path, vfile.data, {
                         deps,
                         assets,
@@ -197,34 +211,6 @@ export class OutputHtml {
         getBuildHooks(program)
             .AfterRun.for('html')
             .tapPromise('Html', async (run) => {
-                // Check asset sizes before copying
-                const copiedAssets = new Set<string>();
-
-                // Get all entries and check their assets
-                const entries = run.toc.entries;
-
-                for (const entry of entries) {
-                    const markdownAssets = await run.markdown.assets(entry);
-
-                    for (const {path, size} of markdownAssets) {
-                        if (!isMediaLink(path)) {
-                            continue;
-                        }
-
-                        if (copiedAssets.has(path)) {
-                            continue;
-                        }
-                        copiedAssets.add(path);
-
-                        if (typeof size === 'number' && size > run.config.content.maxAssetSize) {
-                            run.logger.error(
-                                'YFM013',
-                                `${path}: YFM013 / File asset limit exceeded: ${size} (limit is ${run.config.content.maxAssetSize})`,
-                            );
-                        }
-                    }
-                }
-
                 // TODO: we copy all files. Required to copy only used files.
                 // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
@@ -252,10 +238,14 @@ export class OutputHtml {
                 }
 
                 // Generate redirect for each record in redirects.files section
-                for (const {from, to} of run.redirects.files) {
-                    const content = await run.redirects.page(from, to);
-                    await run.write(join(run.output, from), content, true);
-                }
+                await pmap(
+                    run.redirects.files,
+                    async ({from, to}) => {
+                        const content = await run.redirects.page(from, to);
+                        await run.write(join(run.output, from), content, true);
+                    },
+                    {concurrency: 30},
+                );
             });
     }
 }

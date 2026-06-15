@@ -42,14 +42,14 @@ export function yfmConfig(langs: string[], defaultLang: string, template: Templa
     return baseConfig + extendedConfig;
 }
 
-export function tocYaml(projectName: string, header = true): string {
+export function tocYaml(projectName: string, header = true, template = 'minimal'): string {
     const nav = header ? `navigation:\n  header:\n    rightItems:\n      - type: controls\n` : '';
     return `title: ${projectName}
 href: index.md
 ${nav}items:
   - name: Overview
     href: index.md
-`;
+${template === 'full' ? '  - name: Page Constructor\n    href: pc.yaml\n' : ''}`;
 }
 
 export function indexMd(): string {

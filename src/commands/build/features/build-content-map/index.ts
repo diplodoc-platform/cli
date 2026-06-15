@@ -134,11 +134,20 @@ const ARTIFACT_FILENAMES = new Set([
 // `yfm-redirects-meta-file.json`).
 const META_ARTIFACT_RE = /^yfm-.+-meta.*\.json$/;
 
+// `llms.txt` / `llms-full.txt` are emitted per-toc (so they may live in nested
+// language/section dirs, not only at the output root). They are derived from
+// the entries' own content and change on every edit, so they must not pollute
+// `contentHashes` — match them by basename regardless of directory depth.
+const LLMS_ARTIFACT_RE = /(^|\/)llms(-full)?\.txt$/;
+
 export function isExcludedServiceFile(outputPath: NormalizedPath): boolean {
     if (outputPath.startsWith(TMP_INPUT_PREFIX)) {
         return true;
     }
     if (ARTIFACT_FILENAMES.has(outputPath)) {
+        return true;
+    }
+    if (LLMS_ARTIFACT_RE.test(outputPath)) {
         return true;
     }
     return META_ARTIFACT_RE.test(outputPath);

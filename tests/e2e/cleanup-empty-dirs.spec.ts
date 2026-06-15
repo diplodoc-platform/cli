@@ -22,8 +22,8 @@ describe('Cleanup empty directories with stage filtering', () => {
         expect(existsSync(resolve(outputPath, 'active/presets.yaml'))).toBe(true);
         expect(existsSync(resolve(outputPath, 'active/toc.yaml'))).toBe(true);
 
-        expect(existsSync(resolve(outputPath, 'empty-section'))).toBe(true);
-        expect(existsSync(resolve(outputPath, 'empty-section/presets.yaml'))).toBe(true);
+        expect(existsSync(resolve(outputPath, 'empty-section'))).toBe(false);
+        expect(existsSync(resolve(outputPath, 'empty-section/presets.yaml'))).toBe(false);
 
         // Check that root files are present
         expect(existsSync(resolve(outputPath, 'index.md'))).toBe(true);
