@@ -11,7 +11,7 @@ import {THEME_ASSETS_PATH} from '~/constants';
 import {options} from './config';
 import {generateThemeCss} from './utils';
 
-export type {ThemerArgs, ThemerConfig} from './types';
+export type {ThemerArgs, ThemerConfig, CodeHighlightConfig} from './types';
 
 export class Themer {
     apply(program: Build) {

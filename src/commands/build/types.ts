@@ -20,7 +20,7 @@ import type {SearchArgs, SearchConfig, SearchRawConfig} from './features/search'
 import type {LegacyArgs, LegacyConfig, LegacyRawConfig} from './features/legacy';
 import type {CustomResourcesArgs, CustomResourcesConfig} from './features/custom-resources';
 import type {TocFilteringArgs, TocFilteringConfig} from './features/toc-filtering';
-import type {ThemerArgs, ThemerConfig} from './features/themer';
+import type {CodeHighlightConfig, ThemerArgs, ThemerConfig} from './features/themer';
 import type {WatchArgs, WatchConfig} from './features/watch';
 import type {LlmsArgs, LlmsConfig} from './features/llms';
 import type {OutputFormat} from './config';
@@ -88,6 +88,7 @@ type BaseConfig = {
     disableCsp?: boolean;
     pdfDebug: boolean;
     content: ContentConfig;
+    codeHighlight?: CodeHighlightConfig | null;
     /**
      * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
      * - 'random' (default): uses Math.random() — legacy behavior.
