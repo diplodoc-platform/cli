@@ -1,4 +1,7 @@
 title: main
 items:
-  - name: toc_i/item
-  - include: { mode: merge, path: core/toc_m.yaml }
+- name: toc_i/item
+- include:
+    mode: merge
+    path: core/toc_m.yaml
+  name: Included

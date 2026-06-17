@@ -173,6 +173,31 @@ async function resolveNavigation(this: LoaderContext, toc: RawToc): Promise<RawT
 }
 
 /**
+ * Checks table of contents items for missing required `name` key.
+ * Recursively checks nested items.
+ */
+function checkTocItemNames(items: RawTocItem[], path = 'items'): string[] {
+    const errors: string[] = [];
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const currentPath = `${path}[${i}]`;
+
+        if (item && typeof item === 'object' && !Array.isArray(item)) {
+            if (!('name' in item) || item.name === undefined || item.name === null) {
+                errors.push(`${currentPath}: missing required 'name' key`);
+            }
+
+            if (item.items && Array.isArray(item.items)) {
+                const nestedErrors = checkTocItemNames(item.items, `${currentPath}.items`);
+                errors.push(...nestedErrors);
+            }
+        }
+    }
+    return errors;
+}
+
+/**
  * Checks table of contents items for invalid object values.
  * Recursively checks nested items.
  */
@@ -205,11 +230,24 @@ function checkTocItems(items: RawTocItem[], path = 'items'): string[] {
 
 async function validateToc(this: LoaderContext, toc: RawToc): Promise<RawToc> {
     if (toc.items && Array.isArray(toc.items)) {
-        const errors = checkTocItems(toc.items);
-        const path = this.from ? this.from + ' -> ' + this.path : this.path;
-        for (const error of errors) {
+        const nameErrors = checkTocItemNames(toc.items);
+        const objectErrors = checkTocItems(toc.items);
+        const path =
+            this.from && this.from !== this.path ? this.from + ' -> ' + this.path : this.path;
+
+        for (const error of nameErrors) {
+            this.logger.error(`Invalid toc structure in ${path.toString()} at ${error}`);
+        }
+
+        for (const error of objectErrors) {
             this.logger.error(
                 `Invalid toc structure in ${path.toString()} at ${error}: found [object Object] value`,
+            );
+        }
+
+        if (nameErrors.length > 0) {
+            throw new Error(
+                `Invalid toc structure in ${path.toString()}: ${nameErrors.length} toc item(s) missing required 'name' key`,
             );
         }
     }

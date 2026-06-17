@@ -1,43 +1,47 @@
 items:
-  - name: Verbose root (index.yaml) will be transformed to index.html
-    href: index.yaml
-  - name: Root will be transformed to index.html
-    href: /
-  - name: Md item with not_var syntax
-    href: ./1.md
-  - name: Md item named without extension
-    href: ./1
-  - name: Item with empty href
-    href:
-  - name: Multitoc item
-    href: ./merge/merged.md
-  - name: Fragments
-    href: ./includes/fragments.md
-  - include: {path: toc-i.yaml}
-  - include: {path: sub/toc.yaml, mode: link}
-  - href: ./mermaid
-  - name: '{#T}'
-    href: ./latex
-  - name: Images
-    href: ./images
-  - name: Autotitle
-    href: ./autotitle
-  - name: includes
-    href: ./includes
-  # Test for race condition: entry-as-include.md is both an entry and included by includer-of-entry.md
-  - name: Entry as include
-    href: ./entry-as-include.md
-  - name: Includer of entry
-    href: ./includer-of-entry.md
-  - name: generic
-    include:
-      path: generic
-      includers:
-        - name: generic
-  - name: openapi
-    include:
-      path: openapi
-      includers:
-        - name: openapi
-          input: openapi-spec.yaml
-
+- name: Verbose root (index.yaml) will be transformed to index.html
+  href: index.yaml
+- name: Root will be transformed to index.html
+  href: /
+- name: Md item with not_var syntax
+  href: ./1.md
+- name: Md item named without extension
+  href: ./1
+- name: Item with empty href
+  href: null
+- name: Multitoc item
+  href: ./merge/merged.md
+- name: Fragments
+  href: ./includes/fragments.md
+- include:
+    path: toc-i.yaml
+  name: Included
+- include:
+    path: sub/toc.yaml
+    mode: link
+  name: Included
+- href: ./mermaid
+  name: Item
+- name: '{#T}'
+  href: ./latex
+- name: Images
+  href: ./images
+- name: Autotitle
+  href: ./autotitle
+- name: includes
+  href: ./includes
+- name: Entry as include
+  href: ./entry-as-include.md
+- name: Includer of entry
+  href: ./includer-of-entry.md
+- name: generic
+  include:
+    path: generic
+    includers:
+    - name: generic
+- name: openapi
+  include:
+    path: openapi
+    includers:
+    - name: openapi
+      input: openapi-spec.yaml

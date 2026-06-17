@@ -1,3 +1,4 @@
 items:
   - name: overlay/toc_p/item
-  - include: { mode: link, path: toc_i.yaml }
+  - name: Include Item
+    include: { mode: link, path: toc_i.yaml }

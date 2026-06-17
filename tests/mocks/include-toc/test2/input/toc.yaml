@@ -1,6 +1,8 @@
 items:
-  - name: Name1
-    href: file1.md
-  - include: { path: folder/toc.yaml }
-  - name: NameX
-    href: fileX.md
+- name: Name1
+  href: file1.md
+- include:
+    path: folder/toc.yaml
+  name: Included
+- name: NameX
+  href: fileX.md

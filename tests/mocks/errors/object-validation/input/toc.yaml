@@ -9,6 +9,9 @@ items:
     items:
       - name: {{some-var}}
         href: nested-invalid.md
-  - title: {{some-var}}
-  - label: {{some-var}}
-  - navigation: {{some-var}}
+  - name: Title Item
+    title: {{some-var}}
+  - name: Label Item
+    label: {{some-var}}
+  - name: Navigation Item
+    navigation: {{some-var}}
