@@ -28,6 +28,7 @@ exports[`Regression > internal > filelist 1`] = `
   "merge/toc.yaml",
   "mermaid.md",
   "openapi/index.md",
+  "openapi/openapi-spec.openapi.json",
   "openapi/test-controller/getHiddenTest.md",
   "openapi/test-controller/getWithPayloadResponse.md",
   "openapi/test-controller/index.md",
@@ -66,6 +67,7 @@ exports[`Regression > internal > filelist 2`] = `
   "merge/toc.js",
   "mermaid.html",
   "openapi/index.html",
+  "openapi/openapi-spec.openapi.json",
   "openapi/test-controller/getHiddenTest.html",
   "openapi/test-controller/getWithPayloadResponse.html",
   "openapi/test-controller/index.html",
@@ -952,7 +954,9 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Regression > internal 22`] = `
+exports[`Regression > internal 22`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
+
+exports[`Regression > internal 23`] = `
 "---
 metadata:
   - name: generator
@@ -1150,7 +1154,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 23`] = `
+exports[`Regression > internal 24`] = `
 "---
 metadata:
   - name: generator
@@ -1232,7 +1236,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Regression > internal 24`] = `
+exports[`Regression > internal 25`] = `
 "---
 metadata:
   - name: generator
@@ -1252,7 +1256,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Regression > internal 25`] = `
+exports[`Regression > internal 26`] = `
 "files:
   - from: c.md
     to: d.md
@@ -1262,7 +1266,7 @@ common:
 "
 `;
 
-exports[`Regression > internal 26`] = `
+exports[`Regression > internal 27`] = `
 "---
 metadata:
   - name: generator
@@ -1279,7 +1283,7 @@ Item 1 text
 "
 `;
 
-exports[`Regression > internal 27`] = `
+exports[`Regression > internal 28`] = `
 "items:
   - name: Verbose root (index.yaml) will be transformed to index.html
     href: index.yaml
@@ -1344,13 +1348,13 @@ path: toc.yaml
 "
 `;
 
-exports[`Regression > internal 28`] = `
+exports[`Regression > internal 29`] = `
 "preprocess:
   mergeAutotitles: true
 "
 `;
 
-exports[`Regression > internal 29`] = `
+exports[`Regression > internal 30`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1378,7 +1382,7 @@ exports[`Regression > internal 29`] = `
 </html>"
 `;
 
-exports[`Regression > internal 30`] = `
+exports[`Regression > internal 31`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1406,7 +1410,7 @@ exports[`Regression > internal 30`] = `
 </html>"
 `;
 
-exports[`Regression > internal 31`] = `
+exports[`Regression > internal 32`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1434,7 +1438,7 @@ exports[`Regression > internal 31`] = `
 </html>"
 `;
 
-exports[`Regression > internal 32`] = `
+exports[`Regression > internal 33`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1462,7 +1466,7 @@ exports[`Regression > internal 32`] = `
 </html>"
 `;
 
-exports[`Regression > internal 33`] = `
+exports[`Regression > internal 34`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1490,7 +1494,7 @@ exports[`Regression > internal 33`] = `
 </html>"
 `;
 
-exports[`Regression > internal 34`] = `
+exports[`Regression > internal 35`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1518,7 +1522,7 @@ exports[`Regression > internal 34`] = `
 </html>"
 `;
 
-exports[`Regression > internal 35`] = `
+exports[`Regression > internal 36`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1546,7 +1550,7 @@ exports[`Regression > internal 35`] = `
 </html>"
 `;
 
-exports[`Regression > internal 36`] = `
+exports[`Regression > internal 37`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1574,7 +1578,7 @@ exports[`Regression > internal 36`] = `
 </html>"
 `;
 
-exports[`Regression > internal 37`] = `
+exports[`Regression > internal 38`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1602,7 +1606,7 @@ exports[`Regression > internal 37`] = `
 </html>"
 `;
 
-exports[`Regression > internal 38`] = `
+exports[`Regression > internal 39`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1630,7 +1634,7 @@ exports[`Regression > internal 38`] = `
 </html>"
 `;
 
-exports[`Regression > internal 39`] = `
+exports[`Regression > internal 40`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1658,7 +1662,7 @@ exports[`Regression > internal 39`] = `
 </html>"
 `;
 
-exports[`Regression > internal 40`] = `
+exports[`Regression > internal 41`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1686,7 +1690,7 @@ exports[`Regression > internal 40`] = `
 </html>"
 `;
 
-exports[`Regression > internal 41`] = `
+exports[`Regression > internal 42`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1714,7 +1718,7 @@ exports[`Regression > internal 41`] = `
 </html>"
 `;
 
-exports[`Regression > internal 42`] = `
+exports[`Regression > internal 43`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1742,7 +1746,7 @@ exports[`Regression > internal 42`] = `
 </html>"
 `;
 
-exports[`Regression > internal 43`] = `
+exports[`Regression > internal 44`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1770,7 +1774,7 @@ exports[`Regression > internal 43`] = `
 </html>"
 `;
 
-exports[`Regression > internal 44`] = `
+exports[`Regression > internal 45`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1798,7 +1802,7 @@ exports[`Regression > internal 44`] = `
 </html>"
 `;
 
-exports[`Regression > internal 45`] = `
+exports[`Regression > internal 46`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1826,7 +1830,7 @@ exports[`Regression > internal 45`] = `
 </html>"
 `;
 
-exports[`Regression > internal 46`] = `
+exports[`Regression > internal 47`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1854,9 +1858,9 @@ exports[`Regression > internal 46`] = `
 </html>"
 `;
 
-exports[`Regression > internal 47`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 48`] = `"window.__DATA__.data.toc = {"items":[{"name":"Use merged","href":"merge/merge.html","id":"UUID"},{"name":"Multitoc item","href":"1.html","id":"UUID"},{"name":"Merged item","href":"merge/merged.html","id":"UUID"}],"path":"merge/toc.yaml","id":"UUID"};"`;
 
-exports[`Regression > internal 48`] = `
+exports[`Regression > internal 49`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1884,7 +1888,7 @@ exports[`Regression > internal 48`] = `
 </html>"
 `;
 
-exports[`Regression > internal 49`] = `
+exports[`Regression > internal 50`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1912,7 +1916,9 @@ exports[`Regression > internal 49`] = `
 </html>"
 `;
 
-exports[`Regression > internal 50`] = `
+exports[`Regression > internal 51`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}},"/hidden-test":{"get":{"tags":["test-controller"],"summary":"Test x-hidden attribute","description":"Test various x-hidden scenarios","operationId":"getHiddenTest","responses":{"200":{"description":"Response with hidden fields","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HiddenTestResponse"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}},"HiddenTestResponse":{"type":"object","description":"Response object with various hidden field scenarios","properties":{"visibleField":{"type":"string","description":"This field should be visible"},"refToHiddenField":{"$ref":"#/components/schemas/HiddenField"},"refToHiddenObject":{"$ref":"#/components/schemas/HiddenObject"},"nestedObject":{"type":"object","description":"Object with hidden properties","properties":{"visibleNested":{"type":"string"},"refToHiddenInNested":{"$ref":"#/components/schemas/HiddenField"}}},"arrayWithHiddenItems":{"type":"array","description":"Array with hidden item schema","items":{"$ref":"#/components/schemas/HiddenField"}},"mixedVisibility":{"type":"object","properties":{"field1":{"type":"string"},"field2":{"$ref":"#/components/schemas/HiddenField"},"field3":{"type":"string"},"field5":{"type":"string"}}}}}}}}"`;
+
+exports[`Regression > internal 52`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1940,7 +1946,7 @@ exports[`Regression > internal 50`] = `
 </html>"
 `;
 
-exports[`Regression > internal 51`] = `
+exports[`Regression > internal 53`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1968,7 +1974,7 @@ exports[`Regression > internal 51`] = `
 </html>"
 `;
 
-exports[`Regression > internal 52`] = `
+exports[`Regression > internal 54`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -1996,7 +2002,7 @@ exports[`Regression > internal 52`] = `
 </html>"
 `;
 
-exports[`Regression > internal 53`] = `
+exports[`Regression > internal 55`] = `
 "<!DOCTYPE html>
 <html lang="ru" dir="ltr">
     <head>
@@ -2024,4 +2030,4 @@ exports[`Regression > internal 53`] = `
 </html>"
 `;
 
-exports[`Regression > internal 54`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;
+exports[`Regression > internal 56`] = `"window.__DATA__.data.toc = {"items":[{"name":"Verbose root (index.yaml) will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Root will be transformed to index.html","href":"index.html","id":"UUID"},{"name":"Md item with not_var syntax","href":"1.html","id":"UUID"},{"name":"Md item named without extension","href":"1.html","id":"UUID"},{"name":"Item with empty href","id":"UUID"},{"name":"Multitoc item","href":"merge/merged.html","id":"UUID"},{"name":"Fragments","href":"includes/fragments.html","id":"UUID"},{"name":"Included Item","href":"included-item.html","id":"UUID"},{"name":"Named include (items is Object here - this is not an error)","items":[{"name":"Item 1","href":"sub/folder/item-1.html","id":"UUID"}],"id":"UUID"},{"href":"mermaid.html","name":"Mermaid usage","id":"UUID"},{"name":"Latex usage","href":"latex.html","id":"UUID"},{"name":"Images","href":"images.html","id":"UUID"},{"name":"Autotitle","href":"autotitle.html","id":"UUID"},{"name":"includes","href":"includes.html","id":"UUID"},{"name":"Entry as include","href":"entry-as-include.html","id":"UUID"},{"name":"Includer of entry","href":"includer-of-entry.html","id":"UUID"},{"name":"generic","items":[{"name":"Note 1","href":"generic/1.html","id":"UUID"},{"name":"Note 1","href":"generic/2.html","id":"UUID"},{"name":"3","href":"generic/3.html","id":"UUID"},{"name":"Sub notes","items":[{"name":"Sub note 1","href":"generic/Sub notes/1.html","id":"UUID"},{"name":"Sub note 2","href":"generic/Sub notes/2.html","id":"UUID"}],"id":"UUID"}],"id":"UUID"},{"name":"openapi","items":[{"name":"Overview","href":"openapi/index.html","id":"UUID"},{"name":"test-controller","items":[{"name":"Overview","href":"openapi/test-controller/index.html","id":"UUID"},{"href":"openapi/test-controller/getWithPayloadResponse.html","name":"Simple get operation. тест новой верстки 3","id":"UUID"},{"href":"openapi/test-controller/getHiddenTest.html","name":"Test x-hidden attribute","id":"UUID"}],"id":"UUID"}],"id":"UUID"}],"path":"toc.yaml","id":"UUID"};"`;

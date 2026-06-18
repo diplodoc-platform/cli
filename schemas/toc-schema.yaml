@@ -179,7 +179,7 @@ definitions:
             properties:
               renderMode:
                 type: string
-                enum: ['inline', 'hidden']
+                enum: ['inline', 'hidden', 'link']
       tags:
         type: object
         additionalProperties:

@@ -47,7 +47,26 @@ export type ContentConfig = {
     maxHtmlSize: number;
     maxAssetSize: number;
     maxOpenapiIncludeSize: number;
+    /**
+     * Max size (bytes) of the OpenAPI spec embedded inline on the leading page.
+     * If exceeded, `leadingPage.spec.renderMode: inline` auto-switches to `link`.
+     * Default 100K, hard-capped at 1M. 0 means always render as a link.
+     */
+    maxOpenapiIncludeInlineSize: number;
     multilineTermDefinitions: boolean;
+};
+
+/**
+ * Controls emission of the standalone OpenAPI spec companion (`*.openapi.json`):
+ *  - `true` — emit in both md2md and md2html;
+ *  - `'md'` — emit only in md2md (default);
+ *  - `false` — disabled.
+ *
+ * `undefined` means "not configured": the default (`'md'`) is owned and applied by the
+ * openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single consumer of this value.
+ */
+export type AiConfig = {
+    openapiCompanions?: boolean | 'md';
 };
 
 export type {IDGeneratorStrategy};
@@ -88,6 +107,7 @@ type BaseConfig = {
     disableCsp?: boolean;
     pdfDebug: boolean;
     content: ContentConfig;
+    ai: AiConfig;
     codeHighlight?: CodeHighlightConfig | null;
     /**
      * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
