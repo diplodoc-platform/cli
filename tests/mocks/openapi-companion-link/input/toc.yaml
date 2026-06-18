@@ -1,0 +1,12 @@
+title: OpenAPI Companion Link Test
+items:
+  - name: API
+    include:
+      path: api
+      includers:
+        - name: openapi
+          input: petstore.yaml
+          leadingPage:
+            spec:
+              renderMode: 'link'
+      mode: link

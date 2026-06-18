@@ -1,4 +1,4 @@
-import type {BuildArgs, BuildConfig, ContentConfig} from './types';
+import type {AiConfig, BuildArgs, BuildConfig, ContentConfig} from './types';
 import type {ExtendedOption} from '~/core/config';
 
 import {ok} from 'node:assert';
@@ -195,6 +195,36 @@ const maxOpenapiIncludeSize = option({
     parser: fileSizeConverter({disableIfZero: true}),
 });
 
+const maxOpenapiIncludeInlineSize = option({
+    flags: '--max-openapi-include-inline-size <value>',
+    desc: `
+        Max size of the OpenAPI specification embedded inline on the leading page.
+        If the spec exceeds this size, 'leadingPage.spec.renderMode: inline' is
+        automatically switched to 'link' (a link to the *.openapi.json companion).
+        Use '0' to always render the spec as a link.
+        Default: 100K
+        Max size: 1M
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --max-openapi-include-inline-size '256K'
+    `,
+    default: '100K',
+    parser: fileSizeConverter({max: '1M'}),
+});
+
+const aiOpenapiCompanions = option({
+    flags: '--ai-openapi-companions',
+    desc: `
+        Emit standalone OpenAPI spec companions (*.openapi.json) next to generated
+        OpenAPI leading pages. When the flag is passed it is treated as a boolean override
+        of the 'ai.openapiCompanions' config value. When omitted, the config value is used
+        (default: 'md', i.e. emit only in md2md builds).
+
+        Example:
+            {{PROGRAM}} build -i . -o ../build --ai-openapi-companions
+    `,
+});
+
 const maxInlineSvgSize = option({
     flags: '--max-inline-svg-size <value>',
     desc: `
@@ -301,6 +331,26 @@ export function combineProps<C extends BuildConfig>(
     );
 
     return result;
+}
+
+/**
+ * Resolves the `ai` config group.
+ *
+ * `ai.openapiCompanions` is tri-state in config (`true | 'md' | false`), while the CLI flag is a
+ * plain boolean override. The flag wins ONLY when it is explicitly passed; otherwise the `.yfm`
+ * value is preserved as-is so it stays overridable from config (same approach as
+ * `multilineTermDefinitions`, see run.ts). The default (`'md'`) is intentionally NOT applied
+ * here — it is owned by the openapi extension (`DEFAULT_OPENAPI_COMPANIONS_MODE`), the single
+ * place that consumes this value, keeping the default in one location.
+ */
+export function resolveAiConfig<C extends BuildConfig>(config: C, args: BuildArgs): AiConfig {
+    const ai = (config.ai as Partial<AiConfig> | undefined) || {};
+
+    const argValue = defined('aiOpenapiCompanions', args);
+    const openapiCompanions =
+        argValue === null || argValue === undefined ? ai.openapiCompanions : Boolean(argValue);
+
+    return {...ai, openapiCompanions};
 }
 
 function getInterfaceProps<C extends BuildConfig>(config: C, args: BuildArgs) {
@@ -415,6 +465,7 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
             'maxHtmlSize',
             'maxAssetSize',
             'maxOpenapiIncludeSize',
+            'maxOpenapiIncludeInlineSize',
             'multilineTermDefinitions',
         ],
         {
@@ -422,9 +473,12 @@ export function normalize<C extends BuildConfig>(config: C, args: BuildArgs) {
             maxHtmlSize,
             maxAssetSize,
             maxOpenapiIncludeSize,
+            maxOpenapiIncludeInlineSize,
             multilineTermDefinitions,
         },
     ) as ContentConfig;
+
+    config.ai = resolveAiConfig(config, args);
 
     if (feedbackUrl) {
         config.feedback = config.feedback || {};
@@ -471,5 +525,7 @@ export const options = {
     multilineTermDefinitions,
     addAlternateMeta,
     maxOpenapiIncludeSize,
+    maxOpenapiIncludeInlineSize,
+    aiOpenapiCompanions,
     idGenerator,
 };

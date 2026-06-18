@@ -1,5 +1,5 @@
 import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
-import type {Build, EntryData, PageData} from '~/commands/build';
+import type {Build, EntryData, PageData, Run} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 
@@ -96,7 +96,11 @@ export class OutputHtml {
                     const template = new Template(vfile.path, state.lang, [__Entry__]);
                     template.setCspDisabled(Boolean(run.config.disableCsp));
 
-                    const html = await run.entry.page(template, state, toc.data);
+                    const html = injectOpenapiCompanionComment(
+                        run,
+                        vfile.path,
+                        await run.entry.page(template, state, toc.data),
+                    );
                     vfile.path = setExt(vfile.path, '.html');
                     vfile.format(() => html);
                     Object.assign(vfile.info, data);
@@ -248,6 +252,48 @@ export class OutputHtml {
                 );
             });
     }
+}
+
+/** Maps a generated OpenAPI leading page to its standalone spec companion file. */
+type OpenapiCompanionEntry = {
+    /** Lang-relative path of the leading page (without extension), e.g. `api/index`. */
+    leadingPage: string;
+    /** Lang-relative path of the companion file, e.g. `api/petstore.openapi.json`. */
+    companionPath: string;
+};
+
+/**
+ * Bakes the OpenAPI spec companion hint into the static leading page HTML.
+ *
+ * For md2md docs the viewer injects this comment at serve time, but md2html is served
+ * statically (no viewer), so the page itself must carry it. The companion is registered by
+ * the openapi includer wrapper on `run.openapiCompanions`, and only when a companion file is
+ * actually emitted (i.e. not for `renderMode: hidden`) — so the comment is render-mode
+ * dependent. HTML comments authored in Markdown are stripped during transform, hence the
+ * comment is injected straight into the rendered `<body>`.
+ */
+function injectOpenapiCompanionComment(run: Run, entryPath: NormalizedPath, html: string): string {
+    const companions = (run as Run & {openapiCompanions?: OpenapiCompanionEntry[]})
+        .openapiCompanions;
+
+    if (!Array.isArray(companions) || companions.length === 0) {
+        return html;
+    }
+
+    const pageNoExt = setExt(entryPath, '');
+    const entry = companions.find((companion) => companion.leadingPage === pageNoExt);
+
+    if (!entry) {
+        return html;
+    }
+
+    // The companion sits next to the leading page, so a relative file name is a valid link.
+    const target = basename(entry.companionPath);
+    const comment = `<!-- json-схема со спецификацией доступна по ссылке: ${target} -->`;
+
+    return html.includes('</body>')
+        ? html.replace('</body>', `        ${comment}\n    </body>`)
+        : `${html}\n${comment}`;
 }
 
 function getStateData(entry: EntryData): PageData {

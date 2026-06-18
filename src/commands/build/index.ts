@@ -163,6 +163,8 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
         options.maxHtmlSize,
         options.maxAssetSize,
         options.maxOpenapiIncludeSize,
+        options.maxOpenapiIncludeInlineSize,
+        options.aiOpenapiCompanions,
         options.multilineTermDefinitions,
         options.idGenerator,
         options.strict,

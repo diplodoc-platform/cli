@@ -29,10 +29,19 @@ type FileTrieEntryPoint = {
     tocMapping: Record<string, string>;
 };
 
+/** Maps a generated OpenAPI leading page to its standalone spec companion file. */
+type OpenapiCompanionEntry = {
+    /** Lang-relative path of the leading page (without extension), e.g. `ru/api/index`. */
+    leadingPage: string;
+    /** Lang-relative path of the companion file (name derived from the spec), e.g. `ru/api/petstore.openapi.json`. */
+    companionPath: string;
+};
+
 type BuildManifestFormat = {
     fileTrie: FileTrieEntryPoint;
     yfmConfig: unknown;
     redirects: Redirects;
+    openapiCompanions?: OpenapiCompanionEntry[];
 };
 
 const MANIFEST_FILENAME = 'yfm-build-manifest.json';
@@ -79,11 +88,13 @@ export class BuildManifest {
                 const redirects = run.redirects.rawRedirects;
                 const fileTrie = this.buildFileTrie(run);
                 const yfmConfig = await this.readYfmConfig(run);
+                const openapiCompanions = this.collectOpenapiCompanions(run);
 
                 const manifest: BuildManifestFormat = {
                     redirects,
                     fileTrie,
                     yfmConfig,
+                    ...(openapiCompanions.length ? {openapiCompanions} : {}),
                 };
 
                 await run.write(
@@ -92,6 +103,33 @@ export class BuildManifest {
                     true,
                 );
             });
+    }
+
+    /**
+     * Reads OpenAPI companion entries recorded by the openapi includer extension during the run.
+     *
+     * No flag/format check is needed here: emission is gated upstream in the openapi includer
+     * (`ai.openapiCompanions` + `outputFormat` + size limits). The includer only returns a
+     * companion file when it should be written, the openapi CLI extension only registers entries
+     * for files it actually wrote, so `run.openapiCompanions` is already the gated set.
+     *
+     * Entries are deduplicated and sorted for deterministic manifest output.
+     */
+    private collectOpenapiCompanions(run: Run): OpenapiCompanionEntry[] {
+        const raw = (run as Run & {openapiCompanions?: OpenapiCompanionEntry[]}).openapiCompanions;
+
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return [];
+        }
+
+        const byCompanionPath = new Map<string, OpenapiCompanionEntry>();
+        for (const entry of raw) {
+            byCompanionPath.set(entry.companionPath, entry);
+        }
+
+        return [...byCompanionPath.values()].sort((a, b) =>
+            a.companionPath.localeCompare(b.companionPath),
+        );
     }
 
     private async readYfmConfig(run: Run): Promise<unknown> {

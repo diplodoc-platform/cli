@@ -1,0 +1,9 @@
+title: OpenAPI Companion Disabled Test
+items:
+  - name: API
+    include:
+      path: api
+      includers:
+        - name: openapi
+          input: petstore.yaml
+      mode: link

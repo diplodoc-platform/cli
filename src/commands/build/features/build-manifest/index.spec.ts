@@ -53,6 +53,32 @@ describe('Build manifest feature', () => {
         });
     });
 
+    describe('collectOpenapiCompanions method', () => {
+        const collect = (openapiCompanions: unknown) => {
+            const buildManifest = new BuildManifest();
+            // @ts-ignore - accessing private method for testing
+            return buildManifest.collectOpenapiCompanions({openapiCompanions});
+        };
+
+        it('returns an empty array when nothing was registered', () => {
+            expect(collect(undefined)).toEqual([]);
+            expect(collect([])).toEqual([]);
+        });
+
+        it('deduplicates by companion path and sorts deterministically', () => {
+            const result = collect([
+                {leadingPage: 'ru/b/index', companionPath: 'ru/b/index.openapi.json'},
+                {leadingPage: 'ru/a/index', companionPath: 'ru/a/index.openapi.json'},
+                {leadingPage: 'ru/a/index', companionPath: 'ru/a/index.openapi.json'},
+            ]);
+
+            expect(result).toEqual([
+                {leadingPage: 'ru/a/index', companionPath: 'ru/a/index.openapi.json'},
+                {leadingPage: 'ru/b/index', companionPath: 'ru/b/index.openapi.json'},
+            ]);
+        });
+    });
+
     describe('buildFileTrie method', () => {
         const createRun = (entries: string[]) =>
             ({
