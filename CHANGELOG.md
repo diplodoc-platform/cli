@@ -1,5 +1,19 @@
 # Changelog
 
+## [5.45.0](https://github.com/diplodoc-platform/cli/compare/v5.44.0...v5.45.0) (2026-06-19)
+
+
+### Features
+
+* add openapi companion DOCSTOOLS-5791 ([8240cd9](https://github.com/diplodoc-platform/cli/commit/8240cd97a8762b4948c028f954564a356b3ee45e))
+* **themer:** add code highlight theme configuration and tests ([#1966](https://github.com/diplodoc-platform/cli/issues/1966)) ([99bebb3](https://github.com/diplodoc-platform/cli/commit/99bebb312e30d84486bd2781a2e60d317ef97609))
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/mermaid-extension@2.1.3 ([#2001](https://github.com/diplodoc-platform/cli/issues/2001)) ([5caacf6](https://github.com/diplodoc-platform/cli/commit/5caacf6e68fadc36a1fac9118f95f4da4d52b9a1))
+* **e2e:** Unknown highlight.js theme: "github-dark" ([540149a](https://github.com/diplodoc-platform/cli/commit/540149a6cc9b4f9b43a690289c88a7ef00e3b11b))
+
 ## [5.44.0](https://github.com/diplodoc-platform/cli/compare/v5.43.3...v5.44.0) (2026-06-15)
 
 
