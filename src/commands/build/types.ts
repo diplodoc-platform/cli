@@ -69,6 +69,18 @@ export type AiConfig = {
     openapiCompanions?: boolean | 'md';
 };
 
+/** Maps a generated OpenAPI leading page to its standalone spec companion file. */
+export type OpenapiCompanionEntry = {
+    /** Lang-relative path of the leading page (without extension), e.g. `ru/api/index`. */
+    leadingPage: string;
+    /**
+     * Lang-relative path of the companion file. The file name is derived from the source spec
+     * (`petstore.yaml` -> `petstore.openapi.json`), so it is not necessarily `index.openapi.json`,
+     * e.g. `ru/api/petstore.openapi.json`. The viewer must use this exact path.
+     */
+    companionPath: string;
+};
+
 export type {IDGeneratorStrategy};
 
 type BaseConfig = {

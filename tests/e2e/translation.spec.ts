@@ -44,7 +44,13 @@ const buildFilesYamlTestTemplate = (
         const {inputPath, outputPath} = getTestPaths(testRootPath);
         const {md2md, md2html} = buildProps;
 
-        await TestAdapter.testBuildPass(inputPath, outputPath, {md2html, md2md});
+        // Disable OpenAPI spec companions: the mock ships an openapi spec, and emitting the
+        // `*.openapi.json` companion would change these translation snapshots.
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2html,
+            md2md,
+            args: '--no-ai-openapi-companions',
+        });
 
         await compareDirectories(outputPath);
     });

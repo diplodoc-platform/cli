@@ -1,5 +1,5 @@
 import type {ConfigData, PreloadParams} from '@diplodoc/client/ssr';
-import type {Build, EntryData, PageData, Run} from '~/commands/build';
+import type {Build, EntryData, OpenapiCompanionEntry, PageData, Run} from '~/commands/build';
 import type {Toc, TocItem} from '~/core/toc';
 import type {LeadingPage} from '~/core/leading';
 
@@ -258,14 +258,6 @@ export class OutputHtml {
             });
     }
 }
-
-/** Maps a generated OpenAPI leading page to its standalone spec companion file. */
-type OpenapiCompanionEntry = {
-    /** Lang-relative path of the leading page (without extension), e.g. `api/index`. */
-    leadingPage: string;
-    /** Lang-relative path of the companion file, e.g. `api/petstore.openapi.json`. */
-    companionPath: string;
-};
 
 /**
  * Bakes the OpenAPI spec companion hint into the static leading page HTML.

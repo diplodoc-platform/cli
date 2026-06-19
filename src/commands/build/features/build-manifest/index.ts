@@ -1,5 +1,5 @@
 import type {Command} from '~/core/config';
-import type {Build, Run} from '~/commands/build';
+import type {Build, OpenapiCompanionEntry, Run} from '~/commands/build';
 import type {Redirects} from '../../services/redirects';
 
 import {join, parse} from 'node:path';
@@ -27,14 +27,6 @@ type FileTrie = {
 type FileTrieEntryPoint = {
     trie: FileTrie;
     tocMapping: Record<string, string>;
-};
-
-/** Maps a generated OpenAPI leading page to its standalone spec companion file. */
-type OpenapiCompanionEntry = {
-    /** Lang-relative path of the leading page (without extension), e.g. `ru/api/index`. */
-    leadingPage: string;
-    /** Lang-relative path of the companion file (name derived from the spec), e.g. `ru/api/petstore.openapi.json`. */
-    companionPath: string;
 };
 
 type BuildManifestFormat = {
