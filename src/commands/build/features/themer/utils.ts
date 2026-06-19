@@ -1,9 +1,9 @@
 import type {Run} from '~/commands/build';
 import type {ColorVariant, CssVars, ThemeConfig, UtilityColorKey} from './types';
 
-import {readFile} from 'node:fs/promises';
 import {join} from 'node:path';
 import Ajv from 'ajv';
+import {themeSchemaJson} from '@diplodoc/ajv';
 import {type GravityTheme, generateCSS, parseCSS, updateBaseColor} from '@gravity-ui/uikit-themer';
 import {load as loadYaml} from 'js-yaml';
 import chroma from 'chroma-js';
@@ -14,7 +14,6 @@ import {
     APP_CSS_PREFIX,
     BASE_BRAND,
     DC_COLORS,
-    ROOT,
     RTL_CSS_SUFFIX,
     THEME_CONFIG_FILENAME,
     THEME_VARIANTS,
@@ -144,11 +143,8 @@ async function validateConfig(run: Run, config: ThemeConfig): Promise<void> {
         return;
     }
 
-    const schemaPath = join(ROOT, 'schemas/theme-schema.yaml');
-    const schema = loadYaml(await readFile(schemaPath, 'utf8')) as object;
-
-    const ajv = new Ajv({allErrors: true});
-    const isValid = ajv.validate(schema, config);
+    const ajv = new Ajv({allErrors: true, strict: false});
+    const isValid = ajv.validate(themeSchemaJson, config);
 
     if (!isValid) {
         ajv.errors?.forEach((err) => {
