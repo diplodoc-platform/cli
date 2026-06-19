@@ -5,6 +5,7 @@ const clientManifest = require('@diplodoc/client/manifest');
 
 const ASSETS_PATH = resolve(__dirname, '..', 'assets');
 const CLIENT_PATH = dirname(require.resolve('@diplodoc/client/manifest'));
+const HIGHLIGHT_STYLES_PATH = dirname(require.resolve('highlight.js/styles/github.css'));
 const MERMAID_PATH = dirname(require.resolve('@diplodoc/mermaid-extension/runtime'));
 const LATEX_PATH = dirname(require.resolve('@diplodoc/latex-extension/runtime'));
 const SEARCH_PATH = dirname(require.resolve('@diplodoc/search-extension/worker'));
@@ -47,4 +48,17 @@ for (const lang of langs) {
 
 for (const file of assets) {
     copyFileSync(join(CLIENT_PATH, file), join(ASSETS_PATH, file));
+}
+
+// Bundle highlight.js theme styles so the CLI ships them itself (see themer/constants.ts).
+// Subdirectories (e.g. base16/) are preserved because theme names may contain a slash.
+const highlightStyles = glob('**/*.css', {
+    cwd: HIGHLIGHT_STYLES_PATH,
+    ignore: ['**/*.min.css'],
+});
+
+for (const file of highlightStyles) {
+    const dest = join(ASSETS_PATH, 'highlight-styles', file);
+    mkdirSync(dirname(dest), {recursive: true});
+    copyFileSync(join(HIGHLIGHT_STYLES_PATH, file), dest);
 }
