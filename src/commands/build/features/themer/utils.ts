@@ -143,7 +143,7 @@ async function validateConfig(run: Run, config: ThemeConfig): Promise<void> {
         return;
     }
 
-    const ajv = new Ajv({allErrors: true});
+    const ajv = new Ajv({allErrors: true, strict: false});
     const isValid = ajv.validate(themeSchemaJson, config);
 
     if (!isValid) {
