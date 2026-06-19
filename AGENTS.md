@@ -26,7 +26,6 @@ If a module contains a `MODULE.md` file, it is considered part of the module's c
   - `cases/` — test cases
   - `fixtures/` — test fixtures
   - `mocks/` — test mocks
-- `schemas/` — JSON/YAML schemas for fundamental project data structures
 
 ### CLI Commands
 
@@ -253,27 +252,6 @@ The project supports configuration via:
 Main configuration files:
 
 - `YFM_CONFIG_FILENAME` — configuration file name (usually `.yfm`)
-- Schemas in `schemas/` — JSON/YAML schemas for validation
-
-### Schemas Directory
-
-The `schemas/` directory stores schemas for fundamental project data structures:
-
-- **`toc-schema.yaml`** — schema for documentation table of contents (`toc.yaml`)
-  - Defines the structure of navigation and document hierarchy
-
-- **`presets-schema.yaml`** — schema for template variables file (`presets.yaml`)
-  - Defines variables used for document templating
-
-- **`leading-schema.yaml`** — schema for "leading" (overview) pages structure
-  - Defines the structure of summary/overview pages in documentation
-
-- **`page-constructor-schema.yaml`** — schema for Page Constructor format
-  - Defines the format for generating HTML pages from YAML descriptions
-  - Based on [@gravity-ui/page-constructor](https://gravity-ui.com/ru/libraries/page-constructor)
-  - Used to create pages from JSON/YAML block-based configurations
-
-**Important**: Schemas and TypeScript types must always be kept in sync. When modifying types in `src/` that correspond to a schema (e.g., `RawToc` ↔ `toc-schema.yaml`, `Preset` ↔ `presets-schema.yaml`), you must update the matching schema in `schemas/` and vice versa. A mismatch between schemas and code leads to bugs where valid input (per schema) is silently rejected by the implementation.
 
 ## Additional Resources
 
@@ -318,4 +296,4 @@ The `schemas/` directory stores schemas for fundamental project data structures:
 4. When working with VCS (GitHub/Arcadia), token configuration is required in `.env` or `.yfm`
 5. **All comments and documentation files (ADR, AGENTS.md, README, etc.) must be written in English**
 6. **The `src/steps/` directory is deprecated. Do not add new code there. If you need to fix existing code, carefully move it to `commands/build/features/`**
-7. **When changing TypeScript types that have a corresponding schema in `schemas/`, always update the schema to match, and vice versa**
+7. **When changing TypeScript types that have a corresponding schema in [`schemas/`](https://github.com/diplodoc-platform/ajv), always update the schema to match, and vice versa**

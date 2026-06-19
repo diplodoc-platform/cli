@@ -1,11 +1,15 @@
 import type {AjvOptions, JSONObject, LinkedJSONObject} from '@diplodoc/translation';
 
-import {dirname, join, resolve} from 'node:path';
+import {dirname, resolve} from 'node:path';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dump, load} from 'js-yaml';
 import {linkRefs, unlinkRefs} from '@diplodoc/translation';
-
-const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
+import {
+    leadingSchemaJson,
+    pageConstructorSchemaJson,
+    presetsSchemaJson,
+    tocSchemaJson,
+} from '@diplodoc/ajv';
 
 function last<T>(array: T[]): T | undefined {
     return array[array.length - 1];
@@ -159,7 +163,7 @@ export async function resolveSchemas({
     };
 
     if (typeof content === 'object' && content?.blocks) {
-        result.schemas.push(await loadFile(join(ROOT, 'schemas/page-constructor-schema.yaml')));
+        result.schemas.push(pageConstructorSchemaJson as JSONObject);
         result.ajvOptions = {
             keywords: ['select'],
             extendWithSchemas: [],
@@ -167,21 +171,21 @@ export async function resolveSchemas({
     }
 
     if (path.endsWith('toc.yaml')) {
-        result.schemas.push(await loadFile(join(ROOT, 'schemas/toc-schema.yaml')));
+        result.schemas.push(tocSchemaJson as JSONObject);
     }
 
     if (path.endsWith('index.yaml')) {
-        result.schemas.push(await loadFile(join(ROOT, 'schemas/leading-schema.yaml')));
+        result.schemas.push(leadingSchemaJson as JSONObject);
     }
 
     if (path.endsWith('presets.yaml')) {
-        result.schemas.push(await loadFile(join(ROOT, 'schemas/presets-schema.yaml')));
+        result.schemas.push(presetsSchemaJson as JSONObject);
     }
 
     if (path.endsWith('redirects.yaml')) {
         result.schemas = [];
     } else {
-        result.schemas.push(await loadFile(join(ROOT, 'schemas/toc-schema.yaml')));
+        result.schemas.push(tocSchemaJson as JSONObject);
     }
 
     if (customSchemaPath?.length) {
