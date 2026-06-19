@@ -218,7 +218,12 @@ export class OutputHtml {
                 // TODO: we copy all files. Required to copy only used files.
                 // Look at the same copy process in output-md feature.
                 await run.copy(run.input, run.output, ['**/*.yaml', '**/*.md']);
-                await run.copy(ASSETS_FOLDER, run.bundlePath, ['search-extension/**']);
+                // `highlight-styles/**` are build-time inputs for theme.css generation only;
+                // they must not be shipped into every doc's `_bundle` (mirrors `search-extension/**`).
+                await run.copy(ASSETS_FOLDER, run.bundlePath, [
+                    'search-extension/**',
+                    'highlight-styles/**',
+                ]);
 
                 const assetsPath = join(run.input, '_assets');
                 if (run.exists(assetsPath)) {

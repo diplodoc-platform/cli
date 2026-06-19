@@ -1,10 +1,15 @@
 import type {ColorVariant, UtilityColorKey} from './types';
 
-import {dirname} from 'node:path';
+import {existsSync} from 'node:fs';
+import {dirname, join} from 'node:path';
 
 export const ROOT = dirname(require.resolve('@diplodoc/cli/package'));
 
-export const HIGHLIGHT_STYLES_ROOT = dirname(require.resolve('highlight.js/styles/github.css'));
+const BUNDLED_HIGHLIGHT_STYLES_ROOT = join(ROOT, 'assets', 'highlight-styles');
+
+export const HIGHLIGHT_STYLES_ROOT = existsSync(BUNDLED_HIGHLIGHT_STYLES_ROOT)
+    ? BUNDLED_HIGHLIGHT_STYLES_ROOT
+    : dirname(require.resolve('highlight.js/styles/github.css'));
 
 export const THEME_CONFIG_FILENAME = 'theme.yaml';
 
