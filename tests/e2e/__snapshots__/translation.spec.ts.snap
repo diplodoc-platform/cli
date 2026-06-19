@@ -5,7 +5,6 @@ exports[`Translate command > build translated md files and remove no-translate d
   "index.md",
   "no-translate.md",
   "openapi/index.md",
-  "openapi/openapi-spec.openapi.json",
   "openapi/test-controller/getWithPayloadResponse.md",
   "openapi/test-controller/index.md",
   "toc.yaml"
@@ -189,9 +188,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 4`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get :no-translate[skip this] operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}}}}}"`;
-
-exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 4`] = `
 "---
 metadata:
   - name: generator
@@ -271,7 +268,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 5`] = `
 "---
 metadata:
   - name: generator
@@ -288,7 +285,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Translate command > build translated md files and remove no-translate directives 7`] = `
+exports[`Translate command > build translated md files and remove no-translate directives 6`] = `
 "title: Test123
 href: index.md
 items:
@@ -313,7 +310,6 @@ exports[`Translate command > build translated static files and remove no-transla
   "index.md",
   "no-translate.md",
   "openapi/index.md",
-  "openapi/openapi-spec.openapi.json",
   "openapi/test-controller/getWithPayloadResponse.md",
   "openapi/test-controller/index.md",
   "toc.yaml"
@@ -497,9 +493,7 @@ vcsPath: openapi/index.md
 {% endcut %}"
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 4`] = `"{"openapi":"3.0.1","info":{"title":"OpenAPI definition","version":"v0"},"servers":[{"url":"http://localhost:8080","description":"Generated server url"}],"paths":{"/test":{"get":{"tags":["test-controller"],"summary":"Simple get operation. тест новой верстки 3","description":"Defines a simple get :no-translate[skip this] operation with no inputs and a complex","operationId":"getWithPayloadResponse","responses":{"200":{"description":"200!!!!","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RecurceTop"}}}}}}}},"components":{"schemas":{"RecurceTop":{"type":"object","properties":{"A":{"type":"string"}}}}}}"`;
-
-exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 4`] = `
 "---
 metadata:
   - name: generator
@@ -579,7 +573,7 @@ _Example:_{.json-schema-reset .json-schema-example} \`example\`
 [*Deprecated]: No longer supported, please use an alternative and newer version."
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 5`] = `
 "---
 metadata:
   - name: generator
@@ -596,7 +590,7 @@ vcsPath: openapi/test-controller/index.md
 "
 `;
 
-exports[`Translate command > build translated static files and remove no-translate directives 7`] = `
+exports[`Translate command > build translated static files and remove no-translate directives 6`] = `
 "title: Test123
 href: index.md
 items:
