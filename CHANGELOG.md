@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.46.0](https://github.com/diplodoc-platform/cli/compare/v5.45.0...v5.46.0) (2026-06-19)
+
+
+### Features
+
+* removed schemas and replaced it with @diplodoc/ajv ([#2004](https://github.com/diplodoc-platform/cli/issues/2004)) ([df65a89](https://github.com/diplodoc-platform/cli/commit/df65a892efeb37b7f5527675d1731622aa11f147))
+
 ## [5.45.0](https://github.com/diplodoc-platform/cli/compare/v5.44.0...v5.45.0) (2026-06-19)
 
 
