@@ -16,13 +16,10 @@ export default defineConfig({
         globals: false,
         environment: 'node',
         include: [
-            'e2e/**/*.{test,spec}.ts',
-            ...resolvedTestPaths.map((path) => `${path}/**/*.{test,spec}.ts`),
+            'tests/e2e/**/*.{test,spec}.ts',
+            ...resolvedTestPaths.map((testPath) => `${testPath}/**/*.{test,spec}.ts`),
         ],
         exclude: ['node_modules'],
-        coverage: {
-            enabled: false,
-        },
         root: __dirname,
         testTimeout: 60000,
     },

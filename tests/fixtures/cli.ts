@@ -1,7 +1,5 @@
-import type {Runner} from './runners';
-
-import {createRunner} from './runners';
-import {cleanupDirectory} from './utils/file';
+import runner from './runner';
+import {cleanupDirectory} from './file';
 
 export interface BuildRunArgs {
     md2md?: boolean;
@@ -18,14 +16,8 @@ export interface TranslateRunArgs {
 }
 
 class Build {
-    private readonly runner: Runner;
-
-    constructor(runner: Runner) {
-        this.runner = runner;
-    }
-
     run(input: string, output: string, args: string[], env?: Record<string, string>) {
-        return this.runner.runYfmDocs(
+        return runner.runYfmDocs(
             ['--input', input, '--output', output, '--quiet', '--allowHtml', ...args],
             env,
         );
@@ -33,14 +25,8 @@ class Build {
 }
 
 class Extract {
-    private readonly runner: Runner;
-
-    constructor(runner: Runner) {
-        this.runner = runner;
-    }
-
     run(input: string, output: string, args: string[], env?: Record<string, string>) {
-        return this.runner.runYfmDocs(
+        return runner.runYfmDocs(
             ['translate', 'extract', '--input', input, '--output', output, '--quiet', ...args],
             env,
         );
@@ -48,11 +34,11 @@ class Extract {
 }
 
 export class CliTestAdapter {
-    readonly runner: Runner = createRunner();
+    readonly runner = runner;
 
-    readonly build = new Build(this.runner);
+    readonly build = new Build();
 
-    readonly extract = new Extract(this.runner);
+    readonly extract = new Extract();
 
     async testBuildPass(
         inputPath: string,
@@ -110,7 +96,7 @@ export class CliTestAdapter {
             ...additionalArgs.split(' ').filter(Boolean),
         ];
 
-        await this.runner.runYfmDocs(baseArgs);
+        await runner.runYfmDocs(baseArgs);
     }
 }
 

@@ -1,4 +1,4 @@
-import type {BuildRunArgs} from '../cliAdapter';
+import type {BuildRunArgs} from './cli';
 
 import {readFileSync} from 'node:fs';
 import {rm} from 'node:fs/promises';
@@ -6,8 +6,7 @@ import {join, resolve} from 'node:path';
 import {glob} from 'glob';
 import {expect, test} from 'vitest';
 
-import {TestAdapter} from '../cliAdapter';
-
+import {TestAdapter} from './cli';
 import {bundleless, hashless, platformless} from './test';
 
 const SYSTEM_DIRS = ['_bundle/', '_search/'];
@@ -124,8 +123,8 @@ type TestPaths = {
 
 export function getTestPaths(testRootPath: string): TestPaths {
     return {
-        inputPath: resolve(__dirname, '../../', join(testRootPath, 'input')),
-        outputPath: resolve(__dirname, '../../', join(testRootPath, 'output')),
+        inputPath: resolve(__dirname, '../', join(testRootPath, 'input')),
+        outputPath: resolve(__dirname, '../', join(testRootPath, 'output')),
     };
 }
 
