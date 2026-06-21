@@ -9,14 +9,14 @@ node_modules
 .env
 .DS_Store
 .eslintrc.js
-vitest.config.mjs
+vitest.units.config.ts
+vitest.integration.config.ts
 /dist
 /cache
 /coverage
 /external
 /scripts
 /tests/mocks
-/tests/bin.mjs
 
 .lintstagedrc.js
 .prettierrc.js

@@ -34,7 +34,8 @@
     "./manifest": "./build/manifest.json",
     "./mdit-plugins": "./build/mdit-plugins.js",
     "./arcadia-vcs": "./build/arcadia-vcs.js",
-    "./github-vcs": "./build/github-vcs.js"
+    "./github-vcs": "./build/github-vcs.js",
+    "./tests/fixtures": "./tests/fixtures/index.ts"
   },
   "main": "build/index.js",
   "bin": {
@@ -45,19 +46,21 @@
     "lib",
     "build",
     "assets",
-    "schemas"
+    "schemas",
+    "tests",
+    "vitest.integration.config.ts"
   ],
   "scripts": {
     "build": "npm run build:clean && node scripts/build.cli.js",
     "build:types": "tspc -p tsconfig.lib.json || true; tspc -p tsconfig.build.json || true",
     "build:clean": "rm -rf build lib",
-    "e2e": "npm run build && cd tests && npm test",
+    "e2e": "npm run build && vitest run -c vitest.integration.config.ts",
     "prepublishOnly": "npm run lint && npm run build && npm run build:types",
     "start": "node build/index.js",
-    "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "test:watch": "vitest",
-    "typecheck": "tsc --noEmit",
+    "test": "vitest run -c vitest.units.config.ts",
+    "test:coverage": "vitest run -c vitest.units.config.ts --coverage",
+    "test:watch": "vitest -c vitest.units.config.ts",
+    "typecheck": "tsc --noEmit && tsc --noEmit -p tests/tsconfig.json",
     "regenerate-schemas": "scripts/regenerate-schemas.js",
     "lint": "lint",
     "lint:fix": "lint fix",
@@ -106,6 +109,18 @@
     "threads": "1.7.0",
     "ts-dedent": "2.2.0"
   },
+  "peerDependencies": {
+    "strip-ansi": "^7.1.0",
+    "vitest": "^3.2.1"
+  },
+  "peerDependenciesMeta": {
+    "strip-ansi": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.758.0",
     "@aws-sdk/lib-storage": "^3.758.0",
@@ -137,6 +152,7 @@
     "esbuild": "^0.27.2",
     "html-escaper": "^3.0.3",
     "husky": "8.0.3",
+    "markdown-it-attrs": "^4.1.0",
     "mime-types": "2.1.35",
     "minimatch": "9.0.3",
     "node-html-parser": "6.1.5",

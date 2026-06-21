@@ -1,17 +1,18 @@
-import type {Runner} from './types';
-
+import {resolve} from 'node:path';
 import {execa} from 'execa';
 import strip from 'strip-ansi';
 
-export class BinaryRunner implements Runner {
-    private readonly binaryPath: string;
+export type Report = {
+    code: number;
+    warns: string[];
+    errors: string[];
+};
 
-    constructor(binaryPath: string) {
-        this.binaryPath = binaryPath;
-    }
+const bin = process.env.DIPLODOC_BINARY_PATH || resolve(__dirname, '../../build/index.js');
 
+export class Runner {
     async runYfmDocs(argv: string[], env?: Record<string, string>) {
-        const {stderr, exitCode} = await execa(this.binaryPath, argv, {
+        const {stderr, exitCode} = await execa(bin, argv, {
             all: true,
             reject: false,
             env: {...process.env, ...env},
@@ -44,3 +45,5 @@ function fillLog(filter: RegExp, source: string) {
         .filter(Boolean)
         .filter((line) => line.match(filter));
 }
+
+export default new Runner();

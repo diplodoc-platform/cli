@@ -35,5 +35,4 @@ jobs:
         run: npm run build
 
       - name: Run e2e tests
-        working-directory: tests
-        run: npm ci && npm test
+        run: npm run e2e

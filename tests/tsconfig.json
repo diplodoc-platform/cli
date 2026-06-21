@@ -1,16 +1,13 @@
 {
+  "extends": "@diplodoc/tsconfig",
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "./dist",
-    "resolveJsonModule": true,
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "rootDir": "."
+    "lib": ["ES2019"],
+    "target": "ES2019",
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "experimentalDecorators": false,
+    "noEmit": true,
+    "types": ["node"]
   },
-  "include": ["fixtures/**/*", "**/*.test.ts", "**/*.spec.ts", "vitest.config.ts"],
-  "exclude": ["mocks/**/*"]
+  "include": ["fixtures", "e2e"]
 }

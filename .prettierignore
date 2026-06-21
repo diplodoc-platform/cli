@@ -4,7 +4,8 @@
 .env
 .DS_Store
 .eslintrc.js
-vitest.config.mjs
+vitest.units.config.ts
+vitest.integration.config.ts
 node_modules
 /lib
 /dist
@@ -13,4 +14,3 @@ node_modules
 /coverage
 /external
 /tests/mocks
-/tests/bin.mjs
