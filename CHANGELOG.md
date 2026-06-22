@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.46.1](https://github.com/diplodoc-platform/cli/compare/v5.46.0...v5.46.1) (2026-06-22)
+
+
+### Bug Fixes
+
+* **deps:** Update @diplodoc/transform@4.76.1 ([f39224d](https://github.com/diplodoc-platform/cli/commit/f39224d951935b17ae19b75d99dc4735dc33e02a))
+* fixed autotitles on windows ([#2009](https://github.com/diplodoc-platform/cli/issues/2009)) ([1f07a7e](https://github.com/diplodoc-platform/cli/commit/1f07a7eacc6522704897e86c08049904780e52f6))
+
 ## [5.46.0](https://github.com/diplodoc-platform/cli/compare/v5.45.0...v5.46.0) (2026-06-19)
 
 
