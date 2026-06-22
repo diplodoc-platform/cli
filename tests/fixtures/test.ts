@@ -43,10 +43,57 @@ export function hashless(text: string): string {
  *           "vendor-00121562c7b7d3b5.rtl.css" → "vendor-rtl-css",
  *           "976-40cbc1d2518eb8ea.js" → "chunk-js" (numeric webpack chunk ID).
  */
+// Matches a dynamic client chunk reference: a numeric (webpack/rspack id) base
+// with a content hash, e.g. `_bundle/572-d105b8fc819aff93.rtl.css`,
+// `_bundle/189-ab12cd34ef56.js`.
+const DYNAMIC_CHUNK = String.raw`_bundle\/\d+-[a-f0-9]{12,16}(?:\.[a-z0-9]+)*\.[a-z0-9]+`;
+
+/**
+ * Removes dynamic (numeric-id) client chunks from both the file list and any
+ * references inside content.
+ *
+ * These chunks are an internal detail of the client bundler: their count,
+ * extensions and even existence change between `@diplodoc/client` releases
+ * (e.g. 5.7.11 → 5.7.13 added `572-*.css` / `572-*.rtl.css`). Asserting them
+ * makes snapshots depend on the exact client version, so a floating
+ * `npm install` (Arcadia) diverges from a locked `npm ci` (GitHub). Stripping
+ * them keeps snapshots stable across client patch releases while still
+ * asserting the named bundles (app/vendor/search/extensions).
+ */
+function stripDynamicChunks(text: string): string {
+    // Fast path. Besides being cheaper, this guard is essential: `bundleless` is
+    // also applied to binary asset content (fonts, images), and the punctuation
+    // cleanup below would otherwise corrupt random `,,`/`[,`/`,]` byte sequences.
+    // Binary content never contains a literal `_bundle/<id>-<hash>` reference.
+    if (!new RegExp(DYNAMIC_CHUNK).test(text)) {
+        return text;
+    }
+
+    // <script ... src="_bundle/572-hash.js"></script>
+    text = text.replace(
+        new RegExp(`<script\\b[^>]*?${DYNAMIC_CHUNK}[^>]*?>\\s*<\\/script>`, 'g'),
+        '',
+    );
+    // <link ... href="_bundle/572-hash.css" ...>
+    text = text.replace(new RegExp(`<link\\b[^>]*?${DYNAMIC_CHUNK}[^>]*?\\/?>`, 'g'), '');
+    // JSON/array string element: "_bundle/572-hash.css" (optionally escaped as \"...\").
+    text = text.replace(new RegExp(`\\\\?"${DYNAMIC_CHUNK}\\\\?",?`, 'g'), '');
+    // Any remaining bare reference (e.g. a file-list entry that is exactly the chunk).
+    text = text.replace(new RegExp(DYNAMIC_CHUNK, 'g'), '');
+    // Tidy up array punctuation left behind by removed elements.
+    return text
+        .replace(/\[\s*,/g, '[')
+        .replace(/,\s*\]/g, ']')
+        .replace(/,\s*,/g, ',');
+}
+
 export function bundleless(text: string): string {
     // On Windows the CLI may emit `_bundle\file` or JSON-escaped `_bundle\\/file`.
     // Collapse any mix of backslashes and forward slashes after `_bundle` into `/`.
     text = text.replace(/_bundle[/\\]+/g, '_bundle/');
+
+    // Drop nondeterministic dynamic chunks before mapping named bundles.
+    text = stripDynamicChunks(text);
 
     for (const entry of Object.values(assets)) {
         for (const files of Object.values(entry)) {
@@ -57,9 +104,11 @@ export function bundleless(text: string): string {
                 if (!match) continue;
 
                 const [, rawBase, suffixes, ext] = match;
-                const base = /^\d+$/.test(rawBase) ? 'chunk' : rawBase;
+                // Numeric (dynamic) chunks are handled by stripDynamicChunks above.
+                if (/^\d+$/.test(rawBase)) continue;
+
                 const suffixPart = suffixes.replace(/\./g, '-').slice(1); // ".rtl" → "rtl"
-                const label = suffixPart ? `${base}-${suffixPart}-${ext}` : `${base}-${ext}`;
+                const label = suffixPart ? `${rawBase}-${suffixPart}-${ext}` : `${rawBase}-${ext}`;
                 const escapedSuffixes = suffixes.replace(/\./g, '\\.');
                 const pattern = new RegExp(
                     `${rawBase}-[a-f0-9]{12,16}${escapedSuffixes}\\.${ext}`,
