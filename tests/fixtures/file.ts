@@ -94,8 +94,10 @@ export async function compareDirectories(
     // Here we sort the order of the included files after all processing
     // This is necessary for better test stability
     // We do not care in what order these files were received and processed
-    // We sort only the final list and put it in the snapshot
-    filesForSnapshot = filesForSnapshot.map(bundleless).map(hashless).sort();
+    // We sort only the final list and put it in the snapshot.
+    // `bundleless` strips dynamic (numeric-id) client chunks → drop the now-empty
+    // entries so they don't appear in the file list snapshot.
+    filesForSnapshot = filesForSnapshot.map(bundleless).map(hashless).filter(Boolean).sort();
 
     if (!ignoreFileList) {
         expect(JSON.stringify(filesForSnapshot, null, 2)).toMatchSnapshot('filelist');
