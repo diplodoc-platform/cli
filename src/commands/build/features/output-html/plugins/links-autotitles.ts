@@ -6,6 +6,8 @@ import url from 'url';
 import {bold} from 'chalk';
 import {dirname, join} from 'node:path';
 
+import {normalizePath} from '~/core/utils';
+
 import {walkLinks} from '../utils';
 
 const PAGE_LINK_REGEXP = /\.(md|ya?ml)$/i;
@@ -26,19 +28,20 @@ export default ((md, opts) => {
             const isTitleRefLink = nextToken.type === 'text' && nextToken.content === '{#T}';
             const {pathname, hash} = url.parse(href);
             const file = pathname ? join(dirname(state.env.path || path), pathname) : path;
-            const isPageFile = PAGE_LINK_REGEXP.test(file);
+            const normalizedFile = normalizePath(file);
+            const isPageFile = PAGE_LINK_REGEXP.test(normalizedFile);
 
             if ((!isEmptyLink && !isTitleRefLink) || !isPageFile) {
                 return;
             }
 
-            if (!(file in titles)) {
+            if (!(normalizedFile in titles)) {
                 link.attrSet('YFM010', `Title not found: ${bold(href)} in ${bold(path)}`);
 
                 return;
             }
 
-            const title = titles[file][hash || '#'];
+            const title = titles[normalizedFile][hash || '#'];
 
             if (typeof title === 'string') {
                 const titleToken = isEmptyLink ? new state.Token('text', '', 0) : nextToken;
