@@ -399,6 +399,60 @@ describe('BuildContentMap', () => {
         });
     });
 
+    describe('normalizeForHash inline svg ids', () => {
+        // The inline-SVG transform (md2md) prefixes every id inside an inlined
+        // SVG with `svg-<random>__` (SVGO prefixIds, prefix from the build's
+        // id-generator). With the default `random` strategy that prefix flips
+        // on every build of an unchanged source, so two builds of the same page
+        // must still hash identically once the volatile prefix is canonicalized.
+        it('canonicalizes volatile random svg id prefixes so the hash is stable', () => {
+            const buildA = Buffer.from(
+                '# Page\n\nx <svg><clipPath id="svg-1gkkvptx__clip0_1"><rect/></clipPath>' +
+                    '<path clip-path="url(#svg-1gkkvptx__clip0_1)" fill="url(#svg-1gkkvptx__p0)"/></svg>\n',
+            );
+            const buildB = Buffer.from(
+                '# Page\n\nx <svg><clipPath id="svg-0weejvx8__clip0_1"><rect/></clipPath>' +
+                    '<path clip-path="url(#svg-0weejvx8__clip0_1)" fill="url(#svg-0weejvx8__p0)"/></svg>\n',
+            );
+            expect(hashContent(normalizeForHash(buildA, 'page.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(buildB, 'page.md' as NormalizedPath)),
+            );
+        });
+
+        it('canonicalizes svg ids even when the file has no frontmatter', () => {
+            const a = Buffer.from('<svg><path id="svg-11111111__x"/></svg>');
+            const b = Buffer.from('<svg><path id="svg-22222222__x"/></svg>');
+            expect(hashContent(normalizeForHash(a, 'page.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(b, 'page.md' as NormalizedPath)),
+            );
+        });
+
+        it('canonicalizes svg ids alongside volatile frontmatter stripping', () => {
+            const a = Buffer.from(
+                '---\ntitle: Foo\nupdatedAt: 2026-05-26T10:00:00Z\n---\n\n<svg><path id="svg-aaaaaaaa__x"/></svg>\n',
+            );
+            const b = Buffer.from(
+                '---\ntitle: Foo\nupdatedAt: 2030-01-01T00:00:00Z\n---\n\n<svg><path id="svg-bbbbbbbb__x"/></svg>\n',
+            );
+            expect(hashContent(normalizeForHash(a, 'page.md' as NormalizedPath))).toBe(
+                hashContent(normalizeForHash(b, 'page.md' as NormalizedPath)),
+            );
+        });
+
+        it('keeps the hash sensitive to real svg content changes', () => {
+            const a = Buffer.from('# P\n\n<svg><path id="svg-aaaaaaaa__p" d="M1 2"/></svg>\n');
+            const b = Buffer.from('# P\n\n<svg><path id="svg-bbbbbbbb__p" d="M9 9"/></svg>\n');
+            expect(hashContent(normalizeForHash(a, 'page.md' as NormalizedPath))).not.toBe(
+                hashContent(normalizeForHash(b, 'page.md' as NormalizedPath)),
+            );
+        });
+
+        it('leaves markdown without svg ids byte-identical', () => {
+            const plain = Buffer.from('# No svg here\n\njust text\n');
+            expect(normalizeForHash(plain, 'page.md' as NormalizedPath)).toEqual(plain);
+        });
+    });
+
     describe('snapshot', () => {
         it('emits a stable JSON shape for a typical md build', async () => {
             const build = new Build();
