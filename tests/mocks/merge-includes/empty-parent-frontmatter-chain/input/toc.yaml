@@ -1,0 +1,5 @@
+title: Merge Includes Empty Parent Frontmatter Chain
+href: index.md
+items:
+  - name: Main
+    href: main.md

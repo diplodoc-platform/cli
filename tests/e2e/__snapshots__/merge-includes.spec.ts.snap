@@ -52,6 +52,106 @@ path: toc.yaml
 "
 `;
 
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+title: Excel import and export
+description: How to import and export Excel tables
+---
+
+
+<!-- source: _includes/with-fm.md -->
+# Working with Excel data
+
+Some included content paragraph.
+<!-- endsource: _includes/with-fm.md -->
+
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter 3`] = `
+"title: Merge Includes Empty Parent Frontmatter
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes > filelist 1`] = `
+"[
+  "index.md",
+  "main.md",
+  "toc.yaml"
+]"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 1`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: index.md
+---
+# Index
+
+Welcome page.
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 2`] = `
+"---
+metadata:
+  - name: generator
+    content: Diplodoc Platform vDIPLODOC-VERSION
+vcsPath: main.md
+title: Excel import and export
+---
+<!-- source: _includes/stub.md -->
+<!-- source: _includes/with-fm.md -->
+# Working with Excel data
+
+Some included content paragraph.
+<!-- endsource: _includes/with-fm.md -->
+<!-- endsource: _includes/stub.md -->
+"
+`;
+
+exports[`Merge includes (md2md) > empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes 3`] = `
+"title: Merge Includes Empty Parent Frontmatter Chain
+href: index.md
+items:
+  - name: Main
+    href: main.md
+path: toc.yaml
+"
+`;
+
 exports[`Merge includes (md2md) > hash-section: includes with hash extract sections inline > filelist 1`] = `
 "[
   "index.md",

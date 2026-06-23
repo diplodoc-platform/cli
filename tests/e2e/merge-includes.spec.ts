@@ -193,4 +193,30 @@ describe('Merge includes (md2md)', () => {
         });
         await compareDirectories(outputPath);
     });
+
+    test('empty-parent-frontmatter: empty parent (only include) inherits the include frontmatter', async () => {
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/merge-includes/empty-parent-frontmatter',
+        );
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
+
+    test('empty-parent-frontmatter-chain: frontmatter is propagated through a chain of empty includes', async () => {
+        const {inputPath, outputPath} = getTestPaths(
+            'mocks/merge-includes/empty-parent-frontmatter-chain',
+        );
+
+        await TestAdapter.testBuildPass(inputPath, outputPath, {
+            md2md: true,
+            md2html: false,
+            args: '--merge-includes',
+        });
+        await compareDirectories(outputPath);
+    });
 });

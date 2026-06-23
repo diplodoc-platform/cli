@@ -15,6 +15,7 @@ import {all, get, isMediaLink, shortLink} from '~/core/utils';
 
 import {addMetaFrontmatter, getCustomCollectPlugins} from './utils';
 import {MarkdownCollector} from './collect';
+import {resolvePropagatedFrontmatter} from './frontmatter-propagation';
 import {options} from './config';
 
 export type OutputMdArgs = {
@@ -151,6 +152,13 @@ export class OutputMd {
                 });
 
                 getMarkdownHooks(run.markdown).Dump.tapPromise('Build.Md', async (vfile) => {
+                    if (config.mergeIncludes) {
+                        const propagated = await resolvePropagatedFrontmatter(run, vfile.path);
+                        if (propagated) {
+                            run.meta.add(vfile.path, propagated);
+                        }
+                    }
+
                     const meta = await run.meta.dump(vfile.path);
                     const lineWidth = config.disableMetaMaxLineWidth ? Infinity : undefined;
                     vfile.data = addMetaFrontmatter(vfile.data, meta, lineWidth);

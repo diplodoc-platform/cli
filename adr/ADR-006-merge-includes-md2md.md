@@ -2,7 +2,7 @@
 
 ## Status
 
-**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Thirty-three bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern; Bug 30 is a regression introduced by the Bug 29 patch: it stripped a blockquote `>` prefix only on the opener side and not on the closer side, leaving phantom fence ranges across blockquote-wrapped code blocks — surfaced on Tracker `create-filter.md`, Forms `send-request.md`, Webmaster `host-verification-get.md`, XML `response.md` and the user-reported sky-list blockquote-include pattern; Bug 31 is a structural fragility outside `findFencedCodeBlockRanges`: `filterTokens` treated `{skip: 0}` as falsy and walked past the token that had just shifted into the visited index, plus `stripFirstHeading` had a defensive fallback that re-introduced the heading when `notitle` would otherwise yield empty content — together these caused 627 alice HTML files to render a literal `< path="…" keyword="…">` placeholder for the include immediately following a notitle-on-heading-only-section / locale-pruned-by-liquid include; Bug 32 is a non-Unicode anchor regex: `[\w-]+` (ASCII-only `\w`) failed to match a cyrillic-containing anchor `#YNDX-00540-с-Matter`, so `extractSection` returned the whole `popups.md` file instead of one section — surfaced on alice `socket/how-use.md`; Bug 33 is a `#hash` section-boundary divergence: `output-html`'s `cutHeading` used `>=` (ended a section at any same-or-shallower heading) instead of the `===` "same level only" rule used by the viewer's `findBlockTokens` and merge-includes, so a nested include expanding to a shallower heading inside a `notitle` section collapsed it to nothing — surfaced on alice `uz/smart-home/.../unruly.md`). The only deferred item is Stage 6 (frontmatter merging).**
+**Implemented (v10). Stages 0–5 are complete: multiline terms (transform), write/read (md2md→md2html), full inlining of all include kinds (indent, hash, terms), link rebasing, source maps. Stage 4 (terms) is implemented: collection, deduplication, conflict resolution, nested includes inside terms. The `{% included %}` fallback is kept as a safety net (and is now mandatory for one specific YFM-shorthand-table case — see Bug 24, and for indent-promotes-to-codeblock cases — see Bug 27). Viewer integration requires no changes. Thirty-three bugs were found in real documentation sets and fixed (Bugs 21–22 were regressions of the Bug 20 fix caught on the Yandex Metrica and Yandex Webmaster support docs; Bug 23 was a separate YFM-table interaction surfaced on Yandex Metrica `pro/price.md`; Bug 24 is a content-shape conflict between inlined includes and YFM shorthand cells, surfaced on Yandex Metrica `general/goal-js-event.md`; Bugs 25–26 are fence-detection failures surfaced on Yandex browser-corporate `cookies-allowed-for-urls.md` and Yateam `datasync/http/data-structure.md`; Bug 27 is an indent-stack regression where merge promotes a normal paragraph to an indented code block, surfaced on Yandex direct-pro `requirements-mediaservices/100-180.md`; Bugs 28–29 are two more fence-detection failures: an end-of-line ` ```|| ` closer inside YFM shorthand cells on Yateam `alice-dev-guide/concepts/test-integration.md` / `test-functional.md`, and a fence opener glued to a deflist `:` or list bullet — surfaced on Yandex Games `rosreestr-games-use.md` and a CatBoost-style list pattern; Bug 30 is a regression introduced by the Bug 29 patch: it stripped a blockquote `>` prefix only on the opener side and not on the closer side, leaving phantom fence ranges across blockquote-wrapped code blocks — surfaced on Tracker `create-filter.md`, Forms `send-request.md`, Webmaster `host-verification-get.md`, XML `response.md` and the user-reported sky-list blockquote-include pattern; Bug 31 is a structural fragility outside `findFencedCodeBlockRanges`: `filterTokens` treated `{skip: 0}` as falsy and walked past the token that had just shifted into the visited index, plus `stripFirstHeading` had a defensive fallback that re-introduced the heading when `notitle` would otherwise yield empty content — together these caused 627 alice HTML files to render a literal `< path="…" keyword="…">` placeholder for the include immediately following a notitle-on-heading-only-section / locale-pruned-by-liquid include; Bug 32 is a non-Unicode anchor regex: `[\w-]+` (ASCII-only `\w`) failed to match a cyrillic-containing anchor `#YNDX-00540-с-Matter`, so `extractSection` returned the whole `popups.md` file instead of one section — surfaced on alice `socket/how-use.md`; Bug 33 is a `#hash` section-boundary divergence: `output-html`'s `cutHeading` used `>=` (ended a section at any same-or-shallower heading) instead of the `===` "same level only" rule used by the viewer's `findBlockTokens` and merge-includes, so a nested include expanding to a shallower heading inside a `notitle` section collapsed it to nothing — surfaced on alice `uz/smart-home/.../unruly.md`). The only deferred item is Stage 6 (frontmatter merging) — and even there a lightweight special case is now implemented: frontmatter passthrough for an empty parent whose body is a single include (chain-aware), see Stage 6 below.**
 
 ## Context
 
@@ -1213,17 +1213,24 @@ Additional content.
 
 ---
 
-### Stage 6: Frontmatter merging (DEFERRED)
+### Stage 6: Frontmatter merging (PARTIALLY IMPLEMENTED)
 
-**Status**: Needs further analysis.
+**Status**: A lightweight special case is implemented; the general merge is still deferred.
 
-**Tasks (future work):**
+**Implemented (lightweight case): frontmatter passthrough for an empty parent.**
+When the parent file has **no frontmatter of its own** and its body is **nothing but a single `{% include %}`** (only whitespace — spaces, tabs, newlines — allowed around it), the included file's authored frontmatter is propagated into the parent's output frontmatter. Without this, merge-includes strips the include frontmatter (`contentWithoutFrontmatter`) and the merged parent loses its `title`/metadata.
 
-1. Decide which frontmatter fields to merge
-2. Implement merge strategy for CSP, scripts, styles
+- Implementation: [`features/output-md/frontmatter-propagation.ts`](../src/commands/build/features/output-md/frontmatter-propagation.ts) (`resolvePropagatedFrontmatter` / `getSoleIncludeDep` / `isMeaningfulFrontmatter`), wired into the `OutputMd` markdown `Dump` hook ([`features/output-md/index.ts`](../src/commands/build/features/output-md/index.ts)) right before `run.meta.dump`, gated on `mergeIncludes`.
+- Behavior: authored frontmatter is read via `run.markdown.meta(path)` (the `mangleFrontMatter` bucket — no system `vcsPath`/`generator` noise). Propagation happens **only when the parent has no authored frontmatter** (parent authored metadata is never overridden); **all** authored fields of the resolved include are propagated; the resolver **descends a chain** of "empty-except-single-include, no-frontmatter" nodes to the first node that has frontmatter (with cycle protection).
+- Tests: unit `frontmatter-propagation.spec.ts`; e2e `empty-parent-frontmatter` and `empty-parent-frontmatter-chain` in `tests/e2e/merge-includes.spec.ts`.
+
+**Tasks (still deferred — general merge):**
+
+1. Decide which frontmatter fields to merge when the parent is NOT empty (has its own content/frontmatter)
+2. Implement merge strategy for CSP, scripts, styles across all inlined includes
 3. Add tests
 
-**Outcome**: Metadata from includes merged into the main file.
+**Outcome**: Empty parent stubs inherit the include's frontmatter; full metadata merge for non-empty parents remains future work.
 
 ## Overall implementation status
 
@@ -1239,7 +1246,7 @@ All primary stages (0–5) are **complete** and tested:
 
 **Not implemented (deferred):**
 
-- Stage 6 — frontmatter merging (needs further analysis)
+- Stage 6 — frontmatter merging: general case deferred. A lightweight special case is **implemented** — frontmatter passthrough for an empty parent (body is a single include, no own frontmatter), chain-aware.
 - Stage 7 — duplicate anchor detection (low priority)
 
 **Testing:**
@@ -2916,15 +2923,17 @@ Chapter body...
 
 ---
 
-### Q6: Frontmatter from includes ⏸️ DEFERRED
+### Q6: Frontmatter from includes 🔶 PARTIALLY RESOLVED
 
 **Context**: Include files may have frontmatter with CSP, meta, etc.
 
-**Status**: Needs further analysis. Current behavior: strip frontmatter.
+**Status**: Lightweight case implemented (see Stage 6). For the general case the default is still to strip.
 
-**Future options:**
+**Resolution (lightweight):** option B applied to a narrow case — when the parent is empty (no own frontmatter, body is a single include), the include's authored frontmatter is propagated into the parent (chain-aware). Non-empty parents still strip include frontmatter.
 
-- A) **Strip entirely** — as in output-html today
+**Future options (general case):**
+
+- A) **Strip entirely** — as in output-html today (current behavior for non-empty parents)
 - B) **Merge into main frontmatter** — combine CSP, meta, etc.
 - C) **Selective merge** — only certain fields (CSP, scripts, styles)
 
@@ -2949,7 +2958,7 @@ Chapter body...
 | 3     | **`#hash` section extraction** → wider inlining (v7–v8)     | High     | ✅ Done     | ~95%                  |
 | 4     | **Full term support** (collection, merge, conflicts) → 100% | High     | ✅ Done     | 100%                  |
 | 5     | **Source maps** (inline comments)                           | Medium   | ✅ Done     | —                     |
-| 6     | Frontmatter merging                                         | Low      | ⬜ Deferred | —                     |
+| 6     | Frontmatter merging (lightweight: empty-parent passthrough) | Low      | 🔶 Partial  | —                     |
 | 7     | Duplicate anchor detection                                  | Low      | ⬜ Deferred | —                     |
 
 **Note**: “Inline coverage” is an estimate of includes inlined in place
