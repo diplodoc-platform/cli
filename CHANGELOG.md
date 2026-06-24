@@ -1,5 +1,17 @@
 # Changelog
 
+## [5.47.0](https://github.com/diplodoc-platform/cli/compare/v5.46.1...v5.47.0) (2026-06-24)
+
+
+### Features
+
+* **infra:** remove cli-tests DOCSTOOLS-4734 ([cb9aa5e](https://github.com/diplodoc-platform/cli/commit/cb9aa5e631bf7aa0be0c566f6060c6a0a2b9be2d))
+
+
+### Bug Fixes
+
+* **tests:** normalize bundle test DOCSTOOLS-5718 ([7e3154e](https://github.com/diplodoc-platform/cli/commit/7e3154ed51ebd78781845fc834f8ea37e0adb238))
+
 ## [5.46.1](https://github.com/diplodoc-platform/cli/compare/v5.46.0...v5.46.1) (2026-06-22)
 
 
