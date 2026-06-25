@@ -154,7 +154,7 @@
     "husky": "8.0.3",
     "markdown-it-attrs": "^4.1.0",
     "mime-types": "2.1.35",
-    "minimatch": "9.0.3",
+    "minimatch": "9.0.7",
     "node-html-parser": "6.1.5",
     "simple-git": "3.22.0",
     "slugify": "1.6.5",
