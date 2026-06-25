@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.47.1](https://github.com/diplodoc-platform/cli/compare/v5.47.0...v5.47.1) (2026-06-25)
+
+
+### Bug Fixes
+
+* add frontmatter from include when parent is empty DOCSTOOLS-6100 ([8fded44](https://github.com/diplodoc-platform/cli/commit/8fded44fd1609a58d20d04f8a64df8435b0c4018))
+* **build-content-map:** stabilize content hash for inlined SVG ids ([#2013](https://github.com/diplodoc-platform/cli/issues/2013)) ([128cf6e](https://github.com/diplodoc-platform/cli/commit/128cf6e7b32ae1a85aa67b570f4ad097903cd532))
+* rm extra wraps on compose ([0d495d5](https://github.com/diplodoc-platform/cli/commit/0d495d5c74c275e3b43c3e2e4a276d7b9707cd6e))
+
 ## [5.47.0](https://github.com/diplodoc-platform/cli/compare/v5.46.1...v5.47.0) (2026-06-24)
 
 
