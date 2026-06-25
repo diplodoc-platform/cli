@@ -234,8 +234,36 @@ function hasVolatile(obj: Record<string, unknown>): boolean {
     return false;
 }
 
+// The inline-SVG transform (md2md, see output-md/plugins/merge-svg.ts) inlines
+// SVG assets and runs them through SVGO `prefixIds`, which rewrites every id
+// inside the SVG to `<prefix>__<id>`. The prefix comes from the build's
+// id-generator; with the default `random` strategy it is `svg-<8 base36 chars>`
+// derived from `Math.random()`, so it differs on every build of an unchanged
+// source. That volatile prefix would flip the page's content-hash on each
+// rebuild, producing false-positive diffs for consumers (change
+// notifications, search reindex). Canonicalize it to a fixed marker so the
+// hash reflects the SVG's content, not its per-build ids. The same prefix
+// appears in both `id="…"` definitions and their `url(#…)` / href references,
+// and the global replace rewrites all of them identically, so they stay
+// internally consistent. Real SVG content (paths, dimensions, the original
+// id stems after `__`) is preserved, so genuine changes still move the hash.
+//
+// Coupled to transform's prefix shape (`@diplodoc/transform`
+// plugins/images `replaceSvgContent` → SVGO `prefixIds` with prefix
+// `generateID('svg')`). If transform changes that shape this stops matching;
+// the `inline svg ids` tests pin the current shape.
+const VOLATILE_SVG_ID_PREFIX_RE = /svg-[0-9a-z]+__/g;
+
+function canonicalizeSvgIds(text: string): string {
+    return text.replace(VOLATILE_SVG_ID_PREFIX_RE, 'svg__');
+}
+
 function normalizeMarkdown(content: Buffer): Buffer {
-    const text = content.toString('utf8');
+    // Canonicalize volatile inline-SVG ids before any frontmatter handling so
+    // every return path below hashes the de-noised body. When the source has
+    // no inlined SVG this is a no-op and `text === content`'s utf8 view, so
+    // files without SVG ids keep their `hash == sha256(file bytes)` property.
+    const text = canonicalizeSvgIds(content.toString('utf8'));
 
     let fm: unknown;
     let body: string;
@@ -246,25 +274,25 @@ function normalizeMarkdown(content: Buffer): Buffer {
         body = stripped;
         rawFrontmatter = raw;
     } catch {
-        // Malformed YAML inside the fences — hash the raw bytes.
-        return content;
+        // Malformed YAML inside the fences — hash the SVG-canonicalized bytes.
+        return Buffer.from(text, 'utf8');
     }
 
     // `extractFrontMatter` returns an empty string for `rawFrontmatter`
     // when the file has no frontmatter fences at all (or when fences are
-    // unbalanced and don't match its regex). In both cases there's
-    // nothing to normalize — return raw bytes.
+    // unbalanced and don't match its regex). In both cases there's no
+    // frontmatter to strip — hash the SVG-canonicalized bytes.
     if (!rawFrontmatter) {
-        return content;
+        return Buffer.from(text, 'utf8');
     }
 
     if (!fm || typeof fm !== 'object' || Array.isArray(fm)) {
-        return content;
+        return Buffer.from(text, 'utf8');
     }
     const fmObj = fm as Record<string, unknown>;
 
     if (!hasVolatile(fmObj)) {
-        return content;
+        return Buffer.from(text, 'utf8');
     }
 
     const strippedFm = stripVolatile(fmObj);
