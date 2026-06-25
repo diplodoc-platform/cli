@@ -8,6 +8,7 @@
 * add frontmatter from include when parent is empty DOCSTOOLS-6100 ([8fded44](https://github.com/diplodoc-platform/cli/commit/8fded44fd1609a58d20d04f8a64df8435b0c4018))
 * **build-content-map:** stabilize content hash for inlined SVG ids ([#2013](https://github.com/diplodoc-platform/cli/issues/2013)) ([128cf6e](https://github.com/diplodoc-platform/cli/commit/128cf6e7b32ae1a85aa67b570f4ad097903cd532))
 * rm extra wraps on compose ([0d495d5](https://github.com/diplodoc-platform/cli/commit/0d495d5c74c275e3b43c3e2e4a276d7b9707cd6e))
+* trailing slash and blockquote DOCSTOOLS-6001 ([e86163c](https://github.com/diplodoc-platform/cli/commit/e86163c16b1e8595f3b13c62be96315a53db971d))
 
 ## [5.47.0](https://github.com/diplodoc-platform/cli/compare/v5.46.1...v5.47.0) (2026-06-24)
 
