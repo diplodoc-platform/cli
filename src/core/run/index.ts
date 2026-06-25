@@ -2,13 +2,13 @@ import type {Config} from '~/core/config';
 import type {BaseConfig} from '~/core/program';
 import type {FileSystem} from './fs';
 
-import {dirname, join} from 'node:path';
+import {dirname, join, relative} from 'node:path';
 import pmap from 'p-map';
 import {ok} from 'node:assert';
 import {constants as fsConstants} from 'node:fs/promises';
 import {glob} from 'glob';
 
-import {bounded, normalizePath, wait} from '~/core/utils';
+import {bounded, isSubPath, normalizePath, wait} from '~/core/utils';
 import {LogLevel, Logger} from '~/core/logger';
 
 import {fs} from './fs';
@@ -175,6 +175,10 @@ export class Run<TConfig = BaseConfig> {
 
         if (from === to) {
             return [];
+        }
+
+        if (!isFile && isSubPath(from, to)) {
+            ignore = [...ignore, `${relative(from, to)}/**`];
         }
 
         const files: [string, string][] = isFile
