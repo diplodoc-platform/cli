@@ -1,0 +1,14 @@
+meta:
+  title: '%%%0%%%'
+  description: '%%%1%%%'
+fullScreen: true
+blocks:
+  - type: header-block
+    title: '%%%2%%%'
+    description: '%%%3%%%'
+    breadcrumbs:
+      items:
+        - text: '%%%4%%%'
+          url: https://yandex.ru/support/?lang=ru
+        - text: '%%%5%%%'
+          url: https://yandex.ru/support/adfox/ru/?lang=ru
