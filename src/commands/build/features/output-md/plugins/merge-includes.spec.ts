@@ -89,6 +89,24 @@ describe('rebaseUrl', () => {
     it('should return null for mailto links', () => {
         expect(rebaseUrl('mailto:test@example.com', '_includes', '.')).toBeNull();
     });
+
+    it('should preserve trailing slash for directory links', () => {
+        expect(rebaseUrl('../../iam/', 'en/_includes/iam', 'en/api-gateway/security')).toBe(
+            '../../iam/',
+        );
+    });
+
+    it('should preserve trailing slash with anchor suffix', () => {
+        expect(rebaseUrl('../../iam/#x', 'en/_includes/iam', 'en/api-gateway/security')).toBe(
+            '../../iam/#x',
+        );
+    });
+
+    it('should not add a trailing slash when the source link has none', () => {
+        expect(rebaseUrl('../../iam', 'en/_includes/iam', 'en/api-gateway/security')).toBe(
+            '../../iam',
+        );
+    });
 });
 
 describe('rebaseRelativePaths', () => {
@@ -956,6 +974,24 @@ describe('addIndent', () => {
         expect(addIndent(content, '  ')).toBe(
             '<!--\n  A\n  \n  B\n  -->\n\n  <!--\n  C\n  \n  D\n  -->',
         );
+    });
+
+    // Blockquote include (`> {% include %}`): internal blank lines must keep
+    // the blockquote going (`>`), otherwise a single blockquote splits into
+    // several. The `>` continuation is the prefix with trailing space trimmed.
+    it('should continue blockquote on internal blank lines', () => {
+        const content = 'Para 1\n\n* a\n* b\n\nPara 2';
+        expect(addIndent(content, '> ')).toBe('Para 1\n>\n> * a\n> * b\n>\n> Para 2');
+    });
+
+    it('should not add blockquote continuation to a trailing empty segment', () => {
+        const content = 'Para 1\n\nPara 2\n';
+        expect(addIndent(content, '> ')).toBe('Para 1\n>\n> Para 2\n');
+    });
+
+    it('should continue nested blockquote prefix on internal blank lines', () => {
+        const content = 'A\n\nB';
+        expect(addIndent(content, '> > ')).toBe('A\n> >\n> > B');
     });
 });
 

@@ -68,10 +68,18 @@ export function rebaseUrl(url: string, fromDir: string, toDir: string): string |
         return null;
     }
 
+    // `node:path` join/relative and normalizePath all strip trailing slashes,
+    // so a directory link like `../../iam/` would collapse to `../../iam`.
+    // Preserve the original trailing slash to keep the rebased href identical
+    // to the non-merge/transform output.
+    const hadTrailingSlash = pathPart.length > 1 && pathPart.endsWith('/');
+
     const absPath = normalizePath(join(fromDir, pathPart));
     const newPath = normalizePath(relative(toDir, absPath));
 
-    return newPath + suffix;
+    const result = hadTrailingSlash && newPath && !newPath.endsWith('/') ? newPath + '/' : newPath;
+
+    return result + suffix;
 }
 
 interface FenceState {
@@ -662,6 +670,14 @@ function detectMultilineHtmlBlockOpen(line: string): RegExp | null {
  * the blank line keeps the HTML block continuous and the parent
  * structure intact.
  *
+ * Blockquote prefixes (`indent` contains `>`) are a second special case:
+ * an empty line without a `>` ends the blockquote, so the renderer would
+ * split a single `> {% include %}` into several blockquotes.  Internal
+ * blank lines therefore receive the `>` continuation (prefix with trailing
+ * whitespace trimmed, e.g. `> ` → `>`).  A trailing empty segment (content
+ * that ends with a newline) is left untouched to avoid a dangling `>` and
+ * to preserve the no-trailing-whitespace contract.
+ *
  * Preserves original line endings (\r\n, \r, \n) for cross-platform support.
  */
 export function addIndent(content: string, indent: string): string {
@@ -673,15 +689,25 @@ export function addIndent(content: string, indent: string): string {
     let isFirstTextLine = true;
     const result: string[] = [];
     let htmlBlockClose: RegExp | null = null;
+    const blockquoteContinuation = indent.includes('>') ? indent.replace(/\s+$/, '') : null;
 
-    for (const part of parts) {
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
+
         if (part === '\r\n' || part === '\n' || part === '\r') {
             result.push(part);
             continue;
         }
 
         if (part === '') {
-            result.push(htmlBlockClose ? indent : part);
+            const isLast = i === parts.length - 1;
+            if (htmlBlockClose) {
+                result.push(indent);
+            } else if (blockquoteContinuation !== null && !isLast) {
+                result.push(blockquoteContinuation);
+            } else {
+                result.push(part);
+            }
             continue;
         }
 
