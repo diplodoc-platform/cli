@@ -1,6 +1,6 @@
 import type {Langs} from '~/commands/build/types';
 
-import {dirname, extname, isAbsolute, join, normalize} from 'node:path';
+import {dirname, extname, isAbsolute, join, normalize, relative} from 'node:path';
 import _normalizePath from 'normalize-path';
 
 import {isExternalHref} from '~/core/utils';
@@ -54,4 +54,9 @@ export function setExt<T extends AnyPath>(path: T, newext: string): T {
     newext = newext.startsWith('.') ? newext.slice(1) : newext;
 
     return (path.slice(0, -extname(path).length) + (newext ? '.' + newext : '')) as T;
+}
+
+export function isSubPath(parent: string, child: string): boolean {
+    const rel = relative(parent, child);
+    return Boolean(rel) && !rel.startsWith('..') && !isAbsolute(rel);
 }

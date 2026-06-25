@@ -8,7 +8,7 @@ import {basename, dirname, join, relative} from 'node:path';
 import {isMainThread} from 'node:worker_threads';
 import pmap from 'p-map';
 
-import {bounded, console, normalizePath, own, setExt} from '~/core/utils';
+import {bounded, console, isSubPath, normalizePath, own, setExt} from '~/core/utils';
 import {getHooks as getTocHooks} from '~/core/toc';
 import * as threads from '~/commands/threads';
 import {Extension as OpenapiIncluderExtension} from '~/extensions/openapi';
@@ -363,9 +363,13 @@ export class Build extends BaseProgram<BuildConfig, BuildArgs> {
     }
 
     private async prepareInput() {
-        const {originalInput, input} = this.run;
+        const {originalInput, input, output} = this.run;
         await this.cleanup();
-        await this.run.copy(originalInput, input, ['node_modules/**', '*/node_modules/**']);
+        const ignore = ['node_modules/**', '*/node_modules/**'];
+        if (isSubPath(originalInput, output)) {
+            ignore.push(`${relative(originalInput, output)}/**`);
+        }
+        await this.run.copy(originalInput, input, ignore);
     }
 
     private async prepareRun() {
