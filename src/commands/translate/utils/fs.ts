@@ -43,7 +43,7 @@ function stringifyFile(content: JSONObject | string, path: string): string {
 
     switch (ext(path)) {
         case 'yaml':
-            return dump(content, {noRefs: true});
+            return dump(content, {noRefs: true, lineWidth: -1});
         case 'json':
             return JSON.stringify(content);
         default:

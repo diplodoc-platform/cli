@@ -690,6 +690,30 @@ exports[`Translate command > compose openapi spec files 2`] = `
 "
 `;
 
+exports[`Translate command > compose yaml files with no extra spaces > filelist 1`] = `
+"[
+  "index.yaml"
+]"
+`;
+
+exports[`Translate command > compose yaml files with no extra spaces 1`] = `
+"meta:
+  title: "Adfox/_— Справка"
+  description: 'Справка по работе с сервисом Adfox: управление инвентарем, рекламой, монетизация и аналитика.'
+fullScreen: true
+blocks:
+  - type: header-block
+    title: Adfox
+    description: Платформа для управления интернет-рекламой на [сайтах](https://yandex.ru/support/adfox/ru/ad-inventory/sites), [видеоресурсах](https://yandex.ru/support/adfox/ru/ad-inventory/video), в  [мобильных приложениях](https://ads.yandex.com/helpcenter/ru/monetization/adfox) и [телеграм-каналах](https://yandex.ru/support/adfox/ru/ad-inventory/telegram).
+    breadcrumbs:
+      items:
+        - text: Справка
+          url: https://yandex.ru/support/?lang=ru
+        - text: Adfox
+          url: https://yandex.ru/support/adfox/ru/?lang=ru
+"
+`;
+
 exports[`Translate command > do not filter files on extract > filelist 1`] = `
 "[
   "es/_includes/test.md.skl",

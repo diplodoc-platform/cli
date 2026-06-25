@@ -106,6 +106,16 @@ describe('Translate command', () => {
         target: 'es-ES',
     });
 
+    generateFilesYamlTestTemplate(
+        'compose yaml files with no extra spaces',
+        'mocks/translation/yaml-space-format',
+        {
+            subcommand: 'compose',
+            source: 'ru-RU',
+            target: 'es-ES',
+        },
+    );
+
     generateMapTestTemplate(
         'do not translate merged entries with included toc',
         'mocks/translation/toc-include',

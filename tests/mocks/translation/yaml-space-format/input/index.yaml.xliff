@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file original="file.ext" source-language="ru-RU" target-language="es-ES" datatype="markdown">
+    <header>
+      <skeleton>
+        <external-file href="file.skl"></external-file>
+      </skeleton>
+    </header>
+    <body>
+      <trans-unit id="0">
+        <source xml:space="preserve">Adfox — Справка</source>
+        <target xml:space="preserve">Adfox — Справка</target>
+      </trans-unit>
+      <trans-unit id="1">
+        <source xml:space="preserve">Справка по работе с сервисом Adfox: управление инвентарем, рекламой, монетизация и аналитика.</source>
+        <target xml:space="preserve">Справка по работе с сервисом Adfox: управление инвентарем, рекламой, монетизация и аналитика.</target>
+      </trans-unit>
+      <trans-unit id="2">
+        <source xml:space="preserve">Adfox</source>
+        <target xml:space="preserve">Adfox</target>
+      </trans-unit>
+      <trans-unit id="3">
+        <source xml:space="preserve">Платформа для управления интернет-рекламой на <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/sites)" id="g-1" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/sites)">сайтах</g>, <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/video)" id="g-2" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/video)">видеоресурсах</g>, в  <g ctype="link" equiv-text="[{{text}}](https://ads.yandex.com/helpcenter/ru/monetization/adfox)" id="g-3" x-begin="[" x-end="](https://ads.yandex.com/helpcenter/ru/monetization/adfox)">мобильных приложениях</g> и <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/telegram)" id="g-4" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/telegram)">телеграм-каналах</g>.</source>
+        <target xml:space="preserve">Платформа для управления интернет-рекламой на <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/sites)" id="g-1" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/sites)">сайтах</g>, <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/video)" id="g-2" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/video)">видеоресурсах</g>, в  <g ctype="link" equiv-text="[{{text}}](https://ads.yandex.com/helpcenter/ru/monetization/adfox)" id="g-3" x-begin="[" x-end="](https://ads.yandex.com/helpcenter/ru/monetization/adfox)">мобильных приложениях</g> и <g ctype="link" equiv-text="[{{text}}](https://yandex.ru/support/adfox/ru/ad-inventory/telegram)" id="g-4" x-begin="[" x-end="](https://yandex.ru/support/adfox/ru/ad-inventory/telegram)">телеграм-каналах</g>.</target>
+      </trans-unit>
+      <trans-unit id="4">
+        <source xml:space="preserve">Справка</source>
+        <target xml:space="preserve">Справка</target>
+      </trans-unit>
+      <trans-unit id="5">
+        <source xml:space="preserve">Adfox</source>
+        <target xml:space="preserve">Adfox</target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
