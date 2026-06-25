@@ -241,6 +241,7 @@ export class Run extends BaseRun<BuildConfig> {
                 this.config.content.multilineTermDefinitions ??
                 this.config.multilineTermDefinitions,
             generateID,
+            codeLineWrapping: this.config.codeLineWrapping ?? true,
             rawContent: (path: string): string => {
                 const asset = assets[path];
                 if (typeof asset !== 'string') {

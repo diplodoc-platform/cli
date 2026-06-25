@@ -121,6 +121,7 @@ type BaseConfig = {
     content: ContentConfig;
     ai: AiConfig;
     codeHighlight?: CodeHighlightConfig | null;
+    codeLineWrapping?: boolean;
     /**
      * Strategy for generating element IDs (tabs, terms, code blocks, etc.).
      * - 'random' (default): uses Math.random() — legacy behavior.
